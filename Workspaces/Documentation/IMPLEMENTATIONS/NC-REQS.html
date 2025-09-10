@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas Documentation Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1f2937;
+        }
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .journey-content {
+            display: none;
+        }
+        .journey-content.active {
+            display: block;
+        }
+        pre::-webkit-scrollbar {
+            height: 8px;
+        }
+        pre::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+
+    <!-- Header Section with images and title -->
+    <header class="relative mb-8 rounded-2xl shadow-xl overflow-hidden bg-white">
+        <img src="NC-Header.jpg" alt="NOOR Canvas Header" class="w-full h-48 object-cover object-center">
+        <div class="absolute inset-0 bg-gray-900 bg-opacity-60 flex flex-col justify-center items-center p-4">
+            <div class="flex items-center space-x-4 mb-4">
+                <img src="NC-Logo.jpg" alt="NOOR Canvas Logo" class="h-20 w-20 rounded-full shadow-lg">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center tracking-wide">NOOR Canvas</h1>
+            </div>
+            <p class="text-white text-lg sm:text-xl font-medium">A Space for Guided Learning</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-7xl">
+        <!-- Landing Page -->
+        <div id="landingPage" class="content-section active">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">Select Your Journey</h2>
+                <p class="text-lg text-slate-600">Please choose the documentation path that best suits your needs.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Technical Team Tile -->
+                <a href="#" data-target="technicalContent" class="card bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl hover:bg-slate-50 transition-all duration-300">
+                    <div class="text-slate-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 1L2 6v12l10 5 10-5V6L12 1zm0 2.25l7.15 3.58-7.15 3.58-7.15-3.58L12 3.25zM4 8.5v8l8 4 8-4V8.5l-8 4-8-4z"/>
+                            <path d="M12 11.25L5.5 8v8.5l6.5 3.25l6.5-3.25V8l-6.5 3.25z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">For Technical Teams</h3>
+                    <p class="text-slate-600">Access the full implementation design, architecture, API contracts, and detailed use cases for developers and engineers.</p>
+                </a>
+                <!-- Customers Tile -->
+                <a href="#" data-target="customerContent" class="card bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl hover:bg-slate-50 transition-all duration-300">
+                    <div class="text-slate-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            <path d="M12 13c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"/>
+                            <path d="M12 6.5c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5-1.12-2.5-2.5-2.5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">For Customers</h3>
+                    <p class="text-slate-600">Explore a simple, elegant overview of how NOOR Canvas works from the perspective of a host or a user, with no technical jargon.</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Technical Documentation -->
+        <div id="technicalContent" class="journey-content">
+            <a href="#" data-target="landingPage" class="inline-flex items-center text-indigo-600 font-semibold mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+                </svg>
+                Back to Home
+            </a>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <p class="text-sm text-gray-500 mb-6 border-b pb-4">
+                    This document captures the implementation design for NOOR Canvas (v3.0). It provides system tenets, configuration notes, architecture overview, use cases, data model, authentication strategy, API/hub contracts, frontend implementation details, security guidance, operational plans, and next steps to move the project into implementation.
+                </p>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b-2 border-indigo-500 pb-2">0) System Tenets (Canonical Rules)</h2>
+                    <ul class="list-disc pl-5 space-y-3 text-gray-700 leading-relaxed">
+                        <li><strong class="font-semibold">GUID = Gate.</strong> Session access is by a cryptographically-strong GUID (UUID4 128-bit). Links expire by TTL (3h default) and immediately on explicit host End/Expire actions.</li>
+                        <li><strong class="font-semibold">Host GUID Security.</strong> Host dashboard access is protected with a distinct Host GUID (rotatable), generated by a provisioning tool. No username/password is required. The server validates the GUID (hashed) against `canvas.HostSessions` and issues a short-lived session for dashboard usage.</li>
+                        <li><strong class="font-semibold">Registration Required by Default.</strong> Collect Name / City / Country for roster/analytics; default is required but configurable per deployment. User data persists via a `UserId` across sessions within the same Album.</li>
+                        <li><strong class="font-semibold">Self‑Contained Styling.</strong> NOOR bundles required CSS for Quran/Hadith/Etymology/Poetry; no runtime dependency on KSESSIONS CSS. Image references resolve to environment-specific roots (DEV/PROD).</li>
+                        <li><strong class="font-semibold">Read‑Only Transcript Rendering.</strong> Session transcript HTML is rendered in a sandboxed, read-only container; interaction overlays (share, annotations) are layered on top.</li>
+                        <li><strong class="font-semibold">Realtime First.</strong> SignalR is authoritative for session state, deltas (assets, Q&A, annotations); late-joiners reconcile via authoritative snapshots.</li>
+                        <li><strong class="font-semibold">Performance Priority.</strong> Target low-latency asset share delivery (P95 < 200ms) and predictable scaling patterns.</li>
+                        <li><strong class="font-semibold">Privacy-Conscious Q&A.</strong> Questions are anonymous to participants; hosts and admins may view registration metadata for moderation only.</li>
+                        <li><strong class="font-semibold">Observability by Default.</strong> The Noor Observer and Issue Tracker are included in Phase 1 for diagnostics and triage.</li>
+                    </ul>
+                </section>
+    
+                <section class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b-2 border-indigo-500 pb-2">1) Architecture Overview</h2>
+                    <div class="bg-gray-100 rounded-xl p-6 shadow-inner space-y-4">
+                        <p class="text-gray-700"><strong>Stack:</strong> ASP.NET Core 8 (API + SignalR) · EF Core · SQL Server · Blazor Server · McBeatch theme + NOOR CSS · Redis backplane (Phase 5 if needed) · Serilog + App Insights.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            <div class="bg-white rounded-lg p-4 shadow-sm">Client Apps</div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">API & Hubs</div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">DB (SQL Server)</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-3xl shadow-xl p-8 sm:p-12 mb-8">
+                    <h2 class="text-3xl font-bold text-center text-teal-700 mb-6">Unified Use Cases & Journey Maps</h2>
+                    <p class="text-center text-slate-600 mb-8">Select a role to view the authoritative use cases and journey map.</p>
+                    <div class="flex justify-center space-x-4 mb-8">
+                        <button id="tech-host-journey-btn" class="bg-slate-100 text-slate-700 font-semibold py-3 px-8 rounded-full shadow-md hover:bg-indigo-200 transition-colors">
+                            Host Journey
+                        </button>
+                        <button id="tech-user-journey-btn" class="bg-slate-100 text-slate-700 font-semibold py-3 px-8 rounded-full shadow-md hover:bg-emerald-200 transition-colors">
+                            User Journey
+                        </button>
+                    </div>
+
+                    <!-- Host Journey Content -->
+                    <div id="tech-host-journey-content" class="journey-content active">
+                        <h3 class="text-2xl font-semibold text-indigo-800 mb-4 text-center">Technical Host Journey: Unified Dashboard</h3>
+                        <pre class="bg-slate-800 text-slate-200 p-6 rounded-lg text-sm overflow-x-auto shadow-inner">
+┌─────────────────────────────────────────────────────────┐
+│ Header: Session Controls | Link Manager | Status        │
+├─────────────────────────┬───────────────────────────────┤
+│                         │ ┌─────────────────────────────┐ │
+│ Main Content Area       │ │   STICKY CANVAS VIEW        │ │
+│ (Scrollable)            │ │   (What Users See)          │ │
+│                         │ │                             │ │
+│ • TranscriptPanel       │ │  [Current Asset Display]    │ │
+│ • AssetDetector         │ │                             │ │
+│ • Share Controls        │ │  Asset: Ayah 2:255          │ │
+│ • Session Notes         │ │  Viewers: 23 online         │ │
+│ • Zoom Panel            │ │  Last Updated: 14:32        │ │
+│                         │ └─────────────────────────────┘ │
+│                         │ ┌─────────────────────────────┐ │
+│                         │ │     LIVE Q&A QUEUE          │ │
+│                         │ │                             │ │
+│                         │ │  [?] Anonymous: What about..│ │
+│                         │ │  [?] Anonymous: Can you ex..│ │
+│                         │ │  [✓] Anonymous: Answered    │ │
+│                         │ │  (Host sees: User123, etc.) │ │
+│                         │ └─────────────────────────────┘ │
+└─────────────────────────┴───────────────────────────────┘</pre>
+                        <h4 class="text-xl font-semibold text-indigo-700 mt-6 mb-4">Host Use Cases</h4>
+                        <ul class="list-disc list-inside text-slate-600 space-y-2">
+                            <li><strong>UC-H1 Create Session:</strong> Host creates a session via POST /api/sessions, receiving a public GUID and a private host token.</li>
+                            <li><strong>UC-H2 Begin Session:</strong> Host starts the session via POST /api/host/sessions/{id}/begin, which triggers a `SessionBegan` SignalR event.</li>
+                            <li><strong>UC-H3 End Session:</strong> Host ends the session, invalidating the GUID and ending the live broadcast via POST /api/host/sessions/{id}/end.</li>
+                            <li><strong>UC-L1 Detect & Share Asset:</strong> Host clicks a Share overlay, which sends a payload to the SessionHub, broadcasting the asset to all users.</li>
+                            <li><strong>UC-Q2 Manage Q&A:</strong> Host interacts with the live Q&A queue, moderating and answering questions (PATCH /api/sessions/{id}/qa/questions/{qid}).</li>
+                            <li><strong>UC-O1 Connect Noor Observer:</strong> Host can access a live diagnostic stream via GET /observer/stream for real-time monitoring.</li>
+                            <li><strong>UC-D1 Download Transcript:</strong> Host can export the session's complete transcript and history via a GET /api/sessions/{id}/export endpoint.</li>
+                        </ul>
+                    </div>
+    
+                    <!-- User Journey Content -->
+                    <div id="tech-user-journey-content" class="journey-content">
+                        <h3 class="text-2xl font-semibold text-emerald-800 mb-4 text-center">Technical User Journey: Immersive Content</h3>
+                        <pre class="bg-slate-800 text-slate-200 p-6 rounded-lg text-sm overflow-x-auto shadow-inner">
+┌─────────────────────────────────────────────────────────┐
+│                    NOOR CANVAS                          │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                 ┌─────────────────────┐                 │
+│                 │                     │                 │
+│                 │   CURRENT ASSET     │                 │
+│                 │                     │                 │
+│                 │  [Ayah/Hadith/etc]  │                 │
+│                 │                     │                 │
+│                 │  Clean, centered    │                 │
+│                 │  with proper        │                 │
+│                 │  spacing            │                 │
+│                 │                     │                 │
+│                 └─────────────────────┘                 │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ [Q&A] [Roster] [Settings]              [Join Status]    │
+└─────────────────────────────────────────────────────────┘</pre>
+                        <h4 class="text-xl font-semibold text-emerald-700 mt-6 mb-4">User Use Cases</h4>
+                        <ul class="list-disc list-inside text-slate-600 space-y-2">
+                            <li><strong>UC-U1 Register & Join:</strong> User opens the link `/s/{guid}`, which triggers a check for a `UserId` in `localStorage`. If not found, a POST to `/api/auth/user/register` is made.</li>
+                            <li><strong>UC-U2 Waiting Room:</strong> The user is placed in a waiting room until the host's `SessionBegan` event is received via SignalR.</li>
+                            <li><strong>UC-U3 View Canvas:</strong> The client gets the session state via `GET /api/sessions/{id}/state` for late joining and then subscribes to the SessionHub for real-time deltas.</li>
+                            <li><strong>UC-U4 Ask Question:</strong> User submits a question via the QAPanel, which triggers a `AskQuestion` SignalR hub method, validated by the server for rate limits.</li>
+                            <li><strong>UC-U5 Upvote Question:</strong> User can upvote questions via the `Vote` SignalR hub method. The server updates the `VoteCount` and broadcasts the change.</li>
+                            <li><strong>UC-U6 React to Asset:</strong> User can interact with shared content, which sends engagement metrics to the SessionHub/API.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Customer Documentation -->
+        <div id="customerContent" class="journey-content">
+            <a href="#" data-target="landingPage" class="inline-flex items-center text-indigo-600 font-semibold mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+                </svg>
+                Back to Home
+            </a>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <p class="text-lg text-gray-700 mb-6 border-b pb-4">
+                    Welcome to NOOR Canvas! This document provides a simple overview of how our platform works and what you can expect as either a Host or a Participant.
+                </p>
+    
+                <section id="journeys" class="bg-white rounded-3xl p-8 sm:p-12 mb-8">
+                    <h2 class="text-3xl font-bold text-center text-teal-700 mb-6">Your Experience</h2>
+                    <p class="text-center text-slate-600 mb-8">Select your role to learn more about your journey.</p>
+                    <div class="flex justify-center space-x-4 mb-8">
+                        <button id="cust-host-journey-btn" class="bg-slate-100 text-slate-700 font-semibold py-3 px-8 rounded-full shadow-md hover:bg-indigo-200 transition-colors">
+                            I am a Host
+                        </button>
+                        <button id="cust-user-journey-btn" class="bg-slate-100 text-slate-700 font-semibold py-3 px-8 rounded-full shadow-md hover:bg-emerald-200 transition-colors">
+                            I am a User
+                        </button>
+                    </div>
+    
+                    <!-- Host Journey Content -->
+                    <div id="cust-host-journey-content" class="journey-content active">
+                        <h3 class="text-2xl font-semibold text-indigo-800 mb-4 text-center">Your Host Journey</h3>
+                        <ul class="list-disc pl-5 space-y-4 text-gray-700 leading-relaxed">
+                            <li><strong>Start a Session:</strong> You'll receive a special link to start your session. This link is your key to the Host Console, where you manage everything.</li>
+                            <li><strong>Live Broadcast:</strong> As the host, you are in control. You can share content like verses from the Quran, sayings of the Prophet, or poetry with your audience in real-time.</li>
+                            <li><strong>Engage with Your Audience:</strong> A live Q&A panel allows you to see questions from your participants. Questions are anonymous to other users, protecting their privacy. You can answer, upvote, or manage them as you see fit.</li>
+                            <li><strong>End the Session:</strong> When you're finished, a single click ends the session and closes access for all participants. You can then download a complete transcript of the session for your records.</li>
+                        </ul>
+                        <div class="mt-8 p-6 bg-slate-100 rounded-lg shadow-inner">
+                            <h4 class="text-xl font-semibold text-indigo-700 mb-2">Host Mock View</h4>
+                            <div class="bg-white rounded-lg p-4 shadow border border-gray-200">
+                                <h5 class="font-bold text-center text-gray-800">Your Live Control Panel</h5>
+                                <ul class="list-disc pl-5 mt-2 text-sm text-gray-600">
+                                    <li><strong>What Participants See:</strong> A live preview of the content you are sharing.</li>
+                                    <li><strong>Q&A Queue:</strong> A real-time list of questions submitted by your audience.</li>
+                                    <li><strong>Session Tools:</strong> Buttons to share content, start or end the session, and manage links.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- User Journey Content -->
+                    <div id="cust-user-journey-content" class="journey-content">
+                        <h3 class="text-2xl font-semibold text-emerald-800 mb-4 text-center">Your User Journey</h3>
+                        <ul class="list-disc pl-5 space-y-4 text-gray-700 leading-relaxed">
+                            <li><strong>Join a Session:</strong> You'll be given a simple link to join. If it's your first time, a quick registration form will ask for your name and location to help the host understand their audience.</li>
+                            <li><strong>The Waiting Room:</strong> You will be placed in a waiting room until the host begins the session. A live message will keep you informed of the session status.</li>
+                            <li><strong>View the Canvas:</strong> Once the session begins, you'll see a beautiful, distraction-free "canvas" with the content the host is sharing.</li>
+                            <li><strong>Participate Anonymously:</strong> You can ask questions through the Q&A panel. Your identity is kept private from other users. You can also upvote questions you want the host to see, helping to guide the conversation.</li>
+                        </ul>
+                        <div class="mt-8 p-6 bg-slate-100 rounded-lg shadow-inner">
+                            <h4 class="text-xl font-semibold text-emerald-700 mb-2">User Mock View</h4>
+                            <div class="bg-white rounded-lg p-4 shadow border border-gray-200">
+                                <h5 class="font-bold text-center text-gray-800">Your View</h5>
+                                <ul class="list-disc pl-5 mt-2 text-sm text-gray-600">
+                                    <li><strong>Content is Central:</strong> The current content is displayed clearly in the middle of your screen.</li>
+                                    <li><strong>Simple Controls:</strong> Buttons and panels are available to ask questions and see the session's status.</li>
+                                    <li><strong>Clean & Simple:</strong> The design is clean and easy to navigate, with no clutter to distract you.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = {
+                landingPage: document.getElementById('landingPage'),
+                technicalContent: document.getElementById('technicalContent'),
+                customerContent: document.getElementById('customerContent'),
+            };
+
+            const links = document.querySelectorAll('a[data-target]');
+            const techJourneyButtons = document.querySelectorAll('#technicalContent button');
+            const custJourneyButtons = document.querySelectorAll('#customerContent button');
+            
+            // Function to show a specific section and hide others
+            const showSection = (targetId) => {
+                for (const id in sections) {
+                    sections[id].classList.remove('active');
+                }
+                sections[targetId].classList.add('active');
+            };
+
+            // Main navigation links
+            links.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetId = link.getAttribute('data-target');
+                    showSection(targetId);
+                });
+            });
+
+            // Technical documentation internal navigation
+            techJourneyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const hostContent = document.getElementById('tech-host-journey-content');
+                    const userContent = document.getElementById('tech-user-journey-content');
+                    if (button.id === 'tech-host-journey-btn') {
+                        hostContent.classList.add('active');
+                        userContent.classList.remove('active');
+                    } else if (button.id === 'tech-user-journey-btn') {
+                        userContent.classList.add('active');
+                        hostContent.classList.remove('active');
+                    }
+                });
+            });
+
+            // Customer documentation internal navigation
+            custJourneyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const hostContent = document.getElementById('cust-host-journey-content');
+                    const userContent = document.getElementById('cust-user-journey-content');
+                    if (button.id === 'cust-host-journey-btn') {
+                        hostContent.classList.add('active');
+                        userContent.classList.remove('active');
+                    } else if (button.id === 'cust-user-journey-btn') {
+                        userContent.classList.add('active');
+                        hostContent.classList.remove('active');
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
