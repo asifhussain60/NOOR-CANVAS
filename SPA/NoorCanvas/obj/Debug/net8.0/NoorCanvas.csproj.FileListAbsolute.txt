@@ -13,6 +13,9 @@ D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.pdb
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Azure.Core.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Azure.Identity.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Humanizer.dll
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.AspNetCore.Http.Connections.Client.dll
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.AspNetCore.SignalR.Client.dll
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.AspNetCore.SignalR.Client.Core.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
@@ -36,7 +39,6 @@ D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.IdentityModel.
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Mono.TextTemplating.dll
-D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Newtonsoft.Json.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Serilog.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Serilog.AspNetCore.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Serilog.Extensions.Hosting.dll
@@ -57,7 +59,6 @@ D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Configuration.Con
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Drawing.Common.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Memory.Data.dll
-D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Net.WebSockets.WebSocketProtocol.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Runtime.Caching.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\System.Security.Permissions.dll

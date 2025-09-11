@@ -1,0 +1,249 @@
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Text.Json
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject ILogger<AnnotationCanvas> Logger
+
+<div class="annotation-canvas-container" style="position: relative;">
+    <svg class="annotation-overlay" 
+         width="100%" 
+         height="100%" 
+         style="position: absolute; top: 0; left: 0; pointer-events: @(IsDrawingMode ? "auto" : "none"); z-index: 10;">
+        @foreach (var annotation in Annotations)
+        {
+            @if (annotation.Type == "highlight")
+            {
+                <rect x="@annotation.X" 
+                      y="@annotation.Y" 
+                      width="@annotation.Width" 
+                      height="@annotation.Height"
+                      fill="@annotation.Color" 
+                      fill-opacity="0.3" 
+                      stroke="@annotation.Color" 
+                      stroke-width="1"
+                      data-annotation-id="@annotation.Id">
+                </rect>
+            }
+            else if (annotation.Type == "drawing")
+            {
+                <path d="@annotation.Path" 
+                      stroke="@annotation.Color" 
+                      stroke-width="@annotation.StrokeWidth" 
+                      fill="none"
+                      data-annotation-id="@annotation.Id">
+                </path>
+            }
+            else if (annotation.Type == "note")
+            {
+                <g data-annotation-id="@annotation.Id">
+                    <circle cx="@annotation.X" 
+                            cy="@annotation.Y" 
+                            r="10" 
+                            fill="@annotation.Color" 
+                            stroke="#333" 
+                            stroke-width="2">
+                    </circle>
+                    <text x="@annotation.X" 
+                          y="@(annotation.Y + 4)" 
+                          text-anchor="middle" 
+                          font-size="12" 
+                          fill="white">
+                        i
+                    </text>
+                </g>
+            }
+        }
+    </svg>
+    
+    <div class="content-container">
+        @ChildContent
+    </div>
+</div>
+
+@* Annotation Tools *@
+@if (ShowTools)
+{
+    <div class="annotation-tools" style="position: fixed; top: 20px; right: 20px; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+        <div class="btn-group" role="group">
+            <button type="button" 
+                    class="btn @(CurrentTool == "select" ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="@(() => SetTool("select"))">
+                <i class="fa fa-mouse-pointer"></i> Select
+            </button>
+            <button type="button" 
+                    class="btn @(CurrentTool == "highlight" ? "btn-warning" : "btn-outline-warning")" 
+                    @onclick="@(() => SetTool("highlight"))">
+                <i class="fa fa-highlighter"></i> Highlight
+            </button>
+            <button type="button" 
+                    class="btn @(CurrentTool == "drawing" ? "btn-success" : "btn-outline-success")" 
+                    @onclick="@(() => SetTool("drawing"))">
+                <i class="fa fa-pencil"></i> Draw
+            </button>
+            <button type="button" 
+                    class="btn @(CurrentTool == "note" ? "btn-info" : "btn-outline-info")" 
+                    @onclick="@(() => SetTool("note"))">
+                <i class="fa fa-sticky-note"></i> Note
+            </button>
+        </div>
+        
+        <div class="color-picker" style="margin-top: 10px;">
+            <span style="margin-right: 5px;">Color:</span>
+            @foreach (var color in AvailableColors)
+            {
+                <button type="button" 
+                        class="btn btn-sm" 
+                        style="background-color: @color; width: 25px; height: 25px; margin: 2px; border: @(CurrentColor == color ? "2px solid #000" : "1px solid #ccc");"
+                        @onclick="@(() => SetColor(color))">
+                </button>
+            }
+        </div>
+        
+        @if (Annotations.Any())
+        {
+            <div style="margin-top: 10px;">
+                <button type="button" class="btn btn-danger btn-sm" @onclick="ClearAllAnnotations">
+                    <i class="fa fa-trash"></i> Clear All
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool ShowTools { get; set; } = true;
+    [Parameter] public bool IsDrawingMode { get; set; } = false;
+    [Parameter] public long SessionId { get; set; }
+    [Parameter] public string UserId { get; set; } = "";
+
+    private string CurrentTool = "select";
+    private string CurrentColor = "#ffff00";
+    private List<AnnotationViewModel> Annotations = new();
+    
+    private readonly string[] AvailableColors = { "#ffff00", "#ff9900", "#ff0000", "#00ff00", "#0099ff", "#9900ff" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("NOOR-ANNOTATION: Annotation canvas initialized for session {SessionId}", SessionId);
+        
+        // Load existing annotations for this session
+        await LoadAnnotations();
+        
+        StateHasChanged();
+    }
+
+    private void SetTool(string tool)
+    {
+        CurrentTool = tool;
+        IsDrawingMode = tool != "select";
+        Logger.LogDebug("NOOR-ANNOTATION: Tool changed to {Tool}", tool);
+        StateHasChanged();
+    }
+
+    private void SetColor(string color)
+    {
+        CurrentColor = color;
+        Logger.LogDebug("NOOR-ANNOTATION: Color changed to {Color}", color);
+        StateHasChanged();
+    }
+
+    private Task LoadAnnotations()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-ANNOTATION: Loading annotations for session {SessionId}", SessionId);
+            
+            // TODO: Replace with actual API call to load annotations from database
+            // For now, using sample data for testing
+            Annotations = new List<AnnotationViewModel>
+            {
+                new AnnotationViewModel
+                {
+                    Id = 1,
+                    Type = "highlight",
+                    X = 100,
+                    Y = 150,
+                    Width = 200,
+                    Height = 20,
+                    Color = "#ffff00",
+                    CreatedBy = "TestUser"
+                }
+            };
+            
+            Logger.LogInformation("NOOR-ANNOTATION: Loaded {Count} annotations", Annotations.Count);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ANNOTATION: Error loading annotations for session {SessionId}", SessionId);
+        }
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task ClearAllAnnotations()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-ANNOTATION: Clearing all annotations for session {SessionId}", SessionId);
+            
+            Annotations.Clear();
+            
+            // TODO: Broadcast clear event via SignalR
+            await BroadcastAnnotationUpdate("clear", null);
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ANNOTATION: Error clearing annotations for session {SessionId}", SessionId);
+        }
+    }
+
+    private Task BroadcastAnnotationUpdate(string action, AnnotationViewModel? annotation)
+    {
+        try
+        {
+            var message = new
+            {
+                Action = action,
+                SessionId = SessionId,
+                Annotation = annotation,
+                Timestamp = DateTime.UtcNow,
+                UserId = UserId
+            };
+
+            Logger.LogDebug("NOOR-ANNOTATION: Broadcasting {Action} for annotation in session {SessionId}", action, SessionId);
+            
+            // TODO: Replace with actual SignalR hub broadcast
+            // await HubConnection.SendAsync("BroadcastAnnotation", message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ANNOTATION: Error broadcasting annotation update: {Error}", ex.Message);
+        }
+        
+        return Task.CompletedTask;
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Logger.LogDebug("NOOR-ANNOTATION: Disposing annotation canvas for session {SessionId}", SessionId);
+        return ValueTask.CompletedTask;
+    }
+
+    private class AnnotationViewModel
+    {
+        public long Id { get; set; }
+        public string Type { get; set; } = "";
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public string Path { get; set; } = "";
+        public string Color { get; set; } = "#ffff00";
+        public int StrokeWidth { get; set; } = 2;
+        public string CreatedBy { get; set; } = "";
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+}

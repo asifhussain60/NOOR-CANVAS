@@ -1,0 +1,126 @@
+@page "/annotation-demo"
+@using NoorCanvas.Components
+@inject ILogger<AnnotationDemo> Logger
+
+<h3>📝 Annotation System Demo - Phase 3</h3>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5>🎯 NOOR Canvas Phase 3: SVG Annotation System</h5>
+                <p>This demo showcases the real-time annotation capabilities for Islamic content sharing sessions.</p>
+                <ul class="mb-0">
+                    <li><strong>Highlight Tool:</strong> Select text or draw rectangles to highlight content</li>
+                    <li><strong>Drawing Tool:</strong> Free-hand drawing with customizable colors</li>
+                    <li><strong>Note Tool:</strong> Click to place note markers</li>
+                    <li><strong>Real-time Sync:</strong> All annotations broadcast via SignalR</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <AnnotationCanvas SessionId="12345" UserId="DemoUser" ShowTools="true">
+                <div class="demo-content" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 10px 0; min-height: 600px;">
+                    
+                    <h4>🕌 Sample Islamic Content</h4>
+                    
+                    <div class="verse-container" style="background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #28a745; border-radius: 4px;">
+                        <h5>Quran - Surah Al-Fatiha (1:1-7)</h5>
+                        <div class="arabic-text" style="font-size: 18px; line-height: 2; text-align: right; color: #2c5530;">
+                            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
+                            الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
+                            الرَّحْمَٰنِ الرَّحِيمِ<br>
+                            مَالِكِ يَوْمِ الدِّينِ<br>
+                            إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>
+                            اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
+                            صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
+                        </div>
+                        <div class="translation" style="margin-top: 15px; font-style: italic; color: #666;">
+                            In the name of Allah, the Entirely Merciful, the Especially Merciful.
+                            [All] praise is [due] to Allah, Lord of the worlds -
+                            The Entirely Merciful, the Especially Merciful,
+                            Sovereign of the Day of Recompense.
+                            It is You we worship and You we ask for help.
+                            Guide us to the straight path -
+                            The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.
+                        </div>
+                    </div>
+
+                    <div class="hadith-container" style="background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #007bff; border-radius: 4px;">
+                        <h5>Hadith - Sahih Bukhari</h5>
+                        <div class="hadith-text" style="font-size: 16px; line-height: 1.8; color: #333;">
+                            <strong>Narrated by Abu Huraira:</strong><br>
+                            Allah's Messenger (ﷺ) said, "Whoever believes in Allah and the Last Day should speak good or keep silent, 
+                            and whoever believes in Allah and the Last Day should be generous to his neighbor, and whoever believes in 
+                            Allah and the Last Day should be generous to his guest."
+                        </div>
+                        <div class="reference" style="margin-top: 10px; font-size: 14px; color: #888;">
+                            Reference: Sahih al-Bukhari 6475, 6476
+                        </div>
+                    </div>
+
+                    <div class="content-section" style="background: white; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                        <h5>📚 Islamic Teaching Points</h5>
+                        <ol>
+                            <li style="margin: 10px 0;"><strong>Gratitude and Praise:</strong> Al-Fatiha begins with praising Allah, teaching us to be grateful.</li>
+                            <li style="margin: 10px 0;"><strong>Divine Mercy:</strong> The repetition of "Ar-Rahman, Ar-Raheem" emphasizes Allah's infinite mercy.</li>
+                            <li style="margin: 10px 0;"><strong>Day of Judgment:</strong> Recognizing Allah as the sovereign of the Day of Recompense.</li>
+                            <li style="margin: 10px 0;"><strong>Seeking Guidance:</strong> The prayer for guidance to the straight path.</li>
+                            <li style="margin: 10px 0;"><strong>Good Conduct:</strong> The hadith emphasizes speaking good, neighbor relations, and hospitality.</li>
+                        </ol>
+                    </div>
+
+                    <div class="discussion-points" style="background: #fff3cd; padding: 20px; margin: 20px 0; border-radius: 4px; border: 1px solid #ffeaa7;">
+                        <h5>💭 Discussion Questions</h5>
+                        <ul>
+                            <li>How can we apply the principle of "speak good or keep silent" in our daily interactions?</li>
+                            <li>What does it mean to be generous to neighbors in modern times?</li>
+                            <li>How does reciting Al-Fatiha multiple times daily impact our spiritual state?</li>
+                            <li>What are practical ways to seek Allah's guidance in our decisions?</li>
+                        </ul>
+                    </div>
+
+                    <div class="annotation-instructions" style="background: #d1ecf1; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #bee5eb;">
+                        <h6>🎨 Try the Annotation Tools:</h6>
+                        <p style="margin-bottom: 5px;">
+                            <strong>Select Tool:</strong> Default mode for reading<br>
+                            <strong>Highlight:</strong> Select text or drag to create highlights<br>
+                            <strong>Draw:</strong> Click and drag to draw freely<br>
+                            <strong>Note:</strong> Click to place note markers<br>
+                            <strong>Colors:</strong> Choose from 6 different colors for your annotations
+                        </p>
+                    </div>
+
+                </div>
+            </AnnotationCanvas>
+        </div>
+    </div>
+</div>
+
+<style>
+    .demo-content {
+        position: relative;
+        user-select: text;
+    }
+    
+    .arabic-text {
+        font-family: 'Amiri', 'Traditional Arabic', serif;
+        direction: rtl;
+    }
+    
+    .annotation-canvas-container {
+        border: 2px dashed #28a745;
+        border-radius: 8px;
+        background: rgba(40, 167, 69, 0.05);
+    }
+</style>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("NOOR-DEMO: Annotation demo page initialized");
+    }
+}

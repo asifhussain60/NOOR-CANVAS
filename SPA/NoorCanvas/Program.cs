@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
+using NoorCanvas.Services;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +20,13 @@ builder.Host.UseSerilog();
 
 // Add services to the container
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddServerSideBlazor(options =>
+{
+    // Configure Blazor Server options to prevent protocol conflicts
+    options.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(10);
+    options.DisconnectedCircuitMaxRetained = 100;
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(180);
+});
 builder.Services.AddControllers();
 
 // Add Entity Framework
@@ -27,26 +34,30 @@ builder.Services.AddDbContext<CanvasDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
         "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
 
-// Add SignalR
+// Add SignalR with JSON protocol only (avoiding BlazorPack compatibility issues)
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = builder.Environment.IsDevelopment();
     options.HandshakeTimeout = TimeSpan.FromSeconds(15);
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-});
+})
+.AddJsonProtocol(); // Force JSON protocol only
 
 // Add CORS for development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevelopmentCorsPolicy", policy =>
     {
-        policy.WithOrigins("https://localhost:9090")
+        policy.WithOrigins("https://localhost:9090", "https://localhost:9091", "http://localhost:9090", "http://localhost:9091")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
+
+// Add application services
+builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 
 var app = builder.Build();
 
@@ -71,13 +82,19 @@ app.UseAuthorization();
 
 // Configure endpoints
 app.MapRazorPages();
-app.MapBlazorHub();
+app.MapBlazorHub(configureOptions: options =>
+{
+    // Configure Blazor SignalR to use JSON protocol only
+    options.ApplicationMaxBufferSize = 32 * 1024;  // 32KB buffer
+    options.TransportMaxBufferSize = 32 * 1024;    // 32KB buffer  
+});
 app.MapFallbackToPage("/_Host");
 app.MapControllers();
 
 // Map SignalR Hubs
 app.MapHub<SessionHub>("/hub/session");
 app.MapHub<QAHub>("/hub/qa");
+app.MapHub<AnnotationHub>("/hub/annotation");
 
 // Health endpoint (also available at /healthz via controller)
 app.MapGet("/healthz", () => new 
@@ -92,9 +109,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapGet("/observer/stream", async (HttpContext context) =>
     {
-        context.Response.Headers.Add("Content-Type", "text/event-stream");
-        context.Response.Headers.Add("Cache-Control", "no-cache");
-        context.Response.Headers.Add("Connection", "keep-alive");
+        context.Response.Headers["Content-Type"] = "text/event-stream";
+        context.Response.Headers["Cache-Control"] = "no-cache";
+        context.Response.Headers["Connection"] = "keep-alive";
         
         await context.Response.WriteAsync("data: {\"event\":\"observer-connected\",\"timestamp\":\"" + DateTime.UtcNow + "\"}\n\n");
         await context.Response.Body.FlushAsync();
@@ -109,11 +126,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-Log.Information("NOOR-STARTUP: NOOR Canvas Phase 1 application starting on http://localhost:9090");
+Log.Information("NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090");
 
 try
 {
-    app.Run("http://localhost:9090");
+    app.Run("https://localhost:9091");
 }
 catch (Exception ex)
 {

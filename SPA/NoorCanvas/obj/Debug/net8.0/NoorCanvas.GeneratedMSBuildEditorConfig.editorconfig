@@ -24,6 +24,14 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Components/AnnotationCanvas.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBbm5vdGF0aW9uQ2FudmFzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/AnnotationDemo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQW5ub3RhdGlvbkRlbW8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

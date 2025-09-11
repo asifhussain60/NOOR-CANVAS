@@ -32,6 +32,7 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="js/noor-logging.js"></script>
+    <script src="js/noor-annotations.js"></script>
     <script>
         // Initialize NOOR Canvas browser logging
         if (window.NoorLogger) {
@@ -40,16 +41,17 @@
                 environment: '@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production")'
             });
             
-            // Enhanced Blazor connection monitoring
-            Blazor.start({
-                configureSignalR: function(builder) {
-                    NoorLogger.debug('BLAZOR-SIGNALR', 'Configuring SignalR connection');
-                    return builder;
-                }
-            }).then(function() {
-                NoorLogger.info('BLAZOR-STARTUP', 'Blazor server connection established');
-            }).catch(function(error) {
-                NoorLogger.error('BLAZOR-STARTUP', 'Failed to establish Blazor connection', error);
+            // Blazor Server auto-starts, monitor the connection status
+            // Note: Blazor.start() removed to prevent double initialization
+            window.addEventListener('load', function() {
+                // Wait for Blazor to auto-initialize, then log status
+                setTimeout(function() {
+                    if (window.Blazor) {
+                        NoorLogger.info('BLAZOR-STARTUP', 'Blazor server connection auto-established');
+                    } else {
+                        NoorLogger.error('BLAZOR-STARTUP', 'Blazor auto-initialization failed');
+                    }
+                }, 1000);
             });
         }
     </script>

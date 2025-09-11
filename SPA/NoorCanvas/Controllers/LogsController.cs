@@ -15,18 +15,38 @@ public class LogsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> ReceiveBrowserLog([FromBody] JsonElement logEntry)
+    public IActionResult ReceiveBrowserLog([FromBody] JsonElement logEntry)
     {
         try
         {
-            var timestamp = logEntry.GetProperty("timestamp").GetString();
-            var level = logEntry.GetProperty("level").GetString();
-            var component = logEntry.GetProperty("component").GetString();
-            var message = logEntry.GetProperty("message").GetString();
-            var sessionId = logEntry.TryGetProperty("sessionId", out var sessionProp) ? sessionProp.GetString() : null;
-            var userId = logEntry.TryGetProperty("userId", out var userProp) ? userProp.GetString() : null;
-            var url = logEntry.TryGetProperty("url", out var urlProp) ? urlProp.GetString() : null;
-            var data = logEntry.TryGetProperty("data", out var dataProp) ? dataProp.GetRawText() : null;
+            // Safe property extraction with null checks
+            var timestamp = logEntry.TryGetProperty("timestamp", out var timestampProp) ? 
+                timestampProp.GetString() : DateTime.UtcNow.ToString();
+            
+            var level = logEntry.TryGetProperty("level", out var levelProp) ? 
+                (levelProp.ValueKind == JsonValueKind.String ? levelProp.GetString() : levelProp.ToString()) : "INFO";
+            
+            var component = logEntry.TryGetProperty("component", out var componentProp) ? 
+                (componentProp.ValueKind == JsonValueKind.String ? componentProp.GetString() : componentProp.ToString()) : "UNKNOWN";
+            
+            var message = logEntry.TryGetProperty("message", out var messageProp) ? 
+                (messageProp.ValueKind == JsonValueKind.String ? messageProp.GetString() : messageProp.ToString()) : "No message";
+            
+            var sessionId = logEntry.TryGetProperty("sessionId", out var sessionProp) ? 
+                (sessionProp.ValueKind == JsonValueKind.String ? sessionProp.GetString() : sessionProp.ToString()) : null;
+            
+            var userId = logEntry.TryGetProperty("userId", out var userProp) ? 
+                (userProp.ValueKind == JsonValueKind.String ? userProp.GetString() : userProp.ToString()) : null;
+            
+            var url = logEntry.TryGetProperty("url", out var urlProp) ? 
+                (urlProp.ValueKind == JsonValueKind.String ? urlProp.GetString() : urlProp.ToString()) : null;
+            
+            // Handle data property which can be object or string
+            string? data = null;
+            if (logEntry.TryGetProperty("data", out var dataProp))
+            {
+                data = dataProp.ValueKind == JsonValueKind.String ? dataProp.GetString() : dataProp.GetRawText();
+            }
 
             // Log with structured data
             using (_logger.BeginScope(new Dictionary<string, object>

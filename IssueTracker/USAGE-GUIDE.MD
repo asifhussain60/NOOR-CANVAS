@@ -12,6 +12,8 @@ This system follows the proven patterns from KSESSIONS Beautiful Islam project, 
 ### **🆕 Adding Issues**
 **Command Format**: `Add an issue: [Title] - [Description] - [Priority] - [Category]`
 
+**Display Format**: `- ❌ **[Issue-X](NOT STARTED/Issue-X-brief-description.md)** — Brief description ❌`
+
 **Examples**:
 ```
 Add an issue: SignalR connection drops - Users experiencing disconnections during long sessions - High - Bug
@@ -26,7 +28,8 @@ Add an issue: IIS deployment guide - Step-by-step production setup instructions 
 ### **📊 Status Updates**
 **Command Format**: `Mark issue X as [Status]`
 
-**Available Statuses**: `Pending` | `In Progress` | `Completed`
+**Available Statuses**: `Not Started` | `In Progress` | `Completed`
+**Status Icons**: ❌ Not Started | ⚡ In Progress | ✅ Completed
 
 **Examples**:
 ```
