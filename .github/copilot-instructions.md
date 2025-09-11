@@ -647,17 +647,26 @@ Write-Host "✅ TEMP folder emptied - all test/debug files removed"
 Remove-Item "D:\PROJECTS\NOOR CANVAS\**\*.tmp" -Force -ErrorAction SilentlyContinue
 Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.DS_Store" -Force -ErrorAction SilentlyContinue
 
-# 3. Remove build artifacts (preserve source code)
+# 3. Remove temporary/working files with unprofessional naming patterns
+$tempWorkingFiles = Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -File | Where-Object {$_.Name -match "(-NEW|-OLD|-DEBUG|-TEMP|-BACKUP|-COPY|-DUPLICATE|-WORKING|-DRAFT|-TEST\.|\.BAK|\.BACKUP|_backup|_copy|_old|_new|_temp|_debug|_working|_draft)(\.|$)"}
+foreach ($file in $tempWorkingFiles) {
+    Remove-Item $file.FullName -Force -ErrorAction SilentlyContinue
+    Write-Host "🗑️ Removed temporary working file: $($file.Name)"
+}
+if (-not $tempWorkingFiles) { Write-Host "✅ No temporary working files found" }
+
+# 4. Remove build artifacts (preserve source code)
 Remove-Item "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "D:\PROJECTS\NOOR CANVAS\Tools\**\bin" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "D:\PROJECTS\NOOR CANVAS\Tools\**\obj" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "D:\PROJECTS\NOOR CANVAS\**\node_modules" -Recurse -Force -ErrorAction SilentlyContinue
+# NOTE: Removing obj/ folders requires package restore before build verification
 
-# 4. Remove log files older than 7 days (keep recent logs)
+# 5. Remove log files older than 7 days (keep recent logs)
 Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -Filter "*.log" | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item -Force
 
-# 5. Clean Visual Studio/VS Code temp files
+# 6. Clean Visual Studio/VS Code temp files
 Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.vs" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.vscode\settings.json" -Force -ErrorAction SilentlyContinue
 
@@ -666,7 +675,7 @@ Write-Host "🧹 Repository cleanup completed"
 
 **Git Commit Procedure (After cleanup):**
 ```bash
-# 6. Verify no unprofessional filenames exist
+# 7. Verify no unprofessional filenames exist
 $unprofessionalFiles = Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -File | Where-Object {$_.Name -match "_Fixed|_Clean|_New|_Updated|_Final|_Modified|_Corrected|_Refactored|Sample|Test"}
 if ($unprofessionalFiles) {
     Write-Warning "⚠️ Found unprofessional filenames: $($unprofessionalFiles.FullName -join ', ')"
@@ -678,23 +687,32 @@ if ($unprofessionalFiles) {
 # 7. MANDATORY BUILD VERIFICATION - Ensure project builds successfully before commit
 Write-Host "🔨 Building project to verify integrity..."
 cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
-dotnet build --no-restore --verbosity quiet
+Write-Host "📦 Restoring packages after cleanup..."
+dotnet restore --verbosity quiet
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Build successful - project integrity verified"
-    cd "D:\PROJECTS\NOOR CANVAS"
+    Write-Host "✅ Packages restored successfully"
+    dotnet build --no-restore --verbosity quiet
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ Build successful - project integrity verified"
+        cd "D:\PROJECTS\NOOR CANVAS"
+    } else {
+        Write-Error "❌ Build failed - cannot commit changes with build errors"
+        Write-Host "Fix build errors before attempting to commit"
+        exit 1
+    }
 } else {
-    Write-Error "❌ Build failed - cannot commit changes with build errors"
-    Write-Host "Fix build errors before attempting to commit"
+    Write-Error "❌ Package restore failed - cannot proceed with build"
+    Write-Host "Fix package restore issues before attempting to commit"
     exit 1
 }
 
-# 8. Stage all changes
+# 9. Stage all changes
 git add .
 
-# 9. Commit with standardized message
+# 10. Commit with standardized message
 git commit -m "chore: cleanup temp files and maintain project structure - $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
 
-# 10. Push to remote (if requested)
+# 11. Push to remote (if requested)
 git push origin master
 
 Write-Host "🚀 Changes committed and pushed successfully"
@@ -738,7 +756,24 @@ Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -File | Where-Object {$_.Name -
 # 6. MANDATORY BUILD VERIFICATION - Ensure project builds successfully before commit
 Write-Host "🔨 Building project to verify integrity..."
 cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
-dotnet build --no-restore --verbosity quiet
+Write-Host "📦 Restoring packages after cleanup..."
+dotnet restore --verbosity quiet
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "✅ Packages restored successfully"
+    dotnet build --no-restore --verbosity quiet
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ Build successful - project integrity verified"
+        cd "D:\PROJECTS\NOOR CANVAS"
+    } else {
+        Write-Error "❌ Build failed - cannot commit changes with build errors"
+        Write-Host "Fix build errors before attempting to commit"
+        exit 1
+    }
+} else {
+    Write-Error "❌ Package restore failed - cannot proceed with build"
+    Write-Host "Fix package restore issues before attempting to commit"
+    exit 1
+}
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ Build successful - project integrity verified"
     cd "D:\PROJECTS\NOOR CANVAS"
@@ -897,6 +932,22 @@ Workspaces/TEMP/
 - `ModelName_Corrected.cs`
 - `ServiceName_Refactored.cs`
 
+**❌ NEVER Use These Temporary/Working File Suffixes:**
+- `-NEW`, `-OLD`, `-DEBUG`, `-TEMP`, `-BACKUP`, `-COPY`, `-DUPLICATE`
+- `-WORKING`, `-DRAFT`, `-TEST.ext`, `.BAK`, `.BACKUP`
+- `_backup`, `_copy`, `_old`, `_new`, `_temp`, `_debug`, `_working`, `_draft`
+
+**Examples of Files That Get AUTOMATICALLY REMOVED During Cleanup:**
+- `NC-ISSUE-TRACKER-NEW.MD`
+- `SessionController-OLD.cs`
+- `database-config-BACKUP.json`
+- `component-WORKING.tsx`
+- `model.BAK`
+- `service_temp.cs`
+- `ViewName_Final.cshtml`
+- `ModelName_Corrected.cs`
+- `ServiceName_Refactored.cs`
+
 **✅ ALWAYS Use Professional Names:**
 - `SessionController.cs`
 - `AnnotationHub.cs`
@@ -914,6 +965,10 @@ Workspaces/TEMP/
 4. **Descriptive and Purpose-Clear**: Name should indicate function/purpose
 5. **No Temporary Suffixes**: Never use _Fixed, _Clean, _New, _Updated, _Final
 6. **Production Ready**: Names should be appropriate for production deployment
+
+**Refactoring Command**: When creating files, if temporary names are used during development, they MUST be renamed to professional names before any commit.
+
+**IMPORTANT:** Temporary working files (with -NEW, -OLD, etc. suffixes) are AUTOMATICALLY REMOVED during cleanup to prevent confusion and maintain professional standards.
 
 Folder Case Rule: Always create folders using Proper Case (PascalCase / Title Case). Examples: `Tools`, `Workspaces`, `IssueTracker`, `HostProvisioner`, `McBeatch`.
 
@@ -980,12 +1035,13 @@ Views/
 1. **Empty TEMP folder completely** (preserve folder structure)
 2. **Remove build artifacts** (bin, obj folders)
 3. **Clean development logs** (older than 7 days)
-4. **Remove IDE temp files** (.vs, .vscode settings)
-5. **Verify professional filenames** (no _Fixed, _Test, etc.)
-6. **MANDATORY BUILD VERIFICATION** (ensure project compiles before commit)
-7. **Stage all changes** (`git add .`)
-8. **Commit with timestamp** (standard cleanup message)
-9. **Push to origin** (if specifically requested)
+4. **Remove temporary/working files** (files with -NEW, -OLD, -DEBUG, -TEMP, -BACKUP, -COPY, -DUPLICATE, -WORKING, -DRAFT suffixes)
+5. **Remove IDE temp files** (.vs, .vscode settings)
+6. **Verify professional filenames** (no _Fixed, _Test, etc.)
+7. **MANDATORY BUILD VERIFICATION** (ensure project compiles before commit)
+8. **Stage all changes** (`git add .`)
+9. **Commit with timestamp** (standard cleanup message)
+10. **Push to origin** (if specifically requested)
 
 ```bash
 # Development Server (Traditional Method)
@@ -1134,3 +1190,10 @@ Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}  # Check dotnet pro
 - SignalR hub registration successful: json and blazorpack protocols
 - User interaction tracking functional (landing page, role selection)
 - Development certificate warnings expected and non-blocking
+
+**6. Cleanup & Build Process Lessons (September 2025):**
+- **Package Restoration Required**: Cleanup process removes `obj/` folders containing NuGet package cache
+- **Build Verification Update**: Must include `dotnet restore` before `dotnet build --no-restore`
+- **Dependency Chain**: obj/ removal → package restore → build verification → commit
+- **Error Prevention**: Automated restore step prevents build failures during cleanup process
+- **Professional Standards**: Always verify project builds before committing to repository
