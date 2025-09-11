@@ -212,6 +212,7 @@
     private bool isCreatingSession = false;
     private CreateSessionRequest newSession = new();
     private string? sessionToken;
+    private string? initializationError;
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -222,8 +223,7 @@
         try
         {
             Logger.LogInformation("NOOR-INFO: Host dashboard initializing for GUID: {Guid}", Guid?.Substring(0, 8) + "...");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-DASHBOARD", "Dashboard initializing", new { guid = Guid });
-
+            
             // TODO: Authenticate host GUID and get session token
             if (!string.IsNullOrEmpty(Guid))
             {
@@ -239,11 +239,33 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ERROR: Failed to initialize host dashboard");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Initialization failed", new { error = ex.Message });
+            initializationError = ex.Message; // Store error for client-side logging
         }
         finally
         {
             isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // JavaScript interop calls only after component is rendered on client
+                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-DASHBOARD", "Dashboard initialized", new { guid = Guid });
+                
+                // Log any initialization errors that occurred during OnInitializedAsync
+                if (!string.IsNullOrEmpty(initializationError))
+                {
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Initialization failed", new { error = initializationError });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "NOOR-ERROR: Failed to initialize client-side logging");
+            }
         }
     }
 

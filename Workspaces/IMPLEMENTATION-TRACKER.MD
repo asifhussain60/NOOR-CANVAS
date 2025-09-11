@@ -543,6 +543,17 @@
 - [ ] Monitoring and alerting setup
 - [ ] Documentation completion
 
+### Manual Testing Documentation
+- [x] HTML testing interface creation (`Workspaces/TEMP/MANUAL-TESTING-SUITE.html`) ✅
+- [x] Interactive testing checklist with step-by-step instructions ✅
+- [x] Use case organized testing scenarios ✅
+- [x] Browser compatibility verification interface ✅
+- [x] SignalR connectivity testing workflows ✅
+- [x] Automated host token generation integration ✅
+- [x] `ncrun -Test` command implementation for combined app + testing launch ✅
+
+**IMPORTANT**: Always create the testing suite with the exact filename `MANUAL-TESTING-SUITE.html` in the `Workspaces/TEMP/` directory so that `ncrun -Test` can launch it consistently.
+
 ### Go-Live Preparation
 - [ ] Production deployment
 - [ ] User training materials

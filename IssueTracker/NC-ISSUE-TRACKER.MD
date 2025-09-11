@@ -54,6 +54,13 @@ IssueTracker/
 - ✅ **Issue-2** — [Blazor Double Initialization Error](COMPLETED/Issue-2-blazor-double-initialization.md) ✅
 - ✅ **Issue-3** — [SignalR Connection Parsing Error](COMPLETED/Issue-3-signalr-parsing-error.md) ✅
 - ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md) ✅
+- ⏳ **Issue-6** — [HttpClient Dependency Injection Missing](AWAITING_CONFIRMATION/Issue-6-httpclient-dependency-injection-missing.md) ⏳
+- ✅ **Issue-7** — [Testing Suite CORS/API Errors](COMPLETED/Issue-7-testing-suite-cors-api-errors.md) ✅
+- ✅ **Issue-8** — [Testing Route AmbiguousMatchException](COMPLETED/Issue-8-testing-route-ambiguous-match-exception.md) ✅
+- ✅ **Issue-9** — [Blazor JavaScript Interop During Static Rendering](COMPLETED/Issue-9-blazor-javascript-interop-static-rendering.md) ✅
+- ✅ **Issue-10** — [Consolidate Global Commands - Remove nsrun/ncrun, Update nc](COMPLETED/Issue-10-consolidate-global-commands.md) ✅
+- ✅ **Issue-11** — [Complete nsrun/ncrun Removal](COMPLETED/Issue-11-complete-nsrun-ncrun-removal.md) ✅
+- ✅ **Issue-12** — [NC -Test Command Incorrect Port 3000 Integration](COMPLETED/Issue-12-nc-test-incorrect-port-3000-integration.md) ✅
 
 ---
 
@@ -71,10 +78,11 @@ IssueTracker/
 
 ## 📊 **TRACKER STATISTICS**
 
-- **Total Issues:** 5
-- **Not Started:** 1
-- **In Progress:** 0  
-- **Completed:** 4
+- **Total Issues:** 11
+- **Not Started:** 2
+- **In Progress:** 0
+- **Awaiting Confirmation:** 1  
+- **Completed:** 8
 
 ---
 

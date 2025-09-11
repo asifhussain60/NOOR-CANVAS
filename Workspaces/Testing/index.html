@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas Testing Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .testing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .test-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .test-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .test-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-running {
+            background-color: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .status-stopped {
+            background-color: #f44336;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .noor-canvas-link {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .noor-canvas-link:hover {
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 NOOR Canvas Testing Suite</h1>
+            <p class="subtitle">Comprehensive testing environment for Islamic content platform development</p>
+        </div>
+
+        <div class="info-panel">
+            <h3>🚀 Quick Access</h3>
+            <p><strong>Main Application:</strong> 
+                <a href="http://localhost:9090" class="test-link noor-canvas-link" target="_blank">
+                    Open NOOR Canvas App
+                </a>
+            </p>
+            <p style="margin-top: 10px;"><strong>Status:</strong> 
+                <span class="status-indicator status-running"></span>
+                Both services are running
+            </p>
+        </div>
+
+        <div class="testing-grid">
+            <div class="test-card">
+                <h3>🎯 Component Testing</h3>
+                <p>Test individual UI components and their functionality in isolation.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Session management components</li>
+                    <li>Annotation tools</li>
+                    <li>Participant registration</li>
+                    <li>Real-time updates</li>
+                </ul>
+                <a href="components.html" class="test-link">Run Component Tests</a>
+            </div>
+
+            <div class="test-card">
+                <h3>🔄 SignalR Testing</h3>
+                <p>Test real-time communication features and WebSocket connections.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Connection establishment</li>
+                    <li>Message broadcasting</li>
+                    <li>Group management</li>
+                    <li>Reconnection handling</li>
+                </ul>
+                <a href="signalr.html" class="test-link">Test SignalR</a>
+            </div>
+
+            <div class="test-card">
+                <h3>📱 Responsive Testing</h3>
+                <p>Test mobile and responsive design across different screen sizes.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Mobile annotation tools</li>
+                    <li>Touch interactions</li>
+                    <li>Responsive layouts</li>
+                    <li>Cross-device sync</li>
+                </ul>
+                <a href="responsive.html" class="test-link">Test Responsiveness</a>
+            </div>
+
+            <div class="test-card">
+                <h3>🔐 Security Testing</h3>
+                <p>Test security features and session management.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Session validation</li>
+                    <li>GUID-based tokens</li>
+                    <li>Cross-origin requests</li>
+                    <li>Input sanitization</li>
+                </ul>
+                <a href="security.html" class="test-link">Test Security</a>
+            </div>
+
+            <div class="test-card">
+                <h3>⚡ Performance Testing</h3>
+                <p>Test application performance and load handling.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Page load times</li>
+                    <li>Real-time performance</li>
+                    <li>Memory usage</li>
+                    <li>Concurrent users</li>
+                </ul>
+                <a href="performance.html" class="test-link">Test Performance</a>
+            </div>
+
+            <div class="test-card">
+                <h3>🌍 Multi-Language Testing</h3>
+                <p>Test Arabic (RTL), English (LTR), and Urdu (RTL) support.</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Text direction handling</li>
+                    <li>Font rendering</li>
+                    <li>Islamic content display</li>
+                    <li>Cultural adaptations</li>
+                </ul>
+                <a href="language.html" class="test-link">Test Languages</a>
+            </div>
+        </div>
+
+        <div class="info-panel" style="margin-top: 30px;">
+            <h3>📋 Testing Commands</h3>
+            <pre style="background: #f4f4f4; padding: 15px; border-radius: 8px; overflow-x: auto;">
+# Start testing environment
+nc -Test
+
+# Test with HTTPS
+nc -Test -Https
+
+# Test without browsers
+nc -Test -NoBrowser
+
+# Test on custom port
+nc -Test -Port 8080</pre>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh status indicator
+        function updateStatus() {
+            fetch('http://localhost:9090/healthz')
+                .then(response => {
+                    const indicators = document.querySelectorAll('.status-indicator');
+                    if (response.ok) {
+                        indicators.forEach(ind => {
+                            ind.className = 'status-indicator status-running';
+                        });
+                    } else {
+                        indicators.forEach(ind => {
+                            ind.className = 'status-indicator status-stopped';
+                        });
+                    }
+                })
+                .catch(() => {
+                    const indicators = document.querySelectorAll('.status-indicator');
+                    indicators.forEach(ind => {
+                        ind.className = 'status-indicator status-stopped';
+                    });
+                });
+        }
+
+        // Update status every 5 seconds
+        setInterval(updateStatus, 5000);
+        updateStatus(); // Initial check
+
+        // Add click handlers to update main app URL if custom port is detected
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const port = urlParams.get('port');
+            
+            if (port && port !== '3000') {
+                const appPort = parseInt(port) - 3000 + 9090;
+                const appLinks = document.querySelectorAll('a[href*="localhost:9090"]');
+                appLinks.forEach(link => {
+                    link.href = link.href.replace('9090', appPort.toString());
+                    link.textContent = `Open NOOR Canvas App (Port ${appPort})`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

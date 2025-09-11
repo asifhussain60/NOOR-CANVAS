@@ -14,7 +14,7 @@ if ($Help) {
     Write-Host "  .\setup-global-commands.ps1 -Remove # Remove from PATH"
     Write-Host ""
     Write-Host "This script modifies the user PATH environment variable to include"
-    Write-Host "the Global commands folder, allowing you to run 'ncrun' from anywhere."
+    Write-Host "the Global commands folder, allowing you to run 'nc' from anywhere."
     return
 }
 
@@ -38,7 +38,7 @@ if ($Remove) {
 } else {
     if ($pathExists) {
         Write-Host "ℹ️  Global directory already in PATH" -ForegroundColor Yellow
-        Write-Host "✅ ncrun command should be available from anywhere" -ForegroundColor Green
+        Write-Host "✅ nc command should be available from anywhere" -ForegroundColor Green
     } else {
         Write-Host "➕ Adding to PATH..." -ForegroundColor Yellow
         $newPath = if ($currentPath) { "$currentPath;$globalDir" } else { $globalDir }
@@ -46,14 +46,19 @@ if ($Remove) {
         Write-Host "✅ Added to PATH. Restart your terminal to apply changes." -ForegroundColor Green
         Write-Host ""
         Write-Host "AVAILABLE COMMANDS:" -ForegroundColor Cyan
-        Write-Host "  ncrun           # Start NOOR Canvas application"
-        Write-Host "  ncrun -Help     # Show detailed usage help"
+        Write-Host "  nc              # Start NOOR Canvas application"
+        Write-Host "  nc -Help        # Show detailed usage help"
+        Write-Host "  ksrun -Test     # Launch app with testing suite"
+        Write-Host "  ksrun -Help     # Show testing launcher options"
     }
 }
 
 Write-Host ""
 Write-Host "📝 Usage after restart:" -ForegroundColor Cyan
-Write-Host "  ncrun                    # Quick start"
-Write-Host "  ncrun -Build             # Build and run"
-Write-Host "  ncrun -Https             # Run with HTTPS"
-Write-Host "  ncrun -Help              # Show all options"
+Write-Host "  nc                       # Quick start"
+Write-Host "  nc -Build                # Build and run"
+Write-Host "  nc -Https                # Run with HTTPS"
+Write-Host "  nc -Test                 # Testing mode with Testing Suite"
+Write-Host "  nc -Help                 # Show all options"
+Write-Host "  ksrun -Test              # Launch with testing suite"
+Write-Host "  ksrun -Build -Test       # Build, run, and test"

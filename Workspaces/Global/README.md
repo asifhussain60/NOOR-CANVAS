@@ -4,31 +4,104 @@ This folder contains global command-line utilities for the NOOR Canvas project.
 
 ## Commands Available
 
-### `ncrun` - NOOR Canvas Application Runner
-Starts the NOOR Canvas application with automatic browser opening.
+### 🧪 **KSRUN - Advanced Testing & Development Launcher** (RECOMMENDED)
+**Primary Command**: `ksrun -test`
 
-#### Quick Usage
+Complete testing workflow with automatic host token generation and HTML testing suite integration.
+
+#### **🔥 Key Features**
+- **🔑 Automatic Host Token Generation**: Uses HostProvisioner to create fresh GUID
+- **📋 HTML Testing Suite**: Opens beautifully styled interactive testing interface  
+- **🚀 Application Launcher**: Starts NOOR Canvas with browser automation
+- **🔄 Real-time Integration**: Updates testing suite with fresh token automatically
+- **⚡ One-Command Workflow**: Everything ready for immediate manual testing
+
+#### **Quick Usage**
+```powershell
+ksrun -test              # RECOMMENDED: Generate token + start app + open testing suite
+ksrun -test -Build       # Build first, then full testing workflow
+ksrun -test -Https       # Use HTTPS (port 9091) for testing
+ksrun -Help              # Show all available options
+```
+
+### 🏃‍♂️ **NCRUN - Basic Application Runner**
+Simple application launcher without testing integration.
+
+#### **Quick Usage**
 ```powershell
 ncrun                    # Start app on localhost:9090 and open browser
+ncrun -Build             # Build first, then run
 ncrun -Help              # Show detailed help
 ```
 
-#### All Options
+## 📋 **Command Reference**
+
+### **KSRUN Options (Testing & Development)**
+```powershell
+ksrun -test              # 🔥 RECOMMENDED: Full testing workflow with token generation
+ksrun -test -Build       # Build first, then full testing workflow
+ksrun -test -Https       # Use HTTPS (port 9091) for secure testing
+ksrun -test -NoBrowser   # Generate token and start app without browser automation
+ksrun -Build             # Build and run application only (no testing suite)
+ksrun                    # Basic application startup (equivalent to ncrun)
+ksrun -Help              # Show all available options and examples
+```
+
+### **NCRUN Options (Basic Application Launch)**
 ```powershell
 ncrun                    # Run app on localhost:9090 and open browser
 ncrun -Build             # Build first, then run
 ncrun -NoBrowser         # Run without opening browser
-ncrun -Port 9091         # Use custom port
 ncrun -Https             # Use HTTPS (port 9091)
+ncrun -Port 8080         # Use custom port
+ncrun -Help              # Show help information
 ```
 
-#### Examples
+## 🚀 **Recommended Workflows**
+
+### **For Manual Testing** (Most Common)
 ```powershell
-ncrun                    # Quick start for testing
-ncrun -Build             # Clean build and run
-ncrun -Https -NoBrowser  # HTTPS without browser
-ncrun -Port 8080         # Custom port
+ksrun -test              # One command does everything:
+                        # ✅ Generates fresh host token
+                        # ✅ Starts NOOR Canvas application  
+                        # ✅ Opens testing suite with new token
+                        # ✅ Ready for immediate testing
 ```
+
+### **For Development & Debugging**
+```powershell
+ksrun -test -Build      # Build + full testing workflow
+ncrun -Build            # Build and run app only
+```
+
+### **For HTTPS/Production Testing**
+```powershell
+ksrun -test -Https      # Full testing workflow on secure port 9091
+```
+
+## 🎯 **What `ksrun -test` Does (Step-by-Step)**
+
+1. **🔑 Token Generation**: Runs HostProvisioner to create fresh host GUID with HMAC-SHA256 security
+2. **📝 Suite Update**: Injects new token into `MANUAL-TESTING-SUITE.html` automatically
+3. **🚀 App Launch**: Starts NOOR Canvas on https://localhost:9091 (or http://localhost:9090)
+4. **🌐 Browser Automation**: Opens testing suite and application in separate browser tabs
+5. **📊 Ready to Test**: Everything configured for immediate manual testing workflow
+
+## 🧪 **Testing Integration Features**
+
+**Complete Workflow Automation**:
+- **Fresh Host Tokens**: No manual GUID generation needed
+- **Interactive Testing Suite**: 20 test cases across 5 use cases with progress tracking
+- **Real-time Updates**: Token injection happens automatically before browser opens
+- **Cross-browser Ready**: Supports multiple browser testing scenarios
+- **Professional Interface**: Beautifully styled HTML with responsive design
+
+**Testing Suite Details**:
+- **Location**: `Workspaces/TEMP/MANUAL-TESTING-SUITE.html`
+- **Test Cases**: Infrastructure, Authentication, Session Management, Admin, Browser Compatibility
+- **Progress Tracking**: Interactive checkboxes with completion percentage
+- **Token Display**: Shows current host token and application URLs
+- **Auto-Generated**: Token updated automatically by ksrun -test command
 
 ## Installation
 

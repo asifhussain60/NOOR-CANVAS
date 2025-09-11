@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas Manual Testing Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .use-case {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .use-case:hover {
+            transform: translateY(-3px);
+        }
+
+        .use-case-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .use-case-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .use-case-description {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .toggle-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .use-case-content {
+            display: none;
+            padding: 2rem;
+        }
+
+        .use-case-content.active {
+            display: block;
+        }
+
+        .use-case.collapsed .toggle-icon {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .test-step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .test-step:hover {
+            background: #e9ecef;
+            border-left-color: #4facfe;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .step-content {
+            display: inline-block;
+            vertical-align: top;
+            width: calc(100% - 50px);
+        }
+
+        .step-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .expected-result {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 0.75rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .expected-result::before {
+            content: "✅ Expected: ";
+            font-weight: bold;
+        }
+
+        .checkbox-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fff3cd;
+            border-radius: 8px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .checkbox-container label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+            color: #856404;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .application-info {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: #721c24;
+        }
+
+        .application-info h3 {
+            margin-bottom: 1rem;
+            color: #721c24;
+        }
+
+        .app-url {
+            background: rgba(255,255,255,0.8);
+            padding: 0.75rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin: 0.5rem 0;
+            display: inline-block;
+            color: #333;
+        }
+
+        .host-token {
+            background: rgba(255,255,255,0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 2px dashed #721c24;
+        }
+
+        .host-token strong {
+            color: #721c24;
+        }
+
+        .token-value {
+            font-family: 'Courier New', monospace;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            border: 1px solid #ddd;
+            word-break: break-all;
+            color: #333;
+        }
+
+        .completion-summary {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .completion-summary.show {
+            display: block;
+        }
+
+        .completion-summary h2 {
+            color: #2d5a27;
+            margin-bottom: 1rem;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-stat {
+            background: rgba(255,255,255,0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            color: #2d5a27;
+        }
+
+        .summary-stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .use-case-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌙 NOOR Canvas Manual Testing Suite</h1>
+            <p>Interactive Testing Guide for Islamic Content Sharing Platform</p>
+        </div>
+
+        <!-- Application Information -->
+        <div class="application-info">
+            <h3>🚀 Application Setup</h3>
+            <p><strong>Primary URL:</strong> <span class="app-url">https://localhost:9091</span></p>
+            <p><strong>Fallback URL:</strong> <span class="app-url">http://localhost:9090</span></p>
+            <p><strong>Start Command:</strong> <code>ncrun</code> or <code>ncrun -Build</code> from project root</p>
+            
+            <div class="host-token">
+                <strong>🔑 Host Authentication Token:</strong>
+                <div class="token-value" id="hostToken">Loading...</div>
+                <button id="generateTokenBtn" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #721c24; color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 Generate New Token</button>
+                <small>Auto-generated using HostProvisioner - Use for host authentication testing</small>
+            </div>
+        </div>
+
+        <!-- Progress Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTests">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="passedTests">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionPercent">0%</div>
+                <div class="stat-label">Progress</div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill">
+                <div class="progress-text" id="progressText">0% Complete</div>
+            </div>
+        </div>
+
+        <!-- Use Case 1: Application Infrastructure -->
+        <div class="use-case">
+            <div class="use-case-header" onclick="toggleUseCase(this)">
+                <h2>🏗️ Use Case 1: Application Infrastructure</h2>
+                <p class="use-case-description">Core application startup, health monitoring, and logging systems</p>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="use-case-content">
+                <div class="test-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <div class="step-title">Application Startup</div>
+                        <div class="step-description">Launch NOOR Canvas application and verify successful startup</div>
+                        <div class="expected-result">Application starts within 5 seconds, shows landing page without errors</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="infrastructure"> ✅ Application starts successfully</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <div class="step-title">Health Endpoint Verification</div>
+                        <div class="step-description">Navigate to /healthz endpoint and verify JSON response</div>
+                        <div class="expected-result">Health endpoint returns valid JSON with status, timestamp, and version</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="infrastructure"> ✅ Health endpoint responds correctly</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <div class="step-title">Browser Console Logging</div>
+                        <div class="step-description">Open browser dev tools and verify NOOR logging system initialization</div>
+                        <div class="expected-result">Console shows NOOR-INIT, NOOR-BROWSER messages with proper formatting</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="infrastructure"> ✅ Structured logging appears in console</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <div class="step-title">SignalR Connection</div>
+                        <div class="step-description">Verify WebSocket connection establishment in Network tab</div>
+                        <div class="expected-result">WebSocket connects to wss://localhost:9091/_blazor with success</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="infrastructure"> ✅ SignalR WebSocket connection established</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Case 2: User Authentication & Navigation -->
+        <div class="use-case">
+            <div class="use-case-header" onclick="toggleUseCase(this)">
+                <h2>🔐 Use Case 2: User Authentication & Navigation</h2>
+                <p class="use-case-description">Landing page, role selection, and user registration workflows</p>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="use-case-content">
+                <div class="test-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <div class="step-title">Landing Page Load</div>
+                        <div class="step-description">Verify landing page displays with Host/Participant selection</div>
+                        <div class="expected-result">Landing page loads with clear role selection buttons and McBeatch styling</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="authentication"> ✅ Landing page renders properly</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <div class="step-title">Participant Registration</div>
+                        <div class="step-description">Select "Participant" and complete registration form (Name, City, Country)</div>
+                        <div class="expected-result">Form validates required fields, generates UserId, stores in localStorage</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="authentication"> ✅ Participant registration works correctly</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <div class="step-title">UserId Persistence</div>
+                        <div class="step-description">Refresh browser and verify UserId persists in localStorage</div>
+                        <div class="expected-result">UserId remains in localStorage, user profile recognized on reload</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="authentication"> ✅ UserId persistence working</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <div class="step-title">Host Authentication</div>
+                        <div class="step-description">Select "Host", enter the provided GUID token, and access dashboard</div>
+                        <div class="expected-result">Host GUID accepted, dashboard loads without HttpClient errors</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="authentication"> ✅ Host authentication successful</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Case 3: Session Management -->
+        <div class="use-case">
+            <div class="use-case-header" onclick="toggleUseCase(this)">
+                <h2>📊 Use Case 3: Session Management</h2>
+                <p class="use-case-description">Host dashboard, session creation, and participant management</p>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="use-case-content">
+                <div class="test-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <div class="step-title">Host Dashboard Access</div>
+                        <div class="step-description">Verify host dashboard loads with session management interface</div>
+                        <div class="expected-result">Dashboard displays session statistics, controls, and management options</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="session"> ✅ Host dashboard loads successfully</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <div class="step-title">Session Creation</div>
+                        <div class="step-description">Create a new session and verify session link generation</div>
+                        <div class="expected-result">Session created with unique ID and shareable participant link</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="session"> ✅ Session creation works</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <div class="step-title">Participant Joining</div>
+                        <div class="step-description">Use session link to join as participant in new browser window</div>
+                        <div class="expected-result">Participant successfully joins session, appears in host participant list</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="session"> ✅ Participants can join sessions</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <div class="step-title">Real-time Updates</div>
+                        <div class="step-description">Verify real-time participant count updates on host dashboard</div>
+                        <div class="expected-result">Host sees live participant count, join/leave notifications</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="session"> ✅ Real-time updates working</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Case 4: Admin Functionality -->
+        <div class="use-case">
+            <div class="use-case-header" onclick="toggleUseCase(this)">
+                <h2>⚙️ Use Case 4: Admin Functionality</h2>
+                <p class="use-case-description">Administrative dashboard, session monitoring, and user management</p>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="use-case-content">
+                <div class="test-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <div class="step-title">Admin Dashboard Access</div>
+                        <div class="step-description">Navigate to /admin and authenticate with admin GUID</div>
+                        <div class="expected-result">Admin dashboard loads with system statistics and monitoring tools</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="admin"> ✅ Admin dashboard accessible</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <div class="step-title">System Statistics</div>
+                        <div class="step-description">Verify real-time system statistics display correctly</div>
+                        <div class="expected-result">Statistics show total sessions, active users, registrations with accurate counts</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="admin"> ✅ System statistics accurate</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <div class="step-title">Session Management</div>
+                        <div class="step-description">Test session termination and management controls</div>
+                        <div class="expected-result">Admin can view all sessions and terminate active sessions</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="admin"> ✅ Session management working</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <div class="step-title">User Moderation</div>
+                        <div class="step-description">Test user management and moderation capabilities</div>
+                        <div class="expected-result">Admin can view user details and perform moderation actions</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="admin"> ✅ User moderation functional</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Case 5: Cross-Browser Compatibility -->
+        <div class="use-case">
+            <div class="use-case-header" onclick="toggleUseCase(this)">
+                <h2>🌐 Use Case 5: Cross-Browser Compatibility</h2>
+                <p class="use-case-description">Browser compatibility testing across different platforms</p>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="use-case-content">
+                <div class="test-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <div class="step-title">Chrome Testing</div>
+                        <div class="step-description">Test all core functionality in Chrome 90+</div>
+                        <div class="expected-result">All features work smoothly in Chrome with optimal performance</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="compatibility"> ✅ Chrome compatibility confirmed</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <div class="step-title">Firefox Testing</div>
+                        <div class="step-description">Test all core functionality in Firefox 88+</div>
+                        <div class="expected-result">All features work consistently in Firefox with good performance</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="compatibility"> ✅ Firefox compatibility confirmed</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <div class="step-title">Edge Testing</div>
+                        <div class="step-description">Test all core functionality in Microsoft Edge 90+</div>
+                        <div class="expected-result">All features work properly in Edge with Windows integration</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="compatibility"> ✅ Edge compatibility confirmed</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-step">
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <div class="step-title">Safari Testing (if available)</div>
+                        <div class="step-description">Test core functionality in Safari 14+ (macOS/iOS)</div>
+                        <div class="expected-result">Core features work in Safari with acceptable performance</div>
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" onchange="updateProgress()" data-test="compatibility"> ✅ Safari compatibility confirmed (optional)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion Summary -->
+        <div class="completion-summary" id="completionSummary">
+            <h2>🎉 Testing Complete!</h2>
+            <p>Congratulations! You have completed the NOOR Canvas manual testing suite.</p>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="finalTotal">0</div>
+                    <div>Total Tests</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="finalPassed">0</div>
+                    <div>Tests Passed</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="finalPercent">0%</div>
+                    <div>Success Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleUseCase(header) {
+            const useCase = header.parentElement;
+            const content = useCase.querySelector('.use-case-content');
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                useCase.classList.remove('collapsed');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('active');
+                useCase.classList.add('collapsed');
+                icon.textContent = '▲';
+            }
+        }
+
+        function updateProgress() {
+            const totalCheckboxes = document.querySelectorAll('input[type="checkbox"]').length;
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            const percentage = totalCheckboxes > 0 ? Math.round((checkedBoxes / totalCheckboxes) * 100) : 0;
+
+            // Update statistics
+            document.getElementById('totalTests').textContent = totalCheckboxes;
+            document.getElementById('completedTests').textContent = checkedBoxes;
+            document.getElementById('passedTests').textContent = checkedBoxes; // Assuming all checked are passed
+            document.getElementById('completionPercent').textContent = percentage + '%';
+
+            // Update progress bar
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = percentage + '% Complete';
+
+            // Show completion summary if all tests are done
+            if (percentage === 100) {
+                const completionSummary = document.getElementById('completionSummary');
+                completionSummary.classList.add('show');
+                
+                document.getElementById('finalTotal').textContent = totalCheckboxes;
+                document.getElementById('finalPassed').textContent = checkedBoxes;
+                document.getElementById('finalPercent').textContent = percentage + '%';
+                
+                // Scroll to completion summary
+                completionSummary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Generate host token using HostProvisioner API
+        async function generateHostToken() {
+            try {
+                // Generate a simple GUID for session ID
+                const sessionId = Math.floor(Math.random() * 1000) + 1;
+                
+                // Try to call HostProvisioner API via correct server URL
+                try {
+                    // Detect current protocol and host
+                    const baseUrl = window.location.protocol === 'https:' ? 
+                        'https://localhost:9091' : 'http://localhost:9090';
+                    
+                    const response = await fetch(`${baseUrl}/api/hostprovisioner/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            sessionId: sessionId, 
+                            createdBy: 'Testing Suite' 
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.hostGuid;
+                    } else {
+                        console.log('API returned error:', response.status);
+                    }
+                } catch (apiError) {
+                    console.log('API not available, using client-side generation:', apiError.message);
+                }
+                
+                // Fallback: Generate client-side GUID
+                return generateGuid();
+            } catch (error) {
+                console.error('Token generation failed:', error);
+                return generateGuid(); // Fallback to client GUID
+            }
+        }
+
+        function generateGuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function generateNewToken(button) {
+            const tokenElement = document.getElementById('hostToken');
+            tokenElement.textContent = 'Generating...';
+            
+            try {
+                const newToken = await generateHostToken();
+                tokenElement.textContent = newToken;
+                
+                // Store the token for easy access
+                localStorage.setItem('noor-testing-host-token', newToken);
+                
+                // Show success message - handle both click events and programmatic calls
+                const targetButton = button || document.getElementById('generateTokenBtn');
+                if (targetButton) {
+                    const originalText = targetButton.textContent;
+                    targetButton.textContent = '✅ Generated!';
+                    targetButton.style.background = '#28a745';
+                    
+                    setTimeout(() => {
+                        targetButton.textContent = originalText;
+                        targetButton.style.background = '#721c24';
+                    }, 2000);
+                }
+                
+            } catch (error) {
+                tokenElement.textContent = 'Generation failed - using fallback';
+                console.error('Token generation error:', error);
+            }
+        }
+
+        // Initialize progress on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            
+            // Auto-expand first use case
+            const firstUseCase = document.querySelector('.use-case-header');
+            if (firstUseCase) {
+                toggleUseCase(firstUseCase);
+            }
+            
+            // Set up button event listener
+            const generateTokenBtn = document.getElementById('generateTokenBtn');
+            if (generateTokenBtn) {
+                generateTokenBtn.addEventListener('click', function() {
+                    generateNewToken(this);
+                });
+            }
+            
+            // Generate initial host token
+            generateNewToken();
+        });
+
+        // Add interactive enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const container = this.closest('.checkbox-container');
+                    if (this.checked) {
+                        container.style.background = '#d4edda';
+                        container.style.borderColor = '#c3e6cb';
+                    } else {
+                        container.style.background = '#fff3cd';
+                        container.style.borderColor = '#ffeaa7';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

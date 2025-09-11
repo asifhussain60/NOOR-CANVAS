@@ -1,0 +1,229 @@
+2025-09-11 14:33:56.314 -04:00 [INF] User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-11 14:33:56.658 -04:00 [DBG] Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol.
+2025-09-11 14:33:56.673 -04:00 [DBG] Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol.
+2025-09-11 14:33:56.896 -04:00 [INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090
+2025-09-11 14:33:57.051 -04:00 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-11 14:33:57.062 -04:00 [WRN] Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+2025-09-11 14:33:57.093 -04:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.0.1:9090: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+ ---> System.Net.Sockets.SocketException (10048): Only one usage of each socket address (protocol/network address/port) is normally permitted.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.EndpointsStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-09-11 14:33:57.147 -04:00 [FTL] NOOR-FATAL: Application terminated unexpectedly
+System.IO.IOException: Failed to bind to address http://127.0.0.1:9090: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+ ---> System.Net.Sockets.SocketException (10048): Only one usage of each socket address (protocol/network address/port) is normally permitted.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.EndpointsStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 153
+2025-09-11 14:35:21.552 -04:00 [INF] User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-11 14:35:21.932 -04:00 [DBG] Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol.
+2025-09-11 14:35:21.940 -04:00 [DBG] Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol.
+2025-09-11 14:35:22.087 -04:00 [INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090
+2025-09-11 14:35:22.238 -04:00 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-11 14:35:22.247 -04:00 [WRN] Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+2025-09-11 14:35:22.298 -04:00 [INF] Now listening on: http://localhost:9090
+2025-09-11 14:35:22.305 -04:00 [INF] Now listening on: https://localhost:9091
+2025-09-11 14:35:22.311 -04:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-11 14:35:22.316 -04:00 [INF] Hosting environment: Development
+2025-09-11 14:35:22.320 -04:00 [INF] Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas
+2025-09-11 14:35:33.439 -04:00 [INF] Request starting HTTP/1.1 GET http://localhost:9090/?id=90fc6fba-1daf-4243-b86a-8ac64c5e0196&vscodeBrowserReqId=1757615733378 - null null
+2025-09-11 14:35:33.465 -04:00 [INF] Request finished HTTP/1.1 GET http://localhost:9090/?id=90fc6fba-1daf-4243-b86a-8ac64c5e0196&vscodeBrowserReqId=1757615733378 - 307 0 null 27.3499ms
+2025-09-11 14:35:46.110 -04:00 [INF] Request starting HTTP/1.1 GET http://localhost:9090/ - null null
+2025-09-11 14:35:46.139 -04:00 [INF] Request finished HTTP/1.1 GET http://localhost:9090/ - 307 0 null 29.5851ms
+2025-09-11 14:35:46.183 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/ - null null
+2025-09-11 14:35:46.338 -04:00 [INF] Executing endpoint '/_Host'
+2025-09-11 14:35:46.374 -04:00 [INF] Route matched with {page = "/_Host", action = "", controller = ""}. Executing page /_Host
+2025-09-11 14:35:46.456 -04:00 [INF] Executing an implicit handler method - ModelState is "Valid"
+2025-09-11 14:35:46.526 -04:00 [INF] Executed an implicit handler method, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult.
+2025-09-11 14:35:46.797 -04:00 [INF] Executed page /_Host in 344.2733ms
+2025-09-11 14:35:46.811 -04:00 [INF] Executed endpoint '/_Host'
+2025-09-11 14:35:46.840 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/ - 200 null text/html; charset=utf-8 656.1486ms
+2025-09-11 14:35:47.015 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - null null
+2025-09-11 14:35:47.015 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/js/noor-logging.js - null null
+2025-09-11 14:35:47.015 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - null null
+2025-09-11 14:35:47.015 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/site.css - null null
+2025-09-11 14:35:47.015 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - null null
+2025-09-11 14:35:47.016 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/js/noor-annotations.js - null null
+2025-09-11 14:35:47.204 -04:00 [INF] Sending file. Request path: '/js/noor-logging.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-logging.js'
+2025-09-11 14:35:47.221 -04:00 [INF] Sending file. Request path: '/css/site.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\site.css'
+2025-09-11 14:35:47.101 -04:00 [INF] Sending file. Request path: '/css/bootstrap/bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\bootstrap\bootstrap.min.css'
+2025-09-11 14:35:47.229 -04:00 [INF] Sending file. Request path: '/js/noor-annotations.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-annotations.js'
+2025-09-11 14:35:47.205 -04:00 [INF] Sending file. Request path: '/NoorCanvas.styles.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\scopedcss\bundle\NoorCanvas.styles.css'
+2025-09-11 14:35:47.243 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/js/noor-logging.js - 200 12338 text/javascript 228.6597ms
+2025-09-11 14:35:47.228 -04:00 [INF] Executing endpoint 'Blazor static files'
+2025-09-11 14:35:47.259 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/site.css - 200 908 text/css 244.0959ms
+2025-09-11 14:35:47.265 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - null null
+2025-09-11 14:35:47.293 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - 200 155764 text/css 278.1475ms
+2025-09-11 14:35:47.325 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/js/noor-annotations.js - 200 10345 text/javascript 309.056ms
+2025-09-11 14:35:47.327 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - 200 2822 text/css 312.425ms
+2025-09-11 14:35:47.362 -04:00 [INF] Sending file. Request path: '/css/open-iconic/font/css/open-iconic-bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css'
+2025-09-11 14:35:47.365 -04:00 [INF] Sending file. Request path: '/_framework/blazor.server.js'. Physical path: 'N/A'
+2025-09-11 14:35:47.421 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - 200 9395 text/css 156.3547ms
+2025-09-11 14:35:47.423 -04:00 [INF] Executed endpoint 'Blazor static files'
+2025-09-11 14:35:47.470 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - 200 151672 text/javascript 454.9945ms
+2025-09-11 14:35:47.539 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/_blazor/initializers - null null
+2025-09-11 14:35:47.539 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - null null
+2025-09-11 14:35:47.579 -04:00 [INF] Executing endpoint 'Blazor initializers'
+2025-09-11 14:35:47.611 -04:00 [INF] Sending file. Request path: '/css/open-iconic/font/fonts/open-iconic.woff'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\fonts\open-iconic.woff'
+2025-09-11 14:35:47.672 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - 200 14984 application/font-woff 133.4684ms
+2025-09-11 14:35:47.673 -04:00 [INF] Executed endpoint 'Blazor initializers'
+2025-09-11 14:35:47.708 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/_blazor/initializers - 200 null application/json; charset=utf-8 169.3314ms
+2025-09-11 14:38:19.636 -04:00 [INF] User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-11 14:38:19.822 -04:00 [DBG] Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol.
+2025-09-11 14:38:19.822 -04:00 [DBG] Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol.
+2025-09-11 14:38:20.240 -04:00 [INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090
+2025-09-11 14:38:20.459 -04:00 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-11 14:38:20.466 -04:00 [WRN] Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+2025-09-11 14:38:20.523 -04:00 [INF] Now listening on: http://localhost:9090
+2025-09-11 14:38:20.523 -04:00 [INF] Now listening on: https://localhost:9091
+2025-09-11 14:38:20.524 -04:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-11 14:38:20.524 -04:00 [INF] Hosting environment: Development
+2025-09-11 14:38:20.524 -04:00 [INF] Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas
+2025-09-11 14:38:20.609 -04:00 [INF] Request starting HTTP/1.1 GET http://localhost:9090/ - null null
+2025-09-11 14:38:20.624 -04:00 [INF] Request finished HTTP/1.1 GET http://localhost:9090/ - 307 0 null 20.17ms
+2025-09-11 14:38:20.935 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/ - null null
+2025-09-11 14:38:20.972 -04:00 [INF] Executing endpoint '/_Host'
+2025-09-11 14:38:20.986 -04:00 [INF] Route matched with {page = "/_Host", action = "", controller = ""}. Executing page /_Host
+2025-09-11 14:38:21.002 -04:00 [INF] Executing an implicit handler method - ModelState is "Valid"
+2025-09-11 14:38:21.003 -04:00 [INF] Executed an implicit handler method, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult.
+2025-09-11 14:38:21.242 -04:00 [INF] Executed page /_Host in 249.9783ms
+2025-09-11 14:38:21.244 -04:00 [INF] Executed endpoint '/_Host'
+2025-09-11 14:38:21.265 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/ - 200 null text/html; charset=utf-8 329.959ms
+2025-09-11 14:38:21.307 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - null null
+2025-09-11 14:38:21.317 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/site.css - null null
+2025-09-11 14:38:21.317 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - null null
+2025-09-11 14:38:21.327 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - null null
+2025-09-11 14:38:21.330 -04:00 [INF] Sending file. Request path: '/css/site.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\site.css'
+2025-09-11 14:38:21.330 -04:00 [INF] Sending file. Request path: '/NoorCanvas.styles.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\scopedcss\bundle\NoorCanvas.styles.css'
+2025-09-11 14:38:21.331 -04:00 [INF] Executing endpoint 'Blazor static files'
+2025-09-11 14:38:21.331 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - 200 2822 text/css 14.191ms
+2025-09-11 14:38:21.331 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/site.css - 200 908 text/css 14.3133ms
+2025-09-11 14:38:21.332 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/js/noor-logging.js - null null
+2025-09-11 14:38:21.333 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/js/noor-annotations.js - null null
+2025-09-11 14:38:21.334 -04:00 [INF] Sending file. Request path: '/js/noor-logging.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-logging.js'
+2025-09-11 14:38:21.334 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/js/noor-logging.js - 200 5450 text/javascript 2.4436ms
+2025-09-11 14:38:21.335 -04:00 [INF] Sending file. Request path: '/js/noor-annotations.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-annotations.js'
+2025-09-11 14:38:21.335 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/js/noor-annotations.js - 200 10345 text/javascript 2.1399ms
+2025-09-11 14:38:21.336 -04:00 [INF] Sending file. Request path: '/_framework/blazor.server.js'. Physical path: 'N/A'
+2025-09-11 14:38:21.336 -04:00 [INF] Executed endpoint 'Blazor static files'
+2025-09-11 14:38:21.336 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - 200 151672 text/javascript 8.7913ms
+2025-09-11 14:38:21.353 -04:00 [INF] Sending file. Request path: '/css/bootstrap/bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\bootstrap\bootstrap.min.css'
+2025-09-11 14:38:21.359 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - 200 155764 text/css 52.2428ms
+2025-09-11 14:38:21.367 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - null null
+2025-09-11 14:38:21.368 -04:00 [INF] Sending file. Request path: '/css/open-iconic/font/css/open-iconic-bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css'
+2025-09-11 14:38:21.368 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - 200 9395 text/css 1.3589ms
+2025-09-11 14:38:21.516 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - null null
+2025-09-11 14:38:21.519 -04:00 [INF] Sending file. Request path: '/css/open-iconic/font/fonts/open-iconic.woff'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\fonts\open-iconic.woff'
+2025-09-11 14:38:21.520 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - 200 14984 application/font-woff 2.7576ms
+2025-09-11 14:38:21.550 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/_blazor/initializers - null null
+2025-09-11 14:38:21.564 -04:00 [INF] Executing endpoint 'Blazor initializers'
+2025-09-11 14:38:21.571 -04:00 [INF] Executed endpoint 'Blazor initializers'
+2025-09-11 14:38:21.572 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/_blazor/initializers - 200 null application/json; charset=utf-8 22.1029ms
+2025-09-11 14:38:21.660 -04:00 [INF] Request starting HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - null 0
+2025-09-11 14:38:21.662 -04:00 [INF] CORS policy execution successful.
+2025-09-11 14:38:21.663 -04:00 [INF] Executing endpoint '/_blazor/negotiate'
+2025-09-11 14:38:21.672 -04:00 [INF] Executed endpoint '/_blazor/negotiate'
+2025-09-11 14:38:21.673 -04:00 [INF] Request finished HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 12.8428ms
+2025-09-11 14:38:22.486 -04:00 [INF] Request starting HTTP/2 CONNECT https://localhost:9091/_blazor?id=EzY3o3bNXKYBwGf-GmlkdA - null null
+2025-09-11 14:38:22.489 -04:00 [INF] CORS policy execution successful.
+2025-09-11 14:38:22.490 -04:00 [INF] Executing endpoint '/_blazor'
+2025-09-11 14:38:22.502 -04:00 [DBG] OnConnectedAsync started.
+2025-09-11 14:38:22.521 -04:00 [DBG] Found protocol implementation for requested protocol: blazorpack.
+2025-09-11 14:38:22.525 -04:00 [INF] Request starting HTTP/2 GET https://localhost:9091/favicon.ico - null null
+2025-09-11 14:38:22.526 -04:00 [DBG] Completed connection handshake. Using HubProtocol 'blazorpack'.
+2025-09-11 14:38:22.528 -04:00 [INF] Sending file. Request path: '/favicon.ico'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\favicon.ico'
+2025-09-11 14:38:22.528 -04:00 [INF] Request finished HTTP/2 GET https://localhost:9091/favicon.ico - 200 5430 image/x-icon 3.2327ms
+2025-09-11 14:38:22.551 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "0", Target: "StartCircuit", Arguments: [ https://localhost:9091/, https://localhost:9091/, [{"type":"server","prerenderId":"538ef872500b4e1d8a7a7e43f7908091","key":{"locationHash":"54912F3C651A014F1B275C954CB092DE947378CDB83E8965F8D7F4800066B6D8:0","formattedComponentKey":""},"sequence":0,"descriptor":"CfDJ8DeH3DqcBblEm/Wh6jxNrbPQo43wPXvplVASvcDlneQALX6d8avQV42uFE5YBqXg68hbQl1B3MNeJP7hUW8giGGfh8rHWjj4laziyTI0ZgHZaI9Sp1xPGH5LgbwGtA17mvNj0k3ScVjbguRKDWjEZzsivVZkQXgnoUWP6iwlWyZMwXs3N9FcwjZjULwigazskRcORropmiIWK3odEqDIqcjPBRCw3143wTxXSv2H3sMVTdJhfVmEbOAgGrhwx6PniRIK9TT3yJwbHKMDxRfqqyLgzI18NkCQ7ywuSoLyjm0QZ6v7UrHxwEf8XUOn3P0Uq9Ii1Sfk1p7EPo8olZcMBjDgpsjt+C9sQxI1LuzmOBqCWeAB5it/xY0e3EgmbGLlbyJ5CGpRX+fPW6SN/yHKb2No440HsC5fsyfG9Q7qO+44Jigbr1jZ4Q2W6eayHyh8dNLwXUKDEv3xHLuPqSaXBFWblBFhvfj7FOebY7GtvS62nnGvyb6K6XpZlFgUR+Muqg==","uniqueId":0}],  ], StreamIds: [  ] }.
+2025-09-11 14:38:22.679 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 2, True, [2,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:22.697 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 2,  ], StreamIds: [  ] }.
+2025-09-11 14:38:22.736 -04:00 [INF] NOOR-INFO: Landing page rendered for new visitor
+2025-09-11 14:38:22.743 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 3, True, [3,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:22.750 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 4, True, [4,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:24.885 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "BeginInvokeDotNetFromJS", Arguments: [ 1, , DispatchEventAsync, 1, [{"eventHandlerId":3,"eventName":"click","eventFieldInfo":null},{"detail":1,"screenX":1020,"screenY":987,"clientX":1019,"clientY":866,"offsetX":288,"offsetY":39,"pageX":1019,"pageY":866,"movementX":0,"movementY":0,"button":0,"buttons":0,"ctrlKey":false,"shiftKey":false,"altKey":false,"metaKey":false,"type":"click"}] ], StreamIds: [  ] }.
+2025-09-11 14:38:24.898 -04:00 [INF] NOOR-INFO: User selected role: host
+2025-09-11 14:38:24.905 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 5, True, [5,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:24.906 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 3,  ], StreamIds: [  ] }.
+2025-09-11 14:38:24.908 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 6, True, [6,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:24.910 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 7, True, [7,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:24.921 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 8, True, [8,true,null] ], StreamIds: [  ] }.
+2025-09-11 14:38:24.924 -04:00 [DBG] Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 4,  ], StreamIds: [  ] }.
+2025-09-11 14:38:29.292 -04:00 [DBG] OnConnectedAsync ending.
+2025-09-11 14:38:29.294 -04:00 [INF] Executed endpoint '/_blazor'
+2025-09-11 14:38:29.294 -04:00 [INF] Request finished HTTP/2 CONNECT https://localhost:9091/_blazor?id=EzY3o3bNXKYBwGf-GmlkdA - 200 null null 6807.9058ms
+2025-09-11 14:38:29.316 -04:00 [INF] Request starting HTTP/2 POST https://localhost:9091/_blazor/disconnect - multipart/form-data; boundary=----WebKitFormBoundaryZCSsqPIv6ryv6E3Y 359
+2025-09-11 14:38:29.316 -04:00 [INF] CORS policy execution successful.
+2025-09-11 14:38:29.317 -04:00 [INF] Executing endpoint 'Blazor disconnect'
+2025-09-11 14:38:29.331 -04:00 [INF] Executed endpoint 'Blazor disconnect'
+2025-09-11 14:38:29.331 -04:00 [INF] Request finished HTTP/2 POST https://localhost:9091/_blazor/disconnect - 200 0 null 15.5572ms
+2025-09-11 14:47:10.317 -04:00 [INF] User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-11 14:47:10.445 -04:00 [DBG] Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol.
+2025-09-11 14:47:10.446 -04:00 [DBG] Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol.
+2025-09-11 14:47:10.559 -04:00 [INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090
+2025-09-11 14:47:10.652 -04:00 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-11 14:47:10.656 -04:00 [WRN] Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+2025-09-11 14:47:10.686 -04:00 [INF] Now listening on: http://localhost:9090
+2025-09-11 14:47:10.686 -04:00 [INF] Now listening on: https://localhost:9091
+2025-09-11 14:47:10.686 -04:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-11 14:47:10.686 -04:00 [INF] Hosting environment: Development
+2025-09-11 14:47:10.686 -04:00 [INF] Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas
+2025-09-11 14:47:11.846 -04:00 [INF] Request starting HTTP/1.1 GET http://localhost:9090/ - null null
+2025-09-11 14:47:11.857 -04:00 [INF] Request finished HTTP/1.1 GET http://localhost:9090/ - 307 0 null 12.3784ms
+2025-09-11 14:49:22.119 -04:00 [INF] User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-11 14:49:22.240 -04:00 [DBG] Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol.
+2025-09-11 14:49:22.240 -04:00 [DBG] Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol.
+2025-09-11 14:49:22.342 -04:00 [INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090
+2025-09-11 14:49:22.431 -04:00 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2025-09-11 14:49:22.435 -04:00 [WRN] Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+2025-09-11 14:49:22.470 -04:00 [INF] Now listening on: http://localhost:9090
+2025-09-11 14:49:22.470 -04:00 [INF] Now listening on: https://localhost:9091
+2025-09-11 14:49:22.470 -04:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-11 14:49:22.470 -04:00 [INF] Hosting environment: Development
+2025-09-11 14:49:22.470 -04:00 [INF] Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas
+2025-09-11 14:49:22.761 -04:00 [INF] Request starting HTTP/1.1 GET http://localhost:9090/testing - null null
+2025-09-11 14:49:22.771 -04:00 [INF] Request finished HTTP/1.1 GET http://localhost:9090/testing - 307 0 null 11.8555ms

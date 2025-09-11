@@ -56,6 +56,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add HttpClient service for dependency injection
+builder.Services.AddHttpClient();
+
 // Add application services
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 
@@ -88,6 +91,23 @@ app.MapBlazorHub(configureOptions: options =>
     options.ApplicationMaxBufferSize = 32 * 1024;  // 32KB buffer
     options.TransportMaxBufferSize = 32 * 1024;    // 32KB buffer  
 });
+
+// Map testing suite route (single consolidated handler)
+app.MapGet("/testing/{**catchall}", async (HttpContext context) =>
+{
+    var filePath = Path.Combine(app.Environment.WebRootPath, "testing", "index.html");
+    if (File.Exists(filePath))
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(filePath);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync("Testing suite not found");
+    }
+}).WithName("TestingSuite");
+
 app.MapFallbackToPage("/_Host");
 app.MapControllers();
 
