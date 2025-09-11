@@ -1,0 +1,529 @@
+@page "/host/dashboard"
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<HostDashboard> Logger
+
+<div class="host-dashboard">
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1><i class="fas fa-tachometer-alt"></i> Host Dashboard</h1>
+                    <p class="text-muted">Manage your NOOR Canvas sessions</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary me-2" onclick="@ShowCreateSessionModal">
+                        <i class="fas fa-plus"></i> New Session
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="@RefreshDashboard">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading dashboard...</span>
+            </div>
+            <p class="mt-3">Loading dashboard data...</p>
+        </div>
+    }
+    else if (dashboardData != null)
+    {
+        <div class="dashboard-content">
+            <div class="container-fluid">
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-primary">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3>@dashboardData.ActiveSessions</h3>
+                                <p>Active Sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-success">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3>@dashboardData.TotalParticipants</h3>
+                                <p>Total Participants</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-info">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3>@dashboardData.RecentSessions.Count</h3>
+                                <p>Recent Sessions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Sessions -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-history"></i> Recent Sessions</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (dashboardData.RecentSessions.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Status</th>
+                                                    <th>Participants</th>
+                                                    <th>Created</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var session in dashboardData.RecentSessions)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <strong>@session.Title</strong>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge @GetStatusBadgeClass(session.Status)">
+                                                                @session.Status
+                                                            </span>
+                                                        </td>
+                                                        <td>@session.ParticipantCount</td>
+                                                        <td>@session.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                                        <td>
+                                                            @if (session.Status == "Created")
+                                                            {
+                                                                <button class="btn btn-sm btn-success me-1" 
+                                                                        onclick="@(() => StartSession(session.Id))">
+                                                                    <i class="fas fa-play"></i> Start
+                                                                </button>
+                                                            }
+                                                            @if (session.Status == "Active")
+                                                            {
+                                                                <button class="btn btn-sm btn-danger me-1" 
+                                                                        onclick="@(() => EndSession(session.Id))">
+                                                                    <i class="fas fa-stop"></i> End
+                                                                </button>
+                                                            }
+                                                            <button class="btn btn-sm btn-outline-primary" 
+                                                                    onclick="@(() => ViewSession(session.Id))">
+                                                                <i class="fas fa-eye"></i> View
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
+                                        <h6>No sessions yet</h6>
+                                        <p class="text-muted">Create your first session to get started</p>
+                                        <button class="btn btn-primary" onclick="@ShowCreateSessionModal">
+                                            Create First Session
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Create Session Modal -->
+    <div class="modal fade" id="createSessionModal" tabindex="-1" style="display: @(showCreateModal ? "block" : "none");">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Session</h5>
+                    <button type="button" class="btn-close" onclick="@HideCreateSessionModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="CreateSession" @onsubmit:preventDefault="true">
+                        <div class="mb-3">
+                            <label class="form-label">Session Title *</label>
+                            <input type="text" class="form-control" @bind="newSession.Title" 
+                                   placeholder="Enter session title" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" @bind="newSession.Description" 
+                                      rows="3" placeholder="Session description (optional)"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Max Participants</label>
+                            <input type="number" class="form-control" @bind="newSession.MaxParticipants" 
+                                   min="1" max="500" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="@HideCreateSessionModal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="@CreateSession" disabled="@isCreatingSession">
+                        @if (isCreatingSession)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Create Session
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (showCreateModal)
+    {
+        <div class="modal-backdrop fade show"></div>
+    }
+</div>
+
+@code {
+    private HostDashboardData? dashboardData;
+    private bool isLoading = true;
+    private bool showCreateModal = false;
+    private bool isCreatingSession = false;
+    private CreateSessionRequest newSession = new();
+    private string? sessionToken;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Guid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Host dashboard initializing for GUID: {Guid}", Guid?.Substring(0, 8) + "...");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-DASHBOARD", "Dashboard initializing", new { guid = Guid });
+
+            // TODO: Authenticate host GUID and get session token
+            if (!string.IsNullOrEmpty(Guid))
+            {
+                sessionToken = System.Guid.NewGuid().ToString(); // Mock session token
+                await LoadDashboardData();
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-WARNING: No host GUID provided, redirecting to landing");
+                Navigation.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to initialize host dashboard");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Initialization failed", new { error = ex.Message });
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadDashboardData()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Loading dashboard data");
+            
+            // Mock data for now - replace with actual API call
+            dashboardData = new HostDashboardData
+            {
+                HostName = "Host User",
+                ActiveSessions = 2,
+                TotalParticipants = 15,
+                RecentSessions = new List<SessionSummary>
+                {
+                    new() { Id = System.Guid.NewGuid(), Title = "Introduction to Quran", Status = "Active", CreatedAt = DateTime.Now.AddHours(-1), ParticipantCount = 8 },
+                    new() { Id = System.Guid.NewGuid(), Title = "Hadith Study Circle", Status = "Created", CreatedAt = DateTime.Now.AddMinutes(-30), ParticipantCount = 0 },
+                    new() { Id = System.Guid.NewGuid(), Title = "Islamic History", Status = "Completed", CreatedAt = DateTime.Now.AddDays(-1), ParticipantCount = 12 }
+                }
+            };
+
+            Logger.LogInformation("NOOR-SUCCESS: Dashboard data loaded successfully");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-DASHBOARD", "Dashboard data loaded", 
+                new { activeSessions = dashboardData.ActiveSessions, totalParticipants = dashboardData.TotalParticipants });
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to load dashboard data");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Failed to load data", new { error = ex.Message });
+        }
+    }
+
+    private async Task RefreshDashboard()
+    {
+        isLoading = true;
+        await LoadDashboardData();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private void ShowCreateSessionModal()
+    {
+        showCreateModal = true;
+        newSession = new CreateSessionRequest { MaxParticipants = 100 };
+        StateHasChanged();
+    }
+
+    private void HideCreateSessionModal()
+    {
+        showCreateModal = false;
+        StateHasChanged();
+    }
+
+    private async Task CreateSession()
+    {
+        if (string.IsNullOrWhiteSpace(newSession.Title))
+            return;
+
+        isCreatingSession = true;
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Creating session: {Title}", newSession.Title);
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-CREATE", "Creating session", new { title = newSession.Title });
+
+            // TODO: Call actual API to create session
+            await Task.Delay(1000); // Simulate API call
+
+            // Mock successful creation
+            var newSessionSummary = new SessionSummary
+            {
+                Id = System.Guid.NewGuid(),
+                Title = newSession.Title,
+                Status = "Created",
+                CreatedAt = DateTime.Now,
+                ParticipantCount = 0
+            };
+
+            dashboardData?.RecentSessions.Insert(0, newSessionSummary);
+
+            Logger.LogInformation("NOOR-SUCCESS: Session created successfully");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-CREATE", "Session created successfully", 
+                new { sessionId = newSessionSummary.Id });
+
+            HideCreateSessionModal();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to create session");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-CREATE", "Failed to create session", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to create session. Please try again.");
+        }
+        finally
+        {
+            isCreatingSession = false;
+        }
+    }
+
+    private async Task StartSession(System.Guid sessionId)
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Starting session: {SessionId}", sessionId);
+            
+            // TODO: Call actual API to start session
+            var session = dashboardData?.RecentSessions.FirstOrDefault(s => s.Id == sessionId);
+            if (session != null)
+            {
+                session.Status = "Active";
+                StateHasChanged();
+            }
+
+            Logger.LogInformation("NOOR-SUCCESS: Session started successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to start session");
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to start session. Please try again.");
+        }
+    }
+
+    private async Task EndSession(System.Guid sessionId)
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Ending session: {SessionId}", sessionId);
+            
+            // TODO: Call actual API to end session
+            var session = dashboardData?.RecentSessions.FirstOrDefault(s => s.Id == sessionId);
+            if (session != null)
+            {
+                session.Status = "Completed";
+                StateHasChanged();
+            }
+
+            Logger.LogInformation("NOOR-SUCCESS: Session ended successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to end session");
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to end session. Please try again.");
+        }
+    }
+
+    private void ViewSession(System.Guid sessionId)
+    {
+        Navigation.NavigateTo($"/session/{sessionId}");
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Active" => "bg-success",
+            "Created" => "bg-primary",
+            "Completed" => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+
+    // Models (duplicated here for now - should be in shared models)
+    public class HostDashboardData
+    {
+        public string HostName { get; set; } = string.Empty;
+        public int ActiveSessions { get; set; }
+        public int TotalParticipants { get; set; }
+        public List<SessionSummary> RecentSessions { get; set; } = new();
+    }
+
+    public class SessionSummary
+    {
+        public System.Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public int ParticipantCount { get; set; }
+    }
+
+    public class CreateSessionRequest
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int? MaxParticipants { get; set; }
+    }
+}
+
+<style>
+.host-dashboard {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.dashboard-header {
+    background: white;
+    padding: 2rem 0;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-right: 1rem;
+}
+
+.stats-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    color: #2c3e50;
+}
+
+.stats-content p {
+    margin-bottom: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.badge {
+    font-size: 0.8rem;
+}
+
+.modal {
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    border: none;
+    border-radius: 10px;
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+}
+</style>

@@ -1,0 +1,415 @@
+@page "/"
+@page "/landing"
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<Landing> Logger
+
+<div class="landing-container">
+    <div class="hero-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="hero-title">NOOR Canvas</h1>
+                    <p class="hero-subtitle">Real-time Islamic Content Sharing & Annotation Platform</p>
+                    <p class="hero-description">
+                        Join interactive sessions to explore Quranic verses, Hadith, and Islamic teachings with 
+                        real-time annotations and collaborative Q&A.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="role-selection-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="row">
+                        <!-- Host Card -->
+                        <div class="col-md-6 mb-4">
+                            <div class="role-card host-card" onclick="@(() => SelectRole("host"))">
+                                <div class="role-icon">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <h3>I am a Host</h3>
+                                <p>Create and manage Islamic content sessions</p>
+                                <ul class="role-features">
+                                    <li>Create new sessions</li>
+                                    <li>Share Islamic content</li>
+                                    <li>Manage Q&A discussions</li>
+                                    <li>Real-time annotations</li>
+                                </ul>
+                                <button class="btn btn-primary btn-lg w-100 mt-3">
+                                    Continue as Host
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Participant Card -->
+                        <div class="col-md-6 mb-4">
+                            <div class="role-card participant-card" onclick="@(() => SelectRole("participant"))">
+                                <div class="role-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3>I am a Participant</h3>
+                                <p>Join existing sessions and engage with content</p>
+                                <ul class="role-features">
+                                    <li>Join active sessions</li>
+                                    <li>View shared content</li>
+                                    <li>Ask questions</li>
+                                    <li>Vote on discussions</li>
+                                </ul>
+                                <button class="btn btn-success btn-lg w-100 mt-3">
+                                    Join Session
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Forms (Initially Hidden) -->
+    <div class="auth-section" id="auth-section" style="display: none;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <!-- Host Authentication -->
+                    <div id="host-auth" style="display: none;">
+                        <div class="auth-card">
+                            <h4><i class="fas fa-key"></i> Host Authentication</h4>
+                            <p>Enter your Host GUID to access the dashboard</p>
+                            <form @onsubmit="AuthenticateHost" @onsubmit:preventDefault="true">
+                                <div class="mb-3">
+                                    <label class="form-label">Host GUID</label>
+                                    <input type="text" class="form-control" @bind="hostGuid" 
+                                           placeholder="Enter your Host GUID" required />
+                                    <div class="form-text">
+                                        Get your Host GUID from the HostProvisioner tool
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
+                                    @if (isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Access Dashboard
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Participant Authentication -->
+                    <div id="participant-auth" style="display: none;">
+                        <div class="auth-card">
+                            <h4><i class="fas fa-link"></i> Join Session</h4>
+                            <p>Enter the session link provided by your host</p>
+                            <form @onsubmit="JoinSession" @onsubmit:preventDefault="true">
+                                <div class="mb-3">
+                                    <label class="form-label">Session Link or ID</label>
+                                    <input type="text" class="form-control" @bind="sessionLink" 
+                                           placeholder="https://noorcanvas.com/session/... or Session ID" required />
+                                </div>
+                                <button type="submit" class="btn btn-success w-100" disabled="@isLoading">
+                                    @if (isLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Join Session
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedRole = "";
+    private string hostGuid = "";
+    private string sessionLink = "";
+    private bool isLoading = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Logger.LogInformation("NOOR-INFO: Landing page rendered for new visitor");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "LANDING", "Landing page loaded", new { timestamp = DateTime.UtcNow });
+        }
+    }
+
+    private async Task SelectRole(string role)
+    {
+        selectedRole = role;
+        Logger.LogInformation("NOOR-INFO: User selected role: {Role}", role);
+        await JSRuntime.InvokeVoidAsync("NoorLogger.info", "ROLE-SELECTION", $"User selected role: {role}", new { role });
+
+        // Show authentication section and specific form
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('auth-section').style.display = 'block';");
+        
+        if (role == "host")
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('host-auth').style.display = 'block'; document.getElementById('participant-auth').style.display = 'none';");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('participant-auth').style.display = 'block'; document.getElementById('host-auth').style.display = 'none';");
+        }
+
+        // Smooth scroll to auth section
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' });");
+    }
+
+    private async Task AuthenticateHost()
+    {
+        if (string.IsNullOrWhiteSpace(hostGuid))
+            return;
+
+        isLoading = true;
+        Logger.LogInformation("NOOR-INFO: Host authentication attempt with GUID: {HostGuid}", hostGuid.Substring(0, 8) + "...");
+        
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-AUTH", "Host authentication initiated", new { guidPreview = hostGuid.Substring(0, 8) + "..." });
+
+            // TODO: Implement actual GUID validation against HostProvisioner data
+            // For now, simulate validation
+            await Task.Delay(1000); // Simulate API call
+
+            // Basic GUID format validation
+            if (Guid.TryParse(hostGuid, out Guid guid))
+            {
+                Logger.LogInformation("NOOR-SUCCESS: Host GUID format valid, redirecting to dashboard");
+                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-AUTH", "Host authentication successful", new { hostGuid = guid });
+                Navigation.NavigateTo($"/host/dashboard?guid={guid}");
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-WARNING: Invalid Host GUID format: {HostGuid}", hostGuid);
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-AUTH", "Invalid GUID format", new { hostGuid });
+                await JSRuntime.InvokeVoidAsync("alert", "Invalid GUID format. Please check your Host GUID and try again.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Host authentication failed");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-AUTH", "Authentication failed", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("alert", "Authentication failed. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task JoinSession()
+    {
+        if (string.IsNullOrWhiteSpace(sessionLink))
+            return;
+
+        isLoading = true;
+        Logger.LogInformation("NOOR-INFO: Participant join attempt with session: {SessionLink}", sessionLink);
+        
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-JOIN", "Session join initiated", new { sessionLink });
+
+            // Extract session ID from link or use direct ID
+            string sessionId = ExtractSessionId(sessionLink);
+            
+            // TODO: Validate session exists and is active
+            await Task.Delay(1000); // Simulate API call
+
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                Logger.LogInformation("NOOR-SUCCESS: Valid session ID extracted, redirecting to registration");
+                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-JOIN", "Session validation successful", new { sessionId });
+                Navigation.NavigateTo($"/participant/register?session={sessionId}");
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-WARNING: Invalid session link: {SessionLink}", sessionLink);
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Invalid session link", new { sessionLink });
+                await JSRuntime.InvokeVoidAsync("alert", "Invalid session link. Please check the link and try again.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Participant session join failed");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Join failed", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to join session. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string ExtractSessionId(string sessionLink)
+    {
+        // Handle direct GUID
+        if (Guid.TryParse(sessionLink, out Guid directGuid))
+        {
+            return directGuid.ToString();
+        }
+
+        // Handle URL format
+        if (sessionLink.Contains("/session/"))
+        {
+            var parts = sessionLink.Split("/session/");
+            if (parts.Length > 1)
+            {
+                var idPart = parts[1].Split('?')[0]; // Remove query parameters
+                if (Guid.TryParse(idPart, out Guid urlGuid))
+                {
+                    return urlGuid.ToString();
+                }
+            }
+        }
+
+        return "";
+    }
+}
+
+<style>
+.landing-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hero-section {
+    padding: 80px 0 60px;
+    color: white;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    opacity: 0.8;
+    line-height: 1.6;
+}
+
+.role-selection-section {
+    padding: 60px 0;
+}
+
+.role-card {
+    background: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+}
+
+.role-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.role-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.host-card .role-icon {
+    color: #007bff;
+}
+
+.participant-card .role-icon {
+    color: #28a745;
+}
+
+.role-card h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.role-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.role-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.role-features li {
+    padding: 8px 0;
+    color: #555;
+    position: relative;
+    padding-left: 25px;
+}
+
+.role-features li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.auth-section {
+    padding: 60px 0;
+    background: rgba(255,255,255,0.1);
+}
+
+.auth-card {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.auth-card h4 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.auth-card p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+</style>

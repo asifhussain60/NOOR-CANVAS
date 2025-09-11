@@ -1,0 +1,493 @@
+@page "/participant/register"
+@using System.Text.Json
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<ParticipantRegister> Logger
+
+<div class="registration-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                @if (isLoading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading session...</span>
+                        </div>
+                        <p class="mt-3">Validating session...</p>
+                    </div>
+                }
+                else if (sessionData != null && sessionData.Valid)
+                {
+                    <div class="registration-card">
+                        <div class="session-info">
+                            <div class="session-header">
+                                <i class="fas fa-users-cog fa-2x text-primary mb-3"></i>
+                                <h2>Join Session</h2>
+                                <h4 class="text-primary">@sessionData.Title</h4>
+                                @if (!string.IsNullOrEmpty(sessionData.Description))
+                                {
+                                    <p class="text-muted">@sessionData.Description</p>
+                                }
+                            </div>
+
+                            <div class="session-stats">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="stat-item">
+                                            <i class="fas fa-users"></i>
+                                            <h5>@sessionData.ParticipantCount</h5>
+                                            <small>Participants</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stat-item">
+                                            <i class="fas fa-clock"></i>
+                                            <h5>@GetTimeRemaining()</h5>
+                                            <small>Time Left</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="status-badge">
+                                <span class="badge @GetStatusBadgeClass()">
+                                    @sessionData.Status
+                                </span>
+                            </div>
+                        </div>
+
+                        @if (sessionData.CanJoin)
+                        {
+                            <div class="registration-form">
+                                <h5><i class="fas fa-user-plus"></i> Registration Information</h5>
+                                <p class="form-description">Please provide your information to join this session</p>
+
+                                <form @onsubmit="RegisterParticipant" @onsubmit:preventDefault="true">
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name *</label>
+                                        <input type="text" class="form-control" @bind="registration.Name" 
+                                               placeholder="Enter your full name" required maxlength="100" />
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">City *</label>
+                                            <input type="text" class="form-control" @bind="registration.City" 
+                                                   placeholder="Your city" required maxlength="50" />
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Country *</label>
+                                            <select class="form-select" @bind="registration.Country" required>
+                                                <option value="">Select Country</option>
+                                                @foreach (var country in GetCountries())
+                                                {
+                                                    <option value="@country">@country</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-text mb-3">
+                                        <i class="fas fa-info-circle"></i>
+                                        Your information is used for session management and will be visible to the host.
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-lg w-100" disabled="@isRegistering">
+                                        @if (isRegistering)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2"></span>
+                                        }
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        Join Session
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                @if (sessionData.ParticipantCount >= sessionData.MaxParticipants)
+                                {
+                                    <i class="fas fa-users-slash fa-3x text-warning mb-3"></i>
+                                    <h5>Session Full</h5>
+                                    <p class="text-muted">This session has reached its maximum capacity of @sessionData.MaxParticipants participants.</p>
+                                }
+                                else if (sessionData.Status == "Completed")
+                                {
+                                    <i class="fas fa-flag-checkered fa-3x text-secondary mb-3"></i>
+                                    <h5>Session Ended</h5>
+                                    <p class="text-muted">This session has already ended.</p>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <h5>Cannot Join Session</h5>
+                                    <p class="text-muted">This session is not available for joining at this time.</p>
+                                }
+                                
+                                <button class="btn btn-outline-primary" onclick="@(() => Navigation.NavigateTo("/"))">
+                                    <i class="fas fa-home"></i> Return to Home
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="error-card">
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                            <h4>Session Not Found</h4>
+                            <p class="text-muted">
+                                The session you're trying to join doesn't exist or has expired.
+                                Please check the session link and try again.
+                            </p>
+                            <button class="btn btn-primary" onclick="@(() => Navigation.NavigateTo("/"))">
+                                <i class="fas fa-home"></i> Return to Home
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private SessionValidationResponse? sessionData;
+    private ParticipantRegistrationRequest registration = new();
+    private bool isLoading = true;
+    private bool isRegistering = false;
+    private string? existingUserId;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Session { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Participant registration page loading for session: {SessionId}", Session);
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTER", "Registration page loading", new { sessionId = Session });
+
+            if (string.IsNullOrEmpty(Session))
+            {
+                Logger.LogWarning("NOOR-WARNING: No session ID provided");
+                Navigation.NavigateTo("/");
+                return;
+            }
+
+            // Get existing UserId from localStorage
+            try
+            {
+                existingUserId = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "noor-userId");
+            }
+            catch 
+            {
+                // localStorage not available or other JS error
+                existingUserId = null;
+            }
+
+            registration.SessionId = Session;
+            registration.UserId = existingUserId ?? "";
+
+            await ValidateSession();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to initialize registration page");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-REGISTER", "Initialization failed", new { error = ex.Message });
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ValidateSession()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Validating session: {SessionId}", Session);
+
+            // Mock validation for now - replace with actual API call
+            await Task.Delay(1000); // Simulate API call
+
+            // Mock successful validation
+            sessionData = new SessionValidationResponse
+            {
+                Valid = true,
+                SessionId = Guid.NewGuid(),
+                Title = "Introduction to Quranic Studies",
+                Description = "Learn the fundamentals of Quranic interpretation and understanding",
+                Status = "Created",
+                ParticipantCount = 3,
+                MaxParticipants = 50,
+                ExpiresAt = DateTime.UtcNow.AddHours(2),
+                CanJoin = true
+            };
+
+            Logger.LogInformation("NOOR-SUCCESS: Session validated: {Title}", sessionData.Title);
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-VALIDATION", "Session validated successfully", 
+                new { sessionTitle = sessionData.Title, participantCount = sessionData.ParticipantCount });
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Session validation failed");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-VALIDATION", "Validation failed", new { error = ex.Message });
+            sessionData = new SessionValidationResponse { Valid = false };
+        }
+    }
+
+    private async Task RegisterParticipant()
+    {
+        if (string.IsNullOrWhiteSpace(registration.Name) || 
+            string.IsNullOrWhiteSpace(registration.City) || 
+            string.IsNullOrWhiteSpace(registration.Country))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Please fill in all required fields.");
+            return;
+        }
+
+        isRegistering = true;
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Registering participant: {Name} from {City}, {Country}", 
+                registration.Name, registration.City, registration.Country);
+
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTRATION", "Registration started", 
+                new { name = registration.Name, city = registration.City, country = registration.Country });
+
+            // Generate browser fingerprint for fraud detection
+            try
+            {
+                registration.Fingerprint = await JSRuntime.InvokeAsync<string>("eval", 
+                    "navigator.userAgent + '|' + screen.width + 'x' + screen.height + '|' + navigator.language");
+            }
+            catch 
+            {
+                registration.Fingerprint = "unknown";
+            }
+
+            // TODO: Call actual API to register participant
+            await Task.Delay(1500); // Simulate API call
+
+            // Mock successful registration
+            var newUserId = string.IsNullOrEmpty(registration.UserId) ? Guid.NewGuid().ToString() : registration.UserId;
+            
+            // Store UserId in localStorage for future sessions
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserId);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userName", registration.Name);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCity", registration.City);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCountry", registration.Country);
+            }
+            catch 
+            {
+                // localStorage operations can fail in some browsers
+                Logger.LogWarning("NOOR-WARNING: Failed to store user data in localStorage");
+            }
+
+            Logger.LogInformation("NOOR-SUCCESS: Participant registered successfully: {Name} (UserID: {UserId})", 
+                registration.Name, newUserId.Substring(0, 8) + "...");
+
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTRATION", "Registration successful", 
+                new { userId = newUserId.Substring(0, 8) + "...", name = registration.Name });
+
+            // Navigate to waiting room
+            Navigation.NavigateTo($"/session/{Session}/waiting?userId={newUserId}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Participant registration failed");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-REGISTRATION", "Registration failed", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("alert", "Registration failed. Please try again.");
+        }
+        finally
+        {
+            isRegistering = false;
+        }
+    }
+
+    private string GetTimeRemaining()
+    {
+        if (sessionData?.ExpiresAt == null)
+            return "N/A";
+
+        var remaining = sessionData.ExpiresAt - DateTime.UtcNow;
+        if (remaining.TotalMinutes < 0)
+            return "Expired";
+
+        if (remaining.TotalHours >= 1)
+            return $"{remaining.Hours}h {remaining.Minutes}m";
+        
+        return $"{remaining.Minutes}m";
+    }
+
+    private string GetStatusBadgeClass()
+    {
+        return sessionData?.Status switch
+        {
+            "Active" => "bg-success",
+            "Created" => "bg-primary",
+            "Completed" => "bg-secondary",
+            _ => "bg-light text-dark"
+        };
+    }
+
+    private List<string> GetCountries()
+    {
+        return new List<string>
+        {
+            "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria",
+            "Bahrain", "Bangladesh", "Belgium", "Bosnia and Herzegovina", "Brazil", "Brunei",
+            "Bulgaria", "Canada", "Chad", "China", "Croatia", "Cyprus", "Czech Republic",
+            "Denmark", "Egypt", "Estonia", "Finland", "France", "Germany", "Ghana",
+            "Greece", "Hungary", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Italy",
+            "Japan", "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Latvia", "Lebanon",
+            "Libya", "Lithuania", "Luxembourg", "Malaysia", "Morocco", "Netherlands",
+            "New Zealand", "Nigeria", "Norway", "Oman", "Pakistan", "Palestine", "Poland",
+            "Portugal", "Qatar", "Romania", "Russia", "Saudi Arabia", "Singapore",
+            "Slovakia", "Slovenia", "South Africa", "Spain", "Sweden", "Switzerland",
+            "Syria", "Tunisia", "Turkey", "UAE", "Ukraine", "United Kingdom",
+            "United States", "Yemen"
+        };
+    }
+
+    // Models (duplicated for now - should be in shared models)
+    public class SessionValidationResponse
+    {
+        public bool Valid { get; set; }
+        public Guid SessionId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public int ParticipantCount { get; set; }
+        public int MaxParticipants { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public bool CanJoin { get; set; }
+    }
+
+    public class ParticipantRegistrationRequest
+    {
+        public string SessionId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string? Fingerprint { get; set; }
+    }
+}
+
+<style>
+.registration-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 60px 0;
+}
+
+.registration-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.session-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 40px 30px;
+    text-align: center;
+}
+
+.session-header h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.session-header h4 {
+    margin-bottom: 15px;
+}
+
+.session-stats {
+    margin: 30px 0;
+}
+
+.stat-item {
+    padding: 15px;
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.stat-item h5 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-item small {
+    color: #6c757d;
+}
+
+.status-badge {
+    margin-top: 20px;
+}
+
+.badge {
+    font-size: 1rem;
+    padding: 8px 16px;
+}
+
+.registration-form {
+    padding: 40px 30px;
+}
+
+.registration-form h5 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.form-description {
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.error-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+</style>

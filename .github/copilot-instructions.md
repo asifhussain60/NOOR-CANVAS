@@ -46,6 +46,54 @@ dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://lo
 # Application URL: https://localhost:9091 (HTTPS)
 ```
 
+### **NCRUN Command - Streamlined Development Tool**
+**Location:** `Workspaces/Global/ncrun.ps1` - One-command application launcher with browser integration
+
+**Quick Usage:**
+```powershell
+# Basic usage - starts app and opens browser automatically
+ncrun
+
+# Build first, then run (recommended for development)
+ncrun -Build
+
+# Run without opening browser (for debugging or testing)
+ncrun -NoBrowser
+
+# Use HTTPS on port 9091 instead of HTTP on 9090
+ncrun -Https
+
+# Custom port configuration
+ncrun -Port 8080
+
+# Get help and see all options
+ncrun -Help
+```
+
+**Key Features:**
+- **Smart Path Detection**: Works from any directory, automatically navigates to correct project folder
+- **Browser Integration**: 3-second delay then opens default browser to application URL
+- **Build Integration**: Optional clean build before running with `-Build` parameter
+- **Port Flexibility**: Supports both HTTP (default) and HTTPS modes
+- **Error Handling**: Proper exit codes and error reporting
+- **Background Jobs**: Browser opening runs in background to avoid blocking terminal
+
+**Verified Working Commands (September 2025):**
+```powershell
+# These commands have been tested and work correctly:
+ncrun -Help                    # Display usage information
+ncrun -Build -NoBrowser        # Build app and start without browser
+ncrun                          # Start app with browser (default behavior)
+ncrun -Https                   # Start on HTTPS port 9091
+```
+
+**Technical Implementation:**
+- **PowerShell Script**: Advanced parameter handling with validation
+- **Path Resolution**: Uses `Split-Path` to detect workspace structure automatically  
+- **Process Management**: Proper dotnet process handling with exit codes
+- **Browser Automation**: `Start-Job` with `Start-Process` for delayed browser opening
+- **Build Validation**: Checks build success before proceeding to run phase
+
 ### **PowerShell Command Guidelines**
 ```powershell
 # ✅ CORRECT: Use semicolon for command separation
@@ -390,10 +438,86 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 - **In Progress:** Currently being developed
 - **Completed:** Resolved and verified
 
+## 7B. GitHub Copilot Issue Reporting & Debugging Protocol
+
+### **Copilot's Debugging Capabilities**
+**What GitHub Copilot CAN Access Automatically:**
+- **Terminal Output:** `get_terminal_output` - All command results and errors
+- **File Contents:** `read_file` - Any file in the workspace for analysis
+- **Compilation Errors:** `get_errors` - Build and lint errors directly
+- **Git Changes:** `get_changed_files` - Modified files and diffs
+- **Code Search:** `grep_search`, `semantic_search` - Find code patterns and issues
+- **Project Structure:** `list_dir`, `file_search` - Navigate and understand codebase
+
+**What User Must Provide:**
+- **Browser Console Errors:** Developer tools messages, network failures, JavaScript errors
+- **Visual UI Issues:** Layout problems, styling issues, user interface bugs  
+- **External System Errors:** Database connection issues, API response problems
+- **Performance Observations:** Slow loading, memory usage, responsiveness issues
+- **User Experience Problems:** Workflow difficulties, confusing interfaces
+
+### **Issue Reporting Best Practices**
+**For Command/Terminal Issues:**
+```
+"Getting error when running ncrun -Build. Can you check the terminal output?"
+```
+*Copilot will use get_terminal_output to diagnose*
+
+**For Code Issues:**
+```
+"SessionController is throwing exceptions. Can you investigate?"
+```
+*Copilot will read the file and check for errors*
+
+**For Browser/UI Issues:**
+```
+"Application loads but I see this error in browser console: 
+TypeError: Cannot read property 'addEventListener' of null at line 45"
+```
+*User must provide browser error details*
+
+### **MANDATORY: Issue Documentation Protocol**
+**CRITICAL REQUIREMENT:** Before fixing any issue discovered after successful implementation, GitHub Copilot MUST first document it using the new minimal issue tracker architecture.
+
+**New Issue Tracker Architecture (Version 2.0):**
+- **Main Tracker**: `IssueTracker/NC-ISSUE-TRACKER.MD` - Minimal format showing only issue titles and status
+- **Detailed Files**: Individual markdown files in status folders with comprehensive information
+- **Status Folders**: `NOT STARTED/`, `IN PROGRESS/`, `COMPLETED/`
+
+**Issue Documentation Workflow:**
+1. **Create Detailed Issue File** in appropriate status folder (e.g., `NOT STARTED/Issue-X-brief-description.md`)
+2. **Update Main Tracker** with minimal entry linking to detailed file
+3. **Move Files** between status folders as work progresses
+
+**Examples:**
+```
+Add an issue: NCRUN browser opening fails on Windows 11 - Browser process not starting with Start-Process command - High - Bug
+Add an issue: SignalR connection drops during annotation - Connection lost after 5 minutes of inactivity - Medium - Bug  
+Add an issue: McBeatch theme navigation broken on mobile - Menu items not responsive on touch devices - Medium - Enhancement
+```
+
+**Workflow:**
+1. **Issue Discovered** → Document in NC-ISSUE-TRACKER.MD immediately
+2. **Investigation** → Use available debugging tools to diagnose
+3. **Resolution** → Implement fix with proper testing
+4. **Update Status** → Mark issue as completed in tracker
+5. **Lessons Learned** → Update copilot-instructions.md if needed
+
+**Why This Matters:**
+- **Prevents Lost Work:** Issues don't disappear between sessions
+- **Progress Tracking:** Clear record of what's been resolved
+- **Knowledge Base:** Future sessions can reference historical problems
+- **Quality Assurance:** Systematic approach to bug management
+
 ## 7A. Tracker Systems Usage Guide
 
 ### **Issue Tracker Commands & Operations**
-**Location:** `IssueTracker/NC-ISSUE-TRACKER.MD`
+**Location:** `IssueTracker/NC-ISSUE-TRACKER.MD` (Version 2.0 - Minimal Format)
+
+**New Architecture:**
+- **Main Tracker File**: Shows issue titles, status, and links to detailed files
+- **Status Folders**: `NOT STARTED/`, `IN PROGRESS/`, `COMPLETED/`
+- **Detailed Files**: `Issue-X-brief-description.md` with comprehensive information
 
 **Adding Issues:**
 ```
@@ -404,11 +528,17 @@ Add an issue: McBeatch theme colors inconsistent - Blue theme has wrong accent c
 
 **Managing Issue Status:**
 ```
-Mark issue 1 as In Progress
-Mark issue 3 as Completed
-Mark issue 5 as Pending
-Remove issue 2
+Mark issue 1 as In Progress    # Moves file from NOT STARTED/ to IN PROGRESS/
+Mark issue 3 as Completed      # Moves file from IN PROGRESS/ to COMPLETED/
+Mark issue 5 as Not Started    # Moves file back to NOT STARTED/
+Remove issue 2                 # Deletes issue file and updates main tracker
 ```
+
+**Issue File Structure:**
+- **Detailed Analysis**: Root cause, impact assessment, requirements
+- **Reproduction Steps**: How to recreate the issue
+- **Resolution Framework**: Implementation approach, acceptance criteria
+- **Status History**: Progress tracking and notes
 
 **Issue Structure:**
 - **Title**: Brief, descriptive problem/feature summary
@@ -418,6 +548,8 @@ Remove issue 2
 
 **Folder Management:**
 - Issues automatically move to appropriate folders based on status
+- `NOT STARTED/` → New issues awaiting development
+- `COMPLETED/` → Resolved and verified issues
 - `NOT STARTED/` → New issues awaiting development
 - `COMPLETED/` → Resolved and verified issues
 
@@ -543,13 +675,26 @@ if ($unprofessionalFiles) {
     Write-Host "✅ All filenames are professional"
 }
 
-# 7. Stage all changes
+# 7. MANDATORY BUILD VERIFICATION - Ensure project builds successfully before commit
+Write-Host "🔨 Building project to verify integrity..."
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet build --no-restore --verbosity quiet
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "✅ Build successful - project integrity verified"
+    cd "D:\PROJECTS\NOOR CANVAS"
+} else {
+    Write-Error "❌ Build failed - cannot commit changes with build errors"
+    Write-Host "Fix build errors before attempting to commit"
+    exit 1
+}
+
+# 8. Stage all changes
 git add .
 
-# 8. Commit with standardized message
+# 9. Commit with standardized message
 git commit -m "chore: cleanup temp files and maintain project structure - $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
 
-# 9. Push to remote (if requested)
+# 10. Push to remote (if requested)
 git push origin master
 
 Write-Host "🚀 Changes committed and pushed successfully"
@@ -590,13 +735,26 @@ Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.vscode\settings.json" -Force -ErrorActi
 # 5. Verify no unprofessional filenames exist
 Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -File | Where-Object {$_.Name -match "_Fixed|_Clean|_New|_Updated|_Final|_Modified|_Corrected|_Refactored|Sample|Test"} | Select-Object FullName
 
-# 6. Stage all changes
+# 6. MANDATORY BUILD VERIFICATION - Ensure project builds successfully before commit
+Write-Host "🔨 Building project to verify integrity..."
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet build --no-restore --verbosity quiet
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "✅ Build successful - project integrity verified"
+    cd "D:\PROJECTS\NOOR CANVAS"
+} else {
+    Write-Error "❌ Build failed - cannot commit changes with build errors"
+    Write-Host "Fix build errors before attempting to commit"
+    exit 1
+}
+
+# 7. Stage all changes
 git add .
 
-# 7. Commit with standardized message
+# 8. Commit with standardized message
 git commit -m "chore: cleanup temp files and maintain project structure - $(Get-Date -Format 'yyyy-MM-dd')"
 
-# 8. Push to remote
+# 9. Push to remote
 git push origin master
 ```
 
@@ -824,15 +982,29 @@ Views/
 3. **Clean development logs** (older than 7 days)
 4. **Remove IDE temp files** (.vs, .vscode settings)
 5. **Verify professional filenames** (no _Fixed, _Test, etc.)
-6. **Stage all changes** (`git add .`)
-7. **Commit with timestamp** (standard cleanup message)
-8. **Push to origin** (if specifically requested)
+6. **MANDATORY BUILD VERIFICATION** (ensure project compiles before commit)
+7. **Stage all changes** (`git add .`)
+8. **Commit with timestamp** (standard cleanup message)
+9. **Push to origin** (if specifically requested)
 
 ```bash
-# Development Server
+# Development Server (Traditional Method)
 dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091"
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
 Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
+
+# NCRUN Command (Recommended - Streamlined Development)
+ncrun                              # Quick start with browser
+ncrun -Build                       # Build first, then run
+ncrun -NoBrowser                   # Run without browser opening
+ncrun -Https                       # Use HTTPS on port 9091
+ncrun -Help                        # Display all available options
+
+# Issue Tracking & Debugging
+Add an issue: [Title] - [Description] - [Priority] - [Category]    # Document issues first
+Mark issue 1 as In Progress       # Update status
+get_terminal_output               # Check command output (Copilot internal)
+get_errors                        # Check compilation errors (Copilot internal)
 
 # Issue Management
 Add an issue: Database timeout - Connection drops after 30 seconds - High - Bug
@@ -888,4 +1060,77 @@ Invoke-RestMethod -Uri "https://localhost:9091/api/issues" -Method Post -Body $b
 4. **API Testing**: Always use `-SkipCertificateCheck` with development HTTPS certificates
 5. **Path Errors**: Full path is `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\` (note the NoorCanvas subfolder)
 
-These updates resolve the path and command issues experienced during Phase 1 implementation.
+### **PowerShell Development Lessons (September 2025)**
+**Critical Syntax Issues Resolved:**
+- **Command Chaining**: Use `;` not `&&` for command separation in PowerShell
+- **File Creation**: Use here-string method (`@'...'@`) for complex PowerShell scripts to avoid encoding issues
+- **Terminal Output**: `run_in_terminal` with `isBackground=false` for immediate command results
+- **Process Management**: `Stop-Process -Name "dotnet" -Force` reliably stops development server
+
+**Verified Working Patterns:**
+```powershell
+# ✅ CORRECT: PowerShell command chaining
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build --no-restore
+
+# ✅ CORRECT: Multi-step operations with validation
+dotnet build --no-restore
+if ($LASTEXITCODE -eq 0) { dotnet run --urls "https://localhost:9091" }
+
+# ✅ CORRECT: File path handling in PowerShell
+$targetDir = Join-Path $rootDir "SPA\NoorCanvas"
+Set-Location $targetDir
+
+# ✅ CORRECT: API testing with self-signed certificates
+Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
+```
+
+**Development Server Verification:**
+```powershell
+# Verify application is running correctly
+Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
+netstat -ano | findstr ":9091"    # Check HTTPS port binding
+Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}  # Check dotnet processes
+```
+
+**NCRUN Command Success Indicators:**
+- Application logs show "NOOR-STARTUP: NOOR Canvas Phase 1 application starting"
+- Browser automatically opens to application URL after 3-second delay
+- SignalR connections establish successfully (Blazor Server real-time functionality)
+- CSS and JavaScript resources load without 404 errors
+- User interface interactions logged with "NOOR-INFO" messages
+
+**These updates resolve the path and command issues experienced during Phase 1 implementation.**
+
+### **Thread Development Lessons (September 11, 2025)**
+**Key Insights from Recent Development Session:**
+
+**1. NCRUN Command Success:**
+- Created streamlined development launcher at `Workspaces/Global/ncrun.ps1`
+- Verified browser integration with 3-second delay and automatic opening
+- Confirmed path detection works from any directory using `Split-Path`
+- Tested all parameter combinations: `-Help`, `-Build`, `-NoBrowser`, `-Https`
+
+**2. Application Functionality Validation:**
+- NOOR Canvas Phase 1 application successfully starts and serves on both HTTP (9090) and HTTPS (9091)
+- Blazor Server SignalR connections establish properly (verified in logs)
+- Real-time UI interactions work correctly (user role selection logged)
+- Structured logging operational: "NOOR-STARTUP", "NOOR-INFO" messages appearing
+- Browser requests show proper resource loading (CSS, JS, fonts all 200 OK)
+
+**3. PowerShell Script Development:**
+- Here-string method (`@'...'@`) successfully resolves complex script encoding issues
+- `run_in_terminal` with `isBackground=true` correctly handles long-running processes
+- Background job (`Start-Job`) method works for delayed browser opening
+- Manual file edits preserved correctly after tool execution
+
+**4. Development Workflow Optimization:**
+- `ncrun` command eliminates need for manual directory navigation
+- Build integration (`-Build` parameter) ensures clean compilation before running
+- Browser automation reduces manual steps in development testing
+- Error handling provides proper exit codes for script reliability
+
+**5. Application Logging & Monitoring:**
+- NOOR Observer integration working as expected
+- SignalR hub registration successful: json and blazorpack protocols
+- User interaction tracking functional (landing page, role selection)
+- Development certificate warnings expected and non-blocking
