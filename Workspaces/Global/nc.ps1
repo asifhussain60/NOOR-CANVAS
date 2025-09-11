@@ -175,17 +175,81 @@ if ($Test) {
     Write-Host "   * All functionality available through single web server" -ForegroundColor Gray
     Write-Host "   * No CORS issues - same origin for API calls" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "Press Ctrl+C to stop the application" -ForegroundColor Red
+    Write-Host "Press Ctrl+C to stop the application, or type 'stop' and press Enter" -ForegroundColor Red
     Write-Host ""
     
-    try {
-        # Wait for the job to complete
-        Wait-Job $job | Out-Null
-    } catch {
-        Write-Host "Application stopped" -ForegroundColor Yellow
-    } finally {
-        # Clean up job
+    # Set up proper signal handling for Ctrl+C
+    $cleanup = {
+        Write-Host "`nStopping NOOR Canvas Testing Environment..." -ForegroundColor Yellow
+        Stop-Job $job -Force -ErrorAction SilentlyContinue
         Remove-Job $job -Force -ErrorAction SilentlyContinue
+        
+        # Kill any remaining dotnet processes on our ports
+        try {
+            Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object { 
+                Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
+            }
+            Get-NetTCPConnection -LocalPort 9091 -ErrorAction SilentlyContinue | ForEach-Object { 
+                Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
+            }
+        } catch {
+            # Fallback: stop all dotnet processes
+            Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
+        }
+        
+        Write-Host "Testing environment stopped successfully" -ForegroundColor Green
+    }
+
+    # Register Ctrl+C handler
+    $null = Register-ObjectEvent -InputObject ([System.Console]) -EventName CancelKeyPress -Action {
+        & $cleanup
+        exit 0
+    }
+
+    # Keep script running with interactive input handling
+    try {
+        do {
+            $input = Read-Host "Type 'stop' to quit, 'status' to check application, or press Ctrl+C"
+            
+            switch ($input.ToLower()) {
+                "stop" { 
+                    & $cleanup
+                    return 
+                }
+                "quit" { 
+                    & $cleanup
+                    return 
+                }
+                "status" {
+                    if ($job.State -eq "Running") {
+                        try {
+                            $response = Invoke-WebRequest -Uri $appUrl -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
+                            $testResponse = Invoke-WebRequest -Uri "$appUrl/testing" -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
+                            Write-Host "✅ Application and testing suite are running and responding" -ForegroundColor Green
+                            Write-Host "   App: $appUrl" -ForegroundColor Gray
+                            Write-Host "   Testing: $appUrl/testing" -ForegroundColor Gray
+                        } catch {
+                            Write-Host "⚠️ Application job is running but may not be fully responsive" -ForegroundColor Yellow
+                        }
+                    } else {
+                        Write-Host "❌ Application job has stopped" -ForegroundColor Red
+                        return
+                    }
+                }
+                "" { 
+                    # Just pressing Enter - continue
+                }
+                default {
+                    Write-Host "Commands: 'stop', 'quit', 'status', or Ctrl+C to exit" -ForegroundColor Gray
+                }
+            }
+        } while ($job.State -eq "Running")
+        
+        Write-Host "Application job has ended" -ForegroundColor Yellow
+    } catch {
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    } finally {
+        & $cleanup
     }
     
     return
@@ -221,16 +285,76 @@ if (-not $NoBrowser) {
 Write-Host ""
 Write-Host "=== NOOR Canvas Application Started ===" -ForegroundColor Green
 Write-Host "URL: $appUrl" -ForegroundColor White
-Write-Host "Press Ctrl+C to stop" -ForegroundColor Yellow
+Write-Host "Press Ctrl+C to stop the application, or type 'stop' and press Enter" -ForegroundColor Yellow
 Write-Host ""
 
-# Keep script running to maintain the job
-try {
-    # Wait for the job to complete (i.e., until user stops the application)
-    Wait-Job $job | Out-Null
-} catch {
-    Write-Host "Application stopped" -ForegroundColor Yellow
-} finally {
-    # Clean up
+# Set up proper signal handling for Ctrl+C
+$cleanup = {
+    Write-Host "`nStopping NOOR Canvas application..." -ForegroundColor Yellow
+    Stop-Job $job -Force -ErrorAction SilentlyContinue
     Remove-Job $job -Force -ErrorAction SilentlyContinue
+    
+    # Also kill any remaining dotnet processes on our ports
+    try {
+        Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object { 
+            Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
+        }
+        Get-NetTCPConnection -LocalPort 9091 -ErrorAction SilentlyContinue | ForEach-Object { 
+            Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
+        }
+    } catch {
+        # Fallback: stop all dotnet processes
+        Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
+    }
+    
+    Write-Host "Application stopped successfully" -ForegroundColor Green
+}
+
+# Register Ctrl+C handler
+$null = Register-ObjectEvent -InputObject ([System.Console]) -EventName CancelKeyPress -Action {
+    & $cleanup
+    exit 0
+}
+
+# Keep script running with interactive input handling
+try {
+    do {
+        $input = Read-Host "Type 'stop' to quit, 'status' to check application, or press Ctrl+C"
+        
+        switch ($input.ToLower()) {
+            "stop" { 
+                & $cleanup
+                return 
+            }
+            "quit" { 
+                & $cleanup
+                return 
+            }
+            "status" {
+                if ($job.State -eq "Running") {
+                    try {
+                        $response = Invoke-WebRequest -Uri $appUrl -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
+                        Write-Host "✅ Application is running and responding on $appUrl" -ForegroundColor Green
+                    } catch {
+                        Write-Host "⚠️ Application job is running but not responding on $appUrl" -ForegroundColor Yellow
+                    }
+                } else {
+                    Write-Host "❌ Application job has stopped" -ForegroundColor Red
+                    return
+                }
+            }
+            "" { 
+                # Just pressing Enter - continue
+            }
+            default {
+                Write-Host "Commands: 'stop', 'quit', 'status', or Ctrl+C to exit" -ForegroundColor Gray
+            }
+        }
+    } while ($job.State -eq "Running")
+    
+    Write-Host "Application job has ended" -ForegroundColor Yellow
+} catch {
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+} finally {
+    & $cleanup
 }

@@ -60,13 +60,15 @@ IssueTracker/
 - ✅ **Issue-9** — [Blazor JavaScript Interop During Static Rendering](COMPLETED/Issue-9-blazor-javascript-interop-static-rendering.md) ✅
 - ✅ **Issue-10** — [Consolidate Global Commands - Remove nsrun/ncrun, Update nc](COMPLETED/Issue-10-consolidate-global-commands.md) ✅
 - ✅ **Issue-11** — [Complete nsrun/ncrun Removal](COMPLETED/Issue-11-complete-nsrun-ncrun-removal.md) ✅
-- ✅ **Issue-12** — [NC -Test Command Incorrect Port 3000 Integration](COMPLETED/Issue-12-nc-test-incorrect-port-3000-integration.md) ✅
+- | **Issue-12** | nc -Test incorrect port 3000 integration | COMPLETED | 🔧 Enhancement |
+| **Issue-13** | nc command Ctrl+C signal handling broken | COMPLETED | 🐛 Bug |
 
 ---
 
 ## 🟡 **MEDIUM PRIORITY ISSUES**
 
 - ✅ **Issue-4** — [Browser Logging API 500 Error](COMPLETED/Issue-4-browser-logging-api-error.md) ✅
+- ❌ **Issue-15** — [New Session API Integration Gap](NOT%20STARTED/Issue-15-new-session-api-integration-gap.md) ❌
 
 ---
 
