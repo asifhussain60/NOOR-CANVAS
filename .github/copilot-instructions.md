@@ -472,12 +472,71 @@ logger.LogError("NOOR-ERROR: Database connection failed for canvas schema: {Erro
 - **Phase Tracking:** Monitor progress against 20-week timeline
 
 ### **Repository Cleanup & Maintenance**
-**Automatic Cleanup Command:** `Clean up and commit`
+**Automatic Cleanup Command:** `Clean up and commit` OR `Cleanup, Commit changes and push to origin`
+
+**When user prompts with cleanup commands, execute the following procedure:**
 
 **ESSENTIAL CONTEXT - TEMP Folder Usage:**
 - **TEMP Folder Purpose**: `Workspaces/TEMP/` is the designated workspace for ALL test files, debug files, experimental code, and temporary development artifacts
 - **Preserve Structure**: Never delete the TEMP folder itself - only empty its contents
 - **Development Practice**: All non-production files MUST be created in TEMP folder
+
+**MANDATORY Cleanup Procedure (Execute in order):**
+```powershell
+# 1. Empty TEMP folder contents completely (preserve folder structure)
+Get-ChildItem "D:\PROJECTS\NOOR CANVAS\Workspaces\TEMP\*" -Recurse -Force | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Write-Host "✅ TEMP folder emptied - all test/debug files removed"
+
+# 2. Remove other temporary files and artifacts
+Remove-Item "D:\PROJECTS\NOOR CANVAS\**\*.tmp" -Force -ErrorAction SilentlyContinue
+Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.DS_Store" -Force -ErrorAction SilentlyContinue
+
+# 3. Remove build artifacts (preserve source code)
+Remove-Item "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "D:\PROJECTS\NOOR CANVAS\Tools\**\bin" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "D:\PROJECTS\NOOR CANVAS\Tools\**\obj" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "D:\PROJECTS\NOOR CANVAS\**\node_modules" -Recurse -Force -ErrorAction SilentlyContinue
+
+# 4. Remove log files older than 7 days (keep recent logs)
+Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -Filter "*.log" | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item -Force
+
+# 5. Clean Visual Studio/VS Code temp files
+Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.vs" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "D:\PROJECTS\NOOR CANVAS\**\.vscode\settings.json" -Force -ErrorAction SilentlyContinue
+
+Write-Host "🧹 Repository cleanup completed"
+```
+
+**Git Commit Procedure (After cleanup):**
+```bash
+# 6. Verify no unprofessional filenames exist
+$unprofessionalFiles = Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Recurse -File | Where-Object {$_.Name -match "_Fixed|_Clean|_New|_Updated|_Final|_Modified|_Corrected|_Refactored|Sample|Test"}
+if ($unprofessionalFiles) {
+    Write-Warning "⚠️ Found unprofessional filenames: $($unprofessionalFiles.FullName -join ', ')"
+    Write-Host "Please rename these files before committing"
+} else {
+    Write-Host "✅ All filenames are professional"
+}
+
+# 7. Stage all changes
+git add .
+
+# 8. Commit with standardized message
+git commit -m "chore: cleanup temp files and maintain project structure - $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+
+# 9. Push to remote (if requested)
+git push origin master
+
+Write-Host "🚀 Changes committed and pushed successfully"
+```
+
+**Files and Folders to Clean:**
+- **Workspaces/TEMP/**: ALL contents deleted (folder preserved)
+- **bin/**, **obj/**: Build artifacts (recreated on build)
+- **node_modules/**: NPM dependencies (recreated on npm install)
+- **.vs/**, **.vscode/settings.json**: IDE temp files
+- **Logs older than 7 days**: Cleanup old development logs
 
 **Cleanup Procedures (Execute in order):**
 ```powershell
@@ -517,23 +576,26 @@ git commit -m "chore: cleanup temp files and maintain project structure - $(Get-
 git push origin master
 ```
 
-**Essential Folders to Preserve:**
+**Essential Folders to ALWAYS Preserve:**
 - `Workspaces/Documentation/` - All design and implementation docs
 - `IssueTracker/` - Issue tracking system
 - `McBeatch/` - Theme assets and styling
-- `Workspaces/Global/` - Copilot instructions and global configs
-- `Workspaces/TEMP/` - **ESSENTIAL**: Designated workspace for test files, debug files, experimental code
+- `SPA/` - Main application source code
+- `Tools/` - Console applications source code
+- `.github/` - GitHub configuration and instructions
 
-**Folders Safe to Remove:**
+**Folders Safe to Remove (Contents):**
+- `Workspaces/TEMP/` - **COMPLETELY EMPTY** (preserve folder structure)
 - `bin/`, `obj/` - Build artifacts (recreated on build)
 - `node_modules/` - NPM dependencies (recreated on npm install)
 - `.vs/`, `.vscode/settings.json` - IDE temp files
+- `logs/` - Old log files (older than 7 days)
 
-**TEMP Folder Contents (Safe to Empty):**
-- Test files, debug scripts, experimental code
-- Sample data files, mock implementations
-- Development artifacts, temporary references
-- Any non-production code or files
+**TEMP Folder Cleanup Rules:**
+- **ALWAYS EMPTY**: Remove ALL files and subfolders from TEMP
+- **PRESERVE STRUCTURE**: Keep the TEMP folder itself  
+- **NO EXCEPTIONS**: All test files, debug scripts, experimental code gets deleted
+- **DEVELOPMENT CYCLE**: Use TEMP freely during development, clean completely on commit
 
 ### **Database Operations**
 ```sql
@@ -720,6 +782,24 @@ Views/
 
 ## 12. Quick Reference Commands
 
+### **Cleanup Commands (Automatic Recognition)**
+**Triggers**: Any of these user prompts automatically execute full cleanup procedure:
+- `Clean up and commit`
+- `Cleanup, Commit changes and push to origin`  
+- `Clean repository and push changes`
+- `Cleanup and commit`
+- `Clean up temp files and commit`
+
+**Automatic Actions Performed:**
+1. **Empty TEMP folder completely** (preserve folder structure)
+2. **Remove build artifacts** (bin, obj folders)
+3. **Clean development logs** (older than 7 days)
+4. **Remove IDE temp files** (.vs, .vscode settings)
+5. **Verify professional filenames** (no _Fixed, _Test, etc.)
+6. **Stage all changes** (`git add .`)
+7. **Commit with timestamp** (standard cleanup message)
+8. **Push to origin** (if specifically requested)
+
 ```bash
 # Development Server
 dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
@@ -731,8 +811,9 @@ Add an issue: Database timeout - Connection drops after 30 seconds - High - Bug
 Mark issue 1 as In Progress
 Remove issue 2
 
-# Repository Maintenance
-Clean up and commit
+# Repository Maintenance (AUTOMATED CLEANUP)
+Clean up and commit                    # Executes full cleanup + commit
+Cleanup, Commit changes and push to origin    # Executes full cleanup + commit + push
 
 # Development Workflow
 dotnet publish -c Release -r win-x64 --self-contained false -o "./publish"

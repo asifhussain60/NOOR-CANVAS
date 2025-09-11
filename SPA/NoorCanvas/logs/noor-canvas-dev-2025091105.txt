@@ -44,3 +44,27 @@
 [2025-09-11 05:33:31.840 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
 [2025-09-11 05:33:31.842 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
 [2025-09-11 05:33:44.942 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-11 05:41:35.575 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-11 05:41:35.689 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-11 05:41:35.694 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-11 05:41:35.790 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on http://localhost:9090 {}
+[2025-09-11 05:41:35.890 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-11 05:41:35.897 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-11 05:41:35.931 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-11 05:41:35.934 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-11 05:41:35.937 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-11 05:41:35.939 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-11 05:41:35.940 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-11 05:41:37.709 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-11 05:47:30.817 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-11 05:47:30.940 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-11 05:47:30.946 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-11 05:47:31.049 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on http://localhost:9090 {}
+[2025-09-11 05:47:31.148 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-11 05:47:31.156 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-11 05:47:31.196 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-11 05:47:31.200 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-11 05:47:31.202 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-11 05:47:31.204 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-11 05:47:31.206 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-11 05:47:57.049 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
