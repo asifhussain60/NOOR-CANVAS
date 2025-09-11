@@ -6,7 +6,11 @@
 - **Main Application:** Islamic Content Sharing Platform (NOOR CANVAS) - Real-time annotation system
 - **Backend:** ASP.NET Core 8.0, Entity Framework Core, SignalR (WebSocket real-time communication)
 - **Frontend:** McBeatch Theme integration, Blazor Server/WASM or React with TypeScript
-- **Database:** SQL Server with dedicated "canvas" schema + cross-application "dbo" read access
+- **Database:** SQL Server AHHOME with dedicated "canvas" schema + cross-application "dbo" read access
+- **Database Environment Strategy:**
+  - **Development:** KSESSIONS_DEV, KQUR_DEV databases
+  - **Production:** KSESSIONS, KQUR databases
+  - **Connection:** sa user with full access, 1-hour timeout for long operations
 - **Security:** GUID-based session validation (UUIDv4), no traditional authentication required
 - **Real-time:** SignalR Hubs for live annotations, Q&A, participant management
 - **Development:** IIS Express x64 on localhost:9090 (ASP.NET Core hosting only - no npm/python servers)
@@ -75,6 +79,8 @@ netstat -ano | findstr ":9090"
 
 ### **Canvas Schema (NOOR CANVAS)**
 ```sql
+-- Development Database: KSESSIONS_DEV
+-- Production Database: KSESSIONS
 canvas.Sessions (id, album_id, category_id, guid, host_token, status, created_at, expires_at)
 canvas.SessionTranscripts (id, session_id, html_content, created_at)
 canvas.Registrations (id, session_id, name, country, city, fingerprint_hash, ip_hash, join_time)
@@ -84,8 +90,10 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 
 ### **Cross-Application Integration**
 - **Read Access:** NOOR CANVAS → Beautiful Islam dbo schema
+- **Development:** KQUR_DEV database for Quranic content
+- **Production:** KQUR database for Quranic content
 - **Image Assets:** Reference existing paths (D:\PROJECTS\KSESSIONS\Source Code\Sessions.Spa\Resources\IMAGES)
-- **SQL Account:** `noor_canvas_app` with proper schema permissions
+- **SQL Account:** `sa` user with full permissions and 1-hour timeout
 - **No Data Duplication:** Asset referencing strategy, not copying
 
 ## 5. McBeatch Theme Integration
@@ -251,11 +259,17 @@ git push origin master
 
 ### **Database Operations**
 ```sql
--- Check canvas schema objects
+-- Check canvas schema objects (Development)
+USE KSESSIONS_DEV;
 SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'canvas';
 
--- Verify cross-schema access
-SELECT * FROM dbo.Users; -- Should work with noor_canvas_app account
+-- Verify cross-schema access (Development)
+USE KQUR_DEV;
+SELECT * FROM dbo.Users; -- Should work with sa account
+
+-- Production equivalents
+USE KSESSIONS;
+USE KQUR;
 ```
 
 ### **Development Server Operations**
@@ -268,14 +282,20 @@ netstat -ano | findstr ":9090"
 
 # Check IIS Express processes
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
+
+# Test endpoints (use Invoke-WebRequest, not curl)
+Invoke-WebRequest -Uri "https://localhost:9090/healthz" -SkipCertificateCheck
+Invoke-WebRequest -Uri "https://localhost:9090/health/detailed" -SkipCertificateCheck
 ```
 
 ### **SignalR Testing**
-```javascript
-// Test hub connection
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/annotationHub")
-    .build();
+```powershell
+# Test hub connections using PowerShell (not curl)
+$headers = @{ "Content-Type" = "application/json" }
+Invoke-WebRequest -Uri "https://localhost:9090/hub/session" -Headers $headers -SkipCertificateCheck
+
+# Test health endpoint
+Invoke-WebRequest -Uri "https://localhost:9090/healthz" -SkipCertificateCheck | Select-Object -ExpandProperty Content
 ```
 
 ## 10. Commands That May Fail (Troubleshooting Guide)
@@ -426,6 +446,7 @@ Views/
 # Development Server
 dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
+Invoke-WebRequest -Uri "https://localhost:9090/healthz" -SkipCertificateCheck
 
 # Issue Management
 Add an issue: Database timeout - Connection drops after 30 seconds - High - Bug
