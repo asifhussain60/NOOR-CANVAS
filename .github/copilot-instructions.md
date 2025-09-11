@@ -13,16 +13,18 @@
   - **Connection:** sa user with full access, 1-hour timeout for long operations
 - **Security:** GUID-based session validation (UUIDv4), no traditional authentication required
 - **Real-time:** SignalR Hubs for live annotations, Q&A, participant management
-- **Development:** IIS Express x64 on localhost:9090 (ASP.NET Core hosting only - no npm/python servers)
+- **Development:** IIS Express x64 on localhost:9090 (HTTP) / localhost:9091 (HTTPS) - ASP.NET Core hosting only
 - **Production:** IIS deployment with dedicated application pool configuration
 - **Timeline:** 20-week phased implementation (6 major phases)
+- **Project Path:** `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\` (main application)
 
 ## 2. Development Server Requirements
 
 ### **MANDATORY Development Environment**
 - **Server Technology:** IIS Express x64 ONLY
-- **Port Configuration:** localhost:9090 (fixed port for all development)
+- **Port Configuration:** localhost:9090 (HTTP) / localhost:9091 (HTTPS) - HTTPS is primary
 - **Framework Hosting:** ASP.NET Core 8.0 built-in hosting pipeline
+- **Project Location:** `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\` (not just `SPA\`)
 - **FORBIDDEN Alternatives:** 
   - ❌ npm serve, npm start, npm run dev
   - ❌ python -m http.server, python -m SimpleHTTPServer  
@@ -32,19 +34,41 @@
 
 ### **Development Workflow**
 ```powershell
-# Correct way to run the application
-dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
+# Correct way to run the application (from project directory)
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet run --urls "https://localhost:9091"
+
+# Alternative: Run from workspace root
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091"
 
 # Or via Visual Studio
 # Launch Profile: IIS Express x64
-# Application URL: https://localhost:9090
+# Application URL: https://localhost:9091 (HTTPS)
+```
+
+### **PowerShell Command Guidelines**
+```powershell
+# ✅ CORRECT: Use semicolon for command separation
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build --no-restore
+
+# ❌ WRONG: Do not use && (bash syntax)
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" && dotnet build --no-restore
+
+# ✅ CORRECT: Multi-line commands
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet build --no-restore
+
+# ✅ CORRECT: Build and test sequence
+dotnet build --no-restore
+if ($LASTEXITCODE -eq 0) { dotnet test }
 ```
 
 ### **Port Verification**
 ```powershell
-# Verify correct port is in use
-netstat -ano | findstr ":9090"
-# Should show IIS Express process binding to port 9090
+# Verify correct ports are in use
+netstat -ano | findstr ":9090"  # HTTP
+netstat -ano | findstr ":9091"  # HTTPS (primary)
+# Should show IIS Express process binding to both ports
 ```
 
 ## 3. Critical Project Files & Documentation
@@ -614,36 +638,40 @@ USE KQUR;
 
 ### **Development Server Operations**
 ```powershell
-# Start application (IIS Express x64 on port 9090)
-dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
+# Start application (IIS Express x64 on port 9091 HTTPS)
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet run --urls "https://localhost:9091"
 
-# Verify server is running on correct port
-netstat -ano | findstr ":9090"
+# Alternative from workspace root
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091"
+
+# Verify server is running on correct ports
+netstat -ano | findstr ":9090"  # HTTP
+netstat -ano | findstr ":9091"  # HTTPS
 
 # Check IIS Express processes
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
 
 # Test endpoints (use Invoke-WebRequest, not curl)
-Invoke-WebRequest -Uri "https://localhost:9090/healthz" -SkipCertificateCheck
-Invoke-WebRequest -Uri "https://localhost:9090/health/detailed" -SkipCertificateCheck
+Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
+Invoke-WebRequest -Uri "https://localhost:9091/health/detailed" -SkipCertificateCheck
 ```
 
 ### **SignalR Testing**
 ```powershell
 # Test hub connections using PowerShell (not curl)
 $headers = @{ "Content-Type" = "application/json" }
-Invoke-WebRequest -Uri "https://localhost:9090/hub/session" -Headers $headers -SkipCertificateCheck
+Invoke-WebRequest -Uri "https://localhost:9091/hub/session" -Headers $headers -SkipCertificateCheck
 
 # Test health endpoint
-Invoke-WebRequest -Uri "https://localhost:9090/healthz" -SkipCertificateCheck | Select-Object -ExpandProperty Content
+Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck | Select-Object -ExpandProperty Content
 ```
 
 ## 10. Commands That May Fail (Troubleshooting Guide)
 
 ### **Development Server Issues**
-- **Symptom:** Application not accessible on localhost:9090
-- **Solution:** Verify IIS Express x64 is running and binding to correct port
-- **Command:** Check `netstat -ano | findstr ":9090"` and restart IIS Express if needed
+- **Symptom:** Application not accessible on localhost:9091
+- **Solution:** Verify IIS Express x64 is running and binding to correct ports
+- **Command:** Check `netstat -ano | findstr ":9091"` and restart IIS Express if needed
 
 ### **Database Connection Issues**
 - **Symptom:** Canvas schema access denied
@@ -802,9 +830,9 @@ Views/
 
 ```bash
 # Development Server
-dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091"
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
-Invoke-WebRequest -Uri "https://localhost:9090/healthz" -SkipCertificateCheck
+Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
 
 # Issue Management
 Add an issue: Database timeout - Connection drops after 30 seconds - High - Bug
@@ -821,7 +849,7 @@ dotnet ef database update --context CanvasDbContext
 
 # IIS Management
 iisreset
-netstat -ano | findstr ":9090"
+netstat -ano | findstr ":9091"
 
 # Project Structure Verification
 Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Directory | Select-Object Name, LastWriteTime
@@ -830,4 +858,34 @@ Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Directory | Select-Object Name, LastWri
 ---
 **Last updated:** September 11, 2025  
 **Project Status:** Phase 1 Complete - Ready for Phase 2 Development  
-**Next Milestone:** Host & Participant Core (Phase 2)
+**Next Milestone:** Host & Participant Core (Phase 2)  
+
+## ⚠️ CRITICAL PATH UPDATES (September 2025)
+
+### **Verified Working Paths & Commands**
+Based on successful Phase 1 implementation:
+
+**Application Path**: `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\` (NOT just `SPA\`)  
+**Build Command**: `cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build --no-restore`  
+**Run Command**: `cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet run --urls "https://localhost:9091"`  
+**Primary Port**: HTTPS https://localhost:9091 (HTTP fallback: localhost:9090)  
+**PowerShell Syntax**: Use `;` not `&&` for command separation  
+
+### **API Testing (Verified Working)**
+```powershell
+# Health endpoint test
+Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
+
+# Issue API test
+$body = @{title="Test Issue"; description="Testing"; priority="High"; category="Bug"} | ConvertTo-Json
+Invoke-RestMethod -Uri "https://localhost:9091/api/issues" -Method Post -Body $body -ContentType "application/json" -SkipCertificateCheck
+```
+
+### **Common Failure Points & Solutions**
+1. **Build Fails**: Always run from `SPA\NoorCanvas\` directory, not workspace root
+2. **Port Issues**: Use 9091 for HTTPS testing, 9090 for HTTP fallback  
+3. **PowerShell Errors**: Never use `&&` syntax, use `;` or separate lines
+4. **API Testing**: Always use `-SkipCertificateCheck` with development HTTPS certificates
+5. **Path Errors**: Full path is `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\` (note the NoorCanvas subfolder)
+
+These updates resolve the path and command issues experienced during Phase 1 implementation.
