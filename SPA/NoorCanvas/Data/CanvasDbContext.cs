@@ -13,6 +13,7 @@ public class CanvasDbContext : DbContext
     public DbSet<Session> Sessions { get; set; }
     public DbSet<SessionLink> SessionLinks { get; set; }
     public DbSet<HostSession> HostSessions { get; set; }
+    public DbSet<AdminSession> AdminSessions { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Registration> Registrations { get; set; }
     public DbSet<SharedAsset> SharedAssets { get; set; }

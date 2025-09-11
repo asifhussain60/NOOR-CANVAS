@@ -28,6 +28,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBbm5vdGF0aW9uQ2FudmFzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/AdminDashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5EYXNoYm9hcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/AnnotationDemo.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQW5ub3RhdGlvbkRlbW8ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
