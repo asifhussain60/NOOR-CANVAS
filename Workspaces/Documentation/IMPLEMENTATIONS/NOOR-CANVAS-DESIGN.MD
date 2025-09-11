@@ -42,7 +42,7 @@ This document captures the implementation design for NOOR Canvas (v3.0). It prov
 - **DB (canvas schema)**: Sessions, SessionLinks, Users, Registrations, SharedAssets, Questions, Answers, Annotations, AuditLog.
 - **External read (dbo)**: Beautiful Islam metadata & image path resolution + **Quran.com integration**.
 - **Client Apps**: Host Console · User Canvas · Observer Dashboard.
-- **Console Applications**: CLI tools for provisioning and operations (host-provisioner, db-migrator, observer-cli, issue-uploader). These are small .NET console apps created in Phase 1 as part of the skeletal project to simplify provisioning, migrations, and emergency ops.
+- **Console Applications**: CLI tools for provisioning and operations (HostProvisioner, DbMigrator, ObserverCli, IssueUploader). These are small .NET console apps created in Phase 1 under `D:\PROJECTS\NOOR CANVAS\Tools` as part of the skeletal project to simplify provisioning, migrations, and emergency ops.
 - **Zoom Integration**: Embedded Zoom panel for host dashboard (via Zoom link).
 
 ---
@@ -656,14 +656,20 @@ Noor Observer: Serilog, health checks, client diagnostics, /observer/stream for 
 Issue Tracker: POST /issues stores issues to canvas.Issues; simple admin triage view and create-from-log functionality.
 
 10) Phased Implementation Plan (authoritative)
+
+### Directory Structure
+- **Main Application**: `D:\PROJECTS\NOOR CANVAS\SPA` - Main NOOR Canvas ASP.NET Core 8 Blazor Server application
+- **Helper Tools**: `D:\PROJECTS\NOOR CANVAS\Tools` - All console applications and utilities
+- **Issue Tracker**: `D:\PROJECTS\NOOR CANVAS\IssueTracker` - Main NC-ISSUE-TRACKER.MD file with organized subfolders by status
+
 Phase 1 — Skeleton, Observer, Issue Tracker, DB (Weeks 1–3): repo init, core projects, /healthz, Serilog, Observer stream, DB migrations (including new Users table), McBeatch wiring, hubs, unit tests, IIS launch profile.
 
 Add: Create console applications as part of initial skeletal phases. Console apps to scaffold in Phase 1 include:
 - `Tools/HostProvisioner` (generate Host GUIDs, persist host session hashes)
-- `tools/db-migrator` (apply migrations, seed minimal data, rollback helpers)
-- `tools/observer-cli` (connect to /observer/stream for dev diagnostics)
-- `tools/issue-uploader` (batch upload issues / import issues from logs)
-- `tools/migration-helper` (backfill Host GUIDs from legacy KSESSIONS data)
+- `Tools/DbMigrator` (apply migrations, seed minimal data, rollback helpers)
+- `Tools/ObserverCli` (connect to /observer/stream for dev diagnostics)
+- `Tools/IssueUploader` (batch upload issues / import issues from logs)
+- `Tools/MigrationHelper` (backfill Host GUIDs from legacy KSESSIONS data)
 
 These console apps should be small .NET 8 console projects (templated) with clear command interfaces, logging, and a `--dry-run` option. Include minimal unit tests where practical.
 
@@ -693,6 +699,8 @@ Backfill strategy: use the tool or a migration script to migrate existing host t
 ## Appendix A — Console Application Contracts (Phase 1 deliverable)
 Each console app is a tiny .NET 8 console project with a consistent CLI contract (System.CommandLine or McMaster.Extensions.CommandLineUtils). Keep them simple, testable, and idempotent.
 
+**Location**: All console applications are located under `D:\PROJECTS\NOOR CANVAS\Tools`
+
 - 1) Tools/HostProvisioner
 - Purpose: Generate Host GUIDs, HMAC-SHA256 them with an app secret, and persist to `canvas.HostSessions`.
 - Commands:
@@ -707,10 +715,10 @@ Each console app is a tiny .NET 8 console project with a consistent CLI contract
 - 3) Tools/ObserverCli
 - Purpose: Connect to `/observer/stream`, allow interactive filtering, and capture snapshots to disk for triage.
 
-4) tools/issue-uploader
+4) Tools/IssueUploader
 - Purpose: Batch import issues from JSON/CSV files into `canvas.Issues` and optionally attach session snapshots.
 
-5) tools/migration-helper
+5) Tools/MigrationHelper
 - Purpose: Import host tokens from legacy stores (KSESSIONS) into `canvas.HostSessions` with proper hashing and optional rotation.
 
 Implementation notes for console apps
@@ -754,8 +762,8 @@ export interface SessionSnapshot {
 ## Try-it / Quickstart (developer)
 1. Clone repo
 2. Start local SQL Server (or use LocalDB)
-3. Run `tools/db-migrator apply --env dev` to create schema and seed data.
-4. Run the API + Blazor server profile in VS (IIS Express or Kestrel) and open `/`.
+3. Run `Tools/DbMigrator apply --env dev` to create schema and seed data.
+4. Run the main application from `D:\PROJECTS\NOOR CANVAS\SPA` in VS (IIS Express or Kestrel) and open `/`.
 
 ## Completion Summary
 - File: `Workspaces/Documentation/IMPLEMENTATIONS/NOOR-CANVAS-DESIGN.MD` updated with full v3.0 FINAL design including Console Applications added to Architecture and Phase 1.

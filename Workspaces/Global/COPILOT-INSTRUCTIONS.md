@@ -9,11 +9,41 @@
 - **Database:** SQL Server with dedicated "canvas" schema + cross-application "dbo" read access
 - **Security:** GUID-based session validation (UUIDv4), no traditional authentication required
 - **Real-time:** SignalR Hubs for live annotations, Q&A, participant management
-- **Development:** IIS Express x64 on localhost:8090
+- **Development:** IIS Express x64 on localhost:9090 (ASP.NET Core hosting only - no npm/python servers)
 - **Production:** IIS deployment with dedicated application pool configuration
 - **Timeline:** 20-week phased implementation (6 major phases)
 
-## 2. Critical Project Files & Documentation
+## 2. Development Server Requirements
+
+### **MANDATORY Development Environment**
+- **Server Technology:** IIS Express x64 ONLY
+- **Port Configuration:** localhost:9090 (fixed port for all development)
+- **Framework Hosting:** ASP.NET Core 8.0 built-in hosting pipeline
+- **FORBIDDEN Alternatives:** 
+  - ❌ npm serve, npm start, npm run dev
+  - ❌ python -m http.server, python -m SimpleHTTPServer  
+  - ❌ Node.js static file servers (http-server, live-server, etc.)
+  - ❌ webpack-dev-server, vite dev server
+  - ❌ Any non-IIS development servers
+
+### **Development Workflow**
+```powershell
+# Correct way to run the application
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
+
+# Or via Visual Studio
+# Launch Profile: IIS Express x64
+# Application URL: https://localhost:9090
+```
+
+### **Port Verification**
+```powershell
+# Verify correct port is in use
+netstat -ano | findstr ":9090"
+# Should show IIS Express process binding to port 9090
+```
+
+## 3. Critical Project Files & Documentation
 
 ### **Master Implementation Plan**
 - **Primary Document:** `Workspaces/Documentation/IMPLEMENTATIONS/NOOR-CANVAS-DESIGN.MD`
@@ -41,7 +71,7 @@
 - **Error Tracking:** Automatic exception capture with Islamic content context
 - **Environment Detection:** Development/Staging/Production configuration awareness
 
-## 3. Database Architecture & Integration
+## 4. Database Architecture & Integration
 
 ### **Canvas Schema (NOOR CANVAS)**
 ```sql
@@ -58,7 +88,7 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 - **SQL Account:** `noor_canvas_app` with proper schema permissions
 - **No Data Duplication:** Asset referencing strategy, not copying
 
-## 4. McBeatch Theme Integration
+## 5. McBeatch Theme Integration
 
 ### **Styling Framework**
 - **Location:** `McBeatch/` folder contains complete theme assets
@@ -72,7 +102,7 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 - **Mobile:** Responsive touch-friendly annotation tools
 - **Languages:** Arabic (RTL), English (LTR), Urdu (RTL) support
 
-## 5. Development Phases & Timeline
+## 6. Development Phases & Timeline
 
 ### **Phase 1: Foundation (Weeks 1-3)**
 - ASP.NET Core 8.0 project setup
@@ -110,7 +140,7 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 - Go-live preparation
 - Documentation completion
 
-## 6. Issue Management Workflow
+## 7. Issue Management Workflow
 
 ### **Priority System**
 - 🔴 **HIGH:** Blocks development, breaks core functionality
@@ -128,7 +158,7 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 - **In Progress:** Currently being developed
 - **Completed:** Resolved and verified
 
-## 7. NOOR Observer Debugging Commands
+## 8. NOOR Observer Debugging Commands
 
 ### **Diagnostic Levels**
 ```csharp
@@ -148,7 +178,7 @@ logger.LogError("NOOR-ERROR: Database connection failed for canvas schema: {Erro
 - **Annotation Rendering:** Drawing performance, canvas optimization
 - **Memory Usage:** Real-time memory consumption, garbage collection
 
-## 8. Working Commands & Development Tools
+## 9. Working Commands & Development Tools
 
 ### **Project Management**
 - **Issue Tracking:** Use natural language commands listed in Section 2
@@ -228,6 +258,18 @@ SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'canvas';
 SELECT * FROM dbo.Users; -- Should work with noor_canvas_app account
 ```
 
+### **Development Server Operations**
+```powershell
+# Start application (IIS Express x64 on port 9090)
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
+
+# Verify server is running on correct port
+netstat -ano | findstr ":9090"
+
+# Check IIS Express processes
+Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
+```
+
 ### **SignalR Testing**
 ```javascript
 // Test hub connection
@@ -236,7 +278,12 @@ const connection = new signalR.HubConnectionBuilder()
     .build();
 ```
 
-## 9. Commands That May Fail (Troubleshooting Guide)
+## 10. Commands That May Fail (Troubleshooting Guide)
+
+### **Development Server Issues**
+- **Symptom:** Application not accessible on localhost:9090
+- **Solution:** Verify IIS Express x64 is running and binding to correct port
+- **Command:** Check `netstat -ano | findstr ":9090"` and restart IIS Express if needed
 
 ### **Database Connection Issues**
 - **Symptom:** Canvas schema access denied
@@ -253,7 +300,7 @@ const connection = new signalR.HubConnectionBuilder()
 - **Solution:** Verify CSS file paths and Bootstrap integration
 - **Command:** Check browser developer tools for 404 CSS errors
 
-## 10. Essential Context & Best Practices
+## 11. Essential Context & Best Practices
 
 ### **TEMP Folder Development Workspace - CRITICAL**
 **Location:** `Workspaces/TEMP/`  
@@ -322,6 +369,8 @@ Workspaces/TEMP/
 5. **No Temporary Suffixes**: Never use _Fixed, _Clean, _New, _Updated, _Final
 6. **Production Ready**: Names should be appropriate for production deployment
 
+Folder Case Rule: Always create folders using Proper Case (PascalCase / Title Case). Examples: `Tools`, `Workspaces`, `IssueTracker`, `HostProvisioner`, `McBeatch`.
+
 **File Organization by Type:**
 ```
 Controllers/
@@ -371,9 +420,13 @@ Views/
 
 ---
 
-## 11. Quick Reference Commands
+## 12. Quick Reference Commands
 
 ```bash
+# Development Server
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA" --urls "https://localhost:9090"
+Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
+
 # Issue Management
 Add an issue: Database timeout - Connection drops after 30 seconds - High - Bug
 Mark issue 1 as In Progress
@@ -388,7 +441,7 @@ dotnet ef database update --context CanvasDbContext
 
 # IIS Management
 iisreset
-netstat -ano | findstr ":8090"
+netstat -ano | findstr ":9090"
 
 # Project Structure Verification
 Get-ChildItem "D:\PROJECTS\NOOR CANVAS" -Directory | Select-Object Name, LastWriteTime
