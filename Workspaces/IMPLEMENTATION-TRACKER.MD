@@ -6,6 +6,20 @@
 
 ---
 
+## 🚨 **CRITICAL DESIGN CHANGE NOTICE (September 11, 2025)**
+**Issue-17**: Host Dashboard → Direct Session Management UX Change  
+**Impact**: Major UX paradigm shift from "dashboard-first" to "action-first" host experience  
+**Requirements**:
+- Host authentication redirects directly to Session Management (no dashboard)  
+- Album → Category → Session cascading dropdowns (populated from KSESSIONS data)
+- "Generate Session Token" and "Start Session" buttons for immediate action
+- Full integration with existing session security and API endpoints
+
+**Implementation Priority**: HIGH - Affects Phase 2 completion and subsequent phases  
+**Tracking**: Issue-17-host-dashboard-to-direct-session-management-ux-change.md
+
+---
+
 ## Phase 1 — Skeleton, Observer, Issue Tracker, DB (Weeks 1–3)
 **Status**: ✅ COMPLETE (100%)  
 **Duration**: 3 weeks  

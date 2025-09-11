@@ -15,10 +15,10 @@
                     <p class="text-muted">Manage your NOOR Canvas sessions</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <button class="btn btn-primary me-2" onclick="@ShowCreateSessionModal">
+                    <button class="btn btn-primary me-2" @onclick="NavigateToCreateSession">
                         <i class="fas fa-plus"></i> New Session
                     </button>
-                    <button class="btn btn-outline-secondary" onclick="@RefreshDashboard">
+                    <button class="btn btn-outline-secondary" @onclick="RefreshDashboard">
                         <i class="fas fa-sync"></i> Refresh
                     </button>
                 </div>
@@ -115,19 +115,19 @@
                                                             @if (session.Status == "Created")
                                                             {
                                                                 <button class="btn btn-sm btn-success me-1" 
-                                                                        onclick="@(() => StartSession(session.Id))">
+                                                                        @onclick="() => StartSession(session.Id)">
                                                                     <i class="fas fa-play"></i> Start
                                                                 </button>
                                                             }
                                                             @if (session.Status == "Active")
                                                             {
                                                                 <button class="btn btn-sm btn-danger me-1" 
-                                                                        onclick="@(() => EndSession(session.Id))">
+                                                                        @onclick="() => EndSession(session.Id)">
                                                                     <i class="fas fa-stop"></i> End
                                                                 </button>
                                                             }
                                                             <button class="btn btn-sm btn-outline-primary" 
-                                                                    onclick="@(() => ViewSession(session.Id))">
+                                                                    @onclick="() => ViewSession(session.Id)">
                                                                 <i class="fas fa-eye"></i> View
                                                             </button>
                                                         </td>
@@ -143,7 +143,7 @@
                                         <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
                                         <h6>No sessions yet</h6>
                                         <p class="text-muted">Create your first session to get started</p>
-                                        <button class="btn btn-primary" onclick="@ShowCreateSessionModal">
+                                        <button class="btn btn-primary" @onclick="NavigateToCreateSession">
                                             Create First Session
                                         </button>
                                     </div>
@@ -156,61 +156,12 @@
         </div>
     }
 
-    <!-- Create Session Modal -->
-    <div class="modal fade" id="createSessionModal" tabindex="-1" style="display: @(showCreateModal ? "block" : "none");">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create New Session</h5>
-                    <button type="button" class="btn-close" onclick="@HideCreateSessionModal"></button>
-                </div>
-                <div class="modal-body">
-                    <form @onsubmit="CreateSession" @onsubmit:preventDefault="true">
-                        <div class="mb-3">
-                            <label class="form-label">Session Title *</label>
-                            <input type="text" class="form-control" @bind="newSession.Title" 
-                                   placeholder="Enter session title" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" @bind="newSession.Description" 
-                                      rows="3" placeholder="Session description (optional)"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Max Participants</label>
-                            <input type="number" class="form-control" @bind="newSession.MaxParticipants" 
-                                   min="1" max="500" />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="@HideCreateSessionModal">
-                        Cancel
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="@CreateSession" disabled="@isCreatingSession">
-                        @if (isCreatingSession)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                        }
-                        Create Session
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    @if (showCreateModal)
-    {
-        <div class="modal-backdrop fade show"></div>
-    }
 </div>
 
 @code {
     private HostDashboardData? dashboardData;
     private bool isLoading = true;
-    private bool showCreateModal = false;
-    private bool isCreatingSession = false;
-    private CreateSessionRequest newSession = new();
     private string? sessionToken;
     private string? initializationError;
 
@@ -308,63 +259,14 @@
         StateHasChanged();
     }
 
-    private void ShowCreateSessionModal()
+    private async Task NavigateToCreateSession()
     {
-        showCreateModal = true;
-        newSession = new CreateSessionRequest { MaxParticipants = 100 };
-        StateHasChanged();
+        Logger.LogInformation("NOOR-INFO: Navigating to create session page");
+        await JSRuntime.InvokeVoidAsync("NoorLogger.info", "NAVIGATION", "Navigating to create session", new { destination = "/host/session/create" });
+        Navigation.NavigateTo("/host/session/create");
     }
 
-    private void HideCreateSessionModal()
-    {
-        showCreateModal = false;
-        StateHasChanged();
-    }
 
-    private async Task CreateSession()
-    {
-        if (string.IsNullOrWhiteSpace(newSession.Title))
-            return;
-
-        isCreatingSession = true;
-        try
-        {
-            Logger.LogInformation("NOOR-INFO: Creating session: {Title}", newSession.Title);
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-CREATE", "Creating session", new { title = newSession.Title });
-
-            // TODO: Call actual API to create session
-            await Task.Delay(1000); // Simulate API call
-
-            // Mock successful creation
-            var newSessionSummary = new SessionSummary
-            {
-                Id = System.Guid.NewGuid(),
-                Title = newSession.Title,
-                Status = "Created",
-                CreatedAt = DateTime.Now,
-                ParticipantCount = 0
-            };
-
-            dashboardData?.RecentSessions.Insert(0, newSessionSummary);
-
-            Logger.LogInformation("NOOR-SUCCESS: Session created successfully");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-CREATE", "Session created successfully", 
-                new { sessionId = newSessionSummary.Id });
-
-            HideCreateSessionModal();
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-ERROR: Failed to create session");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-CREATE", "Failed to create session", new { error = ex.Message });
-            await JSRuntime.InvokeVoidAsync("alert", "Failed to create session. Please try again.");
-        }
-        finally
-        {
-            isCreatingSession = false;
-        }
-    }
 
     private async Task StartSession(System.Guid sessionId)
     {
@@ -444,6 +346,17 @@
         public string Status { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public int ParticipantCount { get; set; }
+        public string SessionGuid { get; set; } = string.Empty;
+        public string JoinLink { get; set; } = string.Empty;
+    }
+
+    public class SessionResponse
+    {
+        public Guid SessionId { get; set; }
+        public string SessionGuid { get; set; } = string.Empty;
+        public string JoinLink { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime ExpiresAt { get; set; }
     }
 
     public class CreateSessionRequest

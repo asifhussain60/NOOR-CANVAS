@@ -3,6 +3,7 @@ D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\web.Debug.config
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\web.Release.config
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\appsettings.Development.json
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\appsettings.json
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\appsettings.Production.json
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.staticwebassets.runtime.json
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.staticwebassets.endpoints.json
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.exe

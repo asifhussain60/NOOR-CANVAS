@@ -85,3 +85,4 @@ builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 **Status History**:
 - 2025-09-11: Issue created - HttpClient dependency injection missing
 - 2025-09-11: Fix implemented - Added HttpClient service registration, moved to AWAITING_CONFIRMATION
+- 2025-09-11: **COMPLETED** - Verified HttpClient service properly registered in Program.cs line 60

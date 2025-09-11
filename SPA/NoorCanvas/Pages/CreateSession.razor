@@ -1,0 +1,268 @@
+@page "/host/session/create"
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<CreateSession> Logger
+
+<div class="create-session-page">
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h3><i class="fas fa-plus-circle"></i> Create New Session</h3>
+                        <p class="mb-0">Set up a new NOOR Canvas session for your participants</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form @onsubmit="SubmitCreateSession" @onsubmit:preventDefault="true">
+                            <div class="mb-3">
+                                <label class="form-label">Session Title</label>
+                                <input type="text" class="form-control" @bind="newSession.Title" 
+                                       placeholder="e.g., Introduction to Quran" required />
+                                <div class="form-text">Choose a meaningful title that describes your session</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" rows="3" @bind="newSession.Description" 
+                                          placeholder="Describe what this session will cover..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Category</label>
+                                    <select class="form-select" @bind="newSession.CategoryId">
+                                        <option value="">Select Category</option>
+                                        <option value="1">Quran Study</option>
+                                        <option value="2">Hadith Discussion</option>
+                                        <option value="3">Islamic History</option>
+                                        <option value="4">Arabic Language</option>
+                                        <option value="5">General Discussion</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Album</label>
+                                    <select class="form-select" @bind="newSession.AlbumId">
+                                        <option value="">Select Album</option>
+                                        <option value="1">Quranic Verses</option>
+                                        <option value="2">Hadith Collection</option>
+                                        <option value="3">Islamic Art</option>
+                                        <option value="4">Calligraphy</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Duration (minutes)</label>
+                                    <input type="number" class="form-control" @bind="newSession.DurationMinutes" 
+                                           min="15" max="480" />
+                                    <div class="form-text">Recommended: 60-90 minutes</div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Max Participants</label>
+                                    <input type="number" class="form-control" @bind="newSession.MaxParticipants" 
+                                           min="1" max="500" />
+                                    <div class="form-text">Leave blank for unlimited</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" @bind="newSession.AllowQuestions" id="allowQuestions">
+                                    <label class="form-check-label" for="allowQuestions">
+                                        Allow participant questions during session
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" @bind="newSession.AllowAnnotations" id="allowAnnotations">
+                                    <label class="form-check-label" for="allowAnnotations">
+                                        Allow participant annotations and highlights
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isCreatingSession">
+                                    @if (isCreatingSession)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        @:Creating Session...
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-rocket me-2"></i>@:Create Session
+                                    }
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" @onclick="CancelCreation">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isCreatingSession = false;
+    private CreateSessionRequest newSession = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("NoorLogger.info", "CREATE-SESSION", "Session creation page loaded", new { timestamp = DateTime.UtcNow });
+        
+        // Initialize with default values
+        newSession = new CreateSessionRequest
+        {
+            Title = "",
+            Description = "",
+            DurationMinutes = 60,
+            MaxParticipants = 20,
+            AllowQuestions = true,
+            AllowAnnotations = true,
+            CategoryId = null,
+            AlbumId = null
+        };
+    }
+
+    private async Task SubmitCreateSession()
+    {
+        if (isCreatingSession) return;
+
+        try
+        {
+            isCreatingSession = true;
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "CREATE-SESSION", "Creating new session", new { title = newSession.Title });
+
+            var response = await Http.PostAsJsonAsync("/api/host/session/create", newSession);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var sessionData = await response.Content.ReadAsStringAsync();
+                var session = JsonSerializer.Deserialize<SessionResponse>(sessionData, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "CREATE-SESSION", "Session created successfully", new { sessionId = session?.Id });
+                
+                // Navigate to the session management page or back to dashboard
+                Navigation.NavigateTo($"/host/session/{session?.Id}/manage");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "CREATE-SESSION", "Failed to create session", new { error = errorContent, status = response.StatusCode });
+                
+                // Show error message to user (you can implement a toast notification here)
+                await JSRuntime.InvokeVoidAsync("alert", $"Failed to create session: {errorContent}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "CREATE-SESSION", "Exception during session creation", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("alert", $"Error creating session: {ex.Message}");
+        }
+        finally
+        {
+            isCreatingSession = false;
+        }
+    }
+
+    private void CancelCreation()
+    {
+        Navigation.NavigateTo("/host/dashboard");
+    }
+
+    // Data models
+    public class CreateSessionRequest
+    {
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int? CategoryId { get; set; }
+        public int? AlbumId { get; set; }
+        public int DurationMinutes { get; set; } = 60;
+        public int? MaxParticipants { get; set; }
+        public bool AllowQuestions { get; set; } = true;
+        public bool AllowAnnotations { get; set; } = true;
+    }
+
+    public class SessionResponse
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Status { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
+    }
+}
+
+<style>
+.create-session-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1.5rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.form-check-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+</style>

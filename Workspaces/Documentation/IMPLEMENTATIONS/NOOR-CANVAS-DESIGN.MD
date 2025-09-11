@@ -52,13 +52,13 @@ This section enumerates the primary and secondary use cases for NOOR Canvas. Eac
 
 Host / Session Management
 
-UC-H1 Create Session
+UC-H1 Create/Select Session
 - Primary actor: Host
-- Preconditions: Host authenticated to host console; album/content prepared (optional).
-- Trigger: Host clicks "Create Session".
-- Main flow: Host creates session → system generates SessionId + Host GUID + public GUID link → links returned (user URL, host dashboard URL) → Host may copy/QR and configure TTL.
-- Alternative: If generation fails (rate limit, DB error) show error and retry.
-- Success: Session created, persisted, Host receives both URLs and an audit entry is recorded.
+- Preconditions: Host authenticated and redirected to Session Management View.
+- Trigger: Host navigates through Album → Category → Session selection.
+- Main flow: Host selects Album from dropdown → Category dropdown filters by Album → Session dropdown filters by Category → Host clicks "Generate Session Token" → system generates SessionId + public user GUID link → Host receives shareable user URL and session controls.
+- Alternative: If generation fails (rate limit, DB error) show error and retry. Host can select different Album/Category/Session combinations.
+- Success: Session link generated, Host has shareable URL for participants and can proceed to start the session.
 
 UC-H2 Begin Session (Go Live)
 - Primary actor: Host
@@ -87,7 +87,7 @@ Authentication (Landing & Role Selection)
 
 Both Hosts and Users start at a single NOOR Canvas landing/login page with basic info about the site. The page presents two primary buttons: "I am the Host" and "I am a User". Clicking either button prompts for the session GUID. The flow then diverges:
 
-- Host flow: The user selects "I am the Host" and enters the Host GUID provisioned earlier by the `Tools/HostProvisioner`. The client POSTs the GUID to `POST /api/auth/validate-guid` for server-side validation. If the token is not provided, or is wrong, invalid, or expired, an error message is displayed. On success, the server issues a short-lived auth cookie or JWT and redirects to the Host Console. The server loads Group/Category/Session metadata in real-time from `KSESSIONS` tables to populate dashboard controls. From the control panel, the host can generate user GUIDs for their session via the "Generate Token" button.
+- Host flow: The user selects "I am the Host" and enters the Host GUID provisioned earlier by the `Tools/HostProvisioner`. The client POSTs the GUID to `POST /api/auth/validate-guid` for server-side validation. If the token is not provided, or is wrong, invalid, or expired, an error message is displayed. On success, the server issues a short-lived auth cookie or JWT and redirects **directly to the Session Management View** (not a dashboard). The server loads Album/Category/Session metadata in real-time from `KSESSIONS` tables to populate cascading dropdowns. The host selects Album → Category → Session, then generates user session tokens and starts the session directly from this interface.
 
 - User flow: The user selects "I am a User" and enters the GUID.
 - **New Flow:** The client first checks `localStorage` for a previously saved `UserId`.
@@ -437,7 +437,11 @@ POST   /api/auth/user/register            -> {userId, sessionId, requiredFields?
 GET    /s/{guid}                           -> Registration or Redirect to /join/{sessionId}
 POST   /api/join/{guid}                    -> {registrationId, sessionId, requiredFields?}
 
-GET   /host/dashboard/{sessionId}?guid={hostGuid} -> Host Dashboard View
+GET   /host/session-manager?guid={hostGuid} -> Host Session Management View
+GET   /api/host/albums?guid={hostGuid} -> [{albumId, albumName}]
+GET   /api/host/categories/{albumId}?guid={hostGuid} -> [{categoryId, categoryName}]  
+GET   /api/host/sessions/{categoryId}?guid={hostGuid} -> [{sessionId, sessionName, metadata}]
+POST  /api/host/generate-token?guid={hostGuid} -> {userAccessUrl, sessionId, expiresAt}
 POST  /api/host/sessions/{id}/begin?guid={hostGuid} -> {status:"Live"}
 POST  /api/host/sessions/{id}/end?guid={hostGuid}   -> {status:"Closed"}
 GET   /api/host/sessions/{id}/state?guid={hostGuid} -> {status, currentAsset?, qna?}
@@ -492,32 +496,35 @@ Typography: Readable fonts with suitable line-height.
 
 Color Palette: Minimal, Islamic design sensibilities.
 
-7.1 Host Console (Unified Dashboard)
+7.1 Host Session Management (Direct Action Interface)
 Target Devices: Desktop and iPad only - hosts do not run sessions from mobile phones.
-Layout Strategy: Single-view dashboard with sticky canvas preview for continuous monitoring.
+Layout Strategy: **Action-first interface** - no dashboard, direct session management workflow.
 
-Components & Behavior (HOST EXCLUSIVE)
+**NEW Components & Behavior (HOST EXCLUSIVE)**
 
-TranscriptPanel: Read-only DIV mount with AssetDetector overlays.
+**Session Selection Panel:** Cascading dropdowns (Album → Category → Session) populated from KSESSIONS data.
 
-Zoom Integration Panel: Embedded iframe for Zoom.
+**Token Generation:** "Generate Session Token" button creates shareable user access link.
 
-Sticky Canvas View: Always visible; not available to regular users.
+**Session Controls:** "Start Session" button to go live, with session status indicators.
 
-Q&A Queue: Live updating list with keyboard shortcuts.
+**Live Session Management:** Once session starts, interface transforms to show:
+- TranscriptPanel: Read-only DIV mount with AssetDetector overlays
+- Q&A Queue: Live updating list with keyboard shortcuts  
+- Roster Panel: Collapsible sidebar showing participants
+- Session Controls: End/Pause/Extend controls
+- Observer Dock: Toggleable diagnostic overlay
 
-Session Controls: Begin/End/Expire Link controls.
+**Zoom Integration Panel:** Embedded iframe for Zoom (when session is live).
 
-Roster Panel: Collapsible sidebar.
-
-Observer Dock: Toggleable diagnostic overlay.
+**Key UX Change:** Host bypasses traditional dashboard entirely and goes straight to actionable session management interface.
 
 7.0.1 Landing & Authentication UX
 Single landing/login page with two buttons: "I am the Host" and "I am a User".
 
 Both flows ask for a session GUID.
 
-Host flow: enter Host GUID, validate, and redirect to dashboard.
+**Host flow (UPDATED):** enter Host GUID, validate, and redirect **directly to Session Management View** (not dashboard).
 
 User flow: check localStorage for UserId. If not found, show the Registration page.
 
@@ -673,7 +680,7 @@ Add: Create console applications as part of initial skeletal phases. Console app
 
 These console apps should be small .NET 8 console projects (templated) with clear command interfaces, logging, and a `--dry-run` option. Include minimal unit tests where practical.
 
-Phase 2 — Host & Participant Core (Weeks 4–8): Host Dashboard, Registration (with persistent UserId lookup), Waiting Room, read-only transcript mount, Asset Detector & Share, User Canvas, Q&A.
+Phase 2 — Host & Participant Core (Weeks 4–8): **Host Session Management Interface** (Album/Category/Session cascading dropdowns, token generation, direct session start), Registration (with persistent UserId lookup), Waiting Room, read-only transcript mount, Asset Detector & Share, User Canvas, Q&A.
 
 Phase 3 — Annotations & Admin (Weeks 9–12): SVG overlay tools, sync throttling, roster admin, Redis backplane.
 
@@ -685,6 +692,8 @@ Phase 6 — Testing & Deployment (Weeks 19–20): Automated tests, load testing,
 
 11) Next Steps & Notes
 This NOOR-CANVAS-DESIGN-FINAL.MD consolidates the V3 and original design docs, deduplicates overlapping sections, and includes the requested configuration and tenets blocks.
+
+**MAJOR UX CHANGE (September 11, 2025):** Host authentication now redirects directly to Session Management Interface instead of a traditional dashboard. Hosts select Album → Category → Session via cascading dropdowns, generate user access tokens, and start sessions directly from this action-oriented interface. This change is tracked in Issue-17 and affects Phase 2 implementation priorities.
 
 The Host Provisioner Tool will generate a cryptographically-strong Host GUID and store a hash in canvas.HostSessions. The plaintext GUID is then provided to the host for login.
 

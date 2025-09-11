@@ -6,16 +6,26 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
-Log.Logger = new LoggerConfiguration()
+// Configure Serilog (environment-aware)
+var loggerConfig = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/noor-canvas-.txt", 
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7)
-    .CreateLogger();
+    .Enrich.FromLogContext();
 
+if (builder.Environment.IsDevelopment())
+{
+    // Development: include debug and verbose console output
+    loggerConfig.WriteTo.Debug();
+    loggerConfig.WriteTo.Console(outputTemplate: 
+        "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj} {Properties:j}{NewLine}{Exception}");
+}
+else
+{
+    // Production: rely on appsettings.Production.json for file sinks and use minimal console template
+    loggerConfig.WriteTo.Console(outputTemplate: 
+        "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+}
+
+Log.Logger = loggerConfig.CreateLogger();
 builder.Host.UseSerilog();
 
 // Add services to the container

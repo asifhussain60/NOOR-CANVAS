@@ -28,7 +28,7 @@
                     <div class="row">
                         <!-- Host Card -->
                         <div class="col-md-6 mb-4">
-                            <div class="role-card host-card" onclick="@(() => SelectRole("host"))">
+                            <div class="role-card host-card" @onclick='() => SelectRole("host")'>
                                 <div class="role-icon">
                                     <i class="fas fa-chalkboard-teacher"></i>
                                 </div>
@@ -48,7 +48,7 @@
 
                         <!-- Participant Card -->
                         <div class="col-md-6 mb-4">
-                            <div class="role-card participant-card" onclick="@(() => SelectRole("participant"))">
+                            <div class="role-card participant-card" @onclick='() => SelectRole("participant")'>
                                 <div class="role-icon">
                                     <i class="fas fa-users"></i>
                                 </div>
@@ -413,3 +413,5 @@
     transition: all 0.3s ease;
 }
 </style>
+
+
