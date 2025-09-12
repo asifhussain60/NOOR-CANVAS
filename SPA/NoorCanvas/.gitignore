@@ -1,0 +1,29 @@
+# NoorCanvas specific build exclusions
+bin/
+bin/*
+bin/**/*
+obj/
+obj/*
+obj/**/*
+
+# Build artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+*.json
+*.config
+*.deps.json
+*.runtimeconfig.json
+*.staticwebassets.endpoints.json
+*.staticwebassets.runtime.json
+
+# Debug/Release specific
+Debug/
+Release/
+net8.0/
+
+# Temporary files
+*.tmp
+*.bak
+apphost.exe
