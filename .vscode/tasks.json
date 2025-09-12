@@ -7,6 +7,49 @@
             "type": "process",
             "args": [
                 "build",
+                "${workspaceFolder}/SPA/NoorCanvas/NoorCanvas.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build-with-tests",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "build",
+                "run-post-build-tests"
+            ]
+        },
+        {
+            "label": "run-post-build-tests",
+            "command": "pwsh",
+            "type": "shell",
+            "args": [
+                "-ExecutionPolicy", "Bypass",
+                "-File", "${workspaceFolder}/.hooks/post-build.ps1",
+                "-Configuration", "Debug"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build-host-provisioner",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
                 "${workspaceFolder}/Tools/HostProvisioner/HostProvisioner.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"

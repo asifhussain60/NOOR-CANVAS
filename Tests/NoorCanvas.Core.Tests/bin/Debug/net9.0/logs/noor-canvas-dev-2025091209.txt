@@ -1,0 +1,571 @@
+[2025-09-12 09:05:46.245 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 09:05:46.245 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 09:05:46.390 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 09:05:46.390 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 09:05:46.391 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 09:05:46.391 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 09:05:46.487 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 09:05:46.489 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 09:05:46.581 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 09:05:46.581 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 09:05:46.633 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.645 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 13.5029ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.651 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.684 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB570L","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.691 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 40.3828ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.705 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.705 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.705 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.707 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.707 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 1.9476ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.708 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570Q","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.708 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570R","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.708 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570S","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.709 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570T","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.710 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.9691ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.710 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 5.3781ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.710 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.4266ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.711 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570U","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.711 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5710","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.711 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB570V","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.712 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.7659ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570Q","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.712 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.0758ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570T","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.712 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.7194ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570S","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.712 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5711","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.712 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5712","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.712 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.8897ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570R","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.713 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5713","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.713 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5714","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.713 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 1.4437ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5710","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.713 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5715","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.713 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 2.0176ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570V","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.714 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5716","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.714 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 1.2396ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5713","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.714 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 2.7222ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB570U","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.714 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5717","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.715 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 2.3717ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5711","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.715 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5718","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.716 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5719","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.716 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.7483ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5712","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.716 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571A","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.717 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 1.7033ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5719","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.717 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.5916ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5714","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.718 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.6555ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5715","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.718 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571B","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.718 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571C","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.719 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571D","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.719 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571E","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.718 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.8178ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5716","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.719 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571F","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.719 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.8366ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5717","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.720 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571G","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.720 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.9788ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5718","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.720 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.7153ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571A","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.720 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571I","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.720 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571H","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.721 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 2.6542ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571D","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.721 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.4754ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571B","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.722 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571J","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.722 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.722 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 2.9611ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571F","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.723 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.724 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 5.0483ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571E","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.724 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 5.5912ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571C","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.724 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.724 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.045ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571I","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.725 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.725 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.725 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 5.2322ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571G","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.725 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.7903ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571H","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.726 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.726 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571Q","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.726 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 3.7496ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.727 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.5815ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.727 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571R","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.727 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571S","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.729 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.5031ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.730 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 8.0794ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571J","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.730 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571T","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.730 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571U","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.732 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 6.4447ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571Q","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.732 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 8.1996ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.733 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB571V","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.733 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5720","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.733 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 7.4539ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.733 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5721","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.733 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 8.5252ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.734 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5722","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.734 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 7.2522ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571R","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.735 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5723","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.735 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 5.0498ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571U","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.735 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 7.8119ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571S","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.736 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5724","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.736 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5725","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.736 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 0.6694ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5724","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.736 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 6.4463ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571T","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.737 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5726","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.737 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5727","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.738 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 4.9517ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5720","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.738 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 5.1348ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB571V","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.738 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5729","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.739 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5728","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.742 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5728","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.742 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5729","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.744 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 5.2245ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5728","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.744 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572A","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.744 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 5.9776ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5729","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.745 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572A","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.745 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572B","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.746 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572B","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.746 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.9926ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572A","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.747 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572C","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.747 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.9116ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572B","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.784 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572D","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.747 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572C","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.785 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572D","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.786 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 39.4696ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572C","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.786 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.1917ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572D","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.786 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572E","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.787 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572F","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.786 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 51.3857ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5723","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.787 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572E","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.787 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572F","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.787 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572G","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.788 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.5767ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572E","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.788 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572H","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.788 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.8457ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572F","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.787 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 53.2661ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5722","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.789 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572I","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.789 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572H","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.789 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572J","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.789 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572I","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.790 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.4665ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572H","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.789 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572G","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.800 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.790 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572J","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.791 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 55.2812ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5725","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.791 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 54.7607ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5726","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.792 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 58.1368ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5721","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.801 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 12.3096ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572I","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.801 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572K","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 12.3964ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572J","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.792 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost/healthz - 307 null null 54.9438ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5727","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572Q","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.802 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572P","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.803 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572O","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.801 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.803 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572M","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.803 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572N","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.1017ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.801 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.805 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572R","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.805 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572L","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.805 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 3.56ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.805 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 3.3636ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.802 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 14.6885ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572G","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.806 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572S","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.806 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 4.5209ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.803 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572Q","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.805 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572R","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.804 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.0016ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.806 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572T","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.808 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.9578ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572R","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.808 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5730","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.808 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5731","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.808 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572T","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.806 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572S","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.806 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572V","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.810 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 3.8231ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572T","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.807 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 5.255ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572Q","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.815 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5732","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.816 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5733","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.816 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5732","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.817 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5733","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.808 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5731","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.816 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 14.3798ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.819 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5734","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.810 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 4.2013ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572S","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.818 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.6841ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5732","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.819 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5735","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.819 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5734","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.808 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5730","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.816 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572V","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.806 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB572U","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.819 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5736","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.821 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB572U","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.821 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 14.905ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572V","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.821 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5736","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.822 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5737","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.818 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.1893ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5733","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.822 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5738","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.822 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5737","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.821 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 12.9125ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5730","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.821 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.1288ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5734","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.822 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 15.5762ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB572U","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.822 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 3.3019ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5736","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.823 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5738","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.819 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 11.2193ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5731","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.833 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573B","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.833 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573C","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.834 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 11.7607ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5737","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.833 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB5739","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.834 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573E","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.834 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 11.7106ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5738","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.834 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5739","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.834 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573E","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.832 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB5735","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.833 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573A","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.835 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.4261ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5739","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.835 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.5345ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573E","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.835 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573A","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.834 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573C","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.834 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573B","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.842 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 8.8774ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573A","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.842 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 8.6833ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573C","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.842 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573I","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.842 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 9.1735ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573B","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.834 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573D","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.843 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573I","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.843 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573D","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.844 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.844 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.9436ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573I","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.844 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573K","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.836 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573G","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.845 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573G","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.836 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 16.5477ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB5735","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.846 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.834 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573F","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.846 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 10.6151ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573G","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.846 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573M","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.836 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573H","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.842 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573J","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.845 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 11.0114ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573D","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.845 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.847 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573H","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.846 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573F","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.847 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.847 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573J","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.845 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 1.5581ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573K","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.849 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.6169ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573M","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.850 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.851 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573N","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.852 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 15.8678ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573H","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.852 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 17.6987ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573F","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.852 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFHVKBB573P","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.852 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 5.8709ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573N","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.853 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 9.9884ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573J","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.851 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573L","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.852 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573O","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.853 -04:00 ERR] Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware An unhandled exception has occurred while executing the request. {"EventId":{"Id":1,"Name":"UnhandledException"},"RequestId":"0HNFHVKBB573P","RequestPath":"/healthz"}
+System.InvalidOperationException: Cannot find the fallback endpoint specified by route values: { page: /_Host, area:  }.
+   at Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.DynamicPageEndpointMatcherPolicy.ApplyAsync(HttpContext httpContext, CandidateSet candidates)
+   at Microsoft.AspNetCore.Routing.Matching.DfaMatcher.SelectEndpointWithPoliciesAsync(HttpContext httpContext, IEndpointSelectorPolicy[] policies, CandidateSet candidateSet)
+   at Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware.<Invoke>g__AwaitMatch|10_1(EndpointRoutingMiddleware middleware, HttpContext httpContext, Task matchTask)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2025-09-12 09:05:46.854 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 9.5843ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573L","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.854 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 4.7637ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573O","RequestPath":"/healthz"}
+[2025-09-12 09:05:46.854 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 500 null text/plain; charset=utf-8 2.1519ms {"EventId":{"Id":2},"RequestId":"0HNFHVKBB573P","RequestPath":"/healthz"}

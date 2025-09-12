@@ -1021,7 +1021,230 @@ Views/
 
 ---
 
+## 12. Automated Testing Workflow — CRITICAL IMPLEMENTATION
+
+### **🚀 Complete Automated Testing System**
+**NOOR Canvas now implements a comprehensive automated testing workflow that eliminates manual test execution and ensures code quality at every development stage.**
+
+#### **1. Automatic Test Execution After Every Build**
+**Implementation**: `.hooks/post-build.ps1`
+**Trigger**: Every successful `dotnet build` command
+**Behavior**:
+- **Smart Detection**: Only runs tests if build output actually changed (using build artifact hashing)
+- **Configuration Aware**: Tests match build configuration (Debug/Release)
+- **Non-Blocking**: Build succeeds even if tests fail (tests run as informational)
+- **Caching**: Skips redundant test runs if build artifacts unchanged
+- **Minimal Output**: Shows test results without overwhelming build logs
+
+**Usage Examples**:
+```powershell
+# Standard build - tests run automatically after successful build
+dotnet build
+
+# Build with verbose test output
+dotnet build; .hooks\post-build.ps1 -Verbose
+
+# Build without automatic tests (if needed for debugging)
+dotnet build; .hooks\post-build.ps1 -SkipTests
+```
+
+#### **2. Pre-Commit Test Validation with Smart Caching**
+**Implementation**: `.hooks/pre-commit-test.ps1` + Git pre-commit hook
+**Trigger**: Every `git commit` command
+**Behavior**:
+- **Smart Caching**: Calculates SHA256 hash of all source files (.cs, .cshtml, .razor)
+- **Skip Redundant Tests**: If no code changes since last successful test run, skips tests entirely
+- **Commit Blocking**: Prevents commit if tests fail
+- **Cache Management**: Tracks last test hash and result status
+- **Force Option**: Can force test run even if cache says no changes
+
+**Automatic Installation**: 
+```powershell
+# Install Git hooks (one-time setup)
+.hooks\setup-hooks.ps1
+
+# Uninstall hooks if needed
+.hooks\setup-hooks.ps1 -Uninstall
+```
+
+**Git Workflow Examples**:
+```bash
+# Normal commit - tests run only if code changed
+git add .
+git commit -m "feature: add new functionality"
+# → Tests run automatically if source code changed since last test
+# → Commit proceeds only if tests pass
+
+# Force commit testing regardless of cache
+git add .
+.hooks\pre-commit-test.ps1 -Force  # Manual pre-validation
+git commit -m "feature: add new functionality"
+```
+
+#### **3. GitHub Actions CI/CD Integration**
+**Implementation**: `.github/workflows/build-and-test.yml`
+**Trigger**: Every push/pull request to master/develop branches
+**Behavior**:
+- **Full Validation**: Runs complete build and test suite in clean environment
+- **Cross-Platform**: Windows-based runner matching development environment
+- **Artifact Upload**: Test results available for download
+- **Status Reporting**: PR status checks and build badges
+- **Release Pipeline**: Integrated with deployment workflow
+
+#### **4. VS Code Task Integration**
+**Implementation**: Updated `.vscode/tasks.json`
+**New Tasks**:
+- **build**: Default build task with smart test integration
+- **build-with-tests**: Explicit build + test sequence
+- **run-post-build-tests**: Manual test execution task
+
+**Usage in VS Code**:
+- `Ctrl+Shift+P` → "Tasks: Run Task" → "build-with-tests"
+- `Ctrl+Shift+B` → Default build (includes automatic test run)
+- Terminal: `dotnet build` (automatic test execution)
+
+### **🎯 Smart Caching System Architecture**
+
+#### **Cache Directories**:
+- **`.test-cache/`**: Pre-commit test cache (source code hashing)
+  - `last-test-hash.txt`: SHA256 of all source files from last test run
+  - `last-test-result.txt`: Result of last test execution (PASS/FAIL)
+- **`.build-cache/`**: Post-build test cache (build artifact hashing)
+  - `last-build-hash.txt`: SHA256 of build artifacts from last test run
+
+#### **Hashing Strategy**:
+**Source Code Hash** (Pre-commit):
+- Includes: `*.cs`, `*.cshtml`, `*.razor` files
+- Excludes: `bin/`, `obj/`, temporary files
+- Algorithm: SHA256 of combined file contents + paths
+- Purpose: Detect code changes that require test validation
+
+**Build Artifact Hash** (Post-build):
+- Includes: `*.dll`, `*.exe` files in bin/ directories
+- Algorithm: SHA256 of file hashes + paths
+- Purpose: Detect when build actually changed (not just timestamp)
+
+#### **Cache Invalidation Rules**:
+- **Source changes**: Any modification to .cs/.cshtml/.razor files
+- **Test changes**: Modifications to test files themselves
+- **Dependency changes**: Package restore or project file modifications
+- **Manual override**: `-Force` parameter bypasses all caching
+- **Failed tests**: Cache marked as FAIL, forces rerun until tests pass
+
+### **📊 Testing Workflow States**
+
+#### **State 1: No Changes (Cached)**
+```
+Build → Check Cache → No Changes → Skip Tests → Success
+Commit → Check Cache → No Changes → Skip Tests → Allow Commit
+```
+
+#### **State 2: Code Changes (Run Tests)**
+```
+Build → Check Cache → Changes Detected → Build → Run Tests → Cache Result
+Commit → Check Cache → Changes Detected → Run Tests → Block if Fail → Allow if Pass
+```
+
+#### **State 3: Force Override**
+```
+Manual → Force Flag → Skip Cache → Run Tests → Update Cache
+```
+
+### **🔧 Configuration Options**
+
+#### **Post-Build Testing** (`.hooks/post-build.ps1`):
+```powershell
+# Standard usage (automatic)
+dotnet build  # Tests run automatically
+
+# Manual options
+.hooks\post-build.ps1 -Configuration Release  # Test Release build
+.hooks\post-build.ps1 -SkipTests              # Skip automatic tests
+.hooks\post-build.ps1 -Verbose                # Detailed test output
+```
+
+#### **Pre-Commit Testing** (`.hooks/pre-commit-test.ps1`):
+```powershell
+# Automatic via Git hook
+git commit -m "message"  # Tests run automatically with caching
+
+# Manual execution
+.hooks\pre-commit-test.ps1         # Smart caching
+.hooks\pre-commit-test.ps1 -Force  # Force run regardless of cache
+.hooks\pre-commit-test.ps1 -Verbose -Force  # Detailed output + force
+.hooks\pre-commit-test.ps1 -SkipBuild       # Tests only, no build
+```
+
+### **⚠️ Important Behavioral Changes**
+
+#### **For Developers**:
+- **Build Process**: Tests now run automatically after every successful build
+- **Commit Process**: Tests run automatically before commits (with smart caching)
+- **Fast Feedback**: No code changes = instant commits (cached test results)
+- **Test Failures**: Cannot commit code with failing tests
+- **Manual Override**: Use `-Force` flag when needed for debugging
+
+#### **For Copilot Development**:
+- **Always assume tests run**: Don't ask "Should I run tests?" - they run automatically
+- **Reference caching behavior**: Mention when tests will/won't run based on changes
+- **Use Force judiciously**: Only suggest `-Force` for specific debugging scenarios
+- **Validate before commit**: Always ensure code quality before any commit
+
+### **📋 Troubleshooting Common Scenarios**
+
+#### **"Tests keep running when I haven't changed anything"**
+```powershell
+# Check cache status
+Get-Content .test-cache\last-test-hash.txt
+Get-Content .test-cache\last-test-result.txt
+
+# Clear cache to reset
+Remove-Item .test-cache -Recurse -Force
+```
+
+#### **"Need to commit even with test failures (emergency)"**
+```bash
+# Bypass pre-commit hook (emergency only)
+git commit --no-verify -m "emergency: bypass tests"
+```
+
+#### **"Want to run tests manually without committing"**
+```powershell
+# Run pre-commit validation manually
+.hooks\pre-commit-test.ps1 -Force
+
+# Run post-build tests manually
+.hooks\post-build.ps1 -Configuration Debug -Verbose
+```
+
 ## 12. Quick Reference Commands
+
+### **Automated Testing Commands (NEW)**
+**Post-Build Testing (Automatic)**:
+```powershell
+dotnet build                                    # Tests run automatically after build
+.hooks\post-build.ps1 -Verbose                # Manual with detailed output
+.hooks\post-build.ps1 -SkipTests              # Build without automatic tests
+```
+
+**Pre-Commit Testing (Automatic via Git)**:
+```bash
+git commit -m "message"                        # Tests run automatically (cached)
+```
+
+**Manual Pre-Commit Testing**:
+```powershell
+.hooks\pre-commit-test.ps1                     # Smart cached testing
+.hooks\pre-commit-test.ps1 -Force             # Force run (ignore cache)
+.hooks\pre-commit-test.ps1 -Verbose -Force    # Detailed output + force run
+```
+
+**Git Hooks Management**:
+```powershell
+.hooks\setup-hooks.ps1                        # Install automated Git hooks
+.hooks\setup-hooks.ps1 -Uninstall            # Remove Git hooks
+.hooks\setup-hooks.ps1 -Force                # Reinstall/overwrite existing hooks
+```
 
 ### **Cleanup Commands (Automatic Recognition)**
 **Triggers**: Any of these user prompts automatically execute full cleanup procedure:
