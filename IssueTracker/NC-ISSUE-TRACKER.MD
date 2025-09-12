@@ -52,8 +52,7 @@ IssueTracker/
 
 - ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md)
 - ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
-- ⏳ **Issue-18** — [Blazor Routing Navigation Failure](AWAITING_CONFIRMATION/Issue-18-blazor-routing-navigation-failure.md)
-- ⏳ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing Pages](AWAITING_CONFIRMATION/Issue-19-ambiguous-route-conflict-index-landing.md)
+
 - ⏳ **Issue-22** — [Host Endpoint Missing - Application Startup Failure](AWAITING_CONFIRMATION/Issue-22-host-endpoint-missing-application-startup-failure.md)
 ### **Completed High Priority Issues**
 - ✅ **Issue-2** — [Blazor Server Double Initialization](COMPLETED/Issue-2-blazor-double-initialization.md)
@@ -67,6 +66,8 @@ IssueTracker/
 - ✅ **Issue-11** — [Complete nsrun/ncrun Removal](COMPLETED/Issue-11-complete-nsrun-ncrun-removal.md)
 - ✅ **Issue-12** — [NC Test Suite Port 3000 Configuration Error](COMPLETED/Issue-12-nc-test-suite-port-3000-configuration-error.md)
 - ✅ **Issue-13** — [nc command Ctrl+C signal handling broken](COMPLETED/Issue-13-nc-ctrl-c-signal-handling-broken.md)
+- ✅ **Issue-18** — [Blazor Routing Navigation Failure](COMPLETED/Issue-18-blazor-routing-navigation-failure.md)
+- ✅ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing Pages](COMPLETED/Issue-19-ambiguous-route-conflict-index-landing.md)
 - ✅ **Issue-21** — [Session Save Route Conflict Recurrence](COMPLETED/Issue-21-session-save-route-conflict-recurrence.md)
 
 ---
@@ -101,8 +102,8 @@ IssueTracker/
 - **Total Issues:** 16
 - **Not Started:** 2
 - **In Progress:** 0
-- **Awaiting Confirmation:** 1  
-- **Completed:** 13
+- **Awaiting Confirmation:** 0  
+- **Completed:** 14
 
 ---
 
@@ -128,6 +129,37 @@ Issues follow this standardized format:
 Mark issue X as [In Progress|AwaitingConfirmation|Completed|Not Started]
 ```
 **Icons:** ❌ Not Started | ⚡ In Progress | ⏳ Awaiting Confirmation | ✅ Completed
+
+### **Test Case Creation - MANDATORY**
+```
+CRITICAL: Create test cases for fixed issues before marking as Completed
+```
+**Requirements:**
+- **Unit Tests**: Validate specific bug fixes and component behavior
+- **Integration Tests**: Ensure application-level functionality works correctly  
+- **Regression Tests**: Prevent the same issues from reoccurring
+- **Location**: Add tests to `Tests/NoorCanvas.Core.Tests/` project
+- **Categories**: Group tests by issue area (Routing/, Commands/, etc.)
+- **Coverage**: Both positive and negative test cases
+- **CI Integration**: Tests must run in automated pipeline
+
+**Test Case Examples:**
+```csharp
+// Unit Test Example
+[Fact]
+public void Issue18_IndexPage_ShouldOnlyRouteToHome() { /* validation */ }
+
+// Integration Test Example  
+[Fact]
+public async Task Issue19_ApplicationStartup_ShouldNotThrowRoutingExceptions() { /* validation */ }
+```
+
+**Workflow:**
+1. **Fix Issue** → Implement solution
+2. **Create Tests** → Write comprehensive test cases
+3. **Validate Tests** → Run tests to ensure they pass
+4. **Move to AWAITING_CONFIRMATION** → Wait for user verification
+5. **Mark COMPLETED** → Only after user confirms fix works
 
 ### **Awaiting Confirmation Workflow**
 - When a fix is implemented by a developer, move the issue file to `AWAITING_CONFIRMATION/` and update the tracker entry to use the ⏳ icon.

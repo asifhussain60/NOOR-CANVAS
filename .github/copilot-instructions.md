@@ -46,28 +46,22 @@ dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://lo
 # Application URL: https://localhost:9091 (HTTPS)
 ```
 
-### **NCRUN Command - Streamlined Development Tool**
-**Location:** `Workspaces/Global/ncrun.ps1` - One-command application launcher with browser integration
+### **NC Command - Primary Application Runner**
+**Location:** `Workspaces/Global/nc.ps1` - Simple application launcher with browser integration
 
 **Quick Usage:**
 ```powershell
 # Basic usage - starts app and opens browser automatically
-ncrun
-
-# Build first, then run (recommended for development)
-ncrun -Build
+nc
 
 # Run without opening browser (for debugging or testing)
-ncrun -NoBrowser
+nc -NoBrowser
 
 # Use HTTPS on port 9091 instead of HTTP on 9090
-ncrun -Https
-
-# Custom port configuration
-ncrun -Port 8080
+nc -Https
 
 # Get help and see all options
-ncrun -Help
+nc -Help
 ```
 
 **Key Features:**
@@ -81,10 +75,10 @@ ncrun -Help
 **Verified Working Commands (September 2025):**
 ```powershell
 # These commands have been tested and work correctly:
-ncrun -Help                    # Display usage information
-ncrun -Build -NoBrowser        # Build app and start without browser
-ncrun                          # Start app with browser (default behavior)
-ncrun -Https                   # Start on HTTPS port 9091
+nc -Help                       # Display usage information
+nc -NoBrowser                  # Start app without browser
+nc                             # Start app with browser (default behavior)
+nc -Https                      # Start on HTTPS port 9091
 ```
 
 **Technical Implementation:**
@@ -459,7 +453,7 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 ### **Issue Reporting Best Practices**
 **For Command/Terminal Issues:**
 ```
-"Getting error when running ncrun -Build. Can you check the terminal output?"
+"Getting error when running nc. Can you check the terminal output?"
 ```
 *Copilot will use get_terminal_output to diagnose*
 
@@ -491,7 +485,7 @@ TypeError: Cannot read property 'addEventListener' of null at line 45"
 
 **Examples:**
 ```
-Add an issue: NCRUN browser opening fails on Windows 11 - Browser process not starting with Start-Process command - High - Bug
+Add an issue: NC browser opening fails on Windows 11 - Browser process not starting with Start-Process command - High - Bug
 Add an issue: SignalR connection drops during annotation - Connection lost after 5 minutes of inactivity - Medium - Bug  
 Add an issue: McBeatch theme navigation broken on mobile - Menu items not responsive on touch devices - Medium - Enhancement
 ```
@@ -1272,12 +1266,11 @@ dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://lo
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
 Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
 
-# NCRUN Command (Recommended - Streamlined Development)
-ncrun                              # Quick start with browser
-ncrun -Build                       # Build first, then run
-ncrun -NoBrowser                   # Run without browser opening
-ncrun -Https                       # Use HTTPS on port 9091
-ncrun -Help                        # Display all available options
+# NC Command - Primary Application Runner
+nc                                 # Quick start with browser
+nc -NoBrowser                      # Run without browser opening
+nc -Https                          # Use HTTPS on port 9091
+nc -Help                           # Display all available options
 
 # Issue Tracking & Debugging
 Add an issue: [Title] - [Description] - [Priority] - [Category]    # Document issues first
@@ -1371,7 +1364,7 @@ netstat -ano | findstr ":9091"    # Check HTTPS port binding
 Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}  # Check dotnet processes
 ```
 
-**NCRUN Command Success Indicators:**
+**NC Command Success Indicators:**
 - Application logs show "NOOR-STARTUP: NOOR Canvas Phase 1 application starting"
 - Browser automatically opens to application URL after 3-second delay
 - SignalR connections establish successfully (Blazor Server real-time functionality)

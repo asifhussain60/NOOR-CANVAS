@@ -1,0 +1,4 @@
+[2025-09-12 10:22:43.798 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 10:25:25.645 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 10:25:25.650 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 10:25:25.645 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}

@@ -37,14 +37,15 @@ nct build                          # Build Host Provisioner
 nct help                           # Show detailed help
 ```
 
-### 🏃‍♂️ **NCRUN - Basic Application Runner**
+### 🏃‍♂️ **NC - Primary Application Runner**
 Simple application launcher without testing integration.
 
 #### **Quick Usage**
 ```powershell
-ncrun                    # Start app on localhost:9090 and open browser
-ncrun -Build             # Build first, then run
-ncrun -Help              # Show detailed help
+nc                       # Start app on localhost:9090 and open browser
+nc -NoBrowser            # Start without opening browser
+nc -Https                # Use HTTPS (port 9091)
+nc -Help                 # Show detailed help
 ```
 
 ## 📋 **Command Reference**
@@ -56,18 +57,16 @@ ksrun -test -Build       # Build first, then full testing workflow
 ksrun -test -Https       # Use HTTPS (port 9091) for secure testing
 ksrun -test -NoBrowser   # Generate token and start app without browser automation
 ksrun -Build             # Build and run application only (no testing suite)
-ksrun                    # Basic application startup (equivalent to ncrun)
+ksrun                    # Basic application startup (equivalent to nc)
 ksrun -Help              # Show all available options and examples
 ```
 
-### **NCRUN Options (Basic Application Launch)**
+### **NC Options (Primary Application Launch)**
 ```powershell
-ncrun                    # Run app on localhost:9090 and open browser
-ncrun -Build             # Build first, then run
-ncrun -NoBrowser         # Run without opening browser
-ncrun -Https             # Use HTTPS (port 9091)
-ncrun -Port 8080         # Use custom port
-ncrun -Help              # Show help information
+nc                       # Run app on localhost:9090 and open browser
+nc -NoBrowser            # Run without opening browser
+nc -Https                # Use HTTPS (port 9091)  
+nc -Help                 # Show help information
 ```
 
 ## 🚀 **Recommended Workflows**
@@ -84,7 +83,7 @@ ksrun -test              # One command does everything:
 ### **For Development & Debugging**
 ```powershell
 ksrun -test -Build      # Build + full testing workflow
-ncrun -Build            # Build and run app only
+nc                      # Quick start app only
 ```
 
 ### **For HTTPS/Production Testing**
@@ -121,7 +120,7 @@ ksrun -test -Https      # Full testing workflow on secure port 9091
 ### Option 1: Run from Global folder
 ```powershell
 cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
-.\ncrun.ps1 -Help
+.\nc.ps1 -Help
 ```
 
 ### Option 2: Add to system PATH (Recommended)
@@ -131,7 +130,7 @@ cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
 .\setup-global-commands.ps1
 
 # Restart your terminal, then use from anywhere:
-ncrun
+nc
 ```
 
 ### Option 3: Remove from PATH
@@ -161,19 +160,19 @@ cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
 - Manually kill processes: `Get-Process dotnet | Stop-Process`
 
 ### Build Errors
-- Use `ncrun -Build` to ensure clean build
 - Check that you're in a valid .NET project structure
 - Verify .NET 8 SDK is installed: `dotnet --version`
 
 ### Browser Won't Open
-- Use `ncrun -NoBrowser` and manually navigate to the URL
+- Use `nc -NoBrowser` and manually navigate to the URL
 - Check your default browser settings
 - The URL will be displayed in the console
 
 ## Files
 
-- `ncrun.ps1` - Main PowerShell script
-- `ncrun.cmd` - Batch wrapper for universal compatibility  
+- `nc.ps1` - Primary application runner
+- `ksrun.ps1` - Testing workflow command
+- `nct.ps1` - Host token management command
 - `setup-global-commands.ps1` - PATH setup utility
 - `README.md` - This documentation
 
