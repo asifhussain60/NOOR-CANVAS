@@ -48,6 +48,8 @@ if ($Remove) {
         Write-Host "AVAILABLE COMMANDS:" -ForegroundColor Cyan
         Write-Host "  nc              # Start NOOR Canvas application"
         Write-Host "  nc -Help        # Show detailed usage help"
+        Write-Host "  nct create 123  # Create host token for session 123"
+        Write-Host "  nct -Help       # Show token provisioner help"
         Write-Host "  ksrun -Test     # Launch app with testing suite"
         Write-Host "  ksrun -Help     # Show testing launcher options"
     }
@@ -55,10 +57,12 @@ if ($Remove) {
 
 Write-Host ""
 Write-Host "📝 Usage after restart:" -ForegroundColor Cyan
-Write-Host "  nc                       # Quick start"
+Write-Host "  nc                       # Quick start NOOR Canvas"
 Write-Host "  nc -Build                # Build and run"
 Write-Host "  nc -Https                # Run with HTTPS"
-Write-Host "  nc -Test                 # Testing mode with Testing Suite"
 Write-Host "  nc -Help                 # Show all options"
+Write-Host "  nct create 123           # Create host token for session 123"
+Write-Host "  nct rotate 456           # Rotate existing host token"
+Write-Host "  nct -Help                # Show token provisioner help"
 Write-Host "  ksrun -Test              # Launch with testing suite"
 Write-Host "  ksrun -Build -Test       # Build, run, and test"

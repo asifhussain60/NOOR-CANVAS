@@ -24,6 +24,19 @@ ksrun -test -Https       # Use HTTPS (port 9091) for testing
 ksrun -Help              # Show all available options
 ```
 
+### 🔑 **NCT - NOOR Canvas Token Provisioner**
+Host token generation and management command for NOOR Canvas sessions.
+
+#### **Quick Usage**
+```powershell
+nct create 123                      # Create host token for session 123
+nct create 456 -CreatedBy "Ahmad"   # Create token with creator name
+nct create 789 -Expires "2025-12-31" # Create token with expiration
+nct rotate 12345                    # Rotate existing host token
+nct build                          # Build Host Provisioner
+nct help                           # Show detailed help
+```
+
 ### 🏃‍♂️ **NCRUN - Basic Application Runner**
 Simple application launcher without testing integration.
 

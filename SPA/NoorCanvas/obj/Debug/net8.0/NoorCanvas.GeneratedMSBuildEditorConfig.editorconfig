@@ -95,3 +95,7 @@ build_metadata.AdditionalFiles.CssScope =
 [D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/_Host.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
+
+[D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 

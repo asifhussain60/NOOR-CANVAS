@@ -23,24 +23,9 @@ namespace NoorCanvas.Core.Tests.Integration
 
         public ApiIntegrationTests(WebApplicationFactory<Program> factory)
         {
-            _factory = factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    // Remove existing DbContext registration
-                    var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<CanvasDbContext>));
-                    if (descriptor != null)
-                    {
-                        services.Remove(descriptor);
-                    }
-
-                    // Add test database
-                    services.AddDbContext<CanvasDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase($"ApiIntegrationTest_{Guid.NewGuid()}");
-                    });
-                });
-            });
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
+            
+            _factory = factory;
 
             _client = _factory.CreateClient();
             _scope = _factory.Services.CreateScope();

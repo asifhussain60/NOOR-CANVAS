@@ -50,60 +50,56 @@ IssueTracker/
 
 ## 🔴 **HIGH PRIORITY ISSUES**
 
-- ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md) ❌
-- ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md) ❌
-- ⏳ **Issue-18** — [Blazor Routing Navigation Failure](AWAITING_CONFIRMATION/Issue-18-blazor-routing-navigation-failure.md) ⏳
-- ⏳ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing Pages](AWAITING_CONFIRMATION/Issue-19-ambiguous-route-conflict-index-landing.md) ⏳
-## 🔴 **HIGH PRIORITY ISSUES**
-
-- ❌ **Issue-1** — [Production/Debug Configuration Management](NOT%20STARTED/Issue-1-production-debug-configuration.md) ❌
-- ⏳ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing](AWAITING_CONFIRMATION/Issue-19-ambiguous-route-conflict-index-landing.md) ⏳
-- ✅ **Issue-21** — [Session Save Route Conflict Recurrence](COMPLETED/Issue-21-session-save-route-conflict-recurrence.md) ✅
-- ✅ **Issue-2** — [Blazor Server Double Initialization](COMPLETED/Issue-2-blazor-double-initialization.md) ✅
-- ✅ **Issue-3** — [SignalR Connection String Parsing Error](COMPLETED/Issue-3-signalr-parsing-error.md) ✅
-- ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md) ✅
-- ✅ **Issue-6** — [HttpClient Dependency Injection Missing](COMPLETED/Issue-6-httpclient-dependency-injection-missing.md) ✅
-- ✅ **Issue-7** — [Testing Suite CORS/API Errors](COMPLETED/Issue-7-testing-suite-cors-api-errors.md) ✅
-- ✅ **Issue-8** — [Testing Route AmbiguousMatchException](COMPLETED/Issue-8-testing-route-ambiguous-match-exception.md) ✅
-- ✅ **Issue-9** — [Blazor JavaScript Interop During Static Rendering](COMPLETED/Issue-9-blazor-javascript-interop-static-rendering.md) ✅
-- ✅ **Issue-10** — [Consolidate Global Commands - Remove nsrun/ncrun, Update nc](COMPLETED/Issue-10-consolidate-global-commands.md) ✅
-- ✅ **Issue-11** — [Complete nsrun/ncrun Removal](COMPLETED/Issue-11-complete-nsrun-ncrun-removal.md) ✅
-- ✅ **Issue-12** — [NC Test Suite Port 3000 Configuration Error](COMPLETED/Issue-12-nc-test-suite-port-3000-configuration-error.md) ✅
-| **Issue-13** | nc command Ctrl+C signal handling broken | COMPLETED | 🐛 Bug |
-- ✅ **Issue-2** — [Blazor Double Initialization Error](COMPLETED/Issue-2-blazor-double-initialization.md) ✅
-- ✅ **Issue-3** — [SignalR Connection Parsing Error](COMPLETED/Issue-3-signalr-parsing-error.md) ✅
-- ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md) ✅
-- ✅ **Issue-6** — [HttpClient Dependency Injection Missing](COMPLETED/Issue-6-httpclient-dependency-injection-missing.md) ✅
-- ✅ **Issue-7** — [Testing Suite CORS/API Errors](COMPLETED/Issue-7-testing-suite-cors-api-errors.md) ✅
-- ✅ **Issue-8** — [Testing Route AmbiguousMatchException](COMPLETED/Issue-8-testing-route-ambiguous-match-exception.md) ✅
-- ✅ **Issue-9** — [Blazor JavaScript Interop During Static Rendering](COMPLETED/Issue-9-blazor-javascript-interop-static-rendering.md) ✅
-- ✅ **Issue-10** — [Consolidate Global Commands - Remove nsrun/ncrun, Update nc](COMPLETED/Issue-10-consolidate-global-commands.md) ✅
-- ✅ **Issue-11** — [Complete nsrun/ncrun Removal](COMPLETED/Issue-11-complete-nsrun-ncrun-removal.md) ✅
-- ✅ **Issue-12** — [NC Test Suite Port 3000 Configuration Error](COMPLETED/Issue-12-nc-test-suite-port-3000-configuration-error.md) ✅
-| **Issue-13** | nc command Ctrl+C signal handling broken | COMPLETED | 🐛 Bug |
+- ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md)
+- ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
+- ⏳ **Issue-18** — [Blazor Routing Navigation Failure](AWAITING_CONFIRMATION/Issue-18-blazor-routing-navigation-failure.md)
+- ⏳ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing Pages](AWAITING_CONFIRMATION/Issue-19-ambiguous-route-conflict-index-landing.md)
+- ⏳ **Issue-22** — [Host Endpoint Missing - Application Startup Failure](AWAITING_CONFIRMATION/Issue-22-host-endpoint-missing-application-startup-failure.md)
+### **Completed High Priority Issues**
+- ✅ **Issue-2** — [Blazor Server Double Initialization](COMPLETED/Issue-2-blazor-double-initialization.md)
+- ✅ **Issue-3** — [SignalR Connection String Parsing Error](COMPLETED/Issue-3-signalr-parsing-error.md)
+- ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md)
+- ✅ **Issue-6** — [HttpClient Dependency Injection Missing](COMPLETED/Issue-6-httpclient-dependency-injection-missing.md)
+- ✅ **Issue-7** — [Testing Suite CORS/API Errors](COMPLETED/Issue-7-testing-suite-cors-api-errors.md)
+- ✅ **Issue-8** — [Testing Route AmbiguousMatchException](COMPLETED/Issue-8-testing-route-ambiguous-match-exception.md)
+- ✅ **Issue-9** — [Blazor JavaScript Interop During Static Rendering](COMPLETED/Issue-9-blazor-javascript-interop-static-rendering.md)
+- ✅ **Issue-10** — [Consolidate Global Commands - Remove nsrun/ncrun, Update nc](COMPLETED/Issue-10-consolidate-global-commands.md)
+- ✅ **Issue-11** — [Complete nsrun/ncrun Removal](COMPLETED/Issue-11-complete-nsrun-ncrun-removal.md)
+- ✅ **Issue-12** — [NC Test Suite Port 3000 Configuration Error](COMPLETED/Issue-12-nc-test-suite-port-3000-configuration-error.md)
+- ✅ **Issue-13** — [nc command Ctrl+C signal handling broken](COMPLETED/Issue-13-nc-ctrl-c-signal-handling-broken.md)
+- ✅ **Issue-21** — [Session Save Route Conflict Recurrence](COMPLETED/Issue-21-session-save-route-conflict-recurrence.md)
 
 ---
 
 ## 🟡 **MEDIUM PRIORITY ISSUES**
 
-- ❌ **Issue-20** — [Replace Browser Dialog Alerts with Styled Dialog Libraries](NOT%20STARTED/Issue-20-replace-browser-dialogs-with-styled-libraries.md) ❌
-- ✅ **Issue-4** — [Browser Logging API 500 Error](COMPLETED/Issue-4-browser-logging-api-error.md) ✅
-- ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md) ✅
-- ✅ **Issue-16** — [New Session Button Click Handler Not Working](COMPLETED/Issue-16-new-session-button-click-handler-not-working.md) ✅
-- ✅ **Issue-15** — [New Session API Integration Gap](COMPLETED/Issue-15-new-session-api-integration-gap.md) ✅
+- ❌ **Issue-20** — [Replace Browser Dialog Alerts with Styled Dialog Libraries](NOT%20STARTED/Issue-20-replace-browser-dialogs-with-styled-libraries.md)
+- ❌ **Issue-23** — [Entity Framework Dual Provider Test Failures](NOT%20STARTED/Issue-23-entity-framework-dual-provider-test-failures.md)
+- ❌ **Issue-24** — [Test Suite Failure Tracking and Resolution](NOT%20STARTED/Issue-24-test-suite-failure-tracking-resolution.md)
+
+### **Completed Medium Priority Issues**
+- ✅ **Issue-4** — [Browser Logging API 500 Error](COMPLETED/Issue-4-browser-logging-api-error.md)
+- ✅ **Issue-15** — [New Session API Integration Gap](COMPLETED/Issue-15-new-session-api-integration-gap.md)
+- ✅ **Issue-16** — [New Session Button Click Handler Not Working](COMPLETED/Issue-16-new-session-button-click-handler-not-working.md)
+- ✅ **Issue-20** — [Replace Browser Dialogs with Styled Libraries](COMPLETED/Issue-20-replace-browser-dialogs-with-styled-libraries.md)
 
 ---
 
-## 🟢 **LOW PRIORITY ISSUES**  
+## 🟢 **LOW PRIORITY ISSUES**
 
-*No low priority issues currently tracked*
+- ❌ **Issue-1** — [Production Debug Configuration Issue](NOT%20STARTED/Issue-1-production-debug-configuration.md)
+- ❌ **Issue-10** — [Consolidate Global Commands into Single System](NOT%20STARTED/Issue-10-consolidate-global-commands.md)
+
+### **Completed Low Priority Issues**
+- ✅ **Issue-2** — [Blazor Double Initialization Problem](COMPLETED/Issue-2-blazor-double-initialization.md)
+- ✅ **Issue-13** — [NC Ctrl+C Signal Handling Broken](COMPLETED/Issue-13-nc-ctrl-c-signal-handling-broken.md)
 
 ---
 
 ## 📊 **TRACKER STATISTICS**
 
-- **Total Issues:** 15
-- **Not Started:** 1
+- **Total Issues:** 16
+- **Not Started:** 2
 - **In Progress:** 0
 - **Awaiting Confirmation:** 1  
 - **Completed:** 13
@@ -116,7 +112,16 @@ IssueTracker/
 ```
 Add an issue: [Title] - [Description] - [High/Medium/Low] - [Bug/Feature/Enhancement/Documentation]
 ```
-**Format:** `- ❌ **[Issue-X](NOT STARTED/Issue-X-brief-description.md)** — Brief description ❌`
+**Format:** `- ❌ **Issue-X** — [Brief Description](NOT%20STARTED/Issue-X-brief-description.md)`
+
+### **Format Standardization**
+Issues follow this standardized format:
+```
+**Icon** **Issue-#** — [Title](Path/to/file.md)
+```
+**Icons:** ❌ Not Started | ⚡ In Progress | ⏳ Awaiting Confirmation | ✅ Completed
+
+**IMPORTANT:** Icons appear ONLY at the beginning of each issue line. Do NOT add duplicate icons at the end of lines.
 
 ### **Update Issue Status**
 ```

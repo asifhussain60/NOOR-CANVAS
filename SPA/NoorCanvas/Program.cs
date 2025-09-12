@@ -39,10 +39,20 @@ builder.Services.AddServerSideBlazor(options =>
 });
 builder.Services.AddControllers();
 
-// Add Entity Framework
-builder.Services.AddDbContext<CanvasDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-        "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
+// Add Entity Framework - Conditional based on environment
+if (builder.Environment.EnvironmentName == "Testing")
+{
+    // Use In-Memory database for testing
+    builder.Services.AddDbContext<CanvasDbContext>(options =>
+        options.UseInMemoryDatabase("NoorCanvasTestDb"));
+}
+else
+{
+    // Use SQL Server for development and production
+    builder.Services.AddDbContext<CanvasDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+            "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
+}
 
 // Add SignalR with JSON protocol only (avoiding BlazorPack compatibility issues)
 builder.Services.AddSignalR(options =>
