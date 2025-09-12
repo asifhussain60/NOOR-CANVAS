@@ -1,360 +1,51 @@
-# NOOR Canvas Global Launcher (nc)
-# Consolidated global command for NOOR Canvas development
-# Replaces legacy nsrun and ncrun commands
-
 param(
-    [switch]$Build,
+    [switch]$Help,
     [switch]$NoBrowser,
     [switch]$Https,
-    [switch]$Test,
-    [int]$Port,
-    [switch]$Help
+    [int]$Port = 9090
 )
 
-# Show help information
 if ($Help) {
-    Write-Host ""
-    Write-Host "=== NOOR Canvas Global Launcher (nc) ===" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "USAGE:" -ForegroundColor Yellow
-    Write-Host "  nc                    # Start NOOR Canvas application"
-    Write-Host "  nc -Build             # Build first, then start"
-    Write-Host "  nc -NoBrowser         # Start without opening browser"
-    Write-Host "  nc -Https             # Use HTTPS on port 9091"
-    Write-Host "  nc -Port 8080         # Use custom port"
-    Write-Host "  nc -Test              # Build, serve, and launch both services"
-    Write-Host "  nc -Help              # Show this help"
-    Write-Host ""
-    Write-Host "EXAMPLES:" -ForegroundColor Yellow
-    Write-Host "  nc -Build -NoBrowser  # Build and start without browser"
-    Write-Host "  nc -Test -Https       # Build and test with HTTPS"
-    Write-Host "  nc -Test -NoBrowser   # Build and test without opening browsers"
-    Write-Host "  nc -Port 8080         # Start on custom port 8080"
-    Write-Host ""
-    Write-Host "TESTING MODE (-Test):" -ForegroundColor Green
-    Write-Host "  * BUILDS the NOOR Canvas application first (always)"
-    Write-Host "  * USES integrated testing suite (no separate server needed)"
-    Write-Host "  * LAUNCHES both app and testing suite in browser"
-    Write-Host "  * App: http://localhost:9090 (or custom port)"
-    Write-Host "  * Tests: http://localhost:9090/testing (integrated route)"
-    Write-Host "  * No CORS issues - single server architecture"
-    Write-Host ""
+    Write-Host "🌙 NOOR Canvas Command (nc)"
+    Write-Host "  nc           # Start app + browser"  
+    Write-Host "  nc -NoBrowser # Start without browser"
+    Write-Host "  nc -Https    # Use HTTPS port 9091"
+    Write-Host "  nc -Help     # Show help"
     return
 }
 
-# Define workspace paths
-$noorCanvasPath = "D:\PROJECTS\NOOR CANVAS"
-$projectPath = Join-Path $noorCanvasPath "SPA\NoorCanvas"
+# Get to project directory  
+$root = Split-Path $MyInvocation.MyCommand.Path -Parent  # Global
+$root = Split-Path $root -Parent                        # Workspaces  
+$root = Split-Path $root -Parent                        # NOOR CANVAS
+$project = Join-Path $root "SPA\NoorCanvas"
+Set-Location $project
 
-# Verify paths exist
-if (!(Test-Path $noorCanvasPath)) {
-    Write-Error "NOOR Canvas workspace not found at: $noorCanvasPath"
-    return
-}
+# Check target port
+$targetPort = if ($Https) { 9091 } else { $Port }
 
-if (!(Test-Path $projectPath)) {
-    Write-Error "NOOR Canvas project not found at: $projectPath"
-    return
-}
-
-# Determine port
-if (-not $Port) {
-    $Port = if ($Https) { 9091 } else { 9090 }
-}
-
-# Protocol and URL
-$protocol = if ($Https) { "https" } else { "http" }
-$appUrl = "${protocol}://localhost:$Port"
-
-Write-Host "Starting NOOR Canvas..." -ForegroundColor Cyan
-Write-Host "Workspace: $noorCanvasPath" -ForegroundColor Gray
-Write-Host "Project: $projectPath" -ForegroundColor Gray
-
-# Build if requested or if in Test mode
-if ($Build -or $Test) {
-    Write-Host "Building project..." -ForegroundColor Yellow
-    Set-Location $projectPath
-    
-    Write-Host "Restoring packages..." -ForegroundColor Gray
-    dotnet restore --verbosity quiet
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Package restore failed"
-        return
-    }
-    
-    Write-Host "Building..." -ForegroundColor Gray
-    dotnet build --no-restore --verbosity quiet
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Build failed"
-        return
-    }
-    Write-Host "Build completed successfully" -ForegroundColor Green
-}
-
-# Stop any existing processes on the ports
-Write-Host "Stopping existing processes..." -ForegroundColor Yellow
-Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
-Stop-Process -Name "NoorCanvas" -Force -ErrorAction SilentlyContinue
-
-# Testing mode - start application and use integrated testing suite
-if ($Test) {
-    Write-Host ""
-    Write-Host "=== NOOR Canvas Testing Mode ===" -ForegroundColor Magenta
-    Write-Host "Starting application with integrated testing suite..." -ForegroundColor Cyan
-    
-    # Start the main application
-    Write-Host "Starting NOOR Canvas application on $appUrl..." -ForegroundColor Green
-    Set-Location $projectPath
-    
-    $buildFlag = if ($Build -or $Test) { "--no-build" } else { "" }
-    $job = Start-Job -ScriptBlock {
-        param($projectPath, $urls, $buildFlag)
-        Set-Location $projectPath
-        if ($buildFlag) {
-            dotnet run --urls $urls --no-build
-        } else {
-            dotnet run --urls $urls
-        }
-    } -ArgumentList $projectPath, $appUrl, $buildFlag
-    
-    # Wait for app to start
-    Write-Host "Waiting for application to start..." -ForegroundColor Yellow
-    Start-Sleep 4
-    
-    # Verify application started successfully
-    Write-Host "Verifying application startup..." -ForegroundColor Yellow
-    try {
-        $response = Invoke-WebRequest -Uri $appUrl -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop
-        Write-Host "Application is responding on $appUrl" -ForegroundColor Green
-        
-        # Verify testing suite integration
-        $testingUrl = "$appUrl/testing"
-        try {
-            $testResponse = Invoke-WebRequest -Uri $testingUrl -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
-            Write-Host "Testing suite is available at $testingUrl" -ForegroundColor Green
-        } catch {
-            Write-Warning "Testing suite integration may not be available yet..."
-        }
-        
-    } catch {
-        Write-Warning "Application may still be starting up..."
-    }
-    
-    # Open both URLs in browser unless -NoBrowser specified
+# Check if already running
+$running = netstat -ano | findstr ":$targetPort "
+if ($running) {
+    Write-Host "✅ Already running on port $targetPort"
     if (-not $NoBrowser) {
-        Write-Host "Opening application and testing suite in browser..." -ForegroundColor Yellow
-        Start-Sleep 2
-        
-        # Open application first
-        Write-Host "   Opening NOOR Canvas application..." -ForegroundColor Gray
-        Start-Process $appUrl
-        
-        Start-Sleep 1
-        
-        # Open integrated testing suite
-        Write-Host "   Opening integrated Testing Suite..." -ForegroundColor Gray
-        Start-Process "$appUrl/testing"
-    } else {
-        Write-Host "Browser opening skipped (NoBrowser specified)" -ForegroundColor Cyan
+        Start-Process "http://localhost:$targetPort"
     }
-    
-    Write-Host ""
-    Write-Host "=== NOOR Canvas Testing Environment Active ===" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "NOOR Canvas Application:" -ForegroundColor Cyan
-    Write-Host "   URL: $appUrl" -ForegroundColor White
-    Write-Host "   Status: Running with built application" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Integrated Testing Suite:" -ForegroundColor Cyan  
-    Write-Host "   URL: $appUrl/testing" -ForegroundColor White
-    Write-Host "   Status: Served via NOOR Canvas web server" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Usage:" -ForegroundColor Yellow
-    Write-Host "   * Test your changes in the main application" -ForegroundColor Gray
-    Write-Host "   * Use the integrated testing suite for component testing" -ForegroundColor Gray
-    Write-Host "   * All functionality available through single web server" -ForegroundColor Gray
-    Write-Host "   * No CORS issues - same origin for API calls" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "Press Ctrl+C to stop the application, or type 'stop' and press Enter" -ForegroundColor Red
-    Write-Host ""
-    
-    # Set up proper signal handling for Ctrl+C
-    $cleanup = {
-        Write-Host "`nStopping NOOR Canvas Testing Environment..." -ForegroundColor Yellow
-        Stop-Job $job -Force -ErrorAction SilentlyContinue
-        Remove-Job $job -Force -ErrorAction SilentlyContinue
-        
-        # Kill any remaining dotnet processes on our ports
-        try {
-            Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object { 
-                Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
-            }
-            Get-NetTCPConnection -LocalPort 9091 -ErrorAction SilentlyContinue | ForEach-Object { 
-                Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
-            }
-        } catch {
-            # Fallback: stop all dotnet processes
-            Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
-        }
-        
-        Write-Host "Testing environment stopped successfully" -ForegroundColor Green
-    }
-
-    # Register Ctrl+C handler
-    $null = Register-ObjectEvent -InputObject ([System.Console]) -EventName CancelKeyPress -Action {
-        & $cleanup
-        exit 0
-    }
-
-    # Keep script running with interactive input handling
-    try {
-        do {
-            $input = Read-Host "Type 'stop' to quit, 'status' to check application, or press Ctrl+C"
-            
-            switch ($input.ToLower()) {
-                "stop" { 
-                    & $cleanup
-                    return 
-                }
-                "quit" { 
-                    & $cleanup
-                    return 
-                }
-                "status" {
-                    if ($job.State -eq "Running") {
-                        try {
-                            $response = Invoke-WebRequest -Uri $appUrl -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
-                            $testResponse = Invoke-WebRequest -Uri "$appUrl/testing" -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
-                            Write-Host "✅ Application and testing suite are running and responding" -ForegroundColor Green
-                            Write-Host "   App: $appUrl" -ForegroundColor Gray
-                            Write-Host "   Testing: $appUrl/testing" -ForegroundColor Gray
-                        } catch {
-                            Write-Host "⚠️ Application job is running but may not be fully responsive" -ForegroundColor Yellow
-                        }
-                    } else {
-                        Write-Host "❌ Application job has stopped" -ForegroundColor Red
-                        return
-                    }
-                }
-                "" { 
-                    # Just pressing Enter - continue
-                }
-                default {
-                    Write-Host "Commands: 'stop', 'quit', 'status', or Ctrl+C to exit" -ForegroundColor Gray
-                }
-            }
-        } while ($job.State -eq "Running")
-        
-        Write-Host "Application job has ended" -ForegroundColor Yellow
-    } catch {
-        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-    } finally {
-        & $cleanup
-    }
-    
     return
 }
 
-# Normal mode - start just the application
-Write-Host "Starting NOOR Canvas application on $appUrl..." -ForegroundColor Green
-Set-Location $projectPath
+# Start app
+$url = if ($Https) { "https://localhost:9091" } else { "http://localhost:$Port" }
+Write-Host "🚀 Starting on $url"
 
-# Start the application in a background job for better control
-$buildFlag = if ($Build) { "--no-build" } else { "" }
-$job = Start-Job -ScriptBlock {
-    param($projectPath, $urls, $buildFlag)
-    Set-Location $projectPath
-    if ($buildFlag) {
-        dotnet run --urls $urls --no-build
-    } else {
-        dotnet run --urls $urls
-    }
-} -ArgumentList $projectPath, $appUrl, $buildFlag
-
-# Wait for startup
-Write-Host "Waiting for application to start..." -ForegroundColor Yellow
-Start-Sleep 3
-
-# Open browser unless -NoBrowser specified
+# Browser job
 if (-not $NoBrowser) {
-    Write-Host "Opening application in browser..." -ForegroundColor Yellow
-    Start-Sleep 1
-    Start-Process $appUrl
+    Start-Job { 
+        param($u) 
+        Start-Sleep 3
+        Start-Process $u 
+    } -ArgumentList $url | Out-Null
 }
 
-Write-Host ""
-Write-Host "=== NOOR Canvas Application Started ===" -ForegroundColor Green
-Write-Host "URL: $appUrl" -ForegroundColor White
-Write-Host "Press Ctrl+C to stop the application, or type 'stop' and press Enter" -ForegroundColor Yellow
-Write-Host ""
-
-# Set up proper signal handling for Ctrl+C
-$cleanup = {
-    Write-Host "`nStopping NOOR Canvas application..." -ForegroundColor Yellow
-    Stop-Job $job -Force -ErrorAction SilentlyContinue
-    Remove-Job $job -Force -ErrorAction SilentlyContinue
-    
-    # Also kill any remaining dotnet processes on our ports
-    try {
-        Get-NetTCPConnection -LocalPort 9090 -ErrorAction SilentlyContinue | ForEach-Object { 
-            Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
-        }
-        Get-NetTCPConnection -LocalPort 9091 -ErrorAction SilentlyContinue | ForEach-Object { 
-            Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
-        }
-    } catch {
-        # Fallback: stop all dotnet processes
-        Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
-    }
-    
-    Write-Host "Application stopped successfully" -ForegroundColor Green
-}
-
-# Register Ctrl+C handler
-$null = Register-ObjectEvent -InputObject ([System.Console]) -EventName CancelKeyPress -Action {
-    & $cleanup
-    exit 0
-}
-
-# Keep script running with interactive input handling
-try {
-    do {
-        $input = Read-Host "Type 'stop' to quit, 'status' to check application, or press Ctrl+C"
-        
-        switch ($input.ToLower()) {
-            "stop" { 
-                & $cleanup
-                return 
-            }
-            "quit" { 
-                & $cleanup
-                return 
-            }
-            "status" {
-                if ($job.State -eq "Running") {
-                    try {
-                        $response = Invoke-WebRequest -Uri $appUrl -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop
-                        Write-Host "✅ Application is running and responding on $appUrl" -ForegroundColor Green
-                    } catch {
-                        Write-Host "⚠️ Application job is running but not responding on $appUrl" -ForegroundColor Yellow
-                    }
-                } else {
-                    Write-Host "❌ Application job has stopped" -ForegroundColor Red
-                    return
-                }
-            }
-            "" { 
-                # Just pressing Enter - continue
-            }
-            default {
-                Write-Host "Commands: 'stop', 'quit', 'status', or Ctrl+C to exit" -ForegroundColor Gray
-            }
-        }
-    } while ($job.State -eq "Running")
-    
-    Write-Host "Application job has ended" -ForegroundColor Yellow
-} catch {
-    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-} finally {
-    & $cleanup
-}
+# Run
+dotnet run --urls $url

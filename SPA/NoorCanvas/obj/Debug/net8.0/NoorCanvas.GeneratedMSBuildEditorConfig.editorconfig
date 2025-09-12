@@ -44,6 +44,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRlU2Vzc2lvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/FetchData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/PROJECTS/NOOR CANVAS/SPA/NoorCanvas/Pages/HostDashboard.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9zdERhc2hib2FyZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

@@ -118,8 +118,8 @@ app.MapGet("/testing/{**catchall}", async (HttpContext context) =>
     }
 }).WithName("TestingSuite");
 
-app.MapFallbackToPage("/_Host");
 app.MapControllers();
+app.MapFallbackToPage("/_Host");
 
 // Map SignalR Hubs
 app.MapHub<SessionHub>("/hub/session");

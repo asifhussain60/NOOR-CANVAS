@@ -7,10 +7,6 @@ D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\appsettings.Production.j
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.staticwebassets.runtime.json
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.staticwebassets.endpoints.json
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.exe
-D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.deps.json
-D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.runtimeconfig.json
-D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.dll
-D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.pdb
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Azure.Core.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Azure.Identity.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\Humanizer.dll
@@ -166,5 +162,9 @@ D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\NoorCanvas.csproj.Up2Dat
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\NoorCanvas.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\refint\NoorCanvas.dll
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\NoorCanvas.pdb
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.deps.json
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.runtimeconfig.json
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.dll
+D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\bin\Debug\net8.0\NoorCanvas.pdb
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\NoorCanvas.genruntimeconfig.cache
 D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\ref\NoorCanvas.dll

@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas Implementation Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'noor-primary': '#2D5A87',
+                        'noor-secondary': '#F4F7FA',
+                        'noor-success': '#22C55E',
+                        'noor-warning': '#F59E0B',
+                        'noor-danger': '#EF4444',
+                        'noor-info': '#3B82F6'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 📊 DATA CONFIGURATION - UPDATE THIS SECTION WHEN TRACKER CHANGES -->
+    <script>
+        // Main project data - Update these values when implementation tracker changes
+        const PROJECT_DATA = {
+            title: "NOOR Canvas Implementation Tracker",
+            version: "v3.0 FINAL",
+            subtitle: "Islamic Content Sharing Platform",
+            startDate: "September 11, 2025",
+            timeline: "20 weeks (6 phases)",
+            lastUpdated: "September 11, 2025",
+            
+            // Overall progress metrics
+            progress: {
+                overall: { completed: 48, total: 131, percentage: 36.6 },
+                testing: { completed: 41, total: 125, percentage: 32.8 },
+                phases: { completed: 3, total: 6, percentage: 50 }
+            },
+            
+            // Critical notices
+            criticalNotice: {
+                title: "CRITICAL DESIGN CHANGE NOTICE",
+                issue: "Issue-17: Host Dashboard → Direct Session Management UX Change",
+                description: "Major UX paradigm shift from \"dashboard-first\" to \"action-first\" host experience"
+            },
+            
+            // Current status
+            currentPhase: "Phase 3.5",
+            currentStatus: "Mock-to-Live Integration",
+            
+            // Key achievements
+            achievements: [
+                "ASP.NET Core 8.0 + Blazor Server + SignalR foundation",
+                "Complete admin system with dashboard & session management",
+                "Real-time annotation system with SVG overlay",
+                "Comprehensive logging (NOOR Observer system)",
+                "McBeatch theme integration & responsive UI",
+                "95% design compliance achieved"
+            ],
+            
+            // Critical dependencies
+            dependencies: [
+                { name: "SQL Server Database Migration (AHHOME server)", priority: "critical", status: "pending" },
+                { name: "Frontend-Backend API Integration (Issue-15)", priority: "high", status: "pending" },
+                { name: "SignalR Broadcasting Implementation", priority: "medium", status: "pending" },
+                { name: "External API access (Quran.com, Beautiful Islam)", priority: "medium", status: "pending" },
+                { name: "Development environment (.NET 8, IIS Express)", priority: "low", status: "completed" },
+                { name: "SSL certificate configuration", priority: "low", status: "completed" }
+            ]
+        };
+        
+        // Phase data - Update this when phases change
+        const PHASES_DATA = [
+            {
+                id: "phase1",
+                number: "1",
+                title: "Foundation",
+                subtitle: "Skeleton, Observer, Issue Tracker, DB",
+                icon: "🏗️",
+                status: "completed",
+                progress: 100,
+                targetDate: "October 2, 2025",
+                completedDate: "September 11, 2025 (Early)",
+                description: "ASP.NET Core 8.0, SignalR, EF Core, Serilog logging, Health monitoring",
+                categories: [
+                    {
+                        name: "Core Infrastructure",
+                        tasks: [
+                            { name: "Repository initialization and solution structure", completed: true },
+                            { name: "Main ASP.NET Core 8 Blazor Server project in SPA/ folder", completed: true },
+                            { name: "Basic project configuration and dependencies", completed: true },
+                            { name: "IIS launch profile configuration", completed: true },
+                            { name: "Environment configuration (Development/Production)", completed: true },
+                            { name: "Database connection strings (AHHOME server, DEV/PROD databases)", completed: true }
+                        ]
+                    },
+                    {
+                        name: "Database & Migrations",
+                        tasks: [
+                            { name: "EF Core setup and configuration", completed: true },
+                            { name: "Canvas schema implementation (Sessions, Users, etc.)", completed: true },
+                            { name: "Database migrations creation", completed: true },
+                            { name: "Users table implementation with persistent UserId", completed: true },
+                            { name: "Database connection strings configuration", completed: true },
+                            { name: "Web.config transforms for Development/Production", completed: true },
+                            { name: "Initial database seeding for development", completed: true }
+                        ]
+                    },
+                    {
+                        name: "Console Applications",
+                        tasks: [
+                            { name: "Tools/HostProvisioner - Host GUID generation and management", completed: true },
+                            { name: "Tools/DbMigrator - Database migrations and seeding", completed: false },
+                            { name: "Tools/ObserverCli - Observer stream connection utility", completed: false },
+                            { name: "Tools/IssueUploader - Issue import and batch processing", completed: false },
+                            { name: "Tools/MigrationHelper - Legacy KSESSIONS migration utility", completed: false }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "phase2",
+                number: "2",
+                title: "Host & Participant Core",
+                subtitle: "Authentication, Registration, Basic UI",
+                icon: "👥",
+                status: "completed",
+                progress: 100,
+                targetDate: "November 6, 2025",
+                completedDate: "September 11, 2025 (Early)",
+                description: "Landing page, Host authentication, Participant registration, McBeatch theme",
+                categories: [
+                    {
+                        name: "Authentication & Landing",
+                        tasks: [
+                            { name: "Single landing page with Host/User selection", completed: true },
+                            { name: "Host GUID authentication flow", completed: true },
+                            { name: "User GUID validation and routing", completed: true },
+                            { name: "Session link validation and expiry handling", completed: true }
+                        ]
+                    },
+                    {
+                        name: "Host Console (Dashboard)",
+                        tasks: [
+                            { name: "Host dashboard layout and navigation", completed: true },
+                            { name: "Session creation and management", completed: true },
+                            { name: "Host GUID provisioning integration", completed: true },
+                            { name: "Session controls (Begin/End/Expire)", completed: true },
+                            { name: "Zoom integration panel (embedded iframe)", completed: true },
+                            { name: "Real-time session monitoring", completed: true }
+                        ]
+                    },
+                    {
+                        name: "User Registration & Profiles",
+                        tasks: [
+                            { name: "User registration form (Name/City/Country)", completed: true },
+                            { name: "Persistent UserId implementation with localStorage", completed: true },
+                            { name: "Cross-session user profile management", completed: true },
+                            { name: "Registration validation and storage", completed: true }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "phase3",
+                number: "3",
+                title: "Annotations & Admin",
+                subtitle: "Advanced Features & Administration",
+                icon: "🎨",
+                status: "completed",
+                progress: 100,
+                targetDate: "December 4, 2025",
+                completedDate: "September 11, 2025 (Early)",
+                description: "SVG annotations, Admin dashboard, Session management, User moderation",
+                categories: [
+                    {
+                        name: "Annotation System",
+                        tasks: [
+                            { name: "SVG overlay annotation tools (AnnotationCanvas.razor)", completed: true },
+                            { name: "Annotation creation and editing (JavaScript integration)", completed: true },
+                            { name: "Annotation persistence and synchronization (AnnotationService)", completed: true },
+                            { name: "Real-time annotation broadcasting (AnnotationHub)", completed: true },
+                            { name: "Annotation conflict resolution", completed: false },
+                            { name: "REST API endpoints (AnnotationsController)", completed: true },
+                            { name: "Testing foundation (4 unit tests passing)", completed: true },
+                            { name: "Demo page with Islamic content samples", completed: true }
+                        ]
+                    },
+                    {
+                        name: "Admin Functionality",
+                        tasks: [
+                            { name: "Admin role implementation", completed: true },
+                            { name: "Session management admin interface", completed: true },
+                            { name: "User management and moderation", completed: true },
+                            { name: "System monitoring and diagnostics", completed: true }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "phase3.5",
+                number: "3.5",
+                title: "Mock-to-Live Integration",
+                subtitle: "API Integration & Database Migration",
+                icon: "🔄",
+                status: "in-progress",
+                progress: 85,
+                targetDate: "October 15, 2025",
+                completedDate: null,
+                description: "Replace mock implementations, SignalR broadcasting, Database migration to AHHOME",
+                categories: [
+                    {
+                        name: "Frontend-Backend Integration",
+                        tasks: [
+                            { name: "Replace Host Dashboard Session Creation Mock", completed: false },
+                            { name: "Replace Session Start/End Mock API calls", completed: false },
+                            { name: "Replace Participant Registration Mock", completed: false },
+                            { name: "Replace Landing Page Authentication Mock", completed: false },
+                            { name: "Remove Mock SessionSummary implementations", completed: false }
+                        ]
+                    },
+                    {
+                        name: "SignalR Real-time Integration",
+                        tasks: [
+                            { name: "Implement SessionBegan Event broadcasting", completed: false },
+                            { name: "Implement SessionEnded Event broadcasting", completed: false },
+                            { name: "Auto-navigation Integration", completed: false },
+                            { name: "Real-time Status Updates", completed: false }
+                        ]
+                    },
+                    {
+                        name: "Database Migration & Seeding",
+                        tasks: [
+                            { name: "Create Dedicated SQL Account (noor_canvas_app)", completed: false },
+                            { name: "Execute EF Core Migrations on AHHOME", completed: false },
+                            { name: "Configure Connection Security", completed: false },
+                            { name: "Initial Data Seeding", completed: false }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "phase4",
+                number: "4",
+                title: "Styling & Content Integration",
+                subtitle: "McBeatch Theme & Islamic Content",
+                icon: "🎨",
+                status: "pending",
+                progress: 0,
+                targetDate: "December 25, 2025",
+                completedDate: null,
+                description: "Complete McBeatch integration, Arabic fonts, RTL support, Beautiful Islam content",
+                categories: [
+                    {
+                        name: "CSS & Styling",
+                        tasks: [
+                            { name: "Complete McBeatch theme integration", completed: false },
+                            { name: "NOOR CSS modules (noor-ayah, noor-hadith, etc.)", completed: false },
+                            { name: "Arabic font bundling (Amiri, Noto)", completed: false },
+                            { name: "Responsive design implementation", completed: false },
+                            { name: "RTL (Right-to-Left) support", completed: false }
+                        ]
+                    },
+                    {
+                        name: "Content Integration",
+                        tasks: [
+                            { name: "Beautiful Islam metadata integration", completed: false },
+                            { name: "Quran.com API integration", completed: false },
+                            { name: "Image path resolution (DEV/PROD)", completed: false },
+                            { name: "Content type styling and formatting", completed: false }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "phase5",
+                number: "5",
+                title: "Performance & Accessibility",
+                subtitle: "Optimization & WCAG 2.2 AA",
+                icon: "⚡",
+                status: "pending",
+                progress: 0,
+                targetDate: "January 15, 2026",
+                completedDate: null,
+                description: "Performance optimization, Accessibility compliance, Analytics implementation",
+                categories: [
+                    {
+                        name: "Performance Optimization",
+                        tasks: [
+                            { name: "Performance budgets implementation", completed: false },
+                            { name: "Asset caching strategy", completed: false },
+                            { name: "Virtual scrolling for large content", completed: false },
+                            { name: "Connection pooling and optimization", completed: false },
+                            { name: "Load testing and optimization", completed: false }
+                        ]
+                    },
+                    {
+                        name: "Accessibility (WCAG 2.2 AA)",
+                        tasks: [
+                            { name: "Screen reader compatibility", completed: false },
+                            { name: "Keyboard navigation support", completed: false },
+                            { name: "ARIA attributes implementation", completed: false },
+                            { name: "Color contrast compliance", completed: false },
+                            { name: "Accessibility testing and validation", completed: false }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "phase6",
+                number: "6",
+                title: "Testing & Deployment",
+                subtitle: "Final Testing & Go-Live",
+                icon: "🚀",
+                status: "pending",
+                progress: 0,
+                targetDate: "January 29, 2026",
+                completedDate: null,
+                description: "Automated testing, Load testing, Production deployment, Go-live preparation",
+                categories: [
+                    {
+                        name: "Automated Testing",
+                        tasks: [
+                            { name: "Unit test coverage completion", completed: false },
+                            { name: "Integration testing suite", completed: false },
+                            { name: "End-to-end testing implementation", completed: false },
+                            { name: "Performance testing automation", completed: false },
+                            { name: "Accessibility testing automation", completed: false }
+                        ]
+                    },
+                    {
+                        name: "Deployment Preparation",
+                        tasks: [
+                            { name: "Production configuration", completed: false },
+                            { name: "Security hardening", completed: false },
+                            { name: "Deployment scripts and procedures", completed: false },
+                            { name: "Monitoring and alerting setup", completed: false },
+                            { name: "Documentation completion", completed: false }
+                        ]
+                    }
+                ]
+            }
+        ];
+        
+        // Timeline milestones - Update when dates change
+        const TIMELINE_MILESTONES = [
+            {
+                date: "Sep 11",
+                status: "completed",
+                title: "Phases 1-3 Foundation Complete",
+                description: "All core infrastructure, UI, and admin features operational"
+            },
+            {
+                date: "Oct 15",
+                status: "current",
+                title: "Phase 3.5 Mock-to-Live Integration",
+                description: "Replace mock implementations with real API calls"
+            },
+            {
+                date: "Dec 25",
+                status: "upcoming",
+                title: "Phase 4 Styling & Content Integration",
+                description: "Complete McBeatch theme and Islamic content integration"
+            },
+            {
+                date: "Jan 29",
+                status: "target",
+                title: "Production Go-Live",
+                description: "Final deployment and production launch"
+            }
+        ];
+    </script>
+    <style>
+        .progress-bar {
+            transition: width 0.8s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-success {
+            animation: pulseSuccess 2s infinite;
+        }
+        
+        @keyframes pulseSuccess {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .phase-card {
+            transition: all 0.3s ease;
+            border-left: 6px solid #e5e7eb;
+            cursor: pointer;
+        }
+        
+        .phase-card.completed {
+            border-left-color: #22c55e;
+            background: linear-gradient(to right, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.02));
+        }
+        
+        .phase-card.in-progress {
+            border-left-color: #f59e0b;
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
+        }
+        
+        .phase-card.pending {
+            border-left-color: #6b7280;
+            background: linear-gradient(to right, rgba(107, 114, 128, 0.08), rgba(107, 114, 128, 0.02));
+        }
+        
+        .phase-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-content.open {
+            max-height: 2000px;
+        }
+        
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .accordion-chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-chevron.open {
+            transform: rotate(180deg);
+        }
+        
+        .task-item {
+            transition: all 0.2s ease;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+        }
+        
+        .task-item:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+            transform: translateX(6px);
+        }
+        
+        .task-completed {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .task-pending {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .task-complete {
+            background-color: rgba(34, 197, 94, 0.08);
+            border: none;
+        }
+
+        .task-pending-bg {
+            background-color: rgba(107, 114, 128, 0.05);
+            border: none;
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .islamic-pattern {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 1) 50%, rgba(241, 245, 249, 0.98) 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .phase-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #e5e7eb;
+        }
+        
+        .phase-card.completed {
+            border-left-color: #22c55e;
+            background: linear-gradient(to right, rgba(34, 197, 94, 0.05), transparent);
+        }
+        
+        .phase-card.in-progress {
+            border-left-color: #f59e0b;
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.05), transparent);
+        }
+        
+        .phase-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-complete {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #15803d;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status-progress {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .status-pending {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: #374151;
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .accordion-content.active {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in, padding 0.3s ease-in;
+        }
+
+        .accordion-toggle {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        .task-item {
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            transform: translateX(4px);
+        }
+
+        .task-complete {
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .task-pending {
+            background-color: rgba(107, 114, 128, 0.05);
+        }
+
+        .test-case {
+            font-family: 'Courier New', monospace;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header - Dynamic -->
+    <header class="gradient-bg text-white shadow-2xl">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 id="project-title" class="text-4xl font-bold mb-2"></h1>
+                    <p id="project-subtitle" class="text-blue-100 text-lg"></p>
+                </div>
+                <div class="text-right">
+                    <p id="start-date" class="text-sm opacity-90"></p>
+                    <p id="timeline" class="text-sm opacity-90"></p>
+                    <p class="text-xs mt-2 px-3 py-1 bg-white/20 rounded-full">Live Progress Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Critical Notice - Dynamic -->
+        <div id="critical-notice" class="bg-red-50 border-l-4 border-red-400 p-4 mb-8 rounded-r-lg fade-in">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <span class="text-red-400 text-2xl">🚨</span>
+                </div>
+                <div class="ml-3">
+                    <h3 id="notice-title" class="text-lg font-semibold text-red-800 mb-2"></h3>
+                    <p id="notice-issue" class="text-red-700 mb-2"></p>
+                    <p id="notice-description" class="text-red-600 text-sm"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Progress Metrics - Dynamic -->
+        <div id="metrics-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Metrics will be populated by JavaScript -->
+        </div>
+
+        <!-- Phase Overview - Dynamic Accordion -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 islamic-pattern fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <span class="mr-3">📋</span>
+                Phase Progress Overview
+                <span class="ml-4 text-sm text-gray-500 font-normal">(Click phases to expand details)</span>
+            </h2>
+            
+            <div id="phases-container" class="space-y-4">
+                <!-- Phases will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Key Information Sections - Dynamic -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Achievements -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-lg p-6 fade-in">
+                <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                    <span class="mr-2">🏆</span>
+                    Major Achievements
+                </h3>
+                <div id="achievements-list" class="space-y-3">
+                    <!-- Achievements will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Dependencies -->
+            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl shadow-lg p-6 fade-in">
+                <h3 class="text-xl font-bold text-amber-800 mb-4 flex items-center">
+                    <span class="mr-2">⚠️</span>
+                    Critical Dependencies
+                </h3>
+                <div id="dependencies-list" class="space-y-3">
+                    <!-- Dependencies will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline & Milestones - Dynamic -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <span class="mr-3">📅</span>
+                Project Timeline & Key Milestones
+            </h2>
+            
+            <div id="timeline-container" class="space-y-4">
+                <!-- Timeline will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Footer - Dynamic -->
+        <footer class="text-center py-8">
+            <div class="bg-gradient-to-r from-noor-primary to-noor-info rounded-xl p-6 text-white">
+                <p class="text-lg font-semibold mb-2">🌙 NOOR Canvas v3.0 FINAL</p>
+                <p class="text-sm opacity-90">Islamic Content Sharing Platform • Real-time Annotation System</p>
+                <p id="last-updated" class="text-xs opacity-75 mt-2"></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 🔧 JAVASCRIPT ENGINE - Data-Driven Rendering -->
+    <script>
+        // 📊 Render functions - Update these when you need to change the display
+        
+        function renderHeader() {
+            document.getElementById('project-title').textContent = `🌙 ${PROJECT_DATA.title}`;
+            document.getElementById('project-subtitle').textContent = `${PROJECT_DATA.version} • ${PROJECT_DATA.subtitle}`;
+            document.getElementById('start-date').textContent = `Started: ${PROJECT_DATA.startDate}`;
+            document.getElementById('timeline').textContent = `Timeline: ${PROJECT_DATA.timeline}`;
+        }
+
+        function renderCriticalNotice() {
+            document.getElementById('notice-title').textContent = PROJECT_DATA.criticalNotice.title;
+            document.getElementById('notice-issue').innerHTML = `<strong>${PROJECT_DATA.criticalNotice.issue}</strong>`;
+            document.getElementById('notice-description').textContent = PROJECT_DATA.criticalNotice.description;
+        }
+
+        function renderMetrics() {
+            const container = document.getElementById('metrics-container');
+            
+            const metrics = [
+                {
+                    title: 'Overall Progress',
+                    value: `${PROJECT_DATA.progress.overall.percentage}%`,
+                    subtitle: `${PROJECT_DATA.progress.overall.completed}/${PROJECT_DATA.progress.overall.total} tasks`,
+                    icon: '📊',
+                    color: 'noor-primary',
+                    gradient: 'from-noor-info to-noor-primary',
+                    width: PROJECT_DATA.progress.overall.percentage
+                },
+                {
+                    title: 'Testing Progress',
+                    value: `${PROJECT_DATA.progress.testing.percentage}%`,
+                    subtitle: `${PROJECT_DATA.progress.testing.completed}/${PROJECT_DATA.progress.testing.total} test cases`,
+                    icon: '🧪',
+                    color: 'noor-warning',
+                    gradient: 'from-yellow-400 to-orange-500',
+                    width: PROJECT_DATA.progress.testing.percentage
+                },
+                {
+                    title: 'Completed Phases',
+                    value: `${PROJECT_DATA.progress.phases.completed}/${PROJECT_DATA.progress.phases.total}`,
+                    subtitle: `${PROJECT_DATA.progress.phases.percentage}% phases done`,
+                    icon: '✅',
+                    color: 'noor-success',
+                    gradient: 'from-green-400 to-green-600',
+                    width: PROJECT_DATA.progress.phases.percentage,
+                    pulse: true
+                },
+                {
+                    title: 'Current Status',
+                    value: PROJECT_DATA.currentPhase,
+                    subtitle: PROJECT_DATA.currentStatus,
+                    icon: '🚀',
+                    color: 'noor-info',
+                    gradient: 'from-blue-400 to-blue-600',
+                    width: 85
+                }
+            ];
+
+            container.innerHTML = metrics.map(metric => `
+                <div class="metric-card rounded-xl p-6 shadow-lg fade-in ${metric.pulse ? 'pulse-success' : ''}">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">${metric.title}</p>
+                            <p class="text-3xl font-bold text-${metric.color} mt-1">${metric.value}</p>
+                            <p class="text-xs text-gray-500 mt-1">${metric.subtitle}</p>
+                        </div>
+                        <div class="text-4xl">${metric.icon}</div>
+                    </div>
+                    <div class="mt-4 bg-gray-200 rounded-full h-2">
+                        <div class="progress-bar bg-gradient-to-r ${metric.gradient} h-2 rounded-full" style="width: ${metric.width}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPhases() {
+            const container = document.getElementById('phases-container');
+            
+            container.innerHTML = PHASES_DATA.map(phase => {
+                const statusClass = phase.status === 'completed' ? 'completed' : 
+                                   phase.status === 'in-progress' ? 'in-progress' : 'pending';
+                
+                const statusBadge = phase.status === 'completed' ? '✅ Complete' :
+                                   phase.status === 'in-progress' ? '🚀 In Progress' : '⏳ Not Started';
+                
+                const statusBadgeClass = phase.status === 'completed' ? 'status-complete' :
+                                        phase.status === 'in-progress' ? 'status-progress' : 'status-pending';
+
+                return `
+                    <div class="phase-card ${statusClass} rounded-lg shadow-sm">
+                        <div class="accordion-toggle p-8" onclick="toggleAccordion('${phase.id}')">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <span class="text-4xl mr-6">${phase.icon}</span>
+                                    <div class="ml-2">
+                                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Phase ${phase.number} — ${phase.title}</h3>
+                                        <p class="text-lg text-gray-600 font-medium">${phase.subtitle}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="text-right mr-6">
+                                        <span class="status-badge ${statusBadgeClass} text-sm px-4 py-2">${statusBadge}</span>
+                                        <p class="text-sm text-gray-500 mt-2 font-medium">${phase.completedDate || phase.targetDate}</p>
+                                    </div>
+                                    <svg class="accordion-chevron w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="bg-gray-200 rounded-full h-3">
+                                    <div class="progress-bar bg-gradient-to-r ${statusClass === 'completed' ? 'from-green-400 to-green-600' : 
+                                        statusClass === 'in-progress' ? 'from-yellow-400 to-orange-500' : 'from-gray-300 to-gray-400'} h-3 rounded-full" 
+                                        style="width: ${phase.progress}%"></div>
+                                </div>
+                                <p class="text-base text-gray-600 mt-3 font-medium">${phase.description}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-content" id="content-${phase.id}">
+                            <div class="px-6 pb-6">
+                                <div class="border-t pt-4">
+                                    ${phase.categories.map(category => `
+                                        <div class="mb-8">
+                                            <h4 class="text-xl font-bold text-gray-700 mb-4 flex items-center pl-6">
+                                                <span class="w-3 h-3 bg-blue-500 rounded-full mr-4"></span>
+                                                ${category.name}
+                                            </h4>
+                                            <div class="space-y-3 ml-6">
+                                                ${category.tasks.map(task => `
+                                                    <div class="task-item rounded-lg flex items-center ${task.completed ? 'task-complete' : 'task-pending-bg'}">
+                                                        <span class="mr-4 text-lg">${task.completed ? '✅' : '⏳'}</span>
+                                                        <span class="${task.completed ? 'task-completed' : 'task-pending'}">${task.name}</span>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAchievements() {
+            const container = document.getElementById('achievements-list');
+            container.innerHTML = PROJECT_DATA.achievements.map(achievement => `
+                <div class="flex items-center text-green-700 py-2">
+                    <span class="w-3 h-3 bg-green-500 rounded-full mr-4"></span>
+                    <span class="text-base font-medium">${achievement}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderDependencies() {
+            const container = document.getElementById('dependencies-list');
+            const priorityColors = {
+                'critical': 'red-500',
+                'high': 'orange-500', 
+                'medium': 'blue-500',
+                'low': 'gray-500'
+            };
+            
+            container.innerHTML = PROJECT_DATA.dependencies.map(dep => `
+                <div class="flex items-center text-amber-700 py-2">
+                    <span class="w-3 h-3 bg-${priorityColors[dep.priority]} rounded-full mr-4"></span>
+                    <span class="text-base font-medium ${dep.status === 'completed' ? 'font-bold' : ''}">${dep.name} ${dep.status === 'completed' ? '✓' : ''}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            const statusColors = {
+                'completed': { bg: 'green-50', border: 'green-500', text: 'green-800', label: 'green-600' },
+                'current': { bg: 'orange-50', border: 'orange-500', text: 'orange-800', label: 'orange-600' },
+                'upcoming': { bg: 'blue-50', border: 'blue-500', text: 'blue-800', label: 'blue-600' },
+                'target': { bg: 'gray-50', border: 'gray-400', text: 'gray-800', label: 'gray-600' }
+            };
+
+            container.innerHTML = TIMELINE_MILESTONES.map(milestone => {
+                const colors = statusColors[milestone.status];
+                const statusLabel = milestone.status.toUpperCase();
+                
+                return `
+                    <div class="flex items-center p-4 bg-${colors.bg} border-l-4 border-${colors.border} rounded-r-lg">
+                        <div class="flex-shrink-0 w-24 text-center">
+                            <span class="text-xs text-${colors.label} font-medium">${statusLabel}</span>
+                            <p class="text-sm font-semibold text-${colors.text}">${milestone.date}</p>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="font-semibold text-${colors.text}">${milestone.title}</h4>
+                            <p class="text-sm text-${colors.text.replace('800', '700')}">${milestone.description}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFooter() {
+            document.getElementById('last-updated').textContent = `Last Updated: ${PROJECT_DATA.lastUpdated}`;
+        }
+
+        // 🎯 Accordion functionality
+        function toggleAccordion(phaseId) {
+            const content = document.getElementById(`content-${phaseId}`);
+            const chevron = document.querySelector(`[onclick="toggleAccordion('${phaseId}')"] .accordion-chevron`);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                chevron.classList.remove('open');
+                content.style.maxHeight = '0';
+            } else {
+                // Close all other accordions
+                document.querySelectorAll('.accordion-content').forEach(el => {
+                    el.classList.remove('open');
+                    el.style.maxHeight = '0';
+                });
+                document.querySelectorAll('.accordion-chevron').forEach(el => {
+                    el.classList.remove('open');
+                });
+                
+                // Open this accordion
+                content.classList.add('open');
+                chevron.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        }
+
+        // 🚀 Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderHeader();
+            renderCriticalNotice();
+            renderMetrics();
+            renderPhases();
+            renderAchievements();
+            renderDependencies();
+            renderTimeline();
+            renderFooter();
+
+            // Animate progress bars
+            setTimeout(() => {
+                document.querySelectorAll('.progress-bar').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+
+            console.log('🌙 NOOR Canvas Implementation Tracker loaded successfully');
+            console.log(`📊 Current progress: ${PROJECT_DATA.progress.overall.percentage}% • Phases completed: ${PROJECT_DATA.progress.phases.completed}/${PROJECT_DATA.progress.phases.total}`);
+            console.log(`🚀 Next milestone: ${PROJECT_DATA.currentPhase} ${PROJECT_DATA.currentStatus}`);
+        });
+
+        // Auto-refresh every 5 minutes
+        setTimeout(() => {
+            location.reload();
+        }, 300000);
+    </script>
+</body>
+</html>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" id="phase1-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-2 mb-2">
+                            <div class="progress-bar bg-noor-success h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">ASP.NET Core 8.0, SignalR, EF Core, Serilog logging, Health monitoring</p>
+                    </div>
+                    
+                    <div class="accordion-content" id="phase1-content">
+                        <div class="px-6 pb-6 pt-2">
+                            <h4 class="font-semibold text-gray-700 mb-3">📋 Core Infrastructure Tasks</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Repository initialization and solution structure</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">ASP.NET Core 8.0 Blazor Server project setup</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">IIS Express configuration (localhost:9090/9091)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Database connection strings (AHHOME server)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-700 mb-3">🗄️ Database & Migrations</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">EF Core setup and configuration</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Canvas schema implementation (12+ models)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Database migrations creation</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🔧 Console Applications</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">HostProvisioner - Host GUID generation</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Console applications framework setup</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🧪 Test Cases (16/16 Passed)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="test-case p-2 rounded text-xs">T1.1: HostProvisioner execution ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.2: Application builds (.NET 8) ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.3: SignalR hubs registration ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.4: EF Core migrations ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.5: Health endpoint JSON ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.6: Observer stream endpoint ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.11: Server-side logging ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T1.12: Client-side logging ✅</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="phase-card completed rounded-lg shadow-sm">
+                    <div class="accordion-toggle p-6" onclick="toggleAccordion('phase2')">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">👥</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Phase 2 — Host & Participant Core</h3>
+                                    <p class="text-sm text-gray-600">Authentication, Registration, Basic UI</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="text-right mr-4">
+                                    <span class="status-badge status-complete">✅ Complete</span>
+                                    <p class="text-xs text-gray-500 mt-1">Sep 11, 2025 (Early)</p>
+                                </div>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" id="phase2-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-2 mb-2">
+                            <div class="progress-bar bg-noor-success h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">Landing page, Host authentication, Participant registration, McBeatch theme</p>
+                    </div>
+                    
+                    <div class="accordion-content" id="phase2-content">
+                        <div class="px-6 pb-6 pt-2">
+                            <h4 class="font-semibold text-gray-700 mb-3">🔐 Authentication & Landing</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Single landing page with Host/User selection</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Host GUID authentication flow</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">User GUID validation and routing</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Session link validation and expiry handling</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-700 mb-3">🏠 Host Console (Dashboard)</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Host dashboard layout and navigation</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Session creation and management</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Real-time session monitoring</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">👤 User Registration & Profiles</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">User registration form (Name/City/Country)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Persistent UserId with localStorage</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Cross-session user profile management</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🧪 Test Cases (20/20 Passed)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="test-case p-2 rounded text-xs">T2.1: Host/User landing routing ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T2.2: Host GUID authentication ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T2.5: UserId localStorage ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T2.6: Waiting room display ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T2.18: Real-time participant count ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T2.20: Sandboxed transcript ✅</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="phase-card completed rounded-lg shadow-sm">
+                    <div class="accordion-toggle p-6" onclick="toggleAccordion('phase3')">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">🎨</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Phase 3 — Annotations & Admin</h3>
+                                    <p class="text-sm text-gray-600">Advanced Features & Administration</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="text-right mr-4">
+                                    <span class="status-badge status-complete">✅ Complete</span>
+                                    <p class="text-xs text-gray-500 mt-1">Sep 11, 2025 (Early)</p>
+                                </div>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" id="phase3-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-2 mb-2">
+                            <div class="progress-bar bg-noor-success h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">SVG annotations, Admin dashboard, Session management, User moderation</p>
+                    </div>
+                    
+                    <div class="accordion-content" id="phase3-content">
+                        <div class="px-6 pb-6 pt-2">
+                            <h4 class="font-semibold text-gray-700 mb-3">🖊️ Annotation System</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">SVG overlay annotation tools (AnnotationCanvas.razor)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Annotation creation and editing with JavaScript</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Real-time annotation broadcasting (AnnotationHub)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">REST API endpoints (AnnotationsController)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-700 mb-3">⚙️ Admin System</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">AdminController with authentication & session management</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Admin Dashboard with real-time statistics</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Session termination and user moderation tools</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">System monitoring and health metrics</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🏗️ Database Schema</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">AdminSession model for secure admin sessions</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Enhanced Session & User models</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-complete p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-green-600 mr-2">✅</span>
+                                        <span class="text-sm">Database migrations for admin functionality</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                                <h5 class="font-semibold text-blue-800 mb-2">🎯 Design Compliance: 95%</h5>
+                                <p class="text-sm text-blue-700">Exceptional alignment with NOOR Canvas v3.0 FINAL design document. All major workflows operational with comprehensive admin system exceeding requirements.</p>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🧪 Test Cases (15/20 Passed)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="test-case p-2 rounded text-xs">T3.1: SVG annotation tools ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T3.2: Annotation persistence ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T3.3: Real-time broadcasting ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T3.6: Admin interface filtering ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T3.19: Annotation geometry ✅</div>
+                                <div class="test-case p-2 rounded text-xs">T3.20: Multi-user scenarios ✅</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3.5 -->
+                <div class="phase-card in-progress rounded-lg shadow-sm border-2 border-orange-200">
+                    <div class="accordion-toggle p-6" onclick="toggleAccordion('phase35')">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">🔄</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">Phase 3.5 — Mock-to-Live Integration</h3>
+                                    <p class="text-sm text-gray-600">API Integration & Database Migration</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="text-right mr-4">
+                                    <span class="status-badge status-progress">🚀 In Progress</span>
+                                    <p class="text-xs text-gray-500 mt-1">Target: Oct 15, 2025</p>
+                                </div>
+                                <svg class="w-5 h-5 transform transition-transform duration-300" id="phase35-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-2 mb-2">
+                            <div class="progress-bar bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">Replace mock implementations, SignalR broadcasting, Database migration to AHHOME</p>
+                    </div>
+                    
+                    <div class="accordion-content" id="phase35-content">
+                        <div class="px-6 pb-6 pt-2">
+                            <div class="bg-amber-50 p-4 rounded-lg mb-4">
+                                <h5 class="font-semibold text-amber-800 mb-2">🎯 Critical Objective</h5>
+                                <p class="text-sm text-amber-700">Systematically replace ALL mock implementations with live API integrations to achieve 100% functional backend connectivity.</p>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🔄 Frontend API Integration</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Replace Session Creation Mock → POST /api/host/session/create</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Replace Session Start/End Mock → API integration</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Replace Participant Registration Mock → Real API</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Replace Landing Page Authentication Mock</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-700 mb-3">📡 SignalR Real-time Integration</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Implement SessionBegan Event Broadcasting</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Implement SessionEnded Event Broadcasting</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Auto-navigation Integration for participants</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Late Joiner Synchronization (Snapshot API)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-700 mb-3">🗄️ Database Migration & Security</h4>
+                            <div class="space-y-2 mb-4">
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Execute EF Core Migrations → AHHOME server</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Create noor_canvas_app SQL account (replace sa)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Initial Data Seeding (Admin GUIDs, test data)</span>
+                                    </div>
+                                </div>
+                                <div class="task-item task-pending p-3 rounded">
+                                    <div class="flex items-center">
+                                        <span class="text-gray-500 mr-2">⏳</span>
+                                        <span class="text-sm">Validate Table Creation (12 canvas schema models)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <h5 class="font-semibold text-red-800 mb-2">⚠️ Critical Blockers</h5>
+                                <ul class="text-sm text-red-700 space-y-1">
+                                    <li>• Issue-15: Frontend mock implementations need backend connection</li>
+                                    <li>• SQL Server migration execution required before Phase 4</li>
+                                    <li>• Production SQL security setup (dedicated account)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 4 -->
+                <div class="phase-card rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">🎨</span>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Phase 4 — Styling & Content Integration</h3>
+                                <p class="text-sm text-gray-600">McBeatch Theme & Islamic Content</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="status-badge status-pending">⏳ Not Started</span>
+                            <p class="text-xs text-gray-500 mt-1">Target: Dec 25, 2025</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-2 mb-2">
+                        <div class="progress-bar bg-gray-300 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600">Complete McBeatch integration, Arabic fonts, RTL support, Beautiful Islam content</p>
+                </div>
+
+                <!-- Phase 5 -->
+                <div class="phase-card rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">⚡</span>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Phase 5 — Performance & Accessibility</h3>
+                                <p class="text-sm text-gray-600">Optimization & WCAG 2.2 AA</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="status-badge status-pending">⏳ Not Started</span>
+                            <p class="text-xs text-gray-500 mt-1">Target: Jan 15, 2026</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-2 mb-2">
+                        <div class="progress-bar bg-gray-300 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600">Performance optimization, Accessibility compliance, Analytics implementation</p>
+                </div>
+
+                <!-- Phase 6 -->
+                <div class="phase-card rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">🚀</span>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Phase 6 — Testing & Deployment</h3>
+                                <p class="text-sm text-gray-600">Final Testing & Go-Live</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="status-badge status-pending">⏳ Not Started</span>
+                            <p class="text-xs text-gray-500 mt-1">Target: Jan 29, 2026</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-2 mb-2">
+                        <div class="progress-bar bg-gray-300 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600">Automated testing, Load testing, Production deployment, Go-live preparation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Achievements -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Completed Features -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-lg p-6 fade-in">
+                <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                    <span class="mr-2">🏆</span>
+                    Major Achievements
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">ASP.NET Core 8.0 + Blazor Server + SignalR foundation</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">Complete admin system with dashboard & session management</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">Real-time annotation system with SVG overlay</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">Comprehensive logging (NOOR Observer system)</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">McBeatch theme integration & responsive UI</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">95% design compliance achieved</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Dependencies -->
+            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl shadow-lg p-6 fade-in">
+                <h3 class="text-xl font-bold text-amber-800 mb-4 flex items-center">
+                    <span class="mr-2">⚠️</span>
+                    Critical Dependencies
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center text-amber-700">
+                        <span class="w-2 h-2 bg-red-500 rounded-full mr-3"></span>
+                        <span class="text-sm font-semibold">SQL Server Database Migration (AHHOME server)</span>
+                    </div>
+                    <div class="flex items-center text-amber-700">
+                        <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                        <span class="text-sm">Frontend-Backend API Integration (Issue-15)</span>
+                    </div>
+                    <div class="flex items-center text-amber-700">
+                        <span class="w-2 h-2 bg-yellow-500 rounded-full mr-3"></span>
+                        <span class="text-sm">SignalR Broadcasting Implementation</span>
+                    </div>
+                    <div class="flex items-center text-amber-700">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                        <span class="text-sm">External API access (Quran.com, Beautiful Islam)</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">Development environment (.NET 8, IIS Express) ✓</span>
+                    </div>
+                    <div class="flex items-center text-green-700">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span class="text-sm">SSL certificate configuration ✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline & Milestones -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <span class="mr-3">📅</span>
+                Project Timeline & Key Milestones
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+                    <div class="flex-shrink-0 w-24 text-center">
+                        <span class="text-xs text-green-600 font-medium">COMPLETED</span>
+                        <p class="text-sm font-semibold text-green-800">Sep 11</p>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-green-800">Phases 1-3 Foundation Complete</h4>
+                        <p class="text-sm text-green-700">All core infrastructure, UI, and admin features operational</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg">
+                    <div class="flex-shrink-0 w-24 text-center">
+                        <span class="text-xs text-orange-600 font-medium">CURRENT</span>
+                        <p class="text-sm font-semibold text-orange-800">Oct 15</p>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-orange-800">Phase 3.5 Mock-to-Live Integration</h4>
+                        <p class="text-sm text-orange-700">Replace mock implementations with real API calls</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <div class="flex-shrink-0 w-24 text-center">
+                        <span class="text-xs text-blue-600 font-medium">UPCOMING</span>
+                        <p class="text-sm font-semibold text-blue-800">Dec 25</p>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-blue-800">Phase 4 Styling & Content Integration</h4>
+                        <p class="text-sm text-blue-700">Complete McBeatch theme and Islamic content integration</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-gray-50 border-l-4 border-gray-400 rounded-r-lg">
+                    <div class="flex-shrink-0 w-24 text-center">
+                        <span class="text-xs text-gray-600 font-medium">TARGET</span>
+                        <p class="text-sm font-semibold text-gray-800">Jan 29</p>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-semibold text-gray-800">Production Go-Live</h4>
+                        <p class="text-sm text-gray-700">Final deployment and production launch</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-8">
+            <div class="bg-gradient-to-r from-noor-primary to-noor-info rounded-xl p-6 text-white">
+                <p class="text-lg font-semibold mb-2">🌙 NOOR Canvas v3.0 FINAL</p>
+                <p class="text-sm opacity-90">Islamic Content Sharing Platform • Real-time Annotation System</p>
+                <p class="text-xs opacity-75 mt-2">Last Updated: September 11, 2025</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-refresh every 5 minutes
+        setTimeout(() => {
+            location.reload();
+        }, 300000);
+
+        // Smooth animations on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.fade-in');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                }, index * 100);
+            });
+        });
+
+        // Progress bar animations
+        window.addEventListener('load', function() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+
+        // Phase card hover effects
+        document.querySelectorAll('.phase-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+
+        console.log('🌙 NOOR Canvas Implementation Tracker loaded successfully');
+        console.log('📊 Current progress: 36.6% • Phases completed: 3/6');
+        console.log('🚀 Next milestone: Phase 3.5 Mock-to-Live Integration');
+    </script>
+</body>
+</html>
