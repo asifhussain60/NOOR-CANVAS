@@ -51,7 +51,7 @@ IssueTracker/
 ## 🔴 **HIGH PRIORITY ISSUES**
 
 - ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md)
-- ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
+- ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change - AWAITING UI MOCKUPS](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
 
 - ⏳ **Issue-22** — [Host Endpoint Missing - Application Startup Failure](AWAITING_CONFIRMATION/Issue-22-host-endpoint-missing-application-startup-failure.md)
 ### **Completed High Priority Issues**

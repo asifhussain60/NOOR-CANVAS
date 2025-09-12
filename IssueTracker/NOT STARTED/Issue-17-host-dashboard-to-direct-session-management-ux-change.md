@@ -103,11 +103,50 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 - API models for Album/Category/Session metadata
 - Service classes for KSESSIONS data integration
 
+## 🎨 **UI MOCKUPS REQUIRED - AWAITING USER INPUT**
+
+**⚠️ BLOCKING: Implementation cannot proceed without visual design specification**
+
+**Required from User:**
+1. **Wireframe/Mockup** of the new Host Session Management interface showing:
+   - Album dropdown placement and styling
+   - Category dropdown placement and styling  
+   - Session dropdown placement and styling
+   - "Generate Session Token" button design and placement
+   - "Start Session" button design and placement
+   - Overall page layout and McBeatch theme integration
+
+2. **Interaction Flow Diagram** showing:
+   - How cascading dropdowns should behave visually
+   - Loading states during dropdown population
+   - Error states (no albums, no categories, etc.)
+   - Success states after token generation
+   - Session start confirmation/feedback
+
+3. **McBeatch Theme Integration** specification:
+   - Which color scheme to use (red, blue, brown, green, orange, yellow)
+   - Typography choices for headers and controls
+   - Button styling consistency with existing components
+   - Form layout and spacing requirements
+
+**Requested Formats:**
+- Hand-drawn sketches (photographed/scanned)
+- Digital mockups (Figma, Sketch, PowerPoint, etc.)
+- Annotated screenshots of preferred layouts
+- Reference to similar UI patterns from McBeatch theme examples
+
+**Technical Questions for User:**
+- Should this page use single-column or multi-column layout?
+- Do you want inline dropdowns or stacked vertically?
+- Should buttons be side-by-side or stacked?
+- Any specific branding/header requirements?
+- Mobile responsiveness priorities?
+
 ## 🚀 **Next Steps**
-1. Review NOOR-CANVAS-DESIGN.MD for detailed requirements
-2. Analyze existing KSESSIONS database schema for integration points
-3. Create wireframes/mockups for new host session manager interface
-4. Implement new HostSessionManager.razor component
+1. **AWAITING USER INPUT:** UI mockups and design specifications
+2. Review NOOR-CANVAS-DESIGN.MD for detailed requirements
+3. Analyze existing KSESSIONS database schema for integration points
+4. **AFTER MOCKUPS RECEIVED:** Implement new HostSessionManager.razor component
 5. Update authentication flow and routing
 6. Test end-to-end workflow with real KSESSIONS data
 
@@ -115,3 +154,4 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 
 **Status History:**
 - **2025-09-11:** Issue created, marked as Not Started ❌
+- **2025-09-12:** Updated to request UI mockups from user - Implementation blocked until design provided
