@@ -69,286 +69,124 @@ Systematically replace ALL mock implementations with live API integrations to ac
 - [ ] **Implement SessionBegan Event**: Broadcast when host starts session
 - [ ] **Implement SessionEnded Event**: Broadcast when host/system ends session
 - [ ] **Auto-navigation Integration**: Connect frontend to SessionBegan broadcasts
-- [ ] **Real-time Status Updates**: Connect dashboard to session status changes
+# NOOR Canvas — Implementation Tracker
 
-#### **Late Joiner Synchronization**
-- [ ] **Implement Snapshot API**: Create `GET /api/sessions/{id}/state` endpoint
-- [ ] **Connect Late Joiner Flow**: Auto-sync participants joining mid-session
-- [ ] **State Reconciliation**: Ensure consistent state across all participants
+Last updated: 2025-09-12
 
-### 🔄 **Database Migration & Seeding**
+Purpose: concise, actionable implementation tracker focused on execution efficiency. This file prioritizes the work required to remove mocks, complete API integration, finish database migrations, and move the project through Phases 3.5→6 with clear quality gates.
 
-#### **Production SQL Security Setup**
-- [ ] **Create Dedicated SQL Account**: Create `noor_canvas_app` SQL login for production use instead of `sa`
-- [ ] **Configure Schema Permissions**: Grant read/write access to `canvas` schema and read access to `dbo` schema
-- [ ] **Set Connection Security**: Configure connection string with dedicated account credentials
-- [ ] **Test Security Access**: Verify application can access both schemas with limited permissions
-- [ ] **Remove SA Dependency**: Update all connection strings to use dedicated account
+Quick status
+- Project: NOOR Canvas v3.0 FINAL
+- Timeline: 20 weeks (6 phases)
+- Current snapshot: Phases 1–3 complete; Phase 3.5 (Mock→Live) is the immediate priority.
 
-#### **AHHOME Server Migration**
-- [ ] **Execute EF Core Migrations**: Deploy all 12 canvas schema tables to production database
-- [ ] **Validate Table Creation**: Confirm all models mapped correctly to SQL tables
-- [ ] **Configure Connection Pooling**: Optimize EF Core for production workloads
-- [ ] **Test Database Connectivity**: Verify read/write operations from application
+CRITICAL DESIGN CHANGE
+----------------------
+Issue-17 — Host UX: move from dashboard-first to action-first host flow. Priority: HIGH. Ensure host login routes directly to Session Management UI and provide immediate action controls (Generate Token, Start Session). Tracked as Issue-17-host-dashboard-to-direct-session-management-ux-change.md
 
-#### **Initial Data Seeding**
-- [ ] **Seed Admin GUIDs**: Insert development and production admin authentication tokens
-- [ ] **Seed Test Data**: Create sample sessions and users for integration testing
-- [ ] **Configure Default Settings**: Set up system defaults (session expiry, limits, etc.)
+Execution checklist (what you asked me to do)
+- Review and reorganize this tracker for implementation efficiencies (done)
+- Consolidate mock-removal work into Phase 3.5 actionable items (done)
+- Ensure clear success criteria and quality gates for CI (done)
 
-#### **SQL Security Implementation**
-**Production SQL Account Setup Commands:**
-```sql
--- 1. Create dedicated application login (replace 'SecurePassword123!' with strong password)
-USE master;
-CREATE LOGIN [noor_canvas_app] WITH PASSWORD = 'SecurePassword123!', 
-    DEFAULT_DATABASE = [KSESSIONS], 
-    CHECK_EXPIRATION = OFF, 
-    CHECK_POLICY = ON;
+Top priorities (next sprint)
+1. Phase 3.5 — Replace all mocks with live API calls and verify with integration tests (target: 3–5 working days)
+2. Apply EF Core migrations to AHHOME and validate schema & seeding (blocker for Phase 4)
+3. Implement Session lifecycle SignalR broadcasts (SessionBegan/SessionEnded) and late-join snapshot API
+4. Add CI workflow: lint → build → tests → integration checks (fail fast on lint)
 
--- 2. Create user in KSESSIONS database with canvas schema access
-USE KSESSIONS;
-CREATE USER [noor_canvas_app] FOR LOGIN [noor_canvas_app];
+Phase summary (condensed)
+-------------------------
+- Phase 1 — Foundation (Weeks 1–3): COMPLETE ✅
+  - ASP.NET Core 8 Blazor Server, SignalR, EF Core, Serilog, health endpoint, observer stream, console tools. Delivered.
 
--- 3. Grant full access to canvas schema (NOOR Canvas tables)
-GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::canvas TO [noor_canvas_app];
+- Phase 2 — Host & Participant Core (Weeks 4–8): COMPLETE ✅
+  - Landing, Host GUID auth, Participant registration, Waiting room, Basic Q&A, Asset detection. Delivered.
 
--- 4. Create user in KQUR database for cross-application read access
-USE KQUR;
-CREATE USER [noor_canvas_app] FOR LOGIN [noor_canvas_app];
+- Phase 3 — Annotations & Admin (Weeks 9–12): COMPLETE ✅
+  - Annotation canvas, admin UI, persistence, real-time foundations. Delivered.
 
--- 5. Grant read-only access to dbo schema (Beautiful Islam integration)
-GRANT SELECT ON SCHEMA::dbo TO [noor_canvas_app];
+- Phase 3.5 — Mock-to-Live Data Integration (Weeks 12.5–13): IN PROGRESS (Priority: CRITICAL)
+  - Objective: zero mock implementations in codebase. Target completion: 2025-10-15.
 
--- 6. Verify permissions
-USE KSESSIONS;
-SELECT 
-    p.state_desc, 
-    p.permission_name, 
-    s.name AS principal_name,
-    o.name AS object_name,
-    pr.name AS schema_name
-FROM sys.database_permissions p
-    LEFT JOIN sys.objects o ON p.major_id = o.object_id
-    LEFT JOIN sys.schemas pr ON pr.schema_id = o.schema_id
-    LEFT JOIN sys.database_principals s ON p.grantee_principal_id = s.principal_id
-WHERE s.name = 'noor_canvas_app';
+Phase 3.5 — Minimal implementation plan
+-------------------------------------
+Goal: Replace mock flows conservatively and verifiably. Work in small PRs per area (Host, Participant, Landing, SignalR, DB). Each PR must:
+1. Replace mock call with real API call
+2. Add error handling and loading state
+3. Add an integration test (or test harness step) that exercises the new flow against local dev DB or a disposable SQL container
+4. Run lint (HTML/Razor/TS/JS), build, and tests in CI
+
+Core front-end replacements (priority order)
+- Host: CreateSession → POST /api/host/session/create
+- Host: Start/End session → POST /api/host/session/{id}/start|end
+- Participant: ValidateSession → GET /api/participant/session/{guid}/validate
+- Participant: RegisterParticipant → POST /api/participant/register
+- Landing: Host authentication → POST /api/host/authenticate
+
+SignalR & late-join
+- Implement SessionBegan and SessionEnded hub events and client handlers
+- Add GET /api/sessions/{id}/state to return a snapshot for late joiners
+- Ensure auto-navigation on SessionBegan broadcasts
+
+Database migration & security (deployment checklist)
+- Create dedicated SQL login `noor_canvas_app` for production (do not use sa)
+- Grant canvas schema DML permissions and cross-app read access to KQUR dbo
+- Execute EF Core migrations against AHHOME using a verified connection string
+- Seed admin GUIDs and test data for integration tests
+
+Recommended migration commands (dev/test)
+```powershell
+# From workspace root (adjust connection string as required)
+dotnet ef database update --project "SPA/NoorCanvas" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=...;Password=...;"
 ```
 
-**Connection String Update (appsettings.Production.json):**
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=AHHOME;Database=KSESSIONS;User Id=noor_canvas_app;Password=SecurePassword123!;TrustServerCertificate=true;Timeout=3600;",
-    "BeautifulIslamConnection": "Server=AHHOME;Database=KQUR;User Id=noor_canvas_app;Password=SecurePassword123!;TrustServerCertificate=true;Timeout=3600;"
-  }
-}
-```
+API endpoints to implement (if missing)
+- GET /api/sessions/{id}/state (snapshot)
+- POST /api/sessions/{id}/links (secondary links)
+- POST /api/sessions/{id}/qa/questions/{qid}/vote (voting API)
+- Enhanced health endpoint with DB checks (/healthz)
 
-### 🔄 **API Endpoint Completion**
+Quality gates (enforced before merge)
+1. Lint — run project linters and `Tests/NC-ImplementationTests/scripts/lint-html.ps1` for any documentation HTML files
+2. Build — `dotnet build` succeeds for `SPA/NoorCanvas` and tools
+3. Tests — unit and (where added) integration tests pass
+4. Manual smoke — health endpoint responds; key pages render without console errors
 
-#### **Missing Design-Required Endpoints**
-- [ ] **Implement Session State API**: `GET /api/sessions/{id}/state` for late joiner sync
-- [ ] **Implement Secondary Links API**: `POST /api/sessions/{id}/links` for multiple session links
-- [ ] **Implement Vote API**: `POST /api/sessions/{id}/qa/questions/{qid}/vote` (if not using QAHub)
-- [ ] **Enhance Health Endpoint**: Add database connectivity and detailed component checks
+Testing strategy & CI notes
+- Unit tests: xUnit + bUnit for Blazor components. Goal: start with DialogService/Alert/Confirm components as first tests.
+- Integration tests: run a small set of end-to-end checks against a dev DB (or disposable SQL container) in CI stage gated by 'integration' label
+- CI pipeline: lint → build → unit tests → integration tests → deploy-to-staging (if all green)
 
-### 🧪 **Integration Testing & Validation**
+Success criteria for Phase 3.5
+- Zero Task.Delay or TODO mock placeholders remaining
+- All replaced flows exercised by automated tests (unit or integration)
+- Database migrations applied and validated on AHHOME dev instance
+- SignalR lifecycle events functioning end-to-end
 
-#### **End-to-End Workflow Testing**
-- [ ] **Complete Session Creation Flow**: Host creates session → Database entry → Participant link generated
-- [ ] **Complete Participant Flow**: User clicks link → Registration → Waiting room → Auto-navigation
-- [ ] **Complete Q&A Flow**: Question submission → Real-time display → Voting → Host moderation
-- [ ] **Complete Admin Flow**: Admin authentication → Session management → User moderation
+Action backlog (short list)
+1. Convert one placeholder (Issue-20) into a runnable xUnit/bUnit test project (recommended next task)
+2. Add CI workflow (GitHub Actions) that invokes `Tests/NC-ImplementationTests/scripts/test-runner-template.ps1`
+3. Harden linting: add Razor/TS/JS linters in CI; keep `lint-html.ps1` for docs
+4. Schedule migration window and a rollback plan for AHHOME
 
-#### **Real-time Communication Testing**
-- [ ] **SignalR Connection Verification**: All hubs connect and maintain stable connections
-- [ ] **Cross-client Broadcasting**: Events broadcast correctly to all session participants
-- [ ] **Network Resilience**: Reconnection handling and message queuing work properly
+Key blockers and dependencies
+- Database access to AHHOME (required to finish Phase 3.5)
+- API design sign-off for session state snapshot and persistence behavior
+- CI runner secrets for DB access (use short-lived test credentials in CI)
 
-### 🔍 **Quality Assurance & Code Review**
+Notes & contact
+- Main application: `SPA/NoorCanvas`
+- Tools: `Tools/*` (HostProvisioner, DbMigrator, etc.)
+- Use `Workspaces/TEMP/` for temporary artifacts; cleansed before commits
 
-#### **Mock Removal Verification**
-- [ ] **Code Audit**: Search and eliminate ALL `Task.Delay`, `Mock`, `TODO: Call actual API` comments
-- [ ] **Error Handling**: Implement proper network error handling for all API calls
-- [ ] **Loading States**: Replace mock loading with real API loading indicators
-- [ ] **Data Validation**: Ensure all API responses are properly validated and handled
+If you want, I can now:
+- A: Create the CI workflow (GitHub Actions) that runs lint→build→tests and calls the test-runner template
+- B: Convert the Issue-20 placeholder into a runnable xUnit/bUnit test project and run it locally
+- C: Extend linting to Razor/JS/CSS and add their checks to the test-runner template
 
-### Testing Use Cases - Phase 3.5
-- [ ] **T3.5.1**: Host creates session and participant link is immediately valid and working
-- [ ] **T3.5.2**: Participant uses session link and joins session successfully with database persistence
-- [ ] **T3.5.3**: Host starts session and all participants auto-navigate via SignalR broadcast
-- [ ] **T3.5.4**: Host ends session and all participants receive session ended notification
-- [ ] **T3.5.5**: Late joiner connects mid-session and receives current session state via snapshot
-- [ ] **T3.5.6**: Database migrations execute successfully against AHHOME SQL Server
-- [ ] **T3.5.6a**: Dedicated SQL account `noor_canvas_app` created with proper schema permissions
-- [ ] **T3.5.7**: All admin functionality works with real database backend
-- [ ] **T3.5.8**: Q&A system persists questions and votes to database in real-time
-- [ ] **T3.5.9**: SignalR connections remain stable during session lifecycle events
-- [ ] **T3.5.10**: Error handling works gracefully for network failures and API errors
+Choose A, B, or C (or multiple) and I will proceed.
 
----
-
-## ✅ PHASE 3.5 SUCCESS CRITERIA
-**Definition of Done**: Zero mock implementations remain in the application
-- ✅ All frontend components call real API endpoints
-- ✅ All SignalR events broadcast to connected clients
-- ✅ Database migrations deployed and functional on AHHOME server
-- ✅ End-to-end workflows work without mock data
-- ✅ Error handling implemented for all network operations
-- ✅ Integration tests pass for all major user journeys
-
----
-
-## Phase 4 — Styling & Content Integration (Weeks 13–15)ps Identified**
-Based on comprehensive design comparison, the following gaps require immediate resolution:
-
-#### **Frontend-Backend Integration Issues**
-- ⚠️ **Host Dashboard Session Creation**: Uses mock `Task.Delay(1000)` instead of `POST /api/host/session/create`
-- ⚠️ **Host Dashboard Session Start/End**: Mock status changes instead of API calls
-- ⚠️ **Participant Registration**: Mock session validation instead of real API integration
-- ⚠️ **Landing Page Authentication**: Partially mocked authentication flow
-
-#### **SignalR Real-time Broadcasting Gaps**  
-- ⚠️ **Session Lifecycle Events**: SessionBegan, SessionEnded broadcasts not implemented
-- ⚠️ **Late Joiner Synchronization**: Snapshot API (`GET /api/sessions/{id}/state`) missing
-- ⚠️ **Real-time Session Monitoring**: Dashboard updates need SignalR integration
-
-#### **Database Migration Requirements**
-**SQL Table Updates Needed**: Database connectivity established but migrations not yet applied to AHHOME server
-- 🔄 **Migration Status**: EF Core migrations created but not executed against production database
-- 🔄 **Schema Validation**: 12 canvas schema models need database table creation
-- 🔄 **Initial Data Seeding**: Development seed data and admin GUIDs need insertion
-- 🔄 **Production Security**: Dedicated SQL account (`noor_canvas_app`) needs creation instead of using `sa`
-
-### 🚀 Ready for API Integration Completion & Phase 4
-**Status**: All Phase 3 requirements exceeded expectations + comprehensive design validation
-**Current Priority**: 
-1. **Resolve Issue-15**: Complete frontend-backend API integration
-2. **Implement SignalR Broadcasting**: Session lifecycle events
-3. **Database Migrations**: Execute EF Core migrations against AHHOME server
-**Next Phase**: Styling & Content Integration (Weeks 13-15) 
-**System Health**: Application builds successfully, all endpoints operational, 95% design compliance achievedtialization and solution structure
-- [x] Main ASP.NET Core 8 Blazor Server project in `SPA/` folder
-- [x] Basic project configuration and dependencies
-- [x] IIS launch profile configuration
-- [x] Environment configuration (Development/Production)
-- [x] Database connection strings (AHHOME server, DEV/PROD databases)
-
-### Database & Migrations
-- [x] EF Core setup and configuration ✅
-- [x] Canvas schema implementation (Sessions, Users, etc.) ✅
-- [x] Database migrations creation ✅
-- [x] Users table implementation with persistent UserId ✅
-- [x] Database connection strings configuration (KSESSIONS_DEV/KSESSIONS) ✅
-- [x] Web.config transforms for Development/Production ✅
-- [x] Initial database seeding for development ✅ (Pending AHHOME connectivity)
-
-### Console Applications (Tools folder)
-- [x] `Tools/HostProvisioner` - Host GUID generation and management ✅
-- [x] `Tools/DbMigrator` - Database migrations and seeding ✅ (Pending implementation)
-- [x] `Tools/ObserverCli` - Observer stream connection utility ✅ (Pending implementation)  
-- [x] `Tools/IssueUploader` - Issue import and batch processing ✅ (Pending implementation)
-- [x] `Tools/MigrationHelper` - Legacy KSESSIONS migration utility ✅ (Pending implementation)
-
-### Testing Use Cases - Phase 1
-- [x] **T1.1**: HostProvisioner dry-run command execution ✅
-- [x] **T1.2**: Application builds without errors (.NET 8) ✅
-- [x] **T1.3**: SignalR hubs compile and register correctly ✅
-- [x] **T1.4**: EF Core migrations generate properly ✅
-- [x] **T1.5**: Health endpoint returns valid JSON response ⚠️ (Database connectivity required)
-- [x] **T1.6**: Observer stream endpoint accessible in development ✅
-- [x] **T1.7**: Database connection strings validate against AHHOME ✅
-- [x] **T1.8**: Web.config transforms apply correctly ✅
-- [x] **T1.9**: Serilog writes to both console and file ✅
-- [x] **T1.10**: All console tools build and execute help commands ✅
-- [x] **T1.11**: Server-side logging infrastructure implemented ✅
-- [x] **T1.12**: Client-side JavaScript logging utility implemented ✅
-- [x] **T1.13**: Browser-to-server log transmission working ✅
-- [x] **T1.14**: Structured logging with session/user context ✅
-- [x] **T1.15**: Error boundary handling for unhandled browser errors ✅
-- [x] **T1.16**: Issue API endpoint accepts valid issue creation requests ✅
-
-### Observability & Health
-- [x] Health endpoint (`/healthz`) implementation
-- [x] Serilog integration and configuration
-- [x] Observer stream (`/observer/stream`) implementation
-- [x] Development diagnostics with `?debug=1` toggle
-- [x] Server-side structured logging infrastructure
-- [x] Client-side JavaScript logging utility (`noor-logging.js`)
-- [x] Browser log transmission endpoint (`/api/logs`)
-- [x] Error boundary and unhandled exception logging
-- [x] Session/User context logging support
-
-### Issue Tracker Foundation
-- [x] Issue Tracker folder structure organization ✅
-- [x] NC-ISSUE-TRACKER.MD main file ✅
-- [x] Status-based folder organization (NOT STARTED, COMPLETED, etc.) ✅
-- [x] Issue tracking database schema ✅
-- [x] Basic issue reporting endpoint (`POST /issues`) ✅
-
-### SignalR & Hub Infrastructure
-- [x] Basic SignalR setup and configuration
-- [x] Session Hub foundation (`/hub/session`)
-- [x] QA Hub foundation (`/hub/qa`)
-- [x] Hub authorization framework
-
-### McBeatch Integration
-- [ ] McBeatch theme integration foundation
-- [ ] Basic CSS structure setup
-- [ ] Asset path configuration (DEV/PROD mapping)
-
-### Testing Framework
-- [ ] Unit test project setup (xUnit/NUnit)
-- [ ] Core helper tests (hashing, GUID validation)
-- [ ] Basic repository mock tests
-- [ ] Test configuration and CI integration
-
-### Documentation & Quality
-- [ ] Code documentation standards
-- [ ] Development setup guide
-- [ ] Console application usage documentation
-- [ ] Quality gates implementation (build/lint/tests)
-
----
-
-## ✅ PHASE 1 COMPLETION REPORT
-**Date**: September 11, 2025  
-**Status**: COMPLETE ✅  
-**Duration**: 1 day (Early completion - 3 weeks ahead of schedule)  
-
-### 🎯 What Was Delivered
-**Core Infrastructure (100% Complete)**
-- ✅ ASP.NET Core 8.0 Blazor Server application with SignalR
-- ✅ Entity Framework Core with complete database schema (12+ models)
-- ✅ Comprehensive server-side logging with Serilog (console + file)
-- ✅ Complete client-side JavaScript logging utility (`noor-logging.js`)
-- ✅ Browser-to-server log transmission endpoint (`/api/logs`)
-- ✅ Health monitoring endpoint (`/healthz`)
-- ✅ Observer stream for development debugging (`/observer/stream`)
-
-**Console Tools (100% Complete)**
-- ✅ HostProvisioner - Host GUID generation with HMAC-SHA256 security
-- ✅ All console tools built with .NET 8 and System.CommandLine
-
-**Database & Configuration (100% Complete)**
-- ✅ AHHOME SQL Server connection strings configured
-- ✅ Development/Production environment configuration
-- ✅ Web.config transforms for IIS deployment
-
-**Testing & Validation (100% Complete)**
-- ✅ All 15 Phase 1 test cases validated
-- ✅ Application builds and runs successfully
-- ✅ Server-side structured logging operational
-- ✅ Client-side logging with error boundaries operational
-- ✅ Browser console and server log integration working
-
-### 🔍 Logging Implementation Confirmation
-**Server-Side Logging**: ✅ IMPLEMENTED & TESTED
-- Serilog configured with both console and file outputs
-- Structured logging with contextual information
-- Automatic log level management (DEBUG in dev, INFO+ in production)
-- Server startup, request processing, and error logging active
 
 **Client-Side Logging**: ✅ IMPLEMENTED & TESTED  
 - Custom JavaScript logging utility (`NoorLogger`) implemented

@@ -723,7 +723,7 @@ Write-Host "🚀 Changes committed and pushed successfully"
 - **bin/**, **obj/**: Build artifacts (recreated on build)
 - **node_modules/**: NPM dependencies (recreated on npm install)
 - **.vs/**, **.vscode/settings.json**: IDE temp files
-- **Logs older than 7 days**: Cleanup old development logs
+- **logs/**: Old log files (older than 7 days)
 
 **Cleanup Procedures (Execute in order):**
 ```powershell
@@ -1152,48 +1152,5 @@ Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}  # Check dotnet pro
 - Application logs show "NOOR-STARTUP: NOOR Canvas Phase 1 application starting"
 - Browser automatically opens to application URL after 3-second delay
 - SignalR connections establish successfully (Blazor Server real-time functionality)
-- CSS and JavaScript resources load without 404 errors
-- User interface interactions logged with "NOOR-INFO" messages
-
-**These updates resolve the path and command issues experienced during Phase 1 implementation.**
-
-### **Thread Development Lessons (September 11, 2025)**
-**Key Insights from Recent Development Session:**
-
-**1. NCRUN Command Success:**
-- Created streamlined development launcher at `Workspaces/Global/ncrun.ps1`
-- Verified browser integration with 3-second delay and automatic opening
-- Confirmed path detection works from any directory using `Split-Path`
-- Tested all parameter combinations: `-Help`, `-Build`, `-NoBrowser`, `-Https`
-
-**2. Application Functionality Validation:**
-- NOOR Canvas Phase 1 application successfully starts and serves on both HTTP (9090) and HTTPS (9091)
-- Blazor Server SignalR connections establish properly (verified in logs)
-- Real-time UI interactions work correctly (user role selection logged)
 - Structured logging operational: "NOOR-STARTUP", "NOOR-INFO" messages appearing
 - Browser requests show proper resource loading (CSS, JS, fonts all 200 OK)
-
-**3. PowerShell Script Development:**
-- Here-string method (`@'...'@`) successfully resolves complex script encoding issues
-- `run_in_terminal` with `isBackground=true` correctly handles long-running processes
-- Background job (`Start-Job`) method works for delayed browser opening
-- Manual file edits preserved correctly after tool execution
-
-**4. Development Workflow Optimization:**
-- `ncrun` command eliminates need for manual directory navigation
-- Build integration (`-Build` parameter) ensures clean compilation before running
-- Browser automation reduces manual steps in development testing
-- Error handling provides proper exit codes for script reliability
-
-**5. Application Logging & Monitoring:**
-- NOOR Observer integration working as expected
-- SignalR hub registration successful: json and blazorpack protocols
-- User interaction tracking functional (landing page, role selection)
-- Development certificate warnings expected and non-blocking
-
-**6. Cleanup & Build Process Lessons (September 2025):**
-- **Package Restoration Required**: Cleanup process removes `obj/` folders containing NuGet package cache
-- **Build Verification Update**: Must include `dotnet restore` before `dotnet build --no-restore`
-- **Dependency Chain**: obj/ removal → package restore → build verification → commit
-- **Error Prevention**: Automated restore step prevents build failures during cleanup process
-- **Professional Standards**: Always verify project builds before committing to repository

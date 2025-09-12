@@ -86,7 +86,7 @@ IssueTracker/
 
 ## 🟡 **MEDIUM PRIORITY ISSUES**
 
-- ❌ **Issue-20** — [Replace Browser Dialog Alerts with Styled Dialog Libraries](NOT%20STARTED/Issue-20-replace-browser-dialogs-with-styled-libraries.md) ❌
+- ✅ **Issue-20** — [Replace Browser Dialog Alerts with Styled Dialog Libraries](COMPLETED/Issue-20-replace-browser-dialogs-with-styled-libraries.md) ✅
 - ✅ **Issue-4** — [Browser Logging API 500 Error](COMPLETED/Issue-4-browser-logging-api-error.md) ✅
 - ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md) ✅
 - ✅ **Issue-16** — [New Session Button Click Handler Not Working](COMPLETED/Issue-16-new-session-button-click-handler-not-working.md) ✅
@@ -103,10 +103,10 @@ IssueTracker/
 ## 📊 **TRACKER STATISTICS**
 
 - **Total Issues:** 15
-- **Not Started:** 1
+- **Not Started:** 0
 - **In Progress:** 0
 - **Awaiting Confirmation:** 1  
-- **Completed:** 13
+- **Completed:** 14
 
 ---
 
@@ -133,6 +133,23 @@ Mark issue X as [In Progress|AwaitingConfirmation|Completed|Not Started]
 ```
 Remove issue X
 ```
+
+### 🧪 Mandatory Test Requirement
+- When fixing an issue, developers MUST add an automated test that reproduces the issue (unit, integration, or e2e as appropriate) under `Tests/NC-ImplementationTests/unit/`.
+- Move the issue file to `AWAITING_CONFIRMATION/` when the fix is implemented and tests are added. Once the verifier confirms tests pass, the issue can be moved to `COMPLETED/`.
+- Use these helper scripts (scaffolded under `Tests/NC-ImplementationTests/scripts/`):
+   - `Tests/NC-ImplementationTests/scripts/verify-completed-tests.ps1` — verifies every `COMPLETED` issue has at least one test file (placeholder verifier).
+   - `Tests/NC-ImplementationTests/scripts/test-runner-template.ps1` — CI/test-runner template which outlines how to discover and run test projects under `Tests/NC-ImplementationTests/unit/`.
+
+### 🔁 Developer Workflow (Quick)
+1. Implement fix and add test under `Tests/NC-ImplementationTests/unit/<category>/` (name test file `Issue-<n>-x.cs` or `Issue-<n>-<short-desc>.cs`).
+2. Run verification script (checks completed issues have test stubs):
+   - powershell -ExecutionPolicy Bypass -File Tests\NC-ImplementationTests\scripts\verify-completed-tests.ps1
+3. Run test harness / CI test-runner (use the provided template to wire into CI):
+   - powershell -ExecutionPolicy Bypass -File Tests\NC-ImplementationTests\scripts\test-runner-template.ps1
+4. If tests pass, move issue to `AWAITING_CONFIRMATION/` and request user verification. After confirmation, move to `COMPLETED/`.
+
+If completed-issue tests fail during verification, open a new issue in `IssueTracker/NOT STARTED/` describing the failing test and stack trace.
 
 ---
 

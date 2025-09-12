@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @inject ILogger<AdminDashboard> Logger
 @inject HttpClient Http
+@inject DialogService DialogService
 @using System.Text.Json
 @using System.Text
 
@@ -327,6 +328,9 @@
     private string sessionToken = string.Empty;
     private string errorMessage = string.Empty;
     private AdminDashboardData? dashboardData;
+    
+    private AlertDialog alertDialog = null!;
+    private ConfirmDialog confirmDialog = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -339,6 +343,17 @@
             sessionToken = storedToken;
             await LoadDashboardData();
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register dialogs with the service after they are rendered
+            DialogService.RegisterAlertDialog(alertDialog);
+            DialogService.RegisterConfirmDialog(confirmDialog);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
@@ -442,8 +457,9 @@
     {
         try
         {
-            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
-                $"Are you sure you want to terminate session #{sessionId}? This action cannot be undone.");
+            var confirmed = await DialogService.ShowDangerConfirmAsync(
+                $"Are you sure you want to terminate session #{sessionId}? This action cannot be undone.", 
+                "Terminate Session");
             
             if (confirmed)
             {
@@ -533,3 +549,7 @@
         public bool IsActive { get; set; }
     }
 }
+
+<!-- Dialog Components -->
+<AlertDialog @ref="alertDialog" />
+<ConfirmDialog @ref="confirmDialog" />

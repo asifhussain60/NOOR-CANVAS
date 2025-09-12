@@ -4,6 +4,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<Landing> Logger
+@inject DialogService DialogService
 
 <div class="landing-container">
     <div class="hero-section">
@@ -133,11 +134,18 @@
     private string hostGuid = "";
     private string sessionLink = "";
     private bool isLoading = false;
+    
+    private AlertDialog alertDialog = null!;
+    private ConfirmDialog confirmDialog = null!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // Register dialogs with the service after they are rendered
+            DialogService.RegisterAlertDialog(alertDialog);
+            DialogService.RegisterConfirmDialog(confirmDialog);
+            
             Logger.LogInformation("NOOR-INFO: Landing page rendered for new visitor");
             await JSRuntime.InvokeVoidAsync("NoorLogger.info", "LANDING", "Landing page loaded", new { timestamp = DateTime.UtcNow });
         }
@@ -192,14 +200,14 @@
             {
                 Logger.LogWarning("NOOR-WARNING: Invalid Host GUID format: {HostGuid}", hostGuid);
                 await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-AUTH", "Invalid GUID format", new { hostGuid });
-                await JSRuntime.InvokeVoidAsync("alert", "Invalid GUID format. Please check your Host GUID and try again.");
+                await DialogService.ShowErrorAsync("Invalid GUID format. Please check your Host GUID and try again.", "Authentication Error");
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ERROR: Host authentication failed");
             await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-AUTH", "Authentication failed", new { error = ex.Message });
-            await JSRuntime.InvokeVoidAsync("alert", "Authentication failed. Please try again.");
+            await DialogService.ShowErrorAsync("Authentication failed. Please try again.", "Authentication Error");
         }
         finally
         {
@@ -235,14 +243,14 @@
             {
                 Logger.LogWarning("NOOR-WARNING: Invalid session link: {SessionLink}", sessionLink);
                 await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Invalid session link", new { sessionLink });
-                await JSRuntime.InvokeVoidAsync("alert", "Invalid session link. Please check the link and try again.");
+                await DialogService.ShowErrorAsync("Invalid session link. Please check the link and try again.", "Invalid Session");
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ERROR: Participant session join failed");
             await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Join failed", new { error = ex.Message });
-            await JSRuntime.InvokeVoidAsync("alert", "Failed to join session. Please try again.");
+            await DialogService.ShowErrorAsync("Failed to join session. Please try again.", "Session Join Failed");
         }
         finally
         {
@@ -414,4 +422,7 @@
 }
 </style>
 
+<!-- Dialog Components -->
+<AlertDialog @ref="alertDialog" />
+<ConfirmDialog @ref="confirmDialog" />
 

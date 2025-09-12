@@ -5,6 +5,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<CreateSession> Logger
+@inject DialogService DialogService
 
 <div class="create-session-page">
     <div class="container mt-4">
@@ -113,6 +114,9 @@
 @code {
     private bool isCreatingSession = false;
     private CreateSessionRequest newSession = new();
+    
+    private AlertDialog alertDialog = null!;
+    private ConfirmDialog confirmDialog = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,6 +134,17 @@
             CategoryId = null,
             AlbumId = null
         };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register dialogs with the service after they are rendered
+            DialogService.RegisterAlertDialog(alertDialog);
+            DialogService.RegisterConfirmDialog(confirmDialog);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task SubmitCreateSession()
@@ -158,14 +173,14 @@
                 var errorContent = await response.Content.ReadAsStringAsync();
                 await JSRuntime.InvokeVoidAsync("NoorLogger.error", "CREATE-SESSION", "Failed to create session", new { error = errorContent, status = response.StatusCode });
                 
-                // Show error message to user (you can implement a toast notification here)
-                await JSRuntime.InvokeVoidAsync("alert", $"Failed to create session: {errorContent}");
+                // Show error message to user
+                await DialogService.ShowErrorAsync($"Failed to create session: {errorContent}", "Session Creation Failed");
             }
         }
         catch (Exception ex)
         {
             await JSRuntime.InvokeVoidAsync("NoorLogger.error", "CREATE-SESSION", "Exception during session creation", new { error = ex.Message });
-            await JSRuntime.InvokeVoidAsync("alert", $"Error creating session: {ex.Message}");
+            await DialogService.ShowErrorAsync($"Error creating session: {ex.Message}", "Unexpected Error");
         }
         finally
         {
@@ -266,3 +281,7 @@
     background: linear-gradient(135deg, #007bff, #0056b3) !important;
 }
 </style>
+
+<!-- Dialog Components -->
+<AlertDialog @ref="alertDialog" />
+<ConfirmDialog @ref="confirmDialog" />

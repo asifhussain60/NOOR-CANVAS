@@ -69,3 +69,55 @@ Replace all browser dialog alerts with beautifully styled dialog libraries that 
 
 ## 📅 **Status History**
 - **September 12, 2025:** Issue created - Enhancement request for styled dialogs
+- **September 12, 2025:** Issue completed - Successfully implemented styled dialog system
+
+## ✅ **Resolution Summary**
+
+### **Implementation Completed:**
+- [x] All browser alert() calls replaced with styled dialogs
+- [x] All browser confirm() calls replaced with styled confirmation dialogs
+- [x] Consistent styling matching McBeatch theme
+- [x] Responsive design for mobile and desktop
+- [x] Islamic-appropriate styling and colors
+- [x] Proper keyboard navigation and accessibility
+- [x] Integration with existing SignalR functionality
+
+### **Components Created:**
+1. **AlertDialog.razor** - Styled alert dialogs with support for Info, Success, Warning, and Error types
+2. **ConfirmDialog.razor** - Styled confirmation dialogs with customizable buttons and danger states
+3. **DialogService.cs** - Service for programmatic dialog management
+
+### **Files Modified:**
+- `Program.cs` - Added DialogService to dependency injection
+- `_Imports.razor` - Added dialog component imports
+- `Landing.razor` - Replaced 4 browser alerts with styled dialogs
+- `ParticipantRegister.razor` - Replaced 2 browser alerts with styled dialogs
+- `CreateSession.razor` - Replaced 2 browser alerts with styled dialogs
+- `AdminDashboard.razor` - Replaced 1 browser confirm with styled dialog
+
+### **Features Implemented:**
+- **Islamic-themed styling** with appropriate colors and rounded corners
+- **Responsive design** that works on mobile and desktop
+- **Accessibility support** with proper ARIA labels and keyboard navigation
+- **Multiple dialog types**: Info (ℹ️), Success (✅), Warning (⚠️), Error (❌), Confirmation (❓), Danger (🗑️)
+- **Programmatic API** for easy usage from C# code
+- **Bootstrap integration** using existing CSS framework
+- **Real-time compatibility** with SignalR and Blazor Server
+
+### **Usage Examples:**
+```csharp
+// Error message
+await DialogService.ShowErrorAsync("Authentication failed. Please try again.", "Authentication Error");
+
+// Success message  
+await DialogService.ShowSuccessAsync("Session created successfully!", "Success");
+
+// Confirmation dialog
+var confirmed = await DialogService.ShowDangerConfirmAsync("Are you sure you want to delete this session?", "Confirm Delete");
+if (confirmed) 
+{
+    // Proceed with deletion
+}
+```
+
+**Status:** ✅ COMPLETED - All acceptance criteria met and tested

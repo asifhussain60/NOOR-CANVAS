@@ -1,0 +1,152 @@
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade @(IsVisible ? "show" : "")" id="@ModalId" tabindex="-1" style="display: @(IsVisible ? "block" : "none")" aria-labelledby="@($"{ModalId}Label")" aria-hidden="@(!IsVisible)">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content noor-dialog">
+            <div class="modal-header @GetHeaderClass()">
+                <h5 class="modal-title" id="@($"{ModalId}Label")">
+                    @GetIcon() @Title
+                </h5>
+                @if (ShowCloseButton)
+                {
+                    <button type="button" class="btn-close" @onclick="HandleCloseClick" aria-label="Close"></button>
+                }
+            </div>
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <p class="mb-0">@Message</p>
+                }
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn @GetButtonClass()" @onclick="HandleOkClick">
+                    @OkText
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (IsVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter] public string ModalId { get; set; } = $"alertDialog_{Guid.NewGuid():N}";
+    [Parameter] public string Title { get; set; } = "Alert";
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public AlertType Type { get; set; } = AlertType.Info;
+    [Parameter] public string OkText { get; set; } = "OK";
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnOk { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    public enum AlertType
+    {
+        Info,
+        Success,
+        Warning,
+        Error
+    }
+
+    private string GetHeaderClass()
+    {
+        return Type switch
+        {
+            AlertType.Success => "bg-success text-white",
+            AlertType.Warning => "bg-warning text-dark",
+            AlertType.Error => "bg-danger text-white",
+            _ => "bg-primary text-white"
+        };
+    }
+
+    private string GetButtonClass()
+    {
+        return Type switch
+        {
+            AlertType.Success => "btn-success",
+            AlertType.Warning => "btn-warning",
+            AlertType.Error => "btn-danger",
+            _ => "btn-primary"
+        };
+    }
+
+    private MarkupString GetIcon()
+    {
+        var icon = Type switch
+        {
+            AlertType.Success => "✅",
+            AlertType.Warning => "⚠️",
+            AlertType.Error => "❌",
+            _ => "ℹ️"
+        };
+        return new MarkupString(icon);
+    }
+
+    public async Task ShowAsync()
+    {
+        IsVisible = true;
+        StateHasChanged();
+        await Task.Delay(100); // Allow DOM to update
+        await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{ModalId}').focus()");
+    }
+
+    public async Task HideAsync()
+    {
+        IsVisible = false;
+        StateHasChanged();
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task HandleOkClick()
+    {
+        await HideAsync();
+        await OnOk.InvokeAsync();
+    }
+
+    private async Task HandleCloseClick()
+    {
+        await HideAsync();
+    }
+}
+
+<style>
+    .noor-dialog {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .noor-dialog .modal-header {
+        border-radius: 15px 15px 0 0;
+        border-bottom: none;
+        padding: 1.25rem;
+    }
+
+    .noor-dialog .modal-body {
+        padding: 1.25rem;
+        color: #444;
+    }
+
+    .noor-dialog .modal-footer {
+        border-top: 1px solid #e9ecef;
+        border-radius: 0 0 15px 15px;
+        padding: 1rem 1.25rem;
+    }
+
+    .noor-dialog .btn-close {
+        background: none;
+        border: none;
+        color: inherit;
+        opacity: 0.8;
+    }
+
+    .noor-dialog .btn-close:hover {
+        opacity: 1;
+    }
+</style>

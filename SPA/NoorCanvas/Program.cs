@@ -71,6 +71,7 @@ builder.Services.AddHttpClient();
 
 // Add application services
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
+builder.Services.AddScoped<DialogService>();
 
 var app = builder.Build();
 

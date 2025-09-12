@@ -3,6 +3,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<ParticipantRegister> Logger
+@inject DialogService DialogService
 
 <div class="registration-container">
     <div class="container">
@@ -160,6 +161,9 @@
     private bool isLoading = true;
     private bool isRegistering = false;
     private string? existingUserId;
+    
+    private AlertDialog alertDialog = null!;
+    private ConfirmDialog confirmDialog = null!;
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -206,6 +210,17 @@
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register dialogs with the service after they are rendered
+            DialogService.RegisterAlertDialog(alertDialog);
+            DialogService.RegisterConfirmDialog(confirmDialog);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     private async Task ValidateSession()
     {
         try
@@ -247,7 +262,7 @@
             string.IsNullOrWhiteSpace(registration.City) || 
             string.IsNullOrWhiteSpace(registration.Country))
         {
-            await JSRuntime.InvokeVoidAsync("alert", "Please fill in all required fields.");
+            await DialogService.ShowWarningAsync("Please fill in all required fields.", "Missing Information");
             return;
         }
 
@@ -304,7 +319,7 @@
         {
             Logger.LogError(ex, "NOOR-ERROR: Participant registration failed");
             await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-REGISTRATION", "Registration failed", new { error = ex.Message });
-            await JSRuntime.InvokeVoidAsync("alert", "Registration failed. Please try again.");
+            await DialogService.ShowErrorAsync("Registration failed. Please try again.", "Registration Error");
         }
         finally
         {
@@ -491,3 +506,7 @@
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 </style>
+
+<!-- Dialog Components -->
+<AlertDialog @ref="alertDialog" />
+<ConfirmDialog @ref="confirmDialog" />
