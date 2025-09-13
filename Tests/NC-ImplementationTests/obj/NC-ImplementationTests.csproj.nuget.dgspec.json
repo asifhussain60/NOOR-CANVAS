@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj": {}
+    "d:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj": {}
   },
   "projects": {
-    "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
+    "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
+        "projectUniqueName": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
         "projectName": "NoorCanvas",
-        "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
+        "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
         "packagesPath": "C:\\Users\\asifh\\.nuget\\packages\\",
-        "outputPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\obj\\",
+        "outputPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -110,14 +110,14 @@
         }
       }
     },
-    "D:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj": {
+    "d:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj",
+        "projectUniqueName": "d:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj",
         "projectName": "NC-ImplementationTests",
-        "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj",
+        "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\NC-ImplementationTests.csproj",
         "packagesPath": "C:\\Users\\asifh\\.nuget\\packages\\",
-        "outputPath": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\obj\\",
+        "outputPath": "d:\\PROJECTS\\NOOR CANVAS\\Tests\\NC-ImplementationTests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -138,8 +138,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
-                "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
+              "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
+                "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
               }
             }
           }

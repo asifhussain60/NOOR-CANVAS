@@ -315,6 +315,44 @@ namespace NoorCanvas.Core.Tests.Controllers
                 Times.AtLeastOnce);
         }
 
+        [Fact]
+        [Trait("Category", "HostController")]
+        [Trait("Method", "AuthenticateHost")]
+        [Trait("Issue", "Issue-25")]
+        public async Task AuthenticateHost_JsonSerialization_ShouldReturnCamelCaseProperties()
+        {
+            // Arrange - Test for Issue-25: Host Authentication Failure with Valid GUID
+            var testGuid = "6d752e72-93a1-456c-bc2d-d27af095882a";
+            var request = new HostAuthRequest { HostGuid = testGuid };
+
+            // Act
+            var result = await _controller.AuthenticateHost(request);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            
+            // Serialize the response to JSON to verify camelCase property names
+            var jsonResponse = JsonSerializer.Serialize(okResult.Value);
+            
+            // Verify that the JSON contains camelCase property names (as expected by frontend)
+            Assert.Contains("\"success\":", jsonResponse);
+            Assert.Contains("\"sessionToken\":", jsonResponse);
+            Assert.Contains("\"hostGuid\":", jsonResponse);
+            Assert.Contains("\"expiresAt\":", jsonResponse);
+            
+            // Verify that PascalCase properties are NOT present (would cause deserialization issues)
+            Assert.DoesNotContain("\"Success\":", jsonResponse);
+            Assert.DoesNotContain("\"SessionToken\":", jsonResponse);
+            Assert.DoesNotContain("\"HostGuid\":", jsonResponse);
+            Assert.DoesNotContain("\"ExpiresAt\":", jsonResponse);
+            
+            // Verify the response can be deserialized with camelCase property names
+            var deserializedResponse = JsonSerializer.Deserialize<HostAuthResponse>(jsonResponse);
+            Assert.NotNull(deserializedResponse);
+            Assert.True(deserializedResponse.Success);
+            Assert.Equal(testGuid, deserializedResponse.HostGuid);
+        }
+
         public void Dispose()
         {
             _context.Dispose();

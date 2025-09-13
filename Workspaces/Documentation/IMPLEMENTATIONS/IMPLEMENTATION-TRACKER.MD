@@ -15,13 +15,6 @@
 - "Generate Session Token" and "Start Session" buttons for immediate action
 - Full integration with existing session security and API endpoints
 
-**🎨 UI Design Reference**: `Workspaces/Documentation/IMPLEMENTATIONS/Mocks/Host Control Panel.html`
-- Complete visual mockup showing exact layout and styling requirements
-- Two-panel design: Host Control Panel (top) + Session Management Panel (bottom)
-- Cascading dropdown implementation with proper labels and spacing
-- Button placement and styling using Tailwind CSS (to be converted to McBeatch theme)
-- Responsive design considerations for desktop and mobile
-
 **Implementation Priority**: HIGH - Affects Phase 2 completion and subsequent phases  
 **Tracking**: Issue-17-host-dashboard-to-direct-session-management-ux-change.md
 
@@ -59,9 +52,6 @@ Systematically replace ALL mock implementations with live API integrations to ac
 - [ ] **Replace Session End Mock**: Connect `EndSession()` to `POST /api/host/session/{id}/end`
 - [ ] **Replace Dashboard Loading Mock**: Connect `LoadDashboardData()` to `GET /api/host/dashboard`
 - [ ] **Remove Mock SessionSummary**: Use real `SessionSummaryResponse` from API
-- [ ] **Implement Host Control Panel UI**: Convert `Host Control Panel.html` mockup to McBeatch-themed Blazor component
-- [ ] **Cascading Dropdowns Integration**: Album → Category → Session with real KSESSIONS data
-- [ ] **Session Management Panel**: Implement full session content display and Q&A management interface
 
 #### **Participant Registration Integration**
 - [ ] **Replace Session Validation Mock**: Connect `ValidateSession()` to `GET /api/participant/session/{guid}/validate`
@@ -79,69 +69,6 @@ Systematically replace ALL mock implementations with live API integrations to ac
 - [ ] **Implement SessionBegan Event**: Broadcast when host starts session
 - [ ] **Implement SessionEnded Event**: Broadcast when host/system ends session
 - [ ] **Auto-navigation Integration**: Connect frontend to SessionBegan broadcasts
-
-#### **Participant Late-join Support**
-- [ ] **Session State Snapshot API**: Create `GET /api/sessions/{id}/state` endpoint
-- [ ] **Late-joiner Data**: Include current annotations, Q&A state, and session metadata
-- [ ] **Snapshot Broadcasting**: Auto-send snapshot to new participants joining mid-session
-
-### 🎨 **McBeatch Theme Integration (Phase 3.5)**
-
-#### **UI Mockup Implementation**
-- [ ] **Host Control Panel Conversion**: Convert `Workspaces/Documentation/IMPLEMENTATIONS/Mocks/Host Control Panel.html` to Blazor Razor component
-- [ ] **Tailwind → McBeatch CSS**: Replace Tailwind classes with McBeatch theme equivalents
-- [ ] **Theme Consistency**: Ensure all components use consistent McBeatch color schemes, typography, and spacing
-- [ ] **Responsive Design**: Maintain responsive behavior using McBeatch grid system and breakpoints
-
-#### **McBeatch Theme Requirements**
-**Reference Location**: `McBeatch/` folder contains complete theme assets
-**Color Schemes Available**: Red, blue, brown, green, orange, yellow themes
-**Typography**: Open Sans font family integration
-**Components Required**:
-- [ ] **Form Elements**: Dropdowns, buttons, input fields with McBeatch styling
-- [ ] **Panel Layouts**: Card-based layouts with proper shadows and borders
-- [ ] **Table Components**: Q&A management tables with McBeatch table styling
-- [ ] **Navigation Elements**: Consistent with existing McBeatch navigation patterns
-
-#### **UI Component Mapping** (Tailwind → McBeatch)
-- [ ] **Panel Containers**: `bg-white p-8 rounded-2xl shadow-xl` → McBeatch card classes
-- [ ] **Dropdown Styling**: `border-gray-300 focus:border-blue-500` → McBeatch form control classes
-- [ ] **Button Styling**: `bg-blue-600 hover:bg-blue-700` → McBeatch button classes
-- [ ] **Table Styling**: Tailwind table classes → McBeatch table-responsive classes
-- [ ] **Responsive Grid**: Tailwind flex → McBeatch Bootstrap-based grid system
-
-#### **Implementation Files to Create**
-- [ ] **`Pages/HostSessionManager.razor`**: Main host control panel (replaces current dashboard)
-- [ ] **`Components/CascadingDropdowns.razor`**: Album → Category → Session dropdowns
-- [ ] **`Components/SessionContentPanel.razor`**: Session content display panel
-- [ ] **`Components/QuestionManagementTable.razor`**: Q&A management interface
-- [ ] **`wwwroot/css/host-control-panel.css`**: Component-specific McBeatch styling
-
-### 📜 **SQL Migration Script Tracking (Phase 3.5)**
-
-#### **Migration Script Generation & Validation**
-- [ ] **Generate Complete Migration Script**: Create idempotent deployment script for all EF Core changes
-- [ ] **Schema Validation**: Verify canvas schema creation and table definitions
-- [ ] **Security Script Generation**: Create noor_canvas_app login and permissions
-- [ ] **Cross-Schema Access**: Generate KQUR.dbo read permission grants
-- [ ] **Rollback Script Creation**: Generate complete rollback procedures
-- [ ] **Migration Testing**: Validate scripts on KSESSIONS_DEV database
-- [ ] **Performance Index Analysis**: Review and optimize database indexes
-
-#### **Deployment-Ready Artifacts**
-- [ ] **`Phase-3.5-SQL-Migration-Script.sql`**: Complete idempotent deployment script
-- [ ] **`Phase-3.5-Incremental-Migration.sql`**: Changes since last deployment  
-- [ ] **`Phase-3.5-Rollback-Script.sql`**: Complete rollback procedures
-- [ ] **`Phase-3.5-Security-Setup.sql`**: Security login and permissions
-- [ ] **`Phase-3.5-Migration-Validation.md`**: Deployment checklist and verification steps
-
-#### **SQL Change Categories Tracked**
-- [ ] **Table Structure Changes**: Sessions, Users, Registrations, Questions, Annotations, AdminSessions
-- [ ] **Index Optimizations**: Performance indexes for high-traffic queries  
-- [ ] **Foreign Key Relationships**: Cross-table integrity constraints
-- [ ] **Security Permissions**: Application login permissions and schema access
-- [ ] **Initial Data Seeding**: Admin GUIDs, test data, and configuration defaults
-- [ ] **Cross-Database Access**: KSESSIONS ↔ KQUR schema integration
 # NOOR Canvas — Implementation Tracker
 
 Last updated: 2025-09-12
@@ -208,68 +135,10 @@ Database migration & security (deployment checklist)
 - Execute EF Core migrations against AHHOME using a verified connection string
 - Seed admin GUIDs and test data for integration tests
 
-### 📜 **Complete SQL Migration Script Generation**
-
-#### **Phase 3.5 SQL Migration Tracking**
-**Location**: `Workspaces/TEMP/Phase-3.5-SQL-Migration-Script.sql`
-**Purpose**: Comprehensive deployment-ready SQL script for NOOR Canvas database changes
-
-**Required SQL Components to Track:**
-- [ ] **Schema Creation**: Canvas schema and permissions setup
-- [ ] **Table Definitions**: All EF Core model tables (Sessions, Users, Registrations, Questions, Annotations, etc.)
-- [ ] **Indexes**: Performance indexes for session_id, participant_id, created_at columns
-- [ ] **Security Setup**: noor_canvas_app login creation and permissions
-- [ ] **Cross-Schema Access**: Read permissions for KQUR.dbo tables
-- [ ] **Initial Data Seeding**: Admin GUIDs and test data insertion
-- [ ] **Rollback Scripts**: Complete rollback procedures for each change
-
-#### **Migration Script Generation Commands**
+Recommended migration commands (dev/test)
 ```powershell
-# Generate complete migration script (idempotent)
-dotnet ef migrations script --project "SPA/NoorCanvas" --idempotent --output "Workspaces/TEMP/Phase-3.5-SQL-Migration-Script.sql" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=sa;Password=...;"
-
-# Generate incremental migration script (from last deployment)
-dotnet ef migrations script [LastMigration] --project "SPA/NoorCanvas" --output "Workspaces/TEMP/Phase-3.5-Incremental-Migration.sql" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=sa;Password=...;"
-
-# Generate rollback script
-dotnet ef migrations script [TargetMigration] [CurrentMigration] --project "SPA/NoorCanvas" --output "Workspaces/TEMP/Phase-3.5-Rollback-Script.sql" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=sa;Password=...;"
-```
-
-#### **Security & Permissions SQL Template**
-```sql
--- Complete security setup script (to be generated)
--- 1. Create dedicated application login
-CREATE LOGIN [noor_canvas_app] WITH PASSWORD = N'[GeneratedPassword]';
-CREATE USER [noor_canvas_app] FOR LOGIN [noor_canvas_app];
-
--- 2. Grant canvas schema permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::canvas TO [noor_canvas_app];
-
--- 3. Grant cross-application read access
-GRANT SELECT ON SCHEMA::dbo TO [noor_canvas_app]; -- For KQUR database access
-
--- 4. Grant specific KSESSIONS read permissions
--- [Additional permissions based on existing schema analysis]
-```
-
-#### **Deployment Validation Checklist**
-- [ ] **Script Validation**: SQL script syntax validation and dry-run testing
-- [ ] **Permission Testing**: Verify noor_canvas_app can perform required operations
-- [ ] **Data Integrity**: Confirm existing KSESSIONS data remains intact
-- [ ] **Rollback Testing**: Verify rollback scripts restore previous state
-- [ ] **Performance Impact**: Analyze index creation and query performance
-- [ ] **Backup Strategy**: Complete database backup before deployment
-
-#### **Development/Testing Migration Commands**
-```powershell
-# Apply migrations to development database
-dotnet ef database update --project "SPA/NoorCanvas" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=sa;Password=...;"
-
-# Apply migrations to staging database  
-dotnet ef database update --project "SPA/NoorCanvas" --connection "Server=AHHOME;Database=KSESSIONS_STAGING;User Id=sa;Password=...;"
-
-# Generate migration for new model changes
-dotnet ef migrations add "Phase35_MockToLive_Migration" --project "SPA/NoorCanvas" --startup-project "SPA/NoorCanvas"
+# From workspace root (adjust connection string as required)
+dotnet ef database update --project "SPA/NoorCanvas" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=...;Password=...;"
 ```
 
 API endpoints to implement (if missing)
@@ -310,7 +179,6 @@ Notes & contact
 - Main application: `SPA/NoorCanvas`
 - Tools: `Tools/*` (HostProvisioner, DbMigrator, etc.)
 - Use `Workspaces/TEMP/` for temporary artifacts; cleansed before commits
-- **UI Design Reference**: `Workspaces/Documentation/IMPLEMENTATIONS/Mocks/Host Control Panel.html` - Complete mockup for Issue-17 implementation
 
 If you want, I can now:
 - A: Create the CI workflow (GitHub Actions) that runs lint→build→tests and calls the test-runner template
@@ -640,19 +508,27 @@ Choose A, B, or C (or multiple) and I will proceed.
 - [ ] **Connection Pool Configuration**: Configure EF Core for production workloads
 
 ### CSS & Styling
-- [ ] **Complete McBeatch Theme Integration**: Convert all UI components to McBeatch styling framework
-- [ ] **Host Control Panel Implementation**: Convert `Host Control Panel.html` mockup to production Blazor component
-- [ ] **Theme Consistency**: Ensure all views (Landing, Host, Participant, Admin) use consistent McBeatch theming
-- [ ] **NOOR CSS modules**: Implement noor-ayah, noor-hadith, noor-verse styling classes
-- [ ] **Arabic Font Integration**: Bundle Amiri, Noto Sans Arabic fonts with McBeatch theme
-- [ ] **Responsive Design**: Implement McBeatch responsive grid system across all components
-- [ ] **RTL Support**: Right-to-Left layout support for Arabic/Urdu content with McBeatch compatibility
+- [ ] Complete McBeatch theme integration
+- [ ] **Mock-to-McBeatch Conversion**: Use `Host Control Panel.html` and `User - Waiting Room.html` as templates for final designs
+- [ ] **Modular Component Design**: Break down UI into reusable components (dropdowns, buttons, cards, status indicators)
+- [ ] Convert Tailwind classes from mocks to McBeatch equivalents
+- [ ] NOOR CSS modules (noor-ayah, noor-hadith, etc.)
+- [ ] Arabic font bundling (Amiri, Noto)
+- [ ] Responsive design implementation maintaining mock functionality
+- [ ] RTL (Right-to-Left) support
 
 ### Content Integration
 - [ ] Beautiful Islam metadata integration
 - [ ] Quran.com API integration
 - [ ] Image path resolution (DEV/PROD)
 - [ ] Content type styling and formatting
+
+### Documentation Setup with DocFX
+- [ ] **Initialize DocFX Project**: Set up DocFX in `D:\PROJECTS\NOOR CANVAS\DocFX`
+- [ ] **Technical Documentation**: Add API documentation, architecture guides, deployment instructions
+- [ ] **User Guides**: Create host and participant user documentation
+- [ ] **Build and Preview**: Configure local documentation building and preview
+- [ ] **CI Integration**: Automate documentation building in deployment pipeline
 
 ### Share Overlay Polish
 - [ ] Share button visual refinements
@@ -681,6 +557,11 @@ Choose A, B, or C (or multiple) and I will proceed.
 - [ ] **T4.18**: Share overlay positioning works on various content types
 - [ ] **T4.19**: Mobile touch interactions work smoothly
 - [ ] **T4.20**: Cross-browser compatibility (Chrome, Firefox, Safari, Edge)
+- [ ] **T4.21**: Host Control Panel mock design successfully converted to McBeatch theme
+- [ ] **T4.22**: User Waiting Room mock design successfully converted to McBeatch theme
+- [ ] **T4.23**: Modular components (dropdowns, buttons, cards) are reusable across views
+- [ ] **T4.24**: Component-based design follows best practices for maintainability
+- [ ] **T4.25**: DocFX documentation builds successfully and displays correctly
 
 ---
 

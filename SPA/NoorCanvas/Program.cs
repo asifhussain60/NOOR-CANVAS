@@ -37,7 +37,13 @@ builder.Services.AddServerSideBlazor(options =>
     options.DisconnectedCircuitMaxRetained = 100;
     options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(180);
 });
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Configure JSON serialization to use camelCase (for frontend compatibility)
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 // Add Entity Framework - Conditional based on environment
 if (builder.Environment.EnvironmentName == "Testing")
@@ -76,8 +82,21 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add HttpClient service for dependency injection
-builder.Services.AddHttpClient();
+// Add HttpClient service for dependency injection with base address
+builder.Services.AddHttpClient("default", client =>
+{
+    // Configure base address for relative URL requests
+    var baseAddress = builder.Environment.IsDevelopment() 
+        ? "https://localhost:9091" 
+        : "https://localhost:9091"; // Update this for production
+    client.BaseAddress = new Uri(baseAddress);
+    client.DefaultRequestHeaders.Add("User-Agent", "NoorCanvas-BlazorServer");
+});
+builder.Services.AddScoped<HttpClient>(provider =>
+{
+    var factory = provider.GetRequiredService<IHttpClientFactory>();
+    return factory.CreateClient("default");
+});
 
 // Add application services
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Session Waiting Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .participant-enter {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .countdown-digit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></div>
+                Waiting Room Active
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">USER - WAITING ROOM</h1>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-8">
+            <!-- Session Info & Countdown -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Session Details Card -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Session Details</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                📅
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Date</p>
+                                <p class="font-medium text-gray-800">Today, December 15, 2024</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                ⏰
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Start Time</p>
+                                <p class="font-medium text-gray-800">2:00 PM EST</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                ⏱️
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Duration</p>
+                                <p class="font-medium text-gray-800">3 hours</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                👨‍🏫
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Instructor</p>
+                                <p class="font-medium text-gray-800">Sarah Chen</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Session Starts In</h2>
+                    <div class="flex justify-center gap-4" id="countdown">
+                        <div class="text-center">
+                            <div class="countdown-digit text-white rounded-xl p-4 min-w-[80px]">
+                                <div class="text-3xl font-bold" id="minutes">05</div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Minutes</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="countdown-digit text-white rounded-xl p-4 min-w-[80px]">
+                                <div class="text-3xl font-bold" id="seconds">30</div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Seconds</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-600">Please stay on this page. You'll be automatically admitted when the session begins.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participants List -->
+            <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Participants</h2>
+                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        <span id="participantCount">8</span> joined
+                    </div>
+                </div>
+                
+                <div class="max-h-96 overflow-y-auto pr-2" style="scrollbar-width: thin;">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="participantsList">
+                        <!-- Participants will be added here -->
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 text-center">
+                        💡 <strong>Tip:</strong> Make sure your camera and microphone are working properly before the session starts.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <div class="mt-8 bg-white rounded-2xl shadow-lg p-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
+                        🎤 <span class="text-sm font-medium">Test Mic</span>
+                    </button>
+                    <button class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
+                        📹 <span class="text-sm font-medium">Test Camera</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                        Leave Waiting Room
+                    </button>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                        Ready to Join
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample participants data
+        const participants = [
+            { name: "Alex Johnson", avatar: "👨‍💻", status: "ready", joinTime: Date.now() - 300000 },
+            { name: "Maria Garcia", avatar: "👩‍💼", status: "ready", joinTime: Date.now() - 250000 },
+            { name: "David Kim", avatar: "👨‍🎓", status: "ready", joinTime: Date.now() - 200000 },
+            { name: "Emma Wilson", avatar: "👩‍🔬", status: "ready", joinTime: Date.now() - 150000 },
+            { name: "James Brown", avatar: "👨‍🏫", status: "ready", joinTime: Date.now() - 100000 },
+            { name: "Lisa Chen", avatar: "👩‍💻", status: "ready", joinTime: Date.now() - 80000 },
+            { name: "Michael Davis", avatar: "👨‍💼", status: "ready", joinTime: Date.now() - 60000 },
+            { name: "Sophie Taylor", avatar: "👩‍🎨", status: "ready", joinTime: Date.now() - 30000 }
+        ];
+
+        // Additional participants to simulate joining
+        const newParticipants = [
+            { name: "Ryan Martinez", avatar: "👨‍🚀", status: "ready" },
+            { name: "Anna Thompson", avatar: "👩‍⚕️", status: "ready" },
+            { name: "Kevin Lee", avatar: "👨‍🎨", status: "ready" },
+            { name: "Rachel Green", avatar: "👩‍🏫", status: "ready" },
+            { name: "Tom Wilson", avatar: "👨‍🔧", status: "ready" },
+            { name: "Sarah Miller", avatar: "👩‍🎓", status: "ready" },
+            { name: "Chris Anderson", avatar: "👨‍⚖️", status: "ready" },
+            { name: "Jessica Moore", avatar: "👩‍🍳", status: "ready" },
+            { name: "Daniel Taylor", avatar: "👨‍🎭", status: "ready" },
+            { name: "Amy Jackson", avatar: "👩‍🚀", status: "ready" },
+            { name: "Mark White", avatar: "👨‍🏭", status: "ready" },
+            { name: "Laura Harris", avatar: "👩‍🎤", status: "ready" },
+            { name: "Steve Clark", avatar: "👨‍🌾", status: "ready" },
+            { name: "Nina Lewis", avatar: "👩‍🔬", status: "ready" },
+            { name: "Paul Walker", avatar: "👨‍🍳", status: "ready" },
+            { name: "Grace Hall", avatar: "👩‍💼", status: "ready" },
+            { name: "Ben Allen", avatar: "👨‍🎨", status: "ready" },
+            { name: "Olivia Young", avatar: "👩‍⚕️", status: "ready" },
+            { name: "Jake King", avatar: "👨‍💻", status: "ready" },
+            { name: "Mia Wright", avatar: "👩‍🏫", status: "ready" },
+            { name: "Luke Lopez", avatar: "👨‍🔬", status: "ready" },
+            { name: "Zoe Hill", avatar: "👩‍🎭", status: "ready" },
+            { name: "Noah Scott", avatar: "👨‍🚀", status: "ready" },
+            { name: "Chloe Green", avatar: "👩‍💻", status: "ready" },
+            { name: "Ethan Adams", avatar: "👨‍🎓", status: "ready" },
+            { name: "Ava Baker", avatar: "👩‍🔧", status: "ready" },
+            { name: "Mason Gonzalez", avatar: "👨‍⚖️", status: "ready" },
+            { name: "Sophia Nelson", avatar: "👩‍🌾", status: "ready" },
+            { name: "Logan Carter", avatar: "👨‍🏭", status: "ready" },
+            { name: "Isabella Mitchell", avatar: "👩‍🎤", status: "ready" },
+            { name: "Lucas Perez", avatar: "👨‍🍳", status: "ready" },
+            { name: "Charlotte Roberts", avatar: "👩‍🚀", status: "ready" },
+            { name: "Henry Turner", avatar: "👨‍💼", status: "ready" },
+            { name: "Amelia Phillips", avatar: "👩‍🎨", status: "ready" },
+            { name: "Alexander Campbell", avatar: "👨‍⚕️", status: "ready" },
+            { name: "Harper Parker", avatar: "👩‍🏫", status: "ready" },
+            { name: "Sebastian Evans", avatar: "👨‍🔬", status: "ready" },
+            { name: "Evelyn Edwards", avatar: "👩‍🎭", status: "ready" },
+            { name: "Owen Collins", avatar: "👨‍🚀", status: "ready" },
+            { name: "Abigail Stewart", avatar: "👩‍💻", status: "ready" },
+            { name: "Carter Sanchez", avatar: "👨‍🎓", status: "ready" },
+            { name: "Emily Morris", avatar: "👩‍🔧", status: "ready" },
+            { name: "Wyatt Rogers", avatar: "👨‍⚖️", status: "ready" },
+            { name: "Madison Reed", avatar: "👩‍🌾", status: "ready" },
+            { name: "Grayson Cook", avatar: "👨‍🏭", status: "ready" },
+            { name: "Elizabeth Bailey", avatar: "👩‍🎤", status: "ready" }
+        ];
+
+        let currentParticipants = [...participants];
+        let newParticipantIndex = 0;
+
+        // Countdown timer
+        let timeLeft = 5 * 60 + 30; // 5 minutes 30 seconds
+
+        function updateCountdown() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                // Session would start here
+                document.getElementById('countdown').innerHTML = `
+                    <div class="text-center">
+                        <div class="bg-green-500 text-white rounded-xl p-6">
+                            <div class="text-2xl font-bold">Session Starting!</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Render participants
+        function renderParticipants() {
+            const participantsList = document.getElementById('participantsList');
+            const participantCount = document.getElementById('participantCount');
+            
+            participantsList.innerHTML = currentParticipants.map(participant => `
+                <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg participant-enter">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">
+                        ${participant.avatar}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-gray-800 text-sm truncate">${participant.name}</p>
+                        <p class="text-xs text-gray-500">Ready</p>
+                    </div>
+                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+                </div>
+            `).join('');
+            
+            participantCount.textContent = currentParticipants.length;
+        }
+
+        // Simulate new participants joining
+        function addNewParticipant() {
+            if (newParticipantIndex < newParticipants.length) {
+                currentParticipants.push({
+                    ...newParticipants[newParticipantIndex],
+                    joinTime: Date.now()
+                });
+                newParticipantIndex++;
+                renderParticipants();
+            }
+        }
+
+        // Initialize
+        renderParticipants();
+        
+        // Start countdown
+        setInterval(updateCountdown, 1000);
+        
+        // Simulate participants joining every 3-8 seconds
+        setInterval(addNewParticipant, Math.random() * 5000 + 3000);
+
+        // Button functionality
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                const text = this.textContent.trim();
+                if (text.includes('Test Mic')) {
+                    alert('🎤 Microphone test: Your microphone is working properly!');
+                } else if (text.includes('Test Camera')) {
+                    alert('📹 Camera test: Your camera is working properly!');
+                } else if (text.includes('Leave')) {
+                    if (confirm('Are you sure you want to leave the waiting room?')) {
+                        alert('You have left the waiting room.');
+                    }
+                } else if (text.includes('Ready')) {
+                    alert('✅ You are marked as ready! You will be automatically admitted when the session begins.');
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e6ea5ca73b431c',t:'MTc1Nzc1ODg2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

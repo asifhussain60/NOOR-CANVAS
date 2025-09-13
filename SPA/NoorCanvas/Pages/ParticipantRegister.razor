@@ -1,9 +1,13 @@
 @page "/participant/register"
 @using System.Text.Json
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components
+@using Microsoft.Extensions.Logging
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<ParticipantRegister> Logger
 @inject DialogService DialogService
+@inject HttpClient Http
 
 <div class="registration-container">
     <div class="container">
@@ -226,32 +230,40 @@
         try
         {
             Logger.LogInformation("NOOR-INFO: Validating session: {SessionId}", Session);
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-VALIDATION", "Session validation initiated", new { sessionId = Session });
 
-            // Mock validation for now - replace with actual API call
-            await Task.Delay(1000); // Simulate API call
-
-            // Mock successful validation
-            sessionData = new SessionValidationResponse
+            // ✅ LIVE API: Session validation via REST API
+            var response = await Http.GetAsync($"/api/sessions/{Session}/validate");
+            
+            if (response.IsSuccessStatusCode)
             {
-                Valid = true,
-                SessionId = Guid.NewGuid(),
-                Title = "Introduction to Quranic Studies",
-                Description = "Learn the fundamentals of Quranic interpretation and understanding",
-                Status = "Created",
-                ParticipantCount = 3,
-                MaxParticipants = 50,
-                ExpiresAt = DateTime.UtcNow.AddHours(2),
-                CanJoin = true
-            };
-
-            Logger.LogInformation("NOOR-SUCCESS: Session validated: {Title}", sessionData.Title);
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-VALIDATION", "Session validated successfully", 
-                new { sessionTitle = sessionData.Title, participantCount = sessionData.ParticipantCount });
+                sessionData = await response.Content.ReadFromJsonAsync<SessionValidationResponse>();
+                
+                if (sessionData?.Valid == true)
+                {
+                    Logger.LogInformation("NOOR-SUCCESS: Session validated: {Title} ({SessionId})", sessionData.Title, sessionData.SessionId);
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-VALIDATION", "Session validated successfully", 
+                        new { sessionTitle = sessionData.Title, participantCount = sessionData.ParticipantCount });
+                }
+                else
+                {
+                    Logger.LogWarning("NOOR-WARNING: Session validation returned invalid session");
+                    sessionData = new SessionValidationResponse { Valid = false };
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-VALIDATION", "Session marked as invalid", new { sessionId = Session });
+                }
+            }
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Session validation API call failed - Status: {StatusCode}", response.StatusCode);
+                sessionData = new SessionValidationResponse { Valid = false };
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-VALIDATION", "API call failed", 
+                    new { statusCode = response.StatusCode, sessionId = Session });
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ERROR: Session validation failed");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-VALIDATION", "Validation failed", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-VALIDATION", "Validation exception", new { error = ex.Message });
             sessionData = new SessionValidationResponse { Valid = false };
         }
     }
@@ -286,39 +298,61 @@
                 registration.Fingerprint = "unknown";
             }
 
-            // TODO: Call actual API to register participant
-            await Task.Delay(1500); // Simulate API call
-
-            // Mock successful registration
-            var newUserId = string.IsNullOrEmpty(registration.UserId) ? Guid.NewGuid().ToString() : registration.UserId;
+            // Prepare registration request
+            registration.SessionId = Session ?? string.Empty;
             
-            // Store UserId in localStorage for future sessions
-            try
+            // ✅ LIVE API: Register participant via REST API
+            var response = await Http.PostAsJsonAsync("/api/participants/register", registration);
+            
+            if (response.IsSuccessStatusCode)
             {
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserId);
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userName", registration.Name);
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCity", registration.City);
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCountry", registration.Country);
+                var registrationResponse = await response.Content.ReadFromJsonAsync<ParticipantRegistrationResponse>();
+                
+                if (registrationResponse?.Success == true)
+                {
+                    var newUserId = registrationResponse.UserId;
+                    
+                    // Store UserId in localStorage for future sessions
+                    try
+                    {
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserId);
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userName", registration.Name);
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCity", registration.City);
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCountry", registration.Country);
+                    }
+                    catch 
+                    {
+                        // localStorage operations can fail in some browsers
+                        Logger.LogWarning("NOOR-WARNING: Failed to store user data in localStorage");
+                    }
+
+                    Logger.LogInformation("NOOR-SUCCESS: Participant registered successfully: {Name} (UserID: {UserId})", 
+                        registration.Name, newUserId.Substring(0, 8) + "...");
+
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTRATION", "Registration successful", 
+                        new { userId = newUserId.Substring(0, 8) + "...", name = registration.Name, participantId = registrationResponse.ParticipantId });
+
+                    // Navigate to waiting room
+                    Navigation.NavigateTo($"/session/{Session}/waiting?userId={newUserId}");
+                }
+                else
+                {
+                    Logger.LogWarning("NOOR-WARNING: Participant registration failed - {Message}", registrationResponse?.Message ?? "Unknown error");
+                    await DialogService.ShowErrorAsync(registrationResponse?.Message ?? "Registration failed. Please try again.", "Registration Error");
+                }
             }
-            catch 
+            else
             {
-                // localStorage operations can fail in some browsers
-                Logger.LogWarning("NOOR-WARNING: Failed to store user data in localStorage");
+                Logger.LogError("NOOR-ERROR: Registration API call failed - Status: {StatusCode}", response.StatusCode);
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-REGISTRATION", "API call failed", 
+                    new { statusCode = response.StatusCode });
+                await DialogService.ShowErrorAsync("Registration service unavailable. Please try again later.", "Service Error");
             }
-
-            Logger.LogInformation("NOOR-SUCCESS: Participant registered successfully: {Name} (UserID: {UserId})", 
-                registration.Name, newUserId.Substring(0, 8) + "...");
-
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTRATION", "Registration successful", 
-                new { userId = newUserId.Substring(0, 8) + "...", name = registration.Name });
-
-            // Navigate to waiting room
-            Navigation.NavigateTo($"/session/{Session}/waiting?userId={newUserId}");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ERROR: Participant registration failed");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-REGISTRATION", "Registration failed", new { error = ex.Message });
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-REGISTRATION", "Registration exception", new { error = ex.Message });
             await DialogService.ShowErrorAsync("Registration failed. Please try again.", "Registration Error");
         }
         finally
@@ -394,6 +428,14 @@
         public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? Fingerprint { get; set; }
+    }
+
+    public class ParticipantRegistrationResponse
+    {
+        public bool Success { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public string ParticipantId { get; set; } = string.Empty;
     }
 }
 

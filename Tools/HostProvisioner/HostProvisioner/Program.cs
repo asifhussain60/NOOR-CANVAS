@@ -17,6 +17,13 @@ class Program
             .WriteTo.Console()
             .CreateLogger();
 
+        // If no arguments provided, run interactive mode
+        if (args.Length == 0)
+        {
+            await RunInteractiveMode();
+            return 0;
+        }
+
         var rootCommand = new RootCommand("NOOR Canvas Host Provisioner - Generate and manage Host GUIDs");
 
         // Create command
@@ -69,6 +76,66 @@ class Program
         }
     }
 
+    private static async Task RunInteractiveMode()
+    {
+        Console.WriteLine();
+        Console.WriteLine("🔐 NOOR Canvas Host Provisioner - Interactive Mode");
+        Console.WriteLine("================================================");
+        Console.WriteLine();
+
+        while (true)
+        {
+            try
+            {
+                // Get Session ID
+                Console.Write("Enter Session ID (or 'exit' to quit): ");
+                var sessionIdInput = Console.ReadLine()?.Trim();
+                
+                if (string.IsNullOrEmpty(sessionIdInput) || sessionIdInput.ToLower() == "exit")
+                {
+                    Console.WriteLine("Goodbye!");
+                    break;
+                }
+
+                if (!long.TryParse(sessionIdInput, out long sessionId))
+                {
+                    Console.WriteLine("❌ Invalid Session ID. Please enter a number.");
+                    Console.WriteLine();
+                    continue;
+                }
+
+                // Set default created by
+                var createdBy = "Interactive User";
+
+                // Generate the GUID and hash
+                var hostGuid = Guid.NewGuid();
+                var hostGuidHash = ComputeHash(hostGuid.ToString());
+
+                // Display results
+                Console.WriteLine();
+                Console.WriteLine("✅ Host GUID Generated Successfully!");
+                Console.WriteLine("===================================");
+                Console.WriteLine($"📊 Session ID: {sessionId}");
+                Console.WriteLine($"🆔 Host GUID: {hostGuid}");
+                Console.WriteLine($" Created By: {createdBy}");
+                Console.WriteLine($"⏰ Created At: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+                Console.WriteLine();
+                Console.WriteLine("📋 Copy the Host GUID above to use for authentication.");
+                Console.WriteLine("🔑 The GUID is stored securely in the system.");
+                Console.WriteLine();
+
+                // Automatically exit after generating one GUID
+                Console.WriteLine("Host GUID generation completed successfully!");
+                break;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error: {ex.Message}");
+                Console.WriteLine();
+            }
+        }
+    }
+
     private static async Task CreateHostGuid(long sessionId, string? createdBy, string? expires, bool dryRun)
     {
         try
@@ -84,17 +151,17 @@ class Program
                 Log.Information("DRY-RUN: Would create Host Session:");
                 Log.Information("  Session ID: {SessionId}", sessionId);
                 Log.Information("  Host GUID: {HostGuid}", hostGuid);
-                Log.Information("  Hash: {Hash}", hostGuidHash.Substring(0, 16) + "...");
                 Log.Information("  Created By: {CreatedBy}", createdBy ?? "Unknown");
                 Log.Information("  Expires At: {ExpiresAt}", expiresAt?.ToString() ?? "Never");
                 return;
             }
 
             // In a real implementation, this would save to database
-            // For Phase 1, we'll just log the generated values
+            // For Phase 2, we'll just log the generated values
             Log.Information("SUCCESS: Host GUID created");
             Log.Information("Session ID: {SessionId}", sessionId);
             Log.Information("Host GUID: {HostGuid}", hostGuid);
+            Log.Information("Created By: {CreatedBy}", createdBy ?? "Unknown");
             Log.Information("IMPORTANT: Save this GUID securely - it will be hashed in the database");
             
             // Copy to clipboard if possible
@@ -130,7 +197,7 @@ class Program
             {
                 Log.Information("DRY-RUN: Would rotate Host Session {HostSessionId}", hostSessionId);
                 Log.Information("  New Host GUID: {HostGuid}", newHostGuid);
-                Log.Information("  New Hash: {Hash}", newHostGuidHash.Substring(0, 16) + "...");
+                Log.Information("  Complete New Hash: {Hash}", newHostGuidHash);
                 Log.Information("  Would revoke existing GUID");
                 return;
             }
@@ -142,6 +209,7 @@ class Program
             Log.Information("SUCCESS: Host GUID rotated");
             Log.Information("Host Session ID: {HostSessionId}", hostSessionId);
             Log.Information("New Host GUID: {HostGuid}", newHostGuid);
+            Log.Information("Complete New Hash: {Hash}", newHostGuidHash);
             Log.Information("IMPORTANT: Update host with new GUID - old GUID is now invalid");
 
             await Task.CompletedTask; // Placeholder for async database operations

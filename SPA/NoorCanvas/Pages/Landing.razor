@@ -1,10 +1,13 @@
 @page "/"
 @page "/landing"
 @using Microsoft.AspNetCore.Components
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<Landing> Logger
 @inject DialogService DialogService
+@inject IHttpClientFactory HttpClientFactory
 
 <div class="landing-container">
     <div class="hero-section">
@@ -133,6 +136,7 @@
     private string selectedRole = "";
     private string hostGuid = "";
     private string sessionLink = "";
+    private string errorMessage = "";
     private bool isLoading = false;
     
     private AlertDialog alertDialog = null!;
@@ -185,16 +189,28 @@
         {
             await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-AUTH", "Host authentication initiated", new { guidPreview = hostGuid.Substring(0, 8) + "..." });
 
-            // TODO: Implement actual GUID validation against HostProvisioner data
-            // For now, simulate validation
-            await Task.Delay(1000); // Simulate API call
-
-            // Basic GUID format validation
+            // ✅ LIVE API: Implement actual GUID validation against backend
             if (Guid.TryParse(hostGuid, out Guid guid))
             {
-                Logger.LogInformation("NOOR-SUCCESS: Host GUID format valid, redirecting to dashboard");
-                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-AUTH", "Host authentication successful", new { hostGuid = guid });
-                Navigation.NavigateTo($"/host/dashboard?guid={guid}");
+                using var httpClient = HttpClientFactory.CreateClient("default");
+                var request = new { HostGuid = hostGuid };
+                var response = await httpClient.PostAsJsonAsync("/api/host/authenticate", request);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var authResponse = await response.Content.ReadFromJsonAsync<HostAuthResponse>();
+                    if (authResponse?.Success == true)
+                    {
+                        Logger.LogInformation("NOOR-SUCCESS: Host GUID authenticated successfully, redirecting to dashboard");
+                        await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-AUTH", "Host authentication successful", new { hostGuid = guid });
+                        Navigation.NavigateTo($"/host/dashboard?guid={guid}");
+                        return;
+                    }
+                }
+                
+                Logger.LogWarning("NOOR-WARNING: Host authentication failed - Invalid credentials");
+                errorMessage = "Invalid Host GUID. Please check your credentials.";
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-AUTH", "Authentication failed", new { reason = "Invalid credentials" });
             }
             else
             {
@@ -230,20 +246,31 @@
             // Extract session ID from link or use direct ID
             string sessionId = ExtractSessionId(sessionLink);
             
-            // TODO: Validate session exists and is active
-            await Task.Delay(1000); // Simulate API call
-
-            if (!string.IsNullOrEmpty(sessionId))
+            // ✅ LIVE API: Validate session exists and is active
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync($"/api/participant/session/{sessionId}/validate");
+            
+            if (response.IsSuccessStatusCode)
             {
-                Logger.LogInformation("NOOR-SUCCESS: Valid session ID extracted, redirecting to registration");
-                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-JOIN", "Session validation successful", new { sessionId });
-                Navigation.NavigateTo($"/participant/register?session={sessionId}");
+                var validationResponse = await response.Content.ReadFromJsonAsync<SessionValidationResponse>();
+                if (validationResponse?.IsValid == true)
+                {
+                    Logger.LogInformation("NOOR-SUCCESS: Valid session ID extracted, redirecting to registration");
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-JOIN", "Session validation successful", new { sessionId });
+                    Navigation.NavigateTo($"/participant/register?session={sessionId}");
+                }
+                else
+                {
+                    Logger.LogWarning("NOOR-WARNING: Session validation failed: {SessionLink}", sessionLink);
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Session validation failed", new { sessionLink });
+                    await DialogService.ShowErrorAsync("Session is not active or does not exist.", "Invalid Session");
+                }
             }
             else
             {
-                Logger.LogWarning("NOOR-WARNING: Invalid session link: {SessionLink}", sessionLink);
-                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Invalid session link", new { sessionLink });
-                await DialogService.ShowErrorAsync("Invalid session link. Please check the link and try again.", "Invalid Session");
+                Logger.LogWarning("NOOR-WARNING: Session validation API error: {SessionLink}", sessionLink);
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Session validation API error", new { sessionLink, status = response.StatusCode });
+                await DialogService.ShowErrorAsync("Unable to validate session. Please check the link and try again.", "Validation Failed");
             }
         }
         catch (Exception ex)
@@ -281,6 +308,30 @@
         }
 
         return "";
+    }
+
+    // API Response Models
+    public class HostAuthResponse
+    {
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+        
+        [JsonPropertyName("sessionToken")]
+        public string SessionToken { get; set; } = string.Empty;
+        
+        [JsonPropertyName("expiresAt")]
+        public DateTime ExpiresAt { get; set; }
+        
+        [JsonPropertyName("hostGuid")]
+        public string HostGuid { get; set; } = string.Empty;
+    }
+
+    public class SessionValidationResponse
+    {
+        public bool IsValid { get; set; }
+        public string SessionId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime? ExpiresAt { get; set; }
     }
 }
 

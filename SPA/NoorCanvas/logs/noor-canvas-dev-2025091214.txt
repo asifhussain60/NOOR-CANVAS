@@ -1,0 +1,471 @@
+[2025-09-12 14:05:06.793 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (36ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:05:07.019 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (42ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:05:07.063 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:05:07.078 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:05:07.187 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (72ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId]; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:05:07.264 -04:00 INF] Microsoft.EntityFrameworkCore.Migrations Applying migration '20250912174615_AddAdminSessions'. {"EventId":{"Id":20402,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationApplying"}}
+[2025-09-12 14:05:07.499 -04:00 ERR] Microsoft.EntityFrameworkCore.Database.Command Failed executing DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Users] ADD [CreatedAt] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000'; {"EventId":{"Id":20102,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandError"}}
+[2025-09-12 14:07:32.362 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (24ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:07:32.665 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (35ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:07:32.848 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:07:32.922 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:07:33.020 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId]; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:07:33.082 -04:00 INF] Microsoft.EntityFrameworkCore.Migrations No migrations were applied. The database is already up to date. {"EventId":{"Id":20405,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotApplied"}}
+[2025-09-12 14:08:40.803 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:40.900 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:40.912 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:40.919 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:40.944 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId]; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:40.977 -04:00 INF] Microsoft.EntityFrameworkCore.Migrations Applying migration '20250911091420_InitialCreate'. {"EventId":{"Id":20402,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationApplying"}}
+[2025-09-12 14:08:41.244 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+IF SCHEMA_ID(N'canvas') IS NULL EXEC(N'CREATE SCHEMA [canvas];'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.255 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[Sessions] (
+    [SessionId] bigint NOT NULL IDENTITY,
+    [GroupId] uniqueidentifier NOT NULL,
+    [StartedAt] datetime2 NULL,
+    [EndedAt] datetime2 NULL,
+    [ExpiresAt] datetime2 NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    CONSTRAINT [PK_Sessions] PRIMARY KEY ([SessionId])
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.304 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (39ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[Users] (
+    [UserId] uniqueidentifier NOT NULL,
+    [Name] nvarchar(256) NULL,
+    [City] nvarchar(128) NULL,
+    [Country] nvarchar(128) NULL,
+    [FirstJoinedAt] datetime2 NOT NULL,
+    [LastJoinedAt] datetime2 NOT NULL,
+    CONSTRAINT [PK_Users] PRIMARY KEY ([UserId])
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.323 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[Annotations] (
+    [AnnotationId] bigint NOT NULL IDENTITY,
+    [SessionId] bigint NOT NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    [AnnotationData] nvarchar(max) NULL,
+    [CreatedBy] nvarchar(128) NULL,
+    CONSTRAINT [PK_Annotations] PRIMARY KEY ([AnnotationId]),
+    CONSTRAINT [FK_Annotations_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]) ON DELETE CASCADE
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.367 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[HostSessions] (
+    [HostSessionId] bigint NOT NULL IDENTITY,
+    [SessionId] bigint NOT NULL,
+    [HostGuidHash] nvarchar(128) NOT NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    [ExpiresAt] datetime2 NULL,
+    [LastUsedAt] datetime2 NULL,
+    [CreatedBy] nvarchar(128) NULL,
+    [RevokedAt] datetime2 NULL,
+    [RevokedBy] nvarchar(128) NULL,
+    [IsActive] bit NOT NULL,
+    CONSTRAINT [PK_HostSessions] PRIMARY KEY ([HostSessionId]),
+    CONSTRAINT [FK_HostSessions_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]) ON DELETE CASCADE
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.384 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[SessionLinks] (
+    [LinkId] bigint NOT NULL IDENTITY,
+    [SessionId] bigint NOT NULL,
+    [Guid] uniqueidentifier NOT NULL,
+    [State] tinyint NOT NULL,
+    [LastUsedAt] datetime2 NULL,
+    [UseCount] int NOT NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    CONSTRAINT [PK_SessionLinks] PRIMARY KEY ([LinkId]),
+    CONSTRAINT [FK_SessionLinks_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]) ON DELETE CASCADE
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.401 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[SharedAssets] (
+    [AssetId] bigint NOT NULL IDENTITY,
+    [SessionId] bigint NOT NULL,
+    [SharedAt] datetime2 NOT NULL,
+    [AssetType] nvarchar(50) NULL,
+    [AssetData] nvarchar(max) NULL,
+    CONSTRAINT [PK_SharedAssets] PRIMARY KEY ([AssetId]),
+    CONSTRAINT [FK_SharedAssets_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]) ON DELETE CASCADE
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.418 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[AuditLog] (
+    [EventId] bigint NOT NULL IDENTITY,
+    [At] datetime2 NOT NULL,
+    [Actor] nvarchar(64) NULL,
+    [SessionId] bigint NULL,
+    [UserId] uniqueidentifier NULL,
+    [Action] nvarchar(100) NULL,
+    [Details] nvarchar(max) NULL,
+    CONSTRAINT [PK_AuditLog] PRIMARY KEY ([EventId]),
+    CONSTRAINT [FK_AuditLog_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]),
+    CONSTRAINT [FK_AuditLog_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [canvas].[Users] ([UserId])
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.437 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[Issues] (
+    [IssueId] bigint NOT NULL IDENTITY,
+    [Title] nvarchar(200) NOT NULL,
+    [Description] nvarchar(max) NULL,
+    [Priority] nvarchar(50) NOT NULL,
+    [Category] nvarchar(50) NOT NULL,
+    [Status] nvarchar(50) NOT NULL,
+    [ReportedAt] datetime2 NOT NULL,
+    [SessionId] bigint NULL,
+    [UserId] uniqueidentifier NULL,
+    [ReportedBy] nvarchar(128) NULL,
+    [Context] nvarchar(max) NULL,
+    CONSTRAINT [PK_Issues] PRIMARY KEY ([IssueId]),
+    CONSTRAINT [FK_Issues_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]),
+    CONSTRAINT [FK_Issues_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [canvas].[Users] ([UserId])
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.504 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[Questions] (
+    [QuestionId] bigint NOT NULL IDENTITY,
+    [SessionId] bigint NOT NULL,
+    [UserId] uniqueidentifier NOT NULL,
+    [QuestionText] nvarchar(280) NOT NULL,
+    [QueuedAt] datetime2 NOT NULL,
+    [AnsweredAt] datetime2 NULL,
+    [VoteCount] int NOT NULL,
+    [Status] nvarchar(50) NOT NULL,
+    CONSTRAINT [PK_Questions] PRIMARY KEY ([QuestionId]),
+    CONSTRAINT [FK_Questions_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]) ON DELETE CASCADE,
+    CONSTRAINT [FK_Questions_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [canvas].[Users] ([UserId]) ON DELETE NO ACTION
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.527 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[Registrations] (
+    [RegistrationId] bigint NOT NULL IDENTITY,
+    [SessionId] bigint NOT NULL,
+    [UserId] uniqueidentifier NOT NULL,
+    [JoinTime] datetime2 NOT NULL,
+    CONSTRAINT [PK_Registrations] PRIMARY KEY ([RegistrationId]),
+    CONSTRAINT [FK_Registrations_Sessions_SessionId] FOREIGN KEY ([SessionId]) REFERENCES [canvas].[Sessions] ([SessionId]) ON DELETE CASCADE,
+    CONSTRAINT [FK_Registrations_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [canvas].[Users] ([UserId]) ON DELETE NO ACTION
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.544 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[QuestionAnswers] (
+    [AnswerId] bigint NOT NULL IDENTITY,
+    [QuestionId] bigint NOT NULL,
+    [PostedBy] nvarchar(64) NOT NULL,
+    [PostedAt] datetime2 NOT NULL,
+    [AnswerText] nvarchar(max) NULL,
+    CONSTRAINT [PK_QuestionAnswers] PRIMARY KEY ([AnswerId]),
+    CONSTRAINT [FK_QuestionAnswers_Questions_QuestionId] FOREIGN KEY ([QuestionId]) REFERENCES [canvas].[Questions] ([QuestionId]) ON DELETE CASCADE
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.558 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[QuestionVotes] (
+    [VoteId] bigint NOT NULL IDENTITY,
+    [QuestionId] bigint NOT NULL,
+    [UserId] uniqueidentifier NULL,
+    [VoteValue] tinyint NOT NULL,
+    [VotedAt] datetime2 NOT NULL,
+    CONSTRAINT [PK_QuestionVotes] PRIMARY KEY ([VoteId]),
+    CONSTRAINT [FK_QuestionVotes_Questions_QuestionId] FOREIGN KEY ([QuestionId]) REFERENCES [canvas].[Questions] ([QuestionId]) ON DELETE CASCADE,
+    CONSTRAINT [FK_QuestionVotes_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [canvas].[Users] ([UserId]) ON DELETE NO ACTION
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.570 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_Annotations_SessionId] ON [canvas].[Annotations] ([SessionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.581 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_AuditLog_SessionId] ON [canvas].[AuditLog] ([SessionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.590 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_AuditLog_UserId] ON [canvas].[AuditLog] ([UserId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.600 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE UNIQUE INDEX [IX_HostSessions_SessionGuidHash] ON [canvas].[HostSessions] ([SessionId], [HostGuidHash]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.612 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_Issues_SessionId] ON [canvas].[Issues] ([SessionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.621 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_Issues_UserId] ON [canvas].[Issues] ([UserId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.636 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_QuestionAnswers_QuestionId] ON [canvas].[QuestionAnswers] ([QuestionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.649 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_Questions_SessionStatusVoteQueue] ON [canvas].[Questions] ([SessionId], [Status], [VoteCount], [QueuedAt]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.670 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_Questions_UserId] ON [canvas].[Questions] ([UserId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.695 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_QuestionVotes_UserId] ON [canvas].[QuestionVotes] ([UserId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.716 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE UNIQUE INDEX [UQ_QuestionVotes_QuestionUser] ON [canvas].[QuestionVotes] ([QuestionId], [UserId]) WHERE [UserId] IS NOT NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.730 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_Registrations_SessionId] ON [canvas].[Registrations] ([SessionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.743 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE UNIQUE INDEX [UQ_Registration_UserSession] ON [canvas].[Registrations] ([UserId], [SessionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.753 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_SessionLinks_SessionId] ON [canvas].[SessionLinks] ([SessionId]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.777 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_SessionLinks_StateGuid] ON [canvas].[SessionLinks] ([State], [Guid]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.784 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE INDEX [IX_SharedAssets_SessionShared] ON [canvas].[SharedAssets] ([SessionId], [SharedAt]); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:08:41.796 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20250911091420_InitialCreate', N'8.0.0'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.525 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.600 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.609 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.615 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.642 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId]; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.664 -04:00 INF] Microsoft.EntityFrameworkCore.Migrations Applying migration '20250912174615_AddAdminSessions'. {"EventId":{"Id":20402,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationApplying"}}
+[2025-09-12 14:09:31.860 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (116ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Users] ADD [CreatedAt] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.868 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Users] ADD [IsActive] bit NOT NULL DEFAULT CAST(0 AS bit); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.875 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Users] ADD [LastSeenAt] datetime2 NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.887 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Users] ADD [ModifiedAt] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.896 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Users] ADD [UserGuid] nvarchar(256) NOT NULL DEFAULT N''; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.907 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [Description] nvarchar(1000) NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.916 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [HostGuid] nvarchar(100) NOT NULL DEFAULT N''; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.926 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [MaxParticipants] int NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.934 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [ModifiedAt] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.943 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [ParticipantCount] int NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.951 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [Status] nvarchar(50) NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.961 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+ALTER TABLE [canvas].[Sessions] ADD [Title] nvarchar(200) NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.971 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+CREATE TABLE [canvas].[AdminSessions] (
+    [AdminSessionId] bigint NOT NULL IDENTITY,
+    [AdminGuid] nvarchar(100) NOT NULL,
+    [SessionToken] nvarchar(128) NOT NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    [ExpiresAt] datetime2 NOT NULL,
+    [LastUsedAt] datetime2 NULL,
+    [IsActive] bit NOT NULL,
+    [UserAgent] nvarchar(255) NULL,
+    [IpAddress] nvarchar(45) NULL,
+    CONSTRAINT [PK_AdminSessions] PRIMARY KEY ([AdminSessionId])
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:09:31.982 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='3600']
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20250912174615_AddAdminSessions', N'8.0.0'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-12 14:15:48.866 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 14:15:49.050 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:15:49.056 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:15:49.159 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 14:15:49.254 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-12 14:15:49.261 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-12 14:15:49.302 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:15:49.307 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:15:49.311 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-12 14:15:49.312 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-12 14:15:49.314 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-12 14:16:24.591 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-12 14:38:40.328 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 14:38:40.583 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:38:40.606 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:38:40.861 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 14:38:41.357 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-12 14:38:41.482 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-12 14:38:41.569 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:38:41.579 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:38:41.605 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-12 14:38:41.615 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-12 14:38:41.636 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-12 14:39:46.567 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-12 14:52:53.219 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 14:52:53.376 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:52:53.382 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:52:53.501 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 14:52:53.600 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-12 14:52:53.607 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-12 14:52:53.648 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:52:53.652 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:52:53.657 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-12 14:52:53.659 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-12 14:52:53.661 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-12 14:53:20.631 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost:9090/ - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49C:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49C"}
+[2025-09-12 14:53:20.793 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost:9090/ - 307 0 null 168.9071ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49C:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49C"}
+[2025-09-12 14:53:21.049 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/ - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.221 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_Host' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.288 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Route matched with {page = "/_Host", action = "", controller = ""}. Executing page /_Host {"EventId":{"Id":103,"Name":"PageExecuting"},"ActionId":"37e18292-0763-4b5d-91e6-414b5563c479","ActionName":"/_Host","RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.336 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Executing an implicit handler method - ModelState is "Valid" {"EventId":{"Id":107,"Name":"ExecutingImplicitHandlerMethod"},"ActionId":"37e18292-0763-4b5d-91e6-414b5563c479","ActionName":"/_Host","RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.383 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Executed an implicit handler method, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult. {"EventId":{"Id":109,"Name":"ExecutedImplicitHandlerMethod"},"ActionId":"37e18292-0763-4b5d-91e6-414b5563c479","ActionName":"/_Host","RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.675 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Executed page /_Host in 349.5816ms {"EventId":{"Id":104,"Name":"PageExecuted"},"RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.726 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_Host' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.759 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/ - 200 null text/html; charset=utf-8 709.2899ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000001","RequestPath":"/","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.771 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000003","RequestPath":"/css/bootstrap/bootstrap.min.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.772 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/site.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000005","RequestPath":"/css/site.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.772 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000007","RequestPath":"/NoorCanvas.styles.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.772 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.772 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/js/noor-logging.js - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:0000000B","RequestPath":"/js/noor-logging.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:21.773 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/js/noor-annotations.js - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:0000000D","RequestPath":"/js/noor-annotations.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.028 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/site.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\site.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:00000005","RequestPath":"/css/site.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.028 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/NoorCanvas.styles.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\scopedcss\bundle\NoorCanvas.styles.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:00000007","RequestPath":"/NoorCanvas.styles.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.045 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'Blazor static files' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.048 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/bootstrap/bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\bootstrap\bootstrap.min.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:00000003","RequestPath":"/css/bootstrap/bootstrap.min.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.118 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/js/noor-logging.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-logging.js' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:0000000B","RequestPath":"/js/noor-logging.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.130 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/js/noor-annotations.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-annotations.js' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:0000000D","RequestPath":"/js/noor-annotations.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.288 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/site.css - 200 908 text/css 515.3216ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000005","RequestPath":"/css/site.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.292 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:0000000F","RequestPath":"/css/open-iconic/font/css/open-iconic-bootstrap.min.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.299 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - 200 2822 text/css 527.2319ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000007","RequestPath":"/NoorCanvas.styles.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.320 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - 200 155764 text/css 548.1807ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000003","RequestPath":"/css/bootstrap/bootstrap.min.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.334 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/js/noor-logging.js - 200 5450 text/javascript 561.2835ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:0000000B","RequestPath":"/js/noor-logging.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.337 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/_framework/blazor.server.js'. Physical path: 'N/A' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.350 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/js/noor-annotations.js - 200 10345 text/javascript 577.3058ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:0000000D","RequestPath":"/js/noor-annotations.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.484 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/open-iconic/font/css/open-iconic-bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:0000000F","RequestPath":"/css/open-iconic/font/css/open-iconic-bootstrap.min.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.524 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'Blazor static files' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.574 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - 200 9395 text/css 281.5613ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:0000000F","RequestPath":"/css/open-iconic/font/css/open-iconic-bootstrap.min.css","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.607 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - 200 151672 text/javascript 835.0442ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.701 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/_blazor/initializers - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:22.701 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000011","RequestPath":"/css/open-iconic/font/fonts/open-iconic.woff","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.174 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'Blazor initializers' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.195 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/open-iconic/font/fonts/open-iconic.woff'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\fonts\open-iconic.woff' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5MDPJ49E:00000011","RequestPath":"/css/open-iconic/font/fonts/open-iconic.woff","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.228 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'Blazor initializers' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.351 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - 200 14984 application/font-woff 649.8801ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000011","RequestPath":"/css/open-iconic/font/fonts/open-iconic.woff","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.367 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/_blazor/initializers - 200 null application/json; charset=utf-8 666.6359ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.804 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - null 0 {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.856 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFI5MDPJ49E:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.898 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_blazor/negotiate' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.934 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_blazor/negotiate' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.967 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 162.5455ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:23.976 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 CONNECT https://localhost:9091/_blazor?id=qZSfqDaK3U3Z-CM5afm9Cw - null null {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.035 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.087 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_blazor' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.138 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionHandler OnConnectedAsync started. {"EventId":{"Id":5,"Name":"ConnectedStarting"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.168 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Found protocol implementation for requested protocol: blazorpack. {"EventId":{"Id":2,"Name":"FoundImplementationForProtocol"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.196 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionContext Completed connection handshake. Using HubProtocol 'blazorpack'. {"EventId":{"Id":1,"Name":"HandshakeComplete"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.261 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "0", Target: "StartCircuit", Arguments: [ https://localhost:9091/, https://localhost:9091/, [{"type":"server","prerenderId":"ffe314d39ea64060893d15bdd08d61c8","key":{"locationHash":"54912F3C651A014F1B275C954CB092DE947378CDB83E8965F8D7F4800066B6D8:0","formattedComponentKey":""},"sequence":0,"descriptor":"CfDJ8DeH3DqcBblEm/Wh6jxNrbPGIACxClvj5jTxLLu7jks0xusri9TI9g4DdK5jnd0Yh3b8+Mkt7qL+KuzQF17fdYYjFwmaSeVSOyBbxqf8FA+GZk8iJ+0CbjzS7JjqUwfxU3K7d5b3pcTbUFhAtM5OEZp/tCBh47mMgxMS9PRUqDw+SbT1Nd8rok8yYdW2k0vpal2EwhPHLmhqk+nQf/yNOdlaXA8AA4hH/VkGwCW1ayvC8o7L3+VbWYIMZpuoerhPQuKq7TIZsLn98aEtoShhRr5lcLIlMPahco3ruOgteiZjSe3JduXcZc1nT54hSFIBqhEmEgBeZ+17/renh0NFuEAqPR0b/KIQJsz3zez0MPymG/l+n1TrloG2facKiJNeSFUIyKqEgZ4eyf5a4K/QvQS+LB0+x+O7ADtr444jG8xqT+sAatPT3BSiWBqGHJtJeLBAW/C+vALBT80RH3FPIFUhSrYpvu58cmNnSvgtDo4WTxkpMP68JXrRHZUXluDhaw==","uniqueId":0}],  ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.414 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 2, True, [2,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.453 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 2,  ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.509 -04:00 INF] NoorCanvas.Pages.Landing NOOR-INFO: Landing page rendered for new visitor {"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.515 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 3, True, [3,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.547 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 4, True, [4,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.638 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 POST https://localhost:9091/_blazor/disconnect - multipart/form-data; boundary=----WebKitFormBoundary7B9BoRKoFUXAP9Ao 359 {"EventId":{"Id":1},"RequestId":"0HNFI5MDPJ49E:00000019","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.691 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFI5MDPJ49E:00000019","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.789 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'Blazor disconnect' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000019","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.828 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'Blazor disconnect' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000019","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:24.840 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 POST https://localhost:9091/_blazor/disconnect - 200 0 null 202.3792ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000019","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.905 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "BeginInvokeDotNetFromJS", Arguments: [ 1, , DispatchEventAsync, 1, [{"eventHandlerId":3,"eventName":"click","eventFieldInfo":null},{"detail":1,"screenX":933,"screenY":992,"clientX":925,"clientY":869,"offsetX":281,"offsetY":42,"pageX":925,"pageY":869,"movementX":0,"movementY":0,"button":0,"buttons":0,"ctrlKey":false,"shiftKey":false,"altKey":false,"metaKey":false,"type":"click"}] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.929 -04:00 INF] NoorCanvas.Pages.Landing NOOR-INFO: User selected role: host {"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.943 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 5, True, [5,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.954 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 3,  ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.966 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 6, True, [6,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.977 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 7, True, [7,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:42.993 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 8, True, [8,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:43.006 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 4,  ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:46.645 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-12 14:53:46.662 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionHandler OnConnectedAsync ending. {"EventId":{"Id":6,"Name":"ConnectedEnding"},"TransportConnectionId":"zyCKy8S9k2srmI6QlqwI2g","RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:46.678 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_blazor' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:46.690 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 CONNECT https://localhost:9091/_blazor?id=qZSfqDaK3U3Z-CM5afm9Cw - 200 null null 22714.5883ms {"EventId":{"Id":2},"RequestId":"0HNFI5MDPJ49E:00000017","RequestPath":"/_blazor","ConnectionId":"0HNFI5MDPJ49E"}
+[2025-09-12 14:53:46.704 -04:00 INF] Microsoft.AspNetCore.Server.Kestrel Connection id "0HNFI5MDPJ49E", Request id "0HNFI5MDPJ49E:00000017": the application completed without reading the entire request body. {"EventId":{"Id":32,"Name":"RequestBodyNotEntirelyRead"}}
+[2025-09-12 14:55:00.178 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 14:55:00.636 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:55:00.645 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:55:00.777 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 14:55:00.879 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-12 14:55:00.887 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-12 14:55:00.922 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:55:00.928 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:55:00.932 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-12 14:55:00.934 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-12 14:55:00.937 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-12 14:55:13.862 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-12 14:56:52.904 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-12 14:56:53.039 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:56:53.044 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-12 14:56:53.152 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
+[2025-09-12 14:56:53.246 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServer The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert. {"EventId":{"Id":8,"Name":"DeveloperCertificateNotTrusted"}}
+[2025-09-12 14:56:53.255 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-12 14:56:53.289 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:56:53.295 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-12 14:56:53.298 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-12 14:56:53.301 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-12 14:56:53.303 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-12 14:56:54.996 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost:9090/ - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB6:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB6"}
+[2025-09-12 14:56:55.069 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost:9090/ - 307 0 null 74.9137ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB6:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB6"}
+[2025-09-12 14:56:55.132 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/ - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.214 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_Host' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.247 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Route matched with {page = "/_Host", action = "", controller = ""}. Executing page /_Host {"EventId":{"Id":103,"Name":"PageExecuting"},"ActionId":"1ccd78e2-5bba-4026-809f-8df0e155f853","ActionName":"/_Host","RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.294 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Executing an implicit handler method - ModelState is "Valid" {"EventId":{"Id":107,"Name":"ExecutingImplicitHandlerMethod"},"ActionId":"1ccd78e2-5bba-4026-809f-8df0e155f853","ActionName":"/_Host","RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.330 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Executed an implicit handler method, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult. {"EventId":{"Id":109,"Name":"ExecutedImplicitHandlerMethod"},"ActionId":"1ccd78e2-5bba-4026-809f-8df0e155f853","ActionName":"/_Host","RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.741 -04:00 INF] Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure.PageActionInvoker Executed page /_Host in 460.6951ms {"EventId":{"Id":104,"Name":"PageExecuted"},"RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.780 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_Host' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.816 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000003","RequestPath":"/css/bootstrap/bootstrap.min.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.819 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000007","RequestPath":"/NoorCanvas.styles.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.823 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.825 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/js/noor-logging.js - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:0000000B","RequestPath":"/js/noor-logging.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.832 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/js/noor-annotations.js - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:0000000D","RequestPath":"/js/noor-annotations.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.834 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/ - 200 null text/html; charset=utf-8 701.8697ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000001","RequestPath":"/","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.819 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/site.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000005","RequestPath":"/css/site.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:55.902 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/bootstrap/bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\bootstrap\bootstrap.min.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:00000003","RequestPath":"/css/bootstrap/bootstrap.min.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.014 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/site.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\site.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:00000005","RequestPath":"/css/site.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.123 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/bootstrap/bootstrap.min.css - 200 155764 text/css 306.4762ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000003","RequestPath":"/css/bootstrap/bootstrap.min.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.046 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/js/noor-logging.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-logging.js' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:0000000B","RequestPath":"/js/noor-logging.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.059 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/js/noor-annotations.js'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\js\noor-annotations.js' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:0000000D","RequestPath":"/js/noor-annotations.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.093 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/NoorCanvas.styles.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\obj\Debug\net8.0\scopedcss\bundle\NoorCanvas.styles.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:00000007","RequestPath":"/NoorCanvas.styles.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.036 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'Blazor static files' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.163 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/site.css - 200 908 text/css 344.6114ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000005","RequestPath":"/css/site.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.167 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:0000000F","RequestPath":"/css/open-iconic/font/css/open-iconic-bootstrap.min.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.178 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/js/noor-logging.js - 200 5450 text/javascript 353.5635ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:0000000B","RequestPath":"/js/noor-logging.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.182 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/js/noor-annotations.js - 200 10345 text/javascript 350.167ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:0000000D","RequestPath":"/js/noor-annotations.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.189 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/NoorCanvas.styles.css - 200 2822 text/css 369.4257ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000007","RequestPath":"/NoorCanvas.styles.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.214 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/_framework/blazor.server.js'. Physical path: 'N/A' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.233 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/open-iconic/font/css/open-iconic-bootstrap.min.css'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:0000000F","RequestPath":"/css/open-iconic/font/css/open-iconic-bootstrap.min.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.263 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'Blazor static files' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.267 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/css/open-iconic-bootstrap.min.css - 200 9395 text/css 100.2718ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:0000000F","RequestPath":"/css/open-iconic/font/css/open-iconic-bootstrap.min.css","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.292 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/_framework/blazor.server.js - 200 151672 text/javascript 468.5647ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000009","RequestPath":"/_framework/blazor.server.js","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.346 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000011","RequestPath":"/css/open-iconic/font/fonts/open-iconic.woff","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.348 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/_blazor/initializers - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.371 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/css/open-iconic/font/fonts/open-iconic.woff'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css\open-iconic\font\fonts\open-iconic.woff' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:00000011","RequestPath":"/css/open-iconic/font/fonts/open-iconic.woff","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.380 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'Blazor initializers' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.493 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/css/open-iconic/font/fonts/open-iconic.woff - 200 14984 application/font-woff 147.0898ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000011","RequestPath":"/css/open-iconic/font/fonts/open-iconic.woff","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.523 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'Blazor initializers' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:56.559 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/_blazor/initializers - 200 null application/json; charset=utf-8 211.2309ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000013","RequestPath":"/_blazor/initializers","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.181 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 GET https://localhost:9091/favicon.ico - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000017","RequestPath":"/favicon.ico","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.181 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - null 0 {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.212 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFI5OI5RMB8:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.213 -04:00 INF] Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware Sending file. Request path: '/favicon.ico'. Physical path: 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\favicon.ico' {"EventId":{"Id":2,"Name":"FileServed"},"RequestId":"0HNFI5OI5RMB8:00000017","RequestPath":"/favicon.ico","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.232 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 GET https://localhost:9091/favicon.ico - 200 5430 image/x-icon 51.4889ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000017","RequestPath":"/favicon.ico","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.229 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_blazor/negotiate' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.260 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_blazor/negotiate' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.271 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 89.9941ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000015","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.278 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 CONNECT https://localhost:9091/_blazor?id=myY4rI2_1NMD_rxCPJnxRg - null null {"EventId":{"Id":1},"RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.291 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.297 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_blazor' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.313 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionHandler OnConnectedAsync started. {"EventId":{"Id":5,"Name":"ConnectedStarting"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.331 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Found protocol implementation for requested protocol: blazorpack. {"EventId":{"Id":2,"Name":"FoundImplementationForProtocol"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.344 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionContext Completed connection handshake. Using HubProtocol 'blazorpack'. {"EventId":{"Id":1,"Name":"HandshakeComplete"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.365 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "0", Target: "StartCircuit", Arguments: [ https://localhost:9091/, https://localhost:9091/, [{"type":"server","prerenderId":"931f692b1929465b9d5ab9b9ad26d04b","key":{"locationHash":"54912F3C651A014F1B275C954CB092DE947378CDB83E8965F8D7F4800066B6D8:0","formattedComponentKey":""},"sequence":0,"descriptor":"CfDJ8DeH3DqcBblEm/Wh6jxNrbObHSkMHhXf6DP/sasGTLkaRp4PqkNKiK1KyAEjRwWWCLfVpqowM6T+ZqBiCJBfNv0Ju9kvcC5+TXD4PVwpSYfZD2w43+NZawuG2uxBa6X2C3Wo6EnFy7xxT+DKLDXP3UPNa1rdA7mU/5wdh0BVhGlWPTkR8C8mhWLnKNsij3UVKx/o0aLajwv61sqeVxRRgBGRaSQC1rnxMzCAZCMDUOPWmfTN1PjNiL4+ls2Es1kLog1JupR0OCbOx+AqBjPqSlKfr01rBNt4MnFRFpp67xOieq+u2h8d8XGIzl57TfXd5kT2tsDumzTQeBKDYOzSF39RSCM5s9KSCgs0Iwk2F93aETTdReXSBKI0kI5IkOB2pC9ek6ZP3rT0GwM2OoaQ7lS+QFEZzYr8817FlTHMfnszWT41GEa2Y8E1LG+sGjXNWT8VNFTj+iqDXk6NLMt9CX7FU/XUEPWpiR4mLrar89kytG1VemX3JFhgGdBa28aTZg==","uniqueId":0}],  ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.470 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 2, True, [2,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.483 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "OnRenderCompleted", Arguments: [ 2,  ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.508 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 3, True, [3,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.509 -04:00 INF] NoorCanvas.Pages.Landing NOOR-INFO: Landing page rendered for new visitor {"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:56:57.529 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "", Target: "EndInvokeJSFromDotNet", Arguments: [ 4, True, [4,true,null] ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:57:56.150 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-12 14:57:56.162 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionHandler OnConnectedAsync ending. {"EventId":{"Id":6,"Name":"ConnectedEnding"},"TransportConnectionId":"3CS6UXnnpK3LF_gSKiMw5w","RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:57:56.172 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_blazor' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:57:56.181 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 CONNECT https://localhost:9091/_blazor?id=myY4rI2_1NMD_rxCPJnxRg - 200 null null 58903.5761ms {"EventId":{"Id":2},"RequestId":"0HNFI5OI5RMB8:00000019","RequestPath":"/_blazor","ConnectionId":"0HNFI5OI5RMB8"}
+[2025-09-12 14:57:56.193 -04:00 INF] Microsoft.AspNetCore.Server.Kestrel Connection id "0HNFI5OI5RMB8", Request id "0HNFI5OI5RMB8:00000019": the application completed without reading the entire request body. {"EventId":{"Id":32,"Name":"RequestBodyNotEntirelyRead"}}

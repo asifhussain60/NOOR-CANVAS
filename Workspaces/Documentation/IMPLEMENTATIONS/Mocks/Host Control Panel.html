@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Control Panel</title>
+    <title>NOOR Canvas - Host</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -13,292 +13,154 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center p-4 min-h-screen space-y-8">
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
-    <!-- Host Control Panel (original) -->
-    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-xl w-full">
-        <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Host Control Panel</h1>
-        
-        <!-- Dropdown Section -->
-        <div class="space-y-6">
-            <!-- Album Dropdown -->
-            <div>
-                <label for="album-dropdown" class="block text-sm font-medium text-gray-700">Album</label>
-                <select id="album-dropdown" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out px-4 py-2 text-gray-900 border">
-                    <option value="">Select Album</option>
-                    <option value="album-1">Album 1</option>
-                    <option value="album-2">Album 2</option>
-                    <option value="album-3">Album 3</option>
-                </select>
-            </div>
-
-            <!-- Category Dropdown -->
-            <div>
-                <label for="category-dropdown" class="block text-sm font-medium text-gray-700">Category</label>
-                <select id="category-dropdown" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out px-4 py-2 text-gray-900 border">
-                    <option value="">Select Category</option>
-                    <option value="category-a">Category A</option>
-                    <option value="category-b">Category B</option>
-                    <option value="category-c">Category C</option>
-                </select>
-            </div>
-
-            <!-- Session Dropdown -->
-            <div>
-                <label for="session-dropdown" class="block text-sm font-medium text-gray-700">Session</label>
-                <select id="session-dropdown" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200 ease-in-out px-4 py-2 text-gray-900 border">
-                    <option value="">Select Session</option>
-                    <option value="session-x">Session X</option>
-                    <option value="session-y">Session Y</option>
-                    <option value="session-z">Session Z</option>
-                </select>
-            </div>
+    <!-- Header -->
+    <header class="bg-[#114B5F] text-white p-4 shadow-md flex justify-between items-center">
+        <div class="font-bold text-2xl tracking-wide">NOOR Canvas - Host</div>
+        <div class="flex space-x-4">
+            <button class="bg-white text-[#114B5F] px-4 py-2 rounded-lg font-semibold shadow-lg">Host View</button>
+            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold shadow-lg">User View</button>
         </div>
+    </header>
 
-        <!-- Buttons Section (below Session dropdown) -->
-        <div class="flex flex-col sm:flex-row gap-4 mt-8">
-            <button id="generate-token-btn" class="w-full sm:w-1/2 bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-in-out">
-                Generated Session Token
-            </button>
-            <button id="begin-session-btn" class="w-full sm:w-1/2 bg-green-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 ease-in-out">
-                Begin Session
-            </button>
-        </div>
-    </div>
+    <main class="flex-1 p-6 flex flex-col space-y-6">
 
-    <!-- New Session Panel (full width) -->
-    <div class="bg-white p-8 rounded-2xl shadow-xl w-full">
-        <h2 class="text-2xl font-bold text-gray-800 text-center mb-4 bg-gray-200 py-2 px-4 rounded-lg">Session Name</h2>
-        <p class="text-sm text-gray-600 text-center mb-6">
-            This sermon redefines success and failure through an Islamic lens, contrasting worldly metrics with spiritual purification. It outlines ten key qualities for achieving true success, supported by Quranic principles and the lives of exemplary figures from Islamic history. The sermon also warns against the spiritual danger of heedlessness, urging a conscious return to a life of purpose. It concludes by embracing the "strangeness" of adhering to faith in a secular world.
-        </p>
+        <!-- Top Section: Left and Right Columns -->
+        <div class="flex-1 flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6">
         
-        <!-- Main Content Area -->
-        <div class="flex flex-col gap-4">
-            <!-- Left Panel (now 95% width) -->
-            <div class="bg-gray-50 p-6 rounded-lg w-11/12 mx-auto shadow-sm border border-gray-200 overflow-y-auto max-h-[80vh]">
-                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Session Content Div</h3>
-                <p class="text-gray-700 mb-4">
-                    This section contains a sample of a document. It includes standard text, images, and tables to show how a typical document might be rendered. The content is for demonstration purposes only.
-                </p>
-                
-                <img src="https://placehold.co/600x400/FF5733/ffffff?text=Document+Image" alt="Placeholder document image" class="rounded-lg shadow-md mb-6 w-full h-auto">
-                
-                <h4 class="text-lg font-medium text-gray-700 mb-2">Key Principles</h4>
-                <ul class="list-disc list-inside text-gray-700 mb-4">
-                    <li>Principle of Spiritual Purification</li>
-                    <li>The Ten Qualities of True Success</li>
-                    <li>Warning Against Heedlessness</li>
-                </ul>
+            <!-- Left Column -->
+            <div class="lg:w-1/3 flex flex-col space-y-6">
 
-                <h4 class="text-lg font-medium text-gray-700 mb-2">Comparative Analysis Table</h4>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white rounded-lg shadow-md">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="py-2 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Worldly Metric</th>
-                                <th class="py-2 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Spiritual Counterpart</th>
-                                <th class="py-2 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Quranic Verse</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-4 text-gray-800">Wealth</td>
-                                <td class="py-2 px-4 text-gray-800">Giving Charity</td>
-                                <td class="py-2 px-4 text-gray-800">Qur'an 9:103</td>
-                            </tr>
-                            <tr class="border-t border-gray-200 bg-gray-50">
-                                <td class="py-2 px-4 text-gray-800">Social Status</td>
-                                <td class="py-2 px-4 text-gray-800">Humility</td>
-                                <td class="py-2 px-4 text-gray-800">Qur'an 25:63</td>
-                            </tr>
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-4 text-gray-800">Power</td>
-                                <td class="py-2 px-4 text-gray-800">Serving Others</td>
-                                <td class="py-2 px-4 text-gray-800">Qur'an 4:58</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Session Selection -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-semibold text-lg text-gray-800 mb-4">SESSION SELECTION</h2>
+                    <div class="flex flex-col space-y-4">
+                        <div class="flex items-center space-x-2">
+                            <label for="album-select" class="w-20 text-gray-600">Album</label>
+                            <select id="album-select" class="flex-1 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500">
+                                <option>Love Of The Prophet</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="category-select" class="w-20 text-gray-600">Category</label>
+                            <select id="category-select" class="flex-1 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500">
+                                <option>Seerah</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="session-select" class="w-20 text-gray-600">Session</label>
+                            <select id="session-select" class="flex-1 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500">
+                                <option>2. Love Based Religion</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Controls -->
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-semibold text-lg text-gray-800 mb-4">SESSION CONTROLS</h2>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex-1">Start Session</button>
+                        <button class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors flex-1">End Session</button>
+                    </div>
+                    <button class="w-full bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-400 transition-colors">Pause</button>
+                </div>
+
+                <!-- Participants -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex-1">
+                    <h2 class="font-semibold text-lg text-gray-800 mb-4">PARTICIPANTS</h2>
+                    <ul class="space-y-2 mb-4">
+                        <li class="bg-green-50 text-green-800 px-4 py-2 rounded-lg flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Fatima - Joined</span>
+                        </li>
+                        <li class="bg-green-50 text-green-800 px-4 py-2 rounded-lg flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Ali - Joined</span>
+                        </li>
+                        <li class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Zainab - Waiting</span>
+                        </li>
+                        <li class="bg-green-50 text-green-800 px-4 py-2 rounded-lg flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Hassan - Joined</span>
+                        </li>
+                    </ul>
+                    <div class="flex items-center space-x-2">
+                        <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex-1">Admit</button>
+                        <button class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors flex-1">Remove</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:w-2/3 flex flex-col space-y-6">
+
+                <!-- Session Transcript Panel -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex-1 flex flex-col">
+                    <h2 class="font-semibold text-lg text-gray-800 mb-4">SESSION TRANSCRIPT</h2>
+                    <div id="transcript-content" class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl text-center text-gray-500 p-8">
+                        Session Content with Asset Sharing Buttons
+                    </div>
                 </div>
             </div>
 
-            <!-- New Panel with Sample Data Table -->
-            <div class="bg-gray-50 p-6 rounded-lg w-11/12 mx-auto shadow-sm border border-gray-200 flex flex-col items-center">
-                <h3 class="text-2xl font-bold text-gray-800 text-center mb-4 bg-gray-200 py-2 px-4 rounded-lg">Questions</h3>
-                <div class="overflow-x-auto w-full">
-                    <table class="min-w-full bg-white rounded-lg shadow-md">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="py-2 px-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-[10%]"></th>
-                                <th class="py-2 px-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-[70%]">Title</th>
-                                <th class="py-2 px-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-[20%]">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Sample Rows with Icons -->
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Foundations of Faith</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200 bg-gray-50">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Prophet's Way</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">Understanding the Quran</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200 bg-gray-50">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Pillars of Islam</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Life of a Believer</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200 bg-gray-50">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Importance of Prayer</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">Navigating Modern Challenges</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200 bg-gray-50">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Power of Forgiveness</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">Cultivating Inner Peace</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr class="border-t border-gray-200 bg-gray-50">
-                                <td class="py-2 px-2 text-center text-gray-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </td>
-                                <td class="py-2 px-4 text-gray-800">The Path to Paradise</td>
-                                <td class="py-2 px-2 text-center">
-                                    <button class="bg-green-500 hover:bg-green-600 text-white rounded-full p-1.5 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        </div>
 
-                <!-- Close Session Button -->
-                <div class="flex justify-center mt-6">
-                    <button id="close-session-btn" class="bg-red-600 text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 ease-in-out">
-                        Close Session
+        <!-- Incoming Questions Panel -->
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="font-semibold text-lg text-gray-800 mb-4">INCOMING QUESTIONS</h2>
+            <div class="space-y-2">
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                        </svg>
+                        <span>What is the root of "rahma"?</span>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Can you re-share the ayah card?</span>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
                     </button>
                 </div>
             </div>
         </div>
-    </div>
 
+        <!-- End Session Button -->
+        <div class="flex justify-center mt-6">
+            <button class="bg-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:bg-red-600 transition-colors w-full sm:w-auto">End Session</button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-sm text-gray-500 p-4 text-center">
+        Status: Draft mock - Real-time and API wiring to come
+    </footer>
+    
 </body>
 </html>

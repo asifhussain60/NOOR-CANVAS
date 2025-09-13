@@ -1,2 +1,0 @@
-[2025-09-12 10:25:28.715 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090 {}
-[2025-09-12 10:25:28.737 -04:00 INF] Testing application startup for routing issues {"SourceContext":"NoorCanvas.Core.Tests.Integration.RoutingIntegrationTests"}

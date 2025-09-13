@@ -3,8 +3,10 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
 @inject ILogger<AnnotationCanvas> Logger
+@inject HttpClient Http
+@inject NavigationManager Navigation
 
-<div class="annotation-canvas-container" style="position: relative;">
+<div id="annotation-canvas-container" class="annotation-canvas-container" style="position: relative;">
     <svg class="annotation-overlay" 
          width="100%" 
          height="100%" 
@@ -122,10 +124,16 @@
     private List<AnnotationViewModel> Annotations = new();
     
     private readonly string[] AvailableColors = { "#ffff00", "#ff9900", "#ff0000", "#00ff00", "#0099ff", "#9900ff" };
+    
+    // ✅ LIVE SIGNALR: Hub connection for real-time annotation synchronization
+    private HubConnection? hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
         Logger.LogInformation("NOOR-ANNOTATION: Annotation canvas initialized for session {SessionId}", SessionId);
+        
+        // ✅ LIVE SIGNALR: Setup hub connection for real-time annotation synchronization
+        await InitializeSignalRConnection();
         
         // Load existing annotations for this session
         await LoadAnnotations();
@@ -133,52 +141,145 @@
         StateHasChanged();
     }
 
-    private void SetTool(string tool)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try 
+            {
+                // Initialize the JavaScript annotation system
+                await JSRuntime.InvokeVoidAsync("NoorAnnotations.initialize", "annotation-canvas-container");
+                await JSRuntime.InvokeVoidAsync("NoorAnnotations.setTool", CurrentTool);
+                await JSRuntime.InvokeVoidAsync("NoorAnnotations.setColor", CurrentColor);
+                
+                Logger.LogInformation("NOOR-ANNOTATION: JavaScript annotation system initialized");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "NOOR-ANNOTATION: Error initializing JavaScript annotation system");
+            }
+        }
+    }
+
+    private async Task SetTool(string tool)
     {
         CurrentTool = tool;
         IsDrawingMode = tool != "select";
         Logger.LogDebug("NOOR-ANNOTATION: Tool changed to {Tool}", tool);
+        
+        // Update JavaScript annotation system
+        try 
+        {
+            await JSRuntime.InvokeVoidAsync("NoorAnnotations.setTool", tool);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ANNOTATION: Error setting tool in JavaScript: {Error}", ex.Message);
+        }
+        
         StateHasChanged();
     }
 
-    private void SetColor(string color)
+    private async Task SetColor(string color)
     {
         CurrentColor = color;
         Logger.LogDebug("NOOR-ANNOTATION: Color changed to {Color}", color);
+        
+        // Update JavaScript annotation system
+        try 
+        {
+            await JSRuntime.InvokeVoidAsync("NoorAnnotations.setColor", color);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ANNOTATION: Error setting color in JavaScript: {Error}", ex.Message);
+        }
+        
         StateHasChanged();
     }
 
-    private Task LoadAnnotations()
+    private async Task LoadAnnotations()
     {
         try
         {
             Logger.LogInformation("NOOR-ANNOTATION: Loading annotations for session {SessionId}", SessionId);
             
-            // TODO: Replace with actual API call to load annotations from database
-            // For now, using sample data for testing
-            Annotations = new List<AnnotationViewModel>
-            {
-                new AnnotationViewModel
-                {
-                    Id = 1,
-                    Type = "highlight",
-                    X = 100,
-                    Y = 150,
-                    Width = 200,
-                    Height = 20,
-                    Color = "#ffff00",
-                    CreatedBy = "TestUser"
-                }
-            };
+            // ✅ LIVE API: Load annotations from database
+            var response = await Http.GetAsync($"/api/annotations/session/{SessionId}");
             
-            Logger.LogInformation("NOOR-ANNOTATION: Loaded {Count} annotations", Annotations.Count);
+            if (response.IsSuccessStatusCode)
+            {
+                var annotationsResponse = await response.Content.ReadFromJsonAsync<List<AnnotationViewModel>>();
+                Annotations = annotationsResponse ?? new List<AnnotationViewModel>();
+                
+                Logger.LogInformation("NOOR-ANNOTATION: Loaded {Count} annotations from database", Annotations.Count);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-ANNOTATION: Failed to load annotations - Status: {StatusCode}", response.StatusCode);
+                Annotations = new List<AnnotationViewModel>();
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ANNOTATION: Error loading annotations for session {SessionId}", SessionId);
+            Annotations = new List<AnnotationViewModel>();
         }
-        
-        return Task.CompletedTask;
+    }
+
+    private async Task InitializeSignalRConnection()
+    {
+        try
+        {
+            // ✅ LIVE SIGNALR: Create and configure hub connection
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/hub/annotation"))
+                .Build();
+
+            // Handle incoming annotation updates from other users
+            hubConnection.On<object>("AnnotationUpdated", async (annotationUpdate) =>
+            {
+                try
+                {
+                    Logger.LogDebug("NOOR-SIGNALR: Received annotation update for session {SessionId}", SessionId);
+                    
+                    // Refresh annotations from server to stay in sync
+                    await LoadAnnotations();
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "NOOR-SIGNALR: Error processing annotation update");
+                }
+            });
+
+            // Handle session cleared events
+            hubConnection.On("SessionCleared", async () =>
+            {
+                try
+                {
+                    Logger.LogInformation("NOOR-SIGNALR: Session {SessionId} annotations cleared by host", SessionId);
+                    Annotations.Clear();
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "NOOR-SIGNALR: Error processing session clear event");
+                }
+            });
+
+            // Start the connection
+            await hubConnection.StartAsync();
+            Logger.LogInformation("NOOR-SIGNALR: Connected to annotation hub for session {SessionId}", SessionId);
+
+            // Join the session group
+            await hubConnection.SendAsync("JoinSession", SessionId, UserId);
+            Logger.LogInformation("NOOR-SIGNALR: Joined session {SessionId} group", SessionId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-SIGNALR: Failed to initialize SignalR connection");
+        }
     }
 
     private async Task ClearAllAnnotations()
@@ -187,12 +288,23 @@
         {
             Logger.LogInformation("NOOR-ANNOTATION: Clearing all annotations for session {SessionId}", SessionId);
             
-            Annotations.Clear();
+            // ✅ LIVE API: Clear annotations from database
+            var response = await Http.DeleteAsync($"/api/annotations/session/{SessionId}");
             
-            // TODO: Broadcast clear event via SignalR
-            await BroadcastAnnotationUpdate("clear", null);
-            
-            StateHasChanged();
+            if (response.IsSuccessStatusCode)
+            {
+                Annotations.Clear();
+                Logger.LogInformation("NOOR-ANNOTATION: Successfully cleared all annotations for session {SessionId}", SessionId);
+                
+                // Broadcast clear event via SignalR (will be implemented in SignalR Hub todo)
+                await BroadcastAnnotationUpdate("clear", null);
+                
+                StateHasChanged();
+            }
+            else
+            {
+                Logger.LogError("NOOR-ANNOTATION: Failed to clear annotations - Status: {StatusCode}", response.StatusCode);
+            }
         }
         catch (Exception ex)
         {
@@ -200,7 +312,54 @@
         }
     }
 
-    private Task BroadcastAnnotationUpdate(string action, AnnotationViewModel? annotation)
+    public async Task SaveAnnotation(AnnotationViewModel annotation)
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-ANNOTATION: Saving annotation {AnnotationId} for session {SessionId}", annotation.Id, SessionId);
+            
+            // ✅ LIVE API: Save annotation to database
+            annotation.CreatedBy = UserId;
+            annotation.CreatedAt = DateTime.UtcNow;
+            
+            var response = await Http.PostAsJsonAsync($"/api/annotations/session/{SessionId}", annotation);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var savedAnnotation = await response.Content.ReadFromJsonAsync<AnnotationViewModel>();
+                if (savedAnnotation != null)
+                {
+                    // Update local collection with database-generated ID
+                    var existingIndex = Annotations.FindIndex(a => a.Id == annotation.Id);
+                    if (existingIndex >= 0)
+                    {
+                        Annotations[existingIndex] = savedAnnotation;
+                    }
+                    else
+                    {
+                        Annotations.Add(savedAnnotation);
+                    }
+                    
+                    Logger.LogInformation("NOOR-ANNOTATION: Successfully saved annotation {AnnotationId}", savedAnnotation.Id);
+                    
+                    // Broadcast annotation update via SignalR (will be implemented in SignalR Hub todo)
+                    await BroadcastAnnotationUpdate("create", savedAnnotation);
+                    
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                Logger.LogError("NOOR-ANNOTATION: Failed to save annotation - Status: {StatusCode}", response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ANNOTATION: Error saving annotation for session {SessionId}: {Error}", SessionId, ex.Message);
+        }
+    }
+
+    private async Task BroadcastAnnotationUpdate(string action, AnnotationViewModel? annotation)
     {
         try
         {
@@ -215,24 +374,44 @@
 
             Logger.LogDebug("NOOR-ANNOTATION: Broadcasting {Action} for annotation in session {SessionId}", action, SessionId);
             
-            // TODO: Replace with actual SignalR hub broadcast
-            // await HubConnection.SendAsync("BroadcastAnnotation", message);
+            // ✅ LIVE SIGNALR: Broadcast annotation update via SignalR hub
+            if (hubConnection?.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("BroadcastAnnotation", message);
+                Logger.LogDebug("NOOR-SIGNALR: Successfully broadcast {Action} update", action);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-SIGNALR: Cannot broadcast - hub connection not available (State: {State})", 
+                    hubConnection?.State.ToString() ?? "null");
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-ANNOTATION: Error broadcasting annotation update: {Error}", ex.Message);
         }
-        
-        return Task.CompletedTask;
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         Logger.LogDebug("NOOR-ANNOTATION: Disposing annotation canvas for session {SessionId}", SessionId);
-        return ValueTask.CompletedTask;
+        
+        // ✅ LIVE SIGNALR: Dispose hub connection properly
+        if (hubConnection is not null)
+        {
+            try
+            {
+                await hubConnection.DisposeAsync();
+                Logger.LogDebug("NOOR-SIGNALR: Hub connection disposed for session {SessionId}", SessionId);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "NOOR-SIGNALR: Error disposing hub connection");
+            }
+        }
     }
 
-    private class AnnotationViewModel
+    public class AnnotationViewModel
     {
         public long Id { get; set; }
         public string Type { get; set; } = "";

@@ -52,8 +52,8 @@ IssueTracker/
 
 - ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md)
 - ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change - AWAITING UI MOCKUPS](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
-
 - ⏳ **Issue-22** — [Host Endpoint Missing - Application Startup Failure](AWAITING_CONFIRMATION/Issue-22-host-endpoint-missing-application-startup-failure.md)
+- ⏳ **Issue-25** — [Host Authentication Failure with Valid GUID](AWAITING_CONFIRMATION/Issue-25-host-authentication-failure-valid-guid.md)
 ### **Completed High Priority Issues**
 - ✅ **Issue-2** — [Blazor Server Double Initialization](COMPLETED/Issue-2-blazor-double-initialization.md)
 - ✅ **Issue-3** — [SignalR Connection String Parsing Error](COMPLETED/Issue-3-signalr-parsing-error.md)
@@ -69,6 +69,8 @@ IssueTracker/
 - ✅ **Issue-18** — [Blazor Routing Navigation Failure](COMPLETED/Issue-18-blazor-routing-navigation-failure.md)
 - ✅ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing Pages](COMPLETED/Issue-19-ambiguous-route-conflict-index-landing.md)
 - ✅ **Issue-21** — [Session Save Route Conflict Recurrence](COMPLETED/Issue-21-session-save-route-conflict-recurrence.md)
+- ✅ **Issue-23** — [HttpClient BaseAddress Authentication Failure](COMPLETED/Issue-23-httpclient-baseaddress-authentication-failure.md)
+- ✅ **Issue-26** — [Application Not Loading Despite IIS Express Running - xUnit Test Harness with Live Validation](COMPLETED/Issue-26-application-not-loading-despite-iis-express-running.md)
 
 ---
 
@@ -76,6 +78,9 @@ IssueTracker/
 
 - ❌ **Issue-20** — [Replace Browser Dialog Alerts with Styled Dialog Libraries](NOT%20STARTED/Issue-20-replace-browser-dialogs-with-styled-libraries.md)
 - ❌ **Issue-23** — [Entity Framework Dual Provider Test Failures](NOT%20STARTED/Issue-23-entity-framework-dual-provider-test-failures.md)
+
+### **Completed Medium Priority Issues**
+- ✅ **Issue-27** — [Git Repository Contaminated with Build Artifacts](COMPLETED/Issue-27-git-repository-contaminated-with-build-artifacts.md)
 - ❌ **Issue-24** — [Test Suite Failure Tracking and Resolution](NOT%20STARTED/Issue-24-test-suite-failure-tracking-resolution.md)
 
 ### **Completed Medium Priority Issues**
@@ -104,6 +109,12 @@ IssueTracker/
 - **In Progress:** 0
 - **Awaiting Confirmation:** 0  
 - **Completed:** 14
+
+### **Recent Achievements (December 28, 2024)**
+- ✅ **Issue-26**: Comprehensive xUnit test harness with **live Issue-26 scenario validation**
+- ✅ **Host Provisioner**: Auto-exit improvement (eliminated continuation prompt)
+- ✅ **Test Infrastructure**: 7 automated tests with 100% pass rate under real conditions
+- ✅ **Performance Validation**: 355ms response time confirmed during live port conflict scenario
 
 ---
 

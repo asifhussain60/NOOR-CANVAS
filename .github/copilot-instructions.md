@@ -47,46 +47,42 @@ dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://lo
 ```
 
 ### **NC Command - Primary Application Runner**
-**Location:** `Workspaces/Global/nc.ps1` - Simple application launcher with browser integration
+**Location:** `Workspaces/Global/nc.ps1` - IIS Express x64 launcher (NO browser integration)
 
 **Quick Usage:**
 ```powershell
-# Basic usage - starts app and opens browser automatically
+# Basic usage - launches IIS Express x64 in separate window (no browser)
 nc
 
-# Run without opening browser (for debugging or testing)
-nc -NoBrowser
-
-# Use HTTPS on port 9091 instead of HTTP on 9090
-nc -Https
+# Skip token generation step
+nc -SkipTokenGeneration
 
 # Get help and see all options
 nc -Help
 ```
 
 **Key Features:**
-- **Smart Path Detection**: Works from any directory, automatically navigates to correct project folder
-- **Browser Integration**: 3-second delay then opens default browser to application URL
-- **Build Integration**: Optional clean build before running with `-Build` parameter
-- **Port Flexibility**: Supports both HTTP (default) and HTTPS modes
+- **IIS Express x64**: Launches application using IIS Express x64 in separate window
+- **Host Token Generation**: Interactive token generation (nct) before server start
+- **Build Integration**: Automatic project build before launching server
+- **NO Browser Opening**: Server runs in separate IIS Express window without opening browser
+- **HTTPS Support**: Runs on https://localhost:9091
 - **Error Handling**: Proper exit codes and error reporting
-- **Background Jobs**: Browser opening runs in background to avoid blocking terminal
 
 **Verified Working Commands (September 2025):**
 ```powershell
 # These commands have been tested and work correctly:
 nc -Help                       # Display usage information
-nc -NoBrowser                  # Start app without browser
-nc                             # Start app with browser (default behavior)
-nc -Https                      # Start on HTTPS port 9091
+nc                             # Full workflow: nct + build + IIS Express x64 (no browser)
+nc -SkipTokenGeneration        # Skip nct step, just build and start IIS Express x64
 ```
 
 **Technical Implementation:**
 - **PowerShell Script**: Advanced parameter handling with validation
 - **Path Resolution**: Uses `Split-Path` to detect workspace structure automatically  
-- **Process Management**: Proper dotnet process handling with exit codes
-- **Browser Automation**: `Start-Job` with `Start-Process` for delayed browser opening
-- **Build Validation**: Checks build success before proceeding to run phase
+- **IIS Express Integration**: Launches IIS Express x64 in separate window
+- **Process Management**: Proper IIS Express process handling with fallback to dotnet run
+- **Build Validation**: Checks build success before proceeding to server launch phase
 
 ### **PowerShell Command Guidelines**
 ```powershell
@@ -1267,9 +1263,8 @@ Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
 Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
 
 # NC Command - Primary Application Runner
-nc                                 # Quick start with browser
-nc -NoBrowser                      # Run without browser opening
-nc -Https                          # Use HTTPS on port 9091
+nc                                 # Full workflow: nct + build + IIS Express x64 (no browser)
+nc -SkipTokenGeneration            # Skip nct step, just build and start IIS Express x64
 nc -Help                           # Display all available options
 
 # Issue Tracking & Debugging
@@ -1366,7 +1361,7 @@ Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}  # Check dotnet pro
 
 **NC Command Success Indicators:**
 - Application logs show "NOOR-STARTUP: NOOR Canvas Phase 1 application starting"
-- Browser automatically opens to application URL after 3-second delay
+- IIS Express x64 window launches separately (no browser opening)
+- Application available at https://localhost:9091 (manually accessible)
 - SignalR connections establish successfully (Blazor Server real-time functionality)
 - Structured logging operational: "NOOR-STARTUP", "NOOR-INFO" messages appearing
-- Browser requests show proper resource loading (CSS, JS, fonts all 200 OK)

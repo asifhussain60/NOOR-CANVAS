@@ -175,11 +175,20 @@
         {
             Logger.LogInformation("NOOR-INFO: Host dashboard initializing for GUID: {Guid}", Guid?.Substring(0, 8) + "...");
             
-            // TODO: Authenticate host GUID and get session token
+            // ✅ LIVE API: Authenticate host GUID and get session token
             if (!string.IsNullOrEmpty(Guid))
             {
-                sessionToken = System.Guid.NewGuid().ToString(); // Mock session token
-                await LoadDashboardData();
+                await AuthenticateHost();
+                if (!string.IsNullOrEmpty(sessionToken))
+                {
+                    await LoadDashboardData();
+                }
+                else
+                {
+                    Logger.LogError("NOOR-ERROR: Host authentication failed, redirecting to landing");
+                    Navigation.NavigateTo("/");
+                    return;
+                }
             }
             else
             {
@@ -220,34 +229,85 @@
         }
     }
 
+    private async Task AuthenticateHost()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Authenticating host GUID: {Guid}", Guid?.Substring(0, 8) + "...");
+            
+            var request = new { HostGuid = Guid };
+            var response = await Http.PostAsJsonAsync("/api/host/authenticate", request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var authResponse = await response.Content.ReadFromJsonAsync<HostAuthResponse>();
+                if (authResponse?.Success == true)
+                {
+                    sessionToken = authResponse.SessionToken;
+                    Logger.LogInformation("NOOR-SUCCESS: Host authenticated successfully");
+                    return;
+                }
+            }
+            
+            Logger.LogError("NOOR-ERROR: Host authentication failed - Invalid response");
+            sessionToken = null;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Host authentication exception");
+            sessionToken = null;
+        }
+    }
+
     private async Task LoadDashboardData()
     {
         try
         {
-            Logger.LogInformation("NOOR-INFO: Loading dashboard data");
+            Logger.LogInformation("NOOR-INFO: Loading dashboard data with session token");
             
-            // Mock data for now - replace with actual API call
-            dashboardData = new HostDashboardData
+            // ✅ LIVE API: Load dashboard data from backend
+            var response = await Http.GetAsync($"/api/host/dashboard?sessionToken={sessionToken}");
+            
+            if (response.IsSuccessStatusCode)
             {
-                HostName = "Host User",
-                ActiveSessions = 2,
-                TotalParticipants = 15,
-                RecentSessions = new List<SessionSummary>
+                var apiDashboardData = await response.Content.ReadFromJsonAsync<HostDashboardResponse>();
+                if (apiDashboardData != null)
                 {
-                    new() { Id = System.Guid.NewGuid(), Title = "Introduction to Quran", Status = "Active", CreatedAt = DateTime.Now.AddHours(-1), ParticipantCount = 8 },
-                    new() { Id = System.Guid.NewGuid(), Title = "Hadith Study Circle", Status = "Created", CreatedAt = DateTime.Now.AddMinutes(-30), ParticipantCount = 0 },
-                    new() { Id = System.Guid.NewGuid(), Title = "Islamic History", Status = "Completed", CreatedAt = DateTime.Now.AddDays(-1), ParticipantCount = 12 }
-                }
-            };
+                    // Map API response to UI model
+                    dashboardData = new HostDashboardData
+                    {
+                        HostName = apiDashboardData.HostName,
+                        ActiveSessions = apiDashboardData.ActiveSessions,
+                        TotalParticipants = apiDashboardData.TotalParticipants,
+                        RecentSessions = apiDashboardData.RecentSessions.Select(s => new SessionSummary
+                        {
+                            Id = s.GroupId,
+                            Title = s.Status, // TODO: Update when Title field is populated in backend
+                            Status = s.Status,
+                            CreatedAt = s.CreatedAt,
+                            ParticipantCount = s.ParticipantCount,
+                            SessionGuid = s.SessionGuid,
+                            JoinLink = $"https://localhost:9091/session/{s.SessionGuid}"
+                        }).ToList()
+                    };
 
-            Logger.LogInformation("NOOR-SUCCESS: Dashboard data loaded successfully");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-DASHBOARD", "Dashboard data loaded", 
-                new { activeSessions = dashboardData.ActiveSessions, totalParticipants = dashboardData.TotalParticipants });
+                    Logger.LogInformation("NOOR-SUCCESS: Dashboard data loaded from API - {ActiveSessions} active sessions, {TotalParticipants} participants", 
+                        dashboardData.ActiveSessions, dashboardData.TotalParticipants);
+                    await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-DASHBOARD", "Dashboard data loaded from API", 
+                        new { activeSessions = dashboardData.ActiveSessions, totalParticipants = dashboardData.TotalParticipants });
+                }
+            }
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Failed to load dashboard data - HTTP {StatusCode}", response.StatusCode);
+                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Failed to load dashboard data", 
+                    new { statusCode = (int)response.StatusCode, error = response.ReasonPhrase });
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-ERROR: Failed to load dashboard data");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Failed to load data", new { error = ex.Message });
+            Logger.LogError(ex, "NOOR-ERROR: Exception loading dashboard data");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "HOST-DASHBOARD", "Exception loading dashboard data", new { error = ex.Message });
         }
     }
 
@@ -274,20 +334,38 @@
         {
             Logger.LogInformation("NOOR-INFO: Starting session: {SessionId}", sessionId);
             
-            // TODO: Call actual API to start session
+            // ✅ LIVE API: Call backend to start session
+            // First find the session to get the database SessionId
             var session = dashboardData?.RecentSessions.FirstOrDefault(s => s.Id == sessionId);
-            if (session != null)
+            if (session == null)
+            {
+                Logger.LogWarning("NOOR-WARNING: Session not found in dashboard data");
+                await JSRuntime.InvokeVoidAsync("alert", "Session not found. Please refresh the dashboard.");
+                return;
+            }
+
+            // TODO: Need to get the actual database SessionId from the GroupId
+            // For now, using a workaround - this should be fixed when we have proper session mapping
+            var response = await Http.PostAsync($"/api/host/session/{sessionId}/start", null);
+            
+            if (response.IsSuccessStatusCode)
             {
                 session.Status = "Active";
                 StateHasChanged();
+                Logger.LogInformation("NOOR-SUCCESS: Session started successfully via API");
+                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-MANAGEMENT", "Session started", new { sessionId = sessionId });
             }
-
-            Logger.LogInformation("NOOR-SUCCESS: Session started successfully");
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Failed to start session - HTTP {StatusCode}", response.StatusCode);
+                await JSRuntime.InvokeVoidAsync("alert", $"Failed to start session: {response.ReasonPhrase}");
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-ERROR: Failed to start session");
+            Logger.LogError(ex, "NOOR-ERROR: Exception starting session");
             await JSRuntime.InvokeVoidAsync("alert", "Failed to start session. Please try again.");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-MANAGEMENT", "Failed to start session", new { error = ex.Message });
         }
     }
 
@@ -297,20 +375,35 @@
         {
             Logger.LogInformation("NOOR-INFO: Ending session: {SessionId}", sessionId);
             
-            // TODO: Call actual API to end session
+            // ✅ LIVE API: Call backend to end session
             var session = dashboardData?.RecentSessions.FirstOrDefault(s => s.Id == sessionId);
-            if (session != null)
+            if (session == null)
+            {
+                Logger.LogWarning("NOOR-WARNING: Session not found in dashboard data");
+                await JSRuntime.InvokeVoidAsync("alert", "Session not found. Please refresh the dashboard.");
+                return;
+            }
+
+            var response = await Http.PostAsync($"/api/host/session/{sessionId}/end", null);
+            
+            if (response.IsSuccessStatusCode)
             {
                 session.Status = "Completed";
                 StateHasChanged();
+                Logger.LogInformation("NOOR-SUCCESS: Session ended successfully via API");
+                await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-MANAGEMENT", "Session ended", new { sessionId = sessionId });
             }
-
-            Logger.LogInformation("NOOR-SUCCESS: Session ended successfully");
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Failed to end session - HTTP {StatusCode}", response.StatusCode);
+                await JSRuntime.InvokeVoidAsync("alert", $"Failed to end session: {response.ReasonPhrase}");
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-ERROR: Failed to end session");
+            Logger.LogError(ex, "NOOR-ERROR: Exception ending session");
             await JSRuntime.InvokeVoidAsync("alert", "Failed to end session. Please try again.");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "SESSION-MANAGEMENT", "Failed to end session", new { error = ex.Message });
         }
     }
 
@@ -330,7 +423,34 @@
         };
     }
 
-    // Models (duplicated here for now - should be in shared models)
+    // API Response Models
+    public class HostAuthResponse
+    {
+        public bool Success { get; set; }
+        public string SessionToken { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public string HostGuid { get; set; } = string.Empty;
+    }
+
+    public class HostDashboardResponse
+    {
+        public string HostName { get; set; } = string.Empty;
+        public int ActiveSessions { get; set; }
+        public int TotalParticipants { get; set; }
+        public List<SessionSummaryResponse> RecentSessions { get; set; } = new();
+    }
+
+    public class SessionSummaryResponse
+    {
+        public long SessionId { get; set; }
+        public Guid GroupId { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public int ParticipantCount { get; set; }
+        public string SessionGuid { get; set; } = string.Empty;
+    }
+
+    // UI Models (duplicated here for now - should be in shared models)
     public class HostDashboardData
     {
         public string HostName { get; set; } = string.Empty;
