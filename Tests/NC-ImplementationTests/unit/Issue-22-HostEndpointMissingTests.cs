@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using NC.ImplementationTests.Fixtures;
 using Xunit;
 
 namespace NC_ImplementationTests.unit
@@ -6,12 +7,13 @@ namespace NC_ImplementationTests.unit
     /// <summary>
     /// Test case for Issue 22: _Host endpoint missing - application startup failure
     /// Verifies that the _Host Razor page is accessible and the application starts without InvalidOperationException
+    /// FIXED: Issue-23 Entity Framework dual provider configuration using TestWebApplicationFactory
     /// </summary>
-    public class Issue_22_HostEndpointMissingTests : IClassFixture<WebApplicationFactory<Program>>
+    public class Issue_22_HostEndpointMissingTests : IClassFixture<TestWebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly TestWebApplicationFactory<Program> _factory;
 
-        public Issue_22_HostEndpointMissingTests(WebApplicationFactory<Program> factory)
+        public Issue_22_HostEndpointMissingTests(TestWebApplicationFactory<Program> factory)
         {
             _factory = factory;
         }

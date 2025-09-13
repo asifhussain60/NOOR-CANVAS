@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Models;
+using NoorCanvas.Core.Tests.Fixtures;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http;
@@ -13,26 +14,64 @@ namespace NoorCanvas.Core.Tests.Integration
     /// <summary>
     /// End-to-end API integration tests using TestServer
     /// Tests complete request/response cycles and API workflows
+    /// FIXED: Issue-23 Entity Framework dual provider configuration using TestWebApplicationFactory
     /// </summary>
-    public class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+    public class ApiIntegrationTests : IClassFixture<TestWebApplicationFactory<Program>>, IDisposable
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly TestWebApplicationFactory<Program> _factory;
         private readonly HttpClient _client;
         private readonly IServiceScope _scope;
         private readonly CanvasDbContext _context;
 
-        public ApiIntegrationTests(WebApplicationFactory<Program> factory)
+        public ApiIntegrationTests(TestWebApplicationFactory<Program> factory)
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-            
             _factory = factory;
-
             _client = _factory.CreateClient();
             _scope = _factory.Services.CreateScope();
             _context = _scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
             
-            // Ensure database is created
+            // Ensure database is created and seeded
             _context.Database.EnsureCreated();
+            SeedTestData();
+        }
+
+        /// <summary>
+        /// Seed test data for In-Memory database
+        /// </summary>
+        private void SeedTestData()
+        {
+            // Add test sessions for integration tests
+            if (!_context.Sessions.Any())
+            {
+                var testSession = new Session
+                {
+                    SessionId = 1,
+                    GroupId = Guid.NewGuid(),
+                    Title = "Test Session",
+                    Description = "Test session for integration tests",
+                    Status = "Active",
+                    HostGuid = "test-host-guid-001",
+                    CreatedAt = DateTime.UtcNow.AddHours(-1),
+                    ExpiresAt = DateTime.UtcNow.AddHours(1),
+                    KSessionsId = 15 // Reference to KSESSIONS for testing
+                };
+                
+                _context.Sessions.Add(testSession);
+                
+                // Add test host session
+                var testHostSession = new HostSession
+                {
+                    HostSessionId = 1,
+                    SessionId = 1,
+                    HostGuidHash = "test-host-guid-hash-001",
+                    CreatedAt = DateTime.UtcNow.AddMinutes(-30),
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                    IsActive = true
+                };
+                
+                _context.HostSessions.Add(testHostSession);
+                _context.SaveChanges();
+            }
         }
 
         #region Health Endpoint Tests
@@ -524,12 +563,12 @@ namespace NoorCanvas.Core.Tests.Integration
     /// Performance and load testing for API endpoints
     /// Tests API performance under various load conditions
     /// </summary>
-    public class ApiPerformanceTests : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+    public class ApiPerformanceTests : IClassFixture<TestWebApplicationFactory<Program>>, IDisposable
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly TestWebApplicationFactory<Program> _factory;
         private readonly HttpClient _client;
 
-        public ApiPerformanceTests(WebApplicationFactory<Program> factory)
+        public ApiPerformanceTests(TestWebApplicationFactory<Program> factory)
         {
             _factory = factory;
             _client = _factory.CreateClient();

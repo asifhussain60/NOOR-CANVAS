@@ -1,13 +1,8 @@
-# NOOR Canvas Global Launcher (nc)
-# Consolidated global command for NOOR Canvas development
-# Replaces legacy nsrun and ncrun commands
-
+# NOOR Canvas Port Cleanup Utility
+# Quick cleanup for stuck processes and port conflicts
 param(
-    [switch]$Build,
-    [switch]$NoBrowser,
-    [switch]$Https,
-    [switch]$Test,
-    [int]$Port,
+    [switch]$Help,
+    [switch]$Aggressive
     [switch]$Help
 )
 

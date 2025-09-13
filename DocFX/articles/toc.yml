@@ -16,3 +16,9 @@
     href: technical/security-model.md
   - name: Host Token System
     href: technical/host-token-system.md
+  - name: SSL Certificate Configuration
+    href: technical/ssl-certificate-configuration.md
+- name: User Guides
+  items:
+  - name: SSL Configuration Issues
+    href: user-guides/ssl-configuration-user-guide.md

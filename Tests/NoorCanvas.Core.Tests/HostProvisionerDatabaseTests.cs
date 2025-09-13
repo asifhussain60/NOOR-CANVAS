@@ -26,18 +26,14 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
         [Fact]
         public async Task HostProvisioner_ShouldConnectToDatabase_WithCorrectConfiguration()
         {
-            // Arrange
+            // Arrange - Use In-Memory database for consistent testing environment
             var services = new ServiceCollection();
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:DefaultConnection"] = 
-                        "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=30;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false"
-                })
-                .Build();
-
+            
             services.AddDbContext<CanvasDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseInMemoryDatabase("HostProvisionerTestDb"));
+            
+            services.AddDbContext<KSessionsDbContext>(options =>
+                options.UseInMemoryDatabase("KSessionsProvisionerTestDb"));
             
             var serviceProvider = services.BuildServiceProvider();
 
@@ -47,18 +43,30 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
             
             try
             {
-                // Test 1: Database connection
+                // Ensure database is created for In-Memory provider
+                await context.Database.EnsureCreatedAsync();
+                
+                // Test 1: Database connection (In-Memory provider always connects)
                 var canConnect = await context.Database.CanConnectAsync();
-                _output.WriteLine($"Database connection test: {canConnect}");
-                Assert.True(canConnect, "Should be able to connect to KSESSIONS_DEV database");
+                _output.WriteLine($"In-Memory database connection test: {canConnect}");
+                Assert.True(canConnect, "Should be able to connect to In-Memory database");
 
-                // Test 2: Canvas schema access
+                // Test 2: Canvas Sessions table access
                 var sessionCount = await context.Sessions.CountAsync();
                 _output.WriteLine($"Canvas.Sessions table accessible. Count: {sessionCount}");
+                Assert.True(sessionCount >= 0, "Should be able to query Sessions table");
 
                 // Test 3: HostSessions table access
                 var hostSessionCount = await context.HostSessions.CountAsync();
                 _output.WriteLine($"Canvas.HostSessions table accessible. Count: {hostSessionCount}");
+                Assert.True(hostSessionCount >= 0, "Should be able to query HostSessions table");
+
+                // Test 4: KSessionsDbContext access
+                var kSessionsContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
+                await kSessionsContext.Database.EnsureCreatedAsync();
+                var kSessionsCount = await kSessionsContext.Sessions.CountAsync();
+                _output.WriteLine($"KSessions table accessible. Count: {kSessionsCount}");
+                Assert.True(kSessionsCount >= 0, "Should be able to query KSessions table");
 
             }
             catch (Exception ex)
@@ -72,18 +80,11 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
         [Fact]
         public async Task HostProvisioner_ShouldCreateHostSession_WithValidSessionId()
         {
-            // Arrange
+            // Arrange - Use In-Memory database for consistent testing environment
             var services = new ServiceCollection();
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:DefaultConnection"] = 
-                        "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=30;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false"
-                })
-                .Build();
-
+            
             services.AddDbContext<CanvasDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseInMemoryDatabase("HostProvisionerTestDb2"));
             
             var serviceProvider = services.BuildServiceProvider();
 

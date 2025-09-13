@@ -36,15 +36,21 @@
 ```powershell
 # Correct way to run the application (from project directory)
 cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
-dotnet run --urls "https://localhost:9091"
+dotnet run --urls "https://localhost:9091;http://localhost:9090"
 
 # Alternative: Run from workspace root
-dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091"
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091;http://localhost:9090"
 
 # Or via Visual Studio
 # Launch Profile: IIS Express x64
-# Application URL: https://localhost:9091 (HTTPS)
+# Application URL: https://localhost:9091 (HTTPS), http://localhost:9090 (HTTP)
 ```
+
+### **CRITICAL PORT RESERVATIONS - DO NOT CHANGE**
+- **Port 8080**: RESERVED for Beautiful Islam application - NEVER use for NOOR Canvas
+- **Port 9090**: NOOR Canvas HTTP (development)
+- **Port 9091**: NOOR Canvas HTTPS (primary development)
+- **Ports 9090-9100**: NOOR Canvas port range for conflict resolution
 
 ### **NC Command - Primary Application Runner**
 **Location:** `Workspaces/Global/nc.ps1` - IIS Express x64 launcher (NO browser integration)
@@ -923,22 +929,24 @@ USE KQUR;        -- ❌ FORBIDDEN during development
 
 ### **Development Server Operations**
 ```powershell
-# Start application (IIS Express x64 on port 9091 HTTPS)
-cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet run --urls "https://localhost:9091"
+# Start application (NOOR Canvas dedicated ports - NEVER use 8080)
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet run --urls "https://localhost:9091;http://localhost:9090"
 
 # Alternative from workspace root
-dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091"
+dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://localhost:9091;http://localhost:9090"
 
-# Verify server is running on correct ports
-netstat -ano | findstr ":9090"  # HTTP
-netstat -ano | findstr ":9091"  # HTTPS
+# CRITICAL: Port 8080 is RESERVED for Beautiful Islam - NEVER use for NOOR Canvas
+
+# Verify server is running on correct NOOR Canvas ports
+netstat -ano | findstr ":9090"  # NOOR Canvas HTTP
+netstat -ano | findstr ":9091"  # NOOR Canvas HTTPS
 
 # Check IIS Express processes
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
 
 # Test endpoints (use Invoke-WebRequest, not curl)
 Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
-Invoke-WebRequest -Uri "https://localhost:9091/health/detailed" -SkipCertificateCheck
+Invoke-WebRequest -Uri "http://localhost:9090/healthz"
 ```
 
 ### **SignalR Testing**

@@ -383,18 +383,20 @@ class Program
             Log.Information("PROVISIONER: Session has {TranscriptCount} transcripts available", transcriptCount);
 
             // Issue-45: Create canvas.Sessions record from KSESSIONS data if it doesn't exist
-            var canvasSession = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+            // Use KSessionsId to reference KSESSIONS SessionId, let SessionId auto-increment
+            var canvasSession = await context.Sessions.FirstOrDefaultAsync(s => s.KSessionsId == sessionId);
             if (canvasSession == null)
             {
                 Log.Information("PROVISIONER: Creating canvas.Sessions record from KSESSIONS data...");
                 canvasSession = new Session
                 {
-                    SessionId = sessionId,
+                    // SessionId will auto-increment
+                    KSessionsId = sessionId, // Store KSESSIONS reference
                     GroupId = Guid.NewGuid(), // Map from KSESSIONS if needed
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                     Description = kSession.Description ?? $"Session {sessionId} from KSESSIONS",
-                    Title = $"Islamic Session {sessionId}",
+                    Title = kSession.SessionName ?? $"Islamic Session {sessionId}",
                     Status = "Created",
                     HostGuid = "" // Will be set by Host GUID creation
                 };
@@ -402,7 +404,8 @@ class Program
                 context.Sessions.Add(canvasSession);
                 await context.SaveChangesAsync();
                 
-                Log.Information("PROVISIONER: Canvas Session record created successfully");
+                Log.Information("PROVISIONER: Canvas Session record created with SessionId {CanvasSessionId} for KSessionsId {KSessionsId}", 
+                    canvasSession.SessionId, canvasSession.KSessionsId);
             }
 
             HostSession hostSession;
@@ -417,9 +420,10 @@ class Program
                 Log.Information("PROVISIONER: Checking for existing Host Session with Session ID {SessionId}...", sessionId);
             }
             
-            // Check for existing Host Session by Session ID (Issue-42: Single GUID per Session ID rule)
+            // Check for existing Host Session by Canvas SessionId (Issue-42: Single GUID per Session ID rule)
+            // Note: Now we use the canvas.Sessions.SessionId (auto-increment PK) not the KSESSIONS SessionId
             var existingHostSession = forceNew ? null : await context.HostSessions
-                .FirstOrDefaultAsync(hs => hs.SessionId == sessionId);
+                .FirstOrDefaultAsync(hs => hs.SessionId == canvasSession.SessionId);
 
             if (existingHostSession != null && !forceNew)
             {
@@ -451,7 +455,7 @@ class Program
                 
                 hostSession = new HostSession
                 {
-                    SessionId = sessionId,
+                    SessionId = canvasSession.SessionId, // Use canvas SessionId (auto-increment PK)
                     HostGuidHash = hostGuidHash,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = createdBy ?? "Interactive User",
@@ -461,7 +465,8 @@ class Program
 
                 Log.Information("PROVISIONER: Adding new HostSession to DbContext...");
                 context.HostSessions.Add(hostSession);
-                Log.Information("PROVISIONER-CREATE: Creating new Host Session for Session {SessionId} by {CreatedBy}", sessionId, createdBy ?? "Interactive User");
+                Log.Information("PROVISIONER-CREATE: Creating new Host Session for Canvas SessionId {CanvasSessionId} (KSessions {KSessionsId}) by {CreatedBy}", 
+                    canvasSession.SessionId, sessionId, createdBy ?? "Interactive User");
             }
             
             Log.Information("PROVISIONER: Calling SaveChangesAsync...");
@@ -470,7 +475,8 @@ class Program
 
             // Display results
             Log.Information("SUCCESS: Host GUID created and saved to database");
-            Log.Information("Session ID: {SessionId}", sessionId);
+            Log.Information("KSESSIONS Session ID: {KSessionsId}", sessionId);
+            Log.Information("Canvas Session ID: {CanvasSessionId}", canvasSession.SessionId);
             Log.Information("Host GUID: {HostGuid}", hostGuid);
             Log.Information("Host Session ID: {HostSessionId}", hostSession.HostSessionId);
             Log.Information("Created By: {CreatedBy}", createdBy ?? "Interactive User");

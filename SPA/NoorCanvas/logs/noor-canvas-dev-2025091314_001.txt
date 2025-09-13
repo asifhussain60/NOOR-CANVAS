@@ -1,0 +1,98 @@
+[2025-09-13 14:44:50.676 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-13 14:44:50.823 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-13 14:44:50.829 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-13 14:44:50.954 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-13 14:44:51.087 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-13 14:44:51.105 -04:00 ERR] Microsoft.Extensions.Hosting.Internal.Host Hosting failed to start {"EventId":{"Id":11,"Name":"HostedServiceStartupFaulted"}}
+System.IO.IOException: Failed to bind to address http://127.0.0.1:9090: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+ ---> System.Net.Sockets.SocketException (10048): Only one usage of each socket address (protocol/network address/port) is normally permitted.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.EndpointsStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+[2025-09-13 14:44:51.143 -04:00 FTL]  NOOR-FATAL: Application terminated unexpectedly {}
+System.IO.IOException: Failed to bind to address http://127.0.0.1:9090: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+ ---> System.Net.Sockets.SocketException (10048): Only one usage of each socket address (protocol/network address/port) is normally permitted.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.EndpointsStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 200
+[2025-09-13 14:45:24.389 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-13 14:45:24.545 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-13 14:45:24.553 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-13 14:45:24.687 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-13 14:45:24.790 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-13 14:45:24.832 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-13 14:45:24.836 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-13 14:45:24.840 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-13 14:45:24.842 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-13 14:45:24.844 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-13 14:45:35.911 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - null 0 {"EventId":{"Id":1},"RequestId":"0HNFIUMT0D99P:00000001","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:35.946 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFIUMT0D99P:00000001","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:35.955 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_blazor/negotiate' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFIUMT0D99P:00000001","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:35.970 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_blazor/negotiate' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFIUMT0D99P:00000001","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:35.981 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 POST https://localhost:9091/_blazor/negotiate?negotiateVersion=1 - 200 316 application/json 68.6356ms {"EventId":{"Id":2},"RequestId":"0HNFIUMT0D99P:00000001","RequestPath":"/_blazor/negotiate","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:35.984 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 CONNECT https://localhost:9091/_blazor?id=GF4cXO1_eU9wxPG3NUgJnQ - null null {"EventId":{"Id":1},"RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:36.001 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:36.007 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint '/_blazor' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:36.019 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionHandler OnConnectedAsync started. {"EventId":{"Id":5,"Name":"ConnectedStarting"},"TransportConnectionId":"jnHyse5QVPRm1daVFmud2g","RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:36.032 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Found protocol implementation for requested protocol: blazorpack. {"EventId":{"Id":2,"Name":"FoundImplementationForProtocol"},"TransportConnectionId":"jnHyse5QVPRm1daVFmud2g","RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:36.041 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionContext Completed connection handshake. Using HubProtocol 'blazorpack'. {"EventId":{"Id":1,"Name":"HandshakeComplete"},"TransportConnectionId":"jnHyse5QVPRm1daVFmud2g","RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:45:36.060 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubDispatcher Received hub invocation: InvocationMessage { InvocationId: "0", Target: "ConnectCircuit", Arguments: [ CfDJ8DeH3DqcBblEm_Wh6jxNrbOYs2MuvWO0f2bHHggVW7z_ooh7rK5vTAZl93u_6q1sw-a3-Bw-YuDbs0LRDEAUpH8jHJRG7eVCnWAPA7CbXV3gyo7xv-1ZhuQbeHp9VP7IkcsLAQC6buAPyxhWpi0cHfF-14oH4jXa5DRtgPd4uI1Pls0WJKvu7Grl6fszEF9Lqy7AfZCZ5vweSO1edgNRELM ], StreamIds: [  ] }. {"EventId":{"Id":1,"Name":"ReceivedHubInvocation"},"TransportConnectionId":"jnHyse5QVPRm1daVFmud2g","RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.607 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/2 POST https://localhost:9091/_blazor/disconnect - multipart/form-data; boundary=----WebKitFormBoundary9x3BKU13DbhEdcAJ 359 {"EventId":{"Id":1},"RequestId":"0HNFIUMT0D99P:00000005","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.667 -04:00 DBG] Microsoft.AspNetCore.SignalR.HubConnectionHandler OnConnectedAsync ending. {"EventId":{"Id":6,"Name":"ConnectedEnding"},"TransportConnectionId":"jnHyse5QVPRm1daVFmud2g","RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.691 -04:00 INF] Microsoft.AspNetCore.Cors.Infrastructure.CorsService CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"RequestId":"0HNFIUMT0D99P:00000005","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.695 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint '/_blazor' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.707 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'Blazor disconnect' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFIUMT0D99P:00000005","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.714 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 CONNECT https://localhost:9091/_blazor?id=GF4cXO1_eU9wxPG3NUgJnQ - 200 null null 172736.1813ms {"EventId":{"Id":2},"RequestId":"0HNFIUMT0D99P:00000003","RequestPath":"/_blazor","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.762 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'Blazor disconnect' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFIUMT0D99P:00000005","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:48:28.814 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/2 POST https://localhost:9091/_blazor/disconnect - 200 0 null 206.9443ms {"EventId":{"Id":2},"RequestId":"0HNFIUMT0D99P:00000005","RequestPath":"/_blazor/disconnect","ConnectionId":"0HNFIUMT0D99P"}
+[2025-09-13 14:54:07.830 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET http://localhost:9090/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFIUMT0D99Q:00000001","RequestPath":"/healthz","ConnectionId":"0HNFIUMT0D99Q"}
+[2025-09-13 14:54:07.842 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET http://localhost:9090/healthz - 307 0 null 11.8842ms {"EventId":{"Id":2},"RequestId":"0HNFIUMT0D99Q:00000001","RequestPath":"/healthz","ConnectionId":"0HNFIUMT0D99Q"}
+[2025-09-13 14:54:07.861 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request starting HTTP/1.1 GET https://localhost:9091/healthz - null null {"EventId":{"Id":1},"RequestId":"0HNFIUMT0D99R:00000001","RequestPath":"/healthz","ConnectionId":"0HNFIUMT0D99R"}
+[2025-09-13 14:54:07.872 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executing endpoint 'HTTP: GET /healthz' {"EventId":{"Name":"ExecutingEndpoint"},"RequestId":"0HNFIUMT0D99R:00000001","RequestPath":"/healthz","ConnectionId":"0HNFIUMT0D99R"}
+[2025-09-13 14:54:07.884 -04:00 INF] Microsoft.AspNetCore.Routing.EndpointMiddleware Executed endpoint 'HTTP: GET /healthz' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"RequestId":"0HNFIUMT0D99R:00000001","RequestPath":"/healthz","ConnectionId":"0HNFIUMT0D99R"}
+[2025-09-13 14:54:07.893 -04:00 INF] Microsoft.AspNetCore.Hosting.Diagnostics Request finished HTTP/1.1 GET https://localhost:9091/healthz - 200 null application/json; charset=utf-8 31.272ms {"EventId":{"Id":2},"RequestId":"0HNFIUMT0D99R:00000001","RequestPath":"/healthz","ConnectionId":"0HNFIUMT0D99R"}

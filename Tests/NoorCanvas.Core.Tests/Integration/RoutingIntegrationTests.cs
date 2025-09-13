@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NoorCanvas.Core.Tests.Fixtures;
 using System.Net;
 using System.Net.Http;
 using Xunit;
@@ -12,6 +13,7 @@ namespace NoorCanvas.Core.Tests.Integration
 {
     /// <summary>
     /// Integration tests for Issue-18 and Issue-19 routing fixes
+    /// FIXED: Issue-23 Entity Framework dual provider configuration using TestWebApplicationFactory
     /// 
     /// These tests validate that:
     /// 1. Application starts without routing exceptions
@@ -19,27 +21,15 @@ namespace NoorCanvas.Core.Tests.Integration
     /// 3. No ambiguous route conflicts prevent application startup
     /// 4. Health endpoints work correctly after routing fixes
     /// </summary>
-    public class RoutingIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class RoutingIntegrationTests : IClassFixture<TestWebApplicationFactory<Program>>
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly TestWebApplicationFactory<Program> _factory;
         private readonly HttpClient _client;
         private readonly ITestOutputHelper _output;
 
-        public RoutingIntegrationTests(WebApplicationFactory<Program> factory, ITestOutputHelper output)
+        public RoutingIntegrationTests(TestWebApplicationFactory<Program> factory, ITestOutputHelper output)
         {
-            _factory = factory.WithWebHostBuilder(builder =>
-            {
-                builder.UseEnvironment("Testing");
-                builder.ConfigureServices(services =>
-                {
-                    // Configure for testing
-                    services.AddLogging(logging =>
-                    {
-                        logging.SetMinimumLevel(LogLevel.Warning);
-                    });
-                });
-            });
-            
+            _factory = factory;
             _client = _factory.CreateClient();
             _output = output;
         }

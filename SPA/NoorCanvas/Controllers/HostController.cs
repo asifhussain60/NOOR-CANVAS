@@ -29,10 +29,43 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-INFO: Host authentication attempt for GUID: {HostGuid}", 
                     request.HostGuid?.Substring(0, 8) + "...");
 
-                if (string.IsNullOrWhiteSpace(request.HostGuid) || !Guid.TryParse(request.HostGuid, out Guid hostGuid))
+                if (string.IsNullOrWhiteSpace(request.HostGuid))
                 {
-                    _logger.LogWarning("NOOR-WARNING: Invalid Host GUID format");
+                    _logger.LogWarning("NOOR-WARNING: Empty Host GUID");
+                    return BadRequest(new { error = "Host GUID is required" });
+                }
+
+                // Check if it's a standard GUID format or a base64 hash
+                bool isStandardGuid = Guid.TryParse(request.HostGuid, out Guid hostGuid);
+                bool isBase64Hash = IsBase64String(request.HostGuid);
+
+                if (!isStandardGuid && !isBase64Hash)
+                {
+                    _logger.LogWarning("NOOR-WARNING: Invalid Host GUID format - not GUID or base64");
                     return BadRequest(new { error = "Invalid GUID format" });
+                }
+
+                // If it's a base64 hash, look it up in the database
+                if (isBase64Hash)
+                {
+                    _logger.LogInformation("NOOR-INFO: Authenticating with base64 hash from database");
+                    var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostGuid == request.HostGuid);
+                    if (session == null)
+                    {
+                        _logger.LogWarning("NOOR-WARNING: Host GUID hash not found in database");
+                        return BadRequest(new { error = "Invalid Host GUID" });
+                    }
+                    
+                    _logger.LogInformation("NOOR-SUCCESS: Host authenticated with hash for Session {SessionId}", session.SessionId);
+                    var sessionTokenHash = Guid.NewGuid().ToString();
+                    
+                    return Ok(new HostAuthResponse
+                    {
+                        Success = true,
+                        SessionToken = sessionTokenHash,
+                        ExpiresAt = DateTime.UtcNow.AddHours(8),
+                        HostGuid = request.HostGuid
+                    });
                 }
 
                 // For Phase 2, accept any valid GUID format as proof of concept
@@ -390,6 +423,23 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogError(ex, "NOOR-ERROR: Failed to load session status");
                 return StatusCode(500, new { error = "Failed to load session status" });
+            }
+        }
+
+        private static bool IsBase64String(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return false;
+            
+            try
+            {
+                // Check if it's a valid base64 string
+                Convert.FromBase64String(s);
+                // Additional check: base64 strings typically end with = or == for padding
+                return s.Length % 4 == 0 && System.Text.RegularExpressions.Regex.IsMatch(s, @"^[a-zA-Z0-9+/]*={0,3}$");
+            }
+            catch
+            {
+                return false;
             }
         }
     }

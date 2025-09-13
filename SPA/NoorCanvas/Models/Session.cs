@@ -9,6 +9,11 @@ public class Session
     [Key]
     public long SessionId { get; set; }
     
+    /// <summary>
+    /// Reference to the KSESSIONS database SessionId for Islamic content integration
+    /// </summary>
+    public long? KSessionsId { get; set; }
+    
     public Guid GroupId { get; set; }
     
     [StringLength(200)]

@@ -17,20 +17,27 @@ namespace NoorCanvas.Core.Tests.Controllers
     public class HostControllerTests : IDisposable
     {
         private readonly CanvasDbContext _context;
+        private readonly KSessionsDbContext _kSessionsContext;
         private readonly Mock<ILogger<HostController>> _loggerMock;
         private readonly HostController _controller;
         private readonly DbContextOptions<CanvasDbContext> _options;
+        private readonly DbContextOptions<KSessionsDbContext> _kSessionsOptions;
 
         public HostControllerTests()
         {
-            // Setup in-memory database
+            // Setup in-memory databases
             _options = new DbContextOptionsBuilder<CanvasDbContext>()
                 .UseInMemoryDatabase(databaseName: $"HostController_Tests_{Guid.NewGuid()}")
                 .Options;
 
+            _kSessionsOptions = new DbContextOptionsBuilder<KSessionsDbContext>()
+                .UseInMemoryDatabase(databaseName: $"KSessions_Tests_{Guid.NewGuid()}")
+                .Options;
+
             _context = new CanvasDbContext(_options);
+            _kSessionsContext = new KSessionsDbContext(_kSessionsOptions);
             _loggerMock = new Mock<ILogger<HostController>>();
-            _controller = new HostController(_context, _loggerMock.Object);
+            _controller = new HostController(_context, _kSessionsContext, _loggerMock.Object);
 
             // Ensure database is created
             _context.Database.EnsureCreated();
@@ -356,6 +363,7 @@ namespace NoorCanvas.Core.Tests.Controllers
         public void Dispose()
         {
             _context.Dispose();
+            _kSessionsContext.Dispose();
         }
     }
 }
