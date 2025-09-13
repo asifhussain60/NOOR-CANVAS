@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Security Model | NOOR CANVAS Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Security Model | NOOR CANVAS Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="../toc.html">
+    
+    <meta property="docfx:rel" content="../../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="NOOR CANVAS">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="security-model">Security Model</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR CANVAS implements a comprehensive security model designed for Islamic educational content sharing with emphasis on data protection, secure communication, and user privacy.</p>
+<h2 id="authentication--authorization">Authentication &amp; Authorization</h2>
+<h3 id="guid-based-session-management">GUID-based Session Management</h3>
+<p>NOOR CANVAS uses a novel GUID-based authentication system instead of traditional user accounts:</p>
+<pre><code class="lang-csharp">public class SessionSecurity
+{
+    // Host token generation (cryptographically secure)
+    public Guid GenerateHostToken()
+    {
+        return Guid.NewGuid(); // UUIDv4 - 128-bit random identifier
+    }
+    
+    // Session validation
+    public async Task&lt;bool&gt; ValidateSessionAccess(Guid sessionGuid, Guid hostToken)
+    {
+        var session = await _context.Sessions
+            .FirstOrDefaultAsync(s =&gt; s.Guid == sessionGuid &amp;&amp; s.HostToken == hostToken);
+        return session != null &amp;&amp; session.Status == &quot;Active&quot;;
+    }
+}
+</code></pre>
+<h3 id="no-traditional-authentication-required">No Traditional Authentication Required</h3>
+<ul>
+<li><strong>No Passwords</strong>: Eliminates password-related security risks</li>
+<li><strong>Token-based Access</strong>: Secure GUID tokens for session access</li>
+<li><strong>Time-limited Sessions</strong>: Automatic expiration for security</li>
+<li><strong>Host Control</strong>: Session creators have full administrative control</li>
+</ul>
+<h2 id="data-protection">Data Protection</h2>
+<h3 id="database-security">Database Security</h3>
+<p><strong>SQL Injection Prevention</strong></p>
+<pre><code class="lang-csharp">// All queries use parameterized statements
+public async Task&lt;Session&gt; GetSessionAsync(Guid sessionGuid)
+{
+    return await _context.Sessions
+        .Where(s =&gt; s.Guid == sessionGuid)  // Parameterized automatically
+        .FirstOrDefaultAsync();
+}
+</code></pre>
+<p><strong>Schema Isolation</strong></p>
+<ul>
+<li><strong>Dedicated Canvas Schema</strong>: Isolated from other application data</li>
+<li><strong>Minimal Cross-Schema Access</strong>: Read-only access to dbo schema</li>
+<li><strong>Proper Permissions</strong>: Service account with minimal required privileges</li>
+</ul>
+<h3 id="sensitive-data-handling">Sensitive Data Handling</h3>
+<pre><code class="lang-csharp">public class ParticipantSecurity
+{
+    // Hash sensitive data before storage
+    public string HashFingerprint(string fingerprint)
+    {
+        using var sha256 = SHA256.Create();
+        var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprint + _salt));
+        return Convert.ToBase64String(hashBytes);
+    }
+    
+    // IP address hashing for privacy
+    public string HashIpAddress(string ipAddress)
+    {
+        using var sha256 = SHA256.Create();
+        var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(ipAddress + _salt));
+        return Convert.ToBase64String(hashBytes);
+    }
+}
+</code></pre>
+<h2 id="communication-security">Communication Security</h2>
+<h3 id="https-enforcement">HTTPS Enforcement</h3>
+<pre><code class="lang-csharp">// Startup configuration
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    if (!env.IsDevelopment())
+    {
+        app.UseHsts(); // HTTP Strict Transport Security
+        app.UseHttpsRedirection(); // Force HTTPS
+    }
+    
+    // Security headers
+    app.Use((context, next) =&gt;
+    {
+        context.Response.Headers.Add(&quot;X-Content-Type-Options&quot;, &quot;nosniff&quot;);
+        context.Response.Headers.Add(&quot;X-Frame-Options&quot;, &quot;DENY&quot;);
+        context.Response.Headers.Add(&quot;X-XSS-Protection&quot;, &quot;1; mode=block&quot;);
+        return next();
+    });
+}
+</code></pre>
+<h3 id="signalr-security">SignalR Security</h3>
+<pre><code class="lang-csharp">public class SecureHub : Hub
+{
+    public override async Task OnConnectedAsync()
+    {
+        var sessionId = Context.GetHttpContext()?.Request.Query[&quot;sessionId&quot;];
+        var hostToken = Context.GetHttpContext()?.Request.Query[&quot;hostToken&quot;];
+        
+        // Validate session access before allowing connection
+        if (!await _securityService.ValidateAccess(sessionId, hostToken))
+        {
+            _logger.LogWarning(&quot;Unauthorized SignalR connection attempt from {ConnectionId}&quot;, 
+                Context.ConnectionId);
+            Context.Abort();
+            return;
+        }
+        
+        await base.OnConnectedAsync();
+    }
+    
+    // Message validation for all hub methods
+    public async Task SendMessage(string sessionId, string message)
+    {
+        if (!await ValidateMessageContent(message))
+        {
+            await Clients.Caller.SendAsync(&quot;Error&quot;, &quot;Invalid message content&quot;);
+            return;
+        }
+        
+        await Clients.Group(sessionId).SendAsync(&quot;ReceiveMessage&quot;, message);
+    }
+}
+</code></pre>
+<h2 id="input-validation--sanitization">Input Validation &amp; Sanitization</h2>
+<h3 id="content-security">Content Security</h3>
+<pre><code class="lang-csharp">public class ContentValidator
+{
+    public bool ValidateAnnotationData(AnnotationData annotation)
+    {
+        // Validate coordinate ranges
+        if (annotation.Coordinates?.Any(c =&gt; c &lt; 0 || c &gt; 2000) == true)
+            return false;
+        
+        // Validate color format (hex colors only)
+        if (!Regex.IsMatch(annotation.Color ?? &quot;&quot;, @&quot;^#[0-9A-Fa-f]{6}$&quot;))
+            return false;
+        
+        // Validate thickness range
+        if (annotation.Thickness &lt; 1 || annotation.Thickness &gt; 50)
+            return false;
+        
+        return true;
+    }
+    
+    public string SanitizeTextInput(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+        
+        // Remove potentially dangerous HTML
+        return HttpUtility.HtmlEncode(input.Trim());
+    }
+}
+</code></pre>
+<h3 id="islamic-content-considerations">Islamic Content Considerations</h3>
+<ul>
+<li><strong>Cultural Sensitivity</strong>: Validation of appropriate content</li>
+<li><strong>Arabic Text Validation</strong>: RTL text handling and validation</li>
+<li><strong>Religious Content Filtering</strong>: Ensures appropriate Islamic educational content</li>
+</ul>
+<h2 id="privacy-protection">Privacy Protection</h2>
+<h3 id="participant-privacy">Participant Privacy</h3>
+<pre><code class="lang-csharp">public class PrivacyService
+{
+    public ParticipantDisplay CreatePublicProfile(Participant participant)
+    {
+        return new ParticipantDisplay
+        {
+            DisplayName = SanitizeName(participant.Name),
+            Country = participant.Country, // Optional, user-provided
+            City = participant.City,       // Optional, user-provided
+            JoinTime = participant.JoinTime,
+            // Never expose: IP, fingerprint hashes, internal IDs
+        };
+    }
+}
+</code></pre>
+<h3 id="data-minimization">Data Minimization</h3>
+<ul>
+<li><strong>Collect Only Necessary Data</strong>: Minimal participant information</li>
+<li><strong>Automatic Data Cleanup</strong>: Session data expiration</li>
+<li><strong>No Persistent Tracking</strong>: Session-based interaction only</li>
+<li><strong>Optional Geographic Data</strong>: User choice for location sharing</li>
+</ul>
+<h2 id="logging--monitoring-security">Logging &amp; Monitoring Security</h2>
+<h3 id="secure-logging">Secure Logging</h3>
+<pre><code class="lang-csharp">public class SecureLogger
+{
+    public void LogSecurityEvent(string eventType, object data)
+    {
+        var sanitizedData = SanitizeLogData(data);
+        _logger.LogWarning(&quot;NOOR-SECURITY: {EventType} - {Data}&quot;, 
+            eventType, JsonSerializer.Serialize(sanitizedData));
+    }
+    
+    private object SanitizeLogData(object data)
+    {
+        // Remove sensitive fields from log data
+        var json = JsonSerializer.Serialize(data);
+        var doc = JsonDocument.Parse(json);
+        
+        // Remove sensitive properties
+        var sanitized = RemoveSensitiveFields(doc.RootElement, 
+            [&quot;password&quot;, &quot;token&quot;, &quot;hash&quot;, &quot;fingerprint&quot;, &quot;ip&quot;]);
+        
+        return sanitized;
+    }
+}
+</code></pre>
+<h3 id="security-monitoring">Security Monitoring</h3>
+<ul>
+<li><strong>Failed Authentication Attempts</strong>: Track invalid session access</li>
+<li><strong>Suspicious Activity</strong>: Monitor unusual annotation patterns</li>
+<li><strong>Rate Limiting</strong>: Prevent abuse and spam</li>
+<li><strong>Connection Monitoring</strong>: Track SignalR connection anomalies</li>
+</ul>
+<h2 id="compliance--best-practices">Compliance &amp; Best Practices</h2>
+<h3 id="islamic-ethics-in-security">Islamic Ethics in Security</h3>
+<ul>
+<li><strong>Trust and Transparency</strong>: Clear security practices</li>
+<li><strong>Privacy Respect</strong>: Minimal data collection aligned with Islamic values</li>
+<li><strong>Community Safety</strong>: Protection from harmful content</li>
+<li><strong>Educational Focus</strong>: Security measures support learning objectives</li>
+</ul>
+<h3 id="technical-security-standards">Technical Security Standards</h3>
+<ul>
+<li><strong>OWASP Compliance</strong>: Following web security best practices</li>
+<li><strong>Data Encryption</strong>: In-transit and at-rest encryption</li>
+<li><strong>Regular Security Reviews</strong>: Ongoing security assessment</li>
+<li><strong>Vulnerability Management</strong>: Prompt security updates</li>
+</ul>
+<h2 id="development-security">Development Security</h2>
+<h3 id="secure-development-practices">Secure Development Practices</h3>
+<pre><code class="lang-csharp">// Example: Secure configuration management
+public class SecurityConfiguration
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // Secure session configuration
+        services.Configure&lt;SessionSecurityOptions&gt;(options =&gt;
+        {
+            options.SessionTimeout = TimeSpan.FromHours(2);
+            options.RequireHttps = true;
+            options.SecureSessionTokens = true;
+            options.EnableRateLimiting = true;
+        });
+    }
+}
+</code></pre>
+<h3 id="security-testing">Security Testing</h3>
+<ul>
+<li><strong>Penetration Testing</strong>: Regular security assessments</li>
+<li><strong>Code Security Reviews</strong>: Static analysis for vulnerabilities</li>
+<li><strong>Dependency Scanning</strong>: Third-party library security checks</li>
+<li><strong>Authentication Testing</strong>: Session security validation</li>
+</ul>
+<hr>
+<p><em>For implementation details, see <a href="database-schema.html">Database Schema</a> and <a href="signalr-integration.html">SignalR Integration</a></em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/security-model.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      NOOR CANVAS Islamic Content Sharing Platform
+      
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

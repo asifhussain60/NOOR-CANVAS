@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>SignalR Integration Guide | NOOR CANVAS Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="SignalR Integration Guide | NOOR CANVAS Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="../toc.html">
+    
+    <meta property="docfx:rel" content="../../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="NOOR CANVAS">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="signalr-integration-guide">SignalR Integration Guide</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR CANVAS uses SignalR for real-time communication, enabling live collaboration, annotation synchronization, and instant participant feedback.</p>
+<h2 id="hub-architecture">Hub Architecture</h2>
+<h3 id="core-signalr-hubs">Core SignalR Hubs</h3>
+<p><strong>SessionHub</strong> - Session Management</p>
+<pre><code class="lang-csharp">public class SessionHub : Hub
+{
+    public async Task JoinSession(string sessionId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $&quot;session_{sessionId}&quot;);
+        await Clients.Group($&quot;session_{sessionId}&quot;).SendAsync(&quot;UserJoined&quot;, Context.ConnectionId);
+    }
+    
+    public async Task LeaveSession(string sessionId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $&quot;session_{sessionId}&quot;);
+        await Clients.Group($&quot;session_{sessionId}&quot;).SendAsync(&quot;UserLeft&quot;, Context.ConnectionId);
+    }
+}
+</code></pre>
+<p><strong>AnnotationHub</strong> - Real-time Drawing</p>
+<pre><code class="lang-csharp">public class AnnotationHub : Hub
+{
+    public async Task SendAnnotation(string sessionId, AnnotationData data)
+    {
+        await Clients.Group($&quot;session_{sessionId}&quot;).SendAsync(&quot;ReceiveAnnotation&quot;, data);
+    }
+    
+    public async Task ClearCanvas(string sessionId)
+    {
+        await Clients.Group($&quot;session_{sessionId}&quot;).SendAsync(&quot;CanvasCleared&quot;);
+    }
+}
+</code></pre>
+<h2 id="client-side-integration">Client-Side Integration</h2>
+<h3 id="blazor-server-connection">Blazor Server Connection</h3>
+<p><strong>Connection Establishment</strong></p>
+<pre><code class="lang-javascript">const connection = new signalR.HubConnectionBuilder()
+    .withUrl(&quot;/hub/session&quot;)
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+// Start connection
+await connection.start();
+</code></pre>
+<p><strong>Real-time Event Handling</strong></p>
+<pre><code class="lang-javascript">// Listen for annotation updates
+connection.on(&quot;ReceiveAnnotation&quot;, function (data) {
+    renderAnnotation(data);
+    updateCanvas(data);
+});
+
+// Handle participant changes
+connection.on(&quot;UserJoined&quot;, function (connectionId) {
+    updateParticipantList();
+    showNotification(&quot;New participant joined&quot;);
+});
+</code></pre>
+<h2 id="performance-optimizations">Performance Optimizations</h2>
+<h3 id="connection-management">Connection Management</h3>
+<ul>
+<li><strong>Connection Pooling</strong>: Efficient connection reuse</li>
+<li><strong>Automatic Reconnection</strong>: Handles network interruptions</li>
+<li><strong>Heartbeat Monitoring</strong>: Connection health checks</li>
+<li><strong>Graceful Degradation</strong>: Fallback mechanisms</li>
+</ul>
+<h3 id="message-optimization">Message Optimization</h3>
+<pre><code class="lang-csharp">// Efficient message structure
+public class AnnotationData
+{
+    public string Type { get; set; }        // draw, erase, clear
+    public int[] Coordinates { get; set; }  // compressed coordinates
+    public string Color { get; set; }       // hex color code
+    public int Thickness { get; set; }      // line thickness
+    public long Timestamp { get; set; }     // client timestamp
+}
+</code></pre>
+<h3 id="scalability-features">Scalability Features</h3>
+<ul>
+<li><strong>Group Management</strong>: Session-based message routing</li>
+<li><strong>Message Compression</strong>: Reduced bandwidth usage</li>
+<li><strong>Client-side Caching</strong>: Optimized rendering</li>
+<li><strong>Selective Updates</strong>: Only send necessary changes</li>
+</ul>
+<h2 id="security-implementation">Security Implementation</h2>
+<h3 id="connection-authentication">Connection Authentication</h3>
+<pre><code class="lang-csharp">public class SessionHub : Hub
+{
+    public override async Task OnConnectedAsync()
+    {
+        var sessionId = Context.GetHttpContext()?.Request.Query[&quot;sessionId&quot;];
+        var isValidSession = await ValidateSessionAccess(sessionId);
+        
+        if (!isValidSession)
+        {
+            Context.Abort();
+            return;
+        }
+        
+        await base.OnConnectedAsync();
+    }
+}
+</code></pre>
+<h3 id="message-validation">Message Validation</h3>
+<ul>
+<li><strong>Input Sanitization</strong>: All messages validated</li>
+<li><strong>Rate Limiting</strong>: Prevents spam and abuse</li>
+<li><strong>Session Verification</strong>: Ensures user belongs to session</li>
+<li><strong>Data Encryption</strong>: Secure message transmission</li>
+</ul>
+<h2 id="error-handling">Error Handling</h2>
+<h3 id="connection-errors">Connection Errors</h3>
+<pre><code class="lang-javascript">connection.onclose(async () =&gt; {
+    console.log(&quot;Connection closed. Attempting to reconnect...&quot;);
+    await startConnection();
+});
+
+connection.onreconnecting(() =&gt; {
+    console.log(&quot;Attempting to reconnect...&quot;);
+    showConnectionStatus(&quot;Reconnecting...&quot;);
+});
+
+connection.onreconnected(() =&gt; {
+    console.log(&quot;Successfully reconnected.&quot;);
+    showConnectionStatus(&quot;Connected&quot;);
+});
+</code></pre>
+<h3 id="server-side-error-handling">Server-side Error Handling</h3>
+<pre><code class="lang-csharp">public class AnnotationHub : Hub
+{
+    public async Task SendAnnotation(string sessionId, AnnotationData data)
+    {
+        try
+        {
+            await ValidateAnnotationData(data);
+            await SaveAnnotation(sessionId, data);
+            await Clients.Group($&quot;session_{sessionId}&quot;).SendAsync(&quot;ReceiveAnnotation&quot;, data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, &quot;Failed to process annotation for session {SessionId}&quot;, sessionId);
+            await Clients.Caller.SendAsync(&quot;AnnotationError&quot;, &quot;Failed to process annotation&quot;);
+        }
+    }
+}
+</code></pre>
+<h2 id="configuration">Configuration</h2>
+<h3 id="startup-configuration">Startup Configuration</h3>
+<pre><code class="lang-csharp">// Program.cs
+builder.Services.AddSignalR(options =&gt;
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
+
+// Configure endpoints
+app.MapHub&lt;SessionHub&gt;(&quot;/hub/session&quot;);
+app.MapHub&lt;AnnotationHub&gt;(&quot;/hub/annotation&quot;);
+app.MapHub&lt;ParticipantHub&gt;(&quot;/hub/participant&quot;);
+app.MapHub&lt;QuestionHub&gt;(&quot;/hub/question&quot;);
+</code></pre>
+<h3 id="client-configuration">Client Configuration</h3>
+<pre><code class="lang-javascript">const connection = new signalR.HubConnectionBuilder()
+    .withUrl(&quot;/hub/session&quot;, {
+        transport: signalR.HttpTransportType.WebSockets |
+                  signalR.HttpTransportType.LongPolling
+    })
+    .withAutomaticReconnect([0, 2000, 10000, 30000])
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+</code></pre>
+<h2 id="testing-signalr-integration">Testing SignalR Integration</h2>
+<h3 id="unit-testing-hubs">Unit Testing Hubs</h3>
+<pre><code class="lang-csharp">[Test]
+public async Task SessionHub_JoinSession_AddsToGroup()
+{
+    // Arrange
+    var hub = new SessionHub();
+    var context = CreateMockHubContext();
+    hub.Context = context;
+    
+    // Act
+    await hub.JoinSession(&quot;test-session&quot;);
+    
+    // Assert
+    VerifyGroupMembership(&quot;session_test-session&quot;, context.ConnectionId);
+}
+</code></pre>
+<h3 id="integration-testing">Integration Testing</h3>
+<pre><code class="lang-csharp">[Test]
+public async Task SignalR_AnnotationFlow_WorksEndToEnd()
+{
+    // Test full annotation workflow
+    var connection = await CreateTestConnection();
+    var annotation = CreateTestAnnotation();
+    
+    await connection.InvokeAsync(&quot;SendAnnotation&quot;, &quot;test-session&quot;, annotation);
+    
+    var receivedAnnotation = await WaitForAnnotation();
+    Assert.AreEqual(annotation.Data, receivedAnnotation.Data);
+}
+</code></pre>
+<hr>
+<p><em>For more implementation details, see <a href="../development/getting-started.html">Getting Started Guide</a></em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/signalr-integration.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      NOOR CANVAS Islamic Content Sharing Platform
+      
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>
