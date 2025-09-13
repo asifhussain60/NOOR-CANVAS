@@ -1,10 +1,18 @@
 - name: Overview
   href: intro.md
-- name: Architecture
-  href: technical/architecture.md
-- name: Database Schema
-  href: technical/database-schema.md  
-- name: SignalR Integration
-  href: technical/signalr-integration.md
-- name: Security Model
-  href: technical/security-model.md
+- name: Getting Started
+  href: development/getting-started.md
+- name: Host Token Quick Reference
+  href: development/host-token-quick-reference.md
+- name: Technical Documentation
+  items:
+  - name: Architecture
+    href: technical/architecture.md
+  - name: Database Schema
+    href: technical/database-schema.md  
+  - name: SignalR Integration
+    href: technical/signalr-integration.md
+  - name: Security Model
+    href: technical/security-model.md
+  - name: Host Token System
+    href: technical/host-token-system.md

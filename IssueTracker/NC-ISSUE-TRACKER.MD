@@ -52,6 +52,7 @@ IssueTracker/
 
 - ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md)
 - ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change - AWAITING UI MOCKUPS](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
+- ✅ **Issue-29** — [Documentation Structure - Separate Technical and Non-Technical User Guides](COMPLETED/Issue-29-documentation-structure-technical-non-technical-separation.md)
 - ⏳ **Issue-22** — [Host Endpoint Missing - Application Startup Failure](AWAITING_CONFIRMATION/Issue-22-host-endpoint-missing-application-startup-failure.md)
 - ⏳ **Issue-25** — [Host Authentication Failure with Valid GUID](AWAITING_CONFIRMATION/Issue-25-host-authentication-failure-valid-guid.md)
 ### **Completed High Priority Issues**
@@ -67,6 +68,7 @@ IssueTracker/
 - ✅ **Issue-12** — [NC Test Suite Port 3000 Configuration Error](COMPLETED/Issue-12-nc-test-suite-port-3000-configuration-error.md)
 - ✅ **Issue-13** — [nc command Ctrl+C signal handling broken](COMPLETED/Issue-13-nc-ctrl-c-signal-handling-broken.md)
 - ✅ **Issue-18** — [Blazor Routing Navigation Failure](COMPLETED/Issue-18-blazor-routing-navigation-failure.md)
+- ✅ **Issue-28** — [TODO Implementation Tracking System with DocFX Integration](COMPLETED/Issue-28-todo-implementation-tracking-system.md)
 - ✅ **Issue-19** — [Ambiguous Route Conflict Between Index and Landing Pages](COMPLETED/Issue-19-ambiguous-route-conflict-index-landing.md)
 - ✅ **Issue-21** — [Session Save Route Conflict Recurrence](COMPLETED/Issue-21-session-save-route-conflict-recurrence.md)
 - ✅ **Issue-23** — [HttpClient BaseAddress Authentication Failure](COMPLETED/Issue-23-httpclient-baseaddress-authentication-failure.md)
@@ -107,8 +109,8 @@ IssueTracker/
 - **Total Issues:** 16
 - **Not Started:** 2
 - **In Progress:** 0
-- **Awaiting Confirmation:** 0  
-- **Completed:** 14
+- **Awaiting Confirmation:** 2  
+- **Completed:** 12
 
 ### **Recent Achievements (December 28, 2024)**
 - ✅ **Issue-26**: Comprehensive xUnit test harness with **live Issue-26 scenario validation**

@@ -32,6 +32,16 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/development/host-token-quick-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/host-token-quick-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/intro.md",
       "output": {
         ".html": {
@@ -56,6 +66,16 @@
       "output": {
         ".html": {
           "relative_path": "articles/technical/database-schema.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/host-token-system.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/host-token-system.html"
         }
       },
       "version": ""

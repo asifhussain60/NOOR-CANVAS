@@ -119,6 +119,46 @@ netstat -ano | findstr ":9091"  # HTTPS (primary)
   - IIS deployment instructions
   - Phase-by-phase development timeline
 
+### **Feature Documentation Requirements - CRITICAL STANDARD**
+
+**MANDATORY DUAL DOCUMENTATION APPROACH**: When creating documentation for any feature, system, or component, GitHub Copilot MUST create separate documentation for two distinct audiences:
+
+#### **1. Non-Technical User Documentation**
+- **Target Audience**: Session hosts, Islamic content administrators, platform users, community managers
+- **Content Focus**: What the feature does, why it's needed, how to use it from a user perspective
+- **Language Style**: Plain language, no technical jargon, conceptual explanations
+- **Structure**: User workflows, common scenarios, step-by-step guides, troubleshooting from user perspective
+- **Exclude**: Code examples, API references, implementation details, technical architecture
+- **Location**: `articles/user-guides/` or `articles/development/` (for user-facing guides)
+
+#### **2. Technical Implementation Documentation**  
+- **Target Audience**: Developers, system administrators, integration developers, IT staff
+- **Content Focus**: How the feature works, implementation details, API reference, technical architecture
+- **Language Style**: Technical precision, code examples, implementation specifics
+- **Structure**: Architecture overview, API reference, code samples, troubleshooting with technical solutions
+- **Include**: Complete code examples, PowerShell/cURL commands, integration samples, debugging tools
+- **Location**: `articles/technical/` 
+
+#### **Documentation Creation Workflow**
+```
+When asked to "document a feature" or "create documentation":
+1. Create USER GUIDE first (non-technical, user-friendly)
+2. Create TECHNICAL DOCUMENTATION second (complete implementation reference)
+3. Ensure both documents cross-reference each other
+4. Update navigation to include both documents appropriately
+```
+
+#### **Example Structure**
+```
+DocFX/articles/
+├── user-guides/
+│   └── feature-name-user-guide.md          # Non-technical, user-friendly
+└── technical/
+    └── feature-name-technical-reference.md  # Complete technical implementation
+```
+
+**CRITICAL**: Never combine user and technical documentation in a single document. Always create separate, targeted documentation for each audience.
+
 ### **Issue Tracking System** 
 - **Main Tracker:** `IssueTracker/NC-ISSUE-TRACKER.MD`
 - **Usage Guide:** `IssueTracker/USAGE-GUIDE.MD`
