@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Models;
+using NoorCanvas.Models.KSESSIONS;
 
 namespace NoorCanvas.Controllers
 {
@@ -10,11 +11,13 @@ namespace NoorCanvas.Controllers
     public class HostController : ControllerBase
     {
         private readonly CanvasDbContext _context;
+        private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<HostController> _logger;
 
-        public HostController(CanvasDbContext context, ILogger<HostController> logger)
+        public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger)
         {
             _context = context;
+            _kSessionsContext = kSessionsContext;
             _logger = logger;
         }
 
@@ -200,6 +203,195 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to end session" });
             }
         }
+
+        // NEW: Cascading Dropdown API Endpoints for Issue-17 Implementation
+
+        [HttpGet("albums")]
+        public async Task<IActionResult> GetAlbums([FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS database for host GUID: {Guid}", guid?.Substring(0, 8) + "...");
+
+                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                {
+                    return BadRequest(new { error = "Invalid host GUID" });
+                }
+
+                // Query KSESSIONS database for active Groups (Albums)
+                var albums = await _kSessionsContext.Groups
+                    .Where(g => g.IsActive == true || g.IsActive == null) // Include groups where IsActive is true or null
+                    .OrderBy(g => g.GroupName)
+                    .Select(g => new AlbumData 
+                    { 
+                        GroupId = g.GroupId, 
+                        GroupName = g.GroupName 
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("NOOR-SUCCESS: Loaded {AlbumCount} albums from KSESSIONS database", albums.Count);
+                return Ok(albums);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to load albums from KSESSIONS database");
+                return StatusCode(500, new { error = "Failed to load albums" });
+            }
+        }
+
+        [HttpGet("categories/{albumId}")]
+        public async Task<IActionResult> GetCategories(int albumId, [FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Loading categories from KSESSIONS database for album: {AlbumId}", albumId);
+
+                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                {
+                    return BadRequest(new { error = "Invalid host GUID" });
+                }
+
+                // Query KSESSIONS database for Categories within the specified Group
+                var categories = await _kSessionsContext.Categories
+                    .Where(c => c.GroupId == albumId && (c.IsActive == true || c.IsActive == null))
+                    .OrderBy(c => c.SortOrder ?? c.CategoryId) // Sort by SortOrder if available, fallback to CategoryId
+                    .Select(c => new CategoryData 
+                    { 
+                        CategoryId = c.CategoryId, 
+                        CategoryName = c.CategoryName 
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("NOOR-SUCCESS: Loaded {CategoryCount} categories from KSESSIONS database for album {AlbumId}", categories.Count, albumId);
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to load categories from KSESSIONS database for album {AlbumId}", albumId);
+                return StatusCode(500, new { error = "Failed to load categories" });
+            }
+        }
+
+        [HttpGet("sessions/{categoryId}")]
+        public async Task<IActionResult> GetSessions(int categoryId, [FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Loading sessions from KSESSIONS database for category: {CategoryId}", categoryId);
+
+                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                {
+                    return BadRequest(new { error = "Invalid host GUID" });
+                }
+
+                // Query KSESSIONS database for Sessions within the specified Category
+                var sessions = await _kSessionsContext.Sessions
+                    .Where(s => s.CategoryId == categoryId && (s.IsActive == true || s.IsActive == null))
+                    .OrderBy(s => s.Sequence ?? s.SessionId) // Sort by Sequence if available, fallback to SessionId
+                    .Select(s => new SessionData 
+                    { 
+                        SessionId = s.SessionId, 
+                        SessionName = s.SessionName 
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("NOOR-SUCCESS: Loaded {SessionCount} sessions from KSESSIONS database for category {CategoryId}", sessions.Count, categoryId);
+                return Ok(sessions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to load sessions from KSESSIONS database for category {CategoryId}", categoryId);
+                return StatusCode(500, new { error = "Failed to load sessions" });
+            }
+        }
+
+        [HttpPost("generate-token")]
+        public async Task<IActionResult> GenerateSessionToken([FromQuery] int sessionId, [FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Generating session token for session: {SessionId}", sessionId);
+
+                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                {
+                    return BadRequest(new { error = "Invalid host GUID" });
+                }
+
+                var sessionToken = Guid.NewGuid();
+                var expiresAt = DateTime.UtcNow.AddHours(3); // 3-hour session duration
+
+                // TODO Phase 4: Store session token in database with session association
+                
+                _logger.LogInformation("NOOR-SUCCESS: Session token generated for session {SessionId}", sessionId);
+                return Ok(new 
+                {
+                    sessionToken = sessionToken.ToString(),
+                    sessionId = sessionId,
+                    expiresAt = expiresAt,
+                    joinLink = $"https://localhost:9091/session/{sessionToken}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to generate session token for session {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Failed to generate session token" });
+            }
+        }
+
+        [HttpPost("sessions/{sessionId}/begin")]
+        public async Task<IActionResult> BeginSession(int sessionId, [FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Starting session: {SessionId}", sessionId);
+
+                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                {
+                    return BadRequest(new { error = "Invalid host GUID" });
+                }
+
+                // TODO Phase 4: Update session status in database and broadcast SessionBegan event via SignalR
+
+                _logger.LogInformation("NOOR-SUCCESS: Session {SessionId} started successfully", sessionId);
+                return Ok(new 
+                {
+                    status = "Live",
+                    sessionId = sessionId,
+                    startedAt = DateTime.UtcNow,
+                    message = "Session started successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to start session {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Failed to start session" });
+            }
+        }
+
+        [HttpGet("session-status")]
+        public async Task<IActionResult> GetSessionStatus([FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Loading current session status");
+
+                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                {
+                    return BadRequest(new { error = "Invalid host GUID" });
+                }
+
+                // TODO Phase 4: Query actual active session from database
+                // For now, return null (no active session)
+
+                _logger.LogInformation("NOOR-INFO: No active session found");
+                return Ok((object?)null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to load session status");
+                return StatusCode(500, new { error = "Failed to load session status" });
+            }
+        }
     }
 
     // Request/Response Models
@@ -248,5 +440,31 @@ namespace NoorCanvas.Controllers
         public DateTime CreatedAt { get; set; }
         public int ParticipantCount { get; set; }
         public string SessionGuid { get; set; } = string.Empty;
+    }
+
+    // Issue-17 Cascading Dropdown Models
+    public class AlbumData 
+    { 
+        public int GroupId { get; set; } 
+        public string GroupName { get; set; } = string.Empty; 
+    }
+
+    public class CategoryData 
+    { 
+        public int CategoryId { get; set; } 
+        public string CategoryName { get; set; } = string.Empty; 
+    }
+
+    public class SessionData 
+    { 
+        public int SessionId { get; set; } 
+        public string SessionName { get; set; } = string.Empty; 
+    }
+
+    public class SessionStatusData 
+    { 
+        public string SessionName { get; set; } = string.Empty;
+        public int ParticipantCount { get; set; }
+        public DateTime? StartedAt { get; set; }
     }
 }

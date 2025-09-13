@@ -201,9 +201,9 @@
                     var authResponse = await response.Content.ReadFromJsonAsync<HostAuthResponse>();
                     if (authResponse?.Success == true)
                     {
-                        Logger.LogInformation("NOOR-SUCCESS: Host GUID authenticated successfully, redirecting to dashboard");
+                        Logger.LogInformation("NOOR-SUCCESS: Host GUID authenticated successfully, redirecting to session manager");
                         await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-AUTH", "Host authentication successful", new { hostGuid = guid });
-                        Navigation.NavigateTo($"/host/dashboard?guid={guid}");
+                        Navigation.NavigateTo($"/host/session-manager?guid={guid}");
                         return;
                     }
                 }

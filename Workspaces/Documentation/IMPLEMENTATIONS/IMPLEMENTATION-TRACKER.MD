@@ -118,6 +118,7 @@ Goal: Replace mock flows conservatively and verifiably. Work in small PRs per ar
 4. Run lint (HTML/Razor/TS/JS), build, and tests in CI
 
 Core front-end replacements (priority order)
+- [x] **KSESSIONS Database Integration**: Albums/Categories/Sessions dropdown data now loads from live KSESSIONS database instead of mock data (2025-09-12)
 - Host: CreateSession → POST /api/host/session/create
 - Host: Start/End session → POST /api/host/session/{id}/start|end
 - Participant: ValidateSession → GET /api/participant/session/{guid}/validate
@@ -130,16 +131,116 @@ SignalR & late-join
 - Ensure auto-navigation on SessionBegan broadcasts
 
 Database migration & security (deployment checklist)
-- Create dedicated SQL login `noor_canvas_app` for production (do not use sa)
-- Grant canvas schema DML permissions and cross-app read access to KQUR dbo
-- Execute EF Core migrations against AHHOME using a verified connection string
-- Seed admin GUIDs and test data for integration tests
+- ✅ **Connection String Standardization**: All applications use identical NOOR Canvas connection string (2025-09-13)
+- ✅ **Database Connectivity Validation**: Verified AHHOME/KSESSIONS_DEV access with 13 canvas tables (2025-09-13)  
+- ✅ **Mandatory Testing Process**: Created Issue-40 for pre-development SQL connectivity testing (2025-09-13)
+- ✅ **Host Provisioner Functionality**: Successfully created 2 Host Sessions (Session IDs 1,4) with Host GUIDs (2025-09-13)
+- ⚠️ **Entity Framework Intermittency**: Host Provisioner shows intermittent timeout behavior - Issue-41 tracking investigation (2025-09-13)
+- ⚡ **Host Provisioner Business Rule**: Single GUID per Session ID implemented with update-in-place logic - Issue-42 (2025-09-13)
+- [ ] Create dedicated SQL login `noor_canvas_app` for production (do not use sa)
+- [ ] Grant canvas schema DML permissions and cross-app read access to KQUR dbo
+- [ ] Execute EF Core migrations against AHHOME using verified connection string
+- [ ] Seed admin GUIDs and test data for integration tests
+
+**Standardized Connection String** (All Applications - 2025-09-13):
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false"
+  }
+}
+```
+
+**Mandatory Pre-Development Testing** (Issue-40 Requirement):
+```powershell
+# MANDATORY: Test database connectivity before any SQL development
+mssql_list_servers
+mssql_connect --serverName AHHOME --database KSESSIONS_DEV
+mssql_run_query --connectionId [id] --query "SELECT DB_NAME(), COUNT(*) FROM canvas.Sessions;"
+```
 
 Recommended migration commands (dev/test)
 ```powershell
-# From workspace root (adjust connection string as required)
-dotnet ef database update --project "SPA/NoorCanvas" --connection "Server=AHHOME;Database=KSESSIONS_DEV;User Id=...;Password=...;"
+# From workspace root - using standardized connection string
+dotnet ef database update --project "SPA/NoorCanvas" --connection "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false"
 ```
+
+### **Host Provisioner Business Rules (Issue-42 - September 13, 2025)**
+
+#### **Single GUID Per Session ID Rule**
+**Critical Implementation Requirement**: Host Provisioner MUST implement update-in-place behavior for existing Session IDs to ensure one GUID per session.
+
+**Current Behavior (Problematic)**:
+- Creates new Host Session record for each execution
+- Allows multiple GUIDs per Session ID
+- Creates security ambiguity and authentication confusion
+
+**Required New Behavior**:
+- Check for existing Host Session by Session ID before creating new record
+- Update existing Host Session with new GUID and metadata if Session ID exists
+- Create new Host Session only if Session ID doesn't exist
+- Maintain one-to-one relationship: Session ID ↔ Host Session
+
+**Implementation Location**: `Tools/HostProvisioner/HostProvisioner/Program.cs`
+**Method**: `CreateHostGuidWithDatabase()`
+
+**Database Query Pattern**:
+```csharp
+// Check for existing Host Session by Session ID
+var existingHostSession = await context.HostSessions
+    .FirstOrDefaultAsync(hs => hs.SessionId == sessionId);
+
+if (existingHostSession != null)
+{
+    // Update existing record with new GUID
+    existingHostSession.HostGuidHash = hostGuidHash;
+    existingHostSession.CreatedAt = DateTime.UtcNow;
+    existingHostSession.CreatedBy = createdBy ?? "Interactive User";
+    existingHostSession.IsActive = true;
+    existingHostSession.ExpiresAt = expiresAt;
+    
+    Log.Information("PROVISIONER-UPDATE: Rotating Host GUID for existing Session {SessionId}", sessionId);
+}
+else
+{
+    // Create new record (existing logic)
+    var hostSession = new HostSession { /* creation logic */ };
+    context.HostSessions.Add(hostSession);
+    
+    Log.Information("PROVISIONER-CREATE: Creating new Host Session for Session {SessionId}", sessionId);
+}
+```
+
+**Enhanced Command Parameters**:
+- `--force-new`: Force creation of new record even if Session ID exists
+- `--rotation-reason`: Optional description for GUID rotation purposes
+
+**Security Benefits**:
+- Prevents multiple active Host GUIDs per session
+- Enables controlled GUID rotation for security purposes
+- Maintains clear Host authentication model
+- Provides audit trail for GUID changes
+
+**Testing Requirements**:
+- Unit tests for update vs. create logic paths
+- Integration tests with existing database records
+- Performance tests for Session ID lookup operations
+- Concurrent execution tests to prevent race conditions
+
+**Database Index Requirement**:
+```sql
+-- Ensure efficient lookup by Session ID
+CREATE INDEX IF NOT EXISTS IX_HostSessions_SessionId 
+ON canvas.HostSessions (SessionId);
+```
+
+**Implementation Status (September 13, 2025)**:
+- ✅ **Logic Implemented**: Update vs. create behavior implemented in `Program.cs`
+- ✅ **Enhanced Logging**: PROVISIONER-UPDATE and PROVISIONER-CREATE messages added
+- ✅ **Command Parameters**: `--force-new` and `--rotation-reason` parameters added
+- ✅ **Compilation Verified**: No build errors, ready for testing
+- ⚠️ **Testing Pending**: Need to verify behavior with existing and new Session IDs
+- ⚠️ **Entity Framework Issue**: Still subject to intermittent timeout from Issue-41
 
 API endpoints to implement (if missing)
 - GET /api/sessions/{id}/state (snapshot)
@@ -212,10 +313,34 @@ Choose A, B, or C (or multiple) and I will proceed.
 ---
 
 ## Phase 2 — Host & Participant Core (Weeks 4–8)
-**Status**: ✅ COMPLETE (100%)  
-**Duration**: 1 day (Early completion - 4 weeks ahead of schedule)  
+**Status**: 🚨 REQUIRES INTEGRATION CORRECTION (95% complete - Critical database integration issues discovered)  
+**Duration**: 1 day base implementation + 2 days integration correction  
 **Target Completion**: November 6, 2025  
-**Actual Completion**: September 11, 2025  
+**Base Implementation**: September 11, 2025  
+**Integration Issues**: September 13, 2025 (Issues 45-46)  
+
+### 🔴 **CRITICAL INTEGRATION ISSUES DISCOVERED**
+**Status**: Integration validation revealed fundamental database connectivity problems
+
+#### **Issue-45: Host Provisioner SessionTranscripts Validation** 🚨
+**Problem**: Host Provisioner validates against `canvas.Sessions` instead of `KSESSIONS_DEV.Sessions`  
+**Impact**: Forces manual Session creation, breaks integration with existing Islamic content system  
+**Required Fix**: Change validation to check `KSESSIONS_DEV.Sessions` and `SessionTranscripts` tables  
+**Priority**: HIGH - Blocks proper KSESSIONS workflow integration
+
+#### **Issue-46: Host Panel KSESSIONS Integration** 🚨
+**Problem**: Host control panel uses mock data instead of KSESSIONS Groups/Categories/Sessions  
+**Impact**: No connection to existing Islamic content management, data duplication issues  
+**Required Fix**: Replace all dropdown data with KSESSIONS_DEV queries, use existing stored procedures  
+**Priority**: HIGH - Breaks hierarchical Group→Category→Session workflow
+
+### 🛠 **INTEGRATION CORRECTION REQUIREMENTS**
+- [ ] **Host Provisioner Database Fix**: Validate Session IDs against KSESSIONS_DEV.Sessions table
+- [ ] **Host Provisioner Transcript Verification**: Confirm Sessions have transcripts in SessionTranscripts table  
+- [ ] **Host Panel Data Integration**: Replace mock Albums/Categories/Sessions with KSESSIONS_DEV queries
+- [ ] **Stored Procedure Integration**: Use existing KSESSIONS stored procedures instead of duplicating logic
+- [ ] **Cross-Database Consistency**: Ensure Host Panel and Host Provisioner use identical KSESSIONS data
+- [ ] **Validation Alignment**: Both components validate against same Islamic content database structure  
 
 ### Authentication & Landing
 - [x] Single landing page with Host/User selection ✅
@@ -652,6 +777,69 @@ Choose A, B, or C (or multiple) and I will proceed.
 - [ ] Monitoring and alerting setup
 - [ ] Documentation completion
 
+### 🚨 **CRITICAL: IIS Single-Site Deployment Architecture** (Issue-30)
+**Priority**: HIGH - **MUST** be resolved before production deployment
+
+#### **Current Multi-Port Development vs. Production Single-Site Requirement**
+**Development Ports:**
+- Main Application: `https://localhost:9091` (ASP.NET Core Blazor Server)
+- DocFX Documentation: `http://localhost:9093` (Static documentation server)
+- Test Infrastructure: Various ports for automated testing
+
+**Production Requirement:** All services MUST be served through **single IIS site** (no multiple ports/subdomains supported)
+
+#### **Single-Site Integration Tasks**
+- [ ] **Configure ASP.NET Core Static File Serving** - Serve DocFX content under `/docs/` path
+- [ ] **Update DocFX Configuration** - Generate content for `/docs/` base URL instead of root
+- [ ] **Modify NC Command Suite** - Update development workflow for single-site testing
+- [ ] **IIS Deployment Scripts** - Configure single application pool for all services
+- [ ] **URL Structure Integration** - Ensure seamless navigation between app and documentation
+- [ ] **Environment-Based Routing** - Disable test/observer endpoints in production
+- [ ] **Performance Validation** - Test static file serving performance under load
+
+#### **Production URL Structure**
+```
+https://domain.com/              # Main NOOR Canvas application (root)
+https://domain.com/docs/         # DocFX documentation (static files)
+https://domain.com/health/       # Health check endpoints
+https://domain.com/observer/     # NOOR Observer (dev/staging only)
+https://domain.com/tests/        # Test harnesses (dev/staging only)
+```
+
+#### **Technical Implementation Strategy**
+```csharp
+// ASP.NET Core Program.cs configuration for single-site deployment
+app.UseStaticFiles(); // Default wwwroot (application assets)
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "docs")),
+    RequestPath = "/docs"
+}); // DocFX documentation served as static files
+
+// Environment-based endpoint configuration
+if (env.IsDevelopment() || env.IsStaging())
+{
+    app.MapGet("/tests/", serveTestHarness);
+    app.Map("/observer/stream", configureObserverSSE);
+}
+```
+
+#### **Deployment Dependencies**
+- **DocFX Build Integration**: Must integrate `docfx build` into CI/CD pipeline
+- **Static Content Pipeline**: Copy DocFX `_site` output to `wwwroot/docs/`
+- **IIS Configuration**: Single application pool with proper MIME type configuration
+- **SSL Certificate**: Must cover all integrated services under single domain
+- **Development Testing**: Local validation of single-site architecture
+
+#### **Quality Gates**
+- [ ] **Local Single-Site Testing**: All services accessible on single development port
+- [ ] **IIS Deployment Validation**: Successful deployment to single IIS site
+- [ ] **Cross-Service Navigation**: Links between application and documentation work correctly
+- [ ] **Performance Impact Assessment**: Static file serving doesn't degrade application performance
+- [ ] **Security Configuration**: Test/debug endpoints properly disabled in production
+
+**Issue Reference**: [Issue-30-iis-single-site-deployment-architecture-requirement.md](../../../IssueTracker/NOT%20STARTED/Issue-30-iis-single-site-deployment-architecture-requirement.md)
+
 ### Manual Testing Documentation
 - [x] HTML testing interface creation (`Workspaces/TEMP/MANUAL-TESTING-SUITE.html`) ✅
 - [x] Interactive testing checklist with step-by-step instructions ✅
@@ -691,6 +879,16 @@ Choose A, B, or C (or multiple) and I will proceed.
 - [ ] **T6.18**: Issue escalation procedures are tested
 - [ ] **T6.19**: Post-deployment monitoring catches issues
 - [ ] **T6.20**: Go-live readiness checklist is 100% complete
+
+### 🚨 **CRITICAL TESTING: Single-Site Deployment Validation**
+- [ ] **T6.21**: Single-site development server serves all components correctly
+- [ ] **T6.22**: DocFX documentation accessible and functional under `/docs/` path
+- [ ] **T6.23**: IIS single application pool deployment succeeds without errors
+- [ ] **T6.24**: Cross-service navigation between app and docs works seamlessly
+- [ ] **T6.25**: Environment-based endpoint filtering (prod vs dev) functions correctly
+- [ ] **T6.26**: Static file serving performance meets application performance standards
+- [ ] **T6.27**: SSL certificate covers all integrated services properly
+- [ ] **T6.28**: Production deployment validates single-site architecture requirements
 
 ---
 

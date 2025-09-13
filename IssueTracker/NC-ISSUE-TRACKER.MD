@@ -50,12 +50,27 @@ IssueTracker/
 
 ## 🔴 **HIGH PRIORITY ISSUES**
 
+- ❌ **Issue-46** — [Host Panel KSESSIONS Integration Stored Procedures](NOT%20STARTED/Issue-46-host-panel-ksessions-integration-stored-procedures.md) 🔧 **INTEGRATION ENHANCEMENT**
+- ⏳ **Issue-43** — [Host Provisioner Foreign Key Constraint Violation](AWAITING_CONFIRMATION/Issue-43-host-provisioner-foreign-key-constraint-violation.md) 🐛 **BUG**
+- ⚡ **Issue-42** — [Host Provisioner Single GUID Per Session ID Update Rule](IN%20PROGRESS/Issue-42-host-provisioner-single-guid-per-session-id-update-rule.md) ✨ **FEATURE ENHANCEMENT**
+- ⚡ **Issue-40** — [Mandatory SQL Connectivity Testing for All Database Development](IN%20PROGRESS/Issue-40-mandatory-sql-connectivity-testing-database-development.md) 🔧 **PROCESS ENHANCEMENT**
+- ❌ **Issue-39** — [Host Provisioner Multiple Critical Database Failures](NOT%20STARTED/Issue-39-host-provisioner-multiple-critical-database-failures.md) 🚨 **CRITICAL**
+- ✅ **Issue-34** — [HostSessionManager CSS File Not Found (404 Error)](COMPLETED/Issue-34-hostsessionmanager-css-file-404-error.md)
+- ✅ **Issue-35** — [HostSessionManager Initialization Error - Failed to Initialize Session Manager](COMPLETED/Issue-35-hostsessionmanager-initialization-error.md)
+- ❌ **Issue-32** — [HostSessionManager API Endpoints Returning 500 Errors](NOT%20STARTED/Issue-32-hostsessionmanager-api-endpoints-500-errors.md)
+- ❌ **Issue-38** — [Host Provisioner Database Persistence Missing](NOT%20STARTED/Issue-38-host-provisioner-database-persistence-missing.md) 📝 **SUPERSEDED BY Issue-39**
 - ❌ **Issue-1** — [Production Debug Configuration Missing](NOT%20STARTED/Issue-1-production-debug-configuration.md)
-- ❌ **Issue-17** — [Host Dashboard to Direct Session Management UX Change - AWAITING UI MOCKUPS](NOT%20STARTED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
-- ✅ **Issue-29** — [Documentation Structure - Separate Technical and Non-Technical User Guides](COMPLETED/Issue-29-documentation-structure-technical-non-technical-separation.md)
+- ❌ **Issue-30** — [IIS Single-Site Deployment Architecture Requirement](NOT%20STARTED/Issue-30-iis-single-site-deployment-architecture-requirement.md)
+- ⏳ **Issue-31** — [HTTP 500.19 Configuration Errors in IIS Express](AWAITING_CONFIRMATION/Issue-31-http-500-19-configuration-errors-iis-express.md)
+- ⏳ **Issue-33** — [Port 9091 Access Denied - IIS Express Process Conflict](AWAITING_CONFIRMATION/Issue-33-port-9091-access-denied-iis-express-conflict.md)
 - ⏳ **Issue-22** — [Host Endpoint Missing - Application Startup Failure](AWAITING_CONFIRMATION/Issue-22-host-endpoint-missing-application-startup-failure.md)
 - ⏳ **Issue-25** — [Host Authentication Failure with Valid GUID](AWAITING_CONFIRMATION/Issue-25-host-authentication-failure-valid-guid.md)
+
 ### **Completed High Priority Issues**
+- ✅ **Issue-45** — [Host Provisioner SessionTranscripts Validation Logic](COMPLETED/Issue-45-host-provisioner-sessiontranscripts-validation-logic.md) 🐛 **INTEGRATION BUG RESOLVED**
+- ✅ **Issue-37** — [KSESSIONS Database Integration for Dropdown Data Loading](COMPLETED/Issue-37-ksessions-database-integration-dropdown-data.md)
+- ✅ **Issue-17** — [Host Dashboard to Direct Session Management UX Change](COMPLETED/Issue-17-host-dashboard-to-direct-session-management-ux-change.md)
+- ✅ **Issue-29** — [Documentation Structure - Separate Technical and Non-Technical User Guides](COMPLETED/Issue-29-documentation-structure-technical-non-technical-separation.md)
 - ✅ **Issue-2** — [Blazor Server Double Initialization](COMPLETED/Issue-2-blazor-double-initialization.md)
 - ✅ **Issue-3** — [SignalR Connection String Parsing Error](COMPLETED/Issue-3-signalr-parsing-error.md)
 - ✅ **Issue-5** — [Button Click Events Not Responding](COMPLETED/Issue-5-button-click-events-not-responding.md)
@@ -78,6 +93,8 @@ IssueTracker/
 
 ## 🟡 **MEDIUM PRIORITY ISSUES**
 
+- ❌ **Issue-44** — [Host Provisioner Interactive Mode UX Improvements](NOT%20STARTED/Issue-44-host-provisioner-interactive-mode-ux-improvements.md) ✨ **FEATURE ENHANCEMENT**
+- ⚡ **Issue-41** — [Entity Framework Intermittent Timeout in Host Provisioner](IN%20PROGRESS/Issue-41-entity-framework-intermittent-timeout-host-provisioner.md) 🐛 **BUG**
 - ❌ **Issue-20** — [Replace Browser Dialog Alerts with Styled Dialog Libraries](NOT%20STARTED/Issue-20-replace-browser-dialogs-with-styled-libraries.md)
 - ❌ **Issue-23** — [Entity Framework Dual Provider Test Failures](NOT%20STARTED/Issue-23-entity-framework-dual-provider-test-failures.md)
 

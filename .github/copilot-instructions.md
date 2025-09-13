@@ -398,6 +398,47 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
 - **SQL Account:** `sa` user with full permissions and 1-hour timeout
 - **No Data Duplication:** Asset referencing strategy, not copying
 
+### **KSESSIONS Database Integration (September 2025)**
+**CRITICAL IMPLEMENTATION REQUIREMENT**: All dropdown data (Albums, Categories, Sessions) MUST load from KSESSIONS database, NOT mock data.
+
+**Database Tables (Read-Only Access):**
+```sql
+-- KSESSIONS.dbo.Groups (Albums) - Islamic content collections
+-- Structure: GroupID (int), GroupName (varchar), GroupImage, GroupDescription, SpeakerID, IsActive, etc.
+
+-- KSESSIONS.dbo.Categories - Subdivisions within Groups  
+-- Structure: CategoryID (int), CategoryName (varchar), GroupID (FK), IsActive, SortOrder, etc.
+
+-- KSESSIONS.dbo.Sessions - Individual Islamic learning sessions
+-- Structure: SessionID (int), GroupID (FK), CategoryID (FK), SessionName (varchar), Sequence, etc.
+```
+
+**Hierarchical Relationship**: Groups → Categories → Sessions (cascading dropdowns)
+
+**API Endpoints (Updated for Live Data)**:
+- `GET /api/host/albums` → Query `KSESSIONS.dbo.Groups` WHERE IsActive = true
+- `GET /api/host/categories/{albumId}` → Query `KSESSIONS.dbo.Categories` WHERE GroupID = albumId AND IsActive = true
+- `GET /api/host/sessions/{categoryId}` → Query `KSESSIONS.dbo.Sessions` WHERE CategoryID = categoryId AND IsActive = true
+
+**Implementation Details:**
+- **KSessionsDbContext**: Dedicated Entity Framework context for read-only KSESSIONS access
+- **Connection String**: Uses "KSessionsDb" from appsettings.json (falls back to "DefaultConnection")
+- **Performance**: No-tracking queries for optimal read performance
+- **Models**: KSessionsGroup, KSessionsCategory, KSessionsSession in Models/KSESSIONS namespace
+
+**Usage in HostController**:
+```csharp
+// Constructor injection
+public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger)
+
+// Query examples
+var albums = await _kSessionsContext.Groups.Where(g => g.IsActive == true).OrderBy(g => g.GroupName).ToListAsync();
+var categories = await _kSessionsContext.Categories.Where(c => c.GroupId == albumId && c.IsActive == true).ToListAsync();
+var sessions = await _kSessionsContext.Sessions.Where(s => s.CategoryId == categoryId && s.IsActive == true).ToListAsync();
+```
+
+**NEVER use mock data for dropdowns** - All data must come from live KSESSIONS database tables.
+
 ## 5. McBeatch Theme Integration
 
 ### **Styling Framework**
@@ -845,18 +886,39 @@ git push origin master
 - **DEVELOPMENT CYCLE**: Use TEMP freely during development, clean completely on commit
 
 ### **Database Operations**
+
+### **🚨 CRITICAL DATABASE ENVIRONMENT REQUIREMENTS**
+**MANDATORY DEVELOPMENT RULE**: All development work MUST use development databases only.
+
+**Development Databases (REQUIRED):**
+- `KSESSIONS_DEV` - Primary NOOR Canvas database with canvas schema
+- `KQUR_DEV` - Quranic content database for cross-application integration
+- **Account**: `sa` user with password `adf4961glo`
+- **Connection Timeout**: 3600 seconds (1 hour) for long operations
+
+**Production Databases (FORBIDDEN in development):**
+- `KSESSIONS` - Production database - **DO NOT TOUCH until deployment**
+- `KQUR` - Production database - **DO NOT TOUCH until deployment**
+
+**Critical Configuration Requirements:**
+- All tools, console applications, and services MUST use `KSESSIONS_DEV`
+- Connection strings MUST include: `Connection Timeout=3600`
+- Password synchronization required across all components: `adf4961glo`
+- **NEVER** use placeholder passwords like `123` in any configuration
+- All Entity Framework contexts MUST target development databases
+
 ```sql
--- Check canvas schema objects (Development)
+-- Check canvas schema objects (Development ONLY)
 USE KSESSIONS_DEV;
 SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'canvas';
 
--- Verify cross-schema access (Development)
+-- Verify cross-schema access (Development ONLY) 
 USE KQUR_DEV;
 SELECT * FROM dbo.Users; -- Should work with sa account
 
--- Production equivalents
-USE KSESSIONS;
-USE KQUR;
+-- Production equivalents (DEPLOYMENT ONLY - DO NOT USE IN DEVELOPMENT)
+USE KSESSIONS;   -- ❌ FORBIDDEN during development
+USE KQUR;        -- ❌ FORBIDDEN during development
 ```
 
 ### **Development Server Operations**

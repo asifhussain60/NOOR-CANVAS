@@ -1,0 +1,596 @@
+@page "/host/session-manager"
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<HostSessionManager> Logger
+@inject DialogService DialogService
+
+<link href="/css/host-session-manager.css" rel="stylesheet" />
+
+<div class="session-manager-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="session-manager-header text-center mb-5">
+                    <i class="fas fa-cogs fa-3x text-primary mb-3"></i>
+                    <h1>Session Management</h1>
+                    <p class="text-muted">Create and manage your NOOR Canvas sessions directly</p>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading session data...</span>
+                        </div>
+                        <p class="mt-3">Loading albums and categories...</p>
+                    </div>
+                }
+                else
+                {
+                    <!-- Session Creation Panel -->
+                    <div class="session-creation-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">
+                                    <i class="fas fa-plus-circle text-primary"></i> Create New Session
+                                </h4>
+                                <p class="card-text text-muted">Select your content album, category, and session to begin</p>
+
+                                <!-- Cascading Dropdowns -->
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-folder"></i> Album
+                                        </label>
+                                        <select class="form-select" @onchange="OnAlbumChanged" disabled="@isCreatingSession">
+                                            <option value="">Select Album...</option>
+                                            @if (albums != null)
+                                            {
+                                                @foreach (var album in albums)
+                                                {
+                                                    <option value="@album.GroupId" selected="@(selectedAlbumId == album.GroupId)">
+                                                        @album.GroupName
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                        <div class="form-text">
+                                            @if (albums?.Count > 0)
+                                            {
+                                                <span>@albums.Count albums available</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-tags"></i> Category
+                                        </label>
+                                        <select class="form-select" @onchange="OnCategoryChanged" disabled="@(categories == null || !categories.Any() || isCreatingSession)">
+                                            <option value="">Select Category...</option>
+                                            @if (categories != null)
+                                            {
+                                                @foreach (var category in categories)
+                                                {
+                                                    <option value="@category.CategoryId" selected="@(selectedCategoryId == category.CategoryId)">
+                                                        @category.CategoryName
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                        <div class="form-text">
+                                            @if (categories?.Count > 0)
+                                            {
+                                                <span>@categories.Count categories available</span>
+                                            }
+                                            else if (selectedAlbumId != null)
+                                            {
+                                                <span>No categories in selected album</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-play-circle"></i> Session
+                                        </label>
+                                        <select class="form-select" @onchange="OnSessionChanged" disabled="@(sessions == null || !sessions.Any() || isCreatingSession)">
+                                            <option value="">Select Session...</option>
+                                            @if (sessions != null)
+                                            {
+                                                @foreach (var session in sessions)
+                                                {
+                                                    <option value="@session.SessionId" selected="@(selectedSessionId == session.SessionId)">
+                                                        @session.SessionName
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                        <div class="form-text">
+                                            @if (sessions?.Count > 0)
+                                            {
+                                                <span>@sessions.Count sessions available</span>
+                                            }
+                                            else if (selectedCategoryId != null)
+                                            {
+                                                <span>No sessions in selected category</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="action-buttons">
+                                    @if (selectedSessionId != null)
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <button class="btn btn-outline-primary btn-lg w-100" 
+                                                        @onclick="GenerateSessionToken" 
+                                                        disabled="@isGeneratingToken">
+                                                    @if (isGeneratingToken)
+                                                    {
+                                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-link me-2"></i>
+                                                    }
+                                                    Generate Session Token
+                                                </button>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <button class="btn btn-success btn-lg w-100" 
+                                                        @onclick="StartSession" 
+                                                        disabled="@(isStartingSession || currentSessionToken == null)">
+                                                    @if (isStartingSession)
+                                                    {
+                                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-play me-2"></i>
+                                                    }
+                                                    Start Session
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(currentSessionToken))
+                                        {
+                                            <div class="session-token-display">
+                                                <div class="alert alert-success">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <i class="fas fa-check-circle me-2"></i>
+                                                            <strong>Session Token Generated!</strong>
+                                                        </div>
+                                                        <button class="btn btn-sm btn-outline-success" @onclick="CopySessionLink">
+                                                            <i class="fas fa-copy"></i> Copy Link
+                                                        </button>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="font-monospace">@GetSessionLink()</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-arrow-up fa-2x text-muted mb-3"></i>
+                                            <h6 class="text-muted">Select Album, Category, and Session above to proceed</h6>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Session Status (if session is active) -->
+                    @if (currentSessionStatus != null)
+                    {
+                        <div class="current-session-status mt-4">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">
+                                        <i class="fas fa-broadcast-tower"></i> Live Session Active
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <p><strong>Session:</strong> @currentSessionStatus.SessionName</p>
+                                            <p><strong>Participants:</strong> @currentSessionStatus.ParticipantCount</p>
+                                            <p><strong>Started:</strong> @currentSessionStatus.StartedAt?.ToString("MMM dd, yyyy HH:mm")</p>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <button class="btn btn-danger" @onclick="EndCurrentSession" disabled="@isEndingSession">
+                                                @if (isEndingSession)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-stop me-2"></i>
+                                                }
+                                                End Session
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions mt-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="quick-action-card text-center">
+                                    <i class="fas fa-history fa-2x mb-2"></i>
+                                    <h6>Session History</h6>
+                                    <button class="btn btn-outline-secondary btn-sm">View History</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="quick-action-card text-center">
+                                    <i class="fas fa-cog fa-2x mb-2"></i>
+                                    <h6>Settings</h6>
+                                    <button class="btn btn-outline-secondary btn-sm">Configure</button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="quick-action-card text-center">
+                                    <i class="fas fa-question-circle fa-2x mb-2"></i>
+                                    <h6>Help & Support</h6>
+                                    <button class="btn btn-outline-secondary btn-sm">Get Help</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dialog Components -->
+<AlertDialog @ref="alertDialog" />
+<ConfirmDialog @ref="confirmDialog" />
+
+@code {
+    // API Response Models
+    public class AlbumData { public Guid GroupId { get; set; } public string GroupName { get; set; } = ""; }
+    public class CategoryData { public int CategoryId { get; set; } public string CategoryName { get; set; } = ""; }  
+    public class SessionData { public int SessionId { get; set; } public string SessionName { get; set; } = ""; }
+    public class SessionStatusData 
+    { 
+        public string SessionName { get; set; } = "";
+        public int ParticipantCount { get; set; }
+        public DateTime? StartedAt { get; set; }
+    }
+
+    // Component State
+    private List<AlbumData>? albums;
+    private List<CategoryData>? categories;
+    private List<SessionData>? sessions;
+    private SessionStatusData? currentSessionStatus;
+    
+    private Guid? selectedAlbumId;
+    private int? selectedCategoryId;  
+    private int? selectedSessionId;
+    private string? currentSessionToken;
+    
+    private bool isLoading = true;
+    private bool isGeneratingToken = false;
+    private bool isStartingSession = false;
+    private bool isEndingSession = false;
+    private bool isCreatingSession = false;
+
+    private AlertDialog alertDialog = null!;
+    private ConfirmDialog confirmDialog = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Guid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-INFO: Host Session Manager initializing for GUID: {Guid}", Guid?.Substring(0, 8) + "...");
+            
+            if (string.IsNullOrEmpty(Guid))
+            {
+                Logger.LogWarning("NOOR-WARNING: No host GUID provided, redirecting to landing");
+                Navigation.NavigateTo("/");
+                return;
+            }
+
+            // Authenticate host and load album data
+            await AuthenticateHostAndLoadData();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to initialize host session manager");
+            await DialogService.ShowErrorAsync("Failed to initialize session manager. Please try again.", "Error");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DialogService.RegisterAlertDialog(alertDialog);
+            DialogService.RegisterConfirmDialog(confirmDialog);
+            
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-SESSION-MANAGER", "Session manager initialized", new { guid = Guid });
+        }
+    }
+
+    private async Task AuthenticateHostAndLoadData()
+    {
+        try
+        {
+            // Authenticate host GUID
+            var request = new { HostGuid = Guid };
+            var response = await Http.PostAsJsonAsync("/api/host/authenticate", request);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("NOOR-ERROR: Host authentication failed");
+                Navigation.NavigateTo("/?error=auth_failed");
+                return;
+            }
+
+            // Load albums from KSESSIONS data
+            var albumResponse = await Http.GetAsync($"/api/host/albums?guid={Guid}");
+            if (albumResponse.IsSuccessStatusCode)
+            {
+                albums = await albumResponse.Content.ReadFromJsonAsync<List<AlbumData>>();
+                Logger.LogInformation("NOOR-SUCCESS: Loaded {AlbumCount} albums", albums?.Count ?? 0);
+            }
+
+            // Check for any active session
+            var statusResponse = await Http.GetAsync($"/api/host/session-status?guid={Guid}");
+            if (statusResponse.IsSuccessStatusCode)
+            {
+                // Only deserialize if there's actual content (not 204 No Content)
+                if (statusResponse.StatusCode != System.Net.HttpStatusCode.NoContent)
+                {
+                    currentSessionStatus = await statusResponse.Content.ReadFromJsonAsync<SessionStatusData>();
+                }
+                else
+                {
+                    currentSessionStatus = null; // No active session
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to authenticate host and load data");
+            throw;
+        }
+    }
+
+    private async Task OnAlbumChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            selectedAlbumId = string.IsNullOrEmpty(e.Value?.ToString()) ? null : System.Guid.Parse(e.Value.ToString()!);
+            selectedCategoryId = null;
+            selectedSessionId = null;
+            categories = null;
+            sessions = null;
+            currentSessionToken = null;
+
+            if (selectedAlbumId.HasValue)
+            {
+                Logger.LogInformation("NOOR-INFO: Loading categories for album: {AlbumId}", selectedAlbumId);
+                
+                var response = await Http.GetAsync($"/api/host/categories/{selectedAlbumId}?guid={Guid}");
+                if (response.IsSuccessStatusCode)
+                {
+                    categories = await response.Content.ReadFromJsonAsync<List<CategoryData>>();
+                    Logger.LogInformation("NOOR-SUCCESS: Loaded {CategoryCount} categories", categories?.Count ?? 0);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to load categories");
+            await DialogService.ShowErrorAsync("Failed to load categories. Please try again.", "Error");
+        }
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            selectedCategoryId = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!);
+            selectedSessionId = null;
+            sessions = null;
+            currentSessionToken = null;
+
+            if (selectedCategoryId.HasValue)
+            {
+                Logger.LogInformation("NOOR-INFO: Loading sessions for category: {CategoryId}", selectedCategoryId);
+                
+                var response = await Http.GetAsync($"/api/host/sessions/{selectedCategoryId}?guid={Guid}");
+                if (response.IsSuccessStatusCode)
+                {
+                    sessions = await response.Content.ReadFromJsonAsync<List<SessionData>>();
+                    Logger.LogInformation("NOOR-SUCCESS: Loaded {SessionCount} sessions", sessions?.Count ?? 0);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to load sessions");
+            await DialogService.ShowErrorAsync("Failed to load sessions. Please try again.", "Error");
+        }
+    }
+
+    private async Task OnSessionChanged(ChangeEventArgs e)
+    {
+        selectedSessionId = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!);
+        currentSessionToken = null;
+        
+        if (selectedSessionId.HasValue)
+        {
+            Logger.LogInformation("NOOR-INFO: Session selected: {SessionId}", selectedSessionId);
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "SESSION-SELECTION", "Session selected", new { sessionId = selectedSessionId });
+        }
+    }
+
+    private async Task GenerateSessionToken()
+    {
+        if (!selectedSessionId.HasValue) return;
+
+        try
+        {
+            isGeneratingToken = true;
+            Logger.LogInformation("NOOR-INFO: Generating session token for session: {SessionId}", selectedSessionId);
+
+            var response = await Http.PostAsync($"/api/host/generate-token?sessionId={selectedSessionId}&guid={Guid}", null);
+            if (response.IsSuccessStatusCode)
+            {
+                var tokenResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
+                currentSessionToken = tokenResponse.GetProperty("sessionToken").GetString();
+                
+                Logger.LogInformation("NOOR-SUCCESS: Session token generated successfully");
+                await DialogService.ShowSuccessAsync("Session token generated! Share the link with participants.", "Success");
+            }
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Failed to generate session token");
+                await DialogService.ShowErrorAsync("Failed to generate session token. Please try again.", "Error");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Exception during token generation");
+            await DialogService.ShowErrorAsync("Failed to generate session token. Please try again.", "Error");
+        }
+        finally
+        {
+            isGeneratingToken = false;
+        }
+    }
+
+    private async Task StartSession()
+    {
+        if (!selectedSessionId.HasValue || string.IsNullOrEmpty(currentSessionToken)) return;
+
+        try
+        {
+            isStartingSession = true;
+            Logger.LogInformation("NOOR-INFO: Starting session: {SessionId}", selectedSessionId);
+
+            var response = await Http.PostAsync($"/api/host/sessions/{selectedSessionId}/begin?guid={Guid}", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("NOOR-SUCCESS: Session started successfully");
+                await DialogService.ShowSuccessAsync("Session started! Participants can now join using the session link.", "Success");
+                
+                // Reload current session status
+                await LoadCurrentSessionStatus();
+            }
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Failed to start session");
+                await DialogService.ShowErrorAsync("Failed to start session. Please try again.", "Error");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Exception during session start");
+            await DialogService.ShowErrorAsync("Failed to start session. Please try again.", "Error");
+        }
+        finally
+        {
+            isStartingSession = false;
+        }
+    }
+
+    private async Task EndCurrentSession()
+    {
+        if (currentSessionStatus == null) return;
+
+        var confirmed = await DialogService.ShowConfirmAsync("Are you sure you want to end the current session? All participants will be disconnected.", "End Session");
+        if (!confirmed) return;
+
+        try
+        {
+            isEndingSession = true;
+            Logger.LogInformation("NOOR-INFO: Ending current session");
+
+            var response = await Http.PostAsync($"/api/host/sessions/end?guid={Guid}", null);
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("NOOR-SUCCESS: Session ended successfully");
+                await DialogService.ShowSuccessAsync("Session ended successfully.", "Success");
+                currentSessionStatus = null;
+            }
+            else
+            {
+                Logger.LogError("NOOR-ERROR: Failed to end session");
+                await DialogService.ShowErrorAsync("Failed to end session. Please try again.", "Error");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Exception during session end");
+            await DialogService.ShowErrorAsync("Failed to end session. Please try again.", "Error");
+        }
+        finally
+        {
+            isEndingSession = false;
+        }
+    }
+
+    private async Task LoadCurrentSessionStatus()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"/api/host/session-status?guid={Guid}");
+            if (response.IsSuccessStatusCode)
+            {
+                currentSessionStatus = await response.Content.ReadFromJsonAsync<SessionStatusData>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to load current session status");
+        }
+    }
+
+    private async Task CopySessionLink()
+    {
+        try
+        {
+            var link = GetSessionLink();
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", link);
+            await DialogService.ShowSuccessAsync("Session link copied to clipboard!", "Copied");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Failed to copy session link");
+            await DialogService.ShowErrorAsync("Failed to copy link. Please copy manually.", "Error");
+        }
+    }
+
+    private string GetSessionLink()
+    {
+        if (string.IsNullOrEmpty(currentSessionToken)) return "";
+        return $"https://localhost:9091/session/{currentSessionToken}";
+    }
+}

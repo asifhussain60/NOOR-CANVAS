@@ -2,7 +2,12 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using NoorCanvas.Data;
+using NoorCanvas.Models;
+using NoorCanvas.Models.KSESSIONS;
 
 namespace HostProvisioner;
 
@@ -17,10 +22,15 @@ class Program
             .WriteTo.Console()
             .CreateLogger();
 
+        // Setup dependency injection
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        var serviceProvider = services.BuildServiceProvider();
+
         // If no arguments provided, run interactive mode
         if (args.Length == 0)
         {
-            await RunInteractiveMode();
+            await RunInteractiveMode(serviceProvider);
             return 0;
         }
 
@@ -32,17 +42,21 @@ class Program
             new Option<long>("--session-id", "Session ID to associate with the host GUID") { IsRequired = true },
             new Option<string>("--created-by", "Name of the person creating the host session") { IsRequired = false },
             new Option<string>("--expires", "Expiration date (yyyy-MM-dd)") { IsRequired = false },
-            new Option<bool>("--dry-run", "Show what would be done without making changes") { IsRequired = false }
+            new Option<bool>("--dry-run", "Show what would be done without making changes") { IsRequired = false },
+            new Option<bool>("--force-new", "Force creation of new record even if Session ID exists") { IsRequired = false },
+            new Option<string>("--rotation-reason", "Reason for GUID rotation (for audit purposes)") { IsRequired = false }
         };
 
-        createCommand.SetHandler(async (long sessionId, string? createdBy, string? expires, bool dryRun) =>
+        createCommand.SetHandler(async (long sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew, string? rotationReason) =>
         {
-            await CreateHostGuid(sessionId, createdBy, expires, dryRun);
+            await CreateHostGuidWithDatabase(serviceProvider, sessionId, createdBy, expires, dryRun, forceNew, rotationReason);
         },
-        createCommand.Options.OfType<Option<long>>().First(),
-        createCommand.Options.OfType<Option<string>>().First(),
-        createCommand.Options.OfType<Option<string>>().Skip(1).First(),
-        createCommand.Options.OfType<Option<bool>>().First());
+        createCommand.Options.OfType<Option<long>>().First(),           // --session-id
+        createCommand.Options.OfType<Option<string>>().First(),         // --created-by
+        createCommand.Options.OfType<Option<string>>().Skip(1).First(), // --expires
+        createCommand.Options.OfType<Option<bool>>().First(),           // --dry-run
+        createCommand.Options.OfType<Option<bool>>().Skip(1).First(),   // --force-new
+        createCommand.Options.OfType<Option<string>>().Skip(2).First()); // --rotation-reason
 
         // Rotate command
         var rotateCommand = new Command("rotate", "Rotate an existing Host GUID")
@@ -76,64 +90,182 @@ class Program
         }
     }
 
-    private static async Task RunInteractiveMode()
+    private static void ConfigureServices(ServiceCollection services)
     {
-        Console.WriteLine();
-        Console.WriteLine("🔐 NOOR Canvas Host Provisioner - Interactive Mode");
-        Console.WriteLine("================================================");
-        Console.WriteLine();
+        // Load configuration
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+
+        // Add Entity Framework with connection string from NoorCanvas project
+        var connectionString = configuration.GetConnectionString("DefaultConnection") ??
+            "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false";
+
+        services.AddDbContext<CanvasDbContext>(options =>
+            options.UseSqlServer(connectionString, sqlOptions =>
+                sqlOptions.CommandTimeout(3600))); // Match the connection timeout
+
+        // Add KSESSIONS Database Context for Session validation (Issue-45)
+        var kSessionsConnectionString = configuration.GetConnectionString("KSessionsDb") ?? connectionString;
+        services.AddDbContext<KSessionsDbContext>(options =>
+            options.UseSqlServer(kSessionsConnectionString, sqlOptions =>
+                sqlOptions.CommandTimeout(3600)));
+
+        // Register configuration
+        services.AddSingleton<IConfiguration>(configuration);
+    }
+
+    private static async Task RunInteractiveMode(IServiceProvider serviceProvider)
+    {
+        ClearAndShowHeader();
 
         while (true)
         {
             try
             {
-                // Get Session ID
-                Console.Write("Enter Session ID (or 'exit' to quit): ");
-                var sessionIdInput = Console.ReadLine()?.Trim();
+                Console.Write("Enter command (or Session ID): ");
+                var input = Console.ReadLine()?.Trim();
                 
-                if (string.IsNullOrEmpty(sessionIdInput) || sessionIdInput.ToLower() == "exit")
-                {
-                    Console.WriteLine("Goodbye!");
-                    break;
-                }
-
-                if (!long.TryParse(sessionIdInput, out long sessionId))
-                {
-                    Console.WriteLine("❌ Invalid Session ID. Please enter a number.");
-                    Console.WriteLine();
+                if (string.IsNullOrEmpty(input))
                     continue;
+                    
+                // Handle special commands (Issue-44: Enhanced UX)
+                switch (input.ToLower())
+                {
+                    case "exit":
+                        Console.WriteLine("Goodbye! 👋");
+                        return;
+                        
+                    case "help":
+                        ShowInteractiveHelp();
+                        continue;
+                        
+                    case "clear":
+                        ClearAndShowHeader();
+                        continue;
+                        
+                    default:
+                        // Try to parse as Session ID
+                        if (long.TryParse(input, out long sessionId))
+                        {
+                            await ProcessSessionId(serviceProvider, sessionId);
+                        }
+                        else
+                        {
+                            ShowInvalidInputMessage(input);
+                        }
+                        break;
                 }
-
-                // Set default created by
-                var createdBy = "Interactive User";
-
-                // Generate the GUID and hash
-                var hostGuid = Guid.NewGuid();
-                var hostGuidHash = ComputeHash(hostGuid.ToString());
-
-                // Display results
-                Console.WriteLine();
-                Console.WriteLine("✅ Host GUID Generated Successfully!");
-                Console.WriteLine("===================================");
-                Console.WriteLine($"📊 Session ID: {sessionId}");
-                Console.WriteLine($"🆔 Host GUID: {hostGuid}");
-                Console.WriteLine($" Created By: {createdBy}");
-                Console.WriteLine($"⏰ Created At: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
-                Console.WriteLine();
-                Console.WriteLine("📋 Copy the Host GUID above to use for authentication.");
-                Console.WriteLine("🔑 The GUID is stored securely in the system.");
-                Console.WriteLine();
-
-                // Automatically exit after generating one GUID
-                Console.WriteLine("Host GUID generation completed successfully!");
-                break;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error: {ex.Message}");
-                Console.WriteLine();
+                ShowUserFriendlyError(ex, 0);
             }
         }
+    }
+
+    private static void ClearAndShowHeader()
+    {
+        Console.Clear();
+        Console.WriteLine("🔐 NOOR Canvas Host Provisioner - Interactive Mode");
+        Console.WriteLine("================================================");
+        Console.WriteLine();
+        Console.WriteLine("💡 Commands:");
+        Console.WriteLine("   • Enter Session ID to generate Host GUID");
+        Console.WriteLine("   • Type 'help' for more options");
+        Console.WriteLine("   • Type 'exit' to quit");
+        Console.WriteLine();
+    }
+
+    private static void ShowInteractiveHelp()
+    {
+        Console.WriteLine();
+        Console.WriteLine("🔐 NOOR Canvas Host Provisioner - Help");
+        Console.WriteLine("=====================================");
+        Console.WriteLine();
+        Console.WriteLine("📋 COMMANDS:");
+        Console.WriteLine("   help        Show this help information");
+        Console.WriteLine("   exit        Exit the Host Provisioner");
+        Console.WriteLine("   clear       Clear screen and refresh display");
+        Console.WriteLine("   [number]    Generate Host GUID for Session ID");
+        Console.WriteLine();
+        Console.WriteLine("📝 EXAMPLE:");
+        Console.WriteLine("   1           Generate Host GUID for Session 1");
+        Console.WriteLine();
+        Console.WriteLine("🔧 FEATURES:");
+        Console.WriteLine("   • One GUID per Session ID (updates existing)");
+        Console.WriteLine("   • Secure HMAC-SHA256 hash generation");
+        Console.WriteLine("   • Database persistence with audit trail");
+        Console.WriteLine("   • Automatic GUID rotation support");
+        Console.WriteLine();
+        Console.Write("Press any key to continue...");
+        Console.ReadKey();
+        Console.WriteLine();
+        Console.WriteLine();
+    }
+
+    private static void ShowInvalidInputMessage(string input)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"❌ Invalid input: '{input}'");
+        Console.WriteLine("💡 Please enter a Session ID number, or try:");
+        Console.WriteLine("   • 'help' for available commands");
+        Console.WriteLine("   • 'exit' to quit");
+        Console.WriteLine();
+    }
+
+    private static async Task ProcessSessionId(IServiceProvider serviceProvider, long sessionId)
+    {
+        try
+        {
+            Console.WriteLine();
+            Console.WriteLine($"🔄 Processing Session ID: {sessionId}");
+            Console.WriteLine();
+
+            // Create Host GUID with database persistence
+            await CreateHostGuidWithDatabase(serviceProvider, sessionId, "Interactive User", null, false);
+        }
+        catch (Exception ex)
+        {
+            ShowUserFriendlyError(ex, sessionId);
+        }
+    }
+
+    private static void ShowUserFriendlyError(Exception ex, long sessionId)
+    {
+        Console.WriteLine();
+        Console.WriteLine("❌ Error Creating Host GUID");
+        Console.WriteLine("===========================");
+        
+        if (ex.Message.Contains("does not exist"))
+        {
+            Console.WriteLine($"🔍 Session ID {sessionId} does not exist in the database.");
+            Console.WriteLine("💡 Please create the Session first using NOOR Canvas application.");
+            Console.WriteLine("📋 Available Session ID: 1 (for testing)");
+        }
+        else if (ex.Message.Contains("FOREIGN KEY constraint"))
+        {
+            Console.WriteLine($"🔍 Session ID {sessionId} does not exist in the database.");
+            Console.WriteLine("💡 Please create the Session first using NOOR Canvas application.");
+            Console.WriteLine("📋 Available Session ID: 1 (for testing)");
+        }
+        else if (ex.Message.Contains("timeout"))
+        {
+            Console.WriteLine("⏰ Database connection timeout occurred.");
+            Console.WriteLine("💡 Please try again, or contact technical support if this persists.");
+        }
+        else
+        {
+            Console.WriteLine($"🚨 Unexpected error occurred: {ex.Message}");
+            Console.WriteLine("💡 Please contact technical support with this error message.");
+        }
+        
+        Console.WriteLine();
+        Console.Write("Press any key to continue...");
+        Console.ReadKey();
+        Console.WriteLine();
+        Console.WriteLine();
     }
 
     private static async Task CreateHostGuid(long sessionId, string? createdBy, string? expires, bool dryRun)
@@ -184,6 +316,179 @@ class Program
         }
     }
 
+    private static async Task CreateHostGuidWithDatabase(IServiceProvider serviceProvider, long sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew = false, string? rotationReason = null)
+    {
+        try
+        {
+            var hostGuid = Guid.NewGuid();
+            var hostGuidHash = ComputeHash(hostGuid.ToString());
+            var expiresAt = string.IsNullOrEmpty(expires) ? (DateTime?)null : DateTime.Parse(expires);
+
+            Log.Information("PROVISIONER: Creating Host GUID for Session {SessionId}", sessionId);
+            
+            if (dryRun)
+            {
+                Log.Information("DRY-RUN: Would create Host Session:");
+                Log.Information("  Session ID: {SessionId}", sessionId);
+                Log.Information("  Host GUID: {HostGuid}", hostGuid);
+                Log.Information("  Created By: {CreatedBy}", createdBy ?? "Unknown");
+                Log.Information("  Expires At: {ExpiresAt}", expiresAt?.ToString() ?? "Never");
+                return;
+            }
+
+            Log.Information("PROVISIONER: Creating service scope...");
+            // Get database context from service provider
+            using var scope = serviceProvider.CreateScope();
+            
+            Log.Information("PROVISIONER: Getting database contexts from DI...");
+            var context = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
+            var kSessionsContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
+
+            Log.Information("PROVISIONER: Testing database connectivity...");
+            var canConnect = await context.Database.CanConnectAsync();
+            var kSessionsCanConnect = await kSessionsContext.Database.CanConnectAsync();
+            
+            Log.Information("PROVISIONER: Canvas DB connectivity: {CanConnect}", canConnect);
+            Log.Information("PROVISIONER: KSESSIONS DB connectivity: {KSessionsCanConnect}", kSessionsCanConnect);
+
+            if (!canConnect || !kSessionsCanConnect)
+            {
+                throw new Exception($"Database connectivity failed. Canvas: {canConnect}, KSESSIONS: {kSessionsCanConnect}");
+            }
+
+            // Issue-45: Validate Session ID exists in KSESSIONS database
+            Log.Information("PROVISIONER: Validating Session ID {SessionId} exists in KSESSIONS_DEV.Sessions...", sessionId);
+            var kSession = await kSessionsContext.Sessions
+                .FirstOrDefaultAsync(s => s.SessionId == (int)sessionId);
+            
+            if (kSession == null)
+            {
+                Log.Error("PROVISIONER-ERROR: Session ID {SessionId} does not exist in KSESSIONS database", sessionId);
+                throw new InvalidOperationException($"Session ID {sessionId} does not exist in KSESSIONS database. Please select a valid Session from the Islamic content library.");
+            }
+
+            Log.Information("PROVISIONER: Found Session: {SessionName} in KSESSIONS", kSession.Description ?? "No Description");
+
+            // Issue-45: Verify Session has transcripts available for annotation
+            Log.Information("PROVISIONER: Verifying Session {SessionId} has transcripts available...", sessionId);
+            var transcriptCount = await kSessionsContext.SessionTranscripts
+                .CountAsync(st => st.SessionId == (int)sessionId);
+                
+            if (transcriptCount == 0)
+            {
+                Log.Error("PROVISIONER-ERROR: Session ID {SessionId} has no transcripts available for annotation", sessionId);
+                throw new InvalidOperationException($"Session ID {sessionId} has no transcripts available. Transcripts are required for NOOR Canvas annotation features.");
+            }
+
+            Log.Information("PROVISIONER: Session has {TranscriptCount} transcripts available", transcriptCount);
+
+            // Issue-45: Create canvas.Sessions record from KSESSIONS data if it doesn't exist
+            var canvasSession = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+            if (canvasSession == null)
+            {
+                Log.Information("PROVISIONER: Creating canvas.Sessions record from KSESSIONS data...");
+                canvasSession = new Session
+                {
+                    SessionId = sessionId,
+                    GroupId = Guid.NewGuid(), // Map from KSESSIONS if needed
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                    Description = kSession.Description ?? $"Session {sessionId} from KSESSIONS",
+                    Title = $"Islamic Session {sessionId}",
+                    Status = "Created",
+                    HostGuid = "" // Will be set by Host GUID creation
+                };
+                
+                context.Sessions.Add(canvasSession);
+                await context.SaveChangesAsync();
+                
+                Log.Information("PROVISIONER: Canvas Session record created successfully");
+            }
+
+            HostSession hostSession;
+            
+            // Handle --force-new parameter (bypass update logic)
+            if (forceNew)
+            {
+                Log.Information("PROVISIONER: --force-new parameter specified - creating new record regardless of existing Session ID");
+            }
+            else
+            {
+                Log.Information("PROVISIONER: Checking for existing Host Session with Session ID {SessionId}...", sessionId);
+            }
+            
+            // Check for existing Host Session by Session ID (Issue-42: Single GUID per Session ID rule)
+            var existingHostSession = forceNew ? null : await context.HostSessions
+                .FirstOrDefaultAsync(hs => hs.SessionId == sessionId);
+
+            if (existingHostSession != null && !forceNew)
+            {
+                // Update existing record with new GUID (GUID rotation)
+                Log.Information("PROVISIONER: Found existing Host Session {HostSessionId} - updating with new GUID", existingHostSession.HostSessionId);
+                
+                existingHostSession.HostGuidHash = hostGuidHash;
+                existingHostSession.CreatedAt = DateTime.UtcNow;
+                existingHostSession.CreatedBy = createdBy ?? "Interactive User";
+                existingHostSession.IsActive = true;
+                existingHostSession.ExpiresAt = expiresAt;
+                
+                hostSession = existingHostSession;
+                
+                var logMessage = "PROVISIONER-UPDATE: Rotating Host GUID for existing Session {SessionId} by {CreatedBy}";
+                if (!string.IsNullOrEmpty(rotationReason))
+                {
+                    Log.Information(logMessage + " - Reason: {RotationReason}", sessionId, createdBy ?? "Interactive User", rotationReason);
+                }
+                else
+                {
+                    Log.Information(logMessage, sessionId, createdBy ?? "Interactive User");
+                }
+            }
+            else
+            {
+                // Create new Host Session record
+                Log.Information("PROVISIONER: No existing Host Session found - creating new record");
+                
+                hostSession = new HostSession
+                {
+                    SessionId = sessionId,
+                    HostGuidHash = hostGuidHash,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = createdBy ?? "Interactive User",
+                    IsActive = true,
+                    ExpiresAt = expiresAt
+                };
+
+                Log.Information("PROVISIONER: Adding new HostSession to DbContext...");
+                context.HostSessions.Add(hostSession);
+                Log.Information("PROVISIONER-CREATE: Creating new Host Session for Session {SessionId} by {CreatedBy}", sessionId, createdBy ?? "Interactive User");
+            }
+            
+            Log.Information("PROVISIONER: Calling SaveChangesAsync...");
+            await context.SaveChangesAsync();
+            Log.Information("PROVISIONER: SaveChangesAsync completed successfully");
+
+            // Display results
+            Log.Information("SUCCESS: Host GUID created and saved to database");
+            Log.Information("Session ID: {SessionId}", sessionId);
+            Log.Information("Host GUID: {HostGuid}", hostGuid);
+            Log.Information("Host Session ID: {HostSessionId}", hostSession.HostSessionId);
+            Log.Information("Created By: {CreatedBy}", createdBy ?? "Interactive User");
+            Log.Information("Database Record: ✅ Saved to canvas.HostSessions");
+            
+            // Interactive mode specific output (Issue-44: Enhanced UX with pause)
+            if (createdBy == "Interactive User")
+            {
+                DisplayGuidWithPause(hostGuid, sessionId, hostSession.HostSessionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "PROVISIONER-ERROR: Failed to create Host GUID with database persistence");
+            throw;
+        }
+    }
+
     private static async Task RotateHostGuid(long hostSessionId, bool dryRun)
     {
         try
@@ -226,5 +531,25 @@ class Program
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(AppSecret));
         var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
         return Convert.ToBase64String(hashBytes);
+    }
+
+    private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId)
+    {
+        Console.WriteLine();
+        Console.WriteLine("✅ Host GUID Generated Successfully!");
+        Console.WriteLine("===================================");
+        Console.WriteLine($"📊 Session ID: {sessionId}");
+        Console.WriteLine($"🆔 Host GUID: {hostGuid}");
+        Console.WriteLine($"🔢 Host Session ID: {hostSessionId}");
+        Console.WriteLine($"⏰ Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        Console.WriteLine($"💾 Database: ✅ Saved to canvas.HostSessions");
+        Console.WriteLine();
+        Console.WriteLine("📋 Copy the Host GUID above to use for authentication.");
+        Console.WriteLine("🔑 The GUID is stored securely in the database.");
+        Console.WriteLine();
+        Console.Write("Press any key to continue...");
+        Console.ReadKey();
+        Console.WriteLine();
+        Console.WriteLine();
     }
 }

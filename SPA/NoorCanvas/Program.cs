@@ -60,6 +60,13 @@ else
             "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
 }
 
+// Add KSESSIONS Database Context (Read-only for Groups, Categories, Sessions)
+builder.Services.AddDbContext<KSessionsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ?? 
+        builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+        "Server=(localdb)\\mssqllocaldb;Database=KSESSIONS;Trusted_Connection=true;MultipleActiveResultSets=true")
+    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Read-only optimization
+
 // Add SignalR with JSON protocol only (avoiding BlazorPack compatibility issues)
 builder.Services.AddSignalR(options =>
 {
@@ -186,11 +193,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-Log.Information("NOOR-STARTUP: NOOR Canvas Phase 1 application starting on https://localhost:9091 and http://localhost:9090");
+Log.Information("NOOR-STARTUP: NOOR Canvas Phase 1 application starting");
 
 try
 {
-    app.Run("https://localhost:9091");
+    app.Run();
 }
 catch (Exception ex)
 {
