@@ -96,11 +96,13 @@ class Program
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
             .Build();
 
         // Add Entity Framework with connection string from NoorCanvas project
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
-            "Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false";
+            "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;";
 
         services.AddDbContext<CanvasDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions =>
@@ -468,6 +470,11 @@ class Program
                 Log.Information("PROVISIONER-CREATE: Creating new Host Session for Canvas SessionId {CanvasSessionId} (KSessions {KSessionsId}) by {CreatedBy}", 
                     canvasSession.SessionId, sessionId, createdBy ?? "Interactive User");
             }
+            
+            // BUGFIX: Set the HostGuid in Sessions table for authentication controller
+            Log.Information("PROVISIONER: Setting canvas.Sessions.HostGuid for authentication controller...");
+            canvasSession.HostGuid = hostGuidHash;
+            canvasSession.ModifiedAt = DateTime.UtcNow;
             
             Log.Information("PROVISIONER: Calling SaveChangesAsync...");
             await context.SaveChangesAsync();

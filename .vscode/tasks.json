@@ -1,84 +1,108 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/SPA/NoorCanvas/NoorCanvas.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary;ForceNoAlign"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "build-with-tests",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "build",
-                "run-post-build-tests"
-            ]
-        },
-        {
-            "label": "run-post-build-tests",
-            "command": "pwsh",
-            "type": "shell",
-            "args": [
-                "-ExecutionPolicy", "Bypass",
-                "-File", "${workspaceFolder}/.hooks/post-build.ps1",
-                "-Configuration", "Debug"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "silent",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "build-host-provisioner",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/Tools/HostProvisioner/HostProvisioner.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary;ForceNoAlign"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "publish",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/Tools/HostProvisioner/HostProvisioner.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary;ForceNoAlign"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "watch",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "watch",
-                "run",
-                "--project",
-                "${workspaceFolder}/Tools/HostProvisioner/HostProvisioner.csproj"
-            ],
-            "problemMatcher": "$msCompile"
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/SPA/NoorCanvas/NoorCanvas.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary;ForceNoAlign"
+			],
+			"problemMatcher": "$msCompile",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "build-with-tests",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"build",
+				"run-post-build-tests"
+			]
+		},
+		{
+			"label": "run-post-build-tests",
+			"command": "pwsh",
+			"type": "shell",
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/.hooks/post-build.ps1",
+				"-Configuration",
+				"Debug"
+			],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "silent",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "build-host-provisioner",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/Tools/HostProvisioner/HostProvisioner/HostProvisioner.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary;ForceNoAlign"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "publish",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"publish",
+				"${workspaceFolder}/Tools/HostProvisioner/HostProvisioner/HostProvisioner.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary;ForceNoAlign"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "watch",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"watch",
+				"run",
+				"--project",
+				"${workspaceFolder}/Tools/HostProvisioner/HostProvisioner/HostProvisioner.csproj"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "run-host-provisioner-session-215",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run",
+				"--",
+				"create",
+				"--session-id",
+				"215",
+				"--created-by",
+				"GitHub Copilot Test",
+				"--dry-run",
+				"false"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/Tools/HostProvisioner/HostProvisioner"
+			},
+			"isBackground": false,
+			"group": "test"
+		}
+	]
 }

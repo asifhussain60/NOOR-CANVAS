@@ -263,10 +263,7 @@
 <ConfirmDialog @ref="confirmDialog" />
 
 @code {
-    // API Response Models
-    public class AlbumData { public Guid GroupId { get; set; } public string GroupName { get; set; } = ""; }
-    public class CategoryData { public int CategoryId { get; set; } public string CategoryName { get; set; } = ""; }  
-    public class SessionData { public int SessionId { get; set; } public string SessionName { get; set; } = ""; }
+    // Using controller API Response Models: NoorCanvas.Controllers.AlbumData, CategoryData, SessionData
     public class SessionStatusData 
     { 
         public string SessionName { get; set; } = "";
@@ -275,12 +272,12 @@
     }
 
     // Component State
-    private List<AlbumData>? albums;
-    private List<CategoryData>? categories;
-    private List<SessionData>? sessions;
+    private List<NoorCanvas.Controllers.AlbumData>? albums;
+    private List<NoorCanvas.Controllers.CategoryData>? categories;
+    private List<NoorCanvas.Controllers.SessionData>? sessions;
     private SessionStatusData? currentSessionStatus;
     
-    private Guid? selectedAlbumId;
+    private int? selectedAlbumId;
     private int? selectedCategoryId;  
     private int? selectedSessionId;
     private string? currentSessionToken;
@@ -352,11 +349,42 @@
             }
 
             // Load albums from KSESSIONS data
+            Logger.LogInformation("NOOR-DEBUG: About to call /api/host/albums?guid={Guid}", Guid?.Substring(0, 8) + "...");
             var albumResponse = await Http.GetAsync($"/api/host/albums?guid={Guid}");
+            
+            Logger.LogInformation("NOOR-DEBUG: Albums API response - StatusCode: {StatusCode}, IsSuccess: {IsSuccess}", 
+                albumResponse.StatusCode, albumResponse.IsSuccessStatusCode);
+            
             if (albumResponse.IsSuccessStatusCode)
             {
-                albums = await albumResponse.Content.ReadFromJsonAsync<List<AlbumData>>();
-                Logger.LogInformation("NOOR-SUCCESS: Loaded {AlbumCount} albums", albums?.Count ?? 0);
+                var rawJson = await albumResponse.Content.ReadAsStringAsync();
+                Logger.LogInformation("NOOR-DEBUG: Raw JSON response from albums API: {RawJson}", rawJson);
+                
+                try 
+                {
+                    albums = await albumResponse.Content.ReadFromJsonAsync<List<NoorCanvas.Controllers.AlbumData>>();
+                    Logger.LogInformation("NOOR-SUCCESS: Successfully deserialized {AlbumCount} albums", albums?.Count ?? 0);
+                    
+                    if (albums != null && albums.Any())
+                    {
+                        foreach (var album in albums.Take(3))
+                        {
+                            Logger.LogInformation("NOOR-DEBUG: Album - GroupId: {GroupId} (Type: {GroupIdType}), GroupName: '{GroupName}'", 
+                                album.GroupId, album.GroupId.GetType().Name, album.GroupName);
+                        }
+                    }
+                }
+                catch (Exception deserializeEx)
+                {
+                    Logger.LogError(deserializeEx, "NOOR-ERROR: Failed to deserialize albums JSON. Raw JSON: {RawJson}", rawJson);
+                    throw;
+                }
+            }
+            else
+            {
+                var errorContent = await albumResponse.Content.ReadAsStringAsync();
+                Logger.LogError("NOOR-ERROR: Albums API call failed - Status: {StatusCode}, Content: {ErrorContent}", 
+                    albumResponse.StatusCode, errorContent);
             }
 
             // Check for any active session
@@ -385,7 +413,7 @@
     {
         try
         {
-            selectedAlbumId = string.IsNullOrEmpty(e.Value?.ToString()) ? null : System.Guid.Parse(e.Value.ToString()!);
+            selectedAlbumId = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!);
             selectedCategoryId = null;
             selectedSessionId = null;
             categories = null;
@@ -394,12 +422,17 @@
 
             if (selectedAlbumId.HasValue)
             {
-                Logger.LogInformation("NOOR-INFO: Loading categories for album: {AlbumId}", selectedAlbumId);
+                Logger.LogInformation("NOOR-DEBUG: Loading categories for album: {AlbumId}", selectedAlbumId);
                 
                 var response = await Http.GetAsync($"/api/host/categories/{selectedAlbumId}?guid={Guid}");
+                Logger.LogInformation("NOOR-DEBUG: Categories API response - StatusCode: {StatusCode}", response.StatusCode);
+                
                 if (response.IsSuccessStatusCode)
                 {
-                    categories = await response.Content.ReadFromJsonAsync<List<CategoryData>>();
+                    var rawJson = await response.Content.ReadAsStringAsync();
+                    Logger.LogInformation("NOOR-DEBUG: Raw categories JSON: {RawJson}", rawJson);
+                    
+                    categories = await response.Content.ReadFromJsonAsync<List<NoorCanvas.Controllers.CategoryData>>();
                     Logger.LogInformation("NOOR-SUCCESS: Loaded {CategoryCount} categories", categories?.Count ?? 0);
                 }
             }
@@ -427,7 +460,7 @@
                 var response = await Http.GetAsync($"/api/host/sessions/{selectedCategoryId}?guid={Guid}");
                 if (response.IsSuccessStatusCode)
                 {
-                    sessions = await response.Content.ReadFromJsonAsync<List<SessionData>>();
+                    sessions = await response.Content.ReadFromJsonAsync<List<NoorCanvas.Controllers.SessionData>>();
                     Logger.LogInformation("NOOR-SUCCESS: Loaded {SessionCount} sessions", sessions?.Count ?? 0);
                 }
             }
