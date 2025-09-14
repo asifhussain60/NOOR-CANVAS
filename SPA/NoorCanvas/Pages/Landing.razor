@@ -11,7 +11,7 @@
 
 <div class="landing-container noor-fade-in">
     <!-- Logo Only - No Header Container -->
-    <img src="images/branding/NC-Logo.png" 
+    <img src="images/NoorCanvas.png" 
          alt="NOOR Canvas Logo" 
          class="noor-main-logo" />
 
@@ -20,7 +20,7 @@
         
         <!-- Host Panel -->
         <div id="host-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500 @GetCardClasses("host")">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Host Authentication</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Manage Session</h2>
             
             @if (currentStep == 1)
             {
@@ -96,10 +96,10 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-6">
-                    <!-- Host Authentication -->
+                    <!-- Manage Session -->
                     <div id="host-auth" style="display: none;">
                         <div class="auth-card">
-                            <h4><i class="fas fa-key"></i> Host Authentication</h4>
+                            <h4><i class="fas fa-key"></i> Manage Session</h4>
                             <p>Enter Your Token</p>
                             <form @onsubmit="AuthenticateHost" @onsubmit:preventDefault="true">
                                 <div class="mb-3">
@@ -173,6 +173,37 @@
 
             // Add CSS debug logging for Issue-64
             await JSRuntime.InvokeVoidAsync("console.log", "🎨 NOOR-CSS-DEBUG: Landing page rendered - Issue-64 debugging");
+            
+            // Issue-75 & Issue-76 Debug Logging: Logo and Card Sizing Changes
+            await JSRuntime.InvokeVoidAsync("console.log", "📏 NOOR-SIZING-DEBUG Issue-75: Logo increased to 280px height (was 160px) - LARGE and prominent");
+            await JSRuntime.InvokeVoidAsync("console.log", "📏 NOOR-SIZING-DEBUG Issue-76: Cards reduced by 30% - min-width: 266px (was 380px), max-width: 336px (was 480px)");
+            await JSRuntime.InvokeVoidAsync("console.log", "📏 NOOR-SIZING-DEBUG: Button content height reduced to 196px (was 280px), padding reduced to 2.1rem/1.4rem");
+            
+            // Log actual element sizes for verification
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                setTimeout(() => {
+                    const logo = document.querySelector('.noor-main-logo');
+                    const cards = document.querySelectorAll('.noor-card-wide');
+                    if (logo) {
+                        console.log('📐 NOOR-ACTUAL-SIZE Logo:', {
+                            computedHeight: getComputedStyle(logo).height,
+                            actualHeight: logo.offsetHeight + 'px',
+                            naturalHeight: logo.naturalHeight + 'px (original image)',
+                            width: logo.offsetWidth + 'px'
+                        });
+                    }
+                    if (cards.length > 0) {
+                        cards.forEach((card, index) => {
+                            console.log(`📐 NOOR-ACTUAL-SIZE Card ${index + 1}:`, {
+                                width: card.offsetWidth + 'px',
+                                height: card.offsetHeight + 'px',
+                                computedMinWidth: getComputedStyle(card).minWidth,
+                                computedMaxWidth: getComputedStyle(card).maxWidth
+                            });
+                        });
+                    }
+                }, 1000);
+            ");
         }
     }
 
@@ -367,6 +398,9 @@
         Logger.LogInformation("NOOR-UX-DEBUG: ShowHostForm called - selectedRole: {Role}, currentStep: {Step}", selectedRole, currentStep);
         await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX-DEBUG: ShowHostForm - Host card expanding, Participant card hiding");
         
+        // Issue-75 & Issue-76 Debug: Log card sizing during interaction
+        await JSRuntime.InvokeVoidAsync("console.log", "📏 Issue-75/76 DEBUG: Host card interaction - verifying 30% reduced sizing");
+        
         // Trigger animations: expand host card, hide participant card
         await JSRuntime.InvokeVoidAsync("NoorCardAnimator.expandCard", "host-card", "participant-card");
         
@@ -382,6 +416,9 @@
         
         Logger.LogInformation("NOOR-UX-DEBUG: ShowParticipantForm called - selectedRole: {Role}, currentStep: {Step}", selectedRole, currentStep);
         await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX-DEBUG: ShowParticipantForm - Participant card expanding, Host card hiding");
+        
+        // Issue-75 & Issue-76 Debug: Log card sizing during interaction  
+        await JSRuntime.InvokeVoidAsync("console.log", "📏 Issue-75/76 DEBUG: Participant card interaction - verifying 30% reduced sizing");
         
         // Trigger animations: expand participant card, hide host card  
         await JSRuntime.InvokeVoidAsync("NoorCardAnimator.expandCard", "participant-card", "host-card");

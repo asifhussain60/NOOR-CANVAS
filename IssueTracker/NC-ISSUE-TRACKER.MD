@@ -5,6 +5,12 @@
 **IMMEDIATE ATTENTION REQUIRED - Production Blocking Issues**
 
 ### **Active Critical Issues Blocking Development**
+- ✅ **Issue-75** — [Logo Size Enhancement - Make Logo LARGE and Prominent](COMPLETED/Issue-75-logo-size-enhancement-large-prominent.md) 🔧 **UX ENHANCEMENT** - Increase NOOR Canvas logo size to be LARGE and stand out on landing page
+- ✅ **Issue-76** — [Authentication Cards Size Reduction - 30% Smaller](COMPLETED/Issue-76-authentication-cards-size-reduction-30-percent.md) 🔧 **UX ENHANCEMENT** - Reduce HOST and ATTEND card sizes by 30% while maintaining usability
+- ✅ **Issue-77** — [Change Host Authentication to Manage Session](COMPLETED/Issue-77-Host-Authentication-Text-Change.md) 🔧 **UX ENHANCEMENT** - Update HOST card text from "Host Authentication" to "Manage Session" for better clarity
+- ✅ **Issue-78** — [Authentication Cards 20% Size Increase](COMPLETED/Issue-78-authentication-cards-20-percent-increase.md) 🔧 **UX ENHANCEMENT** - Increase HOST and ATTEND card sizes by 20% for better visibility and prominence  
+- ✅ **Issue-79** — [Authentication Cards 25% Width Increase](COMPLETED/ISSUE-79-CARD-WIDTH-25-PERCENT-INCREASE.md) 🔧 **UX ENHANCEMENT** - Increase card width by 25% for more noticeable visual impact after 20% increase wasn't apparent
+- ✅ **Issue-80** — [Application Not Loading - Connection Refused Error](IN%20PROGRESS/Issue-80-application-not-loading-connection-refused.md) 🐛 **CRITICAL BUG RESOLVED + PREVENTION SYSTEM** - PowerShell profile directory conflict fixed with comprehensive guard rails to prevent recurrence
 - 🎬 **Issue-67** — [Landing Page 2-Step UX with Card Animations](NOT%20STARTED/Issue-67-landing-page-2step-ux-with-animations.md) 🔧 **UX ENHANCEMENT** - Modern 2-step landing page with feature lists → input forms, 20% card expansion animations
 - ⚡ **Issue-68** — [Authentication Card Text Refinement](IN%20PROGRESS/Issue-68-authentication-card-text-refinement.md) 🔧 **UX ENHANCEMENT** - Host card: "Manage sessions and monitor participants" → "Manage Session", Participant card: "Connect to live Islamic learning sessions" → "Attend Session"
 - ✅ **Issue-70** — [Landing Page Card UI Redesign - Remove Feature Lists, Enhance Button Design](COMPLETED/Issue-70-Landing-Page-Card-UI-Redesign.md) 🔧 **UX ENHANCEMENT** - Removed obsolete tick mark CSS, enhanced large square buttons with modern styling, improved icon sizing and typography

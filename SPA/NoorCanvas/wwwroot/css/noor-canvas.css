@@ -301,13 +301,14 @@ html, body {
   }
 }
 
-/* Main Logo - Standalone (Twice the Original Size) */
+/* Main Logo - Standalone (LARGE and Prominent - Issue-75) */
 .noor-main-logo {
-  height: 160px; /* Double the original 80px */
+  height: 280px; /* LARGE size - increased from 160px for maximum prominence */
   width: auto;
   display: block;
   margin: 2rem auto 3rem auto;
-  filter: drop-shadow(0 6px 12px rgba(59, 130, 246, 0.25));
+  opacity: 0.7; /* Reduced opacity by 30% (from 1.0 to 0.7) */
+  filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.3));
   transition: transform 0.3s ease-in-out;
 }
 
@@ -331,24 +332,25 @@ html, body {
   }
   
   .noor-main-logo {
-    height: 120px; /* Smaller on mobile but still larger than original */
+    height: 200px; /* LARGE on mobile - proportionally scaled from 280px */
+    opacity: 0.7; /* Reduced opacity by 30% (from 1.0 to 0.7) */
   }
 }
 
-/* Issue-70: Enhanced Square Button Cards */
+/* Issue-70: Enhanced Square Button Cards - Issue-78: 25% Width Increase */
 .noor-card-wide {
   flex: 1;
-  min-width: 380px; /* Increased for more square appearance */
-  max-width: 480px; /* Enhanced maximum width */
-  aspect-ratio: 1.1; /* Nearly square aspect ratio for button-like appearance */
+  min-width: 332px; /* 25% wider - was 266px (266 × 1.25 = 332px) */
+  max-width: 420px; /* 25% wider - was 336px (336 × 1.25 = 420px) */
+  aspect-ratio: 1.2; /* Wider aspect ratio for more prominent appearance */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 2rem; /* Larger border radius for modern square button look */
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 20px 40px -12px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1.75rem; /* 25% larger - was 1.4rem (1.4 × 1.25 = 1.75rem) */
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 16px 32px -8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 /* Interactive Card Animation */
@@ -363,19 +365,19 @@ html, body {
   position: relative;
 }
 
-/* Issue-70: Enhanced Large Square Button Design for Landing Cards */
+/* Issue-70: Enhanced Large Square Button Design for Landing Cards - Issue-78: 25% Size Increase */
 .noor-large-button-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem; /* More generous padding for square appearance */
-  min-height: 280px; /* Increased height for more square appearance */
-  border-radius: 1.5rem; /* Large rounded corners for modern look */
+  padding: 2.625rem 1.75rem; /* 25% larger - was 2.1rem 1.4rem (2.1×1.25=2.625, 1.4×1.25=1.75) */
+  min-height: 245px; /* 25% larger - was 196px (196 × 1.25 = 245px) */
+  border-radius: 1.31rem; /* 25% larger - was 1.05rem (1.05 × 1.25 = 1.31rem) */
   transition: all 0.3s ease-in-out;
   cursor: pointer;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+  border: 1px solid rgba(255,255,255,0.25);
 }
 
 .noor-large-icon {
@@ -444,11 +446,12 @@ html, body {
 
 @media (max-width: 480px) {
   .noor-main-logo {
-    height: 100px; /* Still larger than original on very small screens */
+    height: 160px; /* LARGE on very small screens - proportionally scaled */
+    opacity: 0.7; /* Reduced opacity by 30% (from 1.0 to 0.7) */
   }
   
   .noor-card-wide {
-    min-width: 280px; /* Adjust for very small screens */
+    min-width: 245px; /* 25% larger - was 196px (196 × 1.25 = 245px) */
     max-width: 100%;
   }
 }
