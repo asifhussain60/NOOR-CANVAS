@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOOR Canvas - Session</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
@@ -15,34 +16,43 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <header class="bg-[#114B5F] text-white p-4 shadow-md flex justify-between items-center">
-        <div class="font-bold text-2xl tracking-wide">NOOR Canvas - Session</div>
-        <div class="flex space-x-4">
-            <button class="bg-white text-[#114B5F] px-4 py-2 rounded-lg font-semibold shadow-lg">Host View</button>
-            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold shadow-lg">User View</button>
-        </div>
+    <!-- New Header with centered text placeholder -->
+    <header class="w-full max-w-4xl p-4 sm:p-6 bg-white rounded-xl shadow-lg flex items-center justify-center mb-8 mx-auto mt-8">
+        <div class="text-center font-bold text-2xl">[Header Image Goes Here...]</div>
     </header>
 
-    <main class="flex-1 p-6 flex flex-col">
+    <main class="flex-1 p-6 flex flex-col items-center">
+        <!-- Combined Content Div -->
+        <div class="bg-white rounded-xl shadow-lg p-6 flex-1 flex flex-col w-11/12 border-4 border-purple-500">
+            <!-- New Header Section -->
+            <header class="p-6">
+                <div class="flex items-center justify-center space-x-4 mb-2">
+                    <i class="fa-solid fa-book-open-reader text-blue-600 text-5xl"></i>
+                    <h1 class="font-bold text-blue-600 text-5xl tracking-wide">Live Session</h1>
+                </div>
+                <!-- Session Title & Description -->
+                <h2 class="text-center text-3xl font-bold text-gray-800 mt-4">[Session Name]</h2>
+                <p class="text-center text-gray-600 text-sm leading-relaxed mt-2">This is a sample description for the session. It provides a brief overview of the topics that will be discussed and the goals of the session. It's designed to give participants a clear idea of what to expect and to set the stage for the content to be shared.</p>
+            </header>
 
-        <!-- Session Title & Description -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Sample Session Name</h1>
-            <p class="text-gray-600 text-sm leading-relaxed">This is a sample description for the session. It provides a brief overview of the topics that will be discussed and the goals of the session. It's designed to give participants a clear idea of what to expect and to set the stage for the content to be shared.</p>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="bg-white rounded-xl shadow-lg p-6 flex-1 flex flex-col" style="min-height: 400px;">
-            <h2 class="font-semibold text-lg text-gray-800 mb-4">SESSION TRANSCRIPT</h2>
-            <div id="session-content" class="flex-1 flex flex-col items-center justify-center text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
-                Session content will appear here when the session begins.
+            <!-- Main Content Area -->
+            <div class="p-6 flex-1 flex flex-col" style="min-height: 52.5vh;">
+                <h2 class="font-semibold text-2xl text-blue-600 mb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-chalkboard-user mr-2"></i>
+                    CANVAS
+                </h2>
+                <div id="session-content" class="flex-1 flex flex-col items-center justify-center text-center text-gray-500 p-8 border-2 border-solid border-purple-500 rounded-xl bg-purple-100">
+                    Session Assets Shared Here
+                </div>
             </div>
         </div>
 
         <!-- Q&A Panel (Slide-out or always visible based on design) -->
-        <div class="bg-white p-6 rounded-xl shadow-lg mt-6">
-            <h2 class="font-semibold text-lg text-gray-800 mb-4">QUESTIONS & ANSWERS</h2>
+        <div class="bg-white p-6 rounded-xl shadow-lg mt-6 w-11/12 border-4 border-purple-500">
+            <h2 class="font-semibold text-2xl text-blue-600 mb-4 flex items-center justify-center">
+                <i class="fa-solid fa-comments mr-2"></i>
+                Q&A
+            </h2>
             <div class="space-y-4">
                 <textarea class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Ask a question..." rows="3"></textarea>
                 <button class="w-full bg-blue-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">Submit Question</button>
@@ -53,220 +63,69 @@
                 <h3 class="font-semibold text-md text-gray-700">Recent Questions (vote for your favorite)</h3>
                 
                 <!-- User's Questions -->
-                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
                     <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">Can you re-share the ayah card?</textarea>
+                        <i class="fa-regular fa-circle-question text-gray-500 text-xl mr-2"></i>
+                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-gray-50 rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">Can you re-share the ayah card?</textarea>
                     </div>
                     <div class="flex items-center space-x-2">
                          <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <i class="fa-solid fa-arrow-up text-green-500"></i>
                         </button>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">2</span>
                         <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
                 <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
                     <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
+                        <i class="fa-regular fa-circle-question text-gray-500 text-xl mr-2"></i>
                         <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">How can I implement what I've learned in my daily life?</textarea>
                     </div>
                     <div class="flex items-center space-x-2">
                          <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <i class="fa-solid fa-arrow-up text-green-500"></i>
                         </button>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">4</span>
                         <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">What is the significance of the Battle of Badr?</textarea>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">10</span>
-                        <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">What is the history of the Quran's compilation?</textarea>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">3</span>
-                        <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">What is the best way to memorize a short Surah from the Quran?</textarea>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">2</span>
-                        <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">How can I achieve more focus and presence in my prayers?</textarea>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">8</span>
-                        <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2 w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <textarea class="flex-1 w-full p-1 border border-gray-300 bg-white rounded-md resize-none overflow-hidden focus:outline-none focus:border-blue-500 text-gray-800" rows="1">How can I make my prayers more meaningful and connected?</textarea>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">11</span>
-                        <button class="text-red-500 hover:text-red-700 transition-colors" title="Delete your question">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
                 <!-- Other Participants' Questions -->
                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-gray-600">What is the Islamic perspective on nutrition and physical fitness?</span>
+                        <i class="fa-regular fa-circle-question text-gray-500 text-xl mr-2"></i>
+                        <span class="text-gray-600">What is the significance of the Battle of Badr?</span>
                     </div>
                     <div class="flex items-center space-x-2">
                          <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <i class="fa-solid fa-arrow-up text-green-500"></i>
                         </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">8</span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">10</span>
                     </div>
                 </div>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
+                <div class="bg-white p-3 rounded-lg border border-gray-200 flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
+                        <i class="fa-regular fa-circle-question text-gray-500 text-xl mr-2"></i>
                         <span class="text-gray-600">What's the meaning of "Tawhid" and its importance?</span>
                     </div>
                     <div class="flex items-center space-x-2">
                          <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <i class="fa-solid fa-arrow-up text-green-500"></i>
                         </button>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">6</span>
                     </div>
                 </div>
                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-gray-600">What's the significance of the city of Mecca in early Islam?</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">9</span>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-gray-600">What are the key themes in Surah Al-Fatiha?</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">12</span>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-gray-600">How can the story of Prophet Yusuf inspire us in times of difficulty?</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                         <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                        </button>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">11</span>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
+                        <i class="fa-regular fa-circle-question text-gray-500 text-xl mr-2"></i>
                         <span class="text-gray-600">What is the importance of "sabr" (patience) in Islam?</span>
                     </div>
                     <div class="flex items-center space-x-2">
                          <button class="text-green-500 hover:text-green-600 transition-colors ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            <i class="fa-solid fa-arrow-up text-green-500"></i>
                         </button>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">18</span>
                     </div>
@@ -275,7 +134,7 @@
         </div>
 
         <!-- Leave Button -->
-        <div class="flex justify-center mt-6">
+        <div class="flex justify-center mt-6 w-11/12">
             <button class="bg-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:bg-red-600 transition-colors w-full sm:w-auto">Leave Session</button>
         </div>
     </main>

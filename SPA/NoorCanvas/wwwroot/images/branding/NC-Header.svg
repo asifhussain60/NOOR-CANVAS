@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="80" viewBox="0 0 400 80">
+  <!-- Islamic geometric pattern background -->
+  <defs>
+    <pattern id="islamicPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="#0066cc"/>
+      <path d="M10,2 L18,10 L10,18 L2,10 Z" fill="#004499" opacity="0.3"/>
+    </pattern>
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0066cc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#004499;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="80" fill="url(#headerGradient)"/>
+  <rect width="400" height="80" fill="url(#islamicPattern)" opacity="0.1"/>
+  
+  <!-- NOOR text -->
+  <text x="50" y="35" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white">NOOR</text>
+  <text x="50" y="55" font-family="Arial, sans-serif" font-size="16" fill="#e6f2ff">Knowledge • Canvas • Learning</text>
+  
+  <!-- Canvas text -->
+  <text x="180" y="35" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white">CANVAS</text>
+  <text x="180" y="55" font-family="Arial, sans-serif" font-size="12" fill="#b3d9ff">Interactive Learning Platform</text>
+  
+  <!-- Decorative Islamic pattern -->
+  <g transform="translate(330, 40)">
+    <circle cx="0" cy="0" r="25" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
+    <path d="M-15,-15 L15,15 M15,-15 L-15,15" stroke="white" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="0" cy="0" r="8" fill="white" opacity="0.9"/>
+  </g>
+</svg>
