@@ -241,24 +241,20 @@ _logger.LogInformation("NOOR-INFO: {Action} executed for session {SessionId}", n
 - **Trigger**: Every successful `dotnet build` command
 - **Smart Detection**: Only runs tests if build output actually changed
 
-**Pre-Commit Test Validation with Smart Caching**
-- **Implementation**: `.hooks/pre-commit-test.ps1` + Git pre-commit hook
-- **Trigger**: Every `git commit` command
-- **Smart Caching**: Skips redundant tests if no code changes since last test run
+**Manual Test Execution Only**
+- **Pre-commit hooks**: REMOVED - No automated test execution during commits
+- **Testing approach**: Manual execution using dedicated test commands when needed
+- **Benefit**: Clean, fast commits without delays or terminal issues
 
-### **Git Commit Guidelines - BYPASS TEST SUITE**
-
-**CRITICAL: Do NOT run test suite during commits**
-- **Use**: `git commit --no-verify` to bypass pre-commit hooks
-- **Reason**: Pre-commit tests can cause delays and terminal issues
-- **Alternative**: Run tests manually when needed using dedicated test commands
-- **Best Practice**: Focus on clean, fast commits without automated test execution
+### **Git Commit Guidelines - STREAMLINED**
 
 **Standard Commit Procedure:**
 ```powershell
 git add .
-git commit --no-verify -m "Your commit message"
+git commit -m "Your commit message"
 ```
+
+**No pre-commit hooks or automated tests** - commits execute immediately without interruption.
 
 ## 11. Repository Cleanup & Maintenance
 
