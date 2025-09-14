@@ -7,110 +7,137 @@
 @inject ILogger<CreateSession> Logger
 @inject IHttpClientFactory HttpClientFactory
 
-<div class="noor-page-container">
-    <!-- NOOR Canvas Header -->
-    <header class="noor-header-container">
-        <div class="text-center p-4 bg-white rounded-3xl shadow-xl noor-max-w-4xl mx-auto">
-            <img src="~/images/branding/NC-Header.png" alt="NOOR Canvas - Create Session" class="img-fluid" style="max-width: 100%; height: auto;" />
-        </div>
+<!-- NOOR Canvas Header -->
+<header class="noor-header-container">
+    <img src="~/images/branding/NC-Header.png" alt="NOOR Canvas - Host Control Panel" class="noor-header" />
+</header>
+
+<div class="noor-main-container noor-space-y-6">
+    <!-- Host Control Panel Header -->
+    <header class="text-center">
+        <h1 class="noor-title">
+            <i class="fa-solid fa-gear text-blue-500"></i>
+            <span>HOST CONTROL PANEL</span>
+        </h1>
     </header>
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="fas fa-plus-circle"></i> Create New Session</h3>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">Select your content album, category, and session to begin</p>
-                    
-                    @if (!string.IsNullOrEmpty(errorMessage))
+    <!-- Session Details Panel -->
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-300">
+        <h2 class="font-bold text-2xl text-blue-900 mb-4">Create New Session</h2>
+        <p class="text-gray-600 text-sm leading-relaxed mb-4">Select your content album, category, and session to create a new interactive learning session.</p>
+        
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle"></i> @errorMessage
+            </div>
+        }
+
+        <form @onsubmit="CreateNewSession" @onsubmit:preventDefault="true">
+            <!-- Dropdown and Session Controls Panel Container -->
+        <div class="noor-flex-panel mt-6">
+            <!-- Dropdown Panel -->
+            <div class="noor-panel noor-space-y-4">
+                <!-- Album Dropdown -->
+                <div class="w-full">
+                    <label for="album" class="noor-label">
+                        <i class="fa-solid fa-compact-disc"></i>
+                        <span>Album</span>
+                    </label>
+                    <select id="album" name="album" class="noor-select" value="@selectedAlbumId" @onchange="OnAlbumChanged" disabled="@isLoading">
+                        <option selected disabled value="">Select an album</option>
+                        @if (albums != null)
+                        {
+                            @foreach (var album in albums)
+                            {
+                                <option value="@album.GroupId">@album.GroupName</option>
+                            }
+                        }
+                    </select>
+                    @if (isLoadingAlbums)
                     {
-                        <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-circle"></i> @errorMessage
+                        <small class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> Loading albums...</small>
+                    }
+                </div>
+
+                <!-- Category Dropdown -->
+                <div class="w-full">
+                    <label for="category" class="noor-label">
+                        <i class="fa-solid fa-tag"></i>
+                        <span>Category</span>
+                    </label>
+                    <select id="category" name="category" class="noor-select" value="@selectedCategoryId" @onchange="OnCategoryChanged" disabled="@(isLoading || string.IsNullOrEmpty(selectedAlbumId))">
+                        <option selected disabled value="">Select a category</option>
+                        @if (categories != null)
+                        {
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.CategoryId">@category.CategoryName</option>
+                            }
+                        }
+                    </select>
+                    @if (isLoadingCategories)
+                    {
+                        <small class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> Loading categories...</small>
+                    }
+                </div>
+
+                <!-- Session Dropdown -->
+                <div class="w-full">
+                    <label for="session" class="noor-label">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Session</span>
+                    </label>
+                    <select id="session" name="session" class="noor-select" @bind="selectedSessionId" disabled="@(isLoading || string.IsNullOrEmpty(selectedCategoryId))">
+                        <option selected disabled value="">Select a session</option>
+                        @if (sessions != null)
+                        {
+                            @foreach (var session in sessions)
+                            {
+                                <option value="@session.SessionId">@session.SessionName</option>
+                        }
+                    </select>
+                    @if (isLoadingSessions)
+                    {
+                        <small class="text-gray-500"><i class="fas fa-spinner fa-spin"></i> Loading sessions...</small>
+                    }
+                </div>
+            </div>
+
+            <!-- Session Controls Panel -->
+            <div class="noor-panel flex flex-col items-center justify-center noor-space-y-4">
+                <h3 class="noor-section-title">SESSION CONTROLS</h3>
+                
+                <!-- Create Session Button -->
+                <form @onsubmit="CreateNewSession" @onsubmit:preventDefault="true" class="w-full">
+                    <button type="submit" class="noor-btn noor-btn-primary w-full" 
+                            disabled="@(isLoading || string.IsNullOrEmpty(selectedSessionId))">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <i class="fas fa-rocket"></i> Create Session
+                    </button>
+                </form>
+                
+                <!-- Session Preview (if selected) -->
+                @if (!string.IsNullOrEmpty(selectedSessionId) && sessions != null)
+                {
+                    @{
+                        var selectedSession = sessions.FirstOrDefault(s => s.SessionId == selectedSessionId);
+                    }
+                    @if (selectedSession != null)
+                    {
+                        <div class="bg-gray-50 rounded-lg p-4 w-full text-center">
+                            <h4 class="font-bold text-blue-900">Selected Session</h4>
+                            <p class="text-gray-700">@selectedSession.SessionName</p>
                         </div>
                     }
-
-                    <form @onsubmit="CreateNewSession" @onsubmit:preventDefault="true">
-                        <div class="row">
-                            <!-- Album Selection -->
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Album</label>
-                                <select class="form-select" value="@selectedAlbumId" @onchange="OnAlbumChanged" disabled="@isLoading">
-                                    <option value="">Select Album...</option>
-                                    @if (albums != null)
-                                    {
-                                        @foreach (var album in albums)
-                                        {
-                                            <option value="@album.GroupId">@album.GroupName</option>
-                                        }
-                                    }
-                                </select>
-                                @if (isLoadingAlbums)
-                                {
-                                    <small class="text-muted"><i class="fas fa-spinner fa-spin"></i> Loading albums...</small>
-                                }
-                            </div>
-
-                            <!-- Category Selection -->
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Category</label>
-                                <select class="form-select" value="@selectedCategoryId" @onchange="OnCategoryChanged" disabled="@(isLoading || string.IsNullOrEmpty(selectedAlbumId))">
-                                    <option value="">Select Category...</option>
-                                    @if (categories != null)
-                                    {
-                                        @foreach (var category in categories)
-                                        {
-                                            <option value="@category.CategoryId">@category.CategoryName</option>
-                                        }
-                                    }
-                                </select>
-                                @if (isLoadingCategories)
-                                {
-                                    <small class="text-muted"><i class="fas fa-spinner fa-spin"></i> Loading categories...</small>
-                                }
-                            </div>
-
-                            <!-- Session Selection -->
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Session</label>
-                                <select class="form-select" @bind="selectedSessionId" disabled="@(isLoading || string.IsNullOrEmpty(selectedCategoryId))">
-                                    <option value="">Select Session...</option>
-                                    @if (sessions != null)
-                                    {
-                                        @foreach (var session in sessions)
-                                        {
-                                            <option value="@session.SessionId">@session.SessionName</option>
-                                        }
-                                    }
-                                </select>
-                                @if (isLoadingSessions)
-                                {
-                                    <small class="text-muted"><i class="fas fa-spinner fa-spin"></i> Loading sessions...</small>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary btn-lg w-100" 
-                                        disabled="@(isLoading || string.IsNullOrEmpty(selectedSessionId))">
-                                    @if (isLoading)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2"></span>
-                                    }
-                                    <i class="fas fa-rocket"></i> Create Session
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                }
             </div>
         </div>
     </div>
 </div>
-</div> <!-- Close noor-page-container -->
 
 @code {
     [Parameter] public string? Guid { get; set; }

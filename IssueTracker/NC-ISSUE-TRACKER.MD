@@ -5,6 +5,7 @@
 **IMMEDIATE ATTENTION REQUIRED - Production Blocking Issues**
 
 ### **Active Critical Issues Blocking Development**
+- ⚡ **Issue-64** — [Visual Design Mismatch - Mock vs Implementation](IN%20PROGRESS/Issue-64-visual-design-mismatch-mock-implementation.md) 🚨 **CRITICAL VISUAL BUG** - Landing and CreateSession pages DO NOT match provided design mocks - CSS/styling complete mismatch
 - ✅ **Issue-62** — [HttpClient BaseAddress Configuration Missing](COMPLETED/Issue-62-httpclient-baseaddress-configuration-missing.md) 🚨 **CRITICAL BUG RESOLVED** - **ROOT CAUSE OF Issue-60:** Fixed HttpClient configuration, now uses named "default" client with BaseAddress
 - ⚡ **Issue-63** — [Systematic Fix Methodology to Prevent Recurring Issues](IN%20PROGRESS/Issue-63-systematic-fix-methodology-prevent-recurring-issues.md) 🔧 **PROCESS IMPROVEMENT** - Establish root cause analysis protocol and prevention infrastructurent Sharing Platform
 
@@ -15,8 +16,9 @@
 **Purpose:** Simple checklist for tracking work items in flight. TODOs are temporary and should be removed once completed.
 
 ### **Active TODOs**
-- [x] **Test Complete HostSessionManager Workflow** - ✅ VERIFIED: Issue-62 fix successfully resolves authentication failures in runtime
-- [x] **Implement Configuration Validation Startup Check** - ✅ COMPLETED: Added ValidateStartupConfiguration() method in Program.cs with HttpClient and database validation
+- [ ] **Fix Landing Page Visual Design Mismatch** - CRITICAL: Update Landing.razor HTML structure and CSS to match provided design mock exactly (Issue-64 Phase 1)
+- [ ] **Fix CreateSession Page Visual Design** - Apply same design patterns from Landing fix to CreateSession.razor for consistency (Issue-64 Phase 2)
+- [ ] **Add CSS Debug Logging** - Enhanced console logging to verify NOOR Canvas CSS classes are being applied correctly (Issue-64 Phase 3)
 - [ ] **Create End-to-End Testing Protocol** - Establish complete workflow testing to prevent regression issues (Issue-63 Phase 2)
 - [ ] **Document Systematic Fix Methodology** - Complete Issue-63 implementation and documentation
 
