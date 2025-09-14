@@ -1709,3 +1709,116 @@ Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}  # Check dotnet pro
 - Application available at https://localhost:9091 (manually accessible)
 - SignalR connections establish successfully (Blazor Server real-time functionality)
 - Structured logging operational: "NOOR-STARTUP", "NOOR-INFO" messages appearing
+
+---
+
+## 13. NOOR Canvas Workspace Healthcheck Protocol
+
+### **🚨 AUTOMATIC HEALTHCHECK TRIGGERS**
+GitHub Copilot AUTOMATICALLY executes comprehensive workspace healthcheck when detecting these scenarios:
+- **Session Continuity**: When resuming work after conversation gaps
+- **Document Misalignment**: When code changes may have outdated documentation  
+- **Global Command Issues**: When commands fail or behave unexpectedly
+- **Critical Issue Discovery**: When implementation blockers are identified
+- **Pre-deployment Validation**: Before production releases or major milestones
+
+### **📋 COMPREHENSIVE HEALTHCHECK PROTOCOL**
+
+#### **1. Documentation-Code Alignment Verification**
+**AUTOMATIC VERIFICATION SEQUENCE**:
+```powershell
+# Verify controller count matches documentation (should be 8)
+list_dir "SPA/NoorCanvas/Controllers/"
+
+# Verify SignalR hub count matches documentation (should be 3) 
+list_dir "SPA/NoorCanvas/Hubs/"
+
+# Verify database model count matches documentation (13+ models)
+list_dir "SPA/NoorCanvas/Models/"
+
+# Check migrations applied
+list_dir "SPA/NoorCanvas/Data/Migrations/"
+```
+
+**CRITICAL VERIFICATION POINTS**:
+- **Controllers**: Admin, Annotations, Health, Host, HostProvisioner, Issue, Logs, Participant (8 total)
+- **SignalR Hubs**: SessionHub, AnnotationHub, QAHub (3 total)
+- **Database Tables**: 13 tables in canvas schema + migrations applied
+- **Console Tools**: HostProvisioner (569+ lines in Program.cs)
+- **Test Coverage**: 120+ test cases in NoorCanvas.Core.Tests
+
+#### **2. Global Commands Functional Verification**
+**REQUIRED COMMAND TESTS**:
+```powershell
+nc -Help        # NOOR Canvas application runner (port manager)
+nct -Help       # Host token generator (interactive GUID generation)
+ncdoc -Help     # Documentation server (localhost:9093)
+iiskill -Help   # IIS Express process killer (KNOWN ISSUE: May be missing)
+```
+
+**AUTOMATIC REPAIR SEQUENCE** (if commands fail):
+1. **Check PowerShell Profile**: `Get-Content $PROFILE | Select-String "NOOR"`
+2. **Verify Function Definitions**: Ensure all 4 commands properly registered
+3. **Execute Setup Script**: `Workspaces/Global/setup-global-commands.ps1`
+4. **Re-test Commands**: Validate all commands work after repair
+
+#### **3. Critical Issues Status Assessment**
+**PRIORITY ISSUE MONITORING**:
+- **Issue-53**: CreateSession HttpClient BaseAddress (CRITICAL BLOCKER)
+- **PowerShell Profile**: Missing `iiskill` function registration
+- **Implementation Gaps**: Any new development requiring documentation updates
+
+#### **4. Implementation Reality Validation**
+**VERIFY ACTUAL VS. DOCUMENTED STATUS**:
+- **Backend Completion**: Should be 95% (8 controllers + 3 hubs + database complete)
+- **Frontend Completion**: Should be 70% (blocked by Issue-53)
+- **Development Tools**: Should be 90% (HostProvisioner complete, global commands mostly working)
+
+### **📂 REFERENCE HEALTHCHECK PROMPT**
+**Location**: `Workspaces/Documentation/NOOR-CANVAS-HEALTHCHECK-PROMPT.md`
+**Usage**: Complete standalone prompt for comprehensive workspace validation
+**When to Use**: Copy entire file content to Copilot for systematic verification
+
+### **🔧 AUTOMATIC REPAIR BEHAVIORS**
+
+#### **Document Synchronization** (Auto-Execute):
+- Update IMPLEMENTATION-TRACKER.MD with any new verified implementations
+- Sync NOOR-CANVAS-DESIGN.MD architecture section with actual codebase
+- Correct completion percentages based on reality verification
+- Document newly discovered issues in Issue Tracker
+
+#### **Global Commands Repair** (Auto-Execute):
+- Test all 4 global commands with `-Help` parameter
+- Identify missing PowerShell profile functions
+- Execute setup script to restore missing commands
+- Validate full command functionality after repair
+
+#### **Git History Validation** (Auto-Execute):
+- Check recent commits for implementation changes requiring documentation updates
+- Verify git status is clean after healthcheck repairs
+- Commit any documentation fixes with structured messages
+
+### **✅ HEALTHCHECK SUCCESS CRITERIA**
+**MANDATORY VALIDATION CHECKLIST**:
+- [ ] All documentation matches actual codebase implementation
+- [ ] All 4 global commands (nc, nct, ncdoc, iiskill) functional
+- [ ] Critical issues documented and prioritized
+- [ ] Git history clean with recent commits
+- [ ] Issue tracker reflects current development reality
+- [ ] No aspirational claims in documentation (reality-verified only)
+
+### **🚫 HEALTHCHECK FAILURE RESPONSES**
+**AUTOMATIC CORRECTIVE ACTIONS**:
+- **Documentation Misalignment**: Auto-update documents to match code reality
+- **Missing Global Commands**: Auto-repair PowerShell profile and re-test
+- **Implementation Gaps**: Document gaps as new issues and update trackers
+- **Critical Blockers**: Escalate priority and document resolution paths
+
+### **📝 COPILOT HEALTHCHECK BEHAVIOR**
+**NEVER ASK** "Should I run a healthcheck?" — Execute automatically when triggered
+**ALWAYS VERIFY** implementation claims against actual source code
+**AUTOMATICALLY REPAIR** documentation and global command issues
+**COMMIT FIXES** with structured messages documenting healthcheck results
+**MAINTAIN** workspace integrity and documentation accuracy
+
+**CRITICAL RULE**: Every healthcheck MUST result in workspace alignment where documentation accurately reflects implementation reality with no aspirational or outdated claims.
