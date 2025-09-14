@@ -10,74 +10,84 @@
 @inject IHttpClientFactory HttpClientFactory
 
 <div class="landing-container noor-fade-in">
-    <!-- Header with NOOR Canvas Branding -->
-    <header class="noor-header-container">
-        <div class="text-center p-4 bg-white rounded-3xl shadow-xl noor-max-w-4xl mx-auto">
-            <img src="~/images/branding/NC-Header.png" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="img-fluid" style="max-width: 100%; height: auto;" />
-        </div>
-    </header>
+    <!-- Logo Only - No Header Container -->
+    <img src="images/branding/NC-Logo.png" 
+         alt="NOOR Canvas Logo" 
+         class="noor-main-logo" />
 
-    <!-- Role Selection (Following Mock Design) -->
-    <div class="noor-flex-panel noor-max-w-4xl mx-auto p-4">
+    <!-- 2-Step UX Implementation: Issue-67 -->
+    <div class="noor-flex-panel-wide noor-max-w-6xl mx-auto p-4 @(currentStep == 2 ? "noor-step-2" : "")">
         
         <!-- Host Panel -->
-        <div class="flex-1 bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500">
-            <i class="fa-solid fa-house-user text-6xl text-blue-600 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">I am a Host</h2>
-            <p class="text-gray-600 mb-6">Create and manage Islamic content sessions</p>
+        <div id="host-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500 @GetCardClasses("host")">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Host Authentication</h2>
             
-            <ul class="noor-feature-list text-left w-full mb-8">
-                <li>
-                    <i class="fa-solid fa-database text-green-500 me-3"></i>
-                    <span class="text-gray-700">Create new sessions</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-share-nodes text-green-500 me-3"></i>
-                    <span class="text-gray-700">Share Islamic content</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-comments text-green-500 me-3"></i>
-                    <span class="text-gray-700">Manage Q&A discussions</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-highlighter text-green-500 me-3"></i>
-                    <span class="text-gray-700">Real-time annotations</span>
-                </li>
-            </ul>
-            
-            <button class="noor-btn noor-btn-primary w-full" @onclick='() => SelectRole("host")'>
-                Continue as Host
-            </button>
+            @if (currentStep == 1)
+            {
+                <!-- Step 1: Large Button Design -->
+                <div class="noor-large-button-content">
+                    <i class="fa-solid fa-key noor-large-icon text-blue-600 mb-6"></i>
+                    <p class="noor-large-button-text text-gray-800 font-semibold">HOST</p>
+                </div>
+                <button class="noor-btn noor-btn-primary w-full mt-8" @onclick="() => ShowHostForm()">
+                    <i class="fa-solid fa-arrow-right me-2"></i>Continue as Host
+                </button>
+            }
+            else
+            {
+                <!-- Step 2: Input Form -->
+                <p class="text-gray-600 mb-6">Enter The Access Token</p>
+                <div class="w-full mb-6">
+                    <label class="noor-label mb-2 text-left" for="hostGuid">
+                        <i class="fa-solid fa-key text-blue-500 me-2"></i>Host GUID
+                    </label>
+                    <input type="text" 
+                           id="hostGuid" 
+                           class="noor-input w-full" 
+                           placeholder="Enter your Token"
+                           @bind="hostGuid" />
+                    <small class="text-gray-500 mt-1 d-block">Get your Host GUID from the HostProvisioner tool</small>
+                </div>
+                <button class="noor-btn noor-btn-primary w-full" @onclick="() => HandleHostAccess()">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i>Access Dashboard
+                </button>
+            }
         </div>
 
         <!-- Participant Panel -->
-        <div class="flex-1 bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500">
-            <i class="fa-solid fa-users text-6xl text-green-600 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">I am a Participant</h2>
-            <p class="text-gray-600 mb-6">Join existing sessions and engage with content</p>
+        <div id="participant-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500 @GetCardClasses("participant")">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Join Session</h2>
             
-            <ul class="noor-feature-list text-left w-full mb-8">
-                <li>
-                    <i class="fa-solid fa-right-to-bracket text-blue-500 me-3"></i>
-                    <span class="text-gray-700">Join active sessions</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-eye text-blue-500 me-3"></i>
-                    <span class="text-gray-700">View shared content</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-question-circle text-blue-500 me-3"></i>
-                    <span class="text-gray-700">Ask questions</span>
-                </li>
-                <li>
-                    <i class="fa-solid fa-thumbs-up text-blue-500 me-3"></i>
-                    <span class="text-gray-700">Vote on discussions</span>
-                </li>
-            </ul>
-            
-            <button class="noor-btn noor-btn-success w-full" @onclick='() => SelectRole("participant")'>
-                Join Session
-            </button>
+            @if (currentStep == 1)
+            {
+                <!-- Step 1: Large Button Design -->
+                <div class="noor-large-button-content">
+                    <i class="fa-solid fa-link noor-large-icon text-green-600 mb-6"></i>
+                    <p class="noor-large-button-text text-gray-800 font-semibold">ATTEND</p>
+                </div>
+                <button class="noor-btn noor-btn-success w-full mt-8" @onclick="() => ShowParticipantForm()">
+                    <i class="fa-solid fa-arrow-right me-2"></i>Continue as Participant
+                </button>
+            }
+            else
+            {
+                <!-- Step 2: Input Form -->
+                <p class="text-gray-600 mb-6">Enter The Access Token</p>
+                <div class="w-full mb-6">
+                    <label class="noor-label mb-2 text-left" for="sessionLink">
+                        <i class="fa-solid fa-link text-green-500 me-2"></i>Session Link or ID
+                    </label>
+                    <input type="text" 
+                           id="sessionLink" 
+                           class="noor-input w-full" 
+                           placeholder="Enter Your Token"
+                           @bind="sessionLink" />
+                    <small class="text-gray-500 mt-1 d-block">Copy and Paste For Ease</small>
+                </div>
+                <button class="noor-btn noor-btn-success w-full" @onclick="() => HandleSessionJoin()">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i>Join Session
+                </button>
+            }
         </div>
     </div>
 
@@ -90,14 +100,14 @@
                     <div id="host-auth" style="display: none;">
                         <div class="auth-card">
                             <h4><i class="fas fa-key"></i> Host Authentication</h4>
-                            <p>Enter your Host GUID to access the dashboard</p>
+                            <p>Enter Your Token</p>
                             <form @onsubmit="AuthenticateHost" @onsubmit:preventDefault="true">
                                 <div class="mb-3">
                                     <label class="form-label">Host GUID</label>
                                     <input type="text" class="form-control" @bind="hostGuid" 
                                            placeholder="Enter your Host GUID" required />
                                     <div class="form-text">
-                                        Get your Host GUID from the HostProvisioner tool
+                                        Copy and Paste For Ease
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
@@ -115,7 +125,7 @@
                     <div id="participant-auth" style="display: none;">
                         <div class="auth-card">
                             <h4><i class="fas fa-link"></i> Join Session</h4>
-                            <p>Enter the session link provided by your host</p>
+                            <p>Enter Your Token</p>
                             <form @onsubmit="JoinSession" @onsubmit:preventDefault="true">
                                 <div class="mb-3">
                                     <label class="form-label">Session Link or ID</label>
@@ -139,6 +149,8 @@
 </div>
 
 @code {
+    // Issue-67: 2-Step UX State Management
+    private int currentStep = 1; // 1 = Feature Lists, 2 = Input Forms
     private string selectedRole = "";
     private string hostGuid = "";
     private string sessionLink = "";
@@ -346,6 +358,52 @@
         public DateTime? ExpiresAt { get; set; }
     }
 
+    // Issue-67: 2-Step UX Transition Methods
+    private async Task ShowHostForm()
+    {
+        selectedRole = "host";
+        currentStep = 2;
+        
+        Logger.LogInformation("NOOR-UX-DEBUG: ShowHostForm called - selectedRole: {Role}, currentStep: {Step}", selectedRole, currentStep);
+        await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX-DEBUG: ShowHostForm - Host card expanding, Participant card hiding");
+        
+        // Trigger animations: expand host card, hide participant card
+        await JSRuntime.InvokeVoidAsync("NoorCardAnimator.expandCard", "host-card", "participant-card");
+        
+        Logger.LogInformation("NOOR-UX: Transitioned to Host input form (Step 2)");
+        await JSRuntime.InvokeVoidAsync("console.log", "✅ NOOR-UX-DEBUG: Host form displayed, participant card hidden with display:none");
+        StateHasChanged(); // Force re-render to show input form
+    }
+
+    private async Task ShowParticipantForm()
+    {
+        selectedRole = "participant";
+        currentStep = 2;
+        
+        Logger.LogInformation("NOOR-UX-DEBUG: ShowParticipantForm called - selectedRole: {Role}, currentStep: {Step}", selectedRole, currentStep);
+        await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX-DEBUG: ShowParticipantForm - Participant card expanding, Host card hiding");
+        
+        // Trigger animations: expand participant card, hide host card  
+        await JSRuntime.InvokeVoidAsync("NoorCardAnimator.expandCard", "participant-card", "host-card");
+        
+        Logger.LogInformation("NOOR-UX: Transitioned to Participant input form (Step 2)");
+        await JSRuntime.InvokeVoidAsync("console.log", "✅ NOOR-UX-DEBUG: Participant form displayed, host card hidden with display:none");
+        StateHasChanged(); // Force re-render to show input form
+    }
+
+    // Enhanced Interactive Card Handlers
+    private async Task HandleHostAccess()
+    {
+        // Call existing authentication method
+        await AuthenticateHost();
+    }
+
+    private async Task HandleSessionJoin()
+    {
+        // Call existing session join method
+        await JoinSession();
+    }
+
     private static bool IsBase64String(string s)
     {
         if (string.IsNullOrWhiteSpace(s)) return false;
@@ -362,12 +420,37 @@
             return false;
         }
     }
+
+    // Enhanced Card Animation Class Management - Issue-67 UX Refinement
+    private string GetCardClasses(string cardType)
+    {
+        if (currentStep == 1)
+        {
+            return ""; // Default state in step 1
+        }
+        
+        // Step 2: Apply expansion/hiding classes
+        if (selectedRole == cardType)
+        {
+            return "noor-card-expanded"; // Selected card expands and centers
+        }
+        else
+        {
+            return "noor-card-hidden"; // Other card hides
+        }
+    }
 }
 
 <style>
 .landing-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #f3f4f6; /* bg-gray-100 equivalent */
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 3rem;
 }
 
 .hero-section {
@@ -439,26 +522,7 @@
     margin-bottom: 20px;
 }
 
-.role-features {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
 
-.role-features li {
-    padding: 8px 0;
-    color: #555;
-    position: relative;
-    padding-left: 25px;
-}
-
-.role-features li:before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #28a745;
-    font-weight: bold;
-}
 
 .auth-section {
     padding: 60px 0;
@@ -501,6 +565,104 @@
     transition: all 0.3s ease;
 }
 </style>
+
+<script>
+// NOOR Canvas Card Animation System
+window.NoorCardAnimator = {
+    expandCard: function(activeCardId, inactiveCardId) {
+        console.log('🚀 NOOR-CARD-DEBUG: ========== EXPAND CARD START ==========');
+        console.log('🎯 NOOR-CARD-DEBUG: Target - Active:', activeCardId, 'Inactive:', inactiveCardId);
+        
+        const activeCard = document.getElementById(activeCardId);
+        const inactiveCard = document.getElementById(inactiveCardId);
+        
+        console.log('🔍 NOOR-CARD-DEBUG: Element lookup results:', {
+            activeCardFound: !!activeCard,
+            inactiveCardFound: !!inactiveCard,
+            activeCardElement: activeCard,
+            inactiveCardElement: inactiveCard
+        });
+        
+        if (activeCard && inactiveCard) {
+            // Log current state before changes
+            console.log('📋 NOOR-CARD-DEBUG: BEFORE - Active classes:', activeCard.classList.toString());
+            console.log('📋 NOOR-CARD-DEBUG: BEFORE - Inactive classes:', inactiveCard.classList.toString());
+            console.log('📋 NOOR-CARD-DEBUG: BEFORE - Inactive computed display:', window.getComputedStyle(inactiveCard).display);
+            
+            // Add expanded class to active card
+            activeCard.classList.add('noor-card-expanded');
+            console.log('✅ NOOR-CARD-DEBUG: Added noor-card-expanded to', activeCardId);
+            
+            // Add hidden class to inactive card (now uses display:none)
+            inactiveCard.classList.add('noor-card-hidden');
+            console.log('✅ NOOR-CARD-DEBUG: Added noor-card-hidden to', inactiveCardId);
+            
+            // Force a reflow to ensure styles are applied
+            inactiveCard.offsetHeight;
+            
+            // Log state after changes
+            console.log('📋 NOOR-CARD-DEBUG: AFTER - Active classes:', activeCard.classList.toString());
+            console.log('📋 NOOR-CARD-DEBUG: AFTER - Inactive classes:', inactiveCard.classList.toString());
+            
+            // Check computed styles with delay to ensure CSS has processed
+            setTimeout(() => {
+                const inactiveStyles = window.getComputedStyle(inactiveCard);
+                console.log('🔍 NOOR-CARD-DEBUG: FINAL - Inactive computed display:', inactiveStyles.display);
+                console.log('🔍 NOOR-CARD-DEBUG: FINAL - Inactive visibility:', inactiveStyles.visibility);
+                console.log('🔍 NOOR-CARD-DEBUG: FINAL - Inactive opacity:', inactiveStyles.opacity);
+                console.log('🔍 NOOR-CARD-DEBUG: FINAL - Inactive offsetWidth:', inactiveCard.offsetWidth);
+                console.log('🔍 NOOR-CARD-DEBUG: FINAL - Inactive offsetHeight:', inactiveCard.offsetHeight);
+                
+                // Check if element is actually hidden
+                const isHidden = inactiveStyles.display === 'none' || inactiveCard.offsetWidth === 0;
+                console.log('🎯 NOOR-CARD-DEBUG: Is inactive card truly hidden?', isHidden);
+                
+                if (!isHidden) {
+                    console.error('❌ NOOR-CARD-DEBUG: CRITICAL - Card is not hidden despite display:none class!');
+                    console.error('❌ NOOR-CARD-DEBUG: CSS Rule investigation needed');
+                }
+            }, 100);
+            
+            // Optional: Add focus to the input in active card
+            setTimeout(() => {
+                const input = activeCard.querySelector('input');
+                if (input) {
+                    input.focus();
+                    console.log('� NOOR-CARD-DEBUG: Input focused in active card');
+                }
+            }, 200);
+            
+            console.log('✅ NOOR Canvas: Card animation complete - Expanded:', activeCardId, 'Hidden:', inactiveCardId);
+        } else {
+            console.error('❌ NOOR-CARD-DEBUG: CRITICAL - Cards not found!', { 
+                activeCardId, 
+                inactiveCardId, 
+                activeCard: !!activeCard, 
+                inactiveCard: !!inactiveCard 
+            });
+        }
+        console.log('🏁 NOOR-CARD-DEBUG: ========== EXPAND CARD END ==========');
+    },
+    
+    resetCards: function() {
+        const hostCard = document.getElementById('host-card');
+        const participantCard = document.getElementById('participant-card');
+        
+        if (hostCard && participantCard) {
+            // Remove all animation classes
+            hostCard.classList.remove('noor-card-expanded', 'noor-card-hidden');
+            participantCard.classList.remove('noor-card-expanded', 'noor-card-hidden');
+            
+            console.log('NOOR Canvas: Cards reset to default state');
+        }
+    }
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('NOOR Canvas: Card animation system initialized');
+});
+</script>
 
 <!-- Dialog Components -->
 <AlertDialog @ref="alertDialog" />

@@ -95,6 +95,15 @@ Top priorities (next sprint)
 3. Implement Session lifecycle SignalR broadcasts (SessionBegan/SessionEnded) and late-join snapshot API
 4. Add CI workflow: lint → build → tests → integration checks (fail fast on lint)
 
+## Recent Enhancements (September 14, 2025)
+### Landing Page Interactive UX Enhancement
+- ✅ **Card Input Controls**: Replaced feature lists with functional Host GUID and Session Link input forms
+- ✅ **Interactive Animations**: Implemented 20% card expansion with smooth CSS transitions when buttons pressed
+- ✅ **Modern UX Patterns**: Added card hiding/showing with cubic-bezier animations and focus management
+- ✅ **Visual Consistency**: Restored purple borders (border-4 border-purple-500) to maintain design identity
+- ✅ **Accessibility**: Added proper labels, placeholders, and keyboard navigation support
+- **Files Modified**: Landing.razor (UI controls), noor-canvas.css (animations), JavaScript integration
+
 Phase summary (condensed)
 -------------------------
 - Phase 1 — Foundation (Weeks 1–3): COMPLETE ✅

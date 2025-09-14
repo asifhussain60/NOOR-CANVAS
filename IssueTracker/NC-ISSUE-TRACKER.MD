@@ -5,9 +5,19 @@
 **IMMEDIATE ATTENTION REQUIRED - Production Blocking Issues**
 
 ### **Active Critical Issues Blocking Development**
+- 🎬 **Issue-67** — [Landing Page 2-Step UX with Card Animations](NOT%20STARTED/Issue-67-landing-page-2step-ux-with-animations.md) 🔧 **UX ENHANCEMENT** - Modern 2-step landing page with feature lists → input forms, 20% card expansion animations
+- ⚡ **Issue-68** — [Authentication Card Text Refinement](IN%20PROGRESS/Issue-68-authentication-card-text-refinement.md) 🔧 **UX ENHANCEMENT** - Host card: "Manage sessions and monitor participants" → "Manage Session", Participant card: "Connect to live Islamic learning sessions" → "Attend Session"
+- ✅ **Issue-70** — [Landing Page Card UI Redesign - Remove Feature Lists, Enhance Button Design](COMPLETED/Issue-70-Landing-Page-Card-UI-Redesign.md) 🔧 **UX ENHANCEMENT** - Removed obsolete tick mark CSS, enhanced large square buttons with modern styling, improved icon sizing and typography
+- ⚡ **Issue-69** — [Button Panel Layout Fix - Display None Implementation](IN%20PROGRESS/Issue-69-button-panel-layout-fix-display-none.md) 🔧 **UX BUG** - Replace opacity:0 with display:none when hiding cards so remaining card properly centers in panel
+- ⚡ **Issue-71** — [Authentication Card Text Labels Update](IN%20PROGRESS/Issue-71-authentication-card-text-labels-update.md) 🔧 **UX REFINEMENT** - Change "Manage Session" to "HOST" and "Attend Session" to "ATTEND" for cleaner labels
+- ⚡ **Issue-72** — [Card Display None and Centering Fix](IN%20PROGRESS/Issue-72-card-display-none-centering-fix.md) 🚨 **UX BUG** - Second panel not becoming display:none properly, active card not centering on page
 - ⚡ **Issue-64** — [Visual Design Mismatch - Mock vs Implementation](IN%20PROGRESS/Issue-64-visual-design-mismatch-mock-implementation.md) 🚨 **CRITICAL VISUAL BUG** - Landing and CreateSession pages DO NOT match provided design mocks - CSS/styling complete mismatch
 - ✅ **Issue-62** — [HttpClient BaseAddress Configuration Missing](COMPLETED/Issue-62-httpclient-baseaddress-configuration-missing.md) 🚨 **CRITICAL BUG RESOLVED** - **ROOT CAUSE OF Issue-60:** Fixed HttpClient configuration, now uses named "default" client with BaseAddress
-- ⚡ **Issue-63** — [Systematic Fix Methodology to Prevent Recurring Issues](IN%20PROGRESS/Issue-63-systematic-fix-methodology-prevent-recurring-issues.md) 🔧 **PROCESS IMPROVEMENT** - Establish root cause analysis protocol and prevention infrastructurent Sharing Platform
+- ⚡ **Issue-63** — [Systematic Fix Methodology to Prevent Recurring Issues](IN%20PROGRESS/Issue-63-systematic-fix-methodology-prevent-recurring-issues.md) 🔧 **PROCESS IMPROVEMENT** - Establish root cause analysis protocol and prevention infrastructure
+- ✅ **Issue-71** — [Authentication Card Text Refinement - HOST and ATTEND Labels](COMPLETED/Issue-71-authentication-card-text-refinement-host-attend.md) 🔧 **UX ENHANCEMENT** - Change "Manage Session" to "HOST" and "Attend Session" to "ATTEND" for cleaner button labels
+- ✅ **Issue-72** — [Display None CSS Class Not Working - Card Centering Bug](COMPLETED/Issue-72-display-none-css-not-working-card-centering.md) 🚨 **CRITICAL BUG** - Second panel not properly hidden with display:none, preventing active card from centering on page
+- ✅ **Issue-73** — [Remove Unnecessary Sidebar Div](COMPLETED/Issue-73-Remove-Sidebar-Div.md) 🔧 **LAYOUT CLEANUP** - Remove unused empty sidebar div causing layout conflicts and content positioning issues
+- ✅ **Issue-74** — [Fix Authentication Panel Positioning](COMPLETED/Issue-74-Fix-Panel-Positioning.md) 🔧 **UX ENHANCEMENT** - Move authentication panels higher on page following UI/UX best practices for better visual hierarchy
 
 ---
 
@@ -16,11 +26,9 @@
 **Purpose:** Simple checklist for tracking work items in flight. TODOs are temporary and should be removed once completed.
 
 ### **Active TODOs**
-- [ ] **Fix Landing Page Visual Design Mismatch** - CRITICAL: Update Landing.razor HTML structure and CSS to match provided design mock exactly (Issue-64 Phase 1)
-- [ ] **Fix CreateSession Page Visual Design** - Apply same design patterns from Landing fix to CreateSession.razor for consistency (Issue-64 Phase 2)
-- [ ] **Add CSS Debug Logging** - Enhanced console logging to verify NOOR Canvas CSS classes are being applied correctly (Issue-64 Phase 3)
 - [ ] **Create End-to-End Testing Protocol** - Establish complete workflow testing to prevent regression issues (Issue-63 Phase 2)
 - [ ] **Document Systematic Fix Methodology** - Complete Issue-63 implementation and documentation
+- [ ] **Implement Phase 3.5 Mock-to-Live Integration** - Replace all mock implementations with live API calls for Host authentication and Participant session joining
 
 ---
 
@@ -137,6 +145,8 @@ IssueTracker/
 - ⏳ **Issue-31** — [HTTP 500.19 Configuration Errors in IIS Express](AWAITING_CONFIRMATION/Issue-31-http-500-19-configuration-errors-iis-express.md) 🔧 **CONFIGURATION** - IIS Express configuration validation needed
 
 ### **Previously Completed High Priority Issues**
+- ✅ **Issue-66** — [Landing Page Interactive Card UX Enhancement](COMPLETED/Issue-66-landing-page-interactive-card-ux-enhancement.md) 🔧 **UX ENHANCEMENT COMPLETED** - Replaced feature lists with input controls, added 20% expansion animation, restored purple borders
+- ✅ **Issue-65** — [Header Redesign Logo Only Implementation](COMPLETED/Issue-65-Header-Redesign-Logo-Only.md) 🔧 **DESIGN ENHANCEMENT COMPLETED** - Simplified header to logo-only, doubled size, widened layout
 - ✅ **Issue-57** — [NC Command Continuation Prompt Fix](COMPLETED/Issue-57-nc-command-continuation-prompt-fix.md) 🐛 **BUG RESOLVED** - Fixed Read-Host prompt workflow
 - ✅ **Issue-45** — [Host Provisioner SessionTranscripts Validation Logic](COMPLETED/Issue-45-host-provisioner-sessiontranscripts-validation-logic.md) 🐛 **INTEGRATION BUG RESOLVED**
 - ✅ **Issue-37** — [KSESSIONS Database Integration for Dropdown Data Loading](COMPLETED/Issue-37-ksessions-database-integration-dropdown-data.md)

@@ -47,27 +47,143 @@ html, body {
   line-height: 1.6;
 }
 
-/* NOOR Canvas Header Image Styling */
-.noor-header {
-  width: 95%;
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-  border-radius: var(--noor-border-radius);
-  box-shadow: var(--noor-shadow-lg);
+/* Issue-67: Modern Card Animation System */
+.noor-card-interactive {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  will-change: transform, opacity;
 }
 
-/* Responsive header sizing */
+.noor-card-expanded {
+  transform: scale(1.2); /* 20% expansion */
+  z-index: 10;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.noor-card-hidden {
+  display: none;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+/* Enhanced centering when one card is hidden */
+.noor-flex-panel-wide.noor-step-2 {
+  justify-content: center;
+  align-items: center;
+}
+
+.noor-flex-panel-wide.noor-step-2 .noor-card-expanded {
+  max-width: 500px; /* Constrain width for better centering */
+  margin: 0 auto;
+}
+
+.noor-card-step1 {
+  /* Step 1: Feature list display state */
+  opacity: 1;
+  transform: scale(1);
+}
+
+.noor-card-step2 {
+  /* Step 2: Input form display state */
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Landing Container - Main Page Background */
+.landing-container {
+  background-color: #f3f4f6; /* Gray-100 from design mock */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+/* NOOR Canvas Elegant Header Styling */
+.noor-elegant-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  margin: 0 auto 2rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.noor-logo-container {
+  margin-bottom: 1.5rem;
+}
+
+.noor-app-logo {
+  height: 80px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease-in-out;
+}
+
+.noor-app-logo:hover {
+  transform: scale(1.05);
+}
+
+.noor-app-title {
+  font-family: var(--noor-font-family);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--noor-gray-800);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.noor-app-subtitle {
+  font-family: var(--noor-font-family);
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--noor-gray-600);
+  margin: 0;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive header sizing for elegant header */
 @media (min-width: 768px) {
-  .noor-header {
-    max-width: 750px;
+  .noor-elegant-header {
+    padding: 3rem 1rem;
+  }
+  
+  .noor-app-logo {
+    height: 100px;
+  }
+  
+  .noor-app-title {
+    font-size: 4rem;
+    letter-spacing: 3px;
+  }
+  
+  .noor-app-subtitle {
+    font-size: 1.25rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .noor-header {
-    max-width: 896px; /* max-w-4xl equivalent */
+  .noor-elegant-header {
+    padding: 4rem 1rem;
+  }
+  
+  .noor-app-logo {
+    height: 120px;
+  }
+  
+  .noor-app-title {
+    font-size: 5rem;
+    letter-spacing: 4px;
+  }
+  
+  .noor-app-subtitle {
+    font-size: 1.5rem;
   }
 }
 
@@ -102,6 +218,238 @@ html, body {
 @media (min-width: 640px) {
   .noor-header-container {
     padding: 1.5rem;
+  }
+}
+
+/* NOOR Canvas Elegant Header Styling - Phase 4 Branding */
+.noor-elegant-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 3rem 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  margin-bottom: 2rem;
+  border-bottom: 3px solid var(--noor-primary-blue);
+}
+
+.noor-logo-container {
+  margin-bottom: 1rem;
+}
+
+.noor-app-logo {
+  height: 80px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.2));
+  transition: transform 0.3s ease-in-out;
+}
+
+.noor-app-logo:hover {
+  transform: scale(1.05);
+}
+
+.noor-app-title {
+  font-family: var(--noor-font-family);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--noor-primary-blue);
+  margin: 0.5rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.noor-app-subtitle {
+  font-family: var(--noor-font-family);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--noor-gray-600);
+  margin: 0;
+  font-style: italic;
+  letter-spacing: 0.025em;
+}
+
+/* Responsive Header Adjustments */
+@media (max-width: 768px) {
+  .noor-app-title {
+    font-size: 2.5rem;
+  }
+  
+  .noor-app-subtitle {
+    font-size: 1rem;
+  }
+  
+  .noor-app-logo {
+    height: 60px;
+  }
+  
+  .noor-elegant-header {
+    padding: 1.5rem 1rem 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .noor-app-title {
+    font-size: 2rem;
+  }
+  
+  .noor-app-logo {
+    height: 50px;
+  }
+}
+
+/* Main Logo - Standalone (Twice the Original Size) */
+.noor-main-logo {
+  height: 160px; /* Double the original 80px */
+  width: auto;
+  display: block;
+  margin: 2rem auto 3rem auto;
+  filter: drop-shadow(0 6px 12px rgba(59, 130, 246, 0.25));
+  transition: transform 0.3s ease-in-out;
+}
+
+.noor-main-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Wide Flex Panel Container */
+.noor-flex-panel-wide {
+  display: flex;
+  gap: 2.5rem; /* Slightly increased gap */
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .noor-flex-panel-wide {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .noor-main-logo {
+    height: 120px; /* Smaller on mobile but still larger than original */
+  }
+}
+
+/* Issue-70: Enhanced Square Button Cards */
+.noor-card-wide {
+  flex: 1;
+  min-width: 380px; /* Increased for more square appearance */
+  max-width: 480px; /* Enhanced maximum width */
+  aspect-ratio: 1.1; /* Nearly square aspect ratio for button-like appearance */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2rem; /* Larger border radius for modern square button look */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Interactive Card Animation */
+.noor-card-interactive {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.noor-card-expanded {
+  transform: scale(1.2);
+  z-index: 10;
+  position: relative;
+}
+
+/* Issue-70: Enhanced Large Square Button Design for Landing Cards */
+.noor-large-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem; /* More generous padding for square appearance */
+  min-height: 280px; /* Increased height for more square appearance */
+  border-radius: 1.5rem; /* Large rounded corners for modern look */
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.noor-large-icon {
+  font-size: 6rem; /* Even larger icon for prominence */
+  line-height: 1;
+  margin-bottom: 1.5rem; /* More space between icon and text */
+  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.noor-large-button-text {
+  font-size: 1.75rem; /* Larger text size for better visibility */
+  font-weight: 700; /* Bolder text */
+  text-align: center;
+  line-height: 1.2;
+  margin: 0;
+  text-transform: uppercase; /* More prominent text styling */
+  letter-spacing: 0.5px; /* Better letter spacing */
+}
+
+/* Enhanced hover effects for the large square buttons */
+.noor-card-interactive:hover .noor-large-icon {
+  transform: scale(1.15) rotate(5deg); /* More dynamic hover effect */
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+}
+
+.noor-card-interactive:hover .noor-large-button-content {
+  transform: translateY(-4px); /* Subtle lift effect */
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.noor-card-interactive:hover .noor-large-button-text {
+  transform: scale(1.05); /* Slight text scaling on hover */
+}
+
+/* Input Styling */
+.noor-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--noor-gray-300);
+  border-radius: 0.75rem; /* rounded-xl */
+  background-color: white;
+  font-size: 0.875rem;
+  color: var(--noor-gray-700);
+  font-family: var(--noor-font-family);
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.noor-input:focus {
+  outline: none;
+  border-color: var(--noor-primary-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #fafbff;
+}
+
+.noor-input::placeholder {
+  color: var(--noor-gray-400);
+  font-style: italic;
+}
+
+/* Wide Container Max Width */
+.noor-max-w-6xl {
+  max-width: 72rem; /* Wider than max-w-4xl (56rem) */
+}
+
+@media (max-width: 480px) {
+  .noor-main-logo {
+    height: 100px; /* Still larger than original on very small screens */
+  }
+  
+  .noor-card-wide {
+    min-width: 280px; /* Adjust for very small screens */
+    max-width: 100%;
   }
 }
 
@@ -200,6 +548,21 @@ html, body {
 .noor-btn-danger:hover {
   background-color: #DC2626; /* red-600 */
   transform: translateY(-1px);
+}
+
+/* Enhanced Button Icon Styling - Landing Page UX Enhancement */
+.noor-btn i {
+  font-size: 1.125rem; /* Increased from default - makes icons more prominent */
+  margin-right: 0.625rem; /* Increased spacing between icon and text */
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+/* Responsive icon sizing for mobile */
+@media (max-width: 640px) {
+  .noor-btn i {
+    font-size: 1rem;
+    margin-right: 0.5rem;
+  }
 }
 
 /* Typography */
@@ -518,6 +881,13 @@ body * {
   display: flex;
   align-items: center;
   margin-bottom: 0.75rem;
+  gap: 0.75rem; /* 12px gap between icon and text for better spacing */
+}
+
+.noor-feature-list li i {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .noor-feature-list li:last-child {

@@ -18,6 +18,41 @@
 			}
 		},
 		{
+			"label": "build-protected",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"validate-issue-67-protection",
+				"build"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			}
+		},
+		{
+			"label": "validate-issue-67-protection",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/.guards/Issue-67-Protection.ps1",
+				"-Mode",
+				"validate",
+				"-StrictMode"
+			],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
 			"label": "build-with-tests",
 			"dependsOrder": "sequence",
 			"dependsOn": [

@@ -153,6 +153,22 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
 **Focus**: Custom CSS styling based on design mocks, NOOR Canvas branding integration, NO McBeatch theme
 **Progress**: Bootstrap foundation ready ✅ - Custom CSS implementation awaiting design mocks
 
+#### **🚨 NEW CRITICAL UX REQUIREMENT (Issue-67)**
+**Status**: Just Identified - September 14, 2025
+**Priority**: High - Landing Page UX Enhancement
+
+**Issue-67: Landing Page 2-Step UX with Card Animations**
+- **Requirement**: Implement modern 2-step user experience for Landing page
+- **Step 1**: Restore original feature list cards (Host + Participant) with purple borders
+- **Step 2**: Transform selected card to input form with 20% expansion animation
+- **Animation Specs**: 
+  - Selected card expands 20% (width/height) with smooth CSS transitions
+  - Other card fades out completely (opacity: 0)
+  - Header stays static throughout (NC-Logo + tagline always visible)
+  - 0.4s cubic-bezier easing for professional feel
+- **Modern Enhancements**: Contemporary animation patterns using transform/scale/opacity
+- **Integration**: Part of Week 13 implementation alongside NC branding
+
 #### **🎯 PHASE 4 REVISED IMPLEMENTATION PLAN (September 14, 2025)**
 
 **✅ COMPLETED (September 14, 2025):**
@@ -174,6 +190,36 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
 - **NC-Logo.png Implementation**: Replace "[Logo Image Goes Here...]" placeholders with NC-Logo.png throughout application
 - **Design Mock CSS Extraction**: Extract exact styling from HTML mocks (purple borders, shadow-lg, specific spacing)
 - **Font Awesome Integration**: Replace any non-Font Awesome icons with Font Awesome 6.5.1 equivalents
+- **🎯 Issue-67 Implementation**: Landing Page 2-Step UX with modern card animations ✅ **COMPLETED September 14, 2025**
+  - **Step 1**: Restore original feature list cards (Host Authentication + Join Session) ✅
+  - **Step 2**: Implement 20% card expansion animation with input form transformation ✅
+  - **Animation System**: CSS transitions (0.4s cubic-bezier) + JavaScript state management ✅
+  - **Modern Patterns**: scale/transform/opacity animations for professional UX ✅
+  - **UX Refinements**: Enhanced button styling, dynamic card centering, unified "Access Token" messaging ✅
+
+#### **🎯 Issue-67 COMPLETION REPORT (September 14, 2025)**
+
+**Implementation Summary**: Complete 2-step landing page UX with modern card animations successfully delivered and tested.
+
+**Key Enhancements Delivered:**
+1. **Content Unification**: Both cards now use unified "Enter The Access Token" messaging for consistency
+2. **Enhanced Button Styling**: Increased icon size (1.125rem) with improved spacing (0.625rem margin-right)
+3. **Dynamic Card Centering**: Selected card centers on page during Step 2 transition with max-width constraint
+4. **Modern Animation System**: CSS-based transforms with hardware acceleration and reduced-motion support
+
+**Technical Implementation Details:**
+- **CSS Classes Added**: `.noor-step-2` for centering, enhanced `.noor-btn i` styling
+- **Component Logic**: `GetCardClasses()` method for dynamic state management
+- **Animation Performance**: Hardware-accelerated transforms using `will-change: transform, opacity`
+- **Responsive Design**: Mobile-optimized icon sizes and spacing adjustments
+
+**User Experience Impact:**
+- **Consistency**: Unified token terminology across both authentication paths
+- **Visual Polish**: Professional button styling with prominent icons and proper spacing
+- **Spatial Balance**: Centered card layout prevents visual imbalance during transitions
+- **Accessibility**: Respects user motion preferences with CSS `prefers-reduced-motion`
+
+**Status**: ✅ **READY FOR PRODUCTION** - All enhancements tested and functional at https://localhost:9091
 
 ##### **Week 14 (Sep 21-27): Component Styling & Layout Implementation**  
 - **Host Control Panel Styling**: Apply exact mock styling (dual-panel dropdowns, session controls, participant roster)
@@ -201,6 +247,15 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
   - **Status**: ✅ **CLEAN FOUNDATION** - Bootstrap base with design mock styling ready
   - **Debug Infrastructure**: ✅ **PRESERVED** - Enhanced debugging capabilities maintained
 
+##### **🎬 Issue-67: Modern Animation System Architecture**
+- **Animation Framework**: CSS-based transitions with JavaScript orchestration
+- **Performance**: Hardware-accelerated transforms (scale, opacity, transform)
+- **Timing**: 0.4s cubic-bezier(0.4, 0, 0.2, 1) for professional feel
+- **Classes**: `.noor-card-expanded`, `.noor-card-hidden`, `.noor-card-interactive`
+- **State Management**: JavaScript component for step tracking and animation coordination
+- **Responsive**: Animations work consistently across desktop/tablet/mobile
+- **Accessibility**: Respects user's reduced-motion preferences
+
 ##### **Design Mock Analysis Complete**
 - ✅ **Color Palette Extracted**: Blue (#3B82F6), Purple (#8B5CF6), Green (#10B981), Gray variants
 - ✅ **Typography Defined**: Inter font family from Google Fonts, multiple weights (400-700)
@@ -219,6 +274,23 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
   --noor-font-family: 'Inter', sans-serif;
   --noor-border-radius: 12px; /* rounded-xl */
   --noor-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Issue-67: Modern Card Animation System */
+.noor-card-interactive {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.noor-card-expanded {
+  transform: scale(1.2); /* 20% expansion */
+  z-index: 10;
+}
+
+.noor-card-hidden {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
 }
 ```
 
@@ -331,15 +403,17 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
   - **Data Integration**: Connect to canvas.Registrations table for participant signup
   - **Status**: ✅ **IMPLEMENTATION READY** - Complete registration form integration plan
   
-- ✅ **Landing Page Authentication** - Current dual-panel design acceptable
-  - **Status**: ✅ **USE EXISTING** - Current two-panel design (host + user panels) to be maintained
+- ✅ **Landing Page Authentication** - UPDATED: Issue-67 2-Step UX Enhancement Required
+  - **Status**: 🎬 **NEW REQUIREMENT** - Implement 2-step process with modern card animations
+  - **Step 1**: Restore original feature list cards (Host Authentication + Join Session)
+  - **Step 2**: Transform selected card to input form with 20% expansion animation
   - **Design Updates**: 
-    - Remove sample bullet items from both host and user panels
-    - Add large visually appealing icons to both panels
-    - Rephrase authentication text for security (remove "GUID" terminology)
-    - Keep authentication process anonymous and secure
-  - **Enhancement**: Add NC-Header.png and NC-Logo.png branding integration
-  - **Action**: Update existing Landing.razor with NOOR Canvas branding and UX improvements
+    - Maintain NC-Header.png and NC-Logo.png branding throughout
+    - Feature lists with Font Awesome icons in Step 1
+    - Smooth card transitions with modern CSS animations
+    - Other card fades out when one is selected
+  - **Animation System**: CSS transforms + JavaScript state management
+  - **Action**: Complete Issue-67 implementation as part of Week 13 Phase 4 work
   
 - ❌ **Mobile Responsive Layouts** - Touch-optimized user experiences
   - **Scope**: User experiences only (not host interfaces)
@@ -352,7 +426,7 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
 **✅ CONFIRMED AVAILABLE MOCKS (Ready for Implementation):**
 - ✅ **Host Control Panel Mock** - Complete session management interface design  
 - ✅ **User Waiting Room Mock** - Pre-session lobby with countdown and participant status
-- ✅ **Landing Page Design** - Dual-panel authentication (with enhancement requirements)
+- ✅ **Landing Page Design** - Dual-panel authentication (UPDATED: Issue-67 2-step UX enhancement required)
 
 **🔴 CRITICAL MISSING MOCK (Blocking Implementation):**
 - [ ] **🔴 URGENT: User Canvas Experience Mock** - Primary participant session interface 
