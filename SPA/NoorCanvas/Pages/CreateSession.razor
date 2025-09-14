@@ -293,7 +293,8 @@
                 var result = await response.Content.ReadFromJsonAsync<CreateSessionResponse>();
                 Logger.LogInformation("NOOR-SUCCESS: Session created successfully - ID: {SessionId}", result?.SessionId);
                 
-                Navigation.NavigateTo($"/host/dashboard?sessionId={result?.SessionId}");
+                // Show success message and allow creating another session
+                await JSRuntime.InvokeVoidAsync("alert", $"Session created successfully! Session ID: {result?.SessionId}");
             }
             else
             {

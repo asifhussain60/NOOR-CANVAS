@@ -88,74 +88,7 @@ namespace NoorCanvas.Controllers
             }
         }
 
-        [HttpGet("dashboard")]
-        public async Task<IActionResult> GetDashboardData([FromQuery] string? sessionToken = null)
-        {
-            try
-            {
-                _logger.LogInformation("NOOR-INFO: Dashboard data requested with sessionToken: {HasToken}", 
-                    !string.IsNullOrWhiteSpace(sessionToken) ? "Provided" : "Missing");
-
-                if (string.IsNullOrWhiteSpace(sessionToken))
-                {
-                    _logger.LogWarning("NOOR-WARNING: Dashboard access without session token");
-                    return BadRequest(new { 
-                        error = "Session token is required",
-                        message = "Please authenticate first by providing a valid host GUID",
-                        redirectTo = "/host",
-                        requiresAuthentication = true
-                    });
-                }
-
-                if (!Guid.TryParse(sessionToken, out Guid token))
-                {
-                    _logger.LogWarning("NOOR-WARNING: Invalid session token format: {SessionToken}", sessionToken.Substring(0, Math.Min(8, sessionToken.Length)));
-                    return BadRequest(new { 
-                        error = "Invalid session token format",
-                        message = "Session token must be a valid GUID",
-                        redirectTo = "/host",
-                        requiresAuthentication = true
-                    });
-                }
-
-                var activeSessions = await _context.Sessions
-                    .Where(s => s.StartedAt != null && s.EndedAt == null)
-                    .CountAsync();
-
-                var totalParticipants = await _context.Registrations.CountAsync();
-
-                var recentSessions = await _context.Sessions
-                    .Include(s => s.SessionLinks)
-                    .OrderByDescending(s => s.CreatedAt)
-                    .Take(5)
-                    .Select(s => new SessionSummaryResponse
-                    {
-                        SessionId = s.SessionId,
-                        GroupId = s.GroupId,
-                        Status = s.StartedAt == null ? "Created" : (s.EndedAt == null ? "Active" : "Completed"),
-                        CreatedAt = s.CreatedAt,
-                        ParticipantCount = s.Registrations.Count(),
-                        SessionGuid = s.SessionLinks.FirstOrDefault() != null ? s.SessionLinks.First().Guid.ToString() : ""
-                    })
-                    .ToListAsync();
-
-                var dashboardData = new HostDashboardResponse
-                {
-                    HostName = "Host User",
-                    ActiveSessions = activeSessions,
-                    TotalParticipants = totalParticipants,
-                    RecentSessions = recentSessions
-                };
-
-                _logger.LogInformation("NOOR-SUCCESS: Dashboard data prepared");
-                return Ok(dashboardData);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "NOOR-ERROR: Failed to load dashboard data");
-                return StatusCode(500, new { error = "Failed to load dashboard data" });
-            }
-        }
+        // Host Dashboard removed - Phase 4 update: Hosts go directly to CreateSession after authentication
 
         [HttpPost("session/create")]
         public async Task<IActionResult> CreateSession([FromBody] CreateSessionRequest request)
@@ -492,23 +425,7 @@ namespace NoorCanvas.Controllers
         public DateTime ExpiresAt { get; set; }
     }
 
-    public class HostDashboardResponse
-    {
-        public string HostName { get; set; } = string.Empty;
-        public int ActiveSessions { get; set; }
-        public int TotalParticipants { get; set; }
-        public List<SessionSummaryResponse> RecentSessions { get; set; } = new();
-    }
-
-    public class SessionSummaryResponse
-    {
-        public long SessionId { get; set; }
-        public Guid GroupId { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-        public int ParticipantCount { get; set; }
-        public string SessionGuid { get; set; } = string.Empty;
-    }
+    // HostDashboardResponse and SessionSummaryResponse removed - Phase 4 update
 
     // Issue-17 Cascading Dropdown Models
     public class AlbumData 
