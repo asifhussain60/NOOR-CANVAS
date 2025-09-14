@@ -219,7 +219,7 @@ namespace NoorCanvas.Core.Tests.Infrastructure
                 // Check if this is an SSL-related error
                 if (ex.Message.Contains("certificate") || ex.Message.Contains("SSL") || ex.Message.Contains("trust"))
                 {
-                    Assert.True(false, $"SSL certificate error detected for {contextName}. Ensure TrustServerCertificate=true and Encrypt=false are configured.");
+                    Assert.Fail($"SSL certificate error detected for {contextName}. Ensure TrustServerCertificate=true and Encrypt=false are configured.");
                 }
                 
                 throw;

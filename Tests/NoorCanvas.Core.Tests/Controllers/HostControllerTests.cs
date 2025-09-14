@@ -209,87 +209,8 @@ namespace NoorCanvas.Core.Tests.Controllers
             Assert.True(updatedSession.EndedAt > DateTime.MinValue);
         }
 
-        [Fact]
-        [Trait("Category", "HostController")]
-        [Trait("Method", "GetDashboardData")]
-        public async Task GetDashboardData_WithValidToken_ShouldReturnDashboardData()
-        {
-            // Arrange
-            var sessionToken = Guid.NewGuid().ToString();
-            
-            // Create test data
-            var activeSession = new Session
-            {
-                GroupId = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                StartedAt = DateTime.UtcNow.AddMinutes(-15),
-                ExpiresAt = DateTime.UtcNow.AddHours(3)
-            };
-
-            var completedSession = new Session
-            {
-                GroupId = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow.AddDays(-1),
-                StartedAt = DateTime.UtcNow.AddDays(-1),
-                EndedAt = DateTime.UtcNow.AddDays(-1).AddHours(2),
-                ExpiresAt = DateTime.UtcNow.AddDays(-1).AddHours(3)
-            };
-
-            _context.Sessions.AddRange(activeSession, completedSession);
-            await _context.SaveChangesAsync();
-
-            // Add some registrations
-            var user = new User
-            {
-                UserId = Guid.NewGuid(),
-                Name = "Test User",
-                City = "Test City",
-                Country = "Test Country",
-                FirstJoinedAt = DateTime.UtcNow
-            };
-
-            var registration = new Registration
-            {
-                SessionId = activeSession.SessionId,
-                UserId = user.UserId,
-                JoinTime = DateTime.UtcNow
-            };
-
-            _context.Users.Add(user);
-            _context.Registrations.Add(registration);
-            await _context.SaveChangesAsync();
-
-            // Act
-            var result = await _controller.GetDashboardData(sessionToken);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var response = JsonSerializer.Deserialize<HostDashboardResponse>(
-                JsonSerializer.Serialize(okResult.Value), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            Assert.NotNull(response);
-            Assert.NotEmpty(response.HostName);
-            Assert.True(response.ActiveSessions >= 1);
-            Assert.True(response.TotalParticipants >= 1);
-            Assert.NotNull(response.RecentSessions);
-            Assert.True(response.RecentSessions.Count() >= 1);
-        }
-
-        [Theory]
-        [Trait("Category", "HostController")]
-        [Trait("Method", "GetDashboardData")]
-        [InlineData("")]
-        [InlineData("invalid-guid")]
-        [InlineData("   ")]
-        public async Task GetDashboardData_WithInvalidToken_ShouldReturnBadRequest(string invalidToken)
-        {
-            // Act
-            var result = await _controller.GetDashboardData(invalidToken);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.NotNull(badRequestResult.Value);
-        }
+        // Host Dashboard tests removed - Dashboard functionality eliminated in Phase 4 UX streamlining
+        // Host authentication now redirects directly to CreateSession workflow
 
         [Fact]
         [Trait("Category", "HostController")]

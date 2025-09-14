@@ -103,6 +103,23 @@ canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
   - `Add an issue: [Title] - [Description] - [Priority] - [Category]`
   - `Mark issue X as [Completed|Pending|In Progress]`
 
+### **TODO vs ISSUE Management - CRITICAL DISTINCTION**
+**TODO Section (Temporary Work Tracking):**
+- **Purpose:** Simple checklist for work items in flight
+- **Format:** `- [ ] **Brief Title** - Description`
+- **Lifecycle:** Add → Work → Complete → **DELETE** (remove entirely when done)
+- **Location:** Top of NC-ISSUE-TRACKER.MD file
+- **Scope:** Simple actionable items without need for detailed documentation
+
+**ISSUE Section (Permanent Problem Tracking):**
+- **Purpose:** Bugs, defects, feature requests requiring detailed documentation
+- **Format:** `- [Icon] **Issue-X** — [Title](PATH/file.md)`
+- **Lifecycle:** NOT STARTED → IN PROGRESS → AWAITING CONFIRMATION → COMPLETED
+- **Files:** Each issue has dedicated .md file in appropriate status folder
+- **Icons:** ❌ Not Started | ⚡ In Progress | ⏳ Awaiting Confirmation | ✅ Completed
+
+**NEVER mix TODOs and Issues - they serve different purposes and have different lifecycles.**
+
 ### **Implementation Tracker System - SINGLE SOURCE OF TRUTH**
 - **Master Tracker:** `Workspaces/IMPLEMENTATION-TRACKER.MD`
 - **Purpose:** Comprehensive development progress tracking AND all implementation-related documentation
@@ -150,6 +167,9 @@ cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" && dotnet build --no-restore
 - **Avoid encoding issues**: Remove all emojis and special characters from PowerShell scripts
 - **Test after modification**: Always run `nc -Help` to verify functionality
 - **Backup before major changes**: Keep working copies in TEMP folder
+
+### **PowerShell Emoji Policy**
+To avoid encoding and script parsing issues on Windows PowerShell, DO NOT use emojis or non-ASCII glyphs inside PowerShell scripts or batch wrappers. GitHub Copilot (or any automation) must never inject emoji characters into `.ps1`, `.cmd`, or `.bat` files. Use plain ASCII text and simple bullets (`-`) for lists.
 
 ## 7. Database Connection Requirements
 

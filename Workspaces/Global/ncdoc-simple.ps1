@@ -18,9 +18,9 @@ if ($Help) {
     Write-Host "  ncdoc -Stop             # Stop documentation server"
     Write-Host ""
     Write-Host "DOCUMENTATION SECTIONS:"
-    Write-Host "  • Host Token (Technical): Implementation details and API"
-    Write-Host "  • Host Token (User Guide): Non-technical user instructions"
-    Write-Host "  • Development Guides: Getting started and workflows"
+    Write-Host "  - Host Token (Technical): Implementation details and API"
+    Write-Host "  - Host Token (User Guide): Non-technical user instructions"
+    Write-Host "  - Development Guides: Getting started and workflows"
     return
 }
 
@@ -29,13 +29,13 @@ $root = Split-Path $MyInvocation.MyCommand.Path -Parent | Split-Path -Parent | S
 $docfxPath = Join-Path $root "DocFX"
 
 if (!(Test-Path $docfxPath)) {
-    Write-Host "❌ DocFX directory not found" -ForegroundColor Red
+    Write-Host "DocFX directory not found" -ForegroundColor Red
     return
 }
 
 # Handle stop request
 if ($Stop) {
-    Write-Host "🛑 Stopping documentation server on port $Port..." -ForegroundColor Yellow
+    Write-Host "Stopping documentation server on port $Port..." -ForegroundColor Yellow
     $processes = netstat -ano | Select-String ":$Port " | ForEach-Object {
         ($_ -split '\s+')[-1]
     } | Where-Object { $_ -match '^\d+$' }
@@ -43,20 +43,20 @@ if ($Stop) {
     foreach ($processId in $processes) {
         Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
     }
-    Write-Host "✅ Server stopped" -ForegroundColor Green
+    Write-Host "Server stopped" -ForegroundColor Green
     return
 }
 
-Write-Host "📖 NOOR Canvas Documentation" -ForegroundColor Cyan
+Write-Host "NOOR Canvas Documentation" -ForegroundColor Cyan
 Write-Host "============================" -ForegroundColor Cyan
 
 Set-Location $docfxPath
 
 # Build if requested
 if ($Build) {
-    Write-Host "🔨 Building documentation..." -ForegroundColor Yellow
+    Write-Host "Building documentation..." -ForegroundColor Yellow
     docfx build
-    Write-Host "✅ Build complete" -ForegroundColor Green
+    Write-Host "Build complete" -ForegroundColor Green
 }
 
 # Check if server is running
@@ -71,28 +71,28 @@ try {
 }
 
 if ($serverRunning) {
-    Write-Host "✅ Documentation server already running on port $Port" -ForegroundColor Green
+    Write-Host "Documentation server already running on port $Port" -ForegroundColor Green
 } else {
-    Write-Host "🚀 Starting documentation server on port $Port..." -ForegroundColor Yellow
+    Write-Host "Starting documentation server on port $Port..." -ForegroundColor Yellow
     
     # Start Python server
     Set-Location (Join-Path $docfxPath "_site")
     Start-Process -FilePath "python" -ArgumentList "-m", "http.server", $Port -WindowStyle Hidden
     Start-Sleep 3
-    Write-Host "✅ Documentation server started" -ForegroundColor Green
+    Write-Host "Documentation server started" -ForegroundColor Green
 }
 
 $docUrl = "http://localhost:$Port"
 Write-Host ""
-Write-Host "📖 Documentation URL: $docUrl" -ForegroundColor White
+Write-Host "Documentation URL: $docUrl" -ForegroundColor White
 Write-Host ""
-Write-Host "📋 Key Sections:" -ForegroundColor Cyan
-Write-Host "   • Host Token Technical: $docUrl/articles/technical/host-token-system.html" -ForegroundColor Gray
-Write-Host "   • Host Token User Guide: $docUrl/articles/development/host-token-quick-reference.html" -ForegroundColor Gray
+Write-Host "Key Sections:" -ForegroundColor Cyan
+Write-Host "   - Host Token Technical: $docUrl/articles/technical/host-token-system.html" -ForegroundColor Gray
+Write-Host "   - Host Token User Guide: $docUrl/articles/development/host-token-quick-reference.html" -ForegroundColor Gray
 Write-Host ""
-Write-Host "💡 Use 'ncdoc -Stop' to stop the server" -ForegroundColor Gray
+Write-Host "Use 'ncdoc -Stop' to stop the server" -ForegroundColor Gray
 
 if (-not $NoBrowser) {
-    Write-Host "🌐 Opening documentation..." -ForegroundColor Yellow
+    Write-Host "Opening documentation..." -ForegroundColor Yellow
     Start-Process $docUrl
 }

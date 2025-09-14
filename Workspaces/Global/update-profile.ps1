@@ -21,12 +21,12 @@ if ($Help) {
 # Get the PowerShell profile path
 $profilePath = $PROFILE
 
-Write-Host "🔧 NOOR Canvas Profile Updater" -ForegroundColor Cyan
+Write-Host "NOOR Canvas Profile Updater" -ForegroundColor Cyan
 Write-Host "Profile Path: $profilePath" -ForegroundColor Gray
 
 # Check if profile exists
 if (-not (Test-Path $profilePath)) {
-    Write-Host "ℹ️  PowerShell profile not found at: $profilePath" -ForegroundColor Yellow
+    Write-Host "PowerShell profile not found at: $profilePath" -ForegroundColor Yellow
     Write-Host "Run setup-global-commands.ps1 first to create the profile." -ForegroundColor Yellow
     return
 }

@@ -1,32 +1,77 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using NoorCanvas.Components.Dialogs;
 
 namespace NoorCanvas.Services
 {
     public class DialogService
     {
+        private readonly ILogger<DialogService> _logger;
+        private readonly IJSRuntime _jsRuntime;
+        private readonly Queue<Func<Task>> _pendingOperations = new();
         private AlertDialog? _alertDialog;
         private ConfirmDialog? _confirmDialog;
 
-        public void RegisterAlertDialog(AlertDialog alertDialog)
+        public DialogService(ILogger<DialogService> logger, IJSRuntime jsRuntime)
         {
+            _logger = logger;
+            _jsRuntime = jsRuntime;
+        }
+
+        public async Task RegisterAlertDialog(AlertDialog alertDialog)
+        {
+            _logger.LogDebug("NOOR-DEBUG: Registering AlertDialog component");
             _alertDialog = alertDialog;
+            
+            // Process queued operations
+            while (_pendingOperations.Count > 0)
+            {
+                var operation = _pendingOperations.Dequeue();
+                try
+                {
+                    await operation();
+                    _logger.LogDebug("NOOR-DEBUG: Processed queued dialog operation");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "NOOR-ERROR: Failed to process queued dialog operation");
+                }
+            }
         }
 
         public void RegisterConfirmDialog(ConfirmDialog confirmDialog)
         {
+            _logger.LogDebug("NOOR-DEBUG: Registering ConfirmDialog component");
             _confirmDialog = confirmDialog;
         }
 
         public async Task ShowAlertAsync(string message, string title = "Alert", AlertDialog.AlertType type = AlertDialog.AlertType.Info)
         {
+            _logger.LogDebug("NOOR-DEBUG: ShowAlertAsync called - AlertDialog registered: {IsRegistered}", _alertDialog != null);
+            
             if (_alertDialog == null)
-                throw new InvalidOperationException("AlertDialog not registered. Please add <AlertDialog @ref=\"_alertDialog\" /> to your component and call dialogService.RegisterAlertDialog(_alertDialog) in OnInitialized.");
+            {
+                _logger.LogWarning("NOOR-WARNING: Attempted to show alert dialog before registration - Message: {Message}", message);
+                
+                // Queue the operation for when dialog is registered
+                _pendingOperations.Enqueue(async () => {
+                    await _alertDialog!.ShowAsync(title, message, type);
+                });
+                
+                // Fallback to JavaScript alert for immediate display
+                try
+                {
+                    await _jsRuntime.InvokeVoidAsync("alert", $"{title}: {message}");
+                    _logger.LogInformation("NOOR-INFO: Used JavaScript alert fallback for: {Title}", title);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "NOOR-ERROR: Failed to show JavaScript alert fallback");
+                }
+                return;
+            }
 
-            _alertDialog.Title = title;
-            _alertDialog.Message = message;
-            _alertDialog.Type = type;
-            await _alertDialog.ShowAsync();
+            await _alertDialog.ShowAsync(title, message, type);
         }
 
         public async Task ShowSuccessAsync(string message, string title = "Success")

@@ -234,9 +234,31 @@ function Get-ComprehensiveHealthReport {
         PortHealth = Test-PortBinding  
         ConnectivityHealth = Test-Connectivity
         EndpointHealth = Test-HealthEndpoint
+        CopilotInstructions = $null
         OverallStatus = "UNKNOWN"
         Severity = "UNKNOWN"
         RecommendedActions = @()
+    }
+
+    # Analyze copilot instructions file (.github/copilot-instructions.md)
+    # Determine script directory robustly
+    $scriptDir = $PSScriptRoot
+    if (-not $scriptDir -and $MyInvocation -and $MyInvocation.MyCommand -and $MyInvocation.MyCommand.Path) {
+        $scriptDir = Split-Path $MyInvocation.MyCommand.Path -Parent
+    }
+
+    if ($scriptDir) {
+        $root = Split-Path $scriptDir -Parent
+        $root = Split-Path $root -Parent
+        $root = Split-Path $root -Parent
+        $instructionsPath = Join-Path $root ".github\copilot-instructions.md"
+        if (Test-Path $instructionsPath) {
+            $report.CopilotInstructions = Analyze-CopilotInstructions -InstructionsPath $instructionsPath
+        } else {
+            $report.CopilotInstructions = @{ Exists = $false; EmojiCount = 0; Issues = @() }
+        }
+    } else {
+        $report.CopilotInstructions = @{ Exists = $false; EmojiCount = 0; Issues = @(); Note = 'Script directory unknown' }
     }
     
     # Determine overall health status
@@ -298,67 +320,106 @@ function Get-ComprehensiveHealthReport {
 # Display Health Report
 function Show-HealthReport {
     param([object]$Report)
-    
-    Write-Host "`n🏥 NOOR Canvas Application Health Report" -ForegroundColor Cyan
+
+    Write-Host "`nNOOR Canvas Application Health Report" -ForegroundColor Cyan
     Write-Host "=========================================" -ForegroundColor Cyan
     Write-Host "Timestamp: $($Report.Timestamp)" -ForegroundColor Gray
     Write-Host "Overall Status: " -NoNewline
-    
+
     switch ($Report.OverallStatus) {
-        "HEALTHY" { Write-Host "✅ HEALTHY" -ForegroundColor Green }
-        "WARNING" { Write-Host "⚠️ WARNING" -ForegroundColor Yellow }
-        "CRITICAL" { Write-Host "❌ CRITICAL" -ForegroundColor Red }
-        default { Write-Host "❓ UNKNOWN" -ForegroundColor Gray }
+        "HEALTHY" { Write-Host "HEALTHY" -ForegroundColor Green }
+        "WARNING" { Write-Host "WARNING" -ForegroundColor Yellow }
+        "CRITICAL" { Write-Host "CRITICAL" -ForegroundColor Red }
+        default { Write-Host "UNKNOWN" -ForegroundColor Gray }
     }
-    
+
     Write-Host "Severity: $($Report.Severity)" -ForegroundColor Gray
     Write-Host ""
-    
+
     # Process Health
-    Write-Host "🔄 Process Health: " -NoNewline
+    Write-Host "Process Health: " -NoNewline
     switch ($Report.ProcessHealth.Status) {
-        "PROCESSES_OK" { Write-Host "✅ OK ($($Report.ProcessHealth.ProcessesFound) processes)" -ForegroundColor Green }
-        "NO_PROCESSES" { Write-Host "❌ NO PROCESSES" -ForegroundColor Red }
-        "TOO_MANY_PROCESSES" { Write-Host "⚠️ TOO MANY ($($Report.ProcessHealth.ProcessesFound))" -ForegroundColor Yellow }
-        default { Write-Host "❓ UNKNOWN" -ForegroundColor Gray }
+        "PROCESSES_OK" { Write-Host "OK ($($Report.ProcessHealth.ProcessesFound) processes)" -ForegroundColor Green }
+        "NO_PROCESSES" { Write-Host "NO PROCESSES" -ForegroundColor Red }
+        "TOO_MANY_PROCESSES" { Write-Host "TOO MANY ($($Report.ProcessHealth.ProcessesFound))" -ForegroundColor Yellow }
+        default { Write-Host "UNKNOWN" -ForegroundColor Gray }
     }
-    
-    # Port Health  
-    Write-Host "🔌 Port Binding: " -NoNewline
+
+    # Port Health
+    Write-Host "Port Binding: " -NoNewline
     switch ($Report.PortHealth.Status) {
-        "PORTS_OK" { Write-Host "✅ OK" -ForegroundColor Green }
-        "NO_BINDING" { Write-Host "❌ NO BINDING" -ForegroundColor Red }
-        "PARTIAL_BINDING" { Write-Host "⚠️ PARTIAL" -ForegroundColor Yellow }
-        "PORT_PID_MISMATCH" { Write-Host "⚠️ PID MISMATCH" -ForegroundColor Yellow }
-        default { Write-Host "❓ UNKNOWN" -ForegroundColor Gray }
+        "PORTS_OK" { Write-Host "OK" -ForegroundColor Green }
+        "NO_BINDING" { Write-Host "NO BINDING" -ForegroundColor Red }
+        "PARTIAL_BINDING" { Write-Host "PARTIAL" -ForegroundColor Yellow }
+        "PORT_PID_MISMATCH" { Write-Host "PID MISMATCH" -ForegroundColor Yellow }
+        default { Write-Host "UNKNOWN" -ForegroundColor Gray }
     }
-    
+
     # Connectivity Health
-    Write-Host "🌐 Connectivity: " -NoNewline
+    Write-Host "Connectivity: " -NoNewline
     switch ($Report.ConnectivityHealth.Status) {
-        "CONNECTIVITY_OK" { Write-Host "✅ OK (HTTP + HTTPS)" -ForegroundColor Green }
-        "PARTIAL_CONNECTIVITY" { Write-Host "⚠️ PARTIAL" -ForegroundColor Yellow }
-        "NO_CONNECTIVITY" { Write-Host "❌ FAILED" -ForegroundColor Red }
-        default { Write-Host "❓ UNKNOWN" -ForegroundColor Gray }
+        "CONNECTIVITY_OK" { Write-Host "OK (HTTP + HTTPS)" -ForegroundColor Green }
+        "PARTIAL_CONNECTIVITY" { Write-Host "PARTIAL" -ForegroundColor Yellow }
+        "NO_CONNECTIVITY" { Write-Host "FAILED" -ForegroundColor Red }
+        default { Write-Host "UNKNOWN" -ForegroundColor Gray }
     }
-    
+
     # Health Endpoint
-    Write-Host "🏥 Health Endpoint: " -NoNewline
+    Write-Host "Health Endpoint: " -NoNewline
     switch ($Report.EndpointHealth.Status) {
-        "HEALTH_OK" { Write-Host "✅ RESPONSIVE" -ForegroundColor Green }
-        "HEALTH_FAILED" { Write-Host "❌ NOT RESPONSIVE" -ForegroundColor Red }
-        default { Write-Host "❓ UNKNOWN" -ForegroundColor Gray }
+        "HEALTH_OK" { Write-Host "RESPONSIVE" -ForegroundColor Green }
+        "HEALTH_FAILED" { Write-Host "NOT RESPONSIVE" -ForegroundColor Red }
+        default { Write-Host "UNKNOWN" -ForegroundColor Gray }
     }
-    
+
     # Recommended Actions
     if ($Report.RecommendedActions.Count -gt 0) {
-        Write-Host "`n🛠️ Recommended Actions:" -ForegroundColor Cyan
+        Write-Host "`nRecommended Actions:" -ForegroundColor Cyan
         foreach ($action in $Report.RecommendedActions) {
-            Write-Host "  • $action" -ForegroundColor Yellow
+            Write-Host "  - $action" -ForegroundColor Yellow
         }
     }
-    
+
+    # Copilot instructions analysis
+    if ($Report.CopilotInstructions -ne $null -and $Report.CopilotInstructions.Exists) {
+        Write-Host "`nCopilot Instructions Analysis:" -ForegroundColor Cyan
+        if ($Report.CopilotInstructions.Issues.Count -gt 0) {
+            foreach ($issue in $Report.CopilotInstructions.Issues) {
+                Write-Host "  - $issue" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "  No issues found in copilot instructions file." -ForegroundColor Green
+        }
+    }
+
     Write-Host ""
+}
+
+# Analyze copilot instructions file for obsolete instructions or emojis
+function Analyze-CopilotInstructions {
+    param([string]$InstructionsPath)
+    $result = @{ Exists = $false; EmojiCount = 0; Issues = @() }
+    if (-not (Test-Path $InstructionsPath)) { return $result }
+    $result.Exists = $true
+    $content = Get-Content $InstructionsPath -Raw
+
+    # Count non-ASCII/emojis (simple heuristic: characters > 127)
+    $result.EmojiCount = ($content.ToCharArray() | Where-Object { [int]$_ -gt 127 }).Count
+
+    if ($result.EmojiCount -gt 0) {
+        $result.Issues += "Found $($result.EmojiCount) non-ASCII glyph(s) or emojis in instructions file"
+    }
+
+    # Check for obsolete directives: e.g., absolute production DB references or forbidding separate docs
+    if ($content -match "DO NOT CREATE SEPARATE FILES" -or $content -match "NO SEPARATE FILES") {
+        $result.Issues += "Instructions strictly forbid separate documentation files - verify whether this is still desired"
+    }
+
+    if ($content -match "Port 8080" -and $content -match "RESERVED") {
+        $result.Issues += "Port reservation note found - confirm reservation is still valid"
+    }
+
+    return $result
 }
 
 # Auto-Recovery Function (Basic Implementation)
@@ -370,7 +431,7 @@ function Start-AutoRecovery {
         return
     }
     
-    Write-Host "`n🔧 Starting Auto-Recovery..." -ForegroundColor Cyan
+    Write-Host "`nStarting Auto-Recovery..." -ForegroundColor Cyan
     Write-HealthLog "Starting auto-recovery process" "INFO"
     
     # Stop stale processes
@@ -384,34 +445,34 @@ function Start-AutoRecovery {
     # Restart application if critical issues detected
     if ($Report.OverallStatus -eq "CRITICAL") {
         Write-Host "Critical issues detected. Restarting application..." -ForegroundColor Red
-        
+
         try {
             Set-Location $Config.ProjectPath
             Write-Host "Starting application with dotnet run..." -ForegroundColor Yellow
-            
+
             # Start application in background
             $job = Start-Job -ScriptBlock {
                 Set-Location $using:Config.ProjectPath
                 dotnet run --urls "https://localhost:9091;http://localhost:9090"
             }
-            
+
             # Wait for startup
             Start-Sleep 10
-            
+
             # Re-test health
             Write-Host "Re-testing application health..." -ForegroundColor Yellow
             $newReport = Get-ComprehensiveHealthReport
-            
+
             if ($newReport.OverallStatus -eq "HEALTHY") {
-                Write-Host "✅ Auto-recovery successful!" -ForegroundColor Green
+                Write-Host "Auto-recovery successful." -ForegroundColor Green
                 Write-HealthLog "Auto-recovery completed successfully" "INFO"
             } else {
-                Write-Host "❌ Auto-recovery failed. Manual intervention required." -ForegroundColor Red
+                Write-Host "Auto-recovery failed. Manual intervention required." -ForegroundColor Red
                 Write-HealthLog "Auto-recovery failed" "ERROR"
             }
-            
+
         } catch {
-            Write-Host "❌ Auto-recovery error: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "Auto-recovery error: $($_.Exception.Message)" -ForegroundColor Red
             Write-HealthLog "Auto-recovery error: $($_.Exception.Message)" "ERROR"
         }
     }
@@ -420,17 +481,17 @@ function Start-AutoRecovery {
 # Main Execution
 try {
     Write-HealthLog "Application Health Checker started with parameters: Verbose=$Verbose, AutoRecover=$AutoRecover, MonitorMode=$MonitorMode" "INFO"
-    
+
     if ($MonitorMode) {
-        Write-Host "🔍 Starting Health Monitor Mode (Ctrl+C to stop)..." -ForegroundColor Cyan
+        Write-Host "Starting Health Monitor Mode (Ctrl+C to stop)..." -ForegroundColor Cyan
         while ($true) {
             $report = Get-ComprehensiveHealthReport
             Show-HealthReport -Report $report
-            
+
             if ($report.OverallStatus -ne "HEALTHY") {
                 Start-AutoRecovery -Report $report
             }
-            
+
             Start-Sleep 30
         }
     } else {
@@ -442,9 +503,9 @@ try {
             Start-AutoRecovery -Report $report
         }
     }
-    
+
 } catch {
-    Write-Host "❌ Health checker error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Health checker error: $($_.Exception.Message)" -ForegroundColor Red
     Write-HealthLog "Health checker error: $($_.Exception.Message)" "ERROR"
     exit 1
 }

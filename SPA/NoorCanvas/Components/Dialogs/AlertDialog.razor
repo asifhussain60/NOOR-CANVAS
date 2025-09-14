@@ -1,5 +1,6 @@
 @using Microsoft.AspNetCore.Components
 @inject IJSRuntime JSRuntime
+@inject ILogger<AlertDialog> Logger
 
 <div class="modal fade @(IsVisible ? "show" : "")" id="@ModalId" tabindex="-1" style="display: @(IsVisible ? "block" : "none")" aria-labelledby="@($"{ModalId}Label")" aria-hidden="@(!IsVisible)">
     <div class="modal-dialog modal-dialog-centered">
@@ -88,12 +89,52 @@
         return new MarkupString(icon);
     }
 
-    public async Task ShowAsync()
+    public async Task ShowAsync(string? title = null, string? message = null, AlertType? type = null)
     {
+        // Update parameters if provided
+        if (title != null) Title = title;
+        if (message != null) Message = message;
+        if (type.HasValue) Type = type.Value;
+        
         IsVisible = true;
         StateHasChanged();
-        await Task.Delay(100); // Allow DOM to update
-        await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{ModalId}').focus()");
+        await Task.Delay(150); // Increased delay for DOM stability
+        
+        // Safe focus with null checking and enhanced error handling
+        var script = $@"
+            (function() {{
+                try {{
+                    const element = document.getElementById('{ModalId}');
+                    if (element) {{
+                        element.focus();
+                        console.log('NOOR-INFO: Successfully focused modal {ModalId}');
+                        return true;
+                    }} else {{
+                        console.warn('NOOR-WARNING: Modal element {ModalId} not found for focus');
+                        return false;
+                    }}
+                }} catch (error) {{
+                    console.error('NOOR-ERROR: Exception in modal focus for {ModalId}:', error);
+                    return false;
+                }}
+            }})()";
+        
+        try 
+        {
+            var result = await JSRuntime.InvokeAsync<bool>("eval", script);
+            if (!result)
+            {
+                Logger?.LogWarning("NOOR-WARNING: Failed to focus modal {ModalId} - element not found or error occurred", ModalId);
+            }
+        }
+        catch (JSException ex)
+        {
+            Logger?.LogError(ex, "NOOR-ERROR: JavaScript exception in AlertDialog.ShowAsync for {ModalId}", ModalId);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "NOOR-ERROR: General exception in AlertDialog.ShowAsync for {ModalId}", ModalId);
+        }
     }
 
     public async Task HideAsync()

@@ -111,6 +111,9 @@ builder.Services.AddScoped<DialogService>();
 
 var app = builder.Build();
 
+// NOOR CANVAS STARTUP VALIDATION - Prevent configuration issues like Issue-62
+ValidateStartupConfiguration(app.Services);
+
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -206,6 +209,49 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+/// <summary>
+/// NOOR CANVAS STARTUP CONFIGURATION VALIDATION
+/// Prevents configuration-related issues like Issue-62 from reaching production
+/// </summary>
+static void ValidateStartupConfiguration(IServiceProvider services)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
+    try 
+    {
+        // CRITICAL: HttpClient BaseAddress Validation (Issue-62 Prevention)
+        var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
+        var defaultClient = httpClientFactory.CreateClient("default");
+        
+        if (defaultClient.BaseAddress == null)
+        {
+            throw new InvalidOperationException("NOOR-FATAL: HttpClient 'default' BaseAddress not configured. This causes API authentication failures.");
+        }
+        
+        logger.LogInformation("✅ NOOR-VALIDATION: HttpClient BaseAddress configured: {BaseAddress}", defaultClient.BaseAddress);
+        
+        // Database Connection Validation
+        var canvasDbContext = services.GetRequiredService<CanvasDbContext>();
+        var canConnect = canvasDbContext.Database.CanConnect();
+        
+        if (!canConnect)
+        {
+            logger.LogWarning("⚠️ NOOR-WARNING: Canvas database connection failed during startup validation");
+        }
+        else
+        {
+            logger.LogInformation("✅ NOOR-VALIDATION: Canvas database connection verified");
+        }
+        
+        logger.LogInformation("✅ NOOR-VALIDATION: All critical configurations validated successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "❌ NOOR-FATAL: Startup configuration validation failed: {Message}", ex.Message);
+        throw; // Fail fast on configuration issues
+    }
 }
 
 // Make Program class accessible for testing

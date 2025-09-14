@@ -19,7 +19,7 @@ if ($Help) {
 }
 
 $globalDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Write-Host "🔧 NOOR Canvas Global Commands Setup" -ForegroundColor Cyan
+Write-Host "NOOR Canvas Global Commands Setup" -ForegroundColor Cyan
 Write-Host "Global Directory: $globalDir" -ForegroundColor Gray
 
 # Get current user PATH
@@ -28,22 +28,22 @@ $pathExists = $currentPath -like "*$globalDir*"
 
 if ($Remove) {
     if ($pathExists) {
-        Write-Host "🗑️  Removing from PATH..." -ForegroundColor Yellow
+        Write-Host "Removing from PATH..." -ForegroundColor Yellow
         $newPath = ($currentPath -split ';' | Where-Object { $_ -ne $globalDir }) -join ';'
         [Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
-        Write-Host "✅ Removed from PATH. Restart your terminal to apply changes." -ForegroundColor Green
+        Write-Host "Removed from PATH. Restart your terminal to apply changes." -ForegroundColor Green
     } else {
-        Write-Host "ℹ️  Global directory not found in PATH" -ForegroundColor Yellow
+        Write-Host "Global directory not found in PATH" -ForegroundColor Yellow
     }
 } else {
     if ($pathExists) {
-        Write-Host "ℹ️  Global directory already in PATH" -ForegroundColor Yellow
-        Write-Host "✅ nc command should be available from anywhere" -ForegroundColor Green
+        Write-Host "Global directory already in PATH" -ForegroundColor Yellow
+        Write-Host "nc command should be available from anywhere" -ForegroundColor Green
     } else {
-        Write-Host "➕ Adding to PATH..." -ForegroundColor Yellow
+        Write-Host "Adding to PATH..." -ForegroundColor Yellow
         $newPath = if ($currentPath) { "$currentPath;$globalDir" } else { $globalDir }
         [Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
-        Write-Host "✅ Added to PATH. Restart your terminal to apply changes." -ForegroundColor Green
+        Write-Host "Added to PATH. Restart your terminal to apply changes." -ForegroundColor Green
         Write-Host ""
         Write-Host "AVAILABLE COMMANDS:" -ForegroundColor Cyan
         Write-Host "  nc              # Start NOOR Canvas application"
@@ -58,7 +58,7 @@ if ($Remove) {
 }
 
 Write-Host ""
-Write-Host "📝 Usage after restart:" -ForegroundColor Cyan
+Write-Host "Usage after restart:" -ForegroundColor Cyan
 Write-Host "  nc                       # Quick start NOOR Canvas"
 Write-Host "  nc -Build                # Build and run"
 Write-Host "  nc -Https                # Run with HTTPS"

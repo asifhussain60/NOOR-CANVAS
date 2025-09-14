@@ -6,6 +6,7 @@ using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 using NoorCanvas.Models;
+using NoorCanvas.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace NoorCanvas.Core.Tests.Authentication
@@ -255,11 +256,11 @@ namespace NoorCanvas.Core.Tests.Authentication
 
                 // Test specific Session 215 if it exists
                 var session215 = await context.Sessions
-                    .FirstOrDefaultAsync(s => s.Id == 215);
+                    .FirstOrDefaultAsync(s => s.SessionId == 215);
                     
                 if (session215 != null)
                 {
-                    _output.WriteLine($"✅ Session 215 found in database: {session215.SessionGuid}");
+                    _output.WriteLine($"✅ Session 215 found in database: {session215.GroupId}");
                 }
                 else
                 {
@@ -270,7 +271,7 @@ namespace NoorCanvas.Core.Tests.Authentication
             {
                 if (ex.Message.Contains("certificate") || ex.Message.Contains("SSL") || ex.Message.Contains("trust"))
                 {
-                    Assert.True(false, $"SSL certificate error accessing canvas schema: {ex.Message}");
+                    Assert.Fail($"SSL certificate error accessing canvas schema: {ex.Message}");
                 }
                 
                 _output.WriteLine($"Database access error (non-SSL): {ex.Message}");

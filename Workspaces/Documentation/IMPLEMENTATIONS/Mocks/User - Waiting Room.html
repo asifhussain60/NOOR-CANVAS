@@ -3,316 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Session Waiting Room</title>
+    <title>NOOR Canvas - Waiting Room</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        
-        .pulse-dot {
-            animation: pulse 2s infinite;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .progress-bar-container {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 1.5rem;
         }
-        
-        .participant-enter {
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .countdown-digit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .progress-bar {
+            background-color: #10B981;
+            height: 100%;
+            transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-                <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></div>
-                Waiting Room Active
-            </div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">USER - WAITING ROOM</h1>
-        </div>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
 
-        <div class="grid lg:grid-cols-5 gap-8">
-            <!-- Session Info & Countdown -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Session Details Card -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Session Details</h2>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                📅
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Date</p>
-                                <p class="font-medium text-gray-800">Today, December 15, 2024</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                ⏰
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Start Time</p>
-                                <p class="font-medium text-gray-800">2:00 PM EST</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                ⏱️
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Duration</p>
-                                <p class="font-medium text-gray-800">3 hours</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                                👨‍🏫
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Instructor</p>
-                                <p class="font-medium text-gray-800">Sarah Chen</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Header with large icon -->
+    <header class="flex flex-col items-center justify-center text-center p-4 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-[#114B5F] mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+        </svg>
+        <h1 class="text-3xl font-bold text-[#114B5F]">NOOR Canvas Waiting Room</h1>
+    </header>
 
-                <!-- Countdown Timer -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Session Starts In</h2>
-                    <div class="flex justify-center gap-4" id="countdown">
-                        <div class="text-center">
-                            <div class="countdown-digit text-white rounded-xl p-4 min-w-[80px]">
-                                <div class="text-3xl font-bold" id="minutes">05</div>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">Minutes</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="countdown-digit text-white rounded-xl p-4 min-w-[80px]">
-                                <div class="text-3xl font-bold" id="seconds">30</div>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">Seconds</p>
-                        </div>
-                    </div>
-                    <div class="mt-6 text-center">
-                        <p class="text-gray-600">Please stay on this page. You'll be automatically admitted when the session begins.</p>
-                    </div>
-                </div>
-            </div>
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-6">
+        
+        <!-- Header & Session Info -->
+        <header class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Session Name</h1>
+            <p class="text-gray-600 text-sm leading-relaxed">This is a sample description for the session. It provides a brief overview of the topics that will be discussed and the goals of the session.</p>
+        </header>
 
-            <!-- Participants List -->
-            <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-semibold text-gray-800">Participants</h2>
-                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                        <span id="participantCount">8</span> joined
+        <!-- Session Details Panel -->
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="font-bold text-xl text-gray-800 mb-4"></h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs">Date</p>
+                        <p class="font-semibold text-gray-800">Today, December 15, 2024</p>
                     </div>
                 </div>
-                
-                <div class="max-h-96 overflow-y-auto pr-2" style="scrollbar-width: thin;">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="participantsList">
-                        <!-- Participants will be added here -->
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs">Start Time</p>
+                        <p class="font-semibold text-gray-800">2:00 PM EST</p>
                     </div>
                 </div>
-                
-                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <p class="text-sm text-gray-600 text-center">
-                        💡 <strong>Tip:</strong> Make sure your camera and microphone are working properly before the session starts.
-                    </p>
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs">Duration</p>
+                        <p class="font-semibold text-gray-800">3 hours</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-yellow-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-xs">Instructor</p>
+                        <p class="font-semibold text-gray-800">Sarah Chen</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Action Bar -->
-        <div class="mt-8 bg-white rounded-2xl shadow-lg p-6">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <button class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
-                        🎤 <span class="text-sm font-medium">Test Mic</span>
-                    </button>
-                    <button class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
-                        📹 <span class="text-sm font-medium">Test Camera</span>
-                    </button>
+        <!-- Session Status & Timer -->
+        <div class="text-center">
+            <p class="text-gray-700 text-lg font-semibold">Session begins in:</p>
+            <div id="countdown-timer" class="text-4xl font-bold text-gray-900 mt-2 mb-4">02:30</div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar" style="width: 50%;"></div>
+            </div>
+            <p id="status-message" class="text-gray-500 mt-2">Waiting for host to begin the session.</p>
+        </div>
+
+        <!-- Participants Panel -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg font-semibold text-gray-800">Participants (12)</h2>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <path d="M20 8v6"></path>
+                    <path d="M23 11h-6"></path>
+                </svg>
+            </div>
+            <div id="participants-list" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
+                <!-- Sample Participant List -->
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/ma.png" alt="Morocco Flag" class="h-4 w-auto rounded">
+                    <span>Fatima (Morocco)</span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button class="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg transition-colors">
-                        Leave Waiting Room
-                    </button>
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                        Ready to Join
-                    </button>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/sa.png" alt="Saudi Arabia Flag" class="h-4 w-auto rounded">
+                    <span>Ali (Saudi Arabia)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/gb.png" alt="United Kingdom Flag" class="h-4 w-auto rounded">
+                    <span>Zainab (United Kingdom)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/us.png" alt="United States Flag" class="h-4 w-auto rounded">
+                    <span>Hassan (United States)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/eg.png" alt="Egypt Flag" class="h-4 w-auto rounded">
+                    <span>Laila (Egypt)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/ca.png" alt="Canada Flag" class="h-4 w-auto rounded">
+                    <span>Yusuf (Canada)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/fr.png" alt="France Flag" class="h-4 w-auto rounded">
+                    <span>Maryam (France)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/tr.png" alt="Turkey Flag" class="h-4 w-auto rounded">
+                    <span>Omar (Turkey)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/de.png" alt="Germany Flag" class="h-4 w-auto rounded">
+                    <span>Sara (Germany)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/id.png" alt="Indonesia Flag" class="h-4 w-auto rounded">
+                    <span>Mohammed (Indonesia)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/pk.png" alt="Pakistan Flag" class="h-4 w-auto rounded">
+                    <span>Aisha (Pakistan)</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="https://flagcdn.com/w20/in.png" alt="India Flag" class="h-4 w-auto rounded">
+                    <span>Ahmed (India)</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Sample participants data
-        const participants = [
-            { name: "Alex Johnson", avatar: "👨‍💻", status: "ready", joinTime: Date.now() - 300000 },
-            { name: "Maria Garcia", avatar: "👩‍💼", status: "ready", joinTime: Date.now() - 250000 },
-            { name: "David Kim", avatar: "👨‍🎓", status: "ready", joinTime: Date.now() - 200000 },
-            { name: "Emma Wilson", avatar: "👩‍🔬", status: "ready", joinTime: Date.now() - 150000 },
-            { name: "James Brown", avatar: "👨‍🏫", status: "ready", joinTime: Date.now() - 100000 },
-            { name: "Lisa Chen", avatar: "👩‍💻", status: "ready", joinTime: Date.now() - 80000 },
-            { name: "Michael Davis", avatar: "👨‍💼", status: "ready", joinTime: Date.now() - 60000 },
-            { name: "Sophie Taylor", avatar: "👩‍🎨", status: "ready", joinTime: Date.now() - 30000 }
-        ];
+        // Sample data for demonstration
+        const sessionStartTime = Date.now() + 150000; // 2.5 minutes from now
+        const duration = 150000; // 2.5 minutes in milliseconds
 
-        // Additional participants to simulate joining
-        const newParticipants = [
-            { name: "Ryan Martinez", avatar: "👨‍🚀", status: "ready" },
-            { name: "Anna Thompson", avatar: "👩‍⚕️", status: "ready" },
-            { name: "Kevin Lee", avatar: "👨‍🎨", status: "ready" },
-            { name: "Rachel Green", avatar: "👩‍🏫", status: "ready" },
-            { name: "Tom Wilson", avatar: "👨‍🔧", status: "ready" },
-            { name: "Sarah Miller", avatar: "👩‍🎓", status: "ready" },
-            { name: "Chris Anderson", avatar: "👨‍⚖️", status: "ready" },
-            { name: "Jessica Moore", avatar: "👩‍🍳", status: "ready" },
-            { name: "Daniel Taylor", avatar: "👨‍🎭", status: "ready" },
-            { name: "Amy Jackson", avatar: "👩‍🚀", status: "ready" },
-            { name: "Mark White", avatar: "👨‍🏭", status: "ready" },
-            { name: "Laura Harris", avatar: "👩‍🎤", status: "ready" },
-            { name: "Steve Clark", avatar: "👨‍🌾", status: "ready" },
-            { name: "Nina Lewis", avatar: "👩‍🔬", status: "ready" },
-            { name: "Paul Walker", avatar: "👨‍🍳", status: "ready" },
-            { name: "Grace Hall", avatar: "👩‍💼", status: "ready" },
-            { name: "Ben Allen", avatar: "👨‍🎨", status: "ready" },
-            { name: "Olivia Young", avatar: "👩‍⚕️", status: "ready" },
-            { name: "Jake King", avatar: "👨‍💻", status: "ready" },
-            { name: "Mia Wright", avatar: "👩‍🏫", status: "ready" },
-            { name: "Luke Lopez", avatar: "👨‍🔬", status: "ready" },
-            { name: "Zoe Hill", avatar: "👩‍🎭", status: "ready" },
-            { name: "Noah Scott", avatar: "👨‍🚀", status: "ready" },
-            { name: "Chloe Green", avatar: "👩‍💻", status: "ready" },
-            { name: "Ethan Adams", avatar: "👨‍🎓", status: "ready" },
-            { name: "Ava Baker", avatar: "👩‍🔧", status: "ready" },
-            { name: "Mason Gonzalez", avatar: "👨‍⚖️", status: "ready" },
-            { name: "Sophia Nelson", avatar: "👩‍🌾", status: "ready" },
-            { name: "Logan Carter", avatar: "👨‍🏭", status: "ready" },
-            { name: "Isabella Mitchell", avatar: "👩‍🎤", status: "ready" },
-            { name: "Lucas Perez", avatar: "👨‍🍳", status: "ready" },
-            { name: "Charlotte Roberts", avatar: "👩‍🚀", status: "ready" },
-            { name: "Henry Turner", avatar: "👨‍💼", status: "ready" },
-            { name: "Amelia Phillips", avatar: "👩‍🎨", status: "ready" },
-            { name: "Alexander Campbell", avatar: "👨‍⚕️", status: "ready" },
-            { name: "Harper Parker", avatar: "👩‍🏫", status: "ready" },
-            { name: "Sebastian Evans", avatar: "👨‍🔬", status: "ready" },
-            { name: "Evelyn Edwards", avatar: "👩‍🎭", status: "ready" },
-            { name: "Owen Collins", avatar: "👨‍🚀", status: "ready" },
-            { name: "Abigail Stewart", avatar: "👩‍💻", status: "ready" },
-            { name: "Carter Sanchez", avatar: "👨‍🎓", status: "ready" },
-            { name: "Emily Morris", avatar: "👩‍🔧", status: "ready" },
-            { name: "Wyatt Rogers", avatar: "👨‍⚖️", status: "ready" },
-            { name: "Madison Reed", avatar: "👩‍🌾", status: "ready" },
-            { name: "Grayson Cook", avatar: "👨‍🏭", status: "ready" },
-            { name: "Elizabeth Bailey", avatar: "👩‍🎤", status: "ready" }
-        ];
-
-        let currentParticipants = [...participants];
-        let newParticipantIndex = 0;
-
-        // Countdown timer
-        let timeLeft = 5 * 60 + 30; // 5 minutes 30 seconds
+        const timerElement = document.getElementById('countdown-timer');
+        const progressBar = document.getElementById('progress-bar');
+        const statusMessage = document.getElementById('status-message');
 
         function updateCountdown() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            
-            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-            
-            if (timeLeft > 0) {
-                timeLeft--;
+            const now = Date.now();
+            const timeLeft = sessionStartTime - now;
+            const progress = (duration - timeLeft) / duration * 100;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                timerElement.textContent = "00:00";
+                progressBar.style.width = '100%';
+                statusMessage.textContent = "Waiting for host to begin the session.";
             } else {
-                // Session would start here
-                document.getElementById('countdown').innerHTML = `
-                    <div class="text-center">
-                        <div class="bg-green-500 text-white rounded-xl p-6">
-                            <div class="text-2xl font-bold">Session Starting!</div>
-                        </div>
-                    </div>
-                `;
+                const minutes = Math.floor(timeLeft / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timerElement.textContent = formattedTime;
+                progressBar.style.width = `${progress}%`;
             }
         }
 
-        // Render participants
-        function renderParticipants() {
-            const participantsList = document.getElementById('participantsList');
-            const participantCount = document.getElementById('participantCount');
-            
-            participantsList.innerHTML = currentParticipants.map(participant => `
-                <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg participant-enter">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">
-                        ${participant.avatar}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-medium text-gray-800 text-sm truncate">${participant.name}</p>
-                        <p class="text-xs text-gray-500">Ready</p>
-                    </div>
-                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
-                </div>
-            `).join('');
-            
-            participantCount.textContent = currentParticipants.length;
-        }
-
-        // Simulate new participants joining
-        function addNewParticipant() {
-            if (newParticipantIndex < newParticipants.length) {
-                currentParticipants.push({
-                    ...newParticipants[newParticipantIndex],
-                    joinTime: Date.now()
-                });
-                newParticipantIndex++;
-                renderParticipants();
-            }
-        }
-
-        // Initialize
-        renderParticipants();
-        
-        // Start countdown
-        setInterval(updateCountdown, 1000);
-        
-        // Simulate participants joining every 3-8 seconds
-        setInterval(addNewParticipant, Math.random() * 5000 + 3000);
-
-        // Button functionality
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', function() {
-                const text = this.textContent.trim();
-                if (text.includes('Test Mic')) {
-                    alert('🎤 Microphone test: Your microphone is working properly!');
-                } else if (text.includes('Test Camera')) {
-                    alert('📹 Camera test: Your camera is working properly!');
-                } else if (text.includes('Leave')) {
-                    if (confirm('Are you sure you want to leave the waiting room?')) {
-                        alert('You have left the waiting room.');
-                    }
-                } else if (text.includes('Ready')) {
-                    alert('✅ You are marked as ready! You will be automatically admitted when the session begins.');
-                }
-            });
-        });
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e6ea5ca73b431c',t:'MTc1Nzc1ODg2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>

@@ -1,6 +1,61 @@
 # 📊 NC ISSUE TRACKER
 
-**Purpose:** Central issue tracking and management system f## 🟡 **MEDIUM PRIORITY ISSUES**
+**Purpose:** Central issue tracking and management system for NOOR CANVAS Islamic## 🚨 **CRITICAL PRIORITY ISSUES**
+
+**IMMEDIATE ATTENTION REQUIRED - Production Blocking Issues**
+
+### **Active Critical Issues Blocking Development**
+- ✅ **Issue-62** — [HttpClient BaseAddress Configuration Missing](COMPLETED/Issue-62-httpclient-baseaddress-configuration-missing.md) 🚨 **CRITICAL BUG RESOLVED** - **ROOT CAUSE OF Issue-60:** Fixed HttpClient configuration, now uses named "default" client with BaseAddress
+- ⚡ **Issue-63** — [Systematic Fix Methodology to Prevent Recurring Issues](IN%20PROGRESS/Issue-63-systematic-fix-methodology-prevent-recurring-issues.md) 🔧 **PROCESS IMPROVEMENT** - Establish root cause analysis protocol and prevention infrastructurent Sharing Platform
+
+---
+
+## 📋 **TODO SECTION**
+
+**Purpose:** Simple checklist for tracking work items in flight. TODOs are temporary and should be removed once completed.
+
+### **Active TODOs**
+- [x] **Test Complete HostSessionManager Workflow** - ✅ VERIFIED: Issue-62 fix successfully resolves authentication failures in runtime
+- [x] **Implement Configuration Validation Startup Check** - ✅ COMPLETED: Added ValidateStartupConfiguration() method in Program.cs with HttpClient and database validation
+- [ ] **Create End-to-End Testing Protocol** - Establish complete workflow testing to prevent regression issues (Issue-63 Phase 2)
+- [ ] **Document Systematic Fix Methodology** - Complete Issue-63 implementation and documentation
+
+---
+
+## 📖 **INSTRUCTIONS FOR LLM USAGE**
+
+**CRITICAL:** These instructions MUST be followed by any LLM (GitHub Copilot, ChatGPT, Claude, etc.) when working with this tracker.
+
+### **TODO Section Standards**
+- **Format:** `- [ ] **Brief Title** - Detailed description of work to be done`
+- **Lifecycle:** Add → Work → Complete → **REMOVE** (do not mark completed, DELETE the entry)
+- **Purpose:** Temporary work tracking only - not permanent record keeping
+- **Location:** Always at the top of file, immediately after purpose statement
+- **Scope:** Simple actionable items that don't require detailed documentation files
+
+### **ISSUE Section Standards** 
+- **Format:** `- [Icon] **Issue-X** — [Title](PATH/file.md) [Category Icon]`
+- **Lifecycle:** NOT STARTED → IN PROGRESS → AWAITING CONFIRMATION → COMPLETED
+- **Purpose:** Permanent problem tracking with detailed documentation
+- **Files:** Each issue has a dedicated .md file in appropriate status folder
+- **Movement:** Files physically move between status folders, tracker entries update accordingly
+- **Icons:** ❌ Not Started | ⚡ In Progress | ⏳ Awaiting Confirmation | ✅ Completed
+
+### **Update Protocols**
+- **TODOs:** Simply add new items to Active TODOs section. Delete completed items entirely.
+- **Issues:** Use standard issue commands: "Add an issue: [Title] - [Description] - [Priority] - [Category]"
+- **Status Changes:** Use "Mark issue X as [status]" commands to move between folders
+- **File Management:** Always maintain sync between tracker entries and actual .md files in folders
+
+### **Quality Standards**
+- **No Duplicate Icons:** Icons appear ONLY at beginning of lines, never at the end
+- **Consistent formatting:** Maintain exact format patterns for both TODOs and Issues
+- **File Sync:** Tracker entries must match actual files in status folders
+- **Clear Separation:** TODOs and Issues serve different purposes - do not mix them
+
+---
+
+## 🟡 **MEDIUM PRIORITY ISSUES**
 
 ### **Completed Medium Priority Issues**
 - ✅ **Issue-55** — [NC Command Enhancement - Simple Browser Launch](COMPLETED/Issue-55-nc-command-enhancement-simple-browser-launch.md) 🔧 **ENHANCEMENT COMPLETED** - Added server readiness check and browser launch instructions
@@ -58,11 +113,24 @@ IssueTracker/
 
 ---
 
-## 🔴 **HIGH PRIORITY ISSUES**
+## � **CRITICAL PRIORITY ISSUES**
+
+**IMMEDIATE ATTENTION REQUIRED - Production Blocking Issues**
+
+### **Active Critical Issues Blocking Development**
+- ❌ **Issue-60** — [HostSessionManager Initialization Failure After Authentication](NOT%20STARTED/Issue-60-hostsessionmanager-initialization-failure-authentication.md) 🚨 **CRITICAL BUG** - Session manager fails to initialize despite successful host authentication, recurring issue after multiple fix attempts
+
+---
+
+## �🔴 **HIGH PRIORITY ISSUES**
 
 **Phase 4 Ready - No critical blockers identified for branding integration**
 
 ### **Active Issues Requiring Resolution Before Phase 4**
+- ❌ **Issue-61** — [NC Command Long Delay After GUID Generation](NOT%20STARTED/Issue-61-nc-command-long-delay-after-guid-generation.md) 🔧 **UX ENHANCEMENT** - No progress feedback during delay causes user confusion
+- ❌ **Issue-60** — [HostSessionManager Initialization Failure](NOT%20STARTED/Issue-60-hostsessionmanager-initialization-failure-authentication.md) 🐛 **BUG** - **ROOT CAUSE RESOLVED BY Issue-62** - HttpClient BaseAddress configuration issue
+- ⚡ **Issue-58** — [AlertDialog Null Reference JavaScript Error](IN%20PROGRESS/Issue-58-alertdialog-null-reference-javascript-error.md) 🐛 **BUG** - FIXED: Enhanced error handling implemented, focus() errors resolved
+- ⚡ **Issue-59** — [DialogService Registration Race Condition](IN%20PROGRESS/Issue-59-dialogservice-registration-race-condition.md) 🐛 **BUG** - FIXED: Queue system and proper method usage implemented
 - ❌ **Issue-32** — [HostSessionManager API Endpoints Returning 500 Errors](NOT%20STARTED/Issue-32-hostsessionmanager-api-endpoints-500-errors.md) 🐛 **BUG** - API endpoint errors need investigation
 - ⏳ **Issue-31** — [HTTP 500.19 Configuration Errors in IIS Express](AWAITING_CONFIRMATION/Issue-31-http-500-19-configuration-errors-iis-express.md) 🔧 **CONFIGURATION** - IIS Express configuration validation needed
 

@@ -1,6 +1,7 @@
 using Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using Moq;
 using NoorCanvas.Services;
 using NoorCanvas.Data;
@@ -399,7 +400,11 @@ namespace NoorCanvas.Core.Tests.Services
 
         public DialogServiceTests()
         {
-            _dialogService = new DialogService();
+            // Mock dependencies for DialogService
+            var loggerMock = new Mock<ILogger<DialogService>>();
+            var jsRuntimeMock = new Mock<IJSRuntime>();
+            
+            _dialogService = new DialogService(loggerMock.Object, jsRuntimeMock.Object);
         }
 
         [Fact]
