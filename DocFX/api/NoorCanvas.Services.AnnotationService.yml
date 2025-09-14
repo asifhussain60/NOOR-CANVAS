@@ -1,0 +1,1034 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Services.AnnotationService
+  commentId: T:NoorCanvas.Services.AnnotationService
+  id: AnnotationService
+  parent: NoorCanvas.Services
+  children:
+  - NoorCanvas.Services.AnnotationService.#ctor(NoorCanvas.Data.CanvasDbContext,ILogger{NoorCanvas.Services.AnnotationService})
+  - NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+  - NoorCanvas.Services.AnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  - NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+  - NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync(System.Int64)
+  - NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  langs:
+  - csharp
+  - vb
+  name: AnnotationService
+  nameWithType: AnnotationService
+  fullName: NoorCanvas.Services.AnnotationService
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AnnotationService
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 16
+  namespace: NoorCanvas.Services
+  syntax:
+    content: 'public class AnnotationService : IAnnotationService'
+    content.vb: Public Class AnnotationService Implements IAnnotationService
+  inheritance:
+  - System.Object
+  implements:
+  - NoorCanvas.Services.IAnnotationService
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: NoorCanvas.Services.AnnotationService.#ctor(NoorCanvas.Data.CanvasDbContext,ILogger{NoorCanvas.Services.AnnotationService})
+  commentId: M:NoorCanvas.Services.AnnotationService.#ctor(NoorCanvas.Data.CanvasDbContext,ILogger{NoorCanvas.Services.AnnotationService})
+  id: '#ctor(NoorCanvas.Data.CanvasDbContext,ILogger{NoorCanvas.Services.AnnotationService})'
+  parent: NoorCanvas.Services.AnnotationService
+  langs:
+  - csharp
+  - vb
+  name: AnnotationService(CanvasDbContext, ILogger<AnnotationService>)
+  nameWithType: AnnotationService.AnnotationService(CanvasDbContext, ILogger<AnnotationService>)
+  fullName: NoorCanvas.Services.AnnotationService.AnnotationService(NoorCanvas.Data.CanvasDbContext, ILogger<NoorCanvas.Services.AnnotationService>)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 21
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public AnnotationService(CanvasDbContext context, ILogger<AnnotationService> logger)
+    parameters:
+    - id: context
+      type: NoorCanvas.Data.CanvasDbContext
+    - id: logger
+      type: ILogger{NoorCanvas.Services.AnnotationService}
+    content.vb: Public Sub New(context As CanvasDbContext, logger As ILogger(Of AnnotationService))
+  overload: NoorCanvas.Services.AnnotationService.#ctor*
+  nameWithType.vb: AnnotationService.New(CanvasDbContext, ILogger(Of AnnotationService))
+  fullName.vb: NoorCanvas.Services.AnnotationService.New(NoorCanvas.Data.CanvasDbContext, ILogger(Of NoorCanvas.Services.AnnotationService))
+  name.vb: New(CanvasDbContext, ILogger(Of AnnotationService))
+- uid: NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync(System.Int64)
+  commentId: M:NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync(System.Int64)
+  id: GetSessionAnnotationsAsync(System.Int64)
+  parent: NoorCanvas.Services.AnnotationService
+  langs:
+  - csharp
+  - vb
+  name: GetSessionAnnotationsAsync(long)
+  nameWithType: AnnotationService.GetSessionAnnotationsAsync(long)
+  fullName: NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync(long)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetSessionAnnotationsAsync
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 27
+  namespace: NoorCanvas.Services
+  example: []
+  syntax:
+    content: public Task<IEnumerable<Annotation>> GetSessionAnnotationsAsync(long sessionId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    return:
+      type: Task{IEnumerable{NoorCanvas.Models.Annotation}}
+    content.vb: Public Function GetSessionAnnotationsAsync(sessionId As Long) As Task(Of IEnumerable(Of Annotation))
+  overload: NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync*
+  implements:
+  - NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(System.Int64)
+  nameWithType.vb: AnnotationService.GetSessionAnnotationsAsync(Long)
+  fullName.vb: NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync(Long)
+  name.vb: GetSessionAnnotationsAsync(Long)
+- uid: NoorCanvas.Services.AnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  commentId: M:NoorCanvas.Services.AnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  id: CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  parent: NoorCanvas.Services.AnnotationService
+  langs:
+  - csharp
+  - vb
+  name: CreateAnnotationAsync(long, string, object)
+  nameWithType: AnnotationService.CreateAnnotationAsync(long, string, object)
+  fullName: NoorCanvas.Services.AnnotationService.CreateAnnotationAsync(long, string, object)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreateAnnotationAsync
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 50
+  namespace: NoorCanvas.Services
+  example: []
+  syntax:
+    content: public Task<Annotation> CreateAnnotationAsync(long sessionId, string createdBy, object annotationData)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: createdBy
+      type: System.String
+    - id: annotationData
+      type: System.Object
+    return:
+      type: Task{NoorCanvas.Models.Annotation}
+    content.vb: Public Function CreateAnnotationAsync(sessionId As Long, createdBy As String, annotationData As Object) As Task(Of Annotation)
+  overload: NoorCanvas.Services.AnnotationService.CreateAnnotationAsync*
+  implements:
+  - NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  nameWithType.vb: AnnotationService.CreateAnnotationAsync(Long, String, Object)
+  fullName.vb: NoorCanvas.Services.AnnotationService.CreateAnnotationAsync(Long, String, Object)
+  name.vb: CreateAnnotationAsync(Long, String, Object)
+- uid: NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+  commentId: M:NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+  id: DeleteAnnotationAsync(System.Int64,System.String)
+  parent: NoorCanvas.Services.AnnotationService
+  langs:
+  - csharp
+  - vb
+  name: DeleteAnnotationAsync(long, string)
+  nameWithType: AnnotationService.DeleteAnnotationAsync(long, string)
+  fullName: NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync(long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: DeleteAnnotationAsync
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 80
+  namespace: NoorCanvas.Services
+  example: []
+  syntax:
+    content: public Task<bool> DeleteAnnotationAsync(long annotationId, string userId)
+    parameters:
+    - id: annotationId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    return:
+      type: Task{System.Boolean}
+    content.vb: Public Function DeleteAnnotationAsync(annotationId As Long, userId As String) As Task(Of Boolean)
+  overload: NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync*
+  implements:
+  - NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+  nameWithType.vb: AnnotationService.DeleteAnnotationAsync(Long, String)
+  fullName.vb: NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync(Long, String)
+  name.vb: DeleteAnnotationAsync(Long, String)
+- uid: NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  commentId: M:NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  id: UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  parent: NoorCanvas.Services.AnnotationService
+  langs:
+  - csharp
+  - vb
+  name: UpdateAnnotationAsync(long, string, object)
+  nameWithType: AnnotationService.UpdateAnnotationAsync(long, string, object)
+  fullName: NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync(long, string, object)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: UpdateAnnotationAsync
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 117
+  namespace: NoorCanvas.Services
+  example: []
+  syntax:
+    content: public Task<bool> UpdateAnnotationAsync(long annotationId, string userId, object annotationData)
+    parameters:
+    - id: annotationId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    - id: annotationData
+      type: System.Object
+    return:
+      type: Task{System.Boolean}
+    content.vb: Public Function UpdateAnnotationAsync(annotationId As Long, userId As String, annotationData As Object) As Task(Of Boolean)
+  overload: NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync*
+  implements:
+  - NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  nameWithType.vb: AnnotationService.UpdateAnnotationAsync(Long, String, Object)
+  fullName.vb: NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync(Long, String, Object)
+  name.vb: UpdateAnnotationAsync(Long, String, Object)
+- uid: NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+  commentId: M:NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+  id: ClearSessionAnnotationsAsync(System.Int64,System.String)
+  parent: NoorCanvas.Services.AnnotationService
+  langs:
+  - csharp
+  - vb
+  name: ClearSessionAnnotationsAsync(long, string)
+  nameWithType: AnnotationService.ClearSessionAnnotationsAsync(long, string)
+  fullName: NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync(long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/AnnotationService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ClearSessionAnnotationsAsync
+    path: ../SPA/NoorCanvas/Services/AnnotationService.cs
+    startLine: 154
+  namespace: NoorCanvas.Services
+  example: []
+  syntax:
+    content: public Task ClearSessionAnnotationsAsync(long sessionId, string userId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function ClearSessionAnnotationsAsync(sessionId As Long, userId As String) As Task
+  overload: NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync*
+  implements:
+  - NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+  nameWithType.vb: AnnotationService.ClearSessionAnnotationsAsync(Long, String)
+  fullName.vb: NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync(Long, String)
+  name.vb: ClearSessionAnnotationsAsync(Long, String)
+references:
+- uid: NoorCanvas.Services
+  commentId: N:NoorCanvas.Services
+  href: NoorCanvas.html
+  name: NoorCanvas.Services
+  nameWithType: NoorCanvas.Services
+  fullName: NoorCanvas.Services
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: NoorCanvas.Services.IAnnotationService
+  commentId: T:NoorCanvas.Services.IAnnotationService
+  parent: NoorCanvas.Services
+  href: NoorCanvas.Services.IAnnotationService.html
+  name: IAnnotationService
+  nameWithType: IAnnotationService
+  fullName: NoorCanvas.Services.IAnnotationService
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Services.AnnotationService.#ctor*
+  commentId: Overload:NoorCanvas.Services.AnnotationService.#ctor
+  href: NoorCanvas.Services.AnnotationService.html#NoorCanvas_Services_AnnotationService__ctor_NoorCanvas_Data_CanvasDbContext_ILogger_NoorCanvas_Services_AnnotationService__
+  name: AnnotationService
+  nameWithType: AnnotationService.AnnotationService
+  fullName: NoorCanvas.Services.AnnotationService.AnnotationService
+  nameWithType.vb: AnnotationService.New
+  fullName.vb: NoorCanvas.Services.AnnotationService.New
+  name.vb: New
+- uid: NoorCanvas.Data.CanvasDbContext
+  commentId: T:NoorCanvas.Data.CanvasDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.CanvasDbContext.html
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext
+- uid: ILogger{NoorCanvas.Services.AnnotationService}
+  commentId: '!:ILogger{NoorCanvas.Services.AnnotationService}'
+  definition: ILogger`1
+  href: NoorCanvas.Services.AnnotationService.html
+  name: ILogger<AnnotationService>
+  nameWithType: ILogger<AnnotationService>
+  fullName: ILogger<NoorCanvas.Services.AnnotationService>
+  nameWithType.vb: ILogger(Of AnnotationService)
+  fullName.vb: ILogger(Of NoorCanvas.Services.AnnotationService)
+  name.vb: ILogger(Of AnnotationService)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Services.AnnotationService
+    name: AnnotationService
+    href: NoorCanvas.Services.AnnotationService.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Services.AnnotationService
+    name: AnnotationService
+    href: NoorCanvas.Services.AnnotationService.html
+  - name: )
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync*
+  commentId: Overload:NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync
+  href: NoorCanvas.Services.AnnotationService.html#NoorCanvas_Services_AnnotationService_GetSessionAnnotationsAsync_System_Int64_
+  name: GetSessionAnnotationsAsync
+  nameWithType: AnnotationService.GetSessionAnnotationsAsync
+  fullName: NoorCanvas.Services.AnnotationService.GetSessionAnnotationsAsync
+- uid: NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(System.Int64)
+  commentId: M:NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(System.Int64)
+  parent: NoorCanvas.Services.IAnnotationService
+  isExternal: true
+  href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_GetSessionAnnotationsAsync_System_Int64_
+  name: GetSessionAnnotationsAsync(long)
+  nameWithType: IAnnotationService.GetSessionAnnotationsAsync(long)
+  fullName: NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(long)
+  nameWithType.vb: IAnnotationService.GetSessionAnnotationsAsync(Long)
+  fullName.vb: NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(Long)
+  name.vb: GetSessionAnnotationsAsync(Long)
+  spec.csharp:
+  - uid: NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(System.Int64)
+    name: GetSessionAnnotationsAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_GetSessionAnnotationsAsync_System_Int64_
+  - name: (
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: )
+  spec.vb:
+  - uid: NoorCanvas.Services.IAnnotationService.GetSessionAnnotationsAsync(System.Int64)
+    name: GetSessionAnnotationsAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_GetSessionAnnotationsAsync_System_Int64_
+  - name: (
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: )
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: Task{IEnumerable{NoorCanvas.Models.Annotation}}
+  commentId: '!:Task{IEnumerable{NoorCanvas.Models.Annotation}}'
+  definition: Task`1
+  href: NoorCanvas.Models.Annotation.html
+  name: Task<IEnumerable<Annotation>>
+  nameWithType: Task<IEnumerable<Annotation>>
+  fullName: Task<IEnumerable<NoorCanvas.Models.Annotation>>
+  nameWithType.vb: Task(Of IEnumerable(Of Annotation))
+  fullName.vb: Task(Of IEnumerable(Of NoorCanvas.Models.Annotation))
+  name.vb: Task(Of IEnumerable(Of Annotation))
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - uid: IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    href: NoorCanvas.Models.Annotation.html
+  - name: '>'
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: IEnumerable`1
+    name: IEnumerable
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    href: NoorCanvas.Models.Annotation.html
+  - name: )
+  - name: )
+- uid: Task`1
+  isExternal: true
+  name: Task<>
+  nameWithType: Task<>
+  fullName: Task<>
+  nameWithType.vb: Task(Of )
+  fullName.vb: Task(Of )
+  name.vb: Task(Of )
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Services.AnnotationService.CreateAnnotationAsync*
+  commentId: Overload:NoorCanvas.Services.AnnotationService.CreateAnnotationAsync
+  href: NoorCanvas.Services.AnnotationService.html#NoorCanvas_Services_AnnotationService_CreateAnnotationAsync_System_Int64_System_String_System_Object_
+  name: CreateAnnotationAsync
+  nameWithType: AnnotationService.CreateAnnotationAsync
+  fullName: NoorCanvas.Services.AnnotationService.CreateAnnotationAsync
+- uid: NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  commentId: M:NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+  parent: NoorCanvas.Services.IAnnotationService
+  isExternal: true
+  href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_CreateAnnotationAsync_System_Int64_System_String_System_Object_
+  name: CreateAnnotationAsync(long, string, object)
+  nameWithType: IAnnotationService.CreateAnnotationAsync(long, string, object)
+  fullName: NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(long, string, object)
+  nameWithType.vb: IAnnotationService.CreateAnnotationAsync(Long, String, Object)
+  fullName.vb: NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(Long, String, Object)
+  name.vb: CreateAnnotationAsync(Long, String, Object)
+  spec.csharp:
+  - uid: NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+    name: CreateAnnotationAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_CreateAnnotationAsync_System_Int64_System_String_System_Object_
+  - name: (
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: string
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: NoorCanvas.Services.IAnnotationService.CreateAnnotationAsync(System.Int64,System.String,System.Object)
+    name: CreateAnnotationAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_CreateAnnotationAsync_System_Int64_System_String_System_Object_
+  - name: (
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: String
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: Task{NoorCanvas.Models.Annotation}
+  commentId: '!:Task{NoorCanvas.Models.Annotation}'
+  definition: Task`1
+  href: NoorCanvas.Models.Annotation.html
+  name: Task<Annotation>
+  nameWithType: Task<Annotation>
+  fullName: Task<NoorCanvas.Models.Annotation>
+  nameWithType.vb: Task(Of Annotation)
+  fullName.vb: Task(Of NoorCanvas.Models.Annotation)
+  name.vb: Task(Of Annotation)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    href: NoorCanvas.Models.Annotation.html
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    href: NoorCanvas.Models.Annotation.html
+  - name: )
+- uid: NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync*
+  commentId: Overload:NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync
+  href: NoorCanvas.Services.AnnotationService.html#NoorCanvas_Services_AnnotationService_DeleteAnnotationAsync_System_Int64_System_String_
+  name: DeleteAnnotationAsync
+  nameWithType: AnnotationService.DeleteAnnotationAsync
+  fullName: NoorCanvas.Services.AnnotationService.DeleteAnnotationAsync
+- uid: NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+  commentId: M:NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+  parent: NoorCanvas.Services.IAnnotationService
+  isExternal: true
+  href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_DeleteAnnotationAsync_System_Int64_System_String_
+  name: DeleteAnnotationAsync(long, string)
+  nameWithType: IAnnotationService.DeleteAnnotationAsync(long, string)
+  fullName: NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(long, string)
+  nameWithType.vb: IAnnotationService.DeleteAnnotationAsync(Long, String)
+  fullName.vb: NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(Long, String)
+  name.vb: DeleteAnnotationAsync(Long, String)
+  spec.csharp:
+  - uid: NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+    name: DeleteAnnotationAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_DeleteAnnotationAsync_System_Int64_System_String_
+  - name: (
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: string
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: )
+  spec.vb:
+  - uid: NoorCanvas.Services.IAnnotationService.DeleteAnnotationAsync(System.Int64,System.String)
+    name: DeleteAnnotationAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_DeleteAnnotationAsync_System_Int64_System_String_
+  - name: (
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: String
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: )
+- uid: Task{System.Boolean}
+  commentId: '!:Task{System.Boolean}'
+  definition: Task`1
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: Task<bool>
+  nameWithType: Task<bool>
+  fullName: Task<bool>
+  nameWithType.vb: Task(Of Boolean)
+  fullName.vb: Task(Of Boolean)
+  name.vb: Task(Of Boolean)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - uid: System.Boolean
+    name: bool
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.boolean
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: System.Boolean
+    name: Boolean
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.boolean
+  - name: )
+- uid: NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync*
+  commentId: Overload:NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync
+  href: NoorCanvas.Services.AnnotationService.html#NoorCanvas_Services_AnnotationService_UpdateAnnotationAsync_System_Int64_System_String_System_Object_
+  name: UpdateAnnotationAsync
+  nameWithType: AnnotationService.UpdateAnnotationAsync
+  fullName: NoorCanvas.Services.AnnotationService.UpdateAnnotationAsync
+- uid: NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  commentId: M:NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+  parent: NoorCanvas.Services.IAnnotationService
+  isExternal: true
+  href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_UpdateAnnotationAsync_System_Int64_System_String_System_Object_
+  name: UpdateAnnotationAsync(long, string, object)
+  nameWithType: IAnnotationService.UpdateAnnotationAsync(long, string, object)
+  fullName: NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(long, string, object)
+  nameWithType.vb: IAnnotationService.UpdateAnnotationAsync(Long, String, Object)
+  fullName.vb: NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(Long, String, Object)
+  name.vb: UpdateAnnotationAsync(Long, String, Object)
+  spec.csharp:
+  - uid: NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+    name: UpdateAnnotationAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_UpdateAnnotationAsync_System_Int64_System_String_System_Object_
+  - name: (
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: string
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: NoorCanvas.Services.IAnnotationService.UpdateAnnotationAsync(System.Int64,System.String,System.Object)
+    name: UpdateAnnotationAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_UpdateAnnotationAsync_System_Int64_System_String_System_Object_
+  - name: (
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: String
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync*
+  commentId: Overload:NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync
+  href: NoorCanvas.Services.AnnotationService.html#NoorCanvas_Services_AnnotationService_ClearSessionAnnotationsAsync_System_Int64_System_String_
+  name: ClearSessionAnnotationsAsync
+  nameWithType: AnnotationService.ClearSessionAnnotationsAsync
+  fullName: NoorCanvas.Services.AnnotationService.ClearSessionAnnotationsAsync
+- uid: NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+  commentId: M:NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+  parent: NoorCanvas.Services.IAnnotationService
+  isExternal: true
+  href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_ClearSessionAnnotationsAsync_System_Int64_System_String_
+  name: ClearSessionAnnotationsAsync(long, string)
+  nameWithType: IAnnotationService.ClearSessionAnnotationsAsync(long, string)
+  fullName: NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(long, string)
+  nameWithType.vb: IAnnotationService.ClearSessionAnnotationsAsync(Long, String)
+  fullName.vb: NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(Long, String)
+  name.vb: ClearSessionAnnotationsAsync(Long, String)
+  spec.csharp:
+  - uid: NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+    name: ClearSessionAnnotationsAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_ClearSessionAnnotationsAsync_System_Int64_System_String_
+  - name: (
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: string
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: )
+  spec.vb:
+  - uid: NoorCanvas.Services.IAnnotationService.ClearSessionAnnotationsAsync(System.Int64,System.String)
+    name: ClearSessionAnnotationsAsync
+    href: NoorCanvas.Services.IAnnotationService.html#NoorCanvas_Services_IAnnotationService_ClearSessionAnnotationsAsync_System_Int64_System_String_
+  - name: (
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: ','
+  - name: " "
+  - uid: System.String
+    name: String
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.string
+  - name: )
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task

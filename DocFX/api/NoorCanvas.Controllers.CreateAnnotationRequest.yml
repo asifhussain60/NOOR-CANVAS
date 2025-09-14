@@ -1,0 +1,470 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest
+  commentId: T:NoorCanvas.Controllers.CreateAnnotationRequest
+  id: CreateAnnotationRequest
+  parent: NoorCanvas.Controllers
+  children:
+  - NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData
+  - NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy
+  - NoorCanvas.Controllers.CreateAnnotationRequest.SessionId
+  langs:
+  - csharp
+  - vb
+  name: CreateAnnotationRequest
+  nameWithType: CreateAnnotationRequest
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AnnotationsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreateAnnotationRequest
+    path: ../SPA/NoorCanvas/Controllers/AnnotationsController.cs
+    startLine: 234
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public class CreateAnnotationRequest
+    content.vb: Public Class CreateAnnotationRequest
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest.SessionId
+  commentId: P:NoorCanvas.Controllers.CreateAnnotationRequest.SessionId
+  id: SessionId
+  parent: NoorCanvas.Controllers.CreateAnnotationRequest
+  langs:
+  - csharp
+  - vb
+  name: SessionId
+  nameWithType: CreateAnnotationRequest.SessionId
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest.SessionId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AnnotationsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionId
+    path: ../SPA/NoorCanvas/Controllers/AnnotationsController.cs
+    startLine: 236
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: >-
+      [Required]
+
+      [Range(1, 9.223372036854776E+18)]
+
+      public long SessionId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: >-
+      <Required>
+
+      <Range(1, 9.223372036854776E+18)>
+
+      Public Property SessionId As Long
+  overload: NoorCanvas.Controllers.CreateAnnotationRequest.SessionId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+  - type: System.ComponentModel.DataAnnotations.RangeAttribute
+    ctor: System.ComponentModel.DataAnnotations.RangeAttribute.#ctor(System.Double,System.Double)
+    arguments:
+    - type: System.Double
+      value: 1
+    - type: System.Double
+      value: 9.223372036854776E+18
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy
+  commentId: P:NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy
+  id: CreatedBy
+  parent: NoorCanvas.Controllers.CreateAnnotationRequest
+  langs:
+  - csharp
+  - vb
+  name: CreatedBy
+  nameWithType: CreateAnnotationRequest.CreatedBy
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AnnotationsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreatedBy
+    path: ../SPA/NoorCanvas/Controllers/AnnotationsController.cs
+    startLine: 240
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: >-
+      [Required]
+
+      [MaxLength(128)]
+
+      public string CreatedBy { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Required>
+
+      <MaxLength(128)>
+
+      Public Property CreatedBy As String
+  overload: NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 128
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData
+  commentId: P:NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData
+  id: AnnotationData
+  parent: NoorCanvas.Controllers.CreateAnnotationRequest
+  langs:
+  - csharp
+  - vb
+  name: AnnotationData
+  nameWithType: CreateAnnotationRequest.AnnotationData
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AnnotationsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AnnotationData
+    path: ../SPA/NoorCanvas/Controllers/AnnotationsController.cs
+    startLine: 244
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: >-
+      [Required]
+
+      public object AnnotationData { get; set; }
+    parameters: []
+    return:
+      type: System.Object
+    content.vb: >-
+      <Required>
+
+      Public Property AnnotationData As Object
+  overload: NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+references:
+- uid: NoorCanvas.Controllers
+  commentId: N:NoorCanvas.Controllers
+  href: NoorCanvas.html
+  name: NoorCanvas.Controllers
+  nameWithType: NoorCanvas.Controllers
+  fullName: NoorCanvas.Controllers
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest.SessionId*
+  commentId: Overload:NoorCanvas.Controllers.CreateAnnotationRequest.SessionId
+  href: NoorCanvas.Controllers.CreateAnnotationRequest.html#NoorCanvas_Controllers_CreateAnnotationRequest_SessionId
+  name: SessionId
+  nameWithType: CreateAnnotationRequest.SessionId
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest.SessionId
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy*
+  commentId: Overload:NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy
+  href: NoorCanvas.Controllers.CreateAnnotationRequest.html#NoorCanvas_Controllers_CreateAnnotationRequest_CreatedBy
+  name: CreatedBy
+  nameWithType: CreateAnnotationRequest.CreatedBy
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest.CreatedBy
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData*
+  commentId: Overload:NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData
+  href: NoorCanvas.Controllers.CreateAnnotationRequest.html#NoorCanvas_Controllers_CreateAnnotationRequest_AnnotationData
+  name: AnnotationData
+  nameWithType: CreateAnnotationRequest.AnnotationData
+  fullName: NoorCanvas.Controllers.CreateAnnotationRequest.AnnotationData

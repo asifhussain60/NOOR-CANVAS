@@ -1,0 +1,52 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  id: NoorCanvas.Data
+  children:
+  - NoorCanvas.Data.CanvasDbContext
+  - NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  type: Namespace
+references:
+- uid: NoorCanvas.Data.CanvasDbContext
+  commentId: T:NoorCanvas.Data.CanvasDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.CanvasDbContext.html
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext
+- uid: NoorCanvas.Data.KSessionsDbContext
+  commentId: T:NoorCanvas.Data.KSessionsDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.KSessionsDbContext.html
+  name: KSessionsDbContext
+  nameWithType: KSessionsDbContext
+  fullName: NoorCanvas.Data.KSessionsDbContext
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html

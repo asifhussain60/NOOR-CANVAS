@@ -1,0 +1,233 @@
+### YamlMime:TableOfContent
+items:
+- uid: NoorCanvas.Controllers
+  name: NoorCanvas.Controllers
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Controllers.AdminAuthRequest
+    name: AdminAuthRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminAuthResponse
+    name: AdminAuthResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminController
+    name: AdminController
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminDashboardResponse
+    name: AdminDashboardResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminSessionDetails
+    name: AdminSessionDetails
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminSessionListResponse
+    name: AdminSessionListResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminSessionSummary
+    name: AdminSessionSummary
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminStatistics
+    name: AdminStatistics
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminUserDetails
+    name: AdminUserDetails
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminUserListResponse
+    name: AdminUserListResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.AdminUserSummary
+    name: AdminUserSummary
+    type: Class
+  - uid: NoorCanvas.Controllers.AlbumData
+    name: AlbumData
+    type: Class
+  - uid: NoorCanvas.Controllers.AnnotationsController
+    name: AnnotationsController
+    type: Class
+  - uid: NoorCanvas.Controllers.CategoryData
+    name: CategoryData
+    type: Class
+  - uid: NoorCanvas.Controllers.CreateAnnotationRequest
+    name: CreateAnnotationRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.CreateIssueRequest
+    name: CreateIssueRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.CreateSessionRequest
+    name: CreateSessionRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.GenerateTokenRequest
+    name: GenerateTokenRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.GenerateTokenResponse
+    name: GenerateTokenResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.HealthController
+    name: HealthController
+    type: Class
+  - uid: NoorCanvas.Controllers.HostAuthRequest
+    name: HostAuthRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.HostAuthResponse
+    name: HostAuthResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.HostController
+    name: HostController
+    type: Class
+  - uid: NoorCanvas.Controllers.HostDashboardResponse
+    name: HostDashboardResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.HostProvisionerController
+    name: HostProvisionerController
+    type: Class
+  - uid: NoorCanvas.Controllers.IssueController
+    name: IssueController
+    type: Class
+  - uid: NoorCanvas.Controllers.IssueResponse
+    name: IssueResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.LogsController
+    name: LogsController
+    type: Class
+  - uid: NoorCanvas.Controllers.ParticipantController
+    name: ParticipantController
+    type: Class
+  - uid: NoorCanvas.Controllers.ParticipantRegistrationRequest
+    name: ParticipantRegistrationRequest
+    type: Class
+  - uid: NoorCanvas.Controllers.ParticipantRegistrationResponse
+    name: ParticipantRegistrationResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.SessionData
+    name: SessionData
+    type: Class
+  - uid: NoorCanvas.Controllers.SessionResponse
+    name: SessionResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.SessionStatusData
+    name: SessionStatusData
+    type: Class
+  - uid: NoorCanvas.Controllers.SessionStatusResponse
+    name: SessionStatusResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.SessionSummaryResponse
+    name: SessionSummaryResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.SessionValidationResponse
+    name: SessionValidationResponse
+    type: Class
+  - uid: NoorCanvas.Controllers.UpdateAnnotationRequest
+    name: UpdateAnnotationRequest
+    type: Class
+- uid: NoorCanvas.Data
+  name: NoorCanvas.Data
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Data.CanvasDbContext
+    name: CanvasDbContext
+    type: Class
+  - uid: NoorCanvas.Data.KSessionsDbContext
+    name: KSessionsDbContext
+    type: Class
+- uid: NoorCanvas.Data.Migrations
+  name: NoorCanvas.Data.Migrations
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Data.Migrations.AddAdminSessions
+    name: AddAdminSessions
+    type: Class
+  - uid: NoorCanvas.Data.Migrations.InitialCreate
+    name: InitialCreate
+    type: Class
+- uid: NoorCanvas.Hubs
+  name: NoorCanvas.Hubs
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Hubs.AnnotationHub
+    name: AnnotationHub
+    type: Class
+  - uid: NoorCanvas.Hubs.QAHub
+    name: QAHub
+    type: Class
+  - uid: NoorCanvas.Hubs.SessionHub
+    name: SessionHub
+    type: Class
+- uid: NoorCanvas.Models
+  name: NoorCanvas.Models
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Models.AdminSession
+    name: AdminSession
+    type: Class
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    type: Class
+  - uid: NoorCanvas.Models.AuditLog
+    name: AuditLog
+    type: Class
+  - uid: NoorCanvas.Models.HostSession
+    name: HostSession
+    type: Class
+  - uid: NoorCanvas.Models.Issue
+    name: Issue
+    type: Class
+  - uid: NoorCanvas.Models.Question
+    name: Question
+    type: Class
+  - uid: NoorCanvas.Models.QuestionAnswer
+    name: QuestionAnswer
+    type: Class
+  - uid: NoorCanvas.Models.QuestionVote
+    name: QuestionVote
+    type: Class
+  - uid: NoorCanvas.Models.Registration
+    name: Registration
+    type: Class
+  - uid: NoorCanvas.Models.Session
+    name: Session
+    type: Class
+  - uid: NoorCanvas.Models.SessionLink
+    name: SessionLink
+    type: Class
+  - uid: NoorCanvas.Models.SharedAsset
+    name: SharedAsset
+    type: Class
+  - uid: NoorCanvas.Models.User
+    name: User
+    type: Class
+- uid: NoorCanvas.Models.KSESSIONS
+  name: NoorCanvas.Models.KSESSIONS
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+    name: KSessionsCategory
+    type: Class
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+    name: KSessionsGroup
+    type: Class
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSession
+    name: KSessionsSession
+    type: Class
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+    name: KSessionsSessionTranscript
+    type: Class
+- uid: NoorCanvas.Pages
+  name: NoorCanvas.Pages
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Pages.ErrorModel
+    name: ErrorModel
+    type: Class
+- uid: NoorCanvas.Services
+  name: NoorCanvas.Services
+  type: Namespace
+  items:
+  - uid: NoorCanvas.Services.AnnotationService
+    name: AnnotationService
+    type: Class
+  - uid: NoorCanvas.Services.DialogService
+    name: DialogService
+    type: Class
+  - uid: NoorCanvas.Services.IAnnotationService
+    name: IAnnotationService
+    type: Interface
+memberLayout: SamePage

@@ -1,0 +1,58 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Services
+  commentId: N:NoorCanvas.Services
+  id: NoorCanvas.Services
+  children:
+  - NoorCanvas.Services.AnnotationService
+  - NoorCanvas.Services.DialogService
+  - NoorCanvas.Services.IAnnotationService
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Services
+  nameWithType: NoorCanvas.Services
+  fullName: NoorCanvas.Services
+  type: Namespace
+references:
+- uid: NoorCanvas.Services.IAnnotationService
+  commentId: T:NoorCanvas.Services.IAnnotationService
+  parent: NoorCanvas.Services
+  href: NoorCanvas.Services.IAnnotationService.html
+  name: IAnnotationService
+  nameWithType: IAnnotationService
+  fullName: NoorCanvas.Services.IAnnotationService
+- uid: NoorCanvas.Services.AnnotationService
+  commentId: T:NoorCanvas.Services.AnnotationService
+  href: NoorCanvas.Services.AnnotationService.html
+  name: AnnotationService
+  nameWithType: AnnotationService
+  fullName: NoorCanvas.Services.AnnotationService
+- uid: NoorCanvas.Services.DialogService
+  commentId: T:NoorCanvas.Services.DialogService
+  href: NoorCanvas.Services.DialogService.html
+  name: DialogService
+  nameWithType: DialogService
+  fullName: NoorCanvas.Services.DialogService
+- uid: NoorCanvas.Services
+  commentId: N:NoorCanvas.Services
+  href: NoorCanvas.html
+  name: NoorCanvas.Services
+  nameWithType: NoorCanvas.Services
+  fullName: NoorCanvas.Services
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html

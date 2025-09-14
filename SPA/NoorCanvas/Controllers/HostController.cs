@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Models;
 using NoorCanvas.Models.KSESSIONS;
-using System.Text.Json;
 
 namespace NoorCanvas.Controllers
 {
@@ -271,40 +270,15 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Query KSESSIONS database for active Groups (Albums)
-                var rawGroups = await _kSessionsContext.Groups
+                var albums = await _kSessionsContext.Groups
                     .Where(g => g.IsActive == true || g.IsActive == null) // Include groups where IsActive is true or null
                     .OrderBy(g => g.GroupName)
+                    .Select(g => new AlbumData 
+                    { 
+                        GroupId = g.GroupId, 
+                        GroupName = g.GroupName 
+                    })
                     .ToListAsync();
-
-                _logger.LogInformation("NOOR-DEBUG: Raw database query returned {RawGroupCount} groups", rawGroups.Count);
-                
-                // Log first few raw entries with their actual data types
-                for (int i = 0; i < Math.Min(3, rawGroups.Count); i++)
-                {
-                    var group = rawGroups[i];
-                    _logger.LogInformation("NOOR-DEBUG: Raw Group[{Index}] - GroupId: {GroupId} (Type: {GroupIdType}), GroupName: '{GroupName}' (Type: {GroupNameType})", 
-                        i, group.GroupId, group.GroupId.GetType().Name, group.GroupName, group.GroupName?.GetType().Name ?? "null");
-                }
-
-                var albums = rawGroups.Select(g => new AlbumData 
-                { 
-                    GroupId = g.GroupId, 
-                    GroupName = g.GroupName 
-                }).ToList();
-
-                _logger.LogInformation("NOOR-DEBUG: Converted to AlbumData objects - Count: {AlbumCount}", albums.Count);
-                
-                // Log first few converted entries
-                for (int i = 0; i < Math.Min(3, albums.Count); i++)
-                {
-                    var album = albums[i];
-                    _logger.LogInformation("NOOR-DEBUG: AlbumData[{Index}] - GroupId: {GroupId} (Type: {GroupIdType}), GroupName: '{GroupName}'", 
-                        i, album.GroupId, album.GroupId.GetType().Name, album.GroupName);
-                }
-
-                // Log the JSON that will be serialized
-                var jsonSample = System.Text.Json.JsonSerializer.Serialize(albums.Take(2), new JsonSerializerOptions { WriteIndented = true });
-                _logger.LogInformation("NOOR-DEBUG: Sample JSON being returned: {JsonSample}", jsonSample);
 
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {AlbumCount} albums from KSESSIONS database", albums.Count);
                 return Ok(albums);
@@ -329,21 +303,15 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Query KSESSIONS database for Categories within the specified Group
-                var rawCategories = await _kSessionsContext.Categories
+                var categories = await _kSessionsContext.Categories
                     .Where(c => c.GroupId == albumId && (c.IsActive == true || c.IsActive == null))
                     .OrderBy(c => c.SortOrder ?? c.CategoryId) // Sort by SortOrder if available, fallback to CategoryId
+                    .Select(c => new CategoryData 
+                    { 
+                        CategoryId = c.CategoryId, 
+                        CategoryName = c.CategoryName 
+                    })
                     .ToListAsync();
-
-                _logger.LogInformation("NOOR-DEBUG: Raw categories query returned {RawCategoryCount} categories for album {AlbumId}", rawCategories.Count, albumId);
-
-                var categories = rawCategories.Select(c => new CategoryData 
-                { 
-                    CategoryId = c.CategoryId, 
-                    CategoryName = c.CategoryName 
-                }).ToList();
-
-                _logger.LogInformation("NOOR-DEBUG: Categories JSON sample: {JsonSample}", 
-                    JsonSerializer.Serialize(categories.Take(2), new JsonSerializerOptions { WriteIndented = true }));
 
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {CategoryCount} categories from KSESSIONS database for album {AlbumId}", categories.Count, albumId);
                 return Ok(categories);

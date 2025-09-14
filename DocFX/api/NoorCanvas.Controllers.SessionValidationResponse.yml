@@ -1,0 +1,622 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Controllers.SessionValidationResponse
+  commentId: T:NoorCanvas.Controllers.SessionValidationResponse
+  id: SessionValidationResponse
+  parent: NoorCanvas.Controllers
+  children:
+  - NoorCanvas.Controllers.SessionValidationResponse.CanJoin
+  - NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt
+  - NoorCanvas.Controllers.SessionValidationResponse.GroupId
+  - NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants
+  - NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount
+  - NoorCanvas.Controllers.SessionValidationResponse.SessionId
+  - NoorCanvas.Controllers.SessionValidationResponse.Status
+  - NoorCanvas.Controllers.SessionValidationResponse.Valid
+  langs:
+  - csharp
+  - vb
+  name: SessionValidationResponse
+  nameWithType: SessionValidationResponse
+  fullName: NoorCanvas.Controllers.SessionValidationResponse
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionValidationResponse
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 242
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public class SessionValidationResponse
+    content.vb: Public Class SessionValidationResponse
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: NoorCanvas.Controllers.SessionValidationResponse.Valid
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.Valid
+  id: Valid
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: Valid
+  nameWithType: SessionValidationResponse.Valid
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.Valid
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Valid
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 244
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public bool Valid { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property Valid As Boolean
+  overload: NoorCanvas.Controllers.SessionValidationResponse.Valid*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.SessionId
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.SessionId
+  id: SessionId
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: SessionId
+  nameWithType: SessionValidationResponse.SessionId
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.SessionId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionId
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 245
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public long SessionId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: Public Property SessionId As Long
+  overload: NoorCanvas.Controllers.SessionValidationResponse.SessionId*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.GroupId
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.GroupId
+  id: GroupId
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: GroupId
+  nameWithType: SessionValidationResponse.GroupId
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.GroupId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GroupId
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 246
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Guid GroupId { get; set; }
+    parameters: []
+    return:
+      type: Guid
+    content.vb: Public Property GroupId As Guid
+  overload: NoorCanvas.Controllers.SessionValidationResponse.GroupId*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.Status
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.Status
+  id: Status
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: Status
+  nameWithType: SessionValidationResponse.Status
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.Status
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Status
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 247
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public string Status { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Status As String
+  overload: NoorCanvas.Controllers.SessionValidationResponse.Status*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount
+  id: ParticipantCount
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: ParticipantCount
+  nameWithType: SessionValidationResponse.ParticipantCount
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ParticipantCount
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 248
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public int ParticipantCount { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property ParticipantCount As Integer
+  overload: NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants
+  id: MaxParticipants
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: MaxParticipants
+  nameWithType: SessionValidationResponse.MaxParticipants
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: MaxParticipants
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 249
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public int MaxParticipants { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property MaxParticipants As Integer
+  overload: NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt
+  id: ExpiresAt
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: ExpiresAt
+  nameWithType: SessionValidationResponse.ExpiresAt
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ExpiresAt
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 250
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public DateTime ExpiresAt { get; set; }
+    parameters: []
+    return:
+      type: DateTime
+    content.vb: Public Property ExpiresAt As DateTime
+  overload: NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt*
+- uid: NoorCanvas.Controllers.SessionValidationResponse.CanJoin
+  commentId: P:NoorCanvas.Controllers.SessionValidationResponse.CanJoin
+  id: CanJoin
+  parent: NoorCanvas.Controllers.SessionValidationResponse
+  langs:
+  - csharp
+  - vb
+  name: CanJoin
+  nameWithType: SessionValidationResponse.CanJoin
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.CanJoin
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/ParticipantController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CanJoin
+    path: ../SPA/NoorCanvas/Controllers/ParticipantController.cs
+    startLine: 251
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public bool CanJoin { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property CanJoin As Boolean
+  overload: NoorCanvas.Controllers.SessionValidationResponse.CanJoin*
+references:
+- uid: NoorCanvas.Controllers
+  commentId: N:NoorCanvas.Controllers
+  href: NoorCanvas.html
+  name: NoorCanvas.Controllers
+  nameWithType: NoorCanvas.Controllers
+  fullName: NoorCanvas.Controllers
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Controllers.SessionValidationResponse.Valid*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.Valid
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_Valid
+  name: Valid
+  nameWithType: SessionValidationResponse.Valid
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.Valid
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool
+  nameWithType: bool
+  fullName: bool
+  nameWithType.vb: Boolean
+  fullName.vb: Boolean
+  name.vb: Boolean
+- uid: NoorCanvas.Controllers.SessionValidationResponse.SessionId*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.SessionId
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_SessionId
+  name: SessionId
+  nameWithType: SessionValidationResponse.SessionId
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.SessionId
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Controllers.SessionValidationResponse.GroupId*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.GroupId
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_GroupId
+  name: GroupId
+  nameWithType: SessionValidationResponse.GroupId
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.GroupId
+- uid: Guid
+  isExternal: true
+  name: Guid
+  nameWithType: Guid
+  fullName: Guid
+- uid: NoorCanvas.Controllers.SessionValidationResponse.Status*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.Status
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_Status
+  name: Status
+  nameWithType: SessionValidationResponse.Status
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.Status
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_ParticipantCount
+  name: ParticipantCount
+  nameWithType: SessionValidationResponse.ParticipantCount
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.ParticipantCount
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_MaxParticipants
+  name: MaxParticipants
+  nameWithType: SessionValidationResponse.MaxParticipants
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.MaxParticipants
+- uid: NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_ExpiresAt
+  name: ExpiresAt
+  nameWithType: SessionValidationResponse.ExpiresAt
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.ExpiresAt
+- uid: DateTime
+  isExternal: true
+  name: DateTime
+  nameWithType: DateTime
+  fullName: DateTime
+- uid: NoorCanvas.Controllers.SessionValidationResponse.CanJoin*
+  commentId: Overload:NoorCanvas.Controllers.SessionValidationResponse.CanJoin
+  href: NoorCanvas.Controllers.SessionValidationResponse.html#NoorCanvas_Controllers_SessionValidationResponse_CanJoin
+  name: CanJoin
+  nameWithType: SessionValidationResponse.CanJoin
+  fullName: NoorCanvas.Controllers.SessionValidationResponse.CanJoin

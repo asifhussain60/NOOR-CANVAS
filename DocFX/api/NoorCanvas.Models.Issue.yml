@@ -1,0 +1,992 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models.Issue
+  commentId: T:NoorCanvas.Models.Issue
+  id: Issue
+  parent: NoorCanvas.Models
+  children:
+  - NoorCanvas.Models.Issue.Category
+  - NoorCanvas.Models.Issue.Context
+  - NoorCanvas.Models.Issue.Description
+  - NoorCanvas.Models.Issue.IssueId
+  - NoorCanvas.Models.Issue.Priority
+  - NoorCanvas.Models.Issue.ReportedAt
+  - NoorCanvas.Models.Issue.ReportedBy
+  - NoorCanvas.Models.Issue.Session
+  - NoorCanvas.Models.Issue.SessionId
+  - NoorCanvas.Models.Issue.Status
+  - NoorCanvas.Models.Issue.Title
+  - NoorCanvas.Models.Issue.User
+  - NoorCanvas.Models.Issue.UserId
+  langs:
+  - csharp
+  - vb
+  name: Issue
+  nameWithType: Issue
+  fullName: NoorCanvas.Models.Issue
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Issue
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 5
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Table("Issues", Schema = "canvas")]
+
+      public class Issue
+    content.vb: >-
+      <Table("Issues", Schema:="canvas")>
+
+      Public Class Issue
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.TableAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.TableAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: Issues
+    namedArguments:
+    - name: Schema
+      type: System.String
+      value: canvas
+- uid: NoorCanvas.Models.Issue.IssueId
+  commentId: P:NoorCanvas.Models.Issue.IssueId
+  id: IssueId
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: IssueId
+  nameWithType: Issue.IssueId
+  fullName: NoorCanvas.Models.Issue.IssueId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: IssueId
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 8
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Key]
+
+      public long IssueId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: >-
+      <Key>
+
+      Public Property IssueId As Long
+  overload: NoorCanvas.Models.Issue.IssueId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.KeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.KeyAttribute.#ctor
+    arguments: []
+- uid: NoorCanvas.Models.Issue.Title
+  commentId: P:NoorCanvas.Models.Issue.Title
+  id: Title
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Title
+  nameWithType: Issue.Title
+  fullName: NoorCanvas.Models.Issue.Title
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Title
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 11
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Required]
+
+      [MaxLength(200)]
+
+      public string Title { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Required>
+
+      <MaxLength(200)>
+
+      Public Property Title As String
+  overload: NoorCanvas.Models.Issue.Title*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 200
+- uid: NoorCanvas.Models.Issue.Description
+  commentId: P:NoorCanvas.Models.Issue.Description
+  id: Description
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Description
+  nameWithType: Issue.Description
+  fullName: NoorCanvas.Models.Issue.Description
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Description
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 15
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Column(TypeName = "nvarchar(max)")]
+
+      public string? Description { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column(TypeName:="nvarchar(max)")>
+
+      Public Property Description As String
+  overload: NoorCanvas.Models.Issue.Description*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor
+    arguments: []
+    namedArguments:
+    - name: TypeName
+      type: System.String
+      value: nvarchar(max)
+- uid: NoorCanvas.Models.Issue.Priority
+  commentId: P:NoorCanvas.Models.Issue.Priority
+  id: Priority
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Priority
+  nameWithType: Issue.Priority
+  fullName: NoorCanvas.Models.Issue.Priority
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Priority
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 18
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(50)]
+
+      public string Priority { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(50)>
+
+      Public Property Priority As String
+  overload: NoorCanvas.Models.Issue.Priority*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 50
+- uid: NoorCanvas.Models.Issue.Category
+  commentId: P:NoorCanvas.Models.Issue.Category
+  id: Category
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Category
+  nameWithType: Issue.Category
+  fullName: NoorCanvas.Models.Issue.Category
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Category
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 21
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(50)]
+
+      public string Category { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(50)>
+
+      Public Property Category As String
+  overload: NoorCanvas.Models.Issue.Category*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 50
+- uid: NoorCanvas.Models.Issue.Status
+  commentId: P:NoorCanvas.Models.Issue.Status
+  id: Status
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Status
+  nameWithType: Issue.Status
+  fullName: NoorCanvas.Models.Issue.Status
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Status
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 24
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(50)]
+
+      public string Status { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(50)>
+
+      Public Property Status As String
+  overload: NoorCanvas.Models.Issue.Status*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 50
+- uid: NoorCanvas.Models.Issue.ReportedAt
+  commentId: P:NoorCanvas.Models.Issue.ReportedAt
+  id: ReportedAt
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: ReportedAt
+  nameWithType: Issue.ReportedAt
+  fullName: NoorCanvas.Models.Issue.ReportedAt
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ReportedAt
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 27
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public DateTime ReportedAt { get; set; }
+    parameters: []
+    return:
+      type: DateTime
+    content.vb: Public Property ReportedAt As DateTime
+  overload: NoorCanvas.Models.Issue.ReportedAt*
+- uid: NoorCanvas.Models.Issue.SessionId
+  commentId: P:NoorCanvas.Models.Issue.SessionId
+  id: SessionId
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: SessionId
+  nameWithType: Issue.SessionId
+  fullName: NoorCanvas.Models.Issue.SessionId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionId
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 29
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public long? SessionId { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{System.Int64}
+    content.vb: Public Property SessionId As Long?
+  overload: NoorCanvas.Models.Issue.SessionId*
+- uid: NoorCanvas.Models.Issue.UserId
+  commentId: P:NoorCanvas.Models.Issue.UserId
+  id: UserId
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: UserId
+  nameWithType: Issue.UserId
+  fullName: NoorCanvas.Models.Issue.UserId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: UserId
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 31
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public Guid? UserId { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{Guid}
+    content.vb: Public Property UserId As Guid?
+  overload: NoorCanvas.Models.Issue.UserId*
+- uid: NoorCanvas.Models.Issue.ReportedBy
+  commentId: P:NoorCanvas.Models.Issue.ReportedBy
+  id: ReportedBy
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: ReportedBy
+  nameWithType: Issue.ReportedBy
+  fullName: NoorCanvas.Models.Issue.ReportedBy
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ReportedBy
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 33
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(128)]
+
+      public string? ReportedBy { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(128)>
+
+      Public Property ReportedBy As String
+  overload: NoorCanvas.Models.Issue.ReportedBy*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 128
+- uid: NoorCanvas.Models.Issue.Context
+  commentId: P:NoorCanvas.Models.Issue.Context
+  id: Context
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Context
+  nameWithType: Issue.Context
+  fullName: NoorCanvas.Models.Issue.Context
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Context
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 36
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Column(TypeName = "nvarchar(max)")]
+
+      public string? Context { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column(TypeName:="nvarchar(max)")>
+
+      Public Property Context As String
+  overload: NoorCanvas.Models.Issue.Context*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor
+    arguments: []
+    namedArguments:
+    - name: TypeName
+      type: System.String
+      value: nvarchar(max)
+- uid: NoorCanvas.Models.Issue.Session
+  commentId: P:NoorCanvas.Models.Issue.Session
+  id: Session
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: Session
+  nameWithType: Issue.Session
+  fullName: NoorCanvas.Models.Issue.Session
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Session
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 40
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [ForeignKey("SessionId")]
+
+      public virtual Session? Session { get; set; }
+    parameters: []
+    return:
+      type: NoorCanvas.Models.Session
+    content.vb: >-
+      <ForeignKey("SessionId")>
+
+      Public Overridable Property Session As Session
+  overload: NoorCanvas.Models.Issue.Session*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: SessionId
+- uid: NoorCanvas.Models.Issue.User
+  commentId: P:NoorCanvas.Models.Issue.User
+  id: User
+  parent: NoorCanvas.Models.Issue
+  langs:
+  - csharp
+  - vb
+  name: User
+  nameWithType: Issue.User
+  fullName: NoorCanvas.Models.Issue.User
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Issue.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: User
+    path: ../SPA/NoorCanvas/Models/Issue.cs
+    startLine: 43
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [ForeignKey("UserId")]
+
+      public virtual User? User { get; set; }
+    parameters: []
+    return:
+      type: NoorCanvas.Models.User
+    content.vb: >-
+      <ForeignKey("UserId")>
+
+      Public Overridable Property User As User
+  overload: NoorCanvas.Models.Issue.User*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: UserId
+references:
+- uid: NoorCanvas.Models
+  commentId: N:NoorCanvas.Models
+  href: NoorCanvas.html
+  name: NoorCanvas.Models
+  nameWithType: NoorCanvas.Models
+  fullName: NoorCanvas.Models
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Models.Issue.IssueId*
+  commentId: Overload:NoorCanvas.Models.Issue.IssueId
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_IssueId
+  name: IssueId
+  nameWithType: Issue.IssueId
+  fullName: NoorCanvas.Models.Issue.IssueId
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Models.Issue.Title*
+  commentId: Overload:NoorCanvas.Models.Issue.Title
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Title
+  name: Title
+  nameWithType: Issue.Title
+  fullName: NoorCanvas.Models.Issue.Title
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Models.Issue.Description*
+  commentId: Overload:NoorCanvas.Models.Issue.Description
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Description
+  name: Description
+  nameWithType: Issue.Description
+  fullName: NoorCanvas.Models.Issue.Description
+- uid: NoorCanvas.Models.Issue.Priority*
+  commentId: Overload:NoorCanvas.Models.Issue.Priority
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Priority
+  name: Priority
+  nameWithType: Issue.Priority
+  fullName: NoorCanvas.Models.Issue.Priority
+- uid: NoorCanvas.Models.Issue.Category*
+  commentId: Overload:NoorCanvas.Models.Issue.Category
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Category
+  name: Category
+  nameWithType: Issue.Category
+  fullName: NoorCanvas.Models.Issue.Category
+- uid: NoorCanvas.Models.Issue.Status*
+  commentId: Overload:NoorCanvas.Models.Issue.Status
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Status
+  name: Status
+  nameWithType: Issue.Status
+  fullName: NoorCanvas.Models.Issue.Status
+- uid: NoorCanvas.Models.Issue.ReportedAt*
+  commentId: Overload:NoorCanvas.Models.Issue.ReportedAt
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_ReportedAt
+  name: ReportedAt
+  nameWithType: Issue.ReportedAt
+  fullName: NoorCanvas.Models.Issue.ReportedAt
+- uid: DateTime
+  isExternal: true
+  name: DateTime
+  nameWithType: DateTime
+  fullName: DateTime
+- uid: NoorCanvas.Models.Issue.SessionId*
+  commentId: Overload:NoorCanvas.Models.Issue.SessionId
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_SessionId
+  name: SessionId
+  nameWithType: Issue.SessionId
+  fullName: NoorCanvas.Models.Issue.SessionId
+- uid: System.Nullable{System.Int64}
+  commentId: T:System.Nullable{System.Int64}
+  parent: System
+  definition: System.Nullable`1
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long?
+  nameWithType: long?
+  fullName: long?
+  nameWithType.vb: Long?
+  fullName.vb: Long?
+  name.vb: Long?
+  spec.csharp:
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: '?'
+  spec.vb:
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: NoorCanvas.Models.Issue.UserId*
+  commentId: Overload:NoorCanvas.Models.Issue.UserId
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_UserId
+  name: UserId
+  nameWithType: Issue.UserId
+  fullName: NoorCanvas.Models.Issue.UserId
+- uid: System.Nullable{Guid}
+  commentId: T:System.Nullable{Guid}
+  parent: System
+  definition: System.Nullable`1
+  name: Guid?
+  nameWithType: Guid?
+  fullName: Guid?
+  spec.csharp:
+  - uid: Guid
+    name: Guid
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: Guid
+    name: Guid
+    isExternal: true
+  - name: '?'
+- uid: NoorCanvas.Models.Issue.ReportedBy*
+  commentId: Overload:NoorCanvas.Models.Issue.ReportedBy
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_ReportedBy
+  name: ReportedBy
+  nameWithType: Issue.ReportedBy
+  fullName: NoorCanvas.Models.Issue.ReportedBy
+- uid: NoorCanvas.Models.Issue.Context*
+  commentId: Overload:NoorCanvas.Models.Issue.Context
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Context
+  name: Context
+  nameWithType: Issue.Context
+  fullName: NoorCanvas.Models.Issue.Context
+- uid: NoorCanvas.Models.Issue.Session*
+  commentId: Overload:NoorCanvas.Models.Issue.Session
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_Session
+  name: Session
+  nameWithType: Issue.Session
+  fullName: NoorCanvas.Models.Issue.Session
+- uid: NoorCanvas.Models.Session
+  commentId: T:NoorCanvas.Models.Session
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.Session.html
+  name: Session
+  nameWithType: Session
+  fullName: NoorCanvas.Models.Session
+- uid: NoorCanvas.Models.Issue.User*
+  commentId: Overload:NoorCanvas.Models.Issue.User
+  href: NoorCanvas.Models.Issue.html#NoorCanvas_Models_Issue_User
+  name: User
+  nameWithType: Issue.User
+  fullName: NoorCanvas.Models.Issue.User
+- uid: NoorCanvas.Models.User
+  commentId: T:NoorCanvas.Models.User
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.User.html
+  name: User
+  nameWithType: User
+  fullName: NoorCanvas.Models.User

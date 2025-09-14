@@ -1,0 +1,328 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Controllers.HostProvisionerController
+  commentId: T:NoorCanvas.Controllers.HostProvisionerController
+  id: HostProvisionerController
+  parent: NoorCanvas.Controllers
+  children:
+  - NoorCanvas.Controllers.HostProvisionerController.#ctor(ILogger{NoorCanvas.Controllers.HostProvisionerController},NoorCanvas.Data.CanvasDbContext)
+  - NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken(NoorCanvas.Controllers.GenerateTokenRequest)
+  - NoorCanvas.Controllers.HostProvisionerController.GetStatus
+  langs:
+  - csharp
+  - vb
+  name: HostProvisionerController
+  nameWithType: HostProvisionerController
+  fullName: NoorCanvas.Controllers.HostProvisionerController
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: HostProvisionerController
+    path: ../SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+    startLine: 8
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: 'public class HostProvisionerController : ControllerBase'
+    content.vb: Public Class HostProvisionerController Inherits ControllerBase
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Controllers.HostProvisionerController.#ctor(ILogger{NoorCanvas.Controllers.HostProvisionerController},NoorCanvas.Data.CanvasDbContext)
+  commentId: M:NoorCanvas.Controllers.HostProvisionerController.#ctor(ILogger{NoorCanvas.Controllers.HostProvisionerController},NoorCanvas.Data.CanvasDbContext)
+  id: '#ctor(ILogger{NoorCanvas.Controllers.HostProvisionerController},NoorCanvas.Data.CanvasDbContext)'
+  parent: NoorCanvas.Controllers.HostProvisionerController
+  langs:
+  - csharp
+  - vb
+  name: HostProvisionerController(ILogger<HostProvisionerController>, CanvasDbContext)
+  nameWithType: HostProvisionerController.HostProvisionerController(ILogger<HostProvisionerController>, CanvasDbContext)
+  fullName: NoorCanvas.Controllers.HostProvisionerController.HostProvisionerController(ILogger<NoorCanvas.Controllers.HostProvisionerController>, NoorCanvas.Data.CanvasDbContext)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+    startLine: 16
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public HostProvisionerController(ILogger<HostProvisionerController> logger, CanvasDbContext context)
+    parameters:
+    - id: logger
+      type: ILogger{NoorCanvas.Controllers.HostProvisionerController}
+    - id: context
+      type: NoorCanvas.Data.CanvasDbContext
+    content.vb: Public Sub New(logger As ILogger(Of HostProvisionerController), context As CanvasDbContext)
+  overload: NoorCanvas.Controllers.HostProvisionerController.#ctor*
+  nameWithType.vb: HostProvisionerController.New(ILogger(Of HostProvisionerController), CanvasDbContext)
+  fullName.vb: NoorCanvas.Controllers.HostProvisionerController.New(ILogger(Of NoorCanvas.Controllers.HostProvisionerController), NoorCanvas.Data.CanvasDbContext)
+  name.vb: New(ILogger(Of HostProvisionerController), CanvasDbContext)
+- uid: NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken(NoorCanvas.Controllers.GenerateTokenRequest)
+  commentId: M:NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken(NoorCanvas.Controllers.GenerateTokenRequest)
+  id: GenerateHostToken(NoorCanvas.Controllers.GenerateTokenRequest)
+  parent: NoorCanvas.Controllers.HostProvisionerController
+  langs:
+  - csharp
+  - vb
+  name: GenerateHostToken(GenerateTokenRequest)
+  nameWithType: HostProvisionerController.GenerateHostToken(GenerateTokenRequest)
+  fullName: NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken(NoorCanvas.Controllers.GenerateTokenRequest)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GenerateHostToken
+    path: ../SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+    startLine: 22
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GenerateHostToken(GenerateTokenRequest request)
+    parameters:
+    - id: request
+      type: NoorCanvas.Controllers.GenerateTokenRequest
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GenerateHostToken(request As GenerateTokenRequest) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken*
+- uid: NoorCanvas.Controllers.HostProvisionerController.GetStatus
+  commentId: M:NoorCanvas.Controllers.HostProvisionerController.GetStatus
+  id: GetStatus
+  parent: NoorCanvas.Controllers.HostProvisionerController
+  langs:
+  - csharp
+  - vb
+  name: GetStatus()
+  nameWithType: HostProvisionerController.GetStatus()
+  fullName: NoorCanvas.Controllers.HostProvisionerController.GetStatus()
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetStatus
+    path: ../SPA/NoorCanvas/Controllers/HostProvisionerController.cs
+    startLine: 67
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public IActionResult GetStatus()
+    return:
+      type: IActionResult
+    content.vb: Public Function GetStatus() As IActionResult
+  overload: NoorCanvas.Controllers.HostProvisionerController.GetStatus*
+references:
+- uid: NoorCanvas.Controllers
+  commentId: N:NoorCanvas.Controllers
+  href: NoorCanvas.html
+  name: NoorCanvas.Controllers
+  nameWithType: NoorCanvas.Controllers
+  fullName: NoorCanvas.Controllers
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Controllers.HostProvisionerController.#ctor*
+  commentId: Overload:NoorCanvas.Controllers.HostProvisionerController.#ctor
+  href: NoorCanvas.Controllers.HostProvisionerController.html#NoorCanvas_Controllers_HostProvisionerController__ctor_ILogger_NoorCanvas_Controllers_HostProvisionerController__NoorCanvas_Data_CanvasDbContext_
+  name: HostProvisionerController
+  nameWithType: HostProvisionerController.HostProvisionerController
+  fullName: NoorCanvas.Controllers.HostProvisionerController.HostProvisionerController
+  nameWithType.vb: HostProvisionerController.New
+  fullName.vb: NoorCanvas.Controllers.HostProvisionerController.New
+  name.vb: New
+- uid: ILogger{NoorCanvas.Controllers.HostProvisionerController}
+  commentId: '!:ILogger{NoorCanvas.Controllers.HostProvisionerController}'
+  definition: ILogger`1
+  href: NoorCanvas.Controllers.HostProvisionerController.html
+  name: ILogger<HostProvisionerController>
+  nameWithType: ILogger<HostProvisionerController>
+  fullName: ILogger<NoorCanvas.Controllers.HostProvisionerController>
+  nameWithType.vb: ILogger(Of HostProvisionerController)
+  fullName.vb: ILogger(Of NoorCanvas.Controllers.HostProvisionerController)
+  name.vb: ILogger(Of HostProvisionerController)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Controllers.HostProvisionerController
+    name: HostProvisionerController
+    href: NoorCanvas.Controllers.HostProvisionerController.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Controllers.HostProvisionerController
+    name: HostProvisionerController
+    href: NoorCanvas.Controllers.HostProvisionerController.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext
+  commentId: T:NoorCanvas.Data.CanvasDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.CanvasDbContext.html
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+- uid: NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken*
+  commentId: Overload:NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken
+  href: NoorCanvas.Controllers.HostProvisionerController.html#NoorCanvas_Controllers_HostProvisionerController_GenerateHostToken_NoorCanvas_Controllers_GenerateTokenRequest_
+  name: GenerateHostToken
+  nameWithType: HostProvisionerController.GenerateHostToken
+  fullName: NoorCanvas.Controllers.HostProvisionerController.GenerateHostToken
+- uid: NoorCanvas.Controllers.GenerateTokenRequest
+  commentId: T:NoorCanvas.Controllers.GenerateTokenRequest
+  parent: NoorCanvas.Controllers
+  href: NoorCanvas.Controllers.GenerateTokenRequest.html
+  name: GenerateTokenRequest
+  nameWithType: GenerateTokenRequest
+  fullName: NoorCanvas.Controllers.GenerateTokenRequest
+- uid: Task{IActionResult}
+  commentId: '!:Task{IActionResult}'
+  definition: Task`1
+  name: Task<IActionResult>
+  nameWithType: Task<IActionResult>
+  fullName: Task<IActionResult>
+  nameWithType.vb: Task(Of IActionResult)
+  fullName.vb: Task(Of IActionResult)
+  name.vb: Task(Of IActionResult)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - uid: IActionResult
+    name: IActionResult
+    isExternal: true
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: IActionResult
+    name: IActionResult
+    isExternal: true
+  - name: )
+- uid: Task`1
+  isExternal: true
+  name: Task<>
+  nameWithType: Task<>
+  fullName: Task<>
+  nameWithType.vb: Task(Of )
+  fullName.vb: Task(Of )
+  name.vb: Task(Of )
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Controllers.HostProvisionerController.GetStatus*
+  commentId: Overload:NoorCanvas.Controllers.HostProvisionerController.GetStatus
+  href: NoorCanvas.Controllers.HostProvisionerController.html#NoorCanvas_Controllers_HostProvisionerController_GetStatus
+  name: GetStatus
+  nameWithType: HostProvisionerController.GetStatus
+  fullName: NoorCanvas.Controllers.HostProvisionerController.GetStatus
+- uid: IActionResult
+  isExternal: true
+  name: IActionResult
+  nameWithType: IActionResult
+  fullName: IActionResult

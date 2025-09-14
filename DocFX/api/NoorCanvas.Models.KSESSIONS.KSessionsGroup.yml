@@ -1,0 +1,1075 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  commentId: T:NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  id: KSessionsGroup
+  parent: NoorCanvas.Models.KSESSIONS
+  children:
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus
+  langs:
+  - csharp
+  - vb
+  name: KSessionsGroup
+  nameWithType: KSessionsGroup
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: KSessionsGroup
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 9
+  namespace: NoorCanvas.Models.KSESSIONS
+  summary: >-
+    Groups (Albums) from KSESSIONS database - Islamic content collections
+
+    Maps to KSESSIONS.dbo.Groups table
+  example: []
+  syntax:
+    content: >-
+      [Table("Groups", Schema = "dbo")]
+
+      public class KSessionsGroup
+    content.vb: >-
+      <Table("Groups", Schema:="dbo")>
+
+      Public Class KSessionsGroup
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.TableAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.TableAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: Groups
+    namedArguments:
+    - name: Schema
+      type: System.String
+      value: dbo
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId
+  id: GroupId
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: GroupId
+  nameWithType: KSessionsGroup.GroupId
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GroupId
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 12
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Key]
+
+      [Column("GroupID")]
+
+      public int GroupId { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: >-
+      <Key>
+
+      <Column("GroupID")>
+
+      Public Property GroupId As Integer
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.KeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.KeyAttribute.#ctor
+    arguments: []
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: GroupID
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName
+  id: GroupName
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: GroupName
+  nameWithType: KSessionsGroup.GroupName
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GroupName
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 16
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("GroupName")]
+
+      [StringLength(255)]
+
+      public string GroupName { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column("GroupName")>
+
+      <StringLength(255)>
+
+      Public Property GroupName As String
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: GroupName
+  - type: System.ComponentModel.DataAnnotations.StringLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.StringLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 255
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage
+  id: GroupImage
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: GroupImage
+  nameWithType: KSessionsGroup.GroupImage
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GroupImage
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 20
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("GroupImage")]
+
+      [StringLength(255)]
+
+      public string? GroupImage { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column("GroupImage")>
+
+      <StringLength(255)>
+
+      Public Property GroupImage As String
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: GroupImage
+  - type: System.ComponentModel.DataAnnotations.StringLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.StringLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 255
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription
+  id: GroupDescription
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: GroupDescription
+  nameWithType: KSessionsGroup.GroupDescription
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GroupDescription
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 24
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("GroupDescription")]
+
+      public string? GroupDescription { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column("GroupDescription")>
+
+      Public Property GroupDescription As String
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: GroupDescription
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus
+  id: Syllabus
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: Syllabus
+  nameWithType: KSessionsGroup.Syllabus
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Syllabus
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 27
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("Syllabus")]
+
+      public string? Syllabus { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column("Syllabus")>
+
+      Public Property Syllabus As String
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: Syllabus
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId
+  id: SpeakerId
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: SpeakerId
+  nameWithType: KSessionsGroup.SpeakerId
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SpeakerId
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 30
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("SpeakerID")]
+
+      public int? SpeakerId { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{System.Int32}
+    content.vb: >-
+      <Column("SpeakerID")>
+
+      Public Property SpeakerId As Integer?
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: SpeakerID
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted
+  id: IsCompleted
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: IsCompleted
+  nameWithType: KSessionsGroup.IsCompleted
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: IsCompleted
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 33
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("IsCompleted")]
+
+      public bool? IsCompleted { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+    content.vb: >-
+      <Column("IsCompleted")>
+
+      Public Property IsCompleted As Boolean?
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: IsCompleted
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive
+  id: IsActive
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: IsActive
+  nameWithType: KSessionsGroup.IsActive
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: IsActive
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 36
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("IsActive")]
+
+      public bool? IsActive { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{System.Boolean}
+    content.vb: >-
+      <Column("IsActive")>
+
+      Public Property IsActive As Boolean?
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: IsActive
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate
+  id: CreatedDate
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: CreatedDate
+  nameWithType: KSessionsGroup.CreatedDate
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreatedDate
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 39
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("CreatedDate")]
+
+      public DateTime? CreatedDate { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{DateTime}
+    content.vb: >-
+      <Column("CreatedDate")>
+
+      Public Property CreatedDate As DateTime?
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: CreatedDate
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate
+  id: ChangedDate
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: ChangedDate
+  nameWithType: KSessionsGroup.ChangedDate
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ChangedDate
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 42
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: >-
+      [Column("ChangedDate")]
+
+      public DateTime? ChangedDate { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{DateTime}
+    content.vb: >-
+      <Column("ChangedDate")>
+
+      Public Property ChangedDate As DateTime?
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: ChangedDate
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories
+  id: Categories
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: Categories
+  nameWithType: KSessionsGroup.Categories
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Categories
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 46
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: public virtual ICollection<KSessionsCategory> Categories { get; set; }
+    parameters: []
+    return:
+      type: ICollection{NoorCanvas.Models.KSESSIONS.KSessionsCategory}
+    content.vb: Public Overridable Property Categories As ICollection(Of KSessionsCategory)
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories*
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions
+  commentId: P:NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions
+  id: Sessions
+  parent: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  langs:
+  - csharp
+  - vb
+  name: Sessions
+  nameWithType: KSessionsGroup.Sessions
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/KSessionsModels.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Sessions
+    path: ../SPA/NoorCanvas/Models/KSessionsModels.cs
+    startLine: 47
+  namespace: NoorCanvas.Models.KSESSIONS
+  syntax:
+    content: public virtual ICollection<KSessionsSession> Sessions { get; set; }
+    parameters: []
+    return:
+      type: ICollection{NoorCanvas.Models.KSESSIONS.KSessionsSession}
+    content.vb: Public Overridable Property Sessions As ICollection(Of KSessionsSession)
+  overload: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions*
+references:
+- uid: NoorCanvas.Models.KSESSIONS
+  commentId: N:NoorCanvas.Models.KSESSIONS
+  href: NoorCanvas.html
+  name: NoorCanvas.Models.KSESSIONS
+  nameWithType: NoorCanvas.Models.KSESSIONS
+  fullName: NoorCanvas.Models.KSESSIONS
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  - name: .
+  - uid: NoorCanvas.Models.KSESSIONS
+    name: KSESSIONS
+    href: NoorCanvas.Models.KSESSIONS.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  - name: .
+  - uid: NoorCanvas.Models.KSESSIONS
+    name: KSESSIONS
+    href: NoorCanvas.Models.KSESSIONS.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_GroupId
+  name: GroupId
+  nameWithType: KSessionsGroup.GroupId
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupId
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_GroupName
+  name: GroupName
+  nameWithType: KSessionsGroup.GroupName
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupName
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_GroupImage
+  name: GroupImage
+  nameWithType: KSessionsGroup.GroupImage
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupImage
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_GroupDescription
+  name: GroupDescription
+  nameWithType: KSessionsGroup.GroupDescription
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.GroupDescription
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_Syllabus
+  name: Syllabus
+  nameWithType: KSessionsGroup.Syllabus
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Syllabus
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_SpeakerId
+  name: SpeakerId
+  nameWithType: KSessionsGroup.SpeakerId
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.SpeakerId
+- uid: System.Nullable{System.Int32}
+  commentId: T:System.Nullable{System.Int32}
+  parent: System
+  definition: System.Nullable`1
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int?
+  nameWithType: int?
+  fullName: int?
+  nameWithType.vb: Integer?
+  fullName.vb: Integer?
+  name.vb: Integer?
+  spec.csharp:
+  - uid: System.Int32
+    name: int
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int32
+  - name: '?'
+  spec.vb:
+  - uid: System.Int32
+    name: Integer
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int32
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_IsCompleted
+  name: IsCompleted
+  nameWithType: KSessionsGroup.IsCompleted
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsCompleted
+- uid: System.Nullable{System.Boolean}
+  commentId: T:System.Nullable{System.Boolean}
+  parent: System
+  definition: System.Nullable`1
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool?
+  nameWithType: bool?
+  fullName: bool?
+  nameWithType.vb: Boolean?
+  fullName.vb: Boolean?
+  name.vb: Boolean?
+  spec.csharp:
+  - uid: System.Boolean
+    name: bool
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.boolean
+  - name: '?'
+  spec.vb:
+  - uid: System.Boolean
+    name: Boolean
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.boolean
+  - name: '?'
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_IsActive
+  name: IsActive
+  nameWithType: KSessionsGroup.IsActive
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.IsActive
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_CreatedDate
+  name: CreatedDate
+  nameWithType: KSessionsGroup.CreatedDate
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.CreatedDate
+- uid: System.Nullable{DateTime}
+  commentId: T:System.Nullable{DateTime}
+  parent: System
+  definition: System.Nullable`1
+  name: DateTime?
+  nameWithType: DateTime?
+  fullName: DateTime?
+  spec.csharp:
+  - uid: DateTime
+    name: DateTime
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: DateTime
+    name: DateTime
+    isExternal: true
+  - name: '?'
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_ChangedDate
+  name: ChangedDate
+  nameWithType: KSessionsGroup.ChangedDate
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.ChangedDate
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_Categories
+  name: Categories
+  nameWithType: KSessionsGroup.Categories
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Categories
+- uid: ICollection{NoorCanvas.Models.KSESSIONS.KSessionsCategory}
+  commentId: '!:ICollection{NoorCanvas.Models.KSESSIONS.KSessionsCategory}'
+  definition: ICollection`1
+  href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  name: ICollection<KSessionsCategory>
+  nameWithType: ICollection<KSessionsCategory>
+  fullName: ICollection<NoorCanvas.Models.KSESSIONS.KSessionsCategory>
+  nameWithType.vb: ICollection(Of KSessionsCategory)
+  fullName.vb: ICollection(Of NoorCanvas.Models.KSESSIONS.KSessionsCategory)
+  name.vb: ICollection(Of KSessionsCategory)
+  spec.csharp:
+  - uid: ICollection`1
+    name: ICollection
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+    name: KSessionsCategory
+    href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  - name: '>'
+  spec.vb:
+  - uid: ICollection`1
+    name: ICollection
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+    name: KSessionsCategory
+    href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  - name: )
+- uid: ICollection`1
+  isExternal: true
+  name: ICollection<>
+  nameWithType: ICollection<>
+  fullName: ICollection<>
+  nameWithType.vb: ICollection(Of )
+  fullName.vb: ICollection(Of )
+  name.vb: ICollection(Of )
+  spec.csharp:
+  - uid: ICollection`1
+    name: ICollection
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ICollection`1
+    name: ICollection
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions*
+  commentId: Overload:NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html#NoorCanvas_Models_KSESSIONS_KSessionsGroup_Sessions
+  name: Sessions
+  nameWithType: KSessionsGroup.Sessions
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup.Sessions
+- uid: ICollection{NoorCanvas.Models.KSESSIONS.KSessionsSession}
+  commentId: '!:ICollection{NoorCanvas.Models.KSESSIONS.KSessionsSession}'
+  definition: ICollection`1
+  href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  name: ICollection<KSessionsSession>
+  nameWithType: ICollection<KSessionsSession>
+  fullName: ICollection<NoorCanvas.Models.KSESSIONS.KSessionsSession>
+  nameWithType.vb: ICollection(Of KSessionsSession)
+  fullName.vb: ICollection(Of NoorCanvas.Models.KSESSIONS.KSessionsSession)
+  name.vb: ICollection(Of KSessionsSession)
+  spec.csharp:
+  - uid: ICollection`1
+    name: ICollection
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSession
+    name: KSessionsSession
+    href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  - name: '>'
+  spec.vb:
+  - uid: ICollection`1
+    name: ICollection
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSession
+    name: KSessionsSession
+    href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  - name: )

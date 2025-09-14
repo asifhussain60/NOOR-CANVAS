@@ -151,6 +151,9 @@ function Update-LaunchSettings {
 Write-LogMessage "NOOR Canvas Port Manager Starting..." "INFO"
 Write-LogMessage "====================================" "INFO"
 
+# Show compact global commands list for convenience
+Write-Host "NOOR Canvas global commands loaded: nc, nct, ncdoc, iiskill" -ForegroundColor Cyan
+
 # Get project directory
 $root = Split-Path $MyInvocation.MyCommand.Path -Parent
 $root = Split-Path $root -Parent

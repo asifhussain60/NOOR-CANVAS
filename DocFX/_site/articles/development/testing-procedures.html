@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Testing Procedures | NOOR CANVAS Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Testing Procedures | NOOR CANVAS Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="NOOR CANVAS">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="testing-procedures">Testing Procedures</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR Canvas implements a comprehensive testing strategy that includes unit tests, integration tests, and automated testing workflows. This document covers all testing procedures and best practices.</p>
+<h2 id="test-categories">Test Categories</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<p><strong>Location</strong>: <code>Tests/NoorCanvas.Core.Tests/</code>
+<strong>Purpose</strong>: Test individual components in isolation
+<strong>Framework</strong>: xUnit.NET with Moq for mocking</p>
+<pre><code class="lang-powershell"># Run unit tests only
+dotnet test Tests/NoorCanvas.Core.Tests/ --filter Category=Unit
+</code></pre>
+<h3 id="integration-tests">Integration Tests</h3>
+<p><strong>Location</strong>: <code>Tests/NC-ImplementationTests/</code>
+<strong>Purpose</strong>: Test component interactions and system integration
+<strong>Framework</strong>: xUnit.NET with ASP.NET Core Test Host</p>
+<pre><code class="lang-powershell"># Run integration tests only
+dotnet test Tests/NC-ImplementationTests/ --filter Category=Integration
+</code></pre>
+<h3 id="end-to-end-tests">End-to-End Tests</h3>
+<p><strong>Location</strong>: <code>Tests/NC-E2ETests/</code> (when implemented)
+<strong>Purpose</strong>: Test complete user workflows
+<strong>Framework</strong>: Playwright or Selenium</p>
+<h2 id="automated-testing-workflow">Automated Testing Workflow</h2>
+<h3 id="automatic-test-execution">Automatic Test Execution</h3>
+<p>Tests run automatically in two scenarios:</p>
+<h4 id="1-post-build-testing">1. Post-Build Testing</h4>
+<pre><code class="lang-powershell"># Tests run automatically after successful build
+dotnet build  # Triggers automatic test execution
+</code></pre>
+<h4 id="2-pre-commit-testing">2. Pre-Commit Testing</h4>
+<pre><code class="lang-bash"># Tests run automatically before commit
+git add .
+git commit -m &quot;feature: add new functionality&quot;
+# Tests execute automatically to validate commit
+</code></pre>
+<h3 id="manual-test-execution">Manual Test Execution</h3>
+<pre><code class="lang-powershell"># Run all tests manually
+dotnet test
+
+# Run tests with verbose output
+dotnet test --logger &quot;console;verbosity=detailed&quot;
+
+# Run specific test project
+dotnet test Tests/NoorCanvas.Core.Tests/
+
+# Run tests matching pattern
+dotnet test --filter &quot;FullyQualifiedName~SessionController&quot;
+</code></pre>
+<h2 id="test-organization">Test Organization</h2>
+<h3 id="test-project-structure">Test Project Structure</h3>
+<pre><code>Tests/
+├── NoorCanvas.Core.Tests/           # Unit tests
+│   ├── Controllers/                 # Controller tests
+│   ├── Services/                    # Service tests
+│   ├── Models/                      # Model tests
+│   └── Utilities/                   # Test utilities
+├── NC-ImplementationTests/          # Integration tests
+│   ├── DatabaseTests/               # Database integration
+│   ├── ApiTests/                    # API endpoint tests
+│   ├── SignalRTests/                # Real-time communication
+│   └── AuthenticationTests/         # Token and auth tests
+└── NC-E2ETests/                     # End-to-end tests (future)
+    ├── UserWorkflows/               # Complete user scenarios
+    ├── CrossBrowser/                # Browser compatibility
+    └── Performance/                 # Performance benchmarks
+</code></pre>
+<h3 id="test-naming-conventions">Test Naming Conventions</h3>
+<pre><code class="lang-csharp">// Unit test naming: MethodName_Scenario_ExpectedBehavior
+[Fact]
+public void CreateSession_ValidInput_ReturnsSessionId()
+
+// Integration test naming: Component_Scenario_ExpectedResult
+[Fact]  
+public void HostController_AuthenticateToken_ReturnsSuccess()
+
+// End-to-end test naming: UserStory_Scenario_ExpectedOutcome
+[Fact]
+public void CreateSessionWorkflow_ValidHost_SessionCreatedSuccessfully()
+</code></pre>
+<h2 id="writing-effective-tests">Writing Effective Tests</h2>
+<h3 id="unit-test-best-practices">Unit Test Best Practices</h3>
+<h4 id="1-test-structure-arrange-act-assert">1. Test Structure (Arrange-Act-Assert)</h4>
+<pre><code class="lang-csharp">[Fact]
+public void GenerateHostToken_ValidRequest_ReturnsGuid()
+{
+    // Arrange
+    var service = new HostTokenService();
+    var request = new GenerateTokenRequest { CreatedBy = &quot;Test User&quot; };
+    
+    // Act
+    var result = service.GenerateToken(request);
+    
+    // Assert
+    Assert.NotNull(result);
+    Assert.True(Guid.TryParse(result.Token, out _));
+}
+</code></pre>
+<h4 id="2-mocking-dependencies">2. Mocking Dependencies</h4>
+<pre><code class="lang-csharp">[Fact]
+public void GetSessions_DatabaseUnavailable_ThrowsException()
+{
+    // Arrange
+    var mockContext = new Mock&lt;CanvasDbContext&gt;();
+    mockContext.Setup(x =&gt; x.Sessions).Throws(new InvalidOperationException());
+    var controller = new SessionController(mockContext.Object);
+    
+    // Act &amp; Assert
+    Assert.Throws&lt;InvalidOperationException&gt;(() =&gt; controller.GetSessions());
+}
+</code></pre>
+<h4 id="3-test-data-management">3. Test Data Management</h4>
+<pre><code class="lang-csharp">public class TestDataBuilder
+{
+    public static Session CreateValidSession()
+    {
+        return new Session
+        {
+            Id = Guid.NewGuid(),
+            HostToken = Guid.NewGuid().ToString(),
+            Status = SessionStatus.Active,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+}
+</code></pre>
+<h3 id="integration-test-best-practices">Integration Test Best Practices</h3>
+<h4 id="1-database-testing">1. Database Testing</h4>
+<pre><code class="lang-csharp">[Fact]
+public async Task CreateSession_DatabaseIntegration_PersistsCorrectly()
+{
+    // Arrange
+    using var context = CreateTestDbContext();
+    var service = new SessionService(context);
+    var request = new CreateSessionRequest { /* properties */ };
+    
+    // Act
+    var sessionId = await service.CreateSessionAsync(request);
+    
+    // Assert
+    var savedSession = await context.Sessions.FindAsync(sessionId);
+    Assert.NotNull(savedSession);
+    Assert.Equal(request.HostToken, savedSession.HostToken);
+}
+</code></pre>
+<h4 id="2-api-testing">2. API Testing</h4>
+<pre><code class="lang-csharp">[Fact]
+public async Task CreateSession_ApiEndpoint_ReturnsCreatedStatus()
+{
+    // Arrange
+    using var client = _factory.CreateClient();
+    var request = new CreateSessionRequest { /* properties */ };
+    
+    // Act
+    var response = await client.PostAsJsonAsync(&quot;/api/sessions&quot;, request);
+    
+    // Assert
+    Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    var session = await response.Content.ReadFromJsonAsync&lt;Session&gt;();
+    Assert.NotNull(session);
+}
+</code></pre>
+<h4 id="3-signalr-testing">3. SignalR Testing</h4>
+<pre><code class="lang-csharp">[Fact]
+public async Task SessionHub_SendMessage_BroadcastsToClients()
+{
+    // Arrange
+    using var connection = await StartConnectionAsync();
+    var receivedMessages = new List&lt;string&gt;();
+    connection.On&lt;string&gt;(&quot;MessageReceived&quot;, message =&gt; receivedMessages.Add(message));
+    
+    // Act
+    await connection.InvokeAsync(&quot;SendMessage&quot;, &quot;Test message&quot;);
+    
+    // Assert
+    await Task.Delay(100); // Allow message processing
+    Assert.Contains(&quot;Test message&quot;, receivedMessages);
+}
+</code></pre>
+<h2 id="test-data-management">Test Data Management</h2>
+<h3 id="test-database-setup">Test Database Setup</h3>
+<pre><code class="lang-csharp">public class TestDbContextFactory
+{
+    public static CanvasDbContext CreateInMemoryContext()
+    {
+        var options = new DbContextOptionsBuilder&lt;CanvasDbContext&gt;()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+            
+        return new CanvasDbContext(options);
+    }
+    
+    public static async Task SeedTestDataAsync(CanvasDbContext context)
+    {
+        // Add standard test data
+        context.Sessions.AddRange(CreateTestSessions());
+        context.Participants.AddRange(CreateTestParticipants());
+        await context.SaveChangesAsync();
+    }
+}
+</code></pre>
+<h3 id="test-configuration">Test Configuration</h3>
+<pre><code class="lang-json">// appsettings.Testing.json
+{
+  &quot;ConnectionStrings&quot;: {
+    &quot;DefaultConnection&quot;: &quot;Server=(localdb)\\mssqllocaldb;Database=NOOR_Canvas_Test;Trusted_Connection=true;&quot;,
+    &quot;KSessionsDb&quot;: &quot;Server=(localdb)\\mssqllocaldb;Database=KSESSIONS_Test;Trusted_Connection=true;&quot;
+  },
+  &quot;Logging&quot;: {
+    &quot;LogLevel&quot;: {
+      &quot;Default&quot;: &quot;Warning&quot;,
+      &quot;Microsoft&quot;: &quot;Warning&quot;
+    }
+  }
+}
+</code></pre>
+<h2 id="test-execution-strategies">Test Execution Strategies</h2>
+<h3 id="parallel-test-execution">Parallel Test Execution</h3>
+<pre><code class="lang-xml">&lt;!-- In test project files --&gt;
+&lt;PropertyGroup&gt;
+  &lt;ParallelizeTestCollections&gt;true&lt;/ParallelizeTestCollections&gt;
+  &lt;MaxParallelThreads&gt;4&lt;/MaxParallelThreads&gt;
+&lt;/PropertyGroup&gt;
+</code></pre>
+<h3 id="test-categories-and-filtering">Test Categories and Filtering</h3>
+<pre><code class="lang-csharp">[Fact]
+[Trait(&quot;Category&quot;, &quot;Unit&quot;)]
+[Trait(&quot;Component&quot;, &quot;SessionController&quot;)]
+public void CreateSession_ValidInput_ReturnsSuccess()
+{
+    // Test implementation
+}
+</code></pre>
+<pre><code class="lang-powershell"># Run by category
+dotnet test --filter &quot;Category=Unit&quot;
+
+# Run by component  
+dotnet test --filter &quot;Component=SessionController&quot;
+
+# Run by trait combination
+dotnet test --filter &quot;Category=Integration&amp;Component=Database&quot;
+</code></pre>
+<h3 id="test-performance-monitoring">Test Performance Monitoring</h3>
+<pre><code class="lang-csharp">[Fact]
+public void DatabaseQuery_Performance_CompletesWithinTimeout()
+{
+    // Arrange
+    var stopwatch = Stopwatch.StartNew();
+    
+    // Act
+    var result = _service.GetSessions();
+    
+    // Assert
+    stopwatch.Stop();
+    Assert.True(stopwatch.ElapsedMilliseconds &lt; 1000, &quot;Query took too long&quot;);
+}
+</code></pre>
+<h2 id="continuous-testing-integration">Continuous Testing Integration</h2>
+<h3 id="pre-commit-hook-testing">Pre-Commit Hook Testing</h3>
+<pre><code class="lang-powershell"># .hooks/pre-commit-test.ps1 (automatic execution)
+# Runs comprehensive test suite before allowing commits
+# Uses smart caching to skip redundant test execution
+# Prevents broken code from entering repository
+</code></pre>
+<h3 id="build-pipeline-testing">Build Pipeline Testing</h3>
+<pre><code class="lang-yaml"># .github/workflows/build-and-test.yml
+- name: Run Tests
+  run: |
+    dotnet test --configuration Release
+    dotnet test --logger trx --results-directory TestResults/
+</code></pre>
+<h3 id="test-result-reporting">Test Result Reporting</h3>
+<pre><code class="lang-powershell"># Generate test coverage report
+dotnet test --collect:&quot;XPlat Code Coverage&quot;
+
+# Convert to readable format
+reportgenerator -reports:**/coverage.cobertura.xml -targetdir:CoverageReport
+</code></pre>
+<h2 id="test-maintenance">Test Maintenance</h2>
+<h3 id="updating-tests-for-code-changes">Updating Tests for Code Changes</h3>
+<ol>
+<li><strong>Refactoring</strong>: Update tests when refactoring code</li>
+<li><strong>New Features</strong>: Add tests for new functionality</li>
+<li><strong>Bug Fixes</strong>: Add regression tests for fixed bugs</li>
+<li><strong>Deprecation</strong>: Remove or update tests for deprecated features</li>
+</ol>
+<h3 id="test-code-quality">Test Code Quality</h3>
+<pre><code class="lang-csharp">// Good: Clear, specific test
+[Fact]
+public void CalculateSessionDuration_OneHourSession_ReturnsCorrectDuration()
+
+// Bad: Vague, unclear test  
+[Fact]
+public void TestSession()
+</code></pre>
+<h3 id="test-performance-optimization">Test Performance Optimization</h3>
+<ol>
+<li><strong>Fast Tests</strong>: Keep unit tests under 100ms</li>
+<li><strong>Isolated Tests</strong>: Avoid dependencies between tests</li>
+<li><strong>Cleanup</strong>: Properly dispose resources in tests</li>
+<li><strong>Mocking</strong>: Use mocks to avoid expensive operations</li>
+</ol>
+<h2 id="troubleshooting-test-issues">Troubleshooting Test Issues</h2>
+<h3 id="common-test-failures">Common Test Failures</h3>
+<h4 id="database-connection-issues">Database Connection Issues</h4>
+<pre><code class="lang-csharp">// Solution: Use in-memory database for unit tests
+services.AddDbContext&lt;CanvasDbContext&gt;(options =&gt;
+    options.UseInMemoryDatabase(&quot;TestDb&quot;));
+</code></pre>
+<h4 id="timing-issues">Timing Issues</h4>
+<pre><code class="lang-csharp">// Solution: Use proper async/await patterns
+await Task.Delay(100); // Allow async operations to complete
+</code></pre>
+<h4 id="resource-cleanup">Resource Cleanup</h4>
+<pre><code class="lang-csharp">// Solution: Implement proper disposal
+public void Dispose()
+{
+    _context?.Dispose();
+    _httpClient?.Dispose();
+}
+</code></pre>
+<h3 id="test-debugging">Test Debugging</h3>
+<h4 id="debug-individual-tests">Debug Individual Tests</h4>
+<pre><code class="lang-powershell"># Run specific test in debug mode
+dotnet test --filter &quot;FullyQualifiedName=NamespaceName.ClassName.TestMethodName&quot; --logger console
+</code></pre>
+<h4 id="test-output-debugging">Test Output Debugging</h4>
+<pre><code class="lang-csharp">[Fact]
+public void TestWithOutput(ITestOutputHelper output)
+{
+    output.WriteLine($&quot;Debug info: {variable}&quot;);
+    // Test implementation
+}
+</code></pre>
+<h2 id="quality-metrics-and-reporting">Quality Metrics and Reporting</h2>
+<h3 id="code-coverage">Code Coverage</h3>
+<ul>
+<li><strong>Target</strong>: Maintain &gt;80% code coverage</li>
+<li><strong>Measurement</strong>: Use dotnet test with code coverage collection</li>
+<li><strong>Reporting</strong>: Generate HTML reports for detailed analysis</li>
+</ul>
+<h3 id="test-success-metrics">Test Success Metrics</h3>
+<ul>
+<li><strong>Build Success Rate</strong>: &gt;95% of builds should pass tests</li>
+<li><strong>Test Execution Time</strong>: Keep total test time under 5 minutes</li>
+<li><strong>Flaky Test Rate</strong>: &lt;2% of tests should be flaky</li>
+</ul>
+<h3 id="quality-gates">Quality Gates</h3>
+<p>Before merging code:</p>
+<ul>
+<li>[ ] All tests must pass</li>
+<li>[ ] Code coverage must not decrease</li>
+<li>[ ] No new test warnings</li>
+<li>[ ] Performance tests within acceptable limits</li>
+</ul>
+<p>For comprehensive technical details, see the <a href="../technical/testing-framework-technical-reference.html">Testing Framework Technical Reference</a>.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/development/testing-procedures.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      NOOR CANVAS Islamic Content Sharing Platform
+      
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

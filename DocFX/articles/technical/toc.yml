@@ -1,0 +1,10 @@
+- name: Global Commands Technical Reference
+  href: global-commands-technical-reference.md
+- name: Automated Testing Technical Reference
+  href: automated-testing-technical-reference.md
+- name: API Reference
+  href: api-reference/
+- name: Architecture Diagrams
+  href: architecture-diagrams/
+- name: Integration Examples
+  href: integration-examples/

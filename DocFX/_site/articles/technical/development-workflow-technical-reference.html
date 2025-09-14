@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Development Workflow Technical Reference | NOOR CANVAS Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Development Workflow Technical Reference | NOOR CANVAS Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="NOOR CANVAS">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="development-workflow-technical-reference">Development Workflow Technical Reference</h1>
+
+<p>Technical implementation details for NOOR Canvas development workflows.</p>
+<h2 id="workflow-architecture">Workflow Architecture</h2>
+<h3 id="1-code-development-cycle">1. Code Development Cycle</h3>
+<pre><code class="lang-mermaid">graph LR
+    A[Code Changes] --&gt; B[Build]
+    B --&gt; C[Test Execution]
+    C --&gt; D[Commit Validation] 
+    D --&gt; E[Push to Repository]
+</code></pre>
+<h3 id="2-automated-testing-integration">2. Automated Testing Integration</h3>
+<h4 id="smart-caching-system">Smart Caching System</h4>
+<ul>
+<li><strong>Source Code Hashing</strong>: SHA256 of .cs/.cshtml/.razor files</li>
+<li><strong>Build Artifact Hashing</strong>: SHA256 of compiled binaries</li>
+<li><strong>Cache Invalidation</strong>: Automatic cache clearing on source changes</li>
+</ul>
+<h4 id="test-execution-triggers">Test Execution Triggers</h4>
+<ul>
+<li><strong>Post-Build</strong>: Automatic execution after successful builds</li>
+<li><strong>Pre-Commit</strong>: Git hook validation before commits</li>
+<li><strong>Manual</strong>: Developer-initiated test runs</li>
+</ul>
+<h3 id="3-development-server-management">3. Development Server Management</h3>
+<h4 id="process-lifecycle">Process Lifecycle</h4>
+<pre><code class="lang-csharp">// IIS Express x64 launch pattern
+var processInfo = new ProcessStartInfo
+{
+    FileName = &quot;iisexpress.exe&quot;,
+    Arguments = &quot;/config:applicationhost.config /site:NoorCanvas&quot;,
+    UseShellExecute = false
+};
+</code></pre>
+<h4 id="port-management">Port Management</h4>
+<ul>
+<li><strong>9090</strong>: HTTP development server</li>
+<li><strong>9091</strong>: HTTPS development server (primary)</li>
+<li><strong>Conflict Resolution</strong>: Automatic port scanning and assignment</li>
+</ul>
+<h2 id="integration-points">Integration Points</h2>
+<h3 id="git-integration">Git Integration</h3>
+<ul>
+<li><strong>Pre-commit hooks</strong>: <code>.git/hooks/pre-commit</code></li>
+<li><strong>Smart testing</strong>: Only run tests if source code changed</li>
+<li><strong>Commit blocking</strong>: Prevent commits with failing tests</li>
+</ul>
+<h3 id="visual-studio-code-integration">Visual Studio Code Integration</h3>
+<ul>
+<li><strong>Task definitions</strong>: <code>.vscode/tasks.json</code></li>
+<li><strong>Launch configurations</strong>: <code>.vscode/launch.json</code></li>
+<li><strong>Extension requirements</strong>: C# DevKit, PowerShell</li>
+</ul>
+<h3 id="powershell-integration">PowerShell Integration</h3>
+<ul>
+<li><strong>Global commands</strong>: <code>nc</code>, <code>nct</code>, <code>ncdoc</code>, <code>iiskill</code></li>
+<li><strong>Profile integration</strong>: Automatic command loading</li>
+<li><strong>Cross-session persistence</strong>: Command availability across terminals</li>
+</ul>
+<h2 id="performance-characteristics">Performance Characteristics</h2>
+<h3 id="build-performance">Build Performance</h3>
+<ul>
+<li><strong>Clean build</strong>: ~3-5 seconds</li>
+<li><strong>Incremental build</strong>: ~1-2 seconds</li>
+<li><strong>Test execution</strong>: ~5-10 seconds</li>
+<li><strong>Full cycle</strong>: ~10-20 seconds</li>
+</ul>
+<h3 id="caching-benefits">Caching Benefits</h3>
+<ul>
+<li><strong>Cache hit</strong>: ~0.1 seconds (instant)</li>
+<li><strong>Cache miss</strong>: Full test execution</li>
+<li><strong>Cache invalidation</strong>: Automatic on source changes</li>
+</ul>
+<h2 id="configuration-management">Configuration Management</h2>
+<h3 id="environment-variables">Environment Variables</h3>
+<pre><code class="lang-powershell">$env:NOOR_CANVAS_ENV = &quot;Development&quot;
+$env:NOOR_CANVAS_PORT = &quot;9091&quot;
+$env:NOOR_CANVAS_SSL = &quot;true&quot;
+</code></pre>
+<h3 id="configuration-files">Configuration Files</h3>
+<ul>
+<li><code>appsettings.json</code>: Application configuration</li>
+<li><code>appsettings.Development.json</code>: Development overrides</li>
+<li><code>launchSettings.json</code>: Development server settings</li>
+</ul>
+<h2 id="error-handling-and-recovery">Error Handling and Recovery</h2>
+<h3 id="common-issues">Common Issues</h3>
+<ol>
+<li><strong>File Locking</strong>: Process termination and retry logic</li>
+<li><strong>Port Conflicts</strong>: Automatic port scanning and assignment</li>
+<li><strong>Certificate Issues</strong>: Automatic HTTPS certificate handling</li>
+<li><strong>Database Connectivity</strong>: Connection string validation and fallback</li>
+</ol>
+<h3 id="recovery-strategies">Recovery Strategies</h3>
+<ul>
+<li><strong>Process cleanup</strong>: <code>iiskill</code> command for stuck processes</li>
+<li><strong>Cache clearing</strong>: Manual cache invalidation options</li>
+<li><strong>Force rebuild</strong>: Clean build options</li>
+<li><strong>Dependency refresh</strong>: Package restoration</li>
+</ul>
+<p><em>This technical reference is maintained automatically as workflow improvements are implemented.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/development-workflow-technical-reference.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      NOOR CANVAS Islamic Content Sharing Platform
+      
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

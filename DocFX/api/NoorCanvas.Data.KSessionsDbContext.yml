@@ -1,0 +1,529 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Data.KSessionsDbContext
+  commentId: T:NoorCanvas.Data.KSessionsDbContext
+  id: KSessionsDbContext
+  parent: NoorCanvas.Data
+  children:
+  - NoorCanvas.Data.KSessionsDbContext.#ctor(DbContextOptions{NoorCanvas.Data.KSessionsDbContext})
+  - NoorCanvas.Data.KSessionsDbContext.Categories
+  - NoorCanvas.Data.KSessionsDbContext.Groups
+  - NoorCanvas.Data.KSessionsDbContext.OnConfiguring(DbContextOptionsBuilder)
+  - NoorCanvas.Data.KSessionsDbContext.OnModelCreating(ModelBuilder)
+  - NoorCanvas.Data.KSessionsDbContext.SessionTranscripts
+  - NoorCanvas.Data.KSessionsDbContext.Sessions
+  langs:
+  - csharp
+  - vb
+  name: KSessionsDbContext
+  nameWithType: KSessionsDbContext
+  fullName: NoorCanvas.Data.KSessionsDbContext
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: KSessionsDbContext
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 9
+  namespace: NoorCanvas.Data
+  summary: >-
+    KSESSIONS Database Context - Read-only access to Islamic content database
+
+    Connects to production KSESSIONS database for Groups, Categories, Sessions data
+  example: []
+  syntax:
+    content: 'public class KSessionsDbContext : DbContext'
+    content.vb: Public Class KSessionsDbContext Inherits DbContext
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Data.KSessionsDbContext.#ctor(DbContextOptions{NoorCanvas.Data.KSessionsDbContext})
+  commentId: M:NoorCanvas.Data.KSessionsDbContext.#ctor(DbContextOptions{NoorCanvas.Data.KSessionsDbContext})
+  id: '#ctor(DbContextOptions{NoorCanvas.Data.KSessionsDbContext})'
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: KSessionsDbContext(DbContextOptions<KSessionsDbContext>)
+  nameWithType: KSessionsDbContext.KSessionsDbContext(DbContextOptions<KSessionsDbContext>)
+  fullName: NoorCanvas.Data.KSessionsDbContext.KSessionsDbContext(DbContextOptions<NoorCanvas.Data.KSessionsDbContext>)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 11
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public KSessionsDbContext(DbContextOptions<KSessionsDbContext> options)
+    parameters:
+    - id: options
+      type: DbContextOptions{NoorCanvas.Data.KSessionsDbContext}
+    content.vb: Public Sub New(options As DbContextOptions(Of KSessionsDbContext))
+  overload: NoorCanvas.Data.KSessionsDbContext.#ctor*
+  nameWithType.vb: KSessionsDbContext.New(DbContextOptions(Of KSessionsDbContext))
+  fullName.vb: NoorCanvas.Data.KSessionsDbContext.New(DbContextOptions(Of NoorCanvas.Data.KSessionsDbContext))
+  name.vb: New(DbContextOptions(Of KSessionsDbContext))
+- uid: NoorCanvas.Data.KSessionsDbContext.Groups
+  commentId: P:NoorCanvas.Data.KSessionsDbContext.Groups
+  id: Groups
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: Groups
+  nameWithType: KSessionsDbContext.Groups
+  fullName: NoorCanvas.Data.KSessionsDbContext.Groups
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Groups
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 16
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<KSessionsGroup> Groups { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsGroup}
+    content.vb: Public Property Groups As DbSet(Of KSessionsGroup)
+  overload: NoorCanvas.Data.KSessionsDbContext.Groups*
+- uid: NoorCanvas.Data.KSessionsDbContext.Categories
+  commentId: P:NoorCanvas.Data.KSessionsDbContext.Categories
+  id: Categories
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: Categories
+  nameWithType: KSessionsDbContext.Categories
+  fullName: NoorCanvas.Data.KSessionsDbContext.Categories
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Categories
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 17
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<KSessionsCategory> Categories { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsCategory}
+    content.vb: Public Property Categories As DbSet(Of KSessionsCategory)
+  overload: NoorCanvas.Data.KSessionsDbContext.Categories*
+- uid: NoorCanvas.Data.KSessionsDbContext.Sessions
+  commentId: P:NoorCanvas.Data.KSessionsDbContext.Sessions
+  id: Sessions
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: Sessions
+  nameWithType: KSessionsDbContext.Sessions
+  fullName: NoorCanvas.Data.KSessionsDbContext.Sessions
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Sessions
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 18
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<KSessionsSession> Sessions { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsSession}
+    content.vb: Public Property Sessions As DbSet(Of KSessionsSession)
+  overload: NoorCanvas.Data.KSessionsDbContext.Sessions*
+- uid: NoorCanvas.Data.KSessionsDbContext.SessionTranscripts
+  commentId: P:NoorCanvas.Data.KSessionsDbContext.SessionTranscripts
+  id: SessionTranscripts
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: SessionTranscripts
+  nameWithType: KSessionsDbContext.SessionTranscripts
+  fullName: NoorCanvas.Data.KSessionsDbContext.SessionTranscripts
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionTranscripts
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 19
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<KSessionsSessionTranscript> SessionTranscripts { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript}
+    content.vb: Public Property SessionTranscripts As DbSet(Of KSessionsSessionTranscript)
+  overload: NoorCanvas.Data.KSessionsDbContext.SessionTranscripts*
+- uid: NoorCanvas.Data.KSessionsDbContext.OnModelCreating(ModelBuilder)
+  commentId: M:NoorCanvas.Data.KSessionsDbContext.OnModelCreating(ModelBuilder)
+  id: OnModelCreating(ModelBuilder)
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: OnModelCreating(ModelBuilder)
+  nameWithType: KSessionsDbContext.OnModelCreating(ModelBuilder)
+  fullName: NoorCanvas.Data.KSessionsDbContext.OnModelCreating(ModelBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnModelCreating
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 21
+  namespace: NoorCanvas.Data
+  example: []
+  syntax:
+    content: protected override void OnModelCreating(ModelBuilder modelBuilder)
+    parameters:
+    - id: modelBuilder
+      type: ModelBuilder
+    content.vb: Protected Overrides Sub OnModelCreating(modelBuilder As ModelBuilder)
+  overload: NoorCanvas.Data.KSessionsDbContext.OnModelCreating*
+- uid: NoorCanvas.Data.KSessionsDbContext.OnConfiguring(DbContextOptionsBuilder)
+  commentId: M:NoorCanvas.Data.KSessionsDbContext.OnConfiguring(DbContextOptionsBuilder)
+  id: OnConfiguring(DbContextOptionsBuilder)
+  parent: NoorCanvas.Data.KSessionsDbContext
+  langs:
+  - csharp
+  - vb
+  name: OnConfiguring(DbContextOptionsBuilder)
+  nameWithType: KSessionsDbContext.OnConfiguring(DbContextOptionsBuilder)
+  fullName: NoorCanvas.Data.KSessionsDbContext.OnConfiguring(DbContextOptionsBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/KSessionsDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnConfiguring
+    path: ../SPA/NoorCanvas/Data/KSessionsDbContext.cs
+    startLine: 104
+  namespace: NoorCanvas.Data
+  example: []
+  syntax:
+    content: protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    parameters:
+    - id: optionsBuilder
+      type: DbContextOptionsBuilder
+    content.vb: Protected Overrides Sub OnConfiguring(optionsBuilder As DbContextOptionsBuilder)
+  overload: NoorCanvas.Data.KSessionsDbContext.OnConfiguring*
+references:
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Data.KSessionsDbContext.#ctor*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.#ctor
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext__ctor_DbContextOptions_NoorCanvas_Data_KSessionsDbContext__
+  name: KSessionsDbContext
+  nameWithType: KSessionsDbContext.KSessionsDbContext
+  fullName: NoorCanvas.Data.KSessionsDbContext.KSessionsDbContext
+  nameWithType.vb: KSessionsDbContext.New
+  fullName.vb: NoorCanvas.Data.KSessionsDbContext.New
+  name.vb: New
+- uid: DbContextOptions{NoorCanvas.Data.KSessionsDbContext}
+  commentId: '!:DbContextOptions{NoorCanvas.Data.KSessionsDbContext}'
+  definition: DbContextOptions`1
+  href: NoorCanvas.Data.KSessionsDbContext.html
+  name: DbContextOptions<KSessionsDbContext>
+  nameWithType: DbContextOptions<KSessionsDbContext>
+  fullName: DbContextOptions<NoorCanvas.Data.KSessionsDbContext>
+  nameWithType.vb: DbContextOptions(Of KSessionsDbContext)
+  fullName.vb: DbContextOptions(Of NoorCanvas.Data.KSessionsDbContext)
+  name.vb: DbContextOptions(Of KSessionsDbContext)
+  spec.csharp:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Data.KSessionsDbContext
+    name: KSessionsDbContext
+    href: NoorCanvas.Data.KSessionsDbContext.html
+  - name: '>'
+  spec.vb:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Data.KSessionsDbContext
+    name: KSessionsDbContext
+    href: NoorCanvas.Data.KSessionsDbContext.html
+  - name: )
+- uid: DbContextOptions`1
+  isExternal: true
+  name: DbContextOptions<>
+  nameWithType: DbContextOptions<>
+  fullName: DbContextOptions<>
+  nameWithType.vb: DbContextOptions(Of )
+  fullName.vb: DbContextOptions(Of )
+  name.vb: DbContextOptions(Of )
+  spec.csharp:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Data.KSessionsDbContext.Groups*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.Groups
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext_Groups
+  name: Groups
+  nameWithType: KSessionsDbContext.Groups
+  fullName: NoorCanvas.Data.KSessionsDbContext.Groups
+- uid: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsGroup}
+  commentId: '!:DbSet{NoorCanvas.Models.KSESSIONS.KSessionsGroup}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html
+  name: DbSet<KSessionsGroup>
+  nameWithType: DbSet<KSessionsGroup>
+  fullName: DbSet<NoorCanvas.Models.KSESSIONS.KSessionsGroup>
+  nameWithType.vb: DbSet(Of KSessionsGroup)
+  fullName.vb: DbSet(Of NoorCanvas.Models.KSESSIONS.KSessionsGroup)
+  name.vb: DbSet(Of KSessionsGroup)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+    name: KSessionsGroup
+    href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+    name: KSessionsGroup
+    href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html
+  - name: )
+- uid: DbSet`1
+  isExternal: true
+  name: DbSet<>
+  nameWithType: DbSet<>
+  fullName: DbSet<>
+  nameWithType.vb: DbSet(Of )
+  fullName.vb: DbSet(Of )
+  name.vb: DbSet(Of )
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Data.KSessionsDbContext.Categories*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.Categories
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext_Categories
+  name: Categories
+  nameWithType: KSessionsDbContext.Categories
+  fullName: NoorCanvas.Data.KSessionsDbContext.Categories
+- uid: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsCategory}
+  commentId: '!:DbSet{NoorCanvas.Models.KSESSIONS.KSessionsCategory}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  name: DbSet<KSessionsCategory>
+  nameWithType: DbSet<KSessionsCategory>
+  fullName: DbSet<NoorCanvas.Models.KSESSIONS.KSessionsCategory>
+  nameWithType.vb: DbSet(Of KSessionsCategory)
+  fullName.vb: DbSet(Of NoorCanvas.Models.KSESSIONS.KSessionsCategory)
+  name.vb: DbSet(Of KSessionsCategory)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+    name: KSessionsCategory
+    href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+    name: KSessionsCategory
+    href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  - name: )
+- uid: NoorCanvas.Data.KSessionsDbContext.Sessions*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.Sessions
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext_Sessions
+  name: Sessions
+  nameWithType: KSessionsDbContext.Sessions
+  fullName: NoorCanvas.Data.KSessionsDbContext.Sessions
+- uid: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsSession}
+  commentId: '!:DbSet{NoorCanvas.Models.KSESSIONS.KSessionsSession}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  name: DbSet<KSessionsSession>
+  nameWithType: DbSet<KSessionsSession>
+  fullName: DbSet<NoorCanvas.Models.KSESSIONS.KSessionsSession>
+  nameWithType.vb: DbSet(Of KSessionsSession)
+  fullName.vb: DbSet(Of NoorCanvas.Models.KSESSIONS.KSessionsSession)
+  name.vb: DbSet(Of KSessionsSession)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSession
+    name: KSessionsSession
+    href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSession
+    name: KSessionsSession
+    href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  - name: )
+- uid: NoorCanvas.Data.KSessionsDbContext.SessionTranscripts*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.SessionTranscripts
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext_SessionTranscripts
+  name: SessionTranscripts
+  nameWithType: KSessionsDbContext.SessionTranscripts
+  fullName: NoorCanvas.Data.KSessionsDbContext.SessionTranscripts
+- uid: DbSet{NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript}
+  commentId: '!:DbSet{NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.html
+  name: DbSet<KSessionsSessionTranscript>
+  nameWithType: DbSet<KSessionsSessionTranscript>
+  fullName: DbSet<NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript>
+  nameWithType.vb: DbSet(Of KSessionsSessionTranscript)
+  fullName.vb: DbSet(Of NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript)
+  name.vb: DbSet(Of KSessionsSessionTranscript)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+    name: KSessionsSessionTranscript
+    href: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+    name: KSessionsSessionTranscript
+    href: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.html
+  - name: )
+- uid: NoorCanvas.Data.KSessionsDbContext.OnModelCreating*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.OnModelCreating
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext_OnModelCreating_ModelBuilder_
+  name: OnModelCreating
+  nameWithType: KSessionsDbContext.OnModelCreating
+  fullName: NoorCanvas.Data.KSessionsDbContext.OnModelCreating
+- uid: ModelBuilder
+  isExternal: true
+  name: ModelBuilder
+  nameWithType: ModelBuilder
+  fullName: ModelBuilder
+- uid: NoorCanvas.Data.KSessionsDbContext.OnConfiguring*
+  commentId: Overload:NoorCanvas.Data.KSessionsDbContext.OnConfiguring
+  href: NoorCanvas.Data.KSessionsDbContext.html#NoorCanvas_Data_KSessionsDbContext_OnConfiguring_DbContextOptionsBuilder_
+  name: OnConfiguring
+  nameWithType: KSessionsDbContext.OnConfiguring
+  fullName: NoorCanvas.Data.KSessionsDbContext.OnConfiguring
+- uid: DbContextOptionsBuilder
+  commentId: '!:DbContextOptionsBuilder'
+  isExternal: true
+  name: DbContextOptionsBuilder
+  nameWithType: DbContextOptionsBuilder
+  fullName: DbContextOptionsBuilder

@@ -4,12 +4,13 @@
       "src": [
         {
           "files": [
-            "../SPA/NoorCanvas/**/*.cs"
+            "SPA/NoorCanvas/**/*.cs"
           ],
           "exclude": [
             "**/bin/**",
             "**/obj/**"
-          ]
+          ],
+          "src": "../"
         }
       ],
       "dest": "api",
@@ -19,7 +20,7 @@
       "noRestore": false,
       "namespaceLayout": "flattened",
       "memberLayout": "samePage",
-      "allowCompilationErrors": false
+      "allowCompilationErrors": true
     }
   ],
   "build": {

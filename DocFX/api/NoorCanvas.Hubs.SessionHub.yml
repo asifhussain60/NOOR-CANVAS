@@ -1,0 +1,460 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Hubs.SessionHub
+  commentId: T:NoorCanvas.Hubs.SessionHub
+  id: SessionHub
+  parent: NoorCanvas.Hubs
+  children:
+  - NoorCanvas.Hubs.SessionHub.#ctor(ILogger{NoorCanvas.Hubs.SessionHub})
+  - NoorCanvas.Hubs.SessionHub.JoinSession(System.Int64,System.String)
+  - NoorCanvas.Hubs.SessionHub.LeaveSession(System.Int64)
+  - NoorCanvas.Hubs.SessionHub.OnConnectedAsync
+  - NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync(System.Nullable{Exception})
+  - NoorCanvas.Hubs.SessionHub.Ping
+  - NoorCanvas.Hubs.SessionHub.ShareAsset(System.Int64,System.Object)
+  langs:
+  - csharp
+  - vb
+  name: SessionHub
+  nameWithType: SessionHub
+  fullName: NoorCanvas.Hubs.SessionHub
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionHub
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 5
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: 'public class SessionHub : Hub'
+    content.vb: Public Class SessionHub Inherits Hub
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Hubs.SessionHub.#ctor(ILogger{NoorCanvas.Hubs.SessionHub})
+  commentId: M:NoorCanvas.Hubs.SessionHub.#ctor(ILogger{NoorCanvas.Hubs.SessionHub})
+  id: '#ctor(ILogger{NoorCanvas.Hubs.SessionHub})'
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: SessionHub(ILogger<SessionHub>)
+  nameWithType: SessionHub.SessionHub(ILogger<SessionHub>)
+  fullName: NoorCanvas.Hubs.SessionHub.SessionHub(ILogger<NoorCanvas.Hubs.SessionHub>)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 9
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public SessionHub(ILogger<SessionHub> logger)
+    parameters:
+    - id: logger
+      type: ILogger{NoorCanvas.Hubs.SessionHub}
+    content.vb: Public Sub New(logger As ILogger(Of SessionHub))
+  overload: NoorCanvas.Hubs.SessionHub.#ctor*
+  nameWithType.vb: SessionHub.New(ILogger(Of SessionHub))
+  fullName.vb: NoorCanvas.Hubs.SessionHub.New(ILogger(Of NoorCanvas.Hubs.SessionHub))
+  name.vb: New(ILogger(Of SessionHub))
+- uid: NoorCanvas.Hubs.SessionHub.JoinSession(System.Int64,System.String)
+  commentId: M:NoorCanvas.Hubs.SessionHub.JoinSession(System.Int64,System.String)
+  id: JoinSession(System.Int64,System.String)
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: JoinSession(long, string)
+  nameWithType: SessionHub.JoinSession(long, string)
+  fullName: NoorCanvas.Hubs.SessionHub.JoinSession(long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: JoinSession
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 14
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task JoinSession(long sessionId, string role = "user")
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: role
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function JoinSession(sessionId As Long, role As String = "user") As Task
+  overload: NoorCanvas.Hubs.SessionHub.JoinSession*
+  nameWithType.vb: SessionHub.JoinSession(Long, String)
+  fullName.vb: NoorCanvas.Hubs.SessionHub.JoinSession(Long, String)
+  name.vb: JoinSession(Long, String)
+- uid: NoorCanvas.Hubs.SessionHub.LeaveSession(System.Int64)
+  commentId: M:NoorCanvas.Hubs.SessionHub.LeaveSession(System.Int64)
+  id: LeaveSession(System.Int64)
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: LeaveSession(long)
+  nameWithType: SessionHub.LeaveSession(long)
+  fullName: NoorCanvas.Hubs.SessionHub.LeaveSession(long)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: LeaveSession
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 30
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task LeaveSession(long sessionId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    return:
+      type: Task
+    content.vb: Public Function LeaveSession(sessionId As Long) As Task
+  overload: NoorCanvas.Hubs.SessionHub.LeaveSession*
+  nameWithType.vb: SessionHub.LeaveSession(Long)
+  fullName.vb: NoorCanvas.Hubs.SessionHub.LeaveSession(Long)
+  name.vb: LeaveSession(Long)
+- uid: NoorCanvas.Hubs.SessionHub.ShareAsset(System.Int64,System.Object)
+  commentId: M:NoorCanvas.Hubs.SessionHub.ShareAsset(System.Int64,System.Object)
+  id: ShareAsset(System.Int64,System.Object)
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: ShareAsset(long, object)
+  nameWithType: SessionHub.ShareAsset(long, object)
+  fullName: NoorCanvas.Hubs.SessionHub.ShareAsset(long, object)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShareAsset
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 45
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task ShareAsset(long sessionId, object assetData)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: assetData
+      type: System.Object
+    return:
+      type: Task
+    content.vb: Public Function ShareAsset(sessionId As Long, assetData As Object) As Task
+  overload: NoorCanvas.Hubs.SessionHub.ShareAsset*
+  nameWithType.vb: SessionHub.ShareAsset(Long, Object)
+  fullName.vb: NoorCanvas.Hubs.SessionHub.ShareAsset(Long, Object)
+  name.vb: ShareAsset(Long, Object)
+- uid: NoorCanvas.Hubs.SessionHub.Ping
+  commentId: M:NoorCanvas.Hubs.SessionHub.Ping
+  id: Ping
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: Ping()
+  nameWithType: SessionHub.Ping()
+  fullName: NoorCanvas.Hubs.SessionHub.Ping()
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Ping
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 60
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task Ping()
+    return:
+      type: Task
+    content.vb: Public Function Ping() As Task
+  overload: NoorCanvas.Hubs.SessionHub.Ping*
+- uid: NoorCanvas.Hubs.SessionHub.OnConnectedAsync
+  commentId: M:NoorCanvas.Hubs.SessionHub.OnConnectedAsync
+  id: OnConnectedAsync
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: OnConnectedAsync()
+  nameWithType: SessionHub.OnConnectedAsync()
+  fullName: NoorCanvas.Hubs.SessionHub.OnConnectedAsync()
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnConnectedAsync
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 65
+  namespace: NoorCanvas.Hubs
+  example: []
+  syntax:
+    content: public override Task OnConnectedAsync()
+    return:
+      type: Task
+    content.vb: Public Overrides Function OnConnectedAsync() As Task
+  overload: NoorCanvas.Hubs.SessionHub.OnConnectedAsync*
+- uid: NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync(System.Nullable{Exception})
+  commentId: M:NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync(System.Nullable{Exception})
+  id: OnDisconnectedAsync(System.Nullable{Exception})
+  parent: NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: OnDisconnectedAsync(Exception?)
+  nameWithType: SessionHub.OnDisconnectedAsync(Exception?)
+  fullName: NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync(Exception?)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/SessionHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnDisconnectedAsync
+    path: ../SPA/NoorCanvas/Hubs/SessionHub.cs
+    startLine: 71
+  namespace: NoorCanvas.Hubs
+  example: []
+  syntax:
+    content: public override Task OnDisconnectedAsync(Exception? exception)
+    parameters:
+    - id: exception
+      type: System.Nullable{Exception}
+    return:
+      type: Task
+    content.vb: Public Overrides Function OnDisconnectedAsync(exception As Exception?) As Task
+  overload: NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync*
+references:
+- uid: NoorCanvas.Hubs
+  commentId: N:NoorCanvas.Hubs
+  href: NoorCanvas.html
+  name: NoorCanvas.Hubs
+  nameWithType: NoorCanvas.Hubs
+  fullName: NoorCanvas.Hubs
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Hubs
+    name: Hubs
+    href: NoorCanvas.Hubs.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Hubs
+    name: Hubs
+    href: NoorCanvas.Hubs.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Hubs.SessionHub.#ctor*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.#ctor
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub__ctor_ILogger_NoorCanvas_Hubs_SessionHub__
+  name: SessionHub
+  nameWithType: SessionHub.SessionHub
+  fullName: NoorCanvas.Hubs.SessionHub.SessionHub
+  nameWithType.vb: SessionHub.New
+  fullName.vb: NoorCanvas.Hubs.SessionHub.New
+  name.vb: New
+- uid: ILogger{NoorCanvas.Hubs.SessionHub}
+  commentId: '!:ILogger{NoorCanvas.Hubs.SessionHub}'
+  definition: ILogger`1
+  href: NoorCanvas.Hubs.SessionHub.html
+  name: ILogger<SessionHub>
+  nameWithType: ILogger<SessionHub>
+  fullName: ILogger<NoorCanvas.Hubs.SessionHub>
+  nameWithType.vb: ILogger(Of SessionHub)
+  fullName.vb: ILogger(Of NoorCanvas.Hubs.SessionHub)
+  name.vb: ILogger(Of SessionHub)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Hubs.SessionHub
+    name: SessionHub
+    href: NoorCanvas.Hubs.SessionHub.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Hubs.SessionHub
+    name: SessionHub
+    href: NoorCanvas.Hubs.SessionHub.html
+  - name: )
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Hubs.SessionHub.JoinSession*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.JoinSession
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub_JoinSession_System_Int64_System_String_
+  name: JoinSession
+  nameWithType: SessionHub.JoinSession
+  fullName: NoorCanvas.Hubs.SessionHub.JoinSession
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: NoorCanvas.Hubs.SessionHub.LeaveSession*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.LeaveSession
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub_LeaveSession_System_Int64_
+  name: LeaveSession
+  nameWithType: SessionHub.LeaveSession
+  fullName: NoorCanvas.Hubs.SessionHub.LeaveSession
+- uid: NoorCanvas.Hubs.SessionHub.ShareAsset*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.ShareAsset
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub_ShareAsset_System_Int64_System_Object_
+  name: ShareAsset
+  nameWithType: SessionHub.ShareAsset
+  fullName: NoorCanvas.Hubs.SessionHub.ShareAsset
+- uid: NoorCanvas.Hubs.SessionHub.Ping*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.Ping
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub_Ping
+  name: Ping
+  nameWithType: SessionHub.Ping
+  fullName: NoorCanvas.Hubs.SessionHub.Ping
+- uid: NoorCanvas.Hubs.SessionHub.OnConnectedAsync*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.OnConnectedAsync
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub_OnConnectedAsync
+  name: OnConnectedAsync
+  nameWithType: SessionHub.OnConnectedAsync
+  fullName: NoorCanvas.Hubs.SessionHub.OnConnectedAsync
+- uid: NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync*
+  commentId: Overload:NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync
+  href: NoorCanvas.Hubs.SessionHub.html#NoorCanvas_Hubs_SessionHub_OnDisconnectedAsync_System_Nullable_Exception__
+  name: OnDisconnectedAsync
+  nameWithType: SessionHub.OnDisconnectedAsync
+  fullName: NoorCanvas.Hubs.SessionHub.OnDisconnectedAsync
+- uid: System.Nullable{Exception}
+  commentId: T:System.Nullable{Exception}
+  parent: System
+  definition: System.Nullable`1
+  name: Exception?
+  nameWithType: Exception?
+  fullName: Exception?
+  spec.csharp:
+  - uid: Exception
+    name: Exception
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: Exception
+    name: Exception
+    isExternal: true
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )

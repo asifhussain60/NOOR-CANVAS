@@ -1,0 +1,28 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Data.Migrations
+  commentId: N:NoorCanvas.Data.Migrations
+  id: NoorCanvas.Data.Migrations
+  children:
+  - NoorCanvas.Data.Migrations.AddAdminSessions
+  - NoorCanvas.Data.Migrations.InitialCreate
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Data.Migrations
+  nameWithType: NoorCanvas.Data.Migrations
+  fullName: NoorCanvas.Data.Migrations
+  type: Namespace
+references:
+- uid: NoorCanvas.Data.Migrations.InitialCreate
+  commentId: T:NoorCanvas.Data.Migrations.InitialCreate
+  href: NoorCanvas.Data.Migrations.InitialCreate.html
+  name: InitialCreate
+  nameWithType: InitialCreate
+  fullName: NoorCanvas.Data.Migrations.InitialCreate
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions
+  commentId: T:NoorCanvas.Data.Migrations.AddAdminSessions
+  href: NoorCanvas.Data.Migrations.AddAdminSessions.html
+  name: AddAdminSessions
+  nameWithType: AddAdminSessions
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions

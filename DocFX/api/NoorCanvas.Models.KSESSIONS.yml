@@ -1,0 +1,75 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models.KSESSIONS
+  commentId: N:NoorCanvas.Models.KSESSIONS
+  id: NoorCanvas.Models.KSESSIONS
+  children:
+  - NoorCanvas.Models.KSESSIONS.KSessionsCategory
+  - NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  - NoorCanvas.Models.KSESSIONS.KSessionsSession
+  - NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Models.KSESSIONS
+  nameWithType: NoorCanvas.Models.KSESSIONS
+  fullName: NoorCanvas.Models.KSESSIONS
+  type: Namespace
+references:
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  commentId: T:NoorCanvas.Models.KSESSIONS.KSessionsGroup
+  parent: NoorCanvas.Models.KSESSIONS
+  href: NoorCanvas.Models.KSESSIONS.KSessionsGroup.html
+  name: KSessionsGroup
+  nameWithType: KSessionsGroup
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsGroup
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+  commentId: T:NoorCanvas.Models.KSESSIONS.KSessionsCategory
+  parent: NoorCanvas.Models.KSESSIONS
+  href: NoorCanvas.Models.KSESSIONS.KSessionsCategory.html
+  name: KSessionsCategory
+  nameWithType: KSessionsCategory
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsCategory
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsSession
+  commentId: T:NoorCanvas.Models.KSESSIONS.KSessionsSession
+  parent: NoorCanvas.Models.KSESSIONS
+  href: NoorCanvas.Models.KSESSIONS.KSessionsSession.html
+  name: KSessionsSession
+  nameWithType: KSessionsSession
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsSession
+- uid: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+  commentId: T:NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+  href: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.html
+  name: KSessionsSessionTranscript
+  nameWithType: KSessionsSessionTranscript
+  fullName: NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript
+- uid: NoorCanvas.Models.KSESSIONS
+  commentId: N:NoorCanvas.Models.KSESSIONS
+  href: NoorCanvas.html
+  name: NoorCanvas.Models.KSESSIONS
+  nameWithType: NoorCanvas.Models.KSESSIONS
+  fullName: NoorCanvas.Models.KSESSIONS
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  - name: .
+  - uid: NoorCanvas.Models.KSESSIONS
+    name: KSESSIONS
+    href: NoorCanvas.Models.KSESSIONS.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  - name: .
+  - uid: NoorCanvas.Models.KSESSIONS
+    name: KSESSIONS
+    href: NoorCanvas.Models.KSESSIONS.html

@@ -1,0 +1,751 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Services.DialogService
+  commentId: T:NoorCanvas.Services.DialogService
+  id: DialogService
+  parent: NoorCanvas.Services
+  children:
+  - NoorCanvas.Services.DialogService.RegisterAlertDialog(AlertDialog)
+  - NoorCanvas.Services.DialogService.RegisterConfirmDialog(ConfirmDialog)
+  - NoorCanvas.Services.DialogService.ShowAlertAsync(System.String,System.String,AlertDialog.AlertType)
+  - NoorCanvas.Services.DialogService.ShowConfirmAsync(System.String,System.String,ConfirmDialog.ConfirmationType)
+  - NoorCanvas.Services.DialogService.ShowDangerConfirmAsync(System.String,System.String)
+  - NoorCanvas.Services.DialogService.ShowErrorAsync(System.String,System.String)
+  - NoorCanvas.Services.DialogService.ShowSuccessAsync(System.String,System.String)
+  - NoorCanvas.Services.DialogService.ShowWarningAsync(System.String,System.String)
+  - NoorCanvas.Services.DialogService.ShowWarningConfirmAsync(System.String,System.String)
+  langs:
+  - csharp
+  - vb
+  name: DialogService
+  nameWithType: DialogService
+  fullName: NoorCanvas.Services.DialogService
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: DialogService
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 5
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public class DialogService
+    content.vb: Public Class DialogService
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: NoorCanvas.Services.DialogService.RegisterAlertDialog(AlertDialog)
+  commentId: M:NoorCanvas.Services.DialogService.RegisterAlertDialog(AlertDialog)
+  id: RegisterAlertDialog(AlertDialog)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: RegisterAlertDialog(AlertDialog)
+  nameWithType: DialogService.RegisterAlertDialog(AlertDialog)
+  fullName: NoorCanvas.Services.DialogService.RegisterAlertDialog(AlertDialog)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: RegisterAlertDialog
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 10
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public void RegisterAlertDialog(AlertDialog alertDialog)
+    parameters:
+    - id: alertDialog
+      type: AlertDialog
+    content.vb: Public Sub RegisterAlertDialog(alertDialog As AlertDialog)
+  overload: NoorCanvas.Services.DialogService.RegisterAlertDialog*
+- uid: NoorCanvas.Services.DialogService.RegisterConfirmDialog(ConfirmDialog)
+  commentId: M:NoorCanvas.Services.DialogService.RegisterConfirmDialog(ConfirmDialog)
+  id: RegisterConfirmDialog(ConfirmDialog)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: RegisterConfirmDialog(ConfirmDialog)
+  nameWithType: DialogService.RegisterConfirmDialog(ConfirmDialog)
+  fullName: NoorCanvas.Services.DialogService.RegisterConfirmDialog(ConfirmDialog)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: RegisterConfirmDialog
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 15
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public void RegisterConfirmDialog(ConfirmDialog confirmDialog)
+    parameters:
+    - id: confirmDialog
+      type: ConfirmDialog
+    content.vb: Public Sub RegisterConfirmDialog(confirmDialog As ConfirmDialog)
+  overload: NoorCanvas.Services.DialogService.RegisterConfirmDialog*
+- uid: NoorCanvas.Services.DialogService.ShowAlertAsync(System.String,System.String,AlertDialog.AlertType)
+  commentId: M:NoorCanvas.Services.DialogService.ShowAlertAsync(System.String,System.String,AlertDialog.AlertType)
+  id: ShowAlertAsync(System.String,System.String,AlertDialog.AlertType)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowAlertAsync(string, string, AlertType)
+  nameWithType: DialogService.ShowAlertAsync(string, string, AlertDialog.AlertType)
+  fullName: NoorCanvas.Services.DialogService.ShowAlertAsync(string, string, AlertDialog.AlertType)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowAlertAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 20
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task ShowAlertAsync(string message, string title = "Alert", AlertDialog.AlertType type = null)
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    - id: type
+      type: AlertDialog.AlertType
+    return:
+      type: Task
+    content.vb: Public Function ShowAlertAsync(message As String, title As String = "Alert", type As AlertDialog.AlertType = Nothing) As Task
+  overload: NoorCanvas.Services.DialogService.ShowAlertAsync*
+  nameWithType.vb: DialogService.ShowAlertAsync(String, String, AlertDialog.AlertType)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowAlertAsync(String, String, AlertDialog.AlertType)
+  name.vb: ShowAlertAsync(String, String, AlertType)
+- uid: NoorCanvas.Services.DialogService.ShowSuccessAsync(System.String,System.String)
+  commentId: M:NoorCanvas.Services.DialogService.ShowSuccessAsync(System.String,System.String)
+  id: ShowSuccessAsync(System.String,System.String)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowSuccessAsync(string, string)
+  nameWithType: DialogService.ShowSuccessAsync(string, string)
+  fullName: NoorCanvas.Services.DialogService.ShowSuccessAsync(string, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowSuccessAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 31
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task ShowSuccessAsync(string message, string title = "Success")
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function ShowSuccessAsync(message As String, title As String = "Success") As Task
+  overload: NoorCanvas.Services.DialogService.ShowSuccessAsync*
+  nameWithType.vb: DialogService.ShowSuccessAsync(String, String)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowSuccessAsync(String, String)
+  name.vb: ShowSuccessAsync(String, String)
+- uid: NoorCanvas.Services.DialogService.ShowWarningAsync(System.String,System.String)
+  commentId: M:NoorCanvas.Services.DialogService.ShowWarningAsync(System.String,System.String)
+  id: ShowWarningAsync(System.String,System.String)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowWarningAsync(string, string)
+  nameWithType: DialogService.ShowWarningAsync(string, string)
+  fullName: NoorCanvas.Services.DialogService.ShowWarningAsync(string, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowWarningAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 36
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task ShowWarningAsync(string message, string title = "Warning")
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function ShowWarningAsync(message As String, title As String = "Warning") As Task
+  overload: NoorCanvas.Services.DialogService.ShowWarningAsync*
+  nameWithType.vb: DialogService.ShowWarningAsync(String, String)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowWarningAsync(String, String)
+  name.vb: ShowWarningAsync(String, String)
+- uid: NoorCanvas.Services.DialogService.ShowErrorAsync(System.String,System.String)
+  commentId: M:NoorCanvas.Services.DialogService.ShowErrorAsync(System.String,System.String)
+  id: ShowErrorAsync(System.String,System.String)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowErrorAsync(string, string)
+  nameWithType: DialogService.ShowErrorAsync(string, string)
+  fullName: NoorCanvas.Services.DialogService.ShowErrorAsync(string, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowErrorAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 41
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task ShowErrorAsync(string message, string title = "Error")
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function ShowErrorAsync(message As String, title As String = "Error") As Task
+  overload: NoorCanvas.Services.DialogService.ShowErrorAsync*
+  nameWithType.vb: DialogService.ShowErrorAsync(String, String)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowErrorAsync(String, String)
+  name.vb: ShowErrorAsync(String, String)
+- uid: NoorCanvas.Services.DialogService.ShowConfirmAsync(System.String,System.String,ConfirmDialog.ConfirmationType)
+  commentId: M:NoorCanvas.Services.DialogService.ShowConfirmAsync(System.String,System.String,ConfirmDialog.ConfirmationType)
+  id: ShowConfirmAsync(System.String,System.String,ConfirmDialog.ConfirmationType)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowConfirmAsync(string, string, ConfirmationType)
+  nameWithType: DialogService.ShowConfirmAsync(string, string, ConfirmDialog.ConfirmationType)
+  fullName: NoorCanvas.Services.DialogService.ShowConfirmAsync(string, string, ConfirmDialog.ConfirmationType)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowConfirmAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 46
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task<bool> ShowConfirmAsync(string message, string title = "Confirm Action", ConfirmDialog.ConfirmationType type = null)
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    - id: type
+      type: ConfirmDialog.ConfirmationType
+    return:
+      type: Task{System.Boolean}
+    content.vb: Public Function ShowConfirmAsync(message As String, title As String = "Confirm Action", type As ConfirmDialog.ConfirmationType = Nothing) As Task(Of Boolean)
+  overload: NoorCanvas.Services.DialogService.ShowConfirmAsync*
+  nameWithType.vb: DialogService.ShowConfirmAsync(String, String, ConfirmDialog.ConfirmationType)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowConfirmAsync(String, String, ConfirmDialog.ConfirmationType)
+  name.vb: ShowConfirmAsync(String, String, ConfirmationType)
+- uid: NoorCanvas.Services.DialogService.ShowWarningConfirmAsync(System.String,System.String)
+  commentId: M:NoorCanvas.Services.DialogService.ShowWarningConfirmAsync(System.String,System.String)
+  id: ShowWarningConfirmAsync(System.String,System.String)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowWarningConfirmAsync(string, string)
+  nameWithType: DialogService.ShowWarningConfirmAsync(string, string)
+  fullName: NoorCanvas.Services.DialogService.ShowWarningConfirmAsync(string, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowWarningConfirmAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 54
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task<bool> ShowWarningConfirmAsync(string message, string title = "Warning")
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    return:
+      type: Task{System.Boolean}
+    content.vb: Public Function ShowWarningConfirmAsync(message As String, title As String = "Warning") As Task(Of Boolean)
+  overload: NoorCanvas.Services.DialogService.ShowWarningConfirmAsync*
+  nameWithType.vb: DialogService.ShowWarningConfirmAsync(String, String)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowWarningConfirmAsync(String, String)
+  name.vb: ShowWarningConfirmAsync(String, String)
+- uid: NoorCanvas.Services.DialogService.ShowDangerConfirmAsync(System.String,System.String)
+  commentId: M:NoorCanvas.Services.DialogService.ShowDangerConfirmAsync(System.String,System.String)
+  id: ShowDangerConfirmAsync(System.String,System.String)
+  parent: NoorCanvas.Services.DialogService
+  langs:
+  - csharp
+  - vb
+  name: ShowDangerConfirmAsync(string, string)
+  nameWithType: DialogService.ShowDangerConfirmAsync(string, string)
+  fullName: NoorCanvas.Services.DialogService.ShowDangerConfirmAsync(string, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Services/DialogService.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ShowDangerConfirmAsync
+    path: ../SPA/NoorCanvas/Services/DialogService.cs
+    startLine: 59
+  namespace: NoorCanvas.Services
+  syntax:
+    content: public Task<bool> ShowDangerConfirmAsync(string message, string title = "Confirm Delete")
+    parameters:
+    - id: message
+      type: System.String
+    - id: title
+      type: System.String
+    return:
+      type: Task{System.Boolean}
+    content.vb: Public Function ShowDangerConfirmAsync(message As String, title As String = "Confirm Delete") As Task(Of Boolean)
+  overload: NoorCanvas.Services.DialogService.ShowDangerConfirmAsync*
+  nameWithType.vb: DialogService.ShowDangerConfirmAsync(String, String)
+  fullName.vb: NoorCanvas.Services.DialogService.ShowDangerConfirmAsync(String, String)
+  name.vb: ShowDangerConfirmAsync(String, String)
+references:
+- uid: NoorCanvas.Services
+  commentId: N:NoorCanvas.Services
+  href: NoorCanvas.html
+  name: NoorCanvas.Services
+  nameWithType: NoorCanvas.Services
+  fullName: NoorCanvas.Services
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Services.DialogService.RegisterAlertDialog*
+  commentId: Overload:NoorCanvas.Services.DialogService.RegisterAlertDialog
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_RegisterAlertDialog_AlertDialog_
+  name: RegisterAlertDialog
+  nameWithType: DialogService.RegisterAlertDialog
+  fullName: NoorCanvas.Services.DialogService.RegisterAlertDialog
+- uid: AlertDialog
+  commentId: '!:AlertDialog'
+  isExternal: true
+  name: AlertDialog
+  nameWithType: AlertDialog
+  fullName: AlertDialog
+- uid: NoorCanvas.Services.DialogService.RegisterConfirmDialog*
+  commentId: Overload:NoorCanvas.Services.DialogService.RegisterConfirmDialog
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_RegisterConfirmDialog_ConfirmDialog_
+  name: RegisterConfirmDialog
+  nameWithType: DialogService.RegisterConfirmDialog
+  fullName: NoorCanvas.Services.DialogService.RegisterConfirmDialog
+- uid: ConfirmDialog
+  commentId: '!:ConfirmDialog'
+  isExternal: true
+  name: ConfirmDialog
+  nameWithType: ConfirmDialog
+  fullName: ConfirmDialog
+- uid: NoorCanvas.Services.DialogService.ShowAlertAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowAlertAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowAlertAsync_System_String_System_String_AlertDialog_AlertType_
+  name: ShowAlertAsync
+  nameWithType: DialogService.ShowAlertAsync
+  fullName: NoorCanvas.Services.DialogService.ShowAlertAsync
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: AlertDialog.AlertType
+  commentId: '!:AlertDialog.AlertType'
+  isExternal: true
+  name: AlertType
+  nameWithType: AlertDialog.AlertType
+  fullName: AlertDialog.AlertType
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: NoorCanvas.Services.DialogService.ShowSuccessAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowSuccessAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowSuccessAsync_System_String_System_String_
+  name: ShowSuccessAsync
+  nameWithType: DialogService.ShowSuccessAsync
+  fullName: NoorCanvas.Services.DialogService.ShowSuccessAsync
+- uid: NoorCanvas.Services.DialogService.ShowWarningAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowWarningAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowWarningAsync_System_String_System_String_
+  name: ShowWarningAsync
+  nameWithType: DialogService.ShowWarningAsync
+  fullName: NoorCanvas.Services.DialogService.ShowWarningAsync
+- uid: NoorCanvas.Services.DialogService.ShowErrorAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowErrorAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowErrorAsync_System_String_System_String_
+  name: ShowErrorAsync
+  nameWithType: DialogService.ShowErrorAsync
+  fullName: NoorCanvas.Services.DialogService.ShowErrorAsync
+- uid: NoorCanvas.Services.DialogService.ShowConfirmAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowConfirmAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowConfirmAsync_System_String_System_String_ConfirmDialog_ConfirmationType_
+  name: ShowConfirmAsync
+  nameWithType: DialogService.ShowConfirmAsync
+  fullName: NoorCanvas.Services.DialogService.ShowConfirmAsync
+- uid: ConfirmDialog.ConfirmationType
+  commentId: '!:ConfirmDialog.ConfirmationType'
+  isExternal: true
+  name: ConfirmationType
+  nameWithType: ConfirmDialog.ConfirmationType
+  fullName: ConfirmDialog.ConfirmationType
+- uid: Task{System.Boolean}
+  commentId: '!:Task{System.Boolean}'
+  definition: Task`1
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: Task<bool>
+  nameWithType: Task<bool>
+  fullName: Task<bool>
+  nameWithType.vb: Task(Of Boolean)
+  fullName.vb: Task(Of Boolean)
+  name.vb: Task(Of Boolean)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - uid: System.Boolean
+    name: bool
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.boolean
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: System.Boolean
+    name: Boolean
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.boolean
+  - name: )
+- uid: Task`1
+  isExternal: true
+  name: Task<>
+  nameWithType: Task<>
+  fullName: Task<>
+  nameWithType.vb: Task(Of )
+  fullName.vb: Task(Of )
+  name.vb: Task(Of )
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Services.DialogService.ShowWarningConfirmAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowWarningConfirmAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowWarningConfirmAsync_System_String_System_String_
+  name: ShowWarningConfirmAsync
+  nameWithType: DialogService.ShowWarningConfirmAsync
+  fullName: NoorCanvas.Services.DialogService.ShowWarningConfirmAsync
+- uid: NoorCanvas.Services.DialogService.ShowDangerConfirmAsync*
+  commentId: Overload:NoorCanvas.Services.DialogService.ShowDangerConfirmAsync
+  href: NoorCanvas.Services.DialogService.html#NoorCanvas_Services_DialogService_ShowDangerConfirmAsync_System_String_System_String_
+  name: ShowDangerConfirmAsync
+  nameWithType: DialogService.ShowDangerConfirmAsync
+  fullName: NoorCanvas.Services.DialogService.ShowDangerConfirmAsync

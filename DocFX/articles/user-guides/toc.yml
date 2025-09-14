@@ -1,0 +1,6 @@
+- name: Global Commands User Guide
+  href: global-commands-user-guide.md
+- name: Automated Testing User Guide
+  href: automated-testing-user-guide.md
+- name: SSL Configuration User Guide
+  href: ssl-configuration-user-guide.md

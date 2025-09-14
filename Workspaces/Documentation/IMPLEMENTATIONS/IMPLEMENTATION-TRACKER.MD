@@ -271,6 +271,48 @@ Action backlog (short list)
 3. Harden linting: add Razor/TS/JS linters in CI; keep `lint-html.ps1` for docs
 4. Schedule migration window and a rollback plan for AHHOME
 
+---
+
+## Phase 6 — Warnings Cleanup & Release (Final Phase)
+**Status**: Not Started
+**Objective**: Eliminate all compiler/build warnings, stabilize the codebase, and perform final release checks before tagging.
+
+### Acceptance Criteria
+- All compilation warnings across `SPA/NoorCanvas` and `Tools/*` projects are resolved or explicitly documented and justified.
+- CI emits zero new warnings relative to an established baseline for the default branch.
+- All issues created during triage are resolved or moved to a scheduled backlog with a remediation plan.
+- A signed release candidate build is produced and smoke-tested (health endpoint, basic UI flows, SignalR connectivity).
+
+### Steps
+1. Create a warnings baseline: run a clean CI build and save `build-warnings-YYYYMMDD.txt` into `Workspaces/Documentation/IMPLEMENTATIONS/BUILD-WARNINGS/`.
+2. Run static analyzers (Roslyn analyzers, SonarQube/sonarlint) and aggregate results into the baseline report.
+3. For each warning, triage and classify (Security / Performance / Maintainability / Deprecated API / Style). Create Issue entries for non-trivial fixes.
+4. Implement fixes in small PRs; ensure each PR's CI run reports no new warnings. Prefer targeted fixes per PR to limit scope.
+5. Update CI to compare PR warnings to baseline and fail on new warnings (or require explicit suppression justification).
+6. After all high/medium severity warnings are fixed, run full integration tests and a signed release build.
+7. Tag release candidate and prepare release notes summarizing warning reductions and any remaining known, accepted warnings.
+
+### Tools & Commands
+- Generate baseline:
+
+```powershell
+dotnet build "SPA/NoorCanvas/NoorCanvas.csproj" /v:m > build-output.txt
+Select-String -Path build-output.txt -Pattern "warning" | Out-File "Workspaces/Documentation/IMPLEMENTATIONS/BUILD-WARNINGS/build-warnings-$(Get-Date -Format yyyyMMdd).txt"
+```
+
+- Run analyzers:
+
+```powershell
+dotnet build "SPA/NoorCanvas/NoorCanvas.csproj" /p:RunAnalyzers=true
+```
+
+- Example triage tags: `warning:security`, `warning:performance`, `warning:maintainability`, `warning:deprecation`.
+
+### Reporting & Governance
+- Maintain `Workspaces/Documentation/IMPLEMENTATIONS/BUILD-WARNINGS/` with dated baseline files and a SUMMARY.md listing current open warning issues and status.
+- Require a second reviewer for PRs that suppress warnings; suppression must include a comment explaining the rationale and expiration (if temporary).
+
+
 Key blockers and dependencies
 - Database access to AHHOME (required to finish Phase 3.5)
 - API design sign-off for session state snapshot and persistence behavior

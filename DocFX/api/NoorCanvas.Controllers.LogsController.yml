@@ -1,0 +1,249 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Controllers.LogsController
+  commentId: T:NoorCanvas.Controllers.LogsController
+  id: LogsController
+  parent: NoorCanvas.Controllers
+  children:
+  - NoorCanvas.Controllers.LogsController.#ctor(ILogger{NoorCanvas.Controllers.LogsController})
+  - NoorCanvas.Controllers.LogsController.ReceiveBrowserLog(System.Text.Json.JsonElement)
+  langs:
+  - csharp
+  - vb
+  name: LogsController
+  nameWithType: LogsController
+  fullName: NoorCanvas.Controllers.LogsController
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/LogsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: LogsController
+    path: ../SPA/NoorCanvas/Controllers/LogsController.cs
+    startLine: 5
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: 'public class LogsController : ControllerBase'
+    content.vb: Public Class LogsController Inherits ControllerBase
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Controllers.LogsController.#ctor(ILogger{NoorCanvas.Controllers.LogsController})
+  commentId: M:NoorCanvas.Controllers.LogsController.#ctor(ILogger{NoorCanvas.Controllers.LogsController})
+  id: '#ctor(ILogger{NoorCanvas.Controllers.LogsController})'
+  parent: NoorCanvas.Controllers.LogsController
+  langs:
+  - csharp
+  - vb
+  name: LogsController(ILogger<LogsController>)
+  nameWithType: LogsController.LogsController(ILogger<LogsController>)
+  fullName: NoorCanvas.Controllers.LogsController.LogsController(ILogger<NoorCanvas.Controllers.LogsController>)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/LogsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Controllers/LogsController.cs
+    startLine: 11
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public LogsController(ILogger<LogsController> logger)
+    parameters:
+    - id: logger
+      type: ILogger{NoorCanvas.Controllers.LogsController}
+    content.vb: Public Sub New(logger As ILogger(Of LogsController))
+  overload: NoorCanvas.Controllers.LogsController.#ctor*
+  nameWithType.vb: LogsController.New(ILogger(Of LogsController))
+  fullName.vb: NoorCanvas.Controllers.LogsController.New(ILogger(Of NoorCanvas.Controllers.LogsController))
+  name.vb: New(ILogger(Of LogsController))
+- uid: NoorCanvas.Controllers.LogsController.ReceiveBrowserLog(System.Text.Json.JsonElement)
+  commentId: M:NoorCanvas.Controllers.LogsController.ReceiveBrowserLog(System.Text.Json.JsonElement)
+  id: ReceiveBrowserLog(System.Text.Json.JsonElement)
+  parent: NoorCanvas.Controllers.LogsController
+  langs:
+  - csharp
+  - vb
+  name: ReceiveBrowserLog(JsonElement)
+  nameWithType: LogsController.ReceiveBrowserLog(JsonElement)
+  fullName: NoorCanvas.Controllers.LogsController.ReceiveBrowserLog(System.Text.Json.JsonElement)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/LogsController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ReceiveBrowserLog
+    path: ../SPA/NoorCanvas/Controllers/LogsController.cs
+    startLine: 16
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public IActionResult ReceiveBrowserLog(JsonElement logEntry)
+    parameters:
+    - id: logEntry
+      type: System.Text.Json.JsonElement
+    return:
+      type: IActionResult
+    content.vb: Public Function ReceiveBrowserLog(logEntry As JsonElement) As IActionResult
+  overload: NoorCanvas.Controllers.LogsController.ReceiveBrowserLog*
+references:
+- uid: NoorCanvas.Controllers
+  commentId: N:NoorCanvas.Controllers
+  href: NoorCanvas.html
+  name: NoorCanvas.Controllers
+  nameWithType: NoorCanvas.Controllers
+  fullName: NoorCanvas.Controllers
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Controllers.LogsController.#ctor*
+  commentId: Overload:NoorCanvas.Controllers.LogsController.#ctor
+  href: NoorCanvas.Controllers.LogsController.html#NoorCanvas_Controllers_LogsController__ctor_ILogger_NoorCanvas_Controllers_LogsController__
+  name: LogsController
+  nameWithType: LogsController.LogsController
+  fullName: NoorCanvas.Controllers.LogsController.LogsController
+  nameWithType.vb: LogsController.New
+  fullName.vb: NoorCanvas.Controllers.LogsController.New
+  name.vb: New
+- uid: ILogger{NoorCanvas.Controllers.LogsController}
+  commentId: '!:ILogger{NoorCanvas.Controllers.LogsController}'
+  definition: ILogger`1
+  href: NoorCanvas.Controllers.LogsController.html
+  name: ILogger<LogsController>
+  nameWithType: ILogger<LogsController>
+  fullName: ILogger<NoorCanvas.Controllers.LogsController>
+  nameWithType.vb: ILogger(Of LogsController)
+  fullName.vb: ILogger(Of NoorCanvas.Controllers.LogsController)
+  name.vb: ILogger(Of LogsController)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Controllers.LogsController
+    name: LogsController
+    href: NoorCanvas.Controllers.LogsController.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Controllers.LogsController
+    name: LogsController
+    href: NoorCanvas.Controllers.LogsController.html
+  - name: )
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Controllers.LogsController.ReceiveBrowserLog*
+  commentId: Overload:NoorCanvas.Controllers.LogsController.ReceiveBrowserLog
+  href: NoorCanvas.Controllers.LogsController.html#NoorCanvas_Controllers_LogsController_ReceiveBrowserLog_System_Text_Json_JsonElement_
+  name: ReceiveBrowserLog
+  nameWithType: LogsController.ReceiveBrowserLog
+  fullName: NoorCanvas.Controllers.LogsController.ReceiveBrowserLog
+- uid: System.Text.Json.JsonElement
+  commentId: T:System.Text.Json.JsonElement
+  parent: System.Text.Json
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.text.json.jsonelement
+  name: JsonElement
+  nameWithType: JsonElement
+  fullName: System.Text.Json.JsonElement
+- uid: IActionResult
+  isExternal: true
+  name: IActionResult
+  nameWithType: IActionResult
+  fullName: IActionResult
+- uid: System.Text.Json
+  commentId: N:System.Text.Json
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System.Text.Json
+  nameWithType: System.Text.Json
+  fullName: System.Text.Json
+  spec.csharp:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Text
+    name: Text
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.text
+  - name: .
+  - uid: System.Text.Json
+    name: Json
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.text.json
+  spec.vb:
+  - uid: System
+    name: System
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system
+  - name: .
+  - uid: System.Text
+    name: Text
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.text
+  - name: .
+  - uid: System.Text.Json
+    name: Json
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.text.json

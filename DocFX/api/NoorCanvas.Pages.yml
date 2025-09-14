@@ -1,0 +1,21 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Pages
+  commentId: N:NoorCanvas.Pages
+  id: NoorCanvas.Pages
+  children:
+  - NoorCanvas.Pages.ErrorModel
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Pages
+  nameWithType: NoorCanvas.Pages
+  fullName: NoorCanvas.Pages
+  type: Namespace
+references:
+- uid: NoorCanvas.Pages.ErrorModel
+  commentId: T:NoorCanvas.Pages.ErrorModel
+  href: NoorCanvas.Pages.ErrorModel.html
+  name: ErrorModel
+  nameWithType: ErrorModel
+  fullName: NoorCanvas.Pages.ErrorModel

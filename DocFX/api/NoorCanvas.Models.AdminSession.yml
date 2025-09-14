@@ -1,0 +1,773 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models.AdminSession
+  commentId: T:NoorCanvas.Models.AdminSession
+  id: AdminSession
+  parent: NoorCanvas.Models
+  children:
+  - NoorCanvas.Models.AdminSession.AdminGuid
+  - NoorCanvas.Models.AdminSession.AdminSessionId
+  - NoorCanvas.Models.AdminSession.CreatedAt
+  - NoorCanvas.Models.AdminSession.ExpiresAt
+  - NoorCanvas.Models.AdminSession.IpAddress
+  - NoorCanvas.Models.AdminSession.IsActive
+  - NoorCanvas.Models.AdminSession.LastUsedAt
+  - NoorCanvas.Models.AdminSession.SessionToken
+  - NoorCanvas.Models.AdminSession.UserAgent
+  langs:
+  - csharp
+  - vb
+  name: AdminSession
+  nameWithType: AdminSession
+  fullName: NoorCanvas.Models.AdminSession
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AdminSession
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 5
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Table("AdminSessions", Schema = "canvas")]
+
+      public class AdminSession
+    content.vb: >-
+      <Table("AdminSessions", Schema:="canvas")>
+
+      Public Class AdminSession
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.TableAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.TableAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: AdminSessions
+    namedArguments:
+    - name: Schema
+      type: System.String
+      value: canvas
+- uid: NoorCanvas.Models.AdminSession.AdminSessionId
+  commentId: P:NoorCanvas.Models.AdminSession.AdminSessionId
+  id: AdminSessionId
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: AdminSessionId
+  nameWithType: AdminSession.AdminSessionId
+  fullName: NoorCanvas.Models.AdminSession.AdminSessionId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AdminSessionId
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 8
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Key]
+
+      public long AdminSessionId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: >-
+      <Key>
+
+      Public Property AdminSessionId As Long
+  overload: NoorCanvas.Models.AdminSession.AdminSessionId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.KeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.KeyAttribute.#ctor
+    arguments: []
+- uid: NoorCanvas.Models.AdminSession.AdminGuid
+  commentId: P:NoorCanvas.Models.AdminSession.AdminGuid
+  id: AdminGuid
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: AdminGuid
+  nameWithType: AdminSession.AdminGuid
+  fullName: NoorCanvas.Models.AdminSession.AdminGuid
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AdminGuid
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 11
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Required]
+
+      [StringLength(100)]
+
+      public string AdminGuid { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Required>
+
+      <StringLength(100)>
+
+      Public Property AdminGuid As String
+  overload: NoorCanvas.Models.AdminSession.AdminGuid*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+  - type: System.ComponentModel.DataAnnotations.StringLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.StringLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 100
+- uid: NoorCanvas.Models.AdminSession.SessionToken
+  commentId: P:NoorCanvas.Models.AdminSession.SessionToken
+  id: SessionToken
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: SessionToken
+  nameWithType: AdminSession.SessionToken
+  fullName: NoorCanvas.Models.AdminSession.SessionToken
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionToken
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 15
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Required]
+
+      [StringLength(128)]
+
+      public string SessionToken { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Required>
+
+      <StringLength(128)>
+
+      Public Property SessionToken As String
+  overload: NoorCanvas.Models.AdminSession.SessionToken*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+  - type: System.ComponentModel.DataAnnotations.StringLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.StringLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 128
+- uid: NoorCanvas.Models.AdminSession.CreatedAt
+  commentId: P:NoorCanvas.Models.AdminSession.CreatedAt
+  id: CreatedAt
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: CreatedAt
+  nameWithType: AdminSession.CreatedAt
+  fullName: NoorCanvas.Models.AdminSession.CreatedAt
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreatedAt
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 19
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public DateTime CreatedAt { get; set; }
+    parameters: []
+    return:
+      type: DateTime
+    content.vb: Public Property CreatedAt As DateTime
+  overload: NoorCanvas.Models.AdminSession.CreatedAt*
+- uid: NoorCanvas.Models.AdminSession.ExpiresAt
+  commentId: P:NoorCanvas.Models.AdminSession.ExpiresAt
+  id: ExpiresAt
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: ExpiresAt
+  nameWithType: AdminSession.ExpiresAt
+  fullName: NoorCanvas.Models.AdminSession.ExpiresAt
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: ExpiresAt
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 21
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public DateTime ExpiresAt { get; set; }
+    parameters: []
+    return:
+      type: DateTime
+    content.vb: Public Property ExpiresAt As DateTime
+  overload: NoorCanvas.Models.AdminSession.ExpiresAt*
+- uid: NoorCanvas.Models.AdminSession.LastUsedAt
+  commentId: P:NoorCanvas.Models.AdminSession.LastUsedAt
+  id: LastUsedAt
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: LastUsedAt
+  nameWithType: AdminSession.LastUsedAt
+  fullName: NoorCanvas.Models.AdminSession.LastUsedAt
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: LastUsedAt
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 23
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public DateTime? LastUsedAt { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{DateTime}
+    content.vb: Public Property LastUsedAt As DateTime?
+  overload: NoorCanvas.Models.AdminSession.LastUsedAt*
+- uid: NoorCanvas.Models.AdminSession.IsActive
+  commentId: P:NoorCanvas.Models.AdminSession.IsActive
+  id: IsActive
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: IsActive
+  nameWithType: AdminSession.IsActive
+  fullName: NoorCanvas.Models.AdminSession.IsActive
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: IsActive
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 25
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public bool IsActive { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property IsActive As Boolean
+  overload: NoorCanvas.Models.AdminSession.IsActive*
+- uid: NoorCanvas.Models.AdminSession.UserAgent
+  commentId: P:NoorCanvas.Models.AdminSession.UserAgent
+  id: UserAgent
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: UserAgent
+  nameWithType: AdminSession.UserAgent
+  fullName: NoorCanvas.Models.AdminSession.UserAgent
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: UserAgent
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 27
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [StringLength(255)]
+
+      public string? UserAgent { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <StringLength(255)>
+
+      Public Property UserAgent As String
+  overload: NoorCanvas.Models.AdminSession.UserAgent*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.StringLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.StringLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 255
+- uid: NoorCanvas.Models.AdminSession.IpAddress
+  commentId: P:NoorCanvas.Models.AdminSession.IpAddress
+  id: IpAddress
+  parent: NoorCanvas.Models.AdminSession
+  langs:
+  - csharp
+  - vb
+  name: IpAddress
+  nameWithType: AdminSession.IpAddress
+  fullName: NoorCanvas.Models.AdminSession.IpAddress
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AdminSession.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: IpAddress
+    path: ../SPA/NoorCanvas/Models/AdminSession.cs
+    startLine: 30
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [StringLength(45)]
+
+      public string? IpAddress { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <StringLength(45)>
+
+      Public Property IpAddress As String
+  overload: NoorCanvas.Models.AdminSession.IpAddress*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.StringLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.StringLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 45
+references:
+- uid: NoorCanvas.Models
+  commentId: N:NoorCanvas.Models
+  href: NoorCanvas.html
+  name: NoorCanvas.Models
+  nameWithType: NoorCanvas.Models
+  fullName: NoorCanvas.Models
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Models.AdminSession.AdminSessionId*
+  commentId: Overload:NoorCanvas.Models.AdminSession.AdminSessionId
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_AdminSessionId
+  name: AdminSessionId
+  nameWithType: AdminSession.AdminSessionId
+  fullName: NoorCanvas.Models.AdminSession.AdminSessionId
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Models.AdminSession.AdminGuid*
+  commentId: Overload:NoorCanvas.Models.AdminSession.AdminGuid
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_AdminGuid
+  name: AdminGuid
+  nameWithType: AdminSession.AdminGuid
+  fullName: NoorCanvas.Models.AdminSession.AdminGuid
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Models.AdminSession.SessionToken*
+  commentId: Overload:NoorCanvas.Models.AdminSession.SessionToken
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_SessionToken
+  name: SessionToken
+  nameWithType: AdminSession.SessionToken
+  fullName: NoorCanvas.Models.AdminSession.SessionToken
+- uid: NoorCanvas.Models.AdminSession.CreatedAt*
+  commentId: Overload:NoorCanvas.Models.AdminSession.CreatedAt
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_CreatedAt
+  name: CreatedAt
+  nameWithType: AdminSession.CreatedAt
+  fullName: NoorCanvas.Models.AdminSession.CreatedAt
+- uid: DateTime
+  isExternal: true
+  name: DateTime
+  nameWithType: DateTime
+  fullName: DateTime
+- uid: NoorCanvas.Models.AdminSession.ExpiresAt*
+  commentId: Overload:NoorCanvas.Models.AdminSession.ExpiresAt
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_ExpiresAt
+  name: ExpiresAt
+  nameWithType: AdminSession.ExpiresAt
+  fullName: NoorCanvas.Models.AdminSession.ExpiresAt
+- uid: NoorCanvas.Models.AdminSession.LastUsedAt*
+  commentId: Overload:NoorCanvas.Models.AdminSession.LastUsedAt
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_LastUsedAt
+  name: LastUsedAt
+  nameWithType: AdminSession.LastUsedAt
+  fullName: NoorCanvas.Models.AdminSession.LastUsedAt
+- uid: System.Nullable{DateTime}
+  commentId: T:System.Nullable{DateTime}
+  parent: System
+  definition: System.Nullable`1
+  name: DateTime?
+  nameWithType: DateTime?
+  fullName: DateTime?
+  spec.csharp:
+  - uid: DateTime
+    name: DateTime
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: DateTime
+    name: DateTime
+    isExternal: true
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: NoorCanvas.Models.AdminSession.IsActive*
+  commentId: Overload:NoorCanvas.Models.AdminSession.IsActive
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_IsActive
+  name: IsActive
+  nameWithType: AdminSession.IsActive
+  fullName: NoorCanvas.Models.AdminSession.IsActive
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.boolean
+  name: bool
+  nameWithType: bool
+  fullName: bool
+  nameWithType.vb: Boolean
+  fullName.vb: Boolean
+  name.vb: Boolean
+- uid: NoorCanvas.Models.AdminSession.UserAgent*
+  commentId: Overload:NoorCanvas.Models.AdminSession.UserAgent
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_UserAgent
+  name: UserAgent
+  nameWithType: AdminSession.UserAgent
+  fullName: NoorCanvas.Models.AdminSession.UserAgent
+- uid: NoorCanvas.Models.AdminSession.IpAddress*
+  commentId: Overload:NoorCanvas.Models.AdminSession.IpAddress
+  href: NoorCanvas.Models.AdminSession.html#NoorCanvas_Models_AdminSession_IpAddress
+  name: IpAddress
+  nameWithType: AdminSession.IpAddress
+  fullName: NoorCanvas.Models.AdminSession.IpAddress

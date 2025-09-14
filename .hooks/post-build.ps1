@@ -13,6 +13,9 @@ $TestProject = "$WorkspaceRoot\Tests\NoorCanvas.Core.Tests"
 Write-Host ""
 Write-Host "▶ NOOR Canvas Post-Build Hook" -ForegroundColor Yellow
 
+# Announce available global commands for developer convenience
+Write-Host "NOOR Canvas global commands loaded: nc, nct, ncdoc, iiskill" -ForegroundColor Cyan
+
 if ($SkipTests) {
     Write-Host "⏭️ Tests skipped (SkipTests flag set)" -ForegroundColor Yellow
     exit 0

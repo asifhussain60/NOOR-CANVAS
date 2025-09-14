@@ -1,0 +1,608 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models.Annotation
+  commentId: T:NoorCanvas.Models.Annotation
+  id: Annotation
+  parent: NoorCanvas.Models
+  children:
+  - NoorCanvas.Models.Annotation.AnnotationData
+  - NoorCanvas.Models.Annotation.AnnotationId
+  - NoorCanvas.Models.Annotation.CreatedAt
+  - NoorCanvas.Models.Annotation.CreatedBy
+  - NoorCanvas.Models.Annotation.Session
+  - NoorCanvas.Models.Annotation.SessionId
+  langs:
+  - csharp
+  - vb
+  name: Annotation
+  nameWithType: Annotation
+  fullName: NoorCanvas.Models.Annotation
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Annotation
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 5
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Table("Annotations", Schema = "canvas")]
+
+      public class Annotation
+    content.vb: >-
+      <Table("Annotations", Schema:="canvas")>
+
+      Public Class Annotation
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.TableAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.TableAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: Annotations
+    namedArguments:
+    - name: Schema
+      type: System.String
+      value: canvas
+- uid: NoorCanvas.Models.Annotation.AnnotationId
+  commentId: P:NoorCanvas.Models.Annotation.AnnotationId
+  id: AnnotationId
+  parent: NoorCanvas.Models.Annotation
+  langs:
+  - csharp
+  - vb
+  name: AnnotationId
+  nameWithType: Annotation.AnnotationId
+  fullName: NoorCanvas.Models.Annotation.AnnotationId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AnnotationId
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 8
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Key]
+
+      public long AnnotationId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: >-
+      <Key>
+
+      Public Property AnnotationId As Long
+  overload: NoorCanvas.Models.Annotation.AnnotationId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.KeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.KeyAttribute.#ctor
+    arguments: []
+- uid: NoorCanvas.Models.Annotation.SessionId
+  commentId: P:NoorCanvas.Models.Annotation.SessionId
+  id: SessionId
+  parent: NoorCanvas.Models.Annotation
+  langs:
+  - csharp
+  - vb
+  name: SessionId
+  nameWithType: Annotation.SessionId
+  fullName: NoorCanvas.Models.Annotation.SessionId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionId
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 11
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Required]
+
+      public long SessionId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: >-
+      <Required>
+
+      Public Property SessionId As Long
+  overload: NoorCanvas.Models.Annotation.SessionId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.RequiredAttribute
+    ctor: System.ComponentModel.DataAnnotations.RequiredAttribute.#ctor
+    arguments: []
+- uid: NoorCanvas.Models.Annotation.CreatedAt
+  commentId: P:NoorCanvas.Models.Annotation.CreatedAt
+  id: CreatedAt
+  parent: NoorCanvas.Models.Annotation
+  langs:
+  - csharp
+  - vb
+  name: CreatedAt
+  nameWithType: Annotation.CreatedAt
+  fullName: NoorCanvas.Models.Annotation.CreatedAt
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreatedAt
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 14
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public DateTime CreatedAt { get; set; }
+    parameters: []
+    return:
+      type: DateTime
+    content.vb: Public Property CreatedAt As DateTime
+  overload: NoorCanvas.Models.Annotation.CreatedAt*
+- uid: NoorCanvas.Models.Annotation.AnnotationData
+  commentId: P:NoorCanvas.Models.Annotation.AnnotationData
+  id: AnnotationData
+  parent: NoorCanvas.Models.Annotation
+  langs:
+  - csharp
+  - vb
+  name: AnnotationData
+  nameWithType: Annotation.AnnotationData
+  fullName: NoorCanvas.Models.Annotation.AnnotationData
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AnnotationData
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 16
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Column(TypeName = "nvarchar(max)")]
+
+      public string? AnnotationData { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column(TypeName:="nvarchar(max)")>
+
+      Public Property AnnotationData As String
+  overload: NoorCanvas.Models.Annotation.AnnotationData*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor
+    arguments: []
+    namedArguments:
+    - name: TypeName
+      type: System.String
+      value: nvarchar(max)
+- uid: NoorCanvas.Models.Annotation.CreatedBy
+  commentId: P:NoorCanvas.Models.Annotation.CreatedBy
+  id: CreatedBy
+  parent: NoorCanvas.Models.Annotation
+  langs:
+  - csharp
+  - vb
+  name: CreatedBy
+  nameWithType: Annotation.CreatedBy
+  fullName: NoorCanvas.Models.Annotation.CreatedBy
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreatedBy
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 19
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(128)]
+
+      public string? CreatedBy { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(128)>
+
+      Public Property CreatedBy As String
+  overload: NoorCanvas.Models.Annotation.CreatedBy*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 128
+- uid: NoorCanvas.Models.Annotation.Session
+  commentId: P:NoorCanvas.Models.Annotation.Session
+  id: Session
+  parent: NoorCanvas.Models.Annotation
+  langs:
+  - csharp
+  - vb
+  name: Session
+  nameWithType: Annotation.Session
+  fullName: NoorCanvas.Models.Annotation.Session
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/Annotation.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Session
+    path: ../SPA/NoorCanvas/Models/Annotation.cs
+    startLine: 23
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [ForeignKey("SessionId")]
+
+      public virtual Session Session { get; set; }
+    parameters: []
+    return:
+      type: NoorCanvas.Models.Session
+    content.vb: >-
+      <ForeignKey("SessionId")>
+
+      Public Overridable Property Session As Session
+  overload: NoorCanvas.Models.Annotation.Session*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: SessionId
+references:
+- uid: NoorCanvas.Models
+  commentId: N:NoorCanvas.Models
+  href: NoorCanvas.html
+  name: NoorCanvas.Models
+  nameWithType: NoorCanvas.Models
+  fullName: NoorCanvas.Models
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Models.Annotation.AnnotationId*
+  commentId: Overload:NoorCanvas.Models.Annotation.AnnotationId
+  href: NoorCanvas.Models.Annotation.html#NoorCanvas_Models_Annotation_AnnotationId
+  name: AnnotationId
+  nameWithType: Annotation.AnnotationId
+  fullName: NoorCanvas.Models.Annotation.AnnotationId
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Models.Annotation.SessionId*
+  commentId: Overload:NoorCanvas.Models.Annotation.SessionId
+  href: NoorCanvas.Models.Annotation.html#NoorCanvas_Models_Annotation_SessionId
+  name: SessionId
+  nameWithType: Annotation.SessionId
+  fullName: NoorCanvas.Models.Annotation.SessionId
+- uid: NoorCanvas.Models.Annotation.CreatedAt*
+  commentId: Overload:NoorCanvas.Models.Annotation.CreatedAt
+  href: NoorCanvas.Models.Annotation.html#NoorCanvas_Models_Annotation_CreatedAt
+  name: CreatedAt
+  nameWithType: Annotation.CreatedAt
+  fullName: NoorCanvas.Models.Annotation.CreatedAt
+- uid: DateTime
+  isExternal: true
+  name: DateTime
+  nameWithType: DateTime
+  fullName: DateTime
+- uid: NoorCanvas.Models.Annotation.AnnotationData*
+  commentId: Overload:NoorCanvas.Models.Annotation.AnnotationData
+  href: NoorCanvas.Models.Annotation.html#NoorCanvas_Models_Annotation_AnnotationData
+  name: AnnotationData
+  nameWithType: Annotation.AnnotationData
+  fullName: NoorCanvas.Models.Annotation.AnnotationData
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Models.Annotation.CreatedBy*
+  commentId: Overload:NoorCanvas.Models.Annotation.CreatedBy
+  href: NoorCanvas.Models.Annotation.html#NoorCanvas_Models_Annotation_CreatedBy
+  name: CreatedBy
+  nameWithType: Annotation.CreatedBy
+  fullName: NoorCanvas.Models.Annotation.CreatedBy
+- uid: NoorCanvas.Models.Annotation.Session*
+  commentId: Overload:NoorCanvas.Models.Annotation.Session
+  href: NoorCanvas.Models.Annotation.html#NoorCanvas_Models_Annotation_Session
+  name: Session
+  nameWithType: Annotation.Session
+  fullName: NoorCanvas.Models.Annotation.Session
+- uid: NoorCanvas.Models.Session
+  commentId: T:NoorCanvas.Models.Session
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.Session.html
+  name: Session
+  nameWithType: Session
+  fullName: NoorCanvas.Models.Session

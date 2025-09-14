@@ -1,0 +1,12 @@
+- name: Getting Started
+  href: getting-started.md
+- name: Build Processes
+  href: build-processes.md
+- name: Testing Procedures
+  href: testing-procedures.md
+- name: Implementation Phases
+  href: implementation-phases.md
+- name: Authentication Guide
+  href: authentication-guide.md
+- name: DocFX Implementation Summary
+  href: docfx-implementation-summary.md

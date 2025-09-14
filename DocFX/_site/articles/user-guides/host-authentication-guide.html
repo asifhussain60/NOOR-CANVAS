@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Host Authentication Guide | NOOR CANVAS Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Host Authentication Guide | NOOR CANVAS Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="NOOR CANVAS">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="host-authentication-guide">Host Authentication Guide</h1>
+
+<p>Complete guide for NOOR Canvas session hosts on authentication and session management.</p>
+<h2 id="overview-for-hosts">Overview for Hosts</h2>
+<p>As a NOOR Canvas session host, you'll facilitate Islamic content sharing sessions with participants worldwide. This guide covers authentication, session creation, and participant management.</p>
+<h2 id="authentication-system">Authentication System</h2>
+<h3 id="host-token-system">Host Token System</h3>
+<p>NOOR Canvas uses a simple token-based system designed for Islamic content sessions:</p>
+<p><strong>Host Token</strong>: A special GUID that authorizes you to create and manage sessions
+<strong>Session GUID</strong>: Unique identifier for each session you create
+<strong>No Passwords</strong>: System designed for ease of use in Islamic learning contexts</p>
+<h3 id="getting-your-host-token">Getting Your Host Token</h3>
+<h4 id="for-development-environment">For Development Environment</h4>
+<ol>
+<li><strong>Open PowerShell or Terminal</strong></li>
+<li><strong>Generate Token</strong>:
+<pre><code class="lang-powershell">nct  # This generates your host token
+</code></pre>
+</li>
+<li><strong>Start Application</strong>:
+<pre><code class="lang-powershell">nc   # This starts the server with your token
+</code></pre>
+</li>
+</ol>
+<h4 id="for-production-environment">For Production Environment</h4>
+<p>Host tokens will be provided by your Islamic content administrator.</p>
+<h2 id="creating-sessions">Creating Sessions</h2>
+<h3 id="step-by-step-session-creation">Step-by-Step Session Creation</h3>
+<h4 id="1-start-the-application">1. Start the Application</h4>
+<pre><code class="lang-powershell">nc  # Automatically includes token generation
+</code></pre>
+<h4 id="2-navigate-to-host-interface">2. Navigate to Host Interface</h4>
+<ul>
+<li>Open your browser to: https://localhost:9091 (development)</li>
+<li>Click &quot;Host Session&quot; or navigate to host dashboard</li>
+</ul>
+<h4 id="3-select-content">3. Select Content</h4>
+<p>Choose your Islamic content:</p>
+<ul>
+<li><strong>Album</strong>: Select from available Islamic content collections</li>
+<li><strong>Category</strong>: Choose specific category within album</li>
+<li><strong>Session</strong>: Select individual session or lesson</li>
+</ul>
+<h4 id="4-session-configuration">4. Session Configuration</h4>
+<ul>
+<li><strong>Session Name</strong>: Descriptive name for participants</li>
+<li><strong>Duration</strong>: Expected session length</li>
+<li><strong>Participant Limit</strong>: Maximum number of participants (default: 50)</li>
+<li><strong>Privacy Settings</strong>: Public or private session</li>
+</ul>
+<h4 id="5-session-creation">5. Session Creation</h4>
+<ul>
+<li>Click &quot;Create Session&quot;</li>
+<li>System generates unique Session GUID</li>
+<li>Share this GUID with your participants</li>
+</ul>
+<h3 id="session-information-for-participants">Session Information for Participants</h3>
+<p>Once created, provide participants with:</p>
+<pre><code>Session GUID: [Generated GUID like: 123e4567-e89b-12d3-a456-426614174000]
+Session URL: https://yourserver.com/participate
+Session Name: [Your session name]
+</code></pre>
+<h2 id="managing-active-sessions">Managing Active Sessions</h2>
+<h3 id="host-dashboard-features">Host Dashboard Features</h3>
+<ul>
+<li><strong>Participant List</strong>: See who has joined your session</li>
+<li><strong>Real-time Annotations</strong>: View participant annotations and comments</li>
+<li><strong>Q&amp;A Management</strong>: Receive and respond to participant questions</li>
+<li><strong>Content Control</strong>: Navigate through Islamic content during session</li>
+</ul>
+<h3 id="during-sessions">During Sessions</h3>
+<ul>
+<li><strong>Monitor Participation</strong>: Keep track of active participants</li>
+<li><strong>Moderate Content</strong>: Ensure appropriate Islamic discussion</li>
+<li><strong>Guide Learning</strong>: Use annotation tools to highlight key points</li>
+<li><strong>Answer Questions</strong>: Respond to participant inquiries in real-time</li>
+</ul>
+<h3 id="ending-sessions">Ending Sessions</h3>
+<ul>
+<li><strong>Graceful Closure</strong>: Announce session ending to participants</li>
+<li><strong>Save Annotations</strong>: Export session annotations if needed</li>
+<li><strong>Session Summary</strong>: Review participation and engagement metrics</li>
+</ul>
+<h2 id="troubleshooting-authentication">Troubleshooting Authentication</h2>
+<h3 id="common-host-issues">Common Host Issues</h3>
+<h4 id="invalid-host-token">&quot;Invalid Host Token&quot;</h4>
+<p><strong>Problem</strong>: Token rejected or expired
+<strong>Solutions</strong>:</p>
+<pre><code class="lang-powershell"># Generate new token
+nct
+
+# Restart application with new token  
+nc
+</code></pre>
+<h4 id="cannot-create-session">&quot;Cannot Create Session&quot;</h4>
+<p><strong>Problem</strong>: Session creation fails
+<strong>Solutions</strong>:</p>
+<ol>
+<li>Verify host token is valid</li>
+<li>Check internet connection</li>
+<li>Ensure development server is running</li>
+<li>Try refreshing the page</li>
+</ol>
+<h4 id="participants-cannot-join">&quot;Participants Cannot Join&quot;</h4>
+<p><strong>Problem</strong>: Session GUID issues
+<strong>Solutions</strong>:</p>
+<ol>
+<li>Double-check GUID provided to participants</li>
+<li>Verify session is still active</li>
+<li>Check participant limit not exceeded</li>
+<li>Ensure session hasn't expired</li>
+</ol>
+<h3 id="getting-support">Getting Support</h3>
+<h4 id="development-environment">Development Environment</h4>
+<pre><code class="lang-powershell"># Check application status
+nc -Help
+
+# Verify server is running
+# Navigate to: https://localhost:9091/healthz
+
+# Generate fresh token
+nct
+</code></pre>
+<h4 id="for-technical-issues">For Technical Issues</h4>
+<ol>
+<li>Check the terminal/console for error messages</li>
+<li>Verify development server is running on port 9091</li>
+<li>Use <code>iiskill</code> to stop stuck processes and retry</li>
+<li>Consult technical documentation for advanced issues</li>
+</ol>
+<h2 id="best-practices-for-islamic-content-hosts">Best Practices for Islamic Content Hosts</h2>
+<h3 id="session-preparation">Session Preparation</h3>
+<ul>
+<li><strong>Content Selection</strong>: Choose appropriate Islamic materials for your audience</li>
+<li><strong>Technical Setup</strong>: Test token and session creation before participants join</li>
+<li><strong>Participant Communication</strong>: Clearly communicate session GUID and join instructions</li>
+<li><strong>Islamic Etiquette</strong>: Prepare to maintain respectful Islamic learning environment</li>
+</ul>
+<h3 id="during-sessions-1">During Sessions</h3>
+<ul>
+<li><strong>Respectful Moderation</strong>: Ensure discussions maintain Islamic values and respect</li>
+<li><strong>Inclusive Participation</strong>: Encourage questions and annotations from all participants</li>
+<li><strong>Content Focus</strong>: Keep discussions focused on Islamic learning objectives</li>
+<li><strong>Technical Assistance</strong>: Help participants with technical difficulties</li>
+</ul>
+<h3 id="after-sessions">After Sessions</h3>
+<ul>
+<li><strong>Session Closure</strong>: Properly end sessions and thank participants</li>
+<li><strong>Content Preservation</strong>: Save valuable annotations and discussions if appropriate</li>
+<li><strong>Feedback Collection</strong>: Gather feedback for improving future sessions</li>
+<li><strong>Follow-up</strong>: Provide additional resources or schedule follow-up sessions</li>
+</ul>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="protecting-islamic-content">Protecting Islamic Content</h3>
+<ul>
+<li><strong>Session Privacy</strong>: Use private sessions for sensitive Islamic discussions</li>
+<li><strong>Participant Verification</strong>: Monitor participant list for unauthorized access</li>
+<li><strong>Content Respect</strong>: Ensure Islamic content is treated with appropriate reverence</li>
+<li><strong>Access Control</strong>: End sessions immediately if inappropriate behavior occurs</li>
+</ul>
+<h3 id="technical-security">Technical Security</h3>
+<ul>
+<li><strong>Token Protection</strong>: Keep host tokens confidential and secure</li>
+<li><strong>Session Isolation</strong>: Each session is isolated from others</li>
+<li><strong>Secure Communications</strong>: All communications use HTTPS encryption</li>
+<li><strong>Regular Token Rotation</strong>: Generate new tokens regularly for enhanced security</li>
+</ul>
+<h2 id="advanced-features">Advanced Features</h2>
+<h3 id="multi-session-management">Multi-Session Management</h3>
+<ul>
+<li><strong>Concurrent Sessions</strong>: Host multiple sessions simultaneously (if system allows)</li>
+<li><strong>Session Scheduling</strong>: Plan and schedule future Islamic learning sessions</li>
+<li><strong>Participant Groups</strong>: Manage different groups with separate sessions</li>
+<li><strong>Content Libraries</strong>: Organize Islamic content for easy session creation</li>
+</ul>
+<h3 id="integration-with-islamic-content">Integration with Islamic Content</h3>
+<ul>
+<li><strong>Beautiful Islam Integration</strong>: Access existing Islamic content libraries</li>
+<li><strong>Quranic References</strong>: Link to specific Quranic verses and commentary</li>
+<li><strong>Hadith Integration</strong>: Include relevant Hadith in session discussions</li>
+<li><strong>Islamic Calendar</strong>: Schedule sessions according to Islamic calendar events</li>
+</ul>
+<h2 id="frequently-asked-questions">Frequently Asked Questions</h2>
+<h3 id="q-how-long-do-host-tokens-last">Q: How long do host tokens last?</h3>
+<p><strong>A</strong>: Tokens are session-based and remain valid during your development session. Generate new tokens for each development session.</p>
+<h3 id="q-can-i-host-multiple-sessions-at-once">Q: Can I host multiple sessions at once?</h3>
+<p><strong>A</strong>: Yes, you can create and manage multiple sessions simultaneously with the same host token.</p>
+<h3 id="q-what-happens-if-i-lose-my-session-guid">Q: What happens if I lose my Session GUID?</h3>
+<p><strong>A</strong>: Check your host dashboard for active sessions and their GUIDs. If needed, create a new session.</p>
+<h3 id="q-how-many-participants-can-join-my-session">Q: How many participants can join my session?</h3>
+<p><strong>A</strong>: Default limit is 50 participants, configurable based on your system capacity and requirements.</p>
+<h3 id="q-can-participants-join-after-the-session-has-started">Q: Can participants join after the session has started?</h3>
+<p><strong>A</strong>: Yes, participants can join ongoing sessions using the Session GUID.</p>
+<h3 id="q-how-do-i-handle-inappropriate-participant-behavior">Q: How do I handle inappropriate participant behavior?</h3>
+<p><strong>A</strong>: You can remove participants from the session through the host dashboard and end the session if necessary.</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><a href="../development/authentication-guide.html">Authentication Guide</a> - Technical authentication details</li>
+<li><a href="getting-started-guide.html">Getting Started Guide</a> - Initial setup and configuration</li>
+<li><a href="ssl-configuration-user-guide.html">SSL Configuration</a> - HTTPS setup for secure sessions</li>
+<li><a href="troubleshooting-common-issues.html">Troubleshooting Guide</a> - Common issues and solutions</li>
+</ul>
+<p><em>This host authentication guide is updated automatically as authentication features are enhanced.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/user-guides/host-authentication-guide.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      NOOR CANVAS Islamic Content Sharing Platform
+      
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,734 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Controllers.HostController
+  commentId: T:NoorCanvas.Controllers.HostController
+  id: HostController
+  parent: NoorCanvas.Controllers
+  children:
+  - NoorCanvas.Controllers.HostController.#ctor(NoorCanvas.Data.CanvasDbContext,NoorCanvas.Data.KSessionsDbContext,ILogger{NoorCanvas.Controllers.HostController})
+  - NoorCanvas.Controllers.HostController.AuthenticateHost(NoorCanvas.Controllers.HostAuthRequest)
+  - NoorCanvas.Controllers.HostController.BeginSession(System.Int32,System.String)
+  - NoorCanvas.Controllers.HostController.CreateSession(NoorCanvas.Controllers.CreateSessionRequest)
+  - NoorCanvas.Controllers.HostController.EndSession(System.Int64)
+  - NoorCanvas.Controllers.HostController.GenerateSessionToken(System.Int32,System.String)
+  - NoorCanvas.Controllers.HostController.GetAlbums(System.String)
+  - NoorCanvas.Controllers.HostController.GetCategories(System.Int32,System.String)
+  - NoorCanvas.Controllers.HostController.GetDashboardData(System.String)
+  - NoorCanvas.Controllers.HostController.GetSessionStatus(System.String)
+  - NoorCanvas.Controllers.HostController.GetSessions(System.Int32,System.String)
+  - NoorCanvas.Controllers.HostController.StartSession(System.Int64)
+  langs:
+  - csharp
+  - vb
+  name: HostController
+  nameWithType: HostController
+  fullName: NoorCanvas.Controllers.HostController
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: HostController
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 8
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: 'public class HostController : ControllerBase'
+    content.vb: Public Class HostController Inherits ControllerBase
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Controllers.HostController.#ctor(NoorCanvas.Data.CanvasDbContext,NoorCanvas.Data.KSessionsDbContext,ILogger{NoorCanvas.Controllers.HostController})
+  commentId: M:NoorCanvas.Controllers.HostController.#ctor(NoorCanvas.Data.CanvasDbContext,NoorCanvas.Data.KSessionsDbContext,ILogger{NoorCanvas.Controllers.HostController})
+  id: '#ctor(NoorCanvas.Data.CanvasDbContext,NoorCanvas.Data.KSessionsDbContext,ILogger{NoorCanvas.Controllers.HostController})'
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: HostController(CanvasDbContext, KSessionsDbContext, ILogger<HostController>)
+  nameWithType: HostController.HostController(CanvasDbContext, KSessionsDbContext, ILogger<HostController>)
+  fullName: NoorCanvas.Controllers.HostController.HostController(NoorCanvas.Data.CanvasDbContext, NoorCanvas.Data.KSessionsDbContext, ILogger<NoorCanvas.Controllers.HostController>)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 16
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger)
+    parameters:
+    - id: context
+      type: NoorCanvas.Data.CanvasDbContext
+    - id: kSessionsContext
+      type: NoorCanvas.Data.KSessionsDbContext
+    - id: logger
+      type: ILogger{NoorCanvas.Controllers.HostController}
+    content.vb: Public Sub New(context As CanvasDbContext, kSessionsContext As KSessionsDbContext, logger As ILogger(Of HostController))
+  overload: NoorCanvas.Controllers.HostController.#ctor*
+  nameWithType.vb: HostController.New(CanvasDbContext, KSessionsDbContext, ILogger(Of HostController))
+  fullName.vb: NoorCanvas.Controllers.HostController.New(NoorCanvas.Data.CanvasDbContext, NoorCanvas.Data.KSessionsDbContext, ILogger(Of NoorCanvas.Controllers.HostController))
+  name.vb: New(CanvasDbContext, KSessionsDbContext, ILogger(Of HostController))
+- uid: NoorCanvas.Controllers.HostController.AuthenticateHost(NoorCanvas.Controllers.HostAuthRequest)
+  commentId: M:NoorCanvas.Controllers.HostController.AuthenticateHost(NoorCanvas.Controllers.HostAuthRequest)
+  id: AuthenticateHost(NoorCanvas.Controllers.HostAuthRequest)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: AuthenticateHost(HostAuthRequest)
+  nameWithType: HostController.AuthenticateHost(HostAuthRequest)
+  fullName: NoorCanvas.Controllers.HostController.AuthenticateHost(NoorCanvas.Controllers.HostAuthRequest)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AuthenticateHost
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 23
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> AuthenticateHost(HostAuthRequest request)
+    parameters:
+    - id: request
+      type: NoorCanvas.Controllers.HostAuthRequest
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function AuthenticateHost(request As HostAuthRequest) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.AuthenticateHost*
+- uid: NoorCanvas.Controllers.HostController.GetDashboardData(System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.GetDashboardData(System.String)
+  id: GetDashboardData(System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: GetDashboardData(string?)
+  nameWithType: HostController.GetDashboardData(string?)
+  fullName: NoorCanvas.Controllers.HostController.GetDashboardData(string?)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetDashboardData
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 90
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GetDashboardData(string? sessionToken = null)
+    parameters:
+    - id: sessionToken
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GetDashboardData(sessionToken As String = Nothing) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.GetDashboardData*
+  nameWithType.vb: HostController.GetDashboardData(String)
+  fullName.vb: NoorCanvas.Controllers.HostController.GetDashboardData(String)
+  name.vb: GetDashboardData(String)
+- uid: NoorCanvas.Controllers.HostController.CreateSession(NoorCanvas.Controllers.CreateSessionRequest)
+  commentId: M:NoorCanvas.Controllers.HostController.CreateSession(NoorCanvas.Controllers.CreateSessionRequest)
+  id: CreateSession(NoorCanvas.Controllers.CreateSessionRequest)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: CreateSession(CreateSessionRequest)
+  nameWithType: HostController.CreateSession(CreateSessionRequest)
+  fullName: NoorCanvas.Controllers.HostController.CreateSession(NoorCanvas.Controllers.CreateSessionRequest)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CreateSession
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 159
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> CreateSession(CreateSessionRequest request)
+    parameters:
+    - id: request
+      type: NoorCanvas.Controllers.CreateSessionRequest
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function CreateSession(request As CreateSessionRequest) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.CreateSession*
+- uid: NoorCanvas.Controllers.HostController.StartSession(System.Int64)
+  commentId: M:NoorCanvas.Controllers.HostController.StartSession(System.Int64)
+  id: StartSession(System.Int64)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: StartSession(long)
+  nameWithType: HostController.StartSession(long)
+  fullName: NoorCanvas.Controllers.HostController.StartSession(long)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: StartSession
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 205
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> StartSession(long sessionId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function StartSession(sessionId As Long) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.StartSession*
+  nameWithType.vb: HostController.StartSession(Long)
+  fullName.vb: NoorCanvas.Controllers.HostController.StartSession(Long)
+  name.vb: StartSession(Long)
+- uid: NoorCanvas.Controllers.HostController.EndSession(System.Int64)
+  commentId: M:NoorCanvas.Controllers.HostController.EndSession(System.Int64)
+  id: EndSession(System.Int64)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: EndSession(long)
+  nameWithType: HostController.EndSession(long)
+  fullName: NoorCanvas.Controllers.HostController.EndSession(long)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: EndSession
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 231
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> EndSession(long sessionId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function EndSession(sessionId As Long) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.EndSession*
+  nameWithType.vb: HostController.EndSession(Long)
+  fullName.vb: NoorCanvas.Controllers.HostController.EndSession(Long)
+  name.vb: EndSession(Long)
+- uid: NoorCanvas.Controllers.HostController.GetAlbums(System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.GetAlbums(System.String)
+  id: GetAlbums(System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: GetAlbums(string)
+  nameWithType: HostController.GetAlbums(string)
+  fullName: NoorCanvas.Controllers.HostController.GetAlbums(string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetAlbums
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 259
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GetAlbums(string guid)
+    parameters:
+    - id: guid
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GetAlbums(guid As String) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.GetAlbums*
+  nameWithType.vb: HostController.GetAlbums(String)
+  fullName.vb: NoorCanvas.Controllers.HostController.GetAlbums(String)
+  name.vb: GetAlbums(String)
+- uid: NoorCanvas.Controllers.HostController.GetCategories(System.Int32,System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.GetCategories(System.Int32,System.String)
+  id: GetCategories(System.Int32,System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: GetCategories(int, string)
+  nameWithType: HostController.GetCategories(int, string)
+  fullName: NoorCanvas.Controllers.HostController.GetCategories(int, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetCategories
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 292
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GetCategories(int albumId, string guid)
+    parameters:
+    - id: albumId
+      type: System.Int32
+    - id: guid
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GetCategories(albumId As Integer, guid As String) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.GetCategories*
+  nameWithType.vb: HostController.GetCategories(Integer, String)
+  fullName.vb: NoorCanvas.Controllers.HostController.GetCategories(Integer, String)
+  name.vb: GetCategories(Integer, String)
+- uid: NoorCanvas.Controllers.HostController.GetSessions(System.Int32,System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.GetSessions(System.Int32,System.String)
+  id: GetSessions(System.Int32,System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: GetSessions(int, string)
+  nameWithType: HostController.GetSessions(int, string)
+  fullName: NoorCanvas.Controllers.HostController.GetSessions(int, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetSessions
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 325
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GetSessions(int categoryId, string guid)
+    parameters:
+    - id: categoryId
+      type: System.Int32
+    - id: guid
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GetSessions(categoryId As Integer, guid As String) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.GetSessions*
+  nameWithType.vb: HostController.GetSessions(Integer, String)
+  fullName.vb: NoorCanvas.Controllers.HostController.GetSessions(Integer, String)
+  name.vb: GetSessions(Integer, String)
+- uid: NoorCanvas.Controllers.HostController.GenerateSessionToken(System.Int32,System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.GenerateSessionToken(System.Int32,System.String)
+  id: GenerateSessionToken(System.Int32,System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: GenerateSessionToken(int, string)
+  nameWithType: HostController.GenerateSessionToken(int, string)
+  fullName: NoorCanvas.Controllers.HostController.GenerateSessionToken(int, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GenerateSessionToken
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 358
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GenerateSessionToken(int sessionId, string guid)
+    parameters:
+    - id: sessionId
+      type: System.Int32
+    - id: guid
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GenerateSessionToken(sessionId As Integer, guid As String) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.GenerateSessionToken*
+  nameWithType.vb: HostController.GenerateSessionToken(Integer, String)
+  fullName.vb: NoorCanvas.Controllers.HostController.GenerateSessionToken(Integer, String)
+  name.vb: GenerateSessionToken(Integer, String)
+- uid: NoorCanvas.Controllers.HostController.BeginSession(System.Int32,System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.BeginSession(System.Int32,System.String)
+  id: BeginSession(System.Int32,System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: BeginSession(int, string)
+  nameWithType: HostController.BeginSession(int, string)
+  fullName: NoorCanvas.Controllers.HostController.BeginSession(int, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BeginSession
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 391
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> BeginSession(int sessionId, string guid)
+    parameters:
+    - id: sessionId
+      type: System.Int32
+    - id: guid
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function BeginSession(sessionId As Integer, guid As String) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.BeginSession*
+  nameWithType.vb: HostController.BeginSession(Integer, String)
+  fullName.vb: NoorCanvas.Controllers.HostController.BeginSession(Integer, String)
+  name.vb: BeginSession(Integer, String)
+- uid: NoorCanvas.Controllers.HostController.GetSessionStatus(System.String)
+  commentId: M:NoorCanvas.Controllers.HostController.GetSessionStatus(System.String)
+  id: GetSessionStatus(System.String)
+  parent: NoorCanvas.Controllers.HostController
+  langs:
+  - csharp
+  - vb
+  name: GetSessionStatus(string)
+  nameWithType: HostController.GetSessionStatus(string)
+  fullName: NoorCanvas.Controllers.HostController.GetSessionStatus(string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/HostController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: GetSessionStatus
+    path: ../SPA/NoorCanvas/Controllers/HostController.cs
+    startLine: 421
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public Task<IActionResult> GetSessionStatus(string guid)
+    parameters:
+    - id: guid
+      type: System.String
+    return:
+      type: Task{IActionResult}
+    content.vb: Public Function GetSessionStatus(guid As String) As Task(Of IActionResult)
+  overload: NoorCanvas.Controllers.HostController.GetSessionStatus*
+  nameWithType.vb: HostController.GetSessionStatus(String)
+  fullName.vb: NoorCanvas.Controllers.HostController.GetSessionStatus(String)
+  name.vb: GetSessionStatus(String)
+references:
+- uid: NoorCanvas.Controllers
+  commentId: N:NoorCanvas.Controllers
+  href: NoorCanvas.html
+  name: NoorCanvas.Controllers
+  nameWithType: NoorCanvas.Controllers
+  fullName: NoorCanvas.Controllers
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Controllers.HostController.#ctor*
+  commentId: Overload:NoorCanvas.Controllers.HostController.#ctor
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController__ctor_NoorCanvas_Data_CanvasDbContext_NoorCanvas_Data_KSessionsDbContext_ILogger_NoorCanvas_Controllers_HostController__
+  name: HostController
+  nameWithType: HostController.HostController
+  fullName: NoorCanvas.Controllers.HostController.HostController
+  nameWithType.vb: HostController.New
+  fullName.vb: NoorCanvas.Controllers.HostController.New
+  name.vb: New
+- uid: NoorCanvas.Data.CanvasDbContext
+  commentId: T:NoorCanvas.Data.CanvasDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.CanvasDbContext.html
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext
+- uid: NoorCanvas.Data.KSessionsDbContext
+  commentId: T:NoorCanvas.Data.KSessionsDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.KSessionsDbContext.html
+  name: KSessionsDbContext
+  nameWithType: KSessionsDbContext
+  fullName: NoorCanvas.Data.KSessionsDbContext
+- uid: ILogger{NoorCanvas.Controllers.HostController}
+  commentId: '!:ILogger{NoorCanvas.Controllers.HostController}'
+  definition: ILogger`1
+  href: NoorCanvas.Controllers.HostController.html
+  name: ILogger<HostController>
+  nameWithType: ILogger<HostController>
+  fullName: ILogger<NoorCanvas.Controllers.HostController>
+  nameWithType.vb: ILogger(Of HostController)
+  fullName.vb: ILogger(Of NoorCanvas.Controllers.HostController)
+  name.vb: ILogger(Of HostController)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Controllers.HostController
+    name: HostController
+    href: NoorCanvas.Controllers.HostController.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Controllers.HostController
+    name: HostController
+    href: NoorCanvas.Controllers.HostController.html
+  - name: )
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Controllers.HostController.AuthenticateHost*
+  commentId: Overload:NoorCanvas.Controllers.HostController.AuthenticateHost
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_AuthenticateHost_NoorCanvas_Controllers_HostAuthRequest_
+  name: AuthenticateHost
+  nameWithType: HostController.AuthenticateHost
+  fullName: NoorCanvas.Controllers.HostController.AuthenticateHost
+- uid: NoorCanvas.Controllers.HostAuthRequest
+  commentId: T:NoorCanvas.Controllers.HostAuthRequest
+  parent: NoorCanvas.Controllers
+  href: NoorCanvas.Controllers.HostAuthRequest.html
+  name: HostAuthRequest
+  nameWithType: HostAuthRequest
+  fullName: NoorCanvas.Controllers.HostAuthRequest
+- uid: Task{IActionResult}
+  commentId: '!:Task{IActionResult}'
+  definition: Task`1
+  name: Task<IActionResult>
+  nameWithType: Task<IActionResult>
+  fullName: Task<IActionResult>
+  nameWithType.vb: Task(Of IActionResult)
+  fullName.vb: Task(Of IActionResult)
+  name.vb: Task(Of IActionResult)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - uid: IActionResult
+    name: IActionResult
+    isExternal: true
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: IActionResult
+    name: IActionResult
+    isExternal: true
+  - name: )
+- uid: Task`1
+  isExternal: true
+  name: Task<>
+  nameWithType: Task<>
+  fullName: Task<>
+  nameWithType.vb: Task(Of )
+  fullName.vb: Task(Of )
+  name.vb: Task(Of )
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Controllers.HostController.GetDashboardData*
+  commentId: Overload:NoorCanvas.Controllers.HostController.GetDashboardData
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_GetDashboardData_System_String_
+  name: GetDashboardData
+  nameWithType: HostController.GetDashboardData
+  fullName: NoorCanvas.Controllers.HostController.GetDashboardData
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Controllers.HostController.CreateSession*
+  commentId: Overload:NoorCanvas.Controllers.HostController.CreateSession
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_CreateSession_NoorCanvas_Controllers_CreateSessionRequest_
+  name: CreateSession
+  nameWithType: HostController.CreateSession
+  fullName: NoorCanvas.Controllers.HostController.CreateSession
+- uid: NoorCanvas.Controllers.CreateSessionRequest
+  commentId: T:NoorCanvas.Controllers.CreateSessionRequest
+  parent: NoorCanvas.Controllers
+  href: NoorCanvas.Controllers.CreateSessionRequest.html
+  name: CreateSessionRequest
+  nameWithType: CreateSessionRequest
+  fullName: NoorCanvas.Controllers.CreateSessionRequest
+- uid: NoorCanvas.Controllers.HostController.StartSession*
+  commentId: Overload:NoorCanvas.Controllers.HostController.StartSession
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_StartSession_System_Int64_
+  name: StartSession
+  nameWithType: HostController.StartSession
+  fullName: NoorCanvas.Controllers.HostController.StartSession
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Controllers.HostController.EndSession*
+  commentId: Overload:NoorCanvas.Controllers.HostController.EndSession
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_EndSession_System_Int64_
+  name: EndSession
+  nameWithType: HostController.EndSession
+  fullName: NoorCanvas.Controllers.HostController.EndSession
+- uid: NoorCanvas.Controllers.HostController.GetAlbums*
+  commentId: Overload:NoorCanvas.Controllers.HostController.GetAlbums
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_GetAlbums_System_String_
+  name: GetAlbums
+  nameWithType: HostController.GetAlbums
+  fullName: NoorCanvas.Controllers.HostController.GetAlbums
+- uid: NoorCanvas.Controllers.HostController.GetCategories*
+  commentId: Overload:NoorCanvas.Controllers.HostController.GetCategories
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_GetCategories_System_Int32_System_String_
+  name: GetCategories
+  nameWithType: HostController.GetCategories
+  fullName: NoorCanvas.Controllers.HostController.GetCategories
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: NoorCanvas.Controllers.HostController.GetSessions*
+  commentId: Overload:NoorCanvas.Controllers.HostController.GetSessions
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_GetSessions_System_Int32_System_String_
+  name: GetSessions
+  nameWithType: HostController.GetSessions
+  fullName: NoorCanvas.Controllers.HostController.GetSessions
+- uid: NoorCanvas.Controllers.HostController.GenerateSessionToken*
+  commentId: Overload:NoorCanvas.Controllers.HostController.GenerateSessionToken
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_GenerateSessionToken_System_Int32_System_String_
+  name: GenerateSessionToken
+  nameWithType: HostController.GenerateSessionToken
+  fullName: NoorCanvas.Controllers.HostController.GenerateSessionToken
+- uid: NoorCanvas.Controllers.HostController.BeginSession*
+  commentId: Overload:NoorCanvas.Controllers.HostController.BeginSession
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_BeginSession_System_Int32_System_String_
+  name: BeginSession
+  nameWithType: HostController.BeginSession
+  fullName: NoorCanvas.Controllers.HostController.BeginSession
+- uid: NoorCanvas.Controllers.HostController.GetSessionStatus*
+  commentId: Overload:NoorCanvas.Controllers.HostController.GetSessionStatus
+  href: NoorCanvas.Controllers.HostController.html#NoorCanvas_Controllers_HostController_GetSessionStatus_System_String_
+  name: GetSessionStatus
+  nameWithType: HostController.GetSessionStatus
+  fullName: NoorCanvas.Controllers.HostController.GetSessionStatus

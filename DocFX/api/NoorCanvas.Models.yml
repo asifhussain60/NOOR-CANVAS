@@ -1,0 +1,130 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models
+  commentId: N:NoorCanvas.Models
+  id: NoorCanvas.Models
+  children:
+  - NoorCanvas.Models.AdminSession
+  - NoorCanvas.Models.Annotation
+  - NoorCanvas.Models.AuditLog
+  - NoorCanvas.Models.HostSession
+  - NoorCanvas.Models.Issue
+  - NoorCanvas.Models.Question
+  - NoorCanvas.Models.QuestionAnswer
+  - NoorCanvas.Models.QuestionVote
+  - NoorCanvas.Models.Registration
+  - NoorCanvas.Models.Session
+  - NoorCanvas.Models.SessionLink
+  - NoorCanvas.Models.SharedAsset
+  - NoorCanvas.Models.User
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Models
+  nameWithType: NoorCanvas.Models
+  fullName: NoorCanvas.Models
+  type: Namespace
+references:
+- uid: NoorCanvas.Models.AdminSession
+  commentId: T:NoorCanvas.Models.AdminSession
+  href: NoorCanvas.Models.AdminSession.html
+  name: AdminSession
+  nameWithType: AdminSession
+  fullName: NoorCanvas.Models.AdminSession
+- uid: NoorCanvas.Models.Annotation
+  commentId: T:NoorCanvas.Models.Annotation
+  href: NoorCanvas.Models.Annotation.html
+  name: Annotation
+  nameWithType: Annotation
+  fullName: NoorCanvas.Models.Annotation
+- uid: NoorCanvas.Models.AuditLog
+  commentId: T:NoorCanvas.Models.AuditLog
+  href: NoorCanvas.Models.AuditLog.html
+  name: AuditLog
+  nameWithType: AuditLog
+  fullName: NoorCanvas.Models.AuditLog
+- uid: NoorCanvas.Models.HostSession
+  commentId: T:NoorCanvas.Models.HostSession
+  href: NoorCanvas.Models.HostSession.html
+  name: HostSession
+  nameWithType: HostSession
+  fullName: NoorCanvas.Models.HostSession
+- uid: NoorCanvas.Models.Issue
+  commentId: T:NoorCanvas.Models.Issue
+  href: NoorCanvas.Models.Issue.html
+  name: Issue
+  nameWithType: Issue
+  fullName: NoorCanvas.Models.Issue
+- uid: NoorCanvas.Models.Question
+  commentId: T:NoorCanvas.Models.Question
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.Question.html
+  name: Question
+  nameWithType: Question
+  fullName: NoorCanvas.Models.Question
+- uid: NoorCanvas.Models.QuestionAnswer
+  commentId: T:NoorCanvas.Models.QuestionAnswer
+  href: NoorCanvas.Models.QuestionAnswer.html
+  name: QuestionAnswer
+  nameWithType: QuestionAnswer
+  fullName: NoorCanvas.Models.QuestionAnswer
+- uid: NoorCanvas.Models.QuestionVote
+  commentId: T:NoorCanvas.Models.QuestionVote
+  href: NoorCanvas.Models.QuestionVote.html
+  name: QuestionVote
+  nameWithType: QuestionVote
+  fullName: NoorCanvas.Models.QuestionVote
+- uid: NoorCanvas.Models.Registration
+  commentId: T:NoorCanvas.Models.Registration
+  href: NoorCanvas.Models.Registration.html
+  name: Registration
+  nameWithType: Registration
+  fullName: NoorCanvas.Models.Registration
+- uid: NoorCanvas.Models.Session
+  commentId: T:NoorCanvas.Models.Session
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.Session.html
+  name: Session
+  nameWithType: Session
+  fullName: NoorCanvas.Models.Session
+- uid: NoorCanvas.Models.SessionLink
+  commentId: T:NoorCanvas.Models.SessionLink
+  href: NoorCanvas.Models.SessionLink.html
+  name: SessionLink
+  nameWithType: SessionLink
+  fullName: NoorCanvas.Models.SessionLink
+- uid: NoorCanvas.Models.SharedAsset
+  commentId: T:NoorCanvas.Models.SharedAsset
+  href: NoorCanvas.Models.SharedAsset.html
+  name: SharedAsset
+  nameWithType: SharedAsset
+  fullName: NoorCanvas.Models.SharedAsset
+- uid: NoorCanvas.Models.User
+  commentId: T:NoorCanvas.Models.User
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.User.html
+  name: User
+  nameWithType: User
+  fullName: NoorCanvas.Models.User
+- uid: NoorCanvas.Models
+  commentId: N:NoorCanvas.Models
+  href: NoorCanvas.html
+  name: NoorCanvas.Models
+  nameWithType: NoorCanvas.Models
+  fullName: NoorCanvas.Models
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html

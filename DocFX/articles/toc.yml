@@ -1,9 +1,27 @@
 - name: Overview
   href: intro.md
-- name: Getting Started
-  href: development/getting-started.md
-- name: Host Token Quick Reference
-  href: development/host-token-quick-reference.md
+- name: User Guides
+  items:
+  - name: Global Commands
+    href: user-guides/global-commands-user-guide.md
+  - name: Development Workflow
+    href: user-guides/development-workflow-user-guide.md
+  - name: Automated Testing
+    href: user-guides/automated-testing-user-guide.md
+  - name: SSL Configuration Issues
+    href: user-guides/ssl-configuration-user-guide.md
+- name: Development
+  items:
+  - name: Getting Started
+    href: development/getting-started.md
+  - name: Development Workflow
+    href: development/development-workflow-user-guide.md
+  - name: Host Token Quick Reference
+    href: development/host-token-quick-reference.md
+  - name: Build Processes
+    href: development/build-processes.md
+  - name: Testing Procedures
+    href: development/testing-procedures.md
 - name: Technical Documentation
   items:
   - name: Architecture
@@ -18,7 +36,21 @@
     href: technical/host-token-system.md
   - name: SSL Certificate Configuration
     href: technical/ssl-certificate-configuration.md
-- name: User Guides
+  - name: Global Commands Technical Reference
+    href: technical/global-commands-technical-reference.md
+  - name: Automated Testing Technical Reference
+    href: technical/automated-testing-technical-reference.md
+  - name: API Reference
+    href: technical/api-reference/
+  - name: Architecture Diagrams
+    href: technical/architecture-diagrams/
+  - name: Integration Examples
+    href: technical/integration-examples/
+- name: Deployment
   items:
-  - name: SSL Configuration Issues
-    href: user-guides/ssl-configuration-user-guide.md
+  - name: IIS Configuration
+    href: deployment/iis-configuration.md
+  - name: Database Setup
+    href: deployment/database-setup.md
+  - name: Production Deployment
+    href: deployment/production-deployment.md

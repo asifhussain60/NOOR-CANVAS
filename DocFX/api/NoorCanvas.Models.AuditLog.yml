@@ -1,0 +1,799 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Models.AuditLog
+  commentId: T:NoorCanvas.Models.AuditLog
+  id: AuditLog
+  parent: NoorCanvas.Models
+  children:
+  - NoorCanvas.Models.AuditLog.Action
+  - NoorCanvas.Models.AuditLog.Actor
+  - NoorCanvas.Models.AuditLog.At
+  - NoorCanvas.Models.AuditLog.Details
+  - NoorCanvas.Models.AuditLog.EventId
+  - NoorCanvas.Models.AuditLog.Session
+  - NoorCanvas.Models.AuditLog.SessionId
+  - NoorCanvas.Models.AuditLog.User
+  - NoorCanvas.Models.AuditLog.UserId
+  langs:
+  - csharp
+  - vb
+  name: AuditLog
+  nameWithType: AuditLog
+  fullName: NoorCanvas.Models.AuditLog
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AuditLog
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 5
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Table("AuditLog", Schema = "canvas")]
+
+      public class AuditLog
+    content.vb: >-
+      <Table("AuditLog", Schema:="canvas")>
+
+      Public Class AuditLog
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.TableAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.TableAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: AuditLog
+    namedArguments:
+    - name: Schema
+      type: System.String
+      value: canvas
+- uid: NoorCanvas.Models.AuditLog.EventId
+  commentId: P:NoorCanvas.Models.AuditLog.EventId
+  id: EventId
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: EventId
+  nameWithType: AuditLog.EventId
+  fullName: NoorCanvas.Models.AuditLog.EventId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: EventId
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 8
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Key]
+
+      public long EventId { get; set; }
+    parameters: []
+    return:
+      type: System.Int64
+    content.vb: >-
+      <Key>
+
+      Public Property EventId As Long
+  overload: NoorCanvas.Models.AuditLog.EventId*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.KeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.KeyAttribute.#ctor
+    arguments: []
+- uid: NoorCanvas.Models.AuditLog.At
+  commentId: P:NoorCanvas.Models.AuditLog.At
+  id: At
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: At
+  nameWithType: AuditLog.At
+  fullName: NoorCanvas.Models.AuditLog.At
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: At
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 11
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public DateTime At { get; set; }
+    parameters: []
+    return:
+      type: DateTime
+    content.vb: Public Property At As DateTime
+  overload: NoorCanvas.Models.AuditLog.At*
+- uid: NoorCanvas.Models.AuditLog.Actor
+  commentId: P:NoorCanvas.Models.AuditLog.Actor
+  id: Actor
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: Actor
+  nameWithType: AuditLog.Actor
+  fullName: NoorCanvas.Models.AuditLog.Actor
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Actor
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 13
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(64)]
+
+      public string? Actor { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(64)>
+
+      Public Property Actor As String
+  overload: NoorCanvas.Models.AuditLog.Actor*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 64
+- uid: NoorCanvas.Models.AuditLog.SessionId
+  commentId: P:NoorCanvas.Models.AuditLog.SessionId
+  id: SessionId
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: SessionId
+  nameWithType: AuditLog.SessionId
+  fullName: NoorCanvas.Models.AuditLog.SessionId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionId
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 16
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public long? SessionId { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{System.Int64}
+    content.vb: Public Property SessionId As Long?
+  overload: NoorCanvas.Models.AuditLog.SessionId*
+- uid: NoorCanvas.Models.AuditLog.UserId
+  commentId: P:NoorCanvas.Models.AuditLog.UserId
+  id: UserId
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: UserId
+  nameWithType: AuditLog.UserId
+  fullName: NoorCanvas.Models.AuditLog.UserId
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: UserId
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 18
+  namespace: NoorCanvas.Models
+  syntax:
+    content: public Guid? UserId { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{Guid}
+    content.vb: Public Property UserId As Guid?
+  overload: NoorCanvas.Models.AuditLog.UserId*
+- uid: NoorCanvas.Models.AuditLog.Action
+  commentId: P:NoorCanvas.Models.AuditLog.Action
+  id: Action
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: Action
+  nameWithType: AuditLog.Action
+  fullName: NoorCanvas.Models.AuditLog.Action
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Action
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 20
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [MaxLength(100)]
+
+      public string? Action { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <MaxLength(100)>
+
+      Public Property Action As String
+  overload: NoorCanvas.Models.AuditLog.Action*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.MaxLengthAttribute
+    ctor: System.ComponentModel.DataAnnotations.MaxLengthAttribute.#ctor(System.Int32)
+    arguments:
+    - type: System.Int32
+      value: 100
+- uid: NoorCanvas.Models.AuditLog.Details
+  commentId: P:NoorCanvas.Models.AuditLog.Details
+  id: Details
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: Details
+  nameWithType: AuditLog.Details
+  fullName: NoorCanvas.Models.AuditLog.Details
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Details
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 23
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [Column(TypeName = "nvarchar(max)")]
+
+      public string? Details { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Column(TypeName:="nvarchar(max)")>
+
+      Public Property Details As String
+  overload: NoorCanvas.Models.AuditLog.Details*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ColumnAttribute.#ctor
+    arguments: []
+    namedArguments:
+    - name: TypeName
+      type: System.String
+      value: nvarchar(max)
+- uid: NoorCanvas.Models.AuditLog.Session
+  commentId: P:NoorCanvas.Models.AuditLog.Session
+  id: Session
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: Session
+  nameWithType: AuditLog.Session
+  fullName: NoorCanvas.Models.AuditLog.Session
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Session
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 27
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [ForeignKey("SessionId")]
+
+      public virtual Session? Session { get; set; }
+    parameters: []
+    return:
+      type: NoorCanvas.Models.Session
+    content.vb: >-
+      <ForeignKey("SessionId")>
+
+      Public Overridable Property Session As Session
+  overload: NoorCanvas.Models.AuditLog.Session*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: SessionId
+- uid: NoorCanvas.Models.AuditLog.User
+  commentId: P:NoorCanvas.Models.AuditLog.User
+  id: User
+  parent: NoorCanvas.Models.AuditLog
+  langs:
+  - csharp
+  - vb
+  name: User
+  nameWithType: AuditLog.User
+  fullName: NoorCanvas.Models.AuditLog.User
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Models/AuditLog.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: User
+    path: ../SPA/NoorCanvas/Models/AuditLog.cs
+    startLine: 30
+  namespace: NoorCanvas.Models
+  syntax:
+    content: >-
+      [ForeignKey("UserId")]
+
+      public virtual User? User { get; set; }
+    parameters: []
+    return:
+      type: NoorCanvas.Models.User
+    content.vb: >-
+      <ForeignKey("UserId")>
+
+      Public Overridable Property User As User
+  overload: NoorCanvas.Models.AuditLog.User*
+  attributes:
+  - type: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute
+    ctor: System.ComponentModel.DataAnnotations.Schema.ForeignKeyAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: UserId
+references:
+- uid: NoorCanvas.Models
+  commentId: N:NoorCanvas.Models
+  href: NoorCanvas.html
+  name: NoorCanvas.Models
+  nameWithType: NoorCanvas.Models
+  fullName: NoorCanvas.Models
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Models
+    name: Models
+    href: NoorCanvas.Models.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Models.AuditLog.EventId*
+  commentId: Overload:NoorCanvas.Models.AuditLog.EventId
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_EventId
+  name: EventId
+  nameWithType: AuditLog.EventId
+  fullName: NoorCanvas.Models.AuditLog.EventId
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: NoorCanvas.Models.AuditLog.At*
+  commentId: Overload:NoorCanvas.Models.AuditLog.At
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_At
+  name: At
+  nameWithType: AuditLog.At
+  fullName: NoorCanvas.Models.AuditLog.At
+- uid: DateTime
+  isExternal: true
+  name: DateTime
+  nameWithType: DateTime
+  fullName: DateTime
+- uid: NoorCanvas.Models.AuditLog.Actor*
+  commentId: Overload:NoorCanvas.Models.AuditLog.Actor
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_Actor
+  name: Actor
+  nameWithType: AuditLog.Actor
+  fullName: NoorCanvas.Models.AuditLog.Actor
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Models.AuditLog.SessionId*
+  commentId: Overload:NoorCanvas.Models.AuditLog.SessionId
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_SessionId
+  name: SessionId
+  nameWithType: AuditLog.SessionId
+  fullName: NoorCanvas.Models.AuditLog.SessionId
+- uid: System.Nullable{System.Int64}
+  commentId: T:System.Nullable{System.Int64}
+  parent: System
+  definition: System.Nullable`1
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long?
+  nameWithType: long?
+  fullName: long?
+  nameWithType.vb: Long?
+  fullName.vb: Long?
+  name.vb: Long?
+  spec.csharp:
+  - uid: System.Int64
+    name: long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: '?'
+  spec.vb:
+  - uid: System.Int64
+    name: Long
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.int64
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: NoorCanvas.Models.AuditLog.UserId*
+  commentId: Overload:NoorCanvas.Models.AuditLog.UserId
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_UserId
+  name: UserId
+  nameWithType: AuditLog.UserId
+  fullName: NoorCanvas.Models.AuditLog.UserId
+- uid: System.Nullable{Guid}
+  commentId: T:System.Nullable{Guid}
+  parent: System
+  definition: System.Nullable`1
+  name: Guid?
+  nameWithType: Guid?
+  fullName: Guid?
+  spec.csharp:
+  - uid: Guid
+    name: Guid
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: Guid
+    name: Guid
+    isExternal: true
+  - name: '?'
+- uid: NoorCanvas.Models.AuditLog.Action*
+  commentId: Overload:NoorCanvas.Models.AuditLog.Action
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_Action
+  name: Action
+  nameWithType: AuditLog.Action
+  fullName: NoorCanvas.Models.AuditLog.Action
+- uid: NoorCanvas.Models.AuditLog.Details*
+  commentId: Overload:NoorCanvas.Models.AuditLog.Details
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_Details
+  name: Details
+  nameWithType: AuditLog.Details
+  fullName: NoorCanvas.Models.AuditLog.Details
+- uid: NoorCanvas.Models.AuditLog.Session*
+  commentId: Overload:NoorCanvas.Models.AuditLog.Session
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_Session
+  name: Session
+  nameWithType: AuditLog.Session
+  fullName: NoorCanvas.Models.AuditLog.Session
+- uid: NoorCanvas.Models.Session
+  commentId: T:NoorCanvas.Models.Session
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.Session.html
+  name: Session
+  nameWithType: Session
+  fullName: NoorCanvas.Models.Session
+- uid: NoorCanvas.Models.AuditLog.User*
+  commentId: Overload:NoorCanvas.Models.AuditLog.User
+  href: NoorCanvas.Models.AuditLog.html#NoorCanvas_Models_AuditLog_User
+  name: User
+  nameWithType: AuditLog.User
+  fullName: NoorCanvas.Models.AuditLog.User
+- uid: NoorCanvas.Models.User
+  commentId: T:NoorCanvas.Models.User
+  parent: NoorCanvas.Models
+  href: NoorCanvas.Models.User.html
+  name: User
+  nameWithType: User
+  fullName: NoorCanvas.Models.User

@@ -1,0 +1,193 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Data.Migrations.InitialCreate
+  commentId: T:NoorCanvas.Data.Migrations.InitialCreate
+  id: InitialCreate
+  parent: NoorCanvas.Data.Migrations
+  children:
+  - NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel(ModelBuilder)
+  - NoorCanvas.Data.Migrations.InitialCreate.Down(MigrationBuilder)
+  - NoorCanvas.Data.Migrations.InitialCreate.Up(MigrationBuilder)
+  langs:
+  - csharp
+  - vb
+  name: InitialCreate
+  nameWithType: InitialCreate
+  fullName: NoorCanvas.Data.Migrations.InitialCreate
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.Designer.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: InitialCreate
+    path: ../SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.Designer.cs
+    startLine: 13
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: 'public class InitialCreate : Migration'
+    content.vb: Public Class InitialCreate Inherits Migration
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Data.Migrations.InitialCreate.Up(MigrationBuilder)
+  commentId: M:NoorCanvas.Data.Migrations.InitialCreate.Up(MigrationBuilder)
+  id: Up(MigrationBuilder)
+  parent: NoorCanvas.Data.Migrations.InitialCreate
+  langs:
+  - csharp
+  - vb
+  name: Up(MigrationBuilder)
+  nameWithType: InitialCreate.Up(MigrationBuilder)
+  fullName: NoorCanvas.Data.Migrations.InitialCreate.Up(MigrationBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Up
+    path: ../SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.cs
+    startLine: 11
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: protected override void Up(MigrationBuilder migrationBuilder)
+    parameters:
+    - id: migrationBuilder
+      type: MigrationBuilder
+    content.vb: Protected Overrides Sub Up(migrationBuilder As MigrationBuilder)
+  overload: NoorCanvas.Data.Migrations.InitialCreate.Up*
+- uid: NoorCanvas.Data.Migrations.InitialCreate.Down(MigrationBuilder)
+  commentId: M:NoorCanvas.Data.Migrations.InitialCreate.Down(MigrationBuilder)
+  id: Down(MigrationBuilder)
+  parent: NoorCanvas.Data.Migrations.InitialCreate
+  langs:
+  - csharp
+  - vb
+  name: Down(MigrationBuilder)
+  nameWithType: InitialCreate.Down(MigrationBuilder)
+  fullName: NoorCanvas.Data.Migrations.InitialCreate.Down(MigrationBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Down
+    path: ../SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.cs
+    startLine: 441
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: protected override void Down(MigrationBuilder migrationBuilder)
+    parameters:
+    - id: migrationBuilder
+      type: MigrationBuilder
+    content.vb: Protected Overrides Sub Down(migrationBuilder As MigrationBuilder)
+  overload: NoorCanvas.Data.Migrations.InitialCreate.Down*
+- uid: NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel(ModelBuilder)
+  commentId: M:NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel(ModelBuilder)
+  id: BuildTargetModel(ModelBuilder)
+  parent: NoorCanvas.Data.Migrations.InitialCreate
+  langs:
+  - csharp
+  - vb
+  name: BuildTargetModel(ModelBuilder)
+  nameWithType: InitialCreate.BuildTargetModel(ModelBuilder)
+  fullName: NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel(ModelBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.Designer.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BuildTargetModel
+    path: ../SPA/NoorCanvas/Data/Migrations/20250911091420_InitialCreate.Designer.cs
+    startLine: 18
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: protected override void BuildTargetModel(ModelBuilder modelBuilder)
+    parameters:
+    - id: modelBuilder
+      type: ModelBuilder
+    content.vb: Protected Overrides Sub BuildTargetModel(modelBuilder As ModelBuilder)
+  overload: NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel*
+references:
+- uid: NoorCanvas.Data.Migrations
+  commentId: N:NoorCanvas.Data.Migrations
+  href: NoorCanvas.html
+  name: NoorCanvas.Data.Migrations
+  nameWithType: NoorCanvas.Data.Migrations
+  fullName: NoorCanvas.Data.Migrations
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  - name: .
+  - uid: NoorCanvas.Data.Migrations
+    name: Migrations
+    href: NoorCanvas.Data.Migrations.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  - name: .
+  - uid: NoorCanvas.Data.Migrations
+    name: Migrations
+    href: NoorCanvas.Data.Migrations.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Data.Migrations.InitialCreate.Up*
+  commentId: Overload:NoorCanvas.Data.Migrations.InitialCreate.Up
+  href: NoorCanvas.Data.Migrations.InitialCreate.html#NoorCanvas_Data_Migrations_InitialCreate_Up_MigrationBuilder_
+  name: Up
+  nameWithType: InitialCreate.Up
+  fullName: NoorCanvas.Data.Migrations.InitialCreate.Up
+- uid: MigrationBuilder
+  isExternal: true
+  name: MigrationBuilder
+  nameWithType: MigrationBuilder
+  fullName: MigrationBuilder
+- uid: NoorCanvas.Data.Migrations.InitialCreate.Down*
+  commentId: Overload:NoorCanvas.Data.Migrations.InitialCreate.Down
+  href: NoorCanvas.Data.Migrations.InitialCreate.html#NoorCanvas_Data_Migrations_InitialCreate_Down_MigrationBuilder_
+  name: Down
+  nameWithType: InitialCreate.Down
+  fullName: NoorCanvas.Data.Migrations.InitialCreate.Down
+- uid: NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel*
+  commentId: Overload:NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel
+  href: NoorCanvas.Data.Migrations.InitialCreate.html#NoorCanvas_Data_Migrations_InitialCreate_BuildTargetModel_ModelBuilder_
+  name: BuildTargetModel
+  nameWithType: InitialCreate.BuildTargetModel
+  fullName: NoorCanvas.Data.Migrations.InitialCreate.BuildTargetModel
+- uid: ModelBuilder
+  isExternal: true
+  name: ModelBuilder
+  nameWithType: ModelBuilder
+  fullName: ModelBuilder

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Global Commands User Guide | NOOR CANVAS Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Global Commands User Guide | NOOR CANVAS Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="NOOR CANVAS">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="global-commands-user-guide">Global Commands User Guide</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR Canvas provides a suite of global commands that make development and administration tasks easier. These commands are available from any directory on your system and provide consistent, reliable functionality for common operations.</p>
+<h2 id="available-commands">Available Commands</h2>
+<h3 id="nc---application-runner">NC - Application Runner</h3>
+<p>The primary command for starting the NOOR Canvas application during development.</p>
+<p><strong>When to use</strong>: Starting the development server for testing or development work.</p>
+<p><strong>What it does</strong>:</p>
+<ul>
+<li>Generates required host tokens</li>
+<li>Builds the application</li>
+<li>Starts IIS Express x64 server</li>
+<li>Makes the application available at https://localhost:9091</li>
+</ul>
+<p><strong>Basic Usage</strong>:</p>
+<pre><code class="lang-powershell">nc
+</code></pre>
+<p>This will start the complete development workflow automatically.</p>
+<h3 id="nct---token-generator">NCT - Token Generator</h3>
+<p>Creates secure host tokens required for session management.</p>
+<p><strong>When to use</strong>: When you need to generate new host tokens for testing or administration.</p>
+<p><strong>What it does</strong>:</p>
+<ul>
+<li>Generates cryptographically secure GUIDs</li>
+<li>Stores tokens in the database</li>
+<li>Provides tokens for session creation</li>
+</ul>
+<p><strong>Basic Usage</strong>:</p>
+<pre><code class="lang-powershell">nct
+</code></pre>
+<h3 id="ncdoc---documentation-site">NCDOC - Documentation Site</h3>
+<p>Opens the complete NOOR Canvas documentation in your browser.</p>
+<p><strong>When to use</strong>: When you need to reference documentation, guides, or API information.</p>
+<p><strong>What it does</strong>:</p>
+<ul>
+<li>Builds the latest documentation</li>
+<li>Starts a local documentation server</li>
+<li>Opens your browser to the documentation site</li>
+</ul>
+<p><strong>Basic Usage</strong>:</p>
+<pre><code class="lang-powershell">ncdoc
+</code></pre>
+<h3 id="iiskill---process-manager">IISKILL - Process Manager</h3>
+<p>Safely stops all IIS Express processes when needed.</p>
+<p><strong>When to use</strong>: When the development server becomes unresponsive or you need to force-stop all instances.</p>
+<p><strong>What it does</strong>:</p>
+<ul>
+<li>Finds all running IIS Express processes</li>
+<li>Terminates them safely</li>
+<li>Cleans up any locked files</li>
+</ul>
+<p><strong>Basic Usage</strong>:</p>
+<pre><code class="lang-powershell">iiskill
+</code></pre>
+<h2 id="common-workflows">Common Workflows</h2>
+<h3 id="starting-development-work">Starting Development Work</h3>
+<ol>
+<li>Open PowerShell in any directory</li>
+<li>Run <code>nc</code> to start the application</li>
+<li>Wait for &quot;Application started successfully&quot; message</li>
+<li>Open browser to https://localhost:9091</li>
+</ol>
+<h3 id="stopping-development-work">Stopping Development Work</h3>
+<ol>
+<li>Press Ctrl+C in the NC command window, OR</li>
+<li>Run <code>iiskill</code> from any PowerShell window</li>
+</ol>
+<h3 id="accessing-documentation">Accessing Documentation</h3>
+<ol>
+<li>Run <code>ncdoc</code> from any directory</li>
+<li>Documentation will open in your default browser</li>
+<li>Browse user guides, technical references, and API docs</li>
+</ol>
+<h3 id="troubleshooting-server-issues">Troubleshooting Server Issues</h3>
+<ol>
+<li>Run <code>iiskill</code> to stop all processes</li>
+<li>Wait 5 seconds</li>
+<li>Run <code>nc</code> to restart clean</li>
+</ol>
+<h2 id="tips-for-success">Tips for Success</h2>
+<ul>
+<li><strong>Always use HTTPS</strong>: The application is configured for https://localhost:9091</li>
+<li><strong>Port conflicts</strong>: If you get port errors, run <code>iiskill</code> first</li>
+<li><strong>Token issues</strong>: Run <code>nct</code> to generate fresh tokens if authentication fails</li>
+<li><strong>Documentation updates</strong>: Run <code>ncdoc</code> to see the latest documentation changes</li>
+</ul>
+<h2 id="getting-help">Getting Help</h2>
+<p>Each command provides built-in help:</p>
+<pre><code class="lang-powershell">nc -Help
+nct -Help  
+ncdoc -Help
+iiskill -Help
+</code></pre>
+<p>For more detailed technical information, see the <a href="../technical/global-commands-technical-reference.html">Global Commands Technical Reference</a>.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/user-guides/global-commands-user-guide.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      NOOR CANVAS Islamic Content Sharing Platform
+      
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

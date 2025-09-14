@@ -11,11 +11,1143 @@
       }
     },
     {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminAuthRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminAuthRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminAuthRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminAuthResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminAuthResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminAuthResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminDashboardResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminDashboardResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminDashboardResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminSessionDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminSessionDetails.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminSessionDetails",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminSessionListResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminSessionListResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminSessionListResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminSessionSummary.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminSessionSummary.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminSessionSummary",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminStatistics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminStatistics.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminStatistics",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminUserDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminUserDetails.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminUserDetails",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminUserListResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminUserListResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminUserListResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AdminUserSummary.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AdminUserSummary.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AdminUserSummary",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AlbumData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AlbumData.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AlbumData",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.AnnotationsController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.AnnotationsController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.AnnotationsController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.CategoryData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.CategoryData.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.CategoryData",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.CreateAnnotationRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.CreateAnnotationRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.CreateAnnotationRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.CreateIssueRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.CreateIssueRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.CreateIssueRequest",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Controllers.CreateIssueRequest.yml\" sourcestartlinenumber=\"1\">Request model for creating a new issue</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.CreateSessionRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.CreateSessionRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.CreateSessionRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.GenerateTokenRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.GenerateTokenRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.GenerateTokenRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.GenerateTokenResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.GenerateTokenResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.GenerateTokenResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.HealthController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.HealthController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.HealthController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.HostAuthRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.HostAuthRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.HostAuthRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.HostAuthResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.HostAuthResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.HostAuthResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.HostController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.HostController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.HostController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.HostDashboardResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.HostDashboardResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.HostDashboardResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.HostProvisionerController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.HostProvisionerController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.HostProvisionerController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.IssueController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.IssueController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.IssueController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.IssueResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.IssueResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.IssueResponse",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Controllers.IssueResponse.yml\" sourcestartlinenumber=\"1\">Response model for issue data</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.LogsController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.LogsController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.LogsController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.ParticipantController.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.ParticipantController.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.ParticipantController",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.ParticipantRegistrationRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.ParticipantRegistrationRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.ParticipantRegistrationRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.ParticipantRegistrationResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.ParticipantRegistrationResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.ParticipantRegistrationResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.SessionData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.SessionData.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.SessionData",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.SessionResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.SessionResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.SessionResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.SessionStatusData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.SessionStatusData.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.SessionStatusData",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.SessionStatusResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.SessionStatusResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.SessionStatusResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.SessionSummaryResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.SessionSummaryResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.SessionSummaryResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.SessionValidationResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.SessionValidationResponse.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.SessionValidationResponse",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.UpdateAnnotationRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.UpdateAnnotationRequest.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers.UpdateAnnotationRequest",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Controllers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Controllers.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Controllers",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Data.CanvasDbContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Data.CanvasDbContext.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Data.CanvasDbContext",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Data.KSessionsDbContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Data.KSessionsDbContext.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Data.KSessionsDbContext",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Data.KSessionsDbContext.yml\" sourcestartlinenumber=\"1\">KSESSIONS Database Context - Read-only access to Islamic content database\nConnects to production KSESSIONS database for Groups, Categories, Sessions data</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Data.Migrations.AddAdminSessions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Data.Migrations.AddAdminSessions.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Data.Migrations.AddAdminSessions",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Data.Migrations.InitialCreate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Data.Migrations.InitialCreate.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Data.Migrations.InitialCreate",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Data.Migrations.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Data.Migrations.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Data.Migrations",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Data.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Data.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Data",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Hubs.AnnotationHub.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Hubs.AnnotationHub.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Hubs.AnnotationHub",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Hubs.QAHub.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Hubs.QAHub.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Hubs.QAHub",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Hubs.SessionHub.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Hubs.SessionHub.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Hubs.SessionHub",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Hubs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Hubs.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Hubs",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.AdminSession.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.AdminSession.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.AdminSession",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.Annotation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.Annotation.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.Annotation",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.AuditLog.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.AuditLog.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.AuditLog",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.HostSession.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.HostSession.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.HostSession",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.Issue.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.Issue.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.Issue",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsCategory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsCategory.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.KSESSIONS.KSessionsCategory",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Models.KSESSIONS.KSessionsCategory.yml\" sourcestartlinenumber=\"1\">Categories from KSESSIONS database - Subdivisions within Groups\nMaps to KSESSIONS.dbo.Categories table</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsGroup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsGroup.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.KSESSIONS.KSessionsGroup",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Models.KSESSIONS.KSessionsGroup.yml\" sourcestartlinenumber=\"1\">Groups (Albums) from KSESSIONS database - Islamic content collections\nMaps to KSESSIONS.dbo.Groups table</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsSession.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsSession.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.KSESSIONS.KSessionsSession",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Models.KSESSIONS.KSessionsSession.yml\" sourcestartlinenumber=\"1\">Sessions from KSESSIONS database - Individual Islamic learning sessions\nMaps to KSESSIONS.dbo.Sessions table</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript",
+      "Summary": "<p sourcefile=\"api/NoorCanvas.Models.KSESSIONS.KSessionsSessionTranscript.yml\" sourcestartlinenumber=\"1\">KSESSIONS SessionTranscripts entity - represents transcript content available for annotation\nMaps to KSESSIONS_DEV.dbo.SessionTranscripts table</p>\n"
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.KSESSIONS.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.KSESSIONS.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.KSESSIONS",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.Question.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.Question.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.Question",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.QuestionAnswer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.QuestionAnswer.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.QuestionAnswer",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.QuestionVote.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.QuestionVote.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.QuestionVote",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.Registration.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.Registration.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.Registration",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.Session.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.Session.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.Session",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.SessionLink.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.SessionLink.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.SessionLink",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.SharedAsset.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.SharedAsset.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.SharedAsset",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.User.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.User.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models.User",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Models.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Models.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Models",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Pages.ErrorModel.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Pages.ErrorModel.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Pages.ErrorModel",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Pages.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Pages.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Pages",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Services.AnnotationService.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Services.AnnotationService.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Services.AnnotationService",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Services.DialogService.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Services.DialogService.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Services.DialogService",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Services.IAnnotationService.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Services.IAnnotationService.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Services.IAnnotationService",
+      "Summary": null
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NoorCanvas.Services.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NoorCanvas.Services.html"
+        }
+      },
+      "version": "",
+      "Uid": null,
+      "IsMRef": true,
+      "Title": "NoorCanvas.Services",
+      "Summary": null
+    },
+    {
       "type": "Conceptual",
       "source_relative_path": "api/index.md",
       "output": {
         ".html": {
           "relative_path": "api/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html"
+        },
+        ".json": {
+          "relative_path": "api/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/database-setup.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/database-setup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/iis-configuration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/iis-configuration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/production-deployment.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/production-deployment.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/production-setup.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/production-setup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/deployment/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/deployment/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/authentication-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/authentication-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/build-processes.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/build-processes.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/development-workflow-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/development-workflow-user-guide.html"
         }
       },
       "version": ""
@@ -42,10 +1174,69 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/development/implementation-phases.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/implementation-phases.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/testing-procedures.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/testing-procedures.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/development/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/development/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/intro.md",
       "output": {
         ".html": {
           "relative_path": "articles/intro.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/api-reference/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/api-reference/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/api-reference/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/architecture-diagrams/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/architecture-diagrams/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/architecture-diagrams/toc.json"
         }
       },
       "version": ""
@@ -62,6 +1253,26 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/technical/automated-testing-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/automated-testing-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/build-system-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/build-system-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/technical/database-schema.md",
       "output": {
         ".html": {
@@ -72,10 +1283,53 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/technical/development-workflow-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/development-workflow-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/global-commands-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/global-commands-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/technical/host-token-system.md",
       "output": {
         ".html": {
           "relative_path": "articles/technical/host-token-system.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/integration-examples/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/integration-examples/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/integration-examples/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/integration-examples/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/integration-examples/toc.json"
         }
       },
       "version": ""
@@ -101,6 +1355,39 @@
       "version": ""
     },
     {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/ssl-certificate-configuration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/ssl-certificate-configuration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/testing-framework-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/testing-framework-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
       "type": "Toc",
       "source_relative_path": "articles/toc.yml",
       "output": {
@@ -109,6 +1396,89 @@
         },
         ".json": {
           "relative_path": "articles/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/automated-testing-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/automated-testing-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/development-workflow-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/development-workflow-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/getting-started-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/getting-started-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/global-commands-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/global-commands-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/host-authentication-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/host-authentication-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/ssl-configuration-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/ssl-configuration-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/user-guides/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/user-guides/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/troubleshooting-common-issues.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/troubleshooting-common-issues.html"
         }
       },
       "version": ""

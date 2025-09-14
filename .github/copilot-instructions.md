@@ -52,6 +52,17 @@ dotnet run --project "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" --urls "https://lo
 - **Port 9091**: NOOR Canvas HTTPS (primary development)
 - **Ports 9090-9100**: NOOR Canvas port range for conflict resolution
 
+### **Global Commands - NOOR Canvas Command Suite**
+**Location:** `Workspaces/Global/` - Complete command suite with automatic DocFX documentation
+
+**Available Commands:**
+```powershell
+nc                             # Primary application runner (IIS Express x64)
+nct                           # Host token generator
+ncdoc                         # DocFX documentation site launcher
+iiskill                       # IIS Express process killer (silent operation)
+```
+
 ### **NC Command - Primary Application Runner**
 **Location:** `Workspaces/Global/nc.ps1` - IIS Express x64 launcher (NO browser integration)
 
@@ -90,6 +101,68 @@ nc -SkipTokenGeneration        # Skip nct step, just build and start IIS Express
 - **Process Management**: Proper IIS Express process handling with fallback to dotnet run
 - **Build Validation**: Checks build success before proceeding to server launch phase
 
+### **IISKILL Command - Process Management**
+**Location:** `Workspaces/Global/iiskill.ps1` - Silent IIS Express process termination
+
+**Quick Usage:**
+```powershell
+iiskill                       # Kill all IIS Express processes silently
+iiskill -Verbose             # Kill processes with detailed output
+iiskill -Help               # Display usage information
+```
+
+**Key Features:**
+- **Silent Operation**: No user interaction required
+- **Comprehensive Cleanup**: Kills all IIS Express x64 processes
+- **Safe Execution**: Error handling and graceful failures
+- **Multiple Formats**: Available as .ps1, .bat, and .cmd for compatibility
+
+### **🚨 COMPREHENSIVE DOCFX DOCUMENTATION - IMPLEMENTED**
+
+**COMPLETE DOCUMENTATION STRUCTURE**: NOOR Canvas now has comprehensive DocFX documentation covering all systems and processes:
+
+**User Guides (`DocFX/articles/user-guides/`)**:
+- ✅ **Getting Started Guide** - Complete onboarding for new users
+- ✅ **Development Workflow User Guide** - Daily development practices
+- ✅ **Host Authentication Guide** - Session hosting instructions
+- ✅ **SSL Configuration User Guide** - Security setup for users
+- ✅ **Global Commands User Guide** - NC, NCT, NCDOC, IISKILL usage
+- ✅ **Troubleshooting Common Issues** - Problem resolution guide
+
+**Technical Reference (`DocFX/articles/technical/`)**:
+- ✅ **Build System Technical Reference** - MSBuild and automation details
+- ✅ **Development Workflow Technical Reference** - Smart caching and Git integration
+- ✅ **Testing Framework Technical Reference** - Automated testing architecture
+- ✅ **Host Token System** - Authentication technical implementation
+- ✅ **SSL Certificate Configuration** - HTTPS technical setup
+- ✅ **Global Commands Technical Reference** - Command implementation details
+
+**Development Documentation (`DocFX/articles/development/`)**:
+- ✅ **Getting Started** - Development environment setup
+- ✅ **Build Processes** - Compilation and automation workflows
+- ✅ **Testing Procedures** - Test execution and validation
+- ✅ **Implementation Phases** - 6-phase development roadmap
+- ✅ **Authentication Guide** - Authentication system details
+
+**Deployment Documentation (`DocFX/articles/deployment/`)**:
+- ✅ **Production Setup** - Complete IIS deployment guide
+- ✅ **IIS Configuration** - Application pool and site setup
+- ✅ **Database Setup** - Production database configuration
+
+**API Documentation (`DocFX/api/`)**:
+- ✅ **Auto-generated from C# code** - Complete API reference from XML comments
+- ✅ **Controller Documentation** - SessionController, HostController, etc.
+- ✅ **SignalR Hub Documentation** - Real-time communication APIs
+- ✅ **Model Documentation** - Data models and entities
+
+**DOCUMENTATION FEATURES**:
+- ✅ **Cross-references** between user and technical documentation
+- ✅ **Automatic TOC updates** with proper navigation structure
+- ✅ **Search functionality** built into DocFX site
+- ✅ **Mobile-responsive** documentation interface
+- ✅ **Mermaid diagram support** for technical workflows
+- ✅ **Code syntax highlighting** for all supported languages
+
 ### **PowerShell Command Guidelines**
 ```powershell
 # ✅ CORRECT: Use semicolon for command separation
@@ -115,6 +188,57 @@ netstat -ano | findstr ":9091"  # HTTPS (primary)
 # Should show IIS Express process binding to both ports
 ```
 
+## Build & Compilation Warning Tracking
+
+Purpose: ensure compilation warnings are captured, triaged, and fixed as part of the release gates. Warnings can indicate real reliability, correctness, or security problems and must be tracked to completion.
+
+Guidelines:
+
+- Capture warnings during local and CI builds. Use MSBuild verbosity flags to surface warnings and create a parsable output format:
+
+```powershell
+# Local build that prints warnings and errors in a machine-parseable format
+dotnet build "SPA/NoorCanvas/NoorCanvas.csproj" /v:m /nologo /clp:ErrorsOnly
+
+# CI build (example) - save warnings to a file
+dotnet build "SPA/NoorCanvas/NoorCanvas.csproj" /v:m > build-output.txt
+grep "warning" build-output.txt | tee build-warnings.txt
+```
+
+- CI policy: fail the PR if new warnings are introduced in changed projects. Use scripts to compute a baseline and compare.
+
+- Recommended tooling:
+    - `msbuild` / `dotnet build` for build output
+    - `grep`/`Select-String` for extracting "warning" lines
+    - `sonarlint` / `roslyn analyzers` for static analysis warnings
+
+- Triage process:
+    1. Classify warning (Security / Performance / Maintainability / Deprecation / Style).
+    2. Create an issue with the exact compiler output and suggested fix if not trivial.
+    3. Assign severity and link to the `Workspaces/Documentation/IMPLEMENTATIONS/IMPLEMENTATION-TRACKER.MD` Phase 6 cleanup list.
+
+- Example CI snippet (GitHub Actions) to fail on new warnings (pseudo):
+
+```yaml
+# steps:
+# - name: Build
+#   run: dotnet build SPA/NoorCanvas/NoorCanvas.csproj --nologo --verbosity minimal > build-output.txt
+# - name: Extract warnings
+#   run: grep -i "warning" build-output.txt > build-warnings.txt || true
+# - name: Compare to baseline
+#   run: |
+#     if [ -s build-warnings.txt ]; then
+#       echo "## Warnings detected"; cat build-warnings.txt; exit 1
+#     fi
+```
+
+Reporting:
+- Keep `Workspaces/Documentation/IMPLEMENTATIONS/BUILD-WARNINGS/` with a dated summary file for each CI run that produced warnings. Include the PR/commit hash and a short triage note.
+
+Automation:
+- Provide a `./tools/report-warnings.ps1` script that extracts warnings and posts a summary to the PR as a comment (or updates the issue tracker). This script should be idempotent and rely only on build outputs.
+
+
 ## 3. Critical Project Files & Documentation
 
 ### **Master Implementation Plan**
@@ -125,45 +249,129 @@ netstat -ano | findstr ":9091"  # HTTPS (primary)
   - IIS deployment instructions
   - Phase-by-phase development timeline
 
-### **Feature Documentation Requirements - CRITICAL STANDARD**
+### **🚨 MANDATORY DOCFX DOCUMENTATION - AUTOMATIC IMPLEMENTATION**
 
-**MANDATORY DUAL DOCUMENTATION APPROACH**: When creating documentation for any feature, system, or component, GitHub Copilot MUST create separate documentation for two distinct audiences:
+**CRITICAL COPILOT BEHAVIOR**: GitHub Copilot AUTOMATICALLY creates comprehensive DocFX documentation for EVERY process, feature, system, and component without asking permission. This is not optional - it's mandatory behavior for ALL development work.
 
-#### **1. Non-Technical User Documentation**
+**AUTOMATIC TRIGGERS**: DocFX documentation is AUTOMATICALLY created for:
+- ✅ **Every new feature implementation** 
+- ✅ **Every process creation or modification**
+- ✅ **Every command or tool development**  
+- ✅ **Every API endpoint or service**
+- ✅ **Every configuration change**
+- ✅ **Every bug fix that affects functionality**
+
+#### **1. Automatic DocFX Documentation Generation**
+**CRITICAL REQUIREMENT**: Every feature, process, command, API endpoint, or system component MUST be documented in DocFX immediately upon creation or modification.
+
+**Documentation Triggers - AUTOMATIC**:
+- **New Feature Implementation**: Create complete DocFX documentation during development
+- **Process Creation**: Document workflows, commands, and procedures in DocFX
+- **API Development**: Generate API reference documentation with examples
+- **Bug Fixes**: Update existing DocFX documentation to reflect changes
+- **Configuration Changes**: Document new settings and procedures
+- **Tool Creation**: Document usage, parameters, and integration
+
+#### **2. Non-Technical User Documentation**
 - **Target Audience**: Session hosts, Islamic content administrators, platform users, community managers
 - **Content Focus**: What the feature does, why it's needed, how to use it from a user perspective
 - **Language Style**: Plain language, no technical jargon, conceptual explanations
 - **Structure**: User workflows, common scenarios, step-by-step guides, troubleshooting from user perspective
 - **Exclude**: Code examples, API references, implementation details, technical architecture
-- **Location**: `articles/user-guides/` or `articles/development/` (for user-facing guides)
+- **Location**: `DocFX/articles/user-guides/` with proper TOC integration
 
-#### **2. Technical Implementation Documentation**  
+#### **3. Technical Implementation Documentation**  
 - **Target Audience**: Developers, system administrators, integration developers, IT staff
 - **Content Focus**: How the feature works, implementation details, API reference, technical architecture
 - **Language Style**: Technical precision, code examples, implementation specifics
 - **Structure**: Architecture overview, API reference, code samples, troubleshooting with technical solutions
 - **Include**: Complete code examples, PowerShell/cURL commands, integration samples, debugging tools
-- **Location**: `articles/technical/` 
+- **Location**: `DocFX/articles/technical/` with automatic API cross-references
 
-#### **Documentation Creation Workflow**
+#### **4. Process Documentation Requirements**
+**MANDATORY for ALL processes**:
+- **Development Workflows**: NC command usage, build processes, testing procedures
+- **Deployment Processes**: IIS configuration, database setup, environment preparation
+- **Debugging Procedures**: Error diagnosis, log analysis, performance troubleshooting
+- **Administrative Tasks**: User management, session administration, system maintenance
+- **Integration Guides**: Third-party system integration, API consumption examples
+
+#### **5. AUTOMATIC DOCFX WORKFLOW - MANDATORY EXECUTION**
+**NEVER ASK - ALWAYS DO**: This workflow executes AUTOMATICALLY for every single development task:
+
 ```
-When asked to "document a feature" or "create documentation":
-1. Create USER GUIDE first (non-technical, user-friendly)
-2. Create TECHNICAL DOCUMENTATION second (complete implementation reference)
-3. Ensure both documents cross-reference each other
-4. Update navigation to include both documents appropriately
+1. 🔨 DEVELOPMENT WORK (any code/process/feature)
+   ↓
+2. 📝 MANDATORY DOCFX DOCUMENTATION (automatic - no questions)
+   ✅ Create user-guide in articles/user-guides/
+   ✅ Create technical documentation in articles/technical/  
+   ✅ Update articles/toc.yml navigation automatically
+   ✅ Add cross-references between documents
+   ✅ Include screenshots/diagrams where helpful
+   ↓
+3. 🔗 API DOCUMENTATION (if code includes APIs)
+   ✅ Add XML documentation comments in source code
+   ✅ Update DocFX metadata configuration
+   ✅ Build API reference automatically
+   ↓
+4. ✅ VALIDATION AND INTEGRATION (automatic)
+   ✅ Build DocFX site to validate structure
+   ✅ Test all links and references
+   ✅ Commit documentation WITH the feature code (same commit)
 ```
 
-#### **Example Structure**
+**COPILOT BEHAVIOR**: Never ask "Should I create documentation?" - Just do it automatically.
+
+#### **6. DocFX Structure and Standards**
+**Required Directory Structure**:
 ```
-DocFX/articles/
-├── user-guides/
-│   └── feature-name-user-guide.md          # Non-technical, user-friendly
-└── technical/
-    └── feature-name-technical-reference.md  # Complete technical implementation
+DocFX/
+├── articles/
+│   ├── user-guides/
+│   │   ├── feature-name-user-guide.md
+│   │   ├── process-name-guide.md
+│   │   └── troubleshooting-guide.md
+│   ├── technical/
+│   │   ├── feature-name-technical-reference.md
+│   │   ├── api-reference/
+│   │   ├── architecture-diagrams/
+│   │   └── integration-examples/
+│   ├── development/
+│   │   ├── getting-started.md
+│   │   ├── build-processes.md
+│   │   └── testing-procedures.md
+│   ├── deployment/
+│   │   ├── iis-configuration.md
+│   │   ├── database-setup.md
+│   │   └── production-deployment.md
+│   └── toc.yml
+├── api/           # Auto-generated API documentation
+├── images/        # Screenshots, diagrams, flowcharts
+└── docfx.json     # DocFX configuration
 ```
 
-**CRITICAL**: Never combine user and technical documentation in a single document. Always create separate, targeted documentation for each audience.
+#### **7. Documentation Quality Standards**
+**MANDATORY Requirements for ALL DocFX Documentation**:
+- **Complete Examples**: Every procedure includes full working examples
+- **Screenshots/Diagrams**: Visual aids for complex processes using Mermaid diagrams
+- **Cross-References**: Links between related user and technical documentation
+- **Version Information**: Document version compatibility and requirements
+- **Testing Validation**: All documented procedures must be tested and validated
+- **Search Optimization**: Proper metadata and keywords for DocFX search functionality
+
+#### **8. COPILOT AUTOMATIC DOCUMENTATION BEHAVIOR**
+**🚫 NEVER ASK** "Should I create documentation?" — Documentation is MANDATORY for everything
+**✅ ALWAYS CREATE** both user and technical DocFX documentation simultaneously  
+**✅ AUTOMATICALLY UPDATE** table of contents (toc.yml) with new documentation
+**✅ MAINTAIN CONSISTENCY** with existing DocFX patterns and structure
+**✅ VALIDATE AUTOMATICALLY** by building DocFX site after creation
+**✅ COMMIT TOGETHER** documentation with feature code in same commit
+
+**CRITICAL RULE**: Every feature, bug fix, process change, or system modification MUST have corresponding DocFX documentation. No exceptions.
+
+**SEPARATION REQUIREMENT**: Never combine user and technical documentation. Always create:
+- **User Guide**: `articles/user-guides/` - How to use it (plain language)
+- **Technical Reference**: `articles/technical/` - How it works (technical details)
 
 ### **Issue Tracking System** 
 - **Main Tracker:** `IssueTracker/NC-ISSUE-TRACKER.MD`
@@ -1318,6 +1526,32 @@ git commit --no-verify -m "emergency: bypass tests"
 ```
 
 ## 12. Quick Reference Commands
+
+### **DocFX Documentation Commands (AUTOMATIC)**
+**Documentation Generation (Mandatory for all features)**:
+```powershell
+# Build DocFX documentation site
+cd "D:\PROJECTS\NOOR CANVAS"; docfx DocFX/docfx.json --serve    # Build and serve locally
+
+# Build only (for validation)  
+cd "D:\PROJECTS\NOOR CANVAS"; docfx DocFX/docfx.json            # Generate static site
+
+# Watch mode for development
+cd "D:\PROJECTS\NOOR CANVAS"; docfx DocFX/docfx.json --serve --watch  # Auto-rebuild on changes
+```
+
+**Global Documentation Commands**:
+```powershell
+ncdoc                                          # Launch DocFX documentation site (global command)
+ncdoc -build                                   # Build documentation only
+ncdoc -help                                    # DocFX command help and usage
+```
+
+**MANDATORY BUILD VALIDATION**: After creating any documentation, ALWAYS run:
+```powershell
+cd "D:\PROJECTS\NOOR CANVAS"; docfx DocFX/docfx.json
+```
+This validates all links, references, and ensures documentation builds successfully.
 
 ### **Automated Testing Commands (NEW)**
 **Post-Build Testing (Automatic)**:

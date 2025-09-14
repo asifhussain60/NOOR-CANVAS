@@ -1,0 +1,531 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Controllers.AdminUserListResponse
+  commentId: T:NoorCanvas.Controllers.AdminUserListResponse
+  id: AdminUserListResponse
+  parent: NoorCanvas.Controllers
+  children:
+  - NoorCanvas.Controllers.AdminUserListResponse.Page
+  - NoorCanvas.Controllers.AdminUserListResponse.PageSize
+  - NoorCanvas.Controllers.AdminUserListResponse.TotalCount
+  - NoorCanvas.Controllers.AdminUserListResponse.TotalPages
+  - NoorCanvas.Controllers.AdminUserListResponse.Users
+  langs:
+  - csharp
+  - vb
+  name: AdminUserListResponse
+  nameWithType: AdminUserListResponse
+  fullName: NoorCanvas.Controllers.AdminUserListResponse
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AdminController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AdminUserListResponse
+    path: ../SPA/NoorCanvas/Controllers/AdminController.cs
+    startLine: 444
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public class AdminUserListResponse
+    content.vb: Public Class AdminUserListResponse
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+- uid: NoorCanvas.Controllers.AdminUserListResponse.Users
+  commentId: P:NoorCanvas.Controllers.AdminUserListResponse.Users
+  id: Users
+  parent: NoorCanvas.Controllers.AdminUserListResponse
+  langs:
+  - csharp
+  - vb
+  name: Users
+  nameWithType: AdminUserListResponse.Users
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.Users
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AdminController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Users
+    path: ../SPA/NoorCanvas/Controllers/AdminController.cs
+    startLine: 446
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public List<AdminUserDetails> Users { get; set; }
+    parameters: []
+    return:
+      type: List{NoorCanvas.Controllers.AdminUserDetails}
+    content.vb: Public Property Users As List(Of AdminUserDetails)
+  overload: NoorCanvas.Controllers.AdminUserListResponse.Users*
+- uid: NoorCanvas.Controllers.AdminUserListResponse.TotalCount
+  commentId: P:NoorCanvas.Controllers.AdminUserListResponse.TotalCount
+  id: TotalCount
+  parent: NoorCanvas.Controllers.AdminUserListResponse
+  langs:
+  - csharp
+  - vb
+  name: TotalCount
+  nameWithType: AdminUserListResponse.TotalCount
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.TotalCount
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AdminController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: TotalCount
+    path: ../SPA/NoorCanvas/Controllers/AdminController.cs
+    startLine: 447
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public int TotalCount { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property TotalCount As Integer
+  overload: NoorCanvas.Controllers.AdminUserListResponse.TotalCount*
+- uid: NoorCanvas.Controllers.AdminUserListResponse.Page
+  commentId: P:NoorCanvas.Controllers.AdminUserListResponse.Page
+  id: Page
+  parent: NoorCanvas.Controllers.AdminUserListResponse
+  langs:
+  - csharp
+  - vb
+  name: Page
+  nameWithType: AdminUserListResponse.Page
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.Page
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AdminController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Page
+    path: ../SPA/NoorCanvas/Controllers/AdminController.cs
+    startLine: 448
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public int Page { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property Page As Integer
+  overload: NoorCanvas.Controllers.AdminUserListResponse.Page*
+- uid: NoorCanvas.Controllers.AdminUserListResponse.PageSize
+  commentId: P:NoorCanvas.Controllers.AdminUserListResponse.PageSize
+  id: PageSize
+  parent: NoorCanvas.Controllers.AdminUserListResponse
+  langs:
+  - csharp
+  - vb
+  name: PageSize
+  nameWithType: AdminUserListResponse.PageSize
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.PageSize
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AdminController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: PageSize
+    path: ../SPA/NoorCanvas/Controllers/AdminController.cs
+    startLine: 449
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public int PageSize { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property PageSize As Integer
+  overload: NoorCanvas.Controllers.AdminUserListResponse.PageSize*
+- uid: NoorCanvas.Controllers.AdminUserListResponse.TotalPages
+  commentId: P:NoorCanvas.Controllers.AdminUserListResponse.TotalPages
+  id: TotalPages
+  parent: NoorCanvas.Controllers.AdminUserListResponse
+  langs:
+  - csharp
+  - vb
+  name: TotalPages
+  nameWithType: AdminUserListResponse.TotalPages
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.TotalPages
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Controllers/AdminController.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: TotalPages
+    path: ../SPA/NoorCanvas/Controllers/AdminController.cs
+    startLine: 450
+  namespace: NoorCanvas.Controllers
+  syntax:
+    content: public int TotalPages { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Property TotalPages As Integer
+  overload: NoorCanvas.Controllers.AdminUserListResponse.TotalPages*
+references:
+- uid: NoorCanvas.Controllers
+  commentId: N:NoorCanvas.Controllers
+  href: NoorCanvas.html
+  name: NoorCanvas.Controllers
+  nameWithType: NoorCanvas.Controllers
+  fullName: NoorCanvas.Controllers
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Controllers
+    name: Controllers
+    href: NoorCanvas.Controllers.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  name: Equals(object)
+  nameWithType: object.Equals(object)
+  fullName: object.Equals(object)
+  nameWithType.vb: Object.Equals(Object)
+  fullName.vb: Object.Equals(Object)
+  name.vb: Equals(Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  name: Equals(object, object)
+  nameWithType: object.Equals(object, object)
+  fullName: object.Equals(object, object)
+  nameWithType.vb: Object.Equals(Object, Object)
+  fullName.vb: Object.Equals(Object, Object)
+  name.vb: Equals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  name: GetHashCode()
+  nameWithType: object.GetHashCode()
+  fullName: object.GetHashCode()
+  nameWithType.vb: Object.GetHashCode()
+  fullName.vb: Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gethashcode
+  - name: (
+  - name: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  name: GetType()
+  nameWithType: object.GetType()
+  fullName: object.GetType()
+  nameWithType.vb: Object.GetType()
+  fullName.vb: Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.gettype
+  - name: (
+  - name: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  name: MemberwiseClone()
+  nameWithType: object.MemberwiseClone()
+  fullName: object.MemberwiseClone()
+  nameWithType.vb: Object.MemberwiseClone()
+  fullName.vb: Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone
+  - name: (
+  - name: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  name: ReferenceEquals(object, object)
+  nameWithType: object.ReferenceEquals(object, object)
+  fullName: object.ReferenceEquals(object, object)
+  nameWithType.vb: Object.ReferenceEquals(Object, Object)
+  fullName.vb: Object.ReferenceEquals(Object, Object)
+  name.vb: ReferenceEquals(Object, Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.referenceequals
+  - name: (
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: ','
+  - name: " "
+  - uid: System.Object
+    name: Object
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object
+  - name: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  name: ToString()
+  nameWithType: object.ToString()
+  fullName: object.ToString()
+  nameWithType.vb: Object.ToString()
+  fullName.vb: Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.object.tostring
+  - name: (
+  - name: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Controllers.AdminUserListResponse.Users*
+  commentId: Overload:NoorCanvas.Controllers.AdminUserListResponse.Users
+  href: NoorCanvas.Controllers.AdminUserListResponse.html#NoorCanvas_Controllers_AdminUserListResponse_Users
+  name: Users
+  nameWithType: AdminUserListResponse.Users
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.Users
+- uid: List{NoorCanvas.Controllers.AdminUserDetails}
+  commentId: '!:List{NoorCanvas.Controllers.AdminUserDetails}'
+  definition: List`1
+  href: NoorCanvas.Controllers.AdminUserDetails.html
+  name: List<AdminUserDetails>
+  nameWithType: List<AdminUserDetails>
+  fullName: List<NoorCanvas.Controllers.AdminUserDetails>
+  nameWithType.vb: List(Of AdminUserDetails)
+  fullName.vb: List(Of NoorCanvas.Controllers.AdminUserDetails)
+  name.vb: List(Of AdminUserDetails)
+  spec.csharp:
+  - uid: List`1
+    name: List
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Controllers.AdminUserDetails
+    name: AdminUserDetails
+    href: NoorCanvas.Controllers.AdminUserDetails.html
+  - name: '>'
+  spec.vb:
+  - uid: List`1
+    name: List
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Controllers.AdminUserDetails
+    name: AdminUserDetails
+    href: NoorCanvas.Controllers.AdminUserDetails.html
+  - name: )
+- uid: List`1
+  isExternal: true
+  name: List<>
+  nameWithType: List<>
+  fullName: List<>
+  nameWithType.vb: List(Of )
+  fullName.vb: List(Of )
+  name.vb: List(Of )
+  spec.csharp:
+  - uid: List`1
+    name: List
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: List`1
+    name: List
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Controllers.AdminUserListResponse.TotalCount*
+  commentId: Overload:NoorCanvas.Controllers.AdminUserListResponse.TotalCount
+  href: NoorCanvas.Controllers.AdminUserListResponse.html#NoorCanvas_Controllers_AdminUserListResponse_TotalCount
+  name: TotalCount
+  nameWithType: AdminUserListResponse.TotalCount
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.TotalCount
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: NoorCanvas.Controllers.AdminUserListResponse.Page*
+  commentId: Overload:NoorCanvas.Controllers.AdminUserListResponse.Page
+  href: NoorCanvas.Controllers.AdminUserListResponse.html#NoorCanvas_Controllers_AdminUserListResponse_Page
+  name: Page
+  nameWithType: AdminUserListResponse.Page
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.Page
+- uid: NoorCanvas.Controllers.AdminUserListResponse.PageSize*
+  commentId: Overload:NoorCanvas.Controllers.AdminUserListResponse.PageSize
+  href: NoorCanvas.Controllers.AdminUserListResponse.html#NoorCanvas_Controllers_AdminUserListResponse_PageSize
+  name: PageSize
+  nameWithType: AdminUserListResponse.PageSize
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.PageSize
+- uid: NoorCanvas.Controllers.AdminUserListResponse.TotalPages*
+  commentId: Overload:NoorCanvas.Controllers.AdminUserListResponse.TotalPages
+  href: NoorCanvas.Controllers.AdminUserListResponse.html#NoorCanvas_Controllers_AdminUserListResponse_TotalPages
+  name: TotalPages
+  nameWithType: AdminUserListResponse.TotalPages
+  fullName: NoorCanvas.Controllers.AdminUserListResponse.TotalPages

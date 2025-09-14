@@ -1,0 +1,35 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Hubs
+  commentId: N:NoorCanvas.Hubs
+  id: NoorCanvas.Hubs
+  children:
+  - NoorCanvas.Hubs.AnnotationHub
+  - NoorCanvas.Hubs.QAHub
+  - NoorCanvas.Hubs.SessionHub
+  langs:
+  - csharp
+  - vb
+  name: NoorCanvas.Hubs
+  nameWithType: NoorCanvas.Hubs
+  fullName: NoorCanvas.Hubs
+  type: Namespace
+references:
+- uid: NoorCanvas.Hubs.AnnotationHub
+  commentId: T:NoorCanvas.Hubs.AnnotationHub
+  href: NoorCanvas.Hubs.AnnotationHub.html
+  name: AnnotationHub
+  nameWithType: AnnotationHub
+  fullName: NoorCanvas.Hubs.AnnotationHub
+- uid: NoorCanvas.Hubs.QAHub
+  commentId: T:NoorCanvas.Hubs.QAHub
+  href: NoorCanvas.Hubs.QAHub.html
+  name: QAHub
+  nameWithType: QAHub
+  fullName: NoorCanvas.Hubs.QAHub
+- uid: NoorCanvas.Hubs.SessionHub
+  commentId: T:NoorCanvas.Hubs.SessionHub
+  href: NoorCanvas.Hubs.SessionHub.html
+  name: SessionHub
+  nameWithType: SessionHub
+  fullName: NoorCanvas.Hubs.SessionHub

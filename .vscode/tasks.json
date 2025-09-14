@@ -27,13 +27,14 @@
 		},
 		{
 			"label": "run-post-build-tests",
-			"command": "pwsh",
 			"type": "shell",
+			"command": "powershell.exe",
 			"args": [
+				"-NoProfile",
 				"-ExecutionPolicy",
 				"Bypass",
 				"-File",
-				"${workspaceFolder}/.hooks/post-build.ps1",
+				"${workspaceFolder}/.hooks/run-post-build.ps1",
 				"-Configuration",
 				"Debug"
 			],

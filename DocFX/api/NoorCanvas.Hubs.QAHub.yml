@@ -1,0 +1,478 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Hubs.QAHub
+  commentId: T:NoorCanvas.Hubs.QAHub
+  id: QAHub
+  parent: NoorCanvas.Hubs
+  children:
+  - NoorCanvas.Hubs.QAHub.#ctor(ILogger{NoorCanvas.Hubs.QAHub},NoorCanvas.Data.CanvasDbContext)
+  - NoorCanvas.Hubs.QAHub.AskQuestion(System.Int64,System.String,Guid)
+  - NoorCanvas.Hubs.QAHub.JoinQASession(System.Int64)
+  - NoorCanvas.Hubs.QAHub.OnConnectedAsync
+  - NoorCanvas.Hubs.QAHub.OnDisconnectedAsync(System.Nullable{Exception})
+  - NoorCanvas.Hubs.QAHub.Vote(System.Int64,Guid,System.Int32)
+  langs:
+  - csharp
+  - vb
+  name: QAHub
+  nameWithType: QAHub
+  fullName: NoorCanvas.Hubs.QAHub
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: QAHub
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 6
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: 'public class QAHub : Hub'
+    content.vb: Public Class QAHub Inherits Hub
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Hubs.QAHub.#ctor(ILogger{NoorCanvas.Hubs.QAHub},NoorCanvas.Data.CanvasDbContext)
+  commentId: M:NoorCanvas.Hubs.QAHub.#ctor(ILogger{NoorCanvas.Hubs.QAHub},NoorCanvas.Data.CanvasDbContext)
+  id: '#ctor(ILogger{NoorCanvas.Hubs.QAHub},NoorCanvas.Data.CanvasDbContext)'
+  parent: NoorCanvas.Hubs.QAHub
+  langs:
+  - csharp
+  - vb
+  name: QAHub(ILogger<QAHub>, CanvasDbContext)
+  nameWithType: QAHub.QAHub(ILogger<QAHub>, CanvasDbContext)
+  fullName: NoorCanvas.Hubs.QAHub.QAHub(ILogger<NoorCanvas.Hubs.QAHub>, NoorCanvas.Data.CanvasDbContext)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 11
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public QAHub(ILogger<QAHub> logger, CanvasDbContext context)
+    parameters:
+    - id: logger
+      type: ILogger{NoorCanvas.Hubs.QAHub}
+    - id: context
+      type: NoorCanvas.Data.CanvasDbContext
+    content.vb: Public Sub New(logger As ILogger(Of QAHub), context As CanvasDbContext)
+  overload: NoorCanvas.Hubs.QAHub.#ctor*
+  nameWithType.vb: QAHub.New(ILogger(Of QAHub), CanvasDbContext)
+  fullName.vb: NoorCanvas.Hubs.QAHub.New(ILogger(Of NoorCanvas.Hubs.QAHub), NoorCanvas.Data.CanvasDbContext)
+  name.vb: New(ILogger(Of QAHub), CanvasDbContext)
+- uid: NoorCanvas.Hubs.QAHub.JoinQASession(System.Int64)
+  commentId: M:NoorCanvas.Hubs.QAHub.JoinQASession(System.Int64)
+  id: JoinQASession(System.Int64)
+  parent: NoorCanvas.Hubs.QAHub
+  langs:
+  - csharp
+  - vb
+  name: JoinQASession(long)
+  nameWithType: QAHub.JoinQASession(long)
+  fullName: NoorCanvas.Hubs.QAHub.JoinQASession(long)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: JoinQASession
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 17
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task JoinQASession(long sessionId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    return:
+      type: Task
+    content.vb: Public Function JoinQASession(sessionId As Long) As Task
+  overload: NoorCanvas.Hubs.QAHub.JoinQASession*
+  nameWithType.vb: QAHub.JoinQASession(Long)
+  fullName.vb: NoorCanvas.Hubs.QAHub.JoinQASession(Long)
+  name.vb: JoinQASession(Long)
+- uid: NoorCanvas.Hubs.QAHub.AskQuestion(System.Int64,System.String,Guid)
+  commentId: M:NoorCanvas.Hubs.QAHub.AskQuestion(System.Int64,System.String,Guid)
+  id: AskQuestion(System.Int64,System.String,Guid)
+  parent: NoorCanvas.Hubs.QAHub
+  langs:
+  - csharp
+  - vb
+  name: AskQuestion(long, string, Guid)
+  nameWithType: QAHub.AskQuestion(long, string, Guid)
+  fullName: NoorCanvas.Hubs.QAHub.AskQuestion(long, string, Guid)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AskQuestion
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 26
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task AskQuestion(long sessionId, string questionText, Guid userId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: questionText
+      type: System.String
+    - id: userId
+      type: Guid
+    return:
+      type: Task
+    content.vb: Public Function AskQuestion(sessionId As Long, questionText As String, userId As Guid) As Task
+  overload: NoorCanvas.Hubs.QAHub.AskQuestion*
+  nameWithType.vb: QAHub.AskQuestion(Long, String, Guid)
+  fullName.vb: NoorCanvas.Hubs.QAHub.AskQuestion(Long, String, Guid)
+  name.vb: AskQuestion(Long, String, Guid)
+- uid: NoorCanvas.Hubs.QAHub.Vote(System.Int64,Guid,System.Int32)
+  commentId: M:NoorCanvas.Hubs.QAHub.Vote(System.Int64,Guid,System.Int32)
+  id: Vote(System.Int64,Guid,System.Int32)
+  parent: NoorCanvas.Hubs.QAHub
+  langs:
+  - csharp
+  - vb
+  name: Vote(long, Guid, int)
+  nameWithType: QAHub.Vote(long, Guid, int)
+  fullName: NoorCanvas.Hubs.QAHub.Vote(long, Guid, int)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Vote
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 66
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public Task Vote(long questionId, Guid userId, int voteValue)
+    parameters:
+    - id: questionId
+      type: System.Int64
+    - id: userId
+      type: Guid
+    - id: voteValue
+      type: System.Int32
+    return:
+      type: Task
+    content.vb: Public Function Vote(questionId As Long, userId As Guid, voteValue As Integer) As Task
+  overload: NoorCanvas.Hubs.QAHub.Vote*
+  nameWithType.vb: QAHub.Vote(Long, Guid, Integer)
+  fullName.vb: NoorCanvas.Hubs.QAHub.Vote(Long, Guid, Integer)
+  name.vb: Vote(Long, Guid, Integer)
+- uid: NoorCanvas.Hubs.QAHub.OnConnectedAsync
+  commentId: M:NoorCanvas.Hubs.QAHub.OnConnectedAsync
+  id: OnConnectedAsync
+  parent: NoorCanvas.Hubs.QAHub
+  langs:
+  - csharp
+  - vb
+  name: OnConnectedAsync()
+  nameWithType: QAHub.OnConnectedAsync()
+  fullName: NoorCanvas.Hubs.QAHub.OnConnectedAsync()
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnConnectedAsync
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 100
+  namespace: NoorCanvas.Hubs
+  example: []
+  syntax:
+    content: public override Task OnConnectedAsync()
+    return:
+      type: Task
+    content.vb: Public Overrides Function OnConnectedAsync() As Task
+  overload: NoorCanvas.Hubs.QAHub.OnConnectedAsync*
+- uid: NoorCanvas.Hubs.QAHub.OnDisconnectedAsync(System.Nullable{Exception})
+  commentId: M:NoorCanvas.Hubs.QAHub.OnDisconnectedAsync(System.Nullable{Exception})
+  id: OnDisconnectedAsync(System.Nullable{Exception})
+  parent: NoorCanvas.Hubs.QAHub
+  langs:
+  - csharp
+  - vb
+  name: OnDisconnectedAsync(Exception?)
+  nameWithType: QAHub.OnDisconnectedAsync(Exception?)
+  fullName: NoorCanvas.Hubs.QAHub.OnDisconnectedAsync(Exception?)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/QAHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnDisconnectedAsync
+    path: ../SPA/NoorCanvas/Hubs/QAHub.cs
+    startLine: 106
+  namespace: NoorCanvas.Hubs
+  example: []
+  syntax:
+    content: public override Task OnDisconnectedAsync(Exception? exception)
+    parameters:
+    - id: exception
+      type: System.Nullable{Exception}
+    return:
+      type: Task
+    content.vb: Public Overrides Function OnDisconnectedAsync(exception As Exception?) As Task
+  overload: NoorCanvas.Hubs.QAHub.OnDisconnectedAsync*
+references:
+- uid: NoorCanvas.Hubs
+  commentId: N:NoorCanvas.Hubs
+  href: NoorCanvas.html
+  name: NoorCanvas.Hubs
+  nameWithType: NoorCanvas.Hubs
+  fullName: NoorCanvas.Hubs
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Hubs
+    name: Hubs
+    href: NoorCanvas.Hubs.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Hubs
+    name: Hubs
+    href: NoorCanvas.Hubs.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Hubs.QAHub.#ctor*
+  commentId: Overload:NoorCanvas.Hubs.QAHub.#ctor
+  href: NoorCanvas.Hubs.QAHub.html#NoorCanvas_Hubs_QAHub__ctor_ILogger_NoorCanvas_Hubs_QAHub__NoorCanvas_Data_CanvasDbContext_
+  name: QAHub
+  nameWithType: QAHub.QAHub
+  fullName: NoorCanvas.Hubs.QAHub.QAHub
+  nameWithType.vb: QAHub.New
+  fullName.vb: NoorCanvas.Hubs.QAHub.New
+  name.vb: New
+- uid: ILogger{NoorCanvas.Hubs.QAHub}
+  commentId: '!:ILogger{NoorCanvas.Hubs.QAHub}'
+  definition: ILogger`1
+  href: NoorCanvas.Hubs.QAHub.html
+  name: ILogger<QAHub>
+  nameWithType: ILogger<QAHub>
+  fullName: ILogger<NoorCanvas.Hubs.QAHub>
+  nameWithType.vb: ILogger(Of QAHub)
+  fullName.vb: ILogger(Of NoorCanvas.Hubs.QAHub)
+  name.vb: ILogger(Of QAHub)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Hubs.QAHub
+    name: QAHub
+    href: NoorCanvas.Hubs.QAHub.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Hubs.QAHub
+    name: QAHub
+    href: NoorCanvas.Hubs.QAHub.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext
+  commentId: T:NoorCanvas.Data.CanvasDbContext
+  parent: NoorCanvas.Data
+  href: NoorCanvas.Data.CanvasDbContext.html
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+- uid: NoorCanvas.Hubs.QAHub.JoinQASession*
+  commentId: Overload:NoorCanvas.Hubs.QAHub.JoinQASession
+  href: NoorCanvas.Hubs.QAHub.html#NoorCanvas_Hubs_QAHub_JoinQASession_System_Int64_
+  name: JoinQASession
+  nameWithType: QAHub.JoinQASession
+  fullName: NoorCanvas.Hubs.QAHub.JoinQASession
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: NoorCanvas.Hubs.QAHub.AskQuestion*
+  commentId: Overload:NoorCanvas.Hubs.QAHub.AskQuestion
+  href: NoorCanvas.Hubs.QAHub.html#NoorCanvas_Hubs_QAHub_AskQuestion_System_Int64_System_String_Guid_
+  name: AskQuestion
+  nameWithType: QAHub.AskQuestion
+  fullName: NoorCanvas.Hubs.QAHub.AskQuestion
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: Guid
+  isExternal: true
+  name: Guid
+  nameWithType: Guid
+  fullName: Guid
+- uid: NoorCanvas.Hubs.QAHub.Vote*
+  commentId: Overload:NoorCanvas.Hubs.QAHub.Vote
+  href: NoorCanvas.Hubs.QAHub.html#NoorCanvas_Hubs_QAHub_Vote_System_Int64_Guid_System_Int32_
+  name: Vote
+  nameWithType: QAHub.Vote
+  fullName: NoorCanvas.Hubs.QAHub.Vote
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int32
+  name: int
+  nameWithType: int
+  fullName: int
+  nameWithType.vb: Integer
+  fullName.vb: Integer
+  name.vb: Integer
+- uid: NoorCanvas.Hubs.QAHub.OnConnectedAsync*
+  commentId: Overload:NoorCanvas.Hubs.QAHub.OnConnectedAsync
+  href: NoorCanvas.Hubs.QAHub.html#NoorCanvas_Hubs_QAHub_OnConnectedAsync
+  name: OnConnectedAsync
+  nameWithType: QAHub.OnConnectedAsync
+  fullName: NoorCanvas.Hubs.QAHub.OnConnectedAsync
+- uid: NoorCanvas.Hubs.QAHub.OnDisconnectedAsync*
+  commentId: Overload:NoorCanvas.Hubs.QAHub.OnDisconnectedAsync
+  href: NoorCanvas.Hubs.QAHub.html#NoorCanvas_Hubs_QAHub_OnDisconnectedAsync_System_Nullable_Exception__
+  name: OnDisconnectedAsync
+  nameWithType: QAHub.OnDisconnectedAsync
+  fullName: NoorCanvas.Hubs.QAHub.OnDisconnectedAsync
+- uid: System.Nullable{Exception}
+  commentId: T:System.Nullable{Exception}
+  parent: System
+  definition: System.Nullable`1
+  name: Exception?
+  nameWithType: Exception?
+  fullName: Exception?
+  spec.csharp:
+  - uid: Exception
+    name: Exception
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: Exception
+    name: Exception
+    isExternal: true
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )

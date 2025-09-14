@@ -1,0 +1,1059 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Data.CanvasDbContext
+  commentId: T:NoorCanvas.Data.CanvasDbContext
+  id: CanvasDbContext
+  parent: NoorCanvas.Data
+  children:
+  - NoorCanvas.Data.CanvasDbContext.#ctor(DbContextOptions{NoorCanvas.Data.CanvasDbContext})
+  - NoorCanvas.Data.CanvasDbContext.AdminSessions
+  - NoorCanvas.Data.CanvasDbContext.Annotations
+  - NoorCanvas.Data.CanvasDbContext.AuditLogs
+  - NoorCanvas.Data.CanvasDbContext.HostSessions
+  - NoorCanvas.Data.CanvasDbContext.Issues
+  - NoorCanvas.Data.CanvasDbContext.OnModelCreating(ModelBuilder)
+  - NoorCanvas.Data.CanvasDbContext.QuestionAnswers
+  - NoorCanvas.Data.CanvasDbContext.QuestionVotes
+  - NoorCanvas.Data.CanvasDbContext.Questions
+  - NoorCanvas.Data.CanvasDbContext.Registrations
+  - NoorCanvas.Data.CanvasDbContext.SessionLinks
+  - NoorCanvas.Data.CanvasDbContext.Sessions
+  - NoorCanvas.Data.CanvasDbContext.SharedAssets
+  - NoorCanvas.Data.CanvasDbContext.Users
+  langs:
+  - csharp
+  - vb
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: CanvasDbContext
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 5
+  namespace: NoorCanvas.Data
+  syntax:
+    content: 'public class CanvasDbContext : DbContext'
+    content.vb: Public Class CanvasDbContext Inherits DbContext
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Data.CanvasDbContext.#ctor(DbContextOptions{NoorCanvas.Data.CanvasDbContext})
+  commentId: M:NoorCanvas.Data.CanvasDbContext.#ctor(DbContextOptions{NoorCanvas.Data.CanvasDbContext})
+  id: '#ctor(DbContextOptions{NoorCanvas.Data.CanvasDbContext})'
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: CanvasDbContext(DbContextOptions<CanvasDbContext>)
+  nameWithType: CanvasDbContext.CanvasDbContext(DbContextOptions<CanvasDbContext>)
+  fullName: NoorCanvas.Data.CanvasDbContext.CanvasDbContext(DbContextOptions<NoorCanvas.Data.CanvasDbContext>)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 7
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public CanvasDbContext(DbContextOptions<CanvasDbContext> options)
+    parameters:
+    - id: options
+      type: DbContextOptions{NoorCanvas.Data.CanvasDbContext}
+    content.vb: Public Sub New(options As DbContextOptions(Of CanvasDbContext))
+  overload: NoorCanvas.Data.CanvasDbContext.#ctor*
+  nameWithType.vb: CanvasDbContext.New(DbContextOptions(Of CanvasDbContext))
+  fullName.vb: NoorCanvas.Data.CanvasDbContext.New(DbContextOptions(Of NoorCanvas.Data.CanvasDbContext))
+  name.vb: New(DbContextOptions(Of CanvasDbContext))
+- uid: NoorCanvas.Data.CanvasDbContext.Sessions
+  commentId: P:NoorCanvas.Data.CanvasDbContext.Sessions
+  id: Sessions
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: Sessions
+  nameWithType: CanvasDbContext.Sessions
+  fullName: NoorCanvas.Data.CanvasDbContext.Sessions
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Sessions
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 12
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<Session> Sessions { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.Session}
+    content.vb: Public Property Sessions As DbSet(Of Session)
+  overload: NoorCanvas.Data.CanvasDbContext.Sessions*
+- uid: NoorCanvas.Data.CanvasDbContext.SessionLinks
+  commentId: P:NoorCanvas.Data.CanvasDbContext.SessionLinks
+  id: SessionLinks
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: SessionLinks
+  nameWithType: CanvasDbContext.SessionLinks
+  fullName: NoorCanvas.Data.CanvasDbContext.SessionLinks
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SessionLinks
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 13
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<SessionLink> SessionLinks { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.SessionLink}
+    content.vb: Public Property SessionLinks As DbSet(Of SessionLink)
+  overload: NoorCanvas.Data.CanvasDbContext.SessionLinks*
+- uid: NoorCanvas.Data.CanvasDbContext.HostSessions
+  commentId: P:NoorCanvas.Data.CanvasDbContext.HostSessions
+  id: HostSessions
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: HostSessions
+  nameWithType: CanvasDbContext.HostSessions
+  fullName: NoorCanvas.Data.CanvasDbContext.HostSessions
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: HostSessions
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 14
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<HostSession> HostSessions { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.HostSession}
+    content.vb: Public Property HostSessions As DbSet(Of HostSession)
+  overload: NoorCanvas.Data.CanvasDbContext.HostSessions*
+- uid: NoorCanvas.Data.CanvasDbContext.AdminSessions
+  commentId: P:NoorCanvas.Data.CanvasDbContext.AdminSessions
+  id: AdminSessions
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: AdminSessions
+  nameWithType: CanvasDbContext.AdminSessions
+  fullName: NoorCanvas.Data.CanvasDbContext.AdminSessions
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AdminSessions
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 15
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<AdminSession> AdminSessions { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.AdminSession}
+    content.vb: Public Property AdminSessions As DbSet(Of AdminSession)
+  overload: NoorCanvas.Data.CanvasDbContext.AdminSessions*
+- uid: NoorCanvas.Data.CanvasDbContext.Users
+  commentId: P:NoorCanvas.Data.CanvasDbContext.Users
+  id: Users
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: Users
+  nameWithType: CanvasDbContext.Users
+  fullName: NoorCanvas.Data.CanvasDbContext.Users
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Users
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 16
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<User> Users { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.User}
+    content.vb: Public Property Users As DbSet(Of User)
+  overload: NoorCanvas.Data.CanvasDbContext.Users*
+- uid: NoorCanvas.Data.CanvasDbContext.Registrations
+  commentId: P:NoorCanvas.Data.CanvasDbContext.Registrations
+  id: Registrations
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: Registrations
+  nameWithType: CanvasDbContext.Registrations
+  fullName: NoorCanvas.Data.CanvasDbContext.Registrations
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Registrations
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 17
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<Registration> Registrations { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.Registration}
+    content.vb: Public Property Registrations As DbSet(Of Registration)
+  overload: NoorCanvas.Data.CanvasDbContext.Registrations*
+- uid: NoorCanvas.Data.CanvasDbContext.SharedAssets
+  commentId: P:NoorCanvas.Data.CanvasDbContext.SharedAssets
+  id: SharedAssets
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: SharedAssets
+  nameWithType: CanvasDbContext.SharedAssets
+  fullName: NoorCanvas.Data.CanvasDbContext.SharedAssets
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: SharedAssets
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 18
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<SharedAsset> SharedAssets { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.SharedAsset}
+    content.vb: Public Property SharedAssets As DbSet(Of SharedAsset)
+  overload: NoorCanvas.Data.CanvasDbContext.SharedAssets*
+- uid: NoorCanvas.Data.CanvasDbContext.Annotations
+  commentId: P:NoorCanvas.Data.CanvasDbContext.Annotations
+  id: Annotations
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: Annotations
+  nameWithType: CanvasDbContext.Annotations
+  fullName: NoorCanvas.Data.CanvasDbContext.Annotations
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Annotations
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 19
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<Annotation> Annotations { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.Annotation}
+    content.vb: Public Property Annotations As DbSet(Of Annotation)
+  overload: NoorCanvas.Data.CanvasDbContext.Annotations*
+- uid: NoorCanvas.Data.CanvasDbContext.Questions
+  commentId: P:NoorCanvas.Data.CanvasDbContext.Questions
+  id: Questions
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: Questions
+  nameWithType: CanvasDbContext.Questions
+  fullName: NoorCanvas.Data.CanvasDbContext.Questions
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Questions
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 20
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<Question> Questions { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.Question}
+    content.vb: Public Property Questions As DbSet(Of Question)
+  overload: NoorCanvas.Data.CanvasDbContext.Questions*
+- uid: NoorCanvas.Data.CanvasDbContext.QuestionAnswers
+  commentId: P:NoorCanvas.Data.CanvasDbContext.QuestionAnswers
+  id: QuestionAnswers
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: QuestionAnswers
+  nameWithType: CanvasDbContext.QuestionAnswers
+  fullName: NoorCanvas.Data.CanvasDbContext.QuestionAnswers
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: QuestionAnswers
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 21
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<QuestionAnswer> QuestionAnswers { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.QuestionAnswer}
+    content.vb: Public Property QuestionAnswers As DbSet(Of QuestionAnswer)
+  overload: NoorCanvas.Data.CanvasDbContext.QuestionAnswers*
+- uid: NoorCanvas.Data.CanvasDbContext.QuestionVotes
+  commentId: P:NoorCanvas.Data.CanvasDbContext.QuestionVotes
+  id: QuestionVotes
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: QuestionVotes
+  nameWithType: CanvasDbContext.QuestionVotes
+  fullName: NoorCanvas.Data.CanvasDbContext.QuestionVotes
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: QuestionVotes
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 22
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<QuestionVote> QuestionVotes { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.QuestionVote}
+    content.vb: Public Property QuestionVotes As DbSet(Of QuestionVote)
+  overload: NoorCanvas.Data.CanvasDbContext.QuestionVotes*
+- uid: NoorCanvas.Data.CanvasDbContext.AuditLogs
+  commentId: P:NoorCanvas.Data.CanvasDbContext.AuditLogs
+  id: AuditLogs
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: AuditLogs
+  nameWithType: CanvasDbContext.AuditLogs
+  fullName: NoorCanvas.Data.CanvasDbContext.AuditLogs
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AuditLogs
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 23
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<AuditLog> AuditLogs { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.AuditLog}
+    content.vb: Public Property AuditLogs As DbSet(Of AuditLog)
+  overload: NoorCanvas.Data.CanvasDbContext.AuditLogs*
+- uid: NoorCanvas.Data.CanvasDbContext.Issues
+  commentId: P:NoorCanvas.Data.CanvasDbContext.Issues
+  id: Issues
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: Issues
+  nameWithType: CanvasDbContext.Issues
+  fullName: NoorCanvas.Data.CanvasDbContext.Issues
+  type: Property
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Issues
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 24
+  namespace: NoorCanvas.Data
+  syntax:
+    content: public DbSet<Issue> Issues { get; set; }
+    parameters: []
+    return:
+      type: DbSet{NoorCanvas.Models.Issue}
+    content.vb: Public Property Issues As DbSet(Of Issue)
+  overload: NoorCanvas.Data.CanvasDbContext.Issues*
+- uid: NoorCanvas.Data.CanvasDbContext.OnModelCreating(ModelBuilder)
+  commentId: M:NoorCanvas.Data.CanvasDbContext.OnModelCreating(ModelBuilder)
+  id: OnModelCreating(ModelBuilder)
+  parent: NoorCanvas.Data.CanvasDbContext
+  langs:
+  - csharp
+  - vb
+  name: OnModelCreating(ModelBuilder)
+  nameWithType: CanvasDbContext.OnModelCreating(ModelBuilder)
+  fullName: NoorCanvas.Data.CanvasDbContext.OnModelCreating(ModelBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/CanvasDbContext.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnModelCreating
+    path: ../SPA/NoorCanvas/Data/CanvasDbContext.cs
+    startLine: 26
+  namespace: NoorCanvas.Data
+  example: []
+  syntax:
+    content: protected override void OnModelCreating(ModelBuilder modelBuilder)
+    parameters:
+    - id: modelBuilder
+      type: ModelBuilder
+    content.vb: Protected Overrides Sub OnModelCreating(modelBuilder As ModelBuilder)
+  overload: NoorCanvas.Data.CanvasDbContext.OnModelCreating*
+references:
+- uid: NoorCanvas.Data
+  commentId: N:NoorCanvas.Data
+  href: NoorCanvas.html
+  name: NoorCanvas.Data
+  nameWithType: NoorCanvas.Data
+  fullName: NoorCanvas.Data
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Data.CanvasDbContext.#ctor*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.#ctor
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext__ctor_DbContextOptions_NoorCanvas_Data_CanvasDbContext__
+  name: CanvasDbContext
+  nameWithType: CanvasDbContext.CanvasDbContext
+  fullName: NoorCanvas.Data.CanvasDbContext.CanvasDbContext
+  nameWithType.vb: CanvasDbContext.New
+  fullName.vb: NoorCanvas.Data.CanvasDbContext.New
+  name.vb: New
+- uid: DbContextOptions{NoorCanvas.Data.CanvasDbContext}
+  commentId: '!:DbContextOptions{NoorCanvas.Data.CanvasDbContext}'
+  definition: DbContextOptions`1
+  href: NoorCanvas.Data.CanvasDbContext.html
+  name: DbContextOptions<CanvasDbContext>
+  nameWithType: DbContextOptions<CanvasDbContext>
+  fullName: DbContextOptions<NoorCanvas.Data.CanvasDbContext>
+  nameWithType.vb: DbContextOptions(Of CanvasDbContext)
+  fullName.vb: DbContextOptions(Of NoorCanvas.Data.CanvasDbContext)
+  name.vb: DbContextOptions(Of CanvasDbContext)
+  spec.csharp:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Data.CanvasDbContext
+    name: CanvasDbContext
+    href: NoorCanvas.Data.CanvasDbContext.html
+  - name: '>'
+  spec.vb:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Data.CanvasDbContext
+    name: CanvasDbContext
+    href: NoorCanvas.Data.CanvasDbContext.html
+  - name: )
+- uid: DbContextOptions`1
+  isExternal: true
+  name: DbContextOptions<>
+  nameWithType: DbContextOptions<>
+  fullName: DbContextOptions<>
+  nameWithType.vb: DbContextOptions(Of )
+  fullName.vb: DbContextOptions(Of )
+  name.vb: DbContextOptions(Of )
+  spec.csharp:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: DbContextOptions`1
+    name: DbContextOptions
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.Sessions*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.Sessions
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_Sessions
+  name: Sessions
+  nameWithType: CanvasDbContext.Sessions
+  fullName: NoorCanvas.Data.CanvasDbContext.Sessions
+- uid: DbSet{NoorCanvas.Models.Session}
+  commentId: '!:DbSet{NoorCanvas.Models.Session}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.Session.html
+  name: DbSet<Session>
+  nameWithType: DbSet<Session>
+  fullName: DbSet<NoorCanvas.Models.Session>
+  nameWithType.vb: DbSet(Of Session)
+  fullName.vb: DbSet(Of NoorCanvas.Models.Session)
+  name.vb: DbSet(Of Session)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Session
+    name: Session
+    href: NoorCanvas.Models.Session.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Session
+    name: Session
+    href: NoorCanvas.Models.Session.html
+  - name: )
+- uid: DbSet`1
+  isExternal: true
+  name: DbSet<>
+  nameWithType: DbSet<>
+  fullName: DbSet<>
+  nameWithType.vb: DbSet(Of )
+  fullName.vb: DbSet(Of )
+  name.vb: DbSet(Of )
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.SessionLinks*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.SessionLinks
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_SessionLinks
+  name: SessionLinks
+  nameWithType: CanvasDbContext.SessionLinks
+  fullName: NoorCanvas.Data.CanvasDbContext.SessionLinks
+- uid: DbSet{NoorCanvas.Models.SessionLink}
+  commentId: '!:DbSet{NoorCanvas.Models.SessionLink}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.SessionLink.html
+  name: DbSet<SessionLink>
+  nameWithType: DbSet<SessionLink>
+  fullName: DbSet<NoorCanvas.Models.SessionLink>
+  nameWithType.vb: DbSet(Of SessionLink)
+  fullName.vb: DbSet(Of NoorCanvas.Models.SessionLink)
+  name.vb: DbSet(Of SessionLink)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.SessionLink
+    name: SessionLink
+    href: NoorCanvas.Models.SessionLink.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.SessionLink
+    name: SessionLink
+    href: NoorCanvas.Models.SessionLink.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.HostSessions*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.HostSessions
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_HostSessions
+  name: HostSessions
+  nameWithType: CanvasDbContext.HostSessions
+  fullName: NoorCanvas.Data.CanvasDbContext.HostSessions
+- uid: DbSet{NoorCanvas.Models.HostSession}
+  commentId: '!:DbSet{NoorCanvas.Models.HostSession}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.HostSession.html
+  name: DbSet<HostSession>
+  nameWithType: DbSet<HostSession>
+  fullName: DbSet<NoorCanvas.Models.HostSession>
+  nameWithType.vb: DbSet(Of HostSession)
+  fullName.vb: DbSet(Of NoorCanvas.Models.HostSession)
+  name.vb: DbSet(Of HostSession)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.HostSession
+    name: HostSession
+    href: NoorCanvas.Models.HostSession.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.HostSession
+    name: HostSession
+    href: NoorCanvas.Models.HostSession.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.AdminSessions*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.AdminSessions
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_AdminSessions
+  name: AdminSessions
+  nameWithType: CanvasDbContext.AdminSessions
+  fullName: NoorCanvas.Data.CanvasDbContext.AdminSessions
+- uid: DbSet{NoorCanvas.Models.AdminSession}
+  commentId: '!:DbSet{NoorCanvas.Models.AdminSession}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.AdminSession.html
+  name: DbSet<AdminSession>
+  nameWithType: DbSet<AdminSession>
+  fullName: DbSet<NoorCanvas.Models.AdminSession>
+  nameWithType.vb: DbSet(Of AdminSession)
+  fullName.vb: DbSet(Of NoorCanvas.Models.AdminSession)
+  name.vb: DbSet(Of AdminSession)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.AdminSession
+    name: AdminSession
+    href: NoorCanvas.Models.AdminSession.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.AdminSession
+    name: AdminSession
+    href: NoorCanvas.Models.AdminSession.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.Users*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.Users
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_Users
+  name: Users
+  nameWithType: CanvasDbContext.Users
+  fullName: NoorCanvas.Data.CanvasDbContext.Users
+- uid: DbSet{NoorCanvas.Models.User}
+  commentId: '!:DbSet{NoorCanvas.Models.User}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.User.html
+  name: DbSet<User>
+  nameWithType: DbSet<User>
+  fullName: DbSet<NoorCanvas.Models.User>
+  nameWithType.vb: DbSet(Of User)
+  fullName.vb: DbSet(Of NoorCanvas.Models.User)
+  name.vb: DbSet(Of User)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.User
+    name: User
+    href: NoorCanvas.Models.User.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.User
+    name: User
+    href: NoorCanvas.Models.User.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.Registrations*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.Registrations
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_Registrations
+  name: Registrations
+  nameWithType: CanvasDbContext.Registrations
+  fullName: NoorCanvas.Data.CanvasDbContext.Registrations
+- uid: DbSet{NoorCanvas.Models.Registration}
+  commentId: '!:DbSet{NoorCanvas.Models.Registration}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.Registration.html
+  name: DbSet<Registration>
+  nameWithType: DbSet<Registration>
+  fullName: DbSet<NoorCanvas.Models.Registration>
+  nameWithType.vb: DbSet(Of Registration)
+  fullName.vb: DbSet(Of NoorCanvas.Models.Registration)
+  name.vb: DbSet(Of Registration)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Registration
+    name: Registration
+    href: NoorCanvas.Models.Registration.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Registration
+    name: Registration
+    href: NoorCanvas.Models.Registration.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.SharedAssets*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.SharedAssets
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_SharedAssets
+  name: SharedAssets
+  nameWithType: CanvasDbContext.SharedAssets
+  fullName: NoorCanvas.Data.CanvasDbContext.SharedAssets
+- uid: DbSet{NoorCanvas.Models.SharedAsset}
+  commentId: '!:DbSet{NoorCanvas.Models.SharedAsset}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.SharedAsset.html
+  name: DbSet<SharedAsset>
+  nameWithType: DbSet<SharedAsset>
+  fullName: DbSet<NoorCanvas.Models.SharedAsset>
+  nameWithType.vb: DbSet(Of SharedAsset)
+  fullName.vb: DbSet(Of NoorCanvas.Models.SharedAsset)
+  name.vb: DbSet(Of SharedAsset)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.SharedAsset
+    name: SharedAsset
+    href: NoorCanvas.Models.SharedAsset.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.SharedAsset
+    name: SharedAsset
+    href: NoorCanvas.Models.SharedAsset.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.Annotations*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.Annotations
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_Annotations
+  name: Annotations
+  nameWithType: CanvasDbContext.Annotations
+  fullName: NoorCanvas.Data.CanvasDbContext.Annotations
+- uid: DbSet{NoorCanvas.Models.Annotation}
+  commentId: '!:DbSet{NoorCanvas.Models.Annotation}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.Annotation.html
+  name: DbSet<Annotation>
+  nameWithType: DbSet<Annotation>
+  fullName: DbSet<NoorCanvas.Models.Annotation>
+  nameWithType.vb: DbSet(Of Annotation)
+  fullName.vb: DbSet(Of NoorCanvas.Models.Annotation)
+  name.vb: DbSet(Of Annotation)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    href: NoorCanvas.Models.Annotation.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Annotation
+    name: Annotation
+    href: NoorCanvas.Models.Annotation.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.Questions*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.Questions
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_Questions
+  name: Questions
+  nameWithType: CanvasDbContext.Questions
+  fullName: NoorCanvas.Data.CanvasDbContext.Questions
+- uid: DbSet{NoorCanvas.Models.Question}
+  commentId: '!:DbSet{NoorCanvas.Models.Question}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.Question.html
+  name: DbSet<Question>
+  nameWithType: DbSet<Question>
+  fullName: DbSet<NoorCanvas.Models.Question>
+  nameWithType.vb: DbSet(Of Question)
+  fullName.vb: DbSet(Of NoorCanvas.Models.Question)
+  name.vb: DbSet(Of Question)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Question
+    name: Question
+    href: NoorCanvas.Models.Question.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Question
+    name: Question
+    href: NoorCanvas.Models.Question.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.QuestionAnswers*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.QuestionAnswers
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_QuestionAnswers
+  name: QuestionAnswers
+  nameWithType: CanvasDbContext.QuestionAnswers
+  fullName: NoorCanvas.Data.CanvasDbContext.QuestionAnswers
+- uid: DbSet{NoorCanvas.Models.QuestionAnswer}
+  commentId: '!:DbSet{NoorCanvas.Models.QuestionAnswer}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.QuestionAnswer.html
+  name: DbSet<QuestionAnswer>
+  nameWithType: DbSet<QuestionAnswer>
+  fullName: DbSet<NoorCanvas.Models.QuestionAnswer>
+  nameWithType.vb: DbSet(Of QuestionAnswer)
+  fullName.vb: DbSet(Of NoorCanvas.Models.QuestionAnswer)
+  name.vb: DbSet(Of QuestionAnswer)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.QuestionAnswer
+    name: QuestionAnswer
+    href: NoorCanvas.Models.QuestionAnswer.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.QuestionAnswer
+    name: QuestionAnswer
+    href: NoorCanvas.Models.QuestionAnswer.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.QuestionVotes*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.QuestionVotes
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_QuestionVotes
+  name: QuestionVotes
+  nameWithType: CanvasDbContext.QuestionVotes
+  fullName: NoorCanvas.Data.CanvasDbContext.QuestionVotes
+- uid: DbSet{NoorCanvas.Models.QuestionVote}
+  commentId: '!:DbSet{NoorCanvas.Models.QuestionVote}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.QuestionVote.html
+  name: DbSet<QuestionVote>
+  nameWithType: DbSet<QuestionVote>
+  fullName: DbSet<NoorCanvas.Models.QuestionVote>
+  nameWithType.vb: DbSet(Of QuestionVote)
+  fullName.vb: DbSet(Of NoorCanvas.Models.QuestionVote)
+  name.vb: DbSet(Of QuestionVote)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.QuestionVote
+    name: QuestionVote
+    href: NoorCanvas.Models.QuestionVote.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.QuestionVote
+    name: QuestionVote
+    href: NoorCanvas.Models.QuestionVote.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.AuditLogs*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.AuditLogs
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_AuditLogs
+  name: AuditLogs
+  nameWithType: CanvasDbContext.AuditLogs
+  fullName: NoorCanvas.Data.CanvasDbContext.AuditLogs
+- uid: DbSet{NoorCanvas.Models.AuditLog}
+  commentId: '!:DbSet{NoorCanvas.Models.AuditLog}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.AuditLog.html
+  name: DbSet<AuditLog>
+  nameWithType: DbSet<AuditLog>
+  fullName: DbSet<NoorCanvas.Models.AuditLog>
+  nameWithType.vb: DbSet(Of AuditLog)
+  fullName.vb: DbSet(Of NoorCanvas.Models.AuditLog)
+  name.vb: DbSet(Of AuditLog)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.AuditLog
+    name: AuditLog
+    href: NoorCanvas.Models.AuditLog.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.AuditLog
+    name: AuditLog
+    href: NoorCanvas.Models.AuditLog.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.Issues*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.Issues
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_Issues
+  name: Issues
+  nameWithType: CanvasDbContext.Issues
+  fullName: NoorCanvas.Data.CanvasDbContext.Issues
+- uid: DbSet{NoorCanvas.Models.Issue}
+  commentId: '!:DbSet{NoorCanvas.Models.Issue}'
+  definition: DbSet`1
+  href: NoorCanvas.Models.Issue.html
+  name: DbSet<Issue>
+  nameWithType: DbSet<Issue>
+  fullName: DbSet<NoorCanvas.Models.Issue>
+  nameWithType.vb: DbSet(Of Issue)
+  fullName.vb: DbSet(Of NoorCanvas.Models.Issue)
+  name.vb: DbSet(Of Issue)
+  spec.csharp:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Models.Issue
+    name: Issue
+    href: NoorCanvas.Models.Issue.html
+  - name: '>'
+  spec.vb:
+  - uid: DbSet`1
+    name: DbSet
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Models.Issue
+    name: Issue
+    href: NoorCanvas.Models.Issue.html
+  - name: )
+- uid: NoorCanvas.Data.CanvasDbContext.OnModelCreating*
+  commentId: Overload:NoorCanvas.Data.CanvasDbContext.OnModelCreating
+  href: NoorCanvas.Data.CanvasDbContext.html#NoorCanvas_Data_CanvasDbContext_OnModelCreating_ModelBuilder_
+  name: OnModelCreating
+  nameWithType: CanvasDbContext.OnModelCreating
+  fullName: NoorCanvas.Data.CanvasDbContext.OnModelCreating
+- uid: ModelBuilder
+  isExternal: true
+  name: ModelBuilder
+  nameWithType: ModelBuilder
+  fullName: ModelBuilder

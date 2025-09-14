@@ -1,0 +1,603 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Hubs.AnnotationHub
+  commentId: T:NoorCanvas.Hubs.AnnotationHub
+  id: AnnotationHub
+  parent: NoorCanvas.Hubs
+  children:
+  - NoorCanvas.Hubs.AnnotationHub.#ctor(ILogger{NoorCanvas.Hubs.AnnotationHub},NoorCanvas.Services.IAnnotationService)
+  - NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation(System.Int64,System.String,System.Object)
+  - NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion(System.Int64,System.Int64,System.String)
+  - NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate(System.Int64,System.Int64,System.String,System.Object)
+  - NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations(System.Int64,System.String)
+  - NoorCanvas.Hubs.AnnotationHub.JoinSession(System.Int64,System.String)
+  - NoorCanvas.Hubs.AnnotationHub.LeaveSession(System.Int64,System.String)
+  - NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync
+  - NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync(System.Nullable{Exception})
+  langs:
+  - csharp
+  - vb
+  name: AnnotationHub
+  nameWithType: AnnotationHub
+  fullName: NoorCanvas.Hubs.AnnotationHub
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AnnotationHub
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 5
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: 'public class AnnotationHub : Hub'
+    content.vb: Public Class AnnotationHub Inherits Hub
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Hubs.AnnotationHub.#ctor(ILogger{NoorCanvas.Hubs.AnnotationHub},NoorCanvas.Services.IAnnotationService)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.#ctor(ILogger{NoorCanvas.Hubs.AnnotationHub},NoorCanvas.Services.IAnnotationService)
+  id: '#ctor(ILogger{NoorCanvas.Hubs.AnnotationHub},NoorCanvas.Services.IAnnotationService)'
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: AnnotationHub(ILogger<AnnotationHub>, IAnnotationService)
+  nameWithType: AnnotationHub.AnnotationHub(ILogger<AnnotationHub>, IAnnotationService)
+  fullName: NoorCanvas.Hubs.AnnotationHub.AnnotationHub(ILogger<NoorCanvas.Hubs.AnnotationHub>, NoorCanvas.Services.IAnnotationService)
+  type: Constructor
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: .ctor
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 10
+  namespace: NoorCanvas.Hubs
+  syntax:
+    content: public AnnotationHub(ILogger<AnnotationHub> logger, IAnnotationService annotationService)
+    parameters:
+    - id: logger
+      type: ILogger{NoorCanvas.Hubs.AnnotationHub}
+    - id: annotationService
+      type: NoorCanvas.Services.IAnnotationService
+    content.vb: Public Sub New(logger As ILogger(Of AnnotationHub), annotationService As IAnnotationService)
+  overload: NoorCanvas.Hubs.AnnotationHub.#ctor*
+  nameWithType.vb: AnnotationHub.New(ILogger(Of AnnotationHub), IAnnotationService)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.New(ILogger(Of NoorCanvas.Hubs.AnnotationHub), NoorCanvas.Services.IAnnotationService)
+  name.vb: New(ILogger(Of AnnotationHub), IAnnotationService)
+- uid: NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync
+  id: OnConnectedAsync
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: OnConnectedAsync()
+  nameWithType: AnnotationHub.OnConnectedAsync()
+  fullName: NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync()
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnConnectedAsync
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 16
+  namespace: NoorCanvas.Hubs
+  example: []
+  syntax:
+    content: public override Task OnConnectedAsync()
+    return:
+      type: Task
+    content.vb: Public Overrides Function OnConnectedAsync() As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync*
+- uid: NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync(System.Nullable{Exception})
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync(System.Nullable{Exception})
+  id: OnDisconnectedAsync(System.Nullable{Exception})
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: OnDisconnectedAsync(Exception?)
+  nameWithType: AnnotationHub.OnDisconnectedAsync(Exception?)
+  fullName: NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync(Exception?)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: OnDisconnectedAsync
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 22
+  namespace: NoorCanvas.Hubs
+  example: []
+  syntax:
+    content: public override Task OnDisconnectedAsync(Exception? exception)
+    parameters:
+    - id: exception
+      type: System.Nullable{Exception}
+    return:
+      type: Task
+    content.vb: Public Overrides Function OnDisconnectedAsync(exception As Exception?) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync*
+- uid: NoorCanvas.Hubs.AnnotationHub.JoinSession(System.Int64,System.String)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.JoinSession(System.Int64,System.String)
+  id: JoinSession(System.Int64,System.String)
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: JoinSession(long, string)
+  nameWithType: AnnotationHub.JoinSession(long, string)
+  fullName: NoorCanvas.Hubs.AnnotationHub.JoinSession(long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: JoinSession
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 39
+  namespace: NoorCanvas.Hubs
+  summary: Join a session group for real-time annotation updates
+  example: []
+  syntax:
+    content: public Task JoinSession(long sessionId, string userId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function JoinSession(sessionId As Long, userId As String) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.JoinSession*
+  nameWithType.vb: AnnotationHub.JoinSession(Long, String)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.JoinSession(Long, String)
+  name.vb: JoinSession(Long, String)
+- uid: NoorCanvas.Hubs.AnnotationHub.LeaveSession(System.Int64,System.String)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.LeaveSession(System.Int64,System.String)
+  id: LeaveSession(System.Int64,System.String)
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: LeaveSession(long, string)
+  nameWithType: AnnotationHub.LeaveSession(long, string)
+  fullName: NoorCanvas.Hubs.AnnotationHub.LeaveSession(long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: LeaveSession
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 68
+  namespace: NoorCanvas.Hubs
+  summary: Leave a session group
+  example: []
+  syntax:
+    content: public Task LeaveSession(long sessionId, string userId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function LeaveSession(sessionId As Long, userId As String) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.LeaveSession*
+  nameWithType.vb: AnnotationHub.LeaveSession(Long, String)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.LeaveSession(Long, String)
+  name.vb: LeaveSession(Long, String)
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation(System.Int64,System.String,System.Object)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation(System.Int64,System.String,System.Object)
+  id: BroadcastAnnotation(System.Int64,System.String,System.Object)
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: BroadcastAnnotation(long, string, object)
+  nameWithType: AnnotationHub.BroadcastAnnotation(long, string, object)
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation(long, string, object)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BroadcastAnnotation
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 92
+  namespace: NoorCanvas.Hubs
+  summary: Broadcast a new annotation to all session participants
+  example: []
+  syntax:
+    content: public Task BroadcastAnnotation(long sessionId, string userId, object annotationData)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    - id: annotationData
+      type: System.Object
+    return:
+      type: Task
+    content.vb: Public Function BroadcastAnnotation(sessionId As Long, userId As String, annotationData As Object) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation*
+  nameWithType.vb: AnnotationHub.BroadcastAnnotation(Long, String, Object)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation(Long, String, Object)
+  name.vb: BroadcastAnnotation(Long, String, Object)
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate(System.Int64,System.Int64,System.String,System.Object)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate(System.Int64,System.Int64,System.String,System.Object)
+  id: BroadcastAnnotationUpdate(System.Int64,System.Int64,System.String,System.Object)
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: BroadcastAnnotationUpdate(long, long, string, object)
+  nameWithType: AnnotationHub.BroadcastAnnotationUpdate(long, long, string, object)
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate(long, long, string, object)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BroadcastAnnotationUpdate
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 135
+  namespace: NoorCanvas.Hubs
+  summary: Broadcast annotation update to all session participants
+  example: []
+  syntax:
+    content: public Task BroadcastAnnotationUpdate(long sessionId, long annotationId, string userId, object annotationData)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: annotationId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    - id: annotationData
+      type: System.Object
+    return:
+      type: Task
+    content.vb: Public Function BroadcastAnnotationUpdate(sessionId As Long, annotationId As Long, userId As String, annotationData As Object) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate*
+  nameWithType.vb: AnnotationHub.BroadcastAnnotationUpdate(Long, Long, String, Object)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate(Long, Long, String, Object)
+  name.vb: BroadcastAnnotationUpdate(Long, Long, String, Object)
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion(System.Int64,System.Int64,System.String)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion(System.Int64,System.Int64,System.String)
+  id: BroadcastAnnotationDeletion(System.Int64,System.Int64,System.String)
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: BroadcastAnnotationDeletion(long, long, string)
+  nameWithType: AnnotationHub.BroadcastAnnotationDeletion(long, long, string)
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion(long, long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BroadcastAnnotationDeletion
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 183
+  namespace: NoorCanvas.Hubs
+  summary: Broadcast annotation deletion to all session participants
+  example: []
+  syntax:
+    content: public Task BroadcastAnnotationDeletion(long sessionId, long annotationId, string userId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: annotationId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function BroadcastAnnotationDeletion(sessionId As Long, annotationId As Long, userId As String) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion*
+  nameWithType.vb: AnnotationHub.BroadcastAnnotationDeletion(Long, Long, String)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion(Long, Long, String)
+  name.vb: BroadcastAnnotationDeletion(Long, Long, String)
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations(System.Int64,System.String)
+  commentId: M:NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations(System.Int64,System.String)
+  id: BroadcastClearAnnotations(System.Int64,System.String)
+  parent: NoorCanvas.Hubs.AnnotationHub
+  langs:
+  - csharp
+  - vb
+  name: BroadcastClearAnnotations(long, string)
+  nameWithType: AnnotationHub.BroadcastClearAnnotations(long, string)
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations(long, string)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Hubs/AnnotationHub.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BroadcastClearAnnotations
+    path: ../SPA/NoorCanvas/Hubs/AnnotationHub.cs
+    startLine: 230
+  namespace: NoorCanvas.Hubs
+  summary: Broadcast session annotation clear to all participants
+  example: []
+  syntax:
+    content: public Task BroadcastClearAnnotations(long sessionId, string userId)
+    parameters:
+    - id: sessionId
+      type: System.Int64
+    - id: userId
+      type: System.String
+    return:
+      type: Task
+    content.vb: Public Function BroadcastClearAnnotations(sessionId As Long, userId As String) As Task
+  overload: NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations*
+  nameWithType.vb: AnnotationHub.BroadcastClearAnnotations(Long, String)
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations(Long, String)
+  name.vb: BroadcastClearAnnotations(Long, String)
+references:
+- uid: NoorCanvas.Hubs
+  commentId: N:NoorCanvas.Hubs
+  href: NoorCanvas.html
+  name: NoorCanvas.Hubs
+  nameWithType: NoorCanvas.Hubs
+  fullName: NoorCanvas.Hubs
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Hubs
+    name: Hubs
+    href: NoorCanvas.Hubs.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Hubs
+    name: Hubs
+    href: NoorCanvas.Hubs.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Hubs.AnnotationHub.#ctor*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.#ctor
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub__ctor_ILogger_NoorCanvas_Hubs_AnnotationHub__NoorCanvas_Services_IAnnotationService_
+  name: AnnotationHub
+  nameWithType: AnnotationHub.AnnotationHub
+  fullName: NoorCanvas.Hubs.AnnotationHub.AnnotationHub
+  nameWithType.vb: AnnotationHub.New
+  fullName.vb: NoorCanvas.Hubs.AnnotationHub.New
+  name.vb: New
+- uid: ILogger{NoorCanvas.Hubs.AnnotationHub}
+  commentId: '!:ILogger{NoorCanvas.Hubs.AnnotationHub}'
+  definition: ILogger`1
+  href: NoorCanvas.Hubs.AnnotationHub.html
+  name: ILogger<AnnotationHub>
+  nameWithType: ILogger<AnnotationHub>
+  fullName: ILogger<NoorCanvas.Hubs.AnnotationHub>
+  nameWithType.vb: ILogger(Of AnnotationHub)
+  fullName.vb: ILogger(Of NoorCanvas.Hubs.AnnotationHub)
+  name.vb: ILogger(Of AnnotationHub)
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - uid: NoorCanvas.Hubs.AnnotationHub
+    name: AnnotationHub
+    href: NoorCanvas.Hubs.AnnotationHub.html
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - uid: NoorCanvas.Hubs.AnnotationHub
+    name: AnnotationHub
+    href: NoorCanvas.Hubs.AnnotationHub.html
+  - name: )
+- uid: NoorCanvas.Services.IAnnotationService
+  commentId: T:NoorCanvas.Services.IAnnotationService
+  parent: NoorCanvas.Services
+  href: NoorCanvas.Services.IAnnotationService.html
+  name: IAnnotationService
+  nameWithType: IAnnotationService
+  fullName: NoorCanvas.Services.IAnnotationService
+- uid: ILogger`1
+  isExternal: true
+  name: ILogger<>
+  nameWithType: ILogger<>
+  fullName: ILogger<>
+  nameWithType.vb: ILogger(Of )
+  fullName.vb: ILogger(Of )
+  name.vb: ILogger(Of )
+  spec.csharp:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: <
+  - name: ''
+  - name: '>'
+  spec.vb:
+  - uid: ILogger`1
+    name: ILogger
+    isExternal: true
+  - name: (
+  - name: Of
+  - name: " "
+  - name: ''
+  - name: )
+- uid: NoorCanvas.Services
+  commentId: N:NoorCanvas.Services
+  href: NoorCanvas.html
+  name: NoorCanvas.Services
+  nameWithType: NoorCanvas.Services
+  fullName: NoorCanvas.Services
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Services
+    name: Services
+    href: NoorCanvas.Services.html
+- uid: NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_OnConnectedAsync
+  name: OnConnectedAsync
+  nameWithType: AnnotationHub.OnConnectedAsync
+  fullName: NoorCanvas.Hubs.AnnotationHub.OnConnectedAsync
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_OnDisconnectedAsync_System_Nullable_Exception__
+  name: OnDisconnectedAsync
+  nameWithType: AnnotationHub.OnDisconnectedAsync
+  fullName: NoorCanvas.Hubs.AnnotationHub.OnDisconnectedAsync
+- uid: System.Nullable{Exception}
+  commentId: T:System.Nullable{Exception}
+  parent: System
+  definition: System.Nullable`1
+  name: Exception?
+  nameWithType: Exception?
+  fullName: Exception?
+  spec.csharp:
+  - uid: Exception
+    name: Exception
+    isExternal: true
+  - name: '?'
+  spec.vb:
+  - uid: Exception
+    name: Exception
+    isExternal: true
+  - name: '?'
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: <
+  - name: T
+  - name: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    isExternal: true
+    href: https://learn.microsoft.com/dotnet/api/system.nullable-1
+  - name: (
+  - name: Of
+  - name: " "
+  - name: T
+  - name: )
+- uid: NoorCanvas.Hubs.AnnotationHub.JoinSession*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.JoinSession
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_JoinSession_System_Int64_System_String_
+  name: JoinSession
+  nameWithType: AnnotationHub.JoinSession
+  fullName: NoorCanvas.Hubs.AnnotationHub.JoinSession
+- uid: System.Int64
+  commentId: T:System.Int64
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.int64
+  name: long
+  nameWithType: long
+  fullName: long
+  nameWithType.vb: Long
+  fullName.vb: Long
+  name.vb: Long
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.string
+  name: string
+  nameWithType: string
+  fullName: string
+  nameWithType.vb: String
+  fullName.vb: String
+  name.vb: String
+- uid: NoorCanvas.Hubs.AnnotationHub.LeaveSession*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.LeaveSession
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_LeaveSession_System_Int64_System_String_
+  name: LeaveSession
+  nameWithType: AnnotationHub.LeaveSession
+  fullName: NoorCanvas.Hubs.AnnotationHub.LeaveSession
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_BroadcastAnnotation_System_Int64_System_String_System_Object_
+  name: BroadcastAnnotation
+  nameWithType: AnnotationHub.BroadcastAnnotation
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotation
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_BroadcastAnnotationUpdate_System_Int64_System_Int64_System_String_System_Object_
+  name: BroadcastAnnotationUpdate
+  nameWithType: AnnotationHub.BroadcastAnnotationUpdate
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationUpdate
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_BroadcastAnnotationDeletion_System_Int64_System_Int64_System_String_
+  name: BroadcastAnnotationDeletion
+  nameWithType: AnnotationHub.BroadcastAnnotationDeletion
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastAnnotationDeletion
+- uid: NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations*
+  commentId: Overload:NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations
+  href: NoorCanvas.Hubs.AnnotationHub.html#NoorCanvas_Hubs_AnnotationHub_BroadcastClearAnnotations_System_Int64_System_String_
+  name: BroadcastClearAnnotations
+  nameWithType: AnnotationHub.BroadcastClearAnnotations
+  fullName: NoorCanvas.Hubs.AnnotationHub.BroadcastClearAnnotations

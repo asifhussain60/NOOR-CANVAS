@@ -1,0 +1,193 @@
+### YamlMime:ManagedReference
+items:
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions
+  commentId: T:NoorCanvas.Data.Migrations.AddAdminSessions
+  id: AddAdminSessions
+  parent: NoorCanvas.Data.Migrations
+  children:
+  - NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel(ModelBuilder)
+  - NoorCanvas.Data.Migrations.AddAdminSessions.Down(MigrationBuilder)
+  - NoorCanvas.Data.Migrations.AddAdminSessions.Up(MigrationBuilder)
+  langs:
+  - csharp
+  - vb
+  name: AddAdminSessions
+  nameWithType: AddAdminSessions
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions
+  type: Class
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.Designer.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: AddAdminSessions
+    path: ../SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.Designer.cs
+    startLine: 13
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: 'public class AddAdminSessions : Migration'
+    content.vb: Public Class AddAdminSessions Inherits Migration
+  inheritance:
+  - System.Object
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions.Up(MigrationBuilder)
+  commentId: M:NoorCanvas.Data.Migrations.AddAdminSessions.Up(MigrationBuilder)
+  id: Up(MigrationBuilder)
+  parent: NoorCanvas.Data.Migrations.AddAdminSessions
+  langs:
+  - csharp
+  - vb
+  name: Up(MigrationBuilder)
+  nameWithType: AddAdminSessions.Up(MigrationBuilder)
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions.Up(MigrationBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Up
+    path: ../SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.cs
+    startLine: 11
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: protected override void Up(MigrationBuilder migrationBuilder)
+    parameters:
+    - id: migrationBuilder
+      type: MigrationBuilder
+    content.vb: Protected Overrides Sub Up(migrationBuilder As MigrationBuilder)
+  overload: NoorCanvas.Data.Migrations.AddAdminSessions.Up*
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions.Down(MigrationBuilder)
+  commentId: M:NoorCanvas.Data.Migrations.AddAdminSessions.Down(MigrationBuilder)
+  id: Down(MigrationBuilder)
+  parent: NoorCanvas.Data.Migrations.AddAdminSessions
+  langs:
+  - csharp
+  - vb
+  name: Down(MigrationBuilder)
+  nameWithType: AddAdminSessions.Down(MigrationBuilder)
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions.Down(MigrationBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: Down
+    path: ../SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.cs
+    startLine: 131
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: protected override void Down(MigrationBuilder migrationBuilder)
+    parameters:
+    - id: migrationBuilder
+      type: MigrationBuilder
+    content.vb: Protected Overrides Sub Down(migrationBuilder As MigrationBuilder)
+  overload: NoorCanvas.Data.Migrations.AddAdminSessions.Down*
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel(ModelBuilder)
+  commentId: M:NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel(ModelBuilder)
+  id: BuildTargetModel(ModelBuilder)
+  parent: NoorCanvas.Data.Migrations.AddAdminSessions
+  langs:
+  - csharp
+  - vb
+  name: BuildTargetModel(ModelBuilder)
+  nameWithType: AddAdminSessions.BuildTargetModel(ModelBuilder)
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel(ModelBuilder)
+  type: Method
+  source:
+    remote:
+      path: SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.Designer.cs
+      branch: master
+      repo: https://github.com/asifhussain60/NOOR-CANVAS.git
+    id: BuildTargetModel
+    path: ../SPA/NoorCanvas/Data/Migrations/20250912174615_AddAdminSessions.Designer.cs
+    startLine: 18
+  namespace: NoorCanvas.Data.Migrations
+  example: []
+  syntax:
+    content: protected override void BuildTargetModel(ModelBuilder modelBuilder)
+    parameters:
+    - id: modelBuilder
+      type: ModelBuilder
+    content.vb: Protected Overrides Sub BuildTargetModel(modelBuilder As ModelBuilder)
+  overload: NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel*
+references:
+- uid: NoorCanvas.Data.Migrations
+  commentId: N:NoorCanvas.Data.Migrations
+  href: NoorCanvas.html
+  name: NoorCanvas.Data.Migrations
+  nameWithType: NoorCanvas.Data.Migrations
+  fullName: NoorCanvas.Data.Migrations
+  spec.csharp:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  - name: .
+  - uid: NoorCanvas.Data.Migrations
+    name: Migrations
+    href: NoorCanvas.Data.Migrations.html
+  spec.vb:
+  - uid: NoorCanvas
+    name: NoorCanvas
+    href: NoorCanvas.html
+  - name: .
+  - uid: NoorCanvas.Data
+    name: Data
+    href: NoorCanvas.Data.html
+  - name: .
+  - uid: NoorCanvas.Data.Migrations
+    name: Migrations
+    href: NoorCanvas.Data.Migrations.html
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system.object
+  name: object
+  nameWithType: object
+  fullName: object
+  nameWithType.vb: Object
+  fullName.vb: Object
+  name.vb: Object
+- uid: System
+  commentId: N:System
+  isExternal: true
+  href: https://learn.microsoft.com/dotnet/api/system
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions.Up*
+  commentId: Overload:NoorCanvas.Data.Migrations.AddAdminSessions.Up
+  href: NoorCanvas.Data.Migrations.AddAdminSessions.html#NoorCanvas_Data_Migrations_AddAdminSessions_Up_MigrationBuilder_
+  name: Up
+  nameWithType: AddAdminSessions.Up
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions.Up
+- uid: MigrationBuilder
+  isExternal: true
+  name: MigrationBuilder
+  nameWithType: MigrationBuilder
+  fullName: MigrationBuilder
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions.Down*
+  commentId: Overload:NoorCanvas.Data.Migrations.AddAdminSessions.Down
+  href: NoorCanvas.Data.Migrations.AddAdminSessions.html#NoorCanvas_Data_Migrations_AddAdminSessions_Down_MigrationBuilder_
+  name: Down
+  nameWithType: AddAdminSessions.Down
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions.Down
+- uid: NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel*
+  commentId: Overload:NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel
+  href: NoorCanvas.Data.Migrations.AddAdminSessions.html#NoorCanvas_Data_Migrations_AddAdminSessions_BuildTargetModel_ModelBuilder_
+  name: BuildTargetModel
+  nameWithType: AddAdminSessions.BuildTargetModel
+  fullName: NoorCanvas.Data.Migrations.AddAdminSessions.BuildTargetModel
+- uid: ModelBuilder
+  isExternal: true
+  name: ModelBuilder
+  nameWithType: ModelBuilder
+  fullName: ModelBuilder
