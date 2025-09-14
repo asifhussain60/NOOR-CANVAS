@@ -145,51 +145,56 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
 - ✅ **HttpClientFactory Pattern:** Proven solution for Blazor Server API calls
 - ❌ **Issue-53 Identified:** Session creation workflow requires immediate HttpClientFactory implementation
 
-### **🚧 Phase 4: NOOR Canvas Branding & Content Integration (Weeks 13-16) - READY TO START**
-**Status**: Host UX Complete - Full Implementation Plan Defined  
-**Duration**: 4 weeks (September 16 - November 27, 2025)  
-**Target Completion**: November 27, 2025  
-**Focus**: Complete NOOR Canvas branding integration, McBeatch theme implementation, and user experience completion
-**Progress**: Host Dashboard elimination complete ✅ - Ready for comprehensive branding and styling implementation
+### **🚧 Phase 4: NOOR Canvas Branding & Content Integration (Weeks 13-16) - IN PROGRESS**
+**Status**: Custom CSS Approach - Enhanced Debug Infrastructure Complete ✅
+**Duration**: 4 weeks (September 14 - October 11, 2025)  
+**Target Completion**: October 11, 2025  
+**Focus**: Custom CSS styling based on design mocks, NOOR Canvas branding integration, enhanced debug infrastructure
+**Progress**: McBeatch approach removed ✅ - Custom CSS implementation ready to begin
 
-#### **🎯 PHASE 4 COMPREHENSIVE IMPLEMENTATION PLAN**
+#### **🎯 PHASE 4 REVISED IMPLEMENTATION PLAN (September 14, 2025)**
 
-##### **Week 13 (Sep 16-20): McBeatch Foundation & Branding Assets**
-- **McBeatch Full Integration**: Complete CSS/JS framework integration into Blazor application
+**✅ COMPLETED (September 14, 2025):**
+- Enhanced Debug Infrastructure v2.0 (DebugService, Extensions, Middleware, Configuration)
+- McBeatch theme removal and cleanup
+- Codebase reset to clean state with debug infrastructure preserved
+
+##### **Week 13 (Sep 14-20): Custom CSS Foundation & Design Mock Integration**
+- **Custom CSS Architecture**: Create modular CSS files based on user-provided design mocks
 - **NC-Header.png Implementation**: Replace all application headers with official NOOR Canvas branding
 - **NC-Logo.png Implementation**: Update logos, favicons, and brand elements throughout application
-- **Landing Page Enhancement**: Remove sample content, add large icons, improve security messaging
-- **Color Scheme Definition**: Extract brand colors and establish CSS custom properties
+- **Design Mock Extraction**: Extract styling patterns, colors, layouts from user design mocks
+- **CSS Variable System**: Establish CSS custom properties for consistent branding
 
-##### **Week 14 (Sep 23-27): Host Interface Complete Implementation**  
-- **Host Control Panel Mock Conversion**: Convert `Host Control Panel.html` to fully functional Blazor component
-- **McBeatch Theme Application**: Apply responsive grid, form controls, and navigation patterns
-- **Session Management Interface**: Complete Album/Category/Session dropdowns with McBeatch styling
-- **Real-time Features**: Integrate participant roster and question management with McBeatch components
+##### **Week 14 (Sep 21-27): Component Styling & Layout Implementation**  
+- **Host Control Panel Styling**: Apply custom CSS to host interface based on design mocks
+- **Bootstrap Integration**: Maintain Bootstrap grid while adding custom component styling
+- **Form Controls & Navigation**: Style dropdowns, buttons, and navigation based on design patterns
+- **Responsive Design**: Ensure mobile-first approach following mock specifications
 
-##### **Week 15 (Sep 30-Oct 4): User Experience Implementation**
-- **User Waiting Room Conversion**: Convert `User - Waiting Room.html` to Blazor component with McBeatch styling
-- **🚨 CRITICAL: User Canvas Experience Design**: Complete the missing User Canvas Experience mock and implementation
-- **Mobile Responsive Design**: Create touch-optimized layouts for user workflows
-- **Authentication Flow**: Enhance dual-panel design with security improvements and visual appeal
+##### **Week 15 (Sep 28-Oct 4): User Experience & Interactive Elements**
+- **User Interface Styling**: Style user-facing components based on design mocks
+- **Animation & Transitions**: Implement smooth transitions and micro-interactions
+- **Mobile Optimization**: Touch-friendly interfaces and responsive behavior
+- **Authentication Flow Styling**: Enhanced visual design for dual-panel authentication
 
-##### **Week 16 (Oct 7-11): Integration, Testing & Polish**
+##### **Week 16 (Oct 5-11): Integration, Testing & Polish**
 - **Islamic Content Integration**: Cross-application asset referencing with Beautiful Islam
-- **RTL Support Implementation**: Arabic and Urdu text rendering with McBeatch framework
-- **Performance Optimization**: Image optimization, responsive behavior validation
-- **Quality Assurance**: Cross-browser testing, accessibility compliance, mobile responsiveness
+- **RTL Support Implementation**: Arabic and Urdu text rendering with custom CSS
+- **Performance Optimization**: CSS optimization, image compression, responsive behavior
+- **Quality Assurance**: Cross-browser testing, accessibility compliance, design mock compliance
 
-#### **🎨 NOOR Canvas Branding Integration (Priority: HIGH)**
+#### **🎨 NOOR Canvas Custom CSS Architecture (Priority: HIGH)**
 
-##### **McBeatch Theme Foundation - STATUS ASSESSMENT** 
-- ✅ **McBeatch Assets Available**: Complete CSS framework, responsive grid, components, and utilities
-  - **Location**: `McBeatch/` directory with full theme including `css/`, `js/`, `img/` assets
-  - **Components**: Bootstrap grid, Font Awesome icons, FlexSlider, Owl Carousel, color schemes
-  - **Status**: ⚠️ **PARTIAL INTEGRATION** - Assets available but not fully integrated into Blazor application
-- [ ] **Full McBeatch Integration**: Replace basic site.css with complete McBeatch framework
-  - **Target**: Integrate McBeatch CSS/JS into `SPA/NoorCanvas/wwwroot/` structure
-  - **Components**: Bootstrap grid, responsive navigation, form controls, modal dialogs
-  - **Color Scheme**: Select appropriate McBeatch color variant (red/blue/green/etc.) for Islamic branding
+##### **Custom CSS Foundation - STATUS ASSESSMENT** 
+- ✅ **McBeatch Removed**: Third-party CSS framework completely removed from codebase
+  - **Reason**: User preference for custom CSS based on design mocks
+  - **Status**: ✅ **CLEAN SLATE** - Ready for custom CSS implementation
+  - **Debug Infrastructure**: ✅ **PRESERVED** - Enhanced debugging capabilities maintained
+- [ ] **Custom CSS Implementation**: Build modular CSS architecture from design mocks
+  - **Target**: Create `css/noor-canvas/` directory structure for organized custom CSS
+  - **Components**: Custom navigation, forms, cards, modals, animations
+  - **Approach**: Extract patterns from user-provided design mocks and convert to CSS
 
 ##### **Header Image Integration**
 - [ ] **NC-Header.png Implementation**: Replace application header with official NOOR Canvas header image
@@ -414,6 +419,58 @@ SPA/NoorCanvas/wwwroot/
 ---
 
 ## 🔧 **RECENT TECHNICAL ACHIEVEMENTS**
+
+### **Enhanced Debug Infrastructure Implementation (September 14, 2025)**
+**Infrastructure-Level Debugging Capability Upgrade**
+
+**Implementation:** Comprehensive debugging system upgrade for all development phases
+**Components Created:**
+- ✅ **DebugService 2.0** - Enhanced debugging service with component-level control and performance monitoring
+- ✅ **DebugExtensions** - Fluent API for easy debug integration (`component.Debug(debugService).LogComponent()`)
+- ✅ **DebugMiddleware** - Automatic HTTP request/response tracking with correlation IDs
+- ✅ **Enhanced Configuration** - Component-specific debug control and performance thresholds
+
+**Key Features:**
+```csharp
+// Component-level debug control
+debugService.LogDebug("McBeatch", "CSS Loading", cssFiles);
+debugService.LogDebug("Branding", "Asset Loading", assetData);
+
+// Performance monitoring with automatic alerts
+using var timer = debugService.StartTimer("CreateSession", "SessionManagement");
+
+// Browser console integration with styling
+await debugService.ConsoleLogAdvancedAsync("Authentication", "Login Success", loginData);
+```
+
+**Debug Configuration Structure:**
+```json
+{
+  "DebugConfiguration": {
+    "EnableDebugMode": true,
+    "DebugComponents": {
+      "McBeatch": true, "Branding": true, "Assets": true, "RTL": true,
+      "Authentication": true, "SessionManagement": true, "Performance": true
+    },
+    "PerformanceThresholds": {
+      "SlowOperationMs": 1000, "VerySlowOperationMs": 5000
+    }
+  }
+}
+```
+
+**Cleanup Strategy:**
+- All debug code tagged with `NOOR_DEBUG` prefix for instant removal
+- Configuration-based disable (single line change disables all debugging)
+- PowerShell scripts for automated debug code removal
+- Conditional compilation support for production builds
+
+**Impact:**
+- ✅ **Universal Debug Coverage**: Every component now has standardized debug logging
+- ✅ **Performance Monitoring**: Automatic slow operation detection and alerting
+- ✅ **Easy Cleanup**: Production builds can remove all debug code instantly
+- ✅ **Developer Experience**: Rich browser console logging with component grouping and styling
+- ✅ **Correlation Tracking**: Request correlation IDs for debugging complex workflows
 
 ### **SSL Certificate Trust Resolution (September 13, 2025)**
 **Completed Infrastructure Improvement**
