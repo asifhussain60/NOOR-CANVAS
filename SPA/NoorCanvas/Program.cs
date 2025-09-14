@@ -108,6 +108,7 @@ builder.Services.AddScoped<HttpClient>(provider =>
 // Add application services
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
 
 var app = builder.Build();
 
@@ -125,6 +126,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// NOOR_DEBUG: Enhanced debug middleware for comprehensive request tracking
+if (app.Environment.IsDevelopment())
+{
+    app.UseMiddleware<NoorCanvas.Middleware.DebugMiddleware>();
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -232,8 +239,9 @@ static void ValidateStartupConfiguration(IServiceProvider services)
         
         logger.LogInformation("✅ NOOR-VALIDATION: HttpClient BaseAddress configured: {BaseAddress}", defaultClient.BaseAddress);
         
-        // Database Connection Validation
-        var canvasDbContext = services.GetRequiredService<CanvasDbContext>();
+        // Database Connection Validation (using proper scope)
+        using var scope = services.CreateScope();
+        var canvasDbContext = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
         var canConnect = canvasDbContext.Database.CanConnect();
         
         if (!canConnect)
