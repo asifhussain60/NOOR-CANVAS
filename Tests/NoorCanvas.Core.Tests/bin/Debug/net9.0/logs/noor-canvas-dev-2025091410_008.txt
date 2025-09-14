@@ -1,0 +1,24 @@
+[2025-09-14 10:08:32.088 -04:00 INF] Program ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {}
+[2025-09-14 10:08:32.104 -04:00 FTL] Program ❌ NOOR-FATAL: Startup configuration validation failed: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider. {}
+System.InvalidOperationException: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.OnResolve(ServiceCallSite callSite, IServiceScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Program.<<Main>$>g__ValidateStartupConfiguration|0_13(IServiceProvider services) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 236
+[2025-09-14 10:08:32.167 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"},"ActionId":"20b4b1c1-e0bc-4a8b-b33f-c542888baa01","ActionName":"NoorCanvas.Controllers.HostController.StartSession (NoorCanvas)","RequestId":"0HNFJJ0NLB370","RequestPath":"/api/host/session/3/start"}
+[2025-09-14 10:08:32.212 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"},"ActionId":"198649cf-9286-486e-9872-6346389c4073","ActionName":"NoorCanvas.Controllers.HostController.EndSession (NoorCanvas)","RequestId":"0HNFJJ0NLB372","RequestPath":"/api/host/session/3/end"}
+[2025-09-14 10:08:32.230 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.242 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.243 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.247 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 2 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"},"ActionId":"c98858de-30dd-474a-99d6-783c70dad4ad","ActionName":"NoorCanvas.Controllers.ParticipantController.RegisterParticipant (NoorCanvas)","RequestId":"0HNFJJ0NLB377","RequestPath":"/api/participant/register"}
+[2025-09-14 10:08:32.286 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.286 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.306 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.309 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"},"ActionId":"20b4b1c1-e0bc-4a8b-b33f-c542888baa01","ActionName":"NoorCanvas.Controllers.HostController.StartSession (NoorCanvas)","RequestId":"0HNFJJ0NLB37A","RequestPath":"/api/host/session/7/start"}
+[2025-09-14 10:08:32.320 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.321 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.321 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}
+[2025-09-14 10:08:32.322 -04:00 INF] Microsoft.EntityFrameworkCore.Update Saved 1 entities to in-memory store. {"EventId":{"Id":30100,"Name":"Microsoft.EntityFrameworkCore.Update.ChangesSaved"}}

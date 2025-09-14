@@ -1,0 +1,36 @@
+[2025-09-14 10:08:30.369 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
+[2025-09-14 10:08:30.399 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
+[2025-09-14 10:08:30.398 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
+[2025-09-14 10:08:30.399 -04:00 FTL] ❌ NOOR-FATAL: Startup configuration validation failed: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider. {"SourceContext":"Program"}
+System.InvalidOperationException: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Program.<<Main>$>g__ValidateStartupConfiguration|0_13(IServiceProvider services) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 236
+[2025-09-14 10:08:30.399 -04:00 FTL] ❌ NOOR-FATAL: Startup configuration validation failed: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider. {"SourceContext":"Program"}
+System.InvalidOperationException: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Program.<<Main>$>g__ValidateStartupConfiguration|0_13(IServiceProvider services) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 236
+[2025-09-14 10:08:30.400 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
+[2025-09-14 10:08:30.399 -04:00 FTL] ❌ NOOR-FATAL: Startup configuration validation failed: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider. {"SourceContext":"Program"}
+System.InvalidOperationException: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Program.<<Main>$>g__ValidateStartupConfiguration|0_13(IServiceProvider services) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 236
+[2025-09-14 10:08:30.401 -04:00 FTL] ❌ NOOR-FATAL: Startup configuration validation failed: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider. {"SourceContext":"Program"}
+System.InvalidOperationException: Cannot resolve scoped service 'NoorCanvas.Data.CanvasDbContext' from root provider.
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteValidator.ValidateResolution(ServiceCallSite callSite, IServiceScope scope, IServiceScope rootScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Program.<<Main>$>g__ValidateStartupConfiguration|0_13(IServiceProvider services) in D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs:line 236
