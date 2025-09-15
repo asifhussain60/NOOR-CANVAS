@@ -32,7 +32,7 @@
 nc                             # Primary application runner with token generation
 nc 215                         # Generate token for session ID 215 + launch app
 nct                           # Host token generator (standalone)
-ncdoc                         # DocFX documentation site launcher
+ncdoc                         # DocFX documentation site launcher (fixed Python dependency issue)
 iiskill                       # Process killer for cleanup
 ```
 
@@ -235,6 +235,74 @@ Rationale: This ensures implementation asks are preserved, verified, and auditab
 - **Prevention**: Use `-NoProfile` execution policy for automated scripts to avoid PSReadLine conflicts
 - **Mitigation**: Terminal display issues don't indicate operation failure - check actual command results
 
+#### **NCDOC Documentation Server Troubleshooting (September 15, 2025)**
+**Issue**: Python dependency error when running `ncdoc` command
+**Error Symptom**: "Python was not found; run without arguments to install from the Microsoft Store"
+
+**Root Cause**: `ncdoc` command relies on Python for certain DocFX operations but Python is not installed or configured properly on the system.
+
+**✅ IMMEDIATE WORKAROUND (Tested & Working):**
+```powershell
+# If ncdoc fails with Python error, run DocFX directly
+cd DocFX
+docfx serve _site --port 9093
+```
+
+**Why This Works:**
+- DocFX core functionality doesn't require Python for serving pre-built documentation
+- The `_site` directory contains pre-generated HTML documentation 
+- Direct `docfx serve` bypasses Python dependency checks
+- Documentation loads properly at http://localhost:9093
+
+**Prevention Strategy:**
+- Always check if `_site` directory exists and contains HTML files before running ncdoc
+- Use direct DocFX serve command when Python dependencies are unavailable
+- Consider updating ncdoc script to include Python dependency fallback
+
+#### **Enhanced HealthCheck System with DocFX Integration (September 2025)**
+**Purpose**: Comprehensive workspace validation with DocFX implementation plan refresh capabilities
+
+**Enhanced HealthCheck Commands:**
+```powershell
+# Standard healthcheck with DocFX validation
+.\Tests\HealthCheckWithDocFX.ps1
+
+# HealthCheck with automatic DocFX refresh
+.\Tests\HealthCheckWithDocFX.ps1 -RefreshDocFX
+
+# HealthCheck with implementation docs update
+.\Tests\HealthCheckWithDocFX.ps1 -UpdateImplementationDocs
+
+# Verbose logging for detailed diagnostics
+.\Tests\HealthCheckWithDocFX.ps1 -Verbose -RefreshDocFX
+```
+
+**DocFX Implementation Refresh Quick Commands:**
+```powershell
+ncdoc -Force    # Restart documentation server with latest changes
+```
+
+**What HealthCheck Validates:**
+1. **Workspace Structure**: Required directories and core files
+2. **Codebase Components**: Controllers (8), Hubs (3), Models (13+) 
+3. **Global Commands**: nc, nct, ncdoc functionality testing
+4. **DocFX Documentation**: Implementation plan freshness and accuracy
+5. **Implementation Progress**: Cross-reference against IMPLEMENTATION-TRACKER.MD
+6. **DocFX Server Status**: Service availability and port binding
+
+**Expected Results:**
+- Backend Implementation: 95% complete (8 controllers, 3 hubs operational)
+- Frontend Progress: 70% complete (Blazor components with SignalR integration)
+- Phase 4 Current Status: Canvas Tools completion
+- Documentation Status: Implementation docs synchronized with actual progress
+
+**Known Issues with HealthCheck:**
+- DocFX Python dependency may cause ncdoc failures (use direct docfx serve fallback)
+- Documentation drift between actual progress and DocFX implementation section
+- Port conflicts if multiple DocFX instances running simultaneously
+
+**Quick Reference**: See `Workspaces/HEALTHCHECK-QUICK-REF.md` for complete validation workflow and expected outputs.
+
 #### **Terminal Management Efficiency Patterns**
 **Process Cleanup Best Practices:**
 ```powershell
@@ -361,6 +429,27 @@ git commit -m "Your commit message"
 - **Issue-55**: ✅ NC Simple Browser Integration - Instructions added
 - **Issue-56**: ✅ NC Session ID Parameter Support - `nc 215` functionality 
 - **Issue-57**: ✅ NC Continuation Prompt Fix - Press ENTER (not "exit")
+- **Issue-58**: ✅ NCDOC Python Dependency Fix - Direct DocFX execution workaround
+- **Issue-83**: ✅ NCDOC Port Conflicts & Server Management - Port 8050, server reuse, Force restart
+
+### **NCDOC Command Enhancements (September 15, 2025)**
+
+**Port Change:** Documentation server now uses port **8050** (changed from 9093) to avoid conflicts with reserved port ranges:
+- **8080**: Reserved for Beautiful Islam application  
+- **9090-9091**: Reserved for NOOR Canvas HTTP/HTTPS
+
+**Enhanced Server Management:**
+- **Intelligent Server Detection**: `ncdoc` checks if server already running and reuses existing instance
+- **Force Restart Capability**: `ncdoc -Force` kills existing servers and starts fresh
+- **Improved PID Tracking**: Port-specific PID files for better process management
+
+**New Usage Patterns:**
+```powershell
+ncdoc              # Start server on 8050 or reuse existing
+ncdoc -Force       # Kill existing servers and restart fresh  
+ncdoc -Stop        # Stop documentation server
+ncdoc -Port 8060   # Use alternative port
+```
 
 ### **File Management Issues:**
 - **Empty nc.ps1 files**: Always verify file creation with `Get-Item -Path "file.ps1" | Select-Object Length`

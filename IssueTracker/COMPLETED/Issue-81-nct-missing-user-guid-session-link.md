@@ -1,11 +1,10 @@
 # Issue-81: NCT Command Missing User GUID and Session Link Output
 
 **Issue ID:** Issue-81  
-**Status:** COMPLETED  
+**Status:** In Progress  
 **Priority:** Critical  
 **Category:** Command Interface Bug  
 **Created:** 2025-09-15  
-**Resolved:** 2025-09-15  
 
 ## Problem Description
 
@@ -72,48 +71,12 @@ Need to investigate:
 
 ## Acceptance Criteria
 
-- [x] `nct` command displays User Session GUID when creating sessions
-- [x] `nct` command displays Participant Session Link with User GUID attached  
-- [x] `nct` command creates User and SessionLink records in database
-- [x] `nct` output matches `nc` output format for consistency
-- [x] Both Host GUID and User Session GUID are functional
-- [x] Additional debug logging added to trace the issue
-
-## Resolution Summary
-
-**Issue Fixed:** Updated `nct.ps1` script to include User GUID and Participant Session Link functionality.
-
-**Root Cause:** The `nct` command was calling HostProvisioner without the `--create-user` flag, unlike the `nc` command.
-
-**Solution Applied:**
-1. **Updated HostProvisioner Call:** Modified `nct.ps1` to call HostProvisioner with `--create-user` flag: 
-   ```powershell
-   $provisionerOutput = & dotnet run -- create --session-id $SessionId --created-by "NC Global Command" --dry-run false --create-user 2>&1 | Out-String
-   ```
-
-2. **Added User GUID Parsing:** Added regex parsing to extract User GUID from HostProvisioner output:
-   ```powershell
-   if ($provisionerOutput -match "User GUID:\s*([0-9a-fA-F\-]{36})") {
-       $userGuid = $matches[1]
-   }
-   ```
-
-3. **Added Participant URL Parsing:** Added regex parsing to extract Participant URL from HostProvisioner output:
-   ```powershell
-   if ($provisionerOutput -match "Participant URL:\s*(https?://[^\s]+)") {
-       $participantUrl = $matches[1]
-   }
-   ```
-
-4. **Enhanced Output Display:** Added formatted output display matching `nc` command style:
-   - Host Session GUID display
-   - User Session GUID display  
-   - Participant Session Link display
-   - Instructional messages for usage
-
-5. **Updated Help Documentation:** Updated help text to reflect new User GUID and Participant URL functionality.
-
-**Testing:** The fix ensures `nct` command now provides the same comprehensive output as `nc` command, creating Users, Registrations, and SessionLinks in the database while displaying all necessary information for session management.
+- [ ] `nct` command displays User Session GUID when creating sessions
+- [ ] `nct` command displays Participant Session Link with User GUID attached  
+- [ ] `nct` command creates User and SessionLink records in database
+- [ ] `nct` output matches `nc` output format for consistency
+- [ ] Both Host GUID and User Session GUID are functional
+- [ ] Additional debug logging added to trace the issue
 
 ## Investigation Steps
 

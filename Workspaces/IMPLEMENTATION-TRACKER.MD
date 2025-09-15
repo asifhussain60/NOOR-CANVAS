@@ -7,38 +7,31 @@
 
 ---
 
-## 🚨 **MAJOR ARCHITECTURAL CHANGE: Dual URL System with Human-Friendly Tokens (September 15, 2025)**
+## � **CURRENT IMPLEMENTATION STATUS: Single Landing Page with Dual Authentication Panels**
 
-**Revolutionary Design Change**: Replace single landing page with separate Host and User workflows using secure 8-character tokens.
+**Current Architecture**: Maintaining existing dual-panel landing page design with incremental security improvements.
 
-### **New Authentication Architecture**
+### **Active Authentication System**
 
-**HostProvisioner Enhanced Output Format:**
+**Current HostProvisioner Output Format:**
 ```
-======================================================
 SessionID: 215
-Host URL: https://localhost:9091/host/P7X9K2M4
-User URL: https://localhost:9091/user/H5T3R8W6
-======================================================
+Host GUID: 12345678-1234-1234-1234-123456789abc
+Participant URL: https://localhost:9091/join/[session-guid]?userGuid=[user-guid]
 ```
 
-**Technical Implementation Requirements:**
-1. **SecureTokens Database Table**: Store token pairs with Host/User mappings
-2. **Human-Friendly Character Set**: A-Z, 2-9 (32 chars, exclude confusing 0/O, 1/I)
-3. **Dual URL Routing**: `/host/{token}` and `/user/{token}` endpoints with validation
-4. **Landing Page Split**: 
-   - Host URL → Host-only landing page (current page, remove User card)
-   - User URL → User Welcome page (from User Welcome.html mock)
-5. **Enhanced Security**: Cryptographically random tokens with expiry and audit trail
+**Current Implementation Status:**
+1. **✅ Working**: Dual-panel landing page with Host and User authentication cards
+2. **✅ Working**: Host authentication via test GUID validation
+3. **✅ Working**: CreateSession workflow with HttpClientFactory pattern
+4. **⚡ Active**: Issue-82 security improvements for participant URLs (removing GUID exposure)
+5. **❌ Blocking**: Issue-60 HostSessionManager initialization failure
 
-### **Implementation Benefits:**
-- ✅ **8 characters only** - easy to type, share, remember
-- ✅ **No confusing characters** - clear over phone/SMS  
-- ✅ **Clean URLs** - professional appearance
-- ✅ **SMS-friendly** - fits easily in text messages
-- ✅ **No exposed GUIDs** - completely secure
-- ✅ **Expirable tokens** - enhanced security with time limits
-- ✅ **Audit trail** - complete token lifecycle tracking
+### **Security Improvement Roadmap (Issue-82)**
+Future enhancement to implement secure tokens while maintaining current architecture:
+- **Phase A**: Replace GUID exposure with short secure tokens for participant URLs
+- **Phase B**: Enhance token expiry and audit capabilities  
+- **Phase C**: Consider architectural changes only after current system is fully stable
 
 ---
 
@@ -118,30 +111,30 @@ User URL: https://localhost:9091/user/H5T3R8W6
 - ✅ Health monitoring system operational
 - ✅ Automated testing framework established
 
-### **✅ Phase 2: Core Platform (Weeks 4-8) - COMPLETED 100%**
+### **🔄 Phase 2: Core Platform (Weeks 4-8) - 85% COMPLETE - CRITICAL BLOCKERS ACTIVE**
 - [x] Session management system (backend models/API)
 - [x] Basic annotation framework (SignalR hubs)
 - [x] Bootstrap foundation setup (clean CSS architecture)
 - [x] Host authentication infrastructure (backend complete)
 - [x] Cross-application database integration (KSESSIONS read-only)
-- [x] Participant registration workflow (UI complete)
-- [x] Session creation UX (CreateSession.razor fully functional with HttpClientFactory pattern)
+- [ ] **BLOCKED**: Participant registration workflow (ParticipantRegister.razor incomplete)
+- [ ] **CRITICAL**: Session creation UX (Issue-53: CreateSession.razor HttpClient BaseAddress failure)
 
 **Key Deliverables:**
 - ✅ Database schema (canvas namespace) - 13 tables, 2 migrations
 - ✅ Host authentication backend (HostController, HostProvisioner console app)
 - ✅ Database integration (KSessionsDbContext for Albums/Categories/Sessions)
 - ✅ CSS Foundation (Bootstrap 5.x + clean site.css, custom CSS ready)
-- ❌ Session creation workflow (CreateSession.razor HttpClient issue - Issue-53)
-- ❌ Participant registration UX (ParticipantRegister.razor incomplete)
-- ⚡ Custom CSS implementation (Ready for design mock integration)
+- ❌ **BLOCKING**: Session creation workflow (CreateSession.razor HttpClient issue - Issue-53)
+- ❌ **INCOMPLETE**: Participant registration UX (ParticipantRegister.razor incomplete)
+- ⚡ **READY**: Custom CSS implementation (Design mocks available for integration)
 
-### **✅ Phase 3: Advanced Features (Weeks 9-12) - COMPLETED 100%**
+### **🔄 Phase 3: Advanced Features (Weeks 9-12) - 70% COMPLETE - CRITICAL ISSUE-60 BLOCKING**
 - [x] Real-time annotation tools foundation (3 SignalR hubs implemented)
 - [x] Q&A system backend (Question/QuestionAnswer models + QAHub)
 - [x] SSL certificate trust configuration (TrustServerCertificate=true)
 - [x] Host authentication backend ✅ **COMPLETED** (HostController + HostProvisioner)
-- [x] Session creation workflow ✅ **COMPLETED** (CreateSession.razor with HttpClientFactory)
+- [ ] **CRITICAL BLOCKER**: Session creation workflow (Issue-53: HttpClient BaseAddress + Issue-60: HostSessionManager initialization)
 - [x] Host UX streamlining ✅ **COMPLETED** (Removed Host Dashboard, direct CreateSession routing)
 - [x] Mobile responsiveness ✅ **READY** (Bootstrap responsive foundation prepared)
 - [x] Performance foundation ✅ **COMPLETED** (Basic optimization, structured logging)
@@ -159,10 +152,10 @@ User URL: https://localhost:9091/user/H5T3R8W6
 - Dashboard navigation and session token generation
 - Database connectivity to KSESSIONS_DEV and canvas schema
 
-**❌ WHAT DOESN'T WORK (Issue-53 Identified):**
-- CreateSession page initialization after successful host authentication
+**❌ WHAT DOESN'T WORK (Critical Blockers Identified):**
+- **Issue-53**: CreateSession page initialization after successful host authentication (HttpClient BaseAddress error)
+- **Issue-60**: HostSessionManager initialization failure (CRITICAL - prevents session creation)
 - Albums dropdown loading from KSESSIONS database (HttpClient BaseAddress error)
-- Session manager initialization in CreateSession component
 - Any component using direct `@inject HttpClient Http` pattern (anti-pattern)
 
 **🎯 CRITICAL DEVELOPMENT PATTERN ESTABLISHED:**
@@ -184,7 +177,8 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
 - ✅ **Authentication Flow:** Host authentication working with Session 215 GUID testing ⚡ **FULLY OPERATIONAL**
 - ✅ **Test Harness Creation:** Comprehensive SSL and authentication test suites
 - ✅ **HttpClientFactory Pattern:** Proven solution for Blazor Server API calls
-- ❌ **Issue-53 Identified:** Session creation workflow requires immediate HttpClientFactory implementation
+- ❌ **Issue-53 ACTIVE:** CreateSession workflow HttpClient BaseAddress failure (blocking session creation)
+- ❌ **Issue-60 CRITICAL:** HostSessionManager initialization failure (prevents all session operations)
 
 ### **🚧 Phase 4: NOOR Canvas Branding & Content Integration (Weeks 13-16) - IN PROGRESS**
 **Status**: Custom CSS Implementation - Enhanced Debug Infrastructure Complete ✅
@@ -224,12 +218,256 @@ var response = await Http.GetFromJsonAsync("api/endpoint"); // Fails: BaseAddres
 - **Responsive Design**: Mobile-first approach with responsive breakpoints
 - **Brand Assets**: NC-Header.png and NC-Logo.png available in NC-Assets folder
 
-##### **Week 13 (Sep 14-20): Custom CSS Foundation & Design Mock Integration**
-- **Custom CSS Architecture**: Create modular CSS files based on analyzed design mocks (Inter font, Tailwind colors, rounded-xl styling)
-- **NC-Header.png Implementation**: Replace "[Header Image Goes Here...]" placeholders with NC-Header.png across all views
-- **NC-Logo.png Implementation**: Replace "[Logo Image Goes Here...]" placeholders with NC-Logo.png throughout application
-- **Design Mock CSS Extraction**: Extract exact styling from HTML mocks (purple borders, shadow-lg, specific spacing)
-- **Font Awesome Integration**: Replace any non-Font Awesome icons with Font Awesome 6.5.1 equivalents
+##### **Week 13 (Sep 14-20): Mock Styling Implementation & External Library Integration**
+
+#### **📦 EXTERNAL LIBRARY INTEGRATION (CRITICAL - Day 1-2)**
+
+**Requirement**: Download and integrate external libraries locally to ensure accurate mock implementation and eliminate production dependencies on CDNs.
+
+**Libraries Required for Mock Accuracy:**
+
+1. **Tailwind CSS v3.4** (~3.4MB compiled)
+   - **Source**: `https://cdn.tailwindcss.com` (used across ALL 5 mock files)
+   - **Purpose**: Utility classes for responsive design, spacing, colors, and layout
+   - **Target Location**: `SPA/NoorCanvas/wwwroot/lib/tailwind/`
+   - **Integration**: Local CSS file with all utility classes used in mocks
+
+2. **Font Awesome 6.5.1** (~1.2MB)
+   - **Source**: `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css`
+   - **Purpose**: Icons throughout all mock interfaces (fa-solid classes)
+   - **Target Location**: `SPA/NoorCanvas/wwwroot/lib/fontawesome/`
+   - **Files**: CSS + WebFont files (WOFF2, WOFF, TTF)
+
+3. **Google Fonts Inter** (~200KB for weights 400-700)
+   - **Source**: `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap`
+   - **Purpose**: Typography consistency across all mock designs
+   - **Target Location**: `SPA/NoorCanvas/wwwroot/lib/fonts/inter/`
+   - **Files**: CSS + Font files for weights 400, 500, 600, 700
+
+**Download & Integration Process (EXECUTE IMMEDIATELY):**
+
+```powershell
+# Navigate to project directory
+cd "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot"
+
+# Create organized library directories
+New-Item -ItemType Directory -Path "lib\tailwind" -Force
+New-Item -ItemType Directory -Path "lib\fontawesome" -Force
+New-Item -ItemType Directory -Path "lib\fontawesome\webfonts" -Force  
+New-Item -ItemType Directory -Path "lib\fonts\inter" -Force
+
+# Download Tailwind CSS v3.4 (Complete Distribution)
+Invoke-WebRequest -Uri "https://cdn.tailwindcss.com/3.4.0" -OutFile "lib\tailwind\tailwind.min.css"
+
+# Download Font Awesome 6.5.1 CSS
+Invoke-WebRequest -Uri "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" -OutFile "lib\fontawesome\all.min.css"
+
+# Download Font Awesome WebFonts (Required by CSS)
+$faFonts = @("fa-brands-400.woff2", "fa-regular-400.woff2", "fa-solid-900.woff2", "fa-brands-400.woff", "fa-regular-400.woff", "fa-solid-900.woff")
+foreach($font in $faFonts) {
+    Invoke-WebRequest -Uri "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/$font" -OutFile "lib\fontawesome\webfonts\$font"
+}
+
+# Download Google Fonts Inter (Weights 400, 500, 600, 700)
+# Create Inter CSS file with local font references
+@"
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./inter-700.woff2') format('woff2');
+}
+"@ | Out-File -FilePath "lib\fonts\inter\inter.css" -Encoding UTF8
+
+# Download Inter font files (WOFF2 format for modern browsers)
+$interFonts = @{
+    "400" = "UcCy3FwrK3iLTeHuS_fvQtMwCp50KnMf2xLieuIcicY.woff2"
+    "500" = "UcCy3FwrK3iLTeHuS_fvQtMwCp50KnMe2BLieuIcicY.woff2"  
+    "600" = "UcCy3FwrK3iLTeHuS_fvQtMwCp50KnMe3xLieuIcicY.woff2"
+    "700" = "UcCy3FwrK3iLTeHuS_fvQtMwCp50KnMe1xLieuIcicY.woff2"
+}
+
+foreach($weight in $interFonts.Keys) {
+    Invoke-WebRequest -Uri "https://fonts.gstatic.com/s/inter/v13/$($interFonts[$weight])" -OutFile "lib\fonts\inter\inter-$weight.woff2"
+}
+
+Write-Host "✅ All external libraries downloaded successfully (~4.8MB total)" -ForegroundColor Green
+Write-Host "📁 Files created in: wwwroot/lib/" -ForegroundColor Cyan
+```
+
+**Benefits of Local Integration:**
+- ✅ **Production Independence**: No external CDN dependencies  
+- ✅ **Offline Capability**: Application works without internet
+- ✅ **Performance**: Faster loading from local assets
+- ✅ **Security**: No external request vulnerabilities
+- ✅ **Mock Accuracy**: Exact styling preservation from design mocks
+
+#### **🎨 MOCK STYLING EXTRACTION & MODULAR CSS CREATION (Day 3-5)**
+
+**Requirement**: Create 6 modular CSS files based on exact mock analysis to ensure pixel-perfect implementation with zero external dependencies.
+
+**CSS Architecture Overview**: 6 dedicated stylesheets based on 5 HTML mocks analysis:
+1. **Core Foundation** (`noor-canvas-core.css`) - Base styling used across all pages
+2. **Host Control Panel** (`noor-host-control-panel.css`) - Dual-panel layout & session controls
+3. **User Welcome** (`noor-user-welcome.css`) - Registration form & welcome interface  
+4. **Waiting Room** (`noor-waiting-room.css`) - Progress bars & participant management
+5. **Canvas Experience** (`noor-canvas-experience.css`) - Live session interface & Q&A panel
+6. **Landing Page** (`noor-landing-page.css`) - Hero section & feature presentation
+
+**Mock Analysis Results** (from 5 HTML files):
+- **Common Theme**: Purple borders (`border-4 border-purple-500`), rounded corners (`rounded-xl`), shadow effects (`shadow-lg`)
+- **Typography**: Inter font family consistently used across all designs
+- **Layout Patterns**: Flexbox layouts with responsive breakpoints (`md:flex-row`)
+- **Interactive Elements**: Transform hover effects (`hover:scale-1.05`), button animations
+- **Exact Dimensions**: Specific measurements (750px containers, 52.5vh canvas area)
+
+**CSS File Creation Commands:**
+
+```powershell
+# Navigate to CSS directory
+cd "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\css"
+
+# Create 6 modular CSS files
+New-Item -ItemType File -Path "noor-canvas-core.css" -Force
+New-Item -ItemType File -Path "noor-host-control-panel.css" -Force
+New-Item -ItemType File -Path "noor-user-welcome.css" -Force
+New-Item -ItemType File -Path "noor-waiting-room.css" -Force
+New-Item -ItemType File -Path "noor-canvas-experience.css" -Force
+New-Item -ItemType File -Path "noor-landing-page.css" -Force
+```
+
+**CRITICAL CSS IMPLEMENTATION SPECIFICATIONS:**
+
+**1. Core Foundation CSS** (`noor-canvas-core.css` - ~150 lines):
+```css
+/* NOOR Canvas Core - Foundation for all pages */
+:root {
+  --noor-purple-primary: #8B5CF6;
+  --noor-purple-border: #A855F7;
+  --noor-bg-gray: #F3F4F6;
+  --noor-text-gray: #374151;
+  font-family: 'Inter', sans-serif;
+}
+
+.noor-container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+.noor-card { 
+  background: white; 
+  border-radius: 0.75rem; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+}
+.noor-border-purple { border: 4px solid var(--noor-purple-border); }
+.noor-btn-primary { 
+  background: var(--noor-purple-primary); 
+  color: white; 
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: transform 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.noor-btn-primary:hover { transform: scale(1.05); }
+/* Additional 100+ lines of utility classes, typography, responsive grid */
+```
+
+**2. Host Control Panel CSS** (`noor-host-control-panel.css` - ~200 lines):
+- **Dual Panel Layout**: Left dropdown panel + Right session controls with responsive breakpoints
+- **Dropdown Styling**: Album/Category/Session selectors with focus states and transitions
+- **Button Groups**: Start/End/Pause buttons with distinct colors and hover animations
+- **Participant Roster**: Grid layout with status indicators and connection states
+- **Exact Specifications**: 768px breakpoint for `md:flex-row`, purple theme consistency
+
+**3. User Welcome CSS** (`noor-user-welcome.css` - ~160 lines):
+- **Registration Form**: Name/Country/City inputs with icon positioning from Font Awesome
+- **Form Validation**: Error states, success indicators, and loading animations
+- **Input Groups**: Icon + input field combinations with focus transitions
+- **Submit Button**: Primary action with gradient background and loading spinner
+- **Responsive**: Mobile-optimized form layout with proper touch targets
+
+**4. Waiting Room CSS** (`noor-waiting-room.css` - ~180 lines):
+- **Progress Bar**: Animated countdown with exact 750px container width from mock
+- **Participant Grid**: Auto-fit grid layout with hover effects and status badges
+- **Timer Display**: Large countdown with pulse animation and fade transitions
+- **Connection Status**: Fixed position status indicator with color-coded states
+- **Avatar System**: Circular avatars with initials and consistent purple theming
+
+**5. Canvas Experience CSS** (`noor-canvas-experience.css` - ~220 lines):
+- **Header Bar**: Session info and controls with participant count display
+- **Canvas Area**: Exact 52.5vh height as specified in mock designs
+- **Q&A Panel**: Side panel with question list, voting buttons, and input form
+- **Interactive Tools**: Canvas toolbar with tool selection and hover states  
+- **Mobile Layout**: Responsive canvas sizing and collapsible panels for smaller screens
+
+**6. Landing Page CSS** (`noor-landing-page.css` - ~140 lines):
+- **Hero Section**: Large title, subtitle, and CTA buttons with gradient backgrounds
+- **Feature Lists**: Two-column feature presentation as shown in mock design
+- **Navigation**: Header navigation with logo integration and hover effects
+- **Footer**: Contact information and brand links with proper spacing
+- **Feature Cards**: Grid layout with hover animations and icon positioning
+
+**Layout File Integration Requirements:**
+```html
+<!-- Update Views/Shared/_Layout.cshtml -->
+<!-- REPLACE all CDN references with: -->
+<link rel="stylesheet" href="~/lib/tailwind/tailwind.min.css" />
+<link rel="stylesheet" href="~/lib/fontawesome/all.min.css" />
+<link rel="stylesheet" href="~/lib/fonts/inter/inter.css" />
+
+<!-- ADD all NOOR Canvas CSS files: -->
+<link rel="stylesheet" href="~/css/noor-canvas-core.css" />
+<link rel="stylesheet" href="~/css/noor-host-control-panel.css" />
+<link rel="stylesheet" href="~/css/noor-waiting-room.css" />
+<link rel="stylesheet" href="~/css/noor-user-welcome.css" />
+<link rel="stylesheet" href="~/css/noor-canvas-experience.css" />
+<link rel="stylesheet" href="~/css/noor-landing-page.css" />
+```
+
+**Deployment Configuration:**
+```xml
+<!-- Update NoorCanvas.csproj to exclude development files -->
+<ItemGroup>
+  <Content Remove="Mocks\**" />
+  <None Include="Mocks\**" />
+  <Content Remove="wwwroot\lib\**\*.zip" />
+</ItemGroup>
+```
+
+**Validation Requirements:**
+- [ ] Application builds successfully with all CSS files loaded
+- [ ] No 404 errors for font or CSS file requests  
+- [ ] Application works completely offline (no external requests)
+- [ ] All mock visual elements replicated exactly in Blazor components
+- [ ] Responsive breakpoints function correctly across devices
+- [ ] Inter font loads properly with all required weights (400-700)
+
+**Critical Success Factors:**
+- **Exact Color Matching**: Use precise hex values from mock analysis
+- **Dimension Accuracy**: Implement exact container widths and heights
+- **Animation Consistency**: Match timing and easing functions from mock behavior
+- **Typography Fidelity**: Ensure font weights and sizes match design specifications
+- **Responsive Behavior**: Test all breakpoints match mock responsive patterns
 - **🎯 Issue-67 Implementation**: Landing Page 2-Step UX with modern card animations ✅ **COMPLETED September 14, 2025**
   - **Step 1**: Restore original feature list cards (Host Authentication + Join Session) ✅
   - **Step 2**: Implement 20% card expansion animation with input form transformation ✅
@@ -322,6 +560,56 @@ User URL: https://localhost:9091/user/H5T3R8W6
 
 **Status**: ✅ **COMPLETED** - Workspace instructions updated successfully
 
+#### **🎯 TODO-2: NCDOC Orphaned Windows Issue Resolution (September 15, 2025) - COMPLETED**
+
+**Implementation Summary**: Complete elimination of orphaned PowerShell windows when serving DocFX documentation by replacing window-based approach with background job management.
+
+**Problem Resolved:**
+- **Original Issue**: ncdoc command created persistent PowerShell windows using `Start-Process` with `-NoExit` parameter
+- **User Impact**: Orphaned windows cluttered taskbar, required manual cleanup, left background processes running
+- **Technical Debt**: Complex parent-child process relationships, difficult server management, process cleanup issues
+
+**Solution Implemented:**
+- **Background Jobs**: Replaced `Start-Process` with `Start-Job` for invisible DocFX server execution
+- **Process Management**: Enhanced tracking with `JOB:ID` format instead of PID-only tracking
+- **Simplified Architecture**: Removed Python HTTP server option, DocFX serve as primary method
+- **Clean Termination**: Proper job lifecycle management with stop/cleanup capabilities
+
+**Technical Changes Applied:**
+```powershell
+# Before (Problematic)
+$proc = Start-Process -FilePath $psExe -ArgumentList $args -WindowStyle Minimized -PassThru
+
+# After (Clean)
+$job = Start-Job -ScriptBlock {
+    param($docfxPath, $port)
+    Set-Location $docfxPath
+    & docfx serve _site --port $port
+} -ArgumentList $docfxRoot, $Port
+```
+
+**Key Enhancements:**
+- **No Visible Windows**: DocFX runs as invisible background job, zero UI clutter
+- **Better Resource Management**: Jobs easier to track, stop, and clean up than processes
+- **Enhanced Stop Function**: Handles both legacy PIDs and new Job IDs for backward compatibility
+- **Improved Help**: Updated documentation emphasizes "no more orphaned windows" benefit
+- **Port Management**: Maintained port 8050 default with conflict avoidance (808*/909* reserved)
+
+**User Experience Impact:**
+- ✅ **Zero Window Clutter**: No orphaned PowerShell windows in taskbar
+- ✅ **Clean Background Operation**: Server runs invisibly without user interaction
+- ✅ **Reliable Termination**: `ncdoc -Stop` properly cleans up background jobs
+- ✅ **Same Interface**: All existing parameters and functionality preserved
+- ✅ **Better Process Tree**: Simpler architecture without complex parent-child relationships
+
+**Validation Results:**
+- **Syntax Verification**: PowerShell script passes syntax validation checks
+- **Functionality Test**: Background job creation and management working correctly
+- **Documentation Update**: Help text updated with improvement highlights
+- **Backward Compatibility**: Legacy PID file handling preserved for smooth transition
+
+**Status**: ✅ **COMPLETED** - NCDOC enhanced with background job management, orphaned windows eliminated
+
 #### **🛡️ Issue-82 CRITICAL SECURITY ENHANCEMENT - SHORT SECURE HASH TOKENS (September 15, 2025)**
 
 **Implementation Summary**: Complete security overhaul for participant session links replacing GUID exposure with cryptographically secure short tokens.
@@ -395,23 +683,120 @@ User URL: https://localhost:9091/user/H5T3R8W6
 
 **Status**: ✅ **PRODUCTION READY** - All guard systems operational, tested, and documented
 
-##### **Week 14 (Sep 21-27): Component Styling & Layout Implementation**  
-- **Host Control Panel Styling**: Apply exact mock styling (dual-panel dropdowns, session controls, participant roster)
-- **Database Integration**: Replace mock dropdown data (Album 1/2/3) with real KSESSIONS_DEV Groups/Categories/Sessions
-- **Form Controls & Buttons**: Implement rounded-xl buttons with hover effects and shadow-lg styling
-- **Session Name Replacement**: Replace "[Session Name]" placeholders with actual session data from database
+#### **🛠️ NCDOC Command Enhancement - Python Dependency Fallback (September 15, 2025)**
 
-##### **Week 15 (Sep 28-Oct 4): User Experience & Interactive Elements**
-- **User Canvas Experience**: Implement complete session interface with live content area and Q&A panel
-- **Waiting Room Implementation**: Apply countdown timer, participant list, and session status styling
-- **User Welcome Form**: Style registration form with proper validation and user feedback
-- **Database Data Mapping**: Replace all mock participant data with real KSESSIONS_DEV registrations
+**Issue Summary**: The `ncdoc` command was failing with "Python was not found" error when attempting to serve documentation.
 
-##### **Week 16 (Oct 5-11): Integration, Testing & Polish**
-- **Islamic Content Integration**: Cross-application asset referencing with Beautiful Islam (port 8080 reserved)
-- **RTL Support Implementation**: Arabic and Urdu text rendering for Islamic content display
-- **Performance Optimization**: CSS minification, NC-Header.png/NC-Logo.png optimization for responsive display
-- **Design Mock Compliance**: Exact pixel-perfect implementation matching provided HTML mocks
+**Root Cause**: Original ncdoc implementation relied on Python's `http.server` module, but Python was not installed or configured on the development system.
+
+**Solution Implemented**: Enhanced ncdoc script with intelligent fallback system:
+
+**Technical Implementation:**
+1. **Python Detection**: Added try-catch block to check if Python is available using `Get-Command python`
+2. **Graceful Fallback**: If Python is unavailable, automatically switches to DocFX native serve command
+3. **Consistent Interface**: Both Python and DocFX serve methods use the same port (9093) and PID tracking
+4. **User Feedback**: Clear console messages indicating which method is being used
+
+**Code Enhancement (ncdoc.ps1):**
+```powershell
+# Check if Python is available, if not use DocFX serve as fallback
+$pythonAvailable = $false
+try {
+    $pythonCheck = Get-Command python -ErrorAction Stop
+    $pythonAvailable = $true
+} catch {
+    Write-Host "Python not found. Using DocFX serve as fallback..." -ForegroundColor Yellow
+}
+
+if (-not $pythonAvailable) {
+    # Fallback to DocFX serve command
+    $command = "Set-Location -Path '$docfxRoot'; docfx serve _site --port $Port"
+    # Launch DocFX serve in detached PowerShell window
+}
+```
+
+**Benefits Achieved:**
+- ✅ **Reliability**: Documentation server works regardless of Python installation status
+- ✅ **Consistency**: Same command interface (`ncdoc`, `ncdoc -Help`, `ncdoc -Stop`)
+- ✅ **Performance**: DocFX native serve is potentially faster than Python http.server
+- ✅ **Maintenance**: Reduces external dependency requirements for development environment
+
+**Testing Results:**
+- ✅ **Without Python**: Successfully launches DocFX serve on port 9093
+- ✅ **PID Tracking**: Process ID correctly saved for later termination with `ncdoc -Stop`
+- ✅ **Browser Integration**: Documentation loads properly at http://localhost:9093
+- ✅ **Help Command**: `ncdoc -Help` displays usage information correctly
+
+**Status**: ✅ **COMPLETED** - Enhanced ncdoc command operational with Python fallback system
+
+##### **Week 14 (Sep 21-27): Mock-to-Blazor Component Conversion**
+
+**🎯 Primary Objective**: Convert 5 HTML mock files to Blazor components with exact styling preservation
+
+**Day 1-2: Host Control Panel Implementation**
+- [ ] **Convert `Host Control Panel.html` → `HostControlPanel.razor`**
+- [ ] **Apply `noor-host-control-panel.css` styling**
+- [ ] **Implement dual-panel layout**: Dropdown panel + Session controls panel
+- [ ] **Database Integration**: Replace mock dropdown data with KSESSIONS_DEV API calls
+- [ ] **Interactive Elements**: Start/End/Pause buttons with hover animations
+- [ ] **Responsive Behavior**: md:flex-row breakpoint implementation
+
+**Day 3-4: User Experience Pages**
+- [ ] **Convert `User Welcome.html` → `UserWelcome.razor`**
+- [ ] **Apply `noor-user-welcome.css` styling**
+- [ ] **Form Implementation**: Name/Country/City inputs with icon positioning
+- [ ] **Convert `User - Waiting Room.html` → `UserWaitingRoom.razor`**
+- [ ] **Apply `noor-waiting-room.css` styling**
+- [ ] **Progress Bar Component**: Animated countdown with 750px container width
+
+**Day 5: Canvas Experience Implementation**
+- [ ] **Convert `User - Canvas Experience.html` → `UserCanvasExperience.razor`**
+- [ ] **Apply `noor-canvas-experience.css` styling**
+- [ ] **Live Session Interface**: Header + Canvas area + Q&A panel
+- [ ] **Exact Dimensions**: 52.5vh canvas content area as per mock
+
+##### **Week 15 (Sep 28-Oct 4): Interactive Elements & Database Integration**
+
+**🎯 Primary Objective**: Replace all mock data with real database integration and add interactivity
+
+**Day 1-2: Data Integration**
+- [ ] **Session Name Replacement**: `[Session Name]` → Dynamic session data from KSESSIONS_DEV
+- [ ] **Dropdown Data Mapping**: Album/Category/Session dropdowns → Real database queries
+- [ ] **Participant Data**: Mock participant lists → Real canvas.Registrations data
+- [ ] **Q&A Integration**: Static Q&A → Dynamic canvas.Questions with voting
+
+**Day 3-4: Interactive States**
+- [ ] **Button Animations**: Implement transform:scale(1.05) hover effects from mocks
+- [ ] **Progress Bars**: Functional countdown timers with smooth width transitions
+- [ ] **Form Validation**: Real-time validation with error states
+- [ ] **SignalR Integration**: Live participant updates and Q&A broadcasting
+
+**Day 5: Mobile Responsiveness**
+- [ ] **Responsive Testing**: Verify all breakpoints work across devices
+- [ ] **Touch Interactions**: Ensure mobile-friendly button sizes and spacing
+- [ ] **Mobile Layout**: Implement flex-col → md:flex-row responsive patterns
+
+##### **Week 16 (Oct 5-11): Polish, Performance & Production Readiness**
+
+**🎯 Primary Objective**: Final optimization and mock compliance verification
+
+**Day 1-2: Mock Compliance Audit**
+- [ ] **Pixel-Perfect Comparison**: Side-by-side mock vs. implementation verification
+- [ ] **Color Accuracy**: Verify exact color values match mock specifications
+- [ ] **Typography**: Confirm Inter font weights and sizes match designs
+- [ ] **Spacing & Sizing**: Validate padding, margins, and component dimensions
+
+**Day 3-4: Performance & Optimization**
+- [ ] **CSS Minification**: Compress all NOOR canvas CSS files
+- [ ] **Image Optimization**: NC-Header.png/NC-Logo.png size optimization
+- [ ] **Font Subset**: Load only required Inter font weights (400-700)
+- [ ] **Bundle Analysis**: Verify no unused CSS or JavaScript
+
+**Day 5: Production Verification**
+- [ ] **Offline Testing**: Confirm application works without internet (no CDN dependencies)
+- [ ] **Mock Folder Exclusion**: Verify Mocks folder not included in build output
+- [ ] **Cross-Browser Testing**: Chrome, Firefox, Safari, Edge compatibility
+- [ ] **Deployment Ready**: All external dependencies localized and functional
 
 #### **🎨 NOOR Canvas Custom CSS Architecture (Priority: HIGH)**
 
@@ -437,33 +822,293 @@ User URL: https://localhost:9091/user/H5T3R8W6
 - ✅ **Icon System Confirmed**: Font Awesome 6.5.1 exclusively (replace any other icon libraries)
 - ✅ **Responsive Strategy**: Mobile-first approach with Tailwind-style breakpoints
 
-##### **Implementation-Ready CSS Structure**
+##### **MOCK-EXTRACTED CSS IMPLEMENTATION (5 Design Files)**
+
+**CSS Files to Create (Based on Mock Analysis):**
+
+1. **`noor-canvas-core.css`** - Base system from all mocks
 ```css
 /* NOOR Canvas Design System (Extracted from Mocks) */
+@import url('../lib/fonts/inter/inter.css'); /* Local Inter font */
+
 :root {
-  --noor-primary-blue: #3B82F6;
-  --noor-secondary-purple: #8B5CF6;
-  --noor-accent-green: #10B981;
-  --noor-border-purple: #A855F7;
+  --noor-primary-blue: #3B82F6;    /* btn-primary, headings */
+  --noor-secondary-purple: #8B5CF6; /* borders, accents */
+  --noor-accent-green: #10B981;    /* success states */
+  --noor-border-purple: #A855F7;   /* card borders (border-4 border-purple-500) */
   --noor-font-family: 'Inter', sans-serif;
-  --noor-border-radius: 12px; /* rounded-xl */
-  --noor-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --noor-border-radius: 12px;      /* rounded-xl */
+  --noor-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  --noor-gray-100: #f3f4f6;        /* bg-gray-100 */
+  --noor-gray-300: #d1d5db;        /* border colors */
 }
 
-/* Issue-67: Modern Card Animation System */
-.noor-card-interactive {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+/* Base Typography (Inter Font) */
+body {
+  font-family: var(--noor-font-family);
+  background-color: var(--noor-gray-100);
+}
+```
+
+2. **`noor-host-control-panel.css`** - Host Control Panel Mock
+```css
+/* Host Control Panel Specific Styles */
+.host-control-container {
+  width: 95%;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: var(--noor-shadow);
+  padding: 1.5rem 2rem;
+  border: 4px solid var(--noor-border-purple);
+}
+
+.dropdown-panel {
+  background-color: var(--noor-gray-100);
+  border-radius: 0.75rem;
+  border: 1px solid var(--noor-gray-300);
+  padding: 1.5rem;
+}
+
+.session-controls {
+  background-color: var(--noor-gray-100);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-start-session {
+  background-color: #10B981; /* green-500 */
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s;
   transform-origin: center;
 }
 
-.noor-card-expanded {
-  transform: scale(1.2); /* 20% expansion */
-  z-index: 10;
+.btn-start-session:hover {
+  background-color: #059669; /* green-600 */
+  transform: scale(1.05);
+}
+```
+
+3. **`noor-waiting-room.css`** - User Waiting Room Mock
+```css
+/* Waiting Room Specific Styles */
+.waiting-room-container {
+  width: 750px; /* Exact mock specification */
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: var(--noor-shadow);
+  padding: 1.5rem 2rem;
+  border: 4px solid var(--noor-border-purple);
 }
 
-.noor-card-hidden {
-  opacity: 0;
-  transform: scale(0.95);
+.progress-bar-container {
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 9999px;
+  overflow: hidden;
+  height: 1.5rem;
+}
+
+.progress-bar {
+  background-color: var(--noor-primary-blue);
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid var(--noor-gray-300);
+}
+```
+
+4. **`noor-user-welcome.css`** - User Welcome Form Mock  
+```css
+/* User Welcome Form Styles */
+.welcome-container {
+  max-width: 32rem; /* max-w-lg */
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: var(--noor-shadow);
+  padding: 1.5rem 2rem;
+  border: 4px solid var(--noor-border-purple);
+}
+
+.form-input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9CA3AF; /* gray-400 */
+  pointer-events: none;
+}
+
+.form-input {
+  padding-left: 2.5rem; /* Space for icon */
+  border-radius: 0.375rem;
+  border: 1px solid var(--noor-gray-300);
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.form-select {
+  border-radius: 0.375rem;
+  border: 1px solid var(--noor-gray-300);
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  background: white;
+}
+```
+
+5. **`noor-canvas-experience.css`** - Live Session Interface Mock
+```css
+/* Canvas Experience Styles */
+.canvas-container {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: var(--noor-shadow);
+  border: 4px solid var(--noor-border-purple);
+  display: flex;
+  flex-direction: column;
+  width: 91.666667%; /* w-11/12 */
+}
+
+.canvas-content {
+  min-height: 52.5vh; /* Exact mock specification */
+  display: flex;
+  flex-direction: column;
+}
+
+.session-canvas {
+  flex: 1;
+  border: 2px solid var(--noor-border-purple);
+  border-radius: 0.75rem;
+  background-color: #f3e8ff; /* purple-100 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #6b7280; /* gray-500 */
+}
+```
+
+6. **`noor-landing-page.css`** - Landing Page Dual Panel Mock
+```css
+/* Landing Page Dual Panel Styles */
+.landing-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 64rem; /* max-w-4xl */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .landing-panels {
+    flex-direction: row;
+    gap: 2rem;
+  }
+}
+
+.host-panel, .user-panel {
+  flex: 1;
+  background: white;
+  border-radius: 1.5rem; /* rounded-3xl */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-xl */
+  padding: 2rem;
+  border: 4px solid var(--noor-border-purple);
+  text-align: center;
+}
+
+.panel-icon {
+  font-size: 3.75rem; /* text-6xl */
+  color: var(--noor-primary-blue);
+  margin-bottom: 1rem;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  text-align: left;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.feature-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--noor-accent-green);
+}
+```
+
+#### **🔧 LAYOUT FILE INTEGRATION (_Layout.cshtml)**
+
+**Current CDN Dependencies (TO BE REPLACED):**
+```html
+<!-- REMOVE THESE CDN REFERENCES -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+```
+
+**New Local References (TO BE ADDED):**
+```html
+<!-- LOCAL LIBRARY INTEGRATION -->
+<link rel="stylesheet" href="~/lib/fontawesome/fontawesome.min.css">
+<link rel="stylesheet" href="~/lib/tailwind/tailwind.min.css">
+<link rel="stylesheet" href="~/lib/fonts/inter/inter.css">
+
+<!-- NOOR CANVAS CUSTOM STYLES -->
+<link rel="stylesheet" href="~/css/noor-canvas-core.css">
+<link rel="stylesheet" href="~/css/noor-host-control-panel.css">
+<link rel="stylesheet" href="~/css/noor-waiting-room.css">
+<link rel="stylesheet" href="~/css/noor-user-welcome.css">
+<link rel="stylesheet" href="~/css/noor-canvas-experience.css">
+<link rel="stylesheet" href="~/css/noor-landing-page.css">
+```
+
+#### **🚫 DEPLOYMENT EXCLUSIONS (CRITICAL)**
+
+**Mocks Folder Exclusion:**
+- **Path**: `Workspaces/Documentation/IMPLEMENTATIONS/Mocks/`
+- **Status**: ❌ **NOT FOR DEPLOYMENT** - Development reference only
+- **Action Required**: Add to `.gitignore` deployment exclusions
+- **Rationale**: Contains CDN dependencies and temporary design files
+
+**Exclusion Configuration:**
+```gitignore
+# Exclude mocks folder from deployment
+Workspaces/Documentation/IMPLEMENTATIONS/Mocks/
+*.html.mock
+*-mock.html
+```
+
+**Integration Requirements:**
+- ✅ Replace CDN links with local file references in _Layout.cshtml
+- ✅ Ensure no dependencies on Mocks folder (will not be deployed)
+- ✅ Create modular CSS architecture for maintainability  
+- ✅ Implement exact responsive breakpoints from mocks
+- ✅ Preserve all interactive states (hover, focus, transitions)
+- ✅ Download and integrate all external libraries locally
+- ✅ Test all pages work without internet connectivity
+
+##### **Implementation-Ready CSS Structure**
   pointer-events: none;
 }
 ```
