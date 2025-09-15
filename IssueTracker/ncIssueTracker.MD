@@ -76,6 +76,7 @@
 - **Consistent formatting:** Maintain exact format patterns for both TODOs and Issues
 - **File Sync:** Tracker entries must match actual files in status folders
 - **Clear Separation:** TODOs and Issues serve different purposes - do not mix them
+- **⚡ TEMP File Policy:** All temporary test files created during issue resolution MUST be placed in TEMP directories (`TEMP/tests/`, `TEMP/docs/`, `TEMP/data/`) for easy cleanup
 
 ---
 
@@ -370,6 +371,7 @@ iiskill -WhatIf                 # Dry-run: list candidate processes
 **Last Updated:** September 14, 2025  
 **Tracker Version:** 2.1 - Enhanced with Guard Rails System Lessons Learned  
 **Next Update Focus:** Phase 4 custom CSS implementation and NC branding integration
+
 
 
 

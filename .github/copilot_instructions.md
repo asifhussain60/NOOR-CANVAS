@@ -186,7 +186,37 @@ To avoid encoding and script parsing issues on Windows PowerShell, DO NOT use em
 - `KSESSIONS` - Production database - **DO NOT TOUCH until deployment**
 - `KQUR` - Production database - **DO NOT TOUCH until deployment**
 
-## 8. Debugging & Issue Resolution
+## 8. Testing & Temporary File Management
+
+### **TEMP Folder Policy - Critical Requirement**
+**MANDATORY RULE**: All temporary test files created during issue resolution must be placed in TEMP directories for easy cleanup.
+
+**TEMP Directory Structure:**
+```
+TEMP/
+├── tests/           # Temporary test scripts created during debugging
+├── docs/           # Temporary documentation files
+└── data/           # Temporary data files and outputs
+```
+
+**Testing File Placement Rules:**
+- ✅ **Temporary diagnostic scripts**: `TEMP/tests/` - Scripts created to test specific issues
+- ✅ **Issue resolution tests**: `TEMP/tests/` - Scripts validating bug fixes
+- ✅ **Debugging helpers**: `TEMP/tests/` - Scripts for troubleshooting
+- ❌ **Permanent tests**: Should go in `Tests/` directory with proper naming
+- ❌ **Production scripts**: Should go in appropriate permanent directories
+
+**Naming Convention for TEMP Tests:**
+- Format: `{issue-description}-test.ps1` or `{component}-diagnostic.ps1`
+- Example: `hostsessionmanager-diagnostic.ps1`, `user-session-validation.ps1`
+- Example: `create-session-api-test.ps1`, `database-connection-test.ps1`
+
+**Cleanup Process:**
+- TEMP folders are cleaned during repository maintenance
+- All TEMP content is considered disposable
+- No production dependencies should reference TEMP files
+
+## 9. Debugging & Issue Resolution
 
 ### **Copilot's Debugging Capabilities**
 **What GitHub Copilot CAN Access Automatically:**

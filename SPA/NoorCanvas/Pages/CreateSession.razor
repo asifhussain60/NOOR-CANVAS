@@ -153,10 +153,16 @@
         isLoadingAlbums = true;
         try
         {
-            Logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS_DEV");
+            Logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS_DEV for GUID: {Guid}", Guid?.Substring(0, 8) + "...");
+            
+            if (string.IsNullOrEmpty(Guid))
+            {
+                errorMessage = "Host GUID is required to load albums.";
+                return;
+            }
             
             using var httpClient = HttpClientFactory.CreateClient("default");
-            var response = await httpClient.GetAsync("/api/host/albums");
+            var response = await httpClient.GetAsync($"/api/host/albums?guid={Guid}");
             
             if (response.IsSuccessStatusCode)
             {
@@ -200,10 +206,16 @@
         isLoadingCategories = true;
         try
         {
-            Logger.LogInformation("NOOR-INFO: Loading categories for album {AlbumId}", albumId);
+            Logger.LogInformation("NOOR-INFO: Loading categories for album {AlbumId} with GUID: {Guid}", albumId, Guid?.Substring(0, 8) + "...");
+            
+            if (string.IsNullOrEmpty(Guid))
+            {
+                errorMessage = "Host GUID is required to load categories.";
+                return;
+            }
             
             using var httpClient = HttpClientFactory.CreateClient("default");
-            var response = await httpClient.GetAsync($"/api/host/categories/{albumId}");
+            var response = await httpClient.GetAsync($"/api/host/categories/{albumId}?guid={Guid}");
             
             if (response.IsSuccessStatusCode)
             {
@@ -245,10 +257,16 @@
         isLoadingSessions = true;
         try
         {
-            Logger.LogInformation("NOOR-INFO: Loading sessions for category {CategoryId}", categoryId);
+            Logger.LogInformation("NOOR-INFO: Loading sessions for category {CategoryId} with GUID: {Guid}", categoryId, Guid?.Substring(0, 8) + "...");
+            
+            if (string.IsNullOrEmpty(Guid))
+            {
+                errorMessage = "Host GUID is required to load sessions.";
+                return;
+            }
             
             using var httpClient = HttpClientFactory.CreateClient("default");
-            var response = await httpClient.GetAsync($"/api/host/sessions/{categoryId}");
+            var response = await httpClient.GetAsync($"/api/host/sessions/{categoryId}?guid={Guid}");
             
             if (response.IsSuccessStatusCode)
             {
@@ -293,15 +311,20 @@
             };
 
             using var httpClient = HttpClientFactory.CreateClient("default");
-            var response = await httpClient.PostAsJsonAsync("/api/host/create-session", createRequest);
+            var response = await httpClient.PostAsJsonAsync("/api/host/session/create", createRequest);
 
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<CreateSessionResponse>();
                 Logger.LogInformation("NOOR-SUCCESS: Session created successfully - ID: {SessionId}", result?.SessionId);
                 
-                // Show success message and allow creating another session
-                await JSRuntime.InvokeVoidAsync("alert", $"Session created successfully! Session ID: {result?.SessionId}");
+                // Show success message with join link
+                var successMessage = $"Session created successfully!\n\nSession ID: {result?.SessionId}\nJoin Link: {result?.JoinLink}\n\nParticipants can now join your session!";
+                await JSRuntime.InvokeVoidAsync("alert", successMessage);
+                
+                // Reset form for creating another session
+                selectedSessionId = "";
+                StateHasChanged();
             }
             else
             {
@@ -343,7 +366,9 @@
 
     public class CreateSessionResponse
     {
-        public int SessionId { get; set; }
+        public long SessionId { get; set; }
         public string Status { get; set; } = "";
+        public string JoinLink { get; set; } = "";
+        public string SessionGuid { get; set; } = "";
     }
 }

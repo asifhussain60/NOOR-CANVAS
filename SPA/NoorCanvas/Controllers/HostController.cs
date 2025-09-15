@@ -95,38 +95,56 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Creating new session");
+                _logger.LogInformation("NOOR-INFO: Creating new session for Host GUID: {HostGuid}, Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}", 
+                    request.HostGuid?.Substring(0, 8) + "...", request.AlbumId, request.CategoryId, request.SessionId);
 
+                // Validate required fields
+                if (string.IsNullOrEmpty(request.HostGuid))
+                {
+                    return BadRequest(new { error = "HostGuid is required" });
+                }
+
+                if (request.SessionId <= 0 || request.AlbumId <= 0 || request.CategoryId <= 0)
+                {
+                    return BadRequest(new { error = "Valid SessionId, AlbumId, and CategoryId are required" });
+                }
+
+                // Create session in Canvas database
                 var session = new Session
                 {
                     GroupId = Guid.NewGuid(),
+                    HostGuid = request.HostGuid,
                     CreatedAt = DateTime.UtcNow,
-                    ExpiresAt = DateTime.UtcNow.AddHours(3)
+                    ExpiresAt = DateTime.UtcNow.AddHours(3),
+                    MaxParticipants = request.MaxParticipants
                 };
 
                 _context.Sessions.Add(session);
                 await _context.SaveChangesAsync();
 
+                // Create session link for participants to join
                 var sessionLink = new SessionLink
                 {
                     SessionId = session.SessionId,
                     Guid = Guid.NewGuid(),
-                    State = 1,
+                    State = 1, // Active
                     CreatedAt = DateTime.UtcNow
                 };
 
                 _context.SessionLinks.Add(sessionLink);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Session created with ID: {SessionId}", session.SessionId);
+                var joinLink = $"https://localhost:9091/session/{sessionLink.Guid}";
 
-                return Ok(new SessionResponse
+                _logger.LogInformation("NOOR-SUCCESS: Session created with ID: {SessionId}, Join Link: {JoinLink}", 
+                    session.SessionId, joinLink);
+
+                return Ok(new CreateSessionResponse
                 {
-                    SessionId = session.GroupId,
-                    SessionGuid = sessionLink.Guid.ToString(),
-                    JoinLink = $"https://localhost:9091/session/{sessionLink.Guid}",
-                    CreatedAt = session.CreatedAt,
-                    ExpiresAt = session.ExpiresAt ?? DateTime.UtcNow.AddHours(3)
+                    SessionId = session.SessionId,
+                    Status = "Success",
+                    JoinLink = joinLink,
+                    SessionGuid = sessionLink.Guid.ToString()
                 });
             }
             catch (Exception ex)
@@ -411,6 +429,12 @@ namespace NoorCanvas.Controllers
 
     public class CreateSessionRequest
     {
+        public string HostGuid { get; set; } = string.Empty;
+        public int SessionId { get; set; }
+        public int AlbumId { get; set; }
+        public int CategoryId { get; set; }
+        
+        // Optional properties for session customization
         public string Title { get; set; } = "New Session";
         public string Description { get; set; } = string.Empty;
         public int? MaxParticipants { get; set; }
@@ -423,6 +447,14 @@ namespace NoorCanvas.Controllers
         public string JoinLink { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime ExpiresAt { get; set; }
+    }
+
+    public class CreateSessionResponse
+    {
+        public long SessionId { get; set; }
+        public string Status { get; set; } = "Success";
+        public string JoinLink { get; set; } = string.Empty;
+        public string SessionGuid { get; set; } = string.Empty;
     }
 
     // HostDashboardResponse and SessionSummaryResponse removed - Phase 4 update

@@ -95,6 +95,13 @@ Top priorities (next sprint)
 3. Implement Session lifecycle SignalR broadcasts (SessionBegan/SessionEnded) and late-join snapshot API
 4. Add CI workflow: lint → build → tests → integration checks (fail fast on lint)
 
+### **Development Standards (September 15, 2025)**
+**TEMP Folder Policy**: All temporary test files created during issue resolution MUST be placed in TEMP directories for easy cleanup:
+- `TEMP/tests/` - Diagnostic and debugging scripts
+- `TEMP/docs/` - Temporary documentation 
+- `TEMP/data/` - Temporary data files
+- **Cleanup**: TEMP contents are disposable and cleaned during maintenance
+
 ## Recent Enhancements (September 14, 2025)
 ### Landing Page Interactive UX Enhancement
 - ✅ **Card Input Controls**: Replaced feature lists with functional Host GUID and Session Link input forms

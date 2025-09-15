@@ -182,6 +182,69 @@
 			},
 			"isBackground": false,
 			"group": "test"
+		},
+		{
+			"label": "build-with-iiskill",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/build-with-iiskill.ps1"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "run-with-iiskill",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/run-with-iiskill.ps1"
+			],
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "dedicated",
+				"showReuseMessage": false,
+				"clear": true
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "dotnet",
+				"pattern": [
+					{
+						"regexp": ".",
+						"file": 1,
+						"location": 2,
+						"message": 3
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^.*Building.*",
+					"endsPattern": "^.*Application started.*|^.*Now listening on.*"
+				}
+			}
 		}
 	]
 }

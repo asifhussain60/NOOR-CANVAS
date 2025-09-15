@@ -12,8 +12,8 @@ $ErrorActionPreference = "Stop"
 
 # Define paths
 $IssueTrackerRoot = "d:\PROJECTS\NOOR CANVAS\IssueTracker"
-$IssueTrackerFile = "$IssueTrackerRoot\NC-ISSUE-TRACKER.MD"
-$ImplementationTrackerFile = "d:\PROJECTS\NOOR CANVAS\Workspaces\IMPLEMENTATION-TRACKER.MD"
+$IssueTrackerFile = "$IssueTrackerRoot\ncIssueTracker.MD"
+$ImplementationTrackerFile = "d:\PROJECTS\NOOR CANVAS\Workspaces\Documentation\project-implementation-tracker.md"
 
 # Issue folder paths
 $Folders = @{
