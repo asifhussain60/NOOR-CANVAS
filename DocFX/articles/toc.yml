@@ -22,6 +22,16 @@
     href: development/build-processes.md
   - name: Testing Procedures
     href: development/testing-procedures.md
+- name: Implementation Status
+  items:
+  - name: Project Overview
+    href: implementation/project-status-overview.md
+  - name: Current Phase Progress
+    href: implementation/phase4-current-progress.md
+  - name: Issues & TODO Tracking
+    href: implementation/issues-todo-tracking.md
+  - name: User GUID Registration
+    href: implementation/user-guid-registration.md
 - name: Technical Documentation
   items:
   - name: Architecture

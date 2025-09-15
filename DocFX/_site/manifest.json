@@ -1154,6 +1154,16 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/development/docfx-implementation-summary.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/docfx-implementation-summary.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/development/getting-started.md",
       "output": {
         ".html": {
@@ -1184,6 +1194,16 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/development/phase-4-implementation-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/phase-4-implementation-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/development/testing-procedures.md",
       "output": {
         ".html": {
@@ -1201,6 +1221,59 @@
         },
         ".json": {
           "relative_path": "articles/development/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/issues-todo-tracking.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/issues-todo-tracking.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/phase4-current-progress.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/phase4-current-progress.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/project-status-overview.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/project-status-overview.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/implementation/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/implementation/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/user-guid-registration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/user-guid-registration.html"
         }
       },
       "version": ""
