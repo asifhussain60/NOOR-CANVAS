@@ -23,6 +23,8 @@ public class CanvasDbContext : DbContext
     public DbSet<QuestionVote> QuestionVotes { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Issue> Issues { get; set; }
+    public DbSet<SecureToken> SecureTokens { get; set; }
+    public DbSet<SessionParticipant> SessionParticipants { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +58,25 @@ public class CanvasDbContext : DbContext
         modelBuilder.Entity<SharedAsset>()
             .HasIndex(sa => new { sa.SessionId, sa.SharedAt })
             .HasDatabaseName("IX_SharedAssets_SessionShared");
+
+        // Configure SecureToken indexes and unique constraints
+        modelBuilder.Entity<SecureToken>()
+            .HasIndex(st => st.HostToken)
+            .IsUnique()
+            .HasDatabaseName("UQ_SecureTokens_HostToken");
+
+        modelBuilder.Entity<SecureToken>()
+            .HasIndex(st => st.UserToken)
+            .IsUnique()
+            .HasDatabaseName("UQ_SecureTokens_UserToken");
+
+        modelBuilder.Entity<SecureToken>()
+            .HasIndex(st => st.SessionId)
+            .HasDatabaseName("IX_SecureTokens_SessionId");
+
+        modelBuilder.Entity<SecureToken>()
+            .HasIndex(st => new { st.ExpiresAt, st.IsActive })
+            .HasDatabaseName("IX_SecureTokens_ExpiryActive");
 
         // Configure relationships
         modelBuilder.Entity<Registration>()
@@ -93,5 +114,11 @@ public class CanvasDbContext : DbContext
             .WithMany(u => u.QuestionVotes)
             .HasForeignKey(v => v.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SecureToken>()
+            .HasOne(st => st.Session)
+            .WithMany()
+            .HasForeignKey(st => st.SessionId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

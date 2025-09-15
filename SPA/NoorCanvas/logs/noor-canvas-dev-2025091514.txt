@@ -1,0 +1,72 @@
+[2025-09-15 14:26:26.976 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:26:27.062 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]'); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:26:27.104 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId]; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:34:58.140 -04:00 INF] Program ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {}
+[2025-09-15 14:34:59.253 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:34:59.268 -04:00 INF] Program ✅ NOOR-VALIDATION: Canvas database connection verified {}
+[2025-09-15 14:34:59.272 -04:00 INF] Program ✅ NOOR-VALIDATION: All critical configurations validated successfully {}
+[2025-09-15 14:34:59.356 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-15 14:34:59.467 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:34:59.478 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:34:59.597 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-15 14:34:59.746 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-15 14:34:59.810 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:34:59.819 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:34:59.826 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-15 14:34:59.829 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-15 14:34:59.832 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-15 14:35:16.049 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-15 14:36:14.970 -04:00 INF] Program ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {}
+[2025-09-15 14:36:16.017 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:36:16.035 -04:00 INF] Program ✅ NOOR-VALIDATION: Canvas database connection verified {}
+[2025-09-15 14:36:16.039 -04:00 INF] Program ✅ NOOR-VALIDATION: All critical configurations validated successfully {}
+[2025-09-15 14:36:16.094 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-15 14:36:16.189 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:36:16.197 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:36:16.309 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-15 14:36:16.440 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-15 14:36:16.504 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:36:16.512 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:36:16.519 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-15 14:36:16.523 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-15 14:36:16.526 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-15 14:36:37.134 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-15 14:36:56.763 -04:00 INF] Program ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {}
+[2025-09-15 14:36:58.163 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (18ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:36:58.182 -04:00 INF] Program ✅ NOOR-VALIDATION: Canvas database connection verified {}
+[2025-09-15 14:36:58.185 -04:00 INF] Program ✅ NOOR-VALIDATION: All critical configurations validated successfully {}
+[2025-09-15 14:36:58.243 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-15 14:36:58.387 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:36:58.396 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:36:58.491 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-15 14:36:58.640 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-15 14:36:58.726 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:36:58.750 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:36:58.759 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-15 14:36:58.769 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-15 14:36:58.776 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-15 14:37:44.762 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}
+[2025-09-15 14:38:12.870 -04:00 INF] Program ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {}
+[2025-09-15 14:38:14.088 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 14:38:14.105 -04:00 INF] Program ✅ NOOR-VALIDATION: Canvas database connection verified {}
+[2025-09-15 14:38:14.109 -04:00 INF] Program ✅ NOOR-VALIDATION: All critical configurations validated successfully {}
+[2025-09-15 14:38:14.165 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-15 14:38:14.251 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:38:14.259 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 14:38:14.359 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-15 14:38:14.460 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-15 14:38:14.517 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:38:14.524 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 14:38:14.533 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-15 14:38:14.536 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-15 14:38:14.540 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}
+[2025-09-15 14:43:48.336 -04:00 INF] Microsoft.Hosting.Lifetime Application is shutting down... {}

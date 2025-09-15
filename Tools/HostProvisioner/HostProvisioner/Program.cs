@@ -8,6 +8,7 @@ using Serilog;
 using NoorCanvas.Data;
 using NoorCanvas.Models;
 using NoorCanvas.Models.KSESSIONS;
+using NoorCanvas.Services;
 
 namespace HostProvisioner;
 
@@ -126,6 +127,12 @@ class Program
         services.AddDbContext<KSessionsDbContext>(options =>
             options.UseSqlServer(kSessionsConnectionString, sqlOptions =>
                 sqlOptions.CommandTimeout(3600)));
+
+        // Add logging factory for SecureTokenService
+        services.AddLogging(builder => builder.AddSerilog());
+        
+        // Add SecureTokenService for friendly token generation
+        services.AddScoped<SecureTokenService>();
 
         // Register configuration
         services.AddSingleton<IConfiguration>(configuration);
@@ -538,35 +545,64 @@ class Program
                 }
             }
 
-            // Create SessionLink for participant access (when creating user)
-            Guid? sessionLinkGuid = null;
+            // Generate friendly tokens using SecureTokenService
+            string? hostToken = null;
+            string? userToken = null;
             string? participantUrl = null;
-            if (createUser && createdUserId.HasValue)
+            string? hostUrl = null;
+            
+            try
             {
-                try
+                var tokenService = serviceProvider.GetRequiredService<SecureTokenService>();
+                var (generatedHostToken, generatedUserToken) = await tokenService.GenerateTokenPairAsync(
+                    canvasSession.SessionId, 
+                    validHours: 24,
+                    clientIp: "127.0.0.1"); // Console app IP
+                    
+                hostToken = generatedHostToken;
+                userToken = generatedUserToken;
+                
+                // Generate friendly URLs using 8-character tokens
+                hostUrl = $"https://localhost:9091/host/{hostToken}";
+                participantUrl = $"https://localhost:9091/session/{userToken}";
+                
+                Log.Information("PROVISIONER-TOKEN: Generated friendly token pair for Session {SessionId}", canvasSession.SessionId);
+                Log.Information("PROVISIONER-TOKEN: Host Token: {HostToken}", hostToken);
+                Log.Information("PROVISIONER-TOKEN: User Token: {UserToken}", userToken);
+                Log.Information("PROVISIONER-TOKEN: Host URL: {HostUrl}", hostUrl);
+                Log.Information("PROVISIONER-TOKEN: Participant URL: {ParticipantUrl}", participantUrl);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "PROVISIONER-WARNING: Failed to generate friendly tokens, falling back to GUID-based SessionLink");
+                
+                // Fallback to traditional GUID-based SessionLink if token generation fails
+                if (createUser && createdUserId.HasValue)
                 {
-                    var sessionLink = new NoorCanvas.Models.SessionLink
+                    try
                     {
-                        SessionId = canvasSession.SessionId,
-                        Guid = Guid.NewGuid(),
-                        State = 1, // Active
-                        CreatedAt = DateTime.UtcNow,
-                        UseCount = 0
-                    };
+                        var sessionLink = new NoorCanvas.Models.SessionLink
+                        {
+                            SessionId = canvasSession.SessionId,
+                            Guid = Guid.NewGuid(),
+                            State = 1, // Active
+                            CreatedAt = DateTime.UtcNow,
+                            UseCount = 0
+                        };
 
-                    context.SessionLinks.Add(sessionLink);
-                    await context.SaveChangesAsync();
-                    sessionLinkGuid = sessionLink.Guid;
-                    
-                    // Generate participant URL with User GUID attached
-                    participantUrl = $"https://localhost:9091/join/{sessionLink.Guid}?userGuid={createdUserId.Value}";
-                    
-                    Log.Information("PROVISIONER: SessionLink created with GUID {SessionLinkGuid}", sessionLink.Guid);
-                    Log.Information("PROVISIONER: Participant URL: {ParticipantUrl}", participantUrl);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning(ex, "PROVISIONER-WARNING: Failed to create session link");
+                        context.SessionLinks.Add(sessionLink);
+                        await context.SaveChangesAsync();
+                        
+                        // Generate participant URL with User GUID attached (fallback)
+                        participantUrl = $"https://localhost:9091/join/{sessionLink.Guid}?userGuid={createdUserId.Value}";
+                        
+                        Log.Information("PROVISIONER-FALLBACK: SessionLink created with GUID {SessionLinkGuid}", sessionLink.Guid);
+                        Log.Information("PROVISIONER-FALLBACK: Participant URL: {ParticipantUrl}", participantUrl);
+                    }
+                    catch (Exception fallbackEx)
+                    {
+                        Log.Error(fallbackEx, "PROVISIONER-ERROR: Failed to create fallback session link");
+                    }
                 }
             }
 
@@ -576,6 +612,15 @@ class Program
             Log.Information("Canvas Session ID: {CanvasSessionId}", canvasSession.SessionId);
             Log.Information("Host GUID: {HostGuid}", hostGuid);
             Log.Information("Host Session ID: {HostSessionId}", hostSession.HostSessionId);
+            
+            // Display friendly token information
+            if (!string.IsNullOrEmpty(hostToken) && !string.IsNullOrEmpty(userToken))
+            {
+                Log.Information("🎯 FRIENDLY TOKENS GENERATED:");
+                Log.Information("  → Host Access: {HostToken} → {HostUrl}", hostToken, hostUrl);
+                Log.Information("  → User Access: {UserToken} → {ParticipantUrl}", userToken, participantUrl);
+            }
+            
             if (createdUserId.HasValue)
             {
                 Log.Information("User GUID: {UserId}", createdUserId.Value);
@@ -647,32 +692,51 @@ class Program
     private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null)
     {
         Console.WriteLine();
-        Console.WriteLine("Host GUID Generated Successfully!");
-        Console.WriteLine("===================================");
-        Console.WriteLine($"Session ID: {sessionId}");
-        Console.WriteLine($"Host GUID: {hostGuid}");
+        Console.WriteLine("🎯 Session Tokens Generated Successfully!");
+        Console.WriteLine("==========================================");
+        Console.WriteLine($"KSESSIONS Session ID: {sessionId}");
+        Console.WriteLine($"Canvas Session ID: {hostSessionId}");
+        Console.WriteLine($"Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        Console.WriteLine();
+        
+        // Prioritize friendly token display
+        if (!string.IsNullOrEmpty(participantUrl) && participantUrl.Contains("/session/"))
+        {
+            // Extract friendly token from URL
+            var tokenMatch = participantUrl.Split("/session/").LastOrDefault()?.Split('?').FirstOrDefault();
+            if (!string.IsNullOrEmpty(tokenMatch))
+            {
+                Console.WriteLine("🔗 FRIENDLY SESSION ACCESS:");
+                Console.WriteLine($"   Participant Token: {tokenMatch}");
+                Console.WriteLine($"   Participant URL: {participantUrl}");
+                Console.WriteLine();
+            }
+        }
+        
+        Console.WriteLine("🔐 HOST AUTHENTICATION:");
+        Console.WriteLine($"   Host GUID: {hostGuid}");
         if (userId.HasValue)
         {
-            Console.WriteLine($"User Session GUID: {userId.Value}");
+            Console.WriteLine($"   User GUID: {userId.Value}");
         }
-        Console.WriteLine($"Host Session ID: {hostSessionId}");
-        Console.WriteLine($"Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
-        Console.WriteLine($"Database: Saved to canvas.HostSessions");
+        Console.WriteLine();
         
-        if (!string.IsNullOrEmpty(participantUrl))
-        {
-            Console.WriteLine();
-            Console.WriteLine("Participant Session Link:");
-            Console.WriteLine($"{participantUrl}");
-        }
+        Console.WriteLine("📊 DATABASE:");
+        Console.WriteLine($"   Saved to: canvas.HostSessions, canvas.SecureTokens");
+        Console.WriteLine($"   Host Session ID: {hostSessionId}");
         
         Console.WriteLine();
-        Console.WriteLine("Copy the Host GUID above to use for authentication.");
-        if (userId.HasValue)
+        Console.WriteLine("📋 INSTRUCTIONS:");
+        Console.WriteLine("   1. Copy the Host GUID for authentication");
+        if (!string.IsNullOrEmpty(participantUrl) && participantUrl.Contains("/session/"))
         {
-            Console.WriteLine("Share the Participant Session Link with users to join.");
+            Console.WriteLine("   2. Share the Participant URL for easy user access");
         }
-        Console.WriteLine("The GUIDs are stored securely in the database.");
+        else if (userId.HasValue)
+        {
+            Console.WriteLine("   2. Share the Participant URL with users to join");
+        }
+        Console.WriteLine("   3. All tokens are stored securely with expiration tracking");
         Console.WriteLine();
         Console.Write("Press any key to continue...");
         Console.ReadKey();

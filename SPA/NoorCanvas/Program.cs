@@ -109,6 +109,7 @@ builder.Services.AddScoped<HttpClient>(provider =>
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
+builder.Services.AddScoped<SecureTokenService>(); // Secure token generation service
 
 var app = builder.Build();
 

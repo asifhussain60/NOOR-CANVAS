@@ -49,4 +49,5 @@ public class Session
     public virtual ICollection<SharedAsset> SharedAssets { get; set; } = new List<SharedAsset>();
     public virtual ICollection<Annotation> Annotations { get; set; } = new List<Annotation>();
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+    public virtual ICollection<SessionParticipant> SessionParticipants { get; set; } = new List<SessionParticipant>();
 }

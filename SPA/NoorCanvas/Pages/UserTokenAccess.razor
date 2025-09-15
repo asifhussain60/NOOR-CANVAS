@@ -1,0 +1,213 @@
+@page "/session/{token}"
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Net.Http.Json
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject ILogger<UserTokenAccess> Logger
+
+@if (isLoading)
+{
+    <div class="loading-container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 class="mt-3">Validating session token...</h4>
+        <p>Please wait while we verify your session access credentials.</p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Session Access Denied</h4>
+        <p>@errorMessage</p>
+        <hr>
+        <p class="mb-0">Please check your token or contact the session host if this issue persists.</p>
+    </div>
+}
+else if (tokenValidationResult != null)
+{
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Session Token Validated Successfully!</h4>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <strong>Session Details:</strong>
+                <ul class="list-unstyled mt-2">
+                    <li><strong>Session ID:</strong> @tokenValidationResult.SessionId</li>
+                    <li><strong>Title:</strong> @tokenValidationResult.Session?.Title</li>
+                    <li><strong>Description:</strong> @tokenValidationResult.Session?.Description</li>
+                    <li><strong>Status:</strong> @tokenValidationResult.Session?.Status</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <strong>Token Information:</strong>
+                <ul class="list-unstyled mt-2">
+                    <li><strong>Token Type:</strong> @tokenValidationResult.TokenType</li>
+                    <li><strong>Expires:</strong> @tokenValidationResult.ExpiresAt.ToString("yyyy-MM-dd HH:mm:ss UTC")</li>
+                    <li><strong>Access Count:</strong> @tokenValidationResult.AccessCount</li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        
+        @if (tokenValidationResult.Session?.Status == "Active")
+        {
+            <button class="btn btn-success btn-lg me-2" @onclick="JoinActiveSession">
+                Join Active Session
+            </button>
+        }
+        else if (tokenValidationResult.Session?.Status == "Created")
+        {
+            <button class="btn btn-primary btn-lg me-2" @onclick="JoinWaitingRoom">
+                Join Waiting Room
+            </button>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                <strong>Session Status:</strong> @tokenValidationResult.Session?.Status
+                <br>
+                This session may not be available for joining at this time.
+            </div>
+        }
+        
+        <button class="btn btn-outline-secondary" @onclick="RefreshStatus">
+            Refresh Session Status
+        </button>
+    </div>
+}
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+    
+    private bool isLoading = true;
+    private string? errorMessage;
+    private TokenValidationResponse? tokenValidationResult;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("NOOR-USER-ACCESS: Attempting to validate user token: {Token}", Token);
+        
+        try
+        {
+            await ValidateUserToken();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-USER-ACCESS: Error during token validation for token: {Token}", Token);
+            errorMessage = "An unexpected error occurred during token validation.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task ValidateUserToken()
+    {
+        if (string.IsNullOrWhiteSpace(Token) || Token.Length != 8)
+        {
+            Logger.LogWarning("NOOR-USER-ACCESS: Invalid token format: {Token}", Token);
+            errorMessage = "Invalid token format. Session tokens must be exactly 8 characters.";
+            return;
+        }
+        
+        try
+        {
+            var response = await HttpClient.GetAsync($"/api/token/validate/{Token}?isHost=false");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                tokenValidationResult = await response.Content.ReadFromJsonAsync<TokenValidationResponse>();
+                Logger.LogInformation("NOOR-USER-ACCESS: Token validation successful for Session {SessionId}", 
+                    tokenValidationResult?.SessionId);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-USER-ACCESS: Token validation failed - HTTP {StatusCode}", response.StatusCode);
+                errorMessage = $"Token validation failed. The token may be invalid or expired. (HTTP {response.StatusCode})";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Logger.LogError(ex, "NOOR-USER-ACCESS: Network error during token validation");
+            errorMessage = "Network error occurred while validating token. Please check your connection and try again.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-USER-ACCESS: Unexpected error during token validation");
+            errorMessage = "An unexpected error occurred during token validation.";
+        }
+    }
+    
+    private async Task RefreshStatus()
+    {
+        Logger.LogInformation("NOOR-USER-ACCESS: Refreshing session status for token: {Token}", Token);
+        isLoading = true;
+        StateHasChanged();
+        
+        await ValidateUserToken();
+        
+        isLoading = false;
+        StateHasChanged();
+    }
+    
+    private void JoinActiveSession()
+    {
+        if (tokenValidationResult?.SessionId != null)
+        {
+            Logger.LogInformation("NOOR-USER-ACCESS: Joining active session {SessionId} with token: {Token}", 
+                tokenValidationResult.SessionId, Token);
+            Navigation.NavigateTo($"/session/{tokenValidationResult.SessionId}/active?token={Token}");
+        }
+    }
+    
+    private void JoinWaitingRoom()
+    {
+        if (tokenValidationResult?.SessionId != null)
+        {
+            Logger.LogInformation("NOOR-USER-ACCESS: Joining waiting room for session {SessionId} with token: {Token}", 
+                tokenValidationResult.SessionId, Token);
+            Navigation.NavigateTo($"/session/{tokenValidationResult.SessionId}/waiting?token={Token}");
+        }
+    }
+    
+    public class TokenValidationResponse
+    {
+        public bool Valid { get; set; }
+        public long SessionId { get; set; }
+        public string TokenType { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public int AccessCount { get; set; }
+        public SessionInfo? Session { get; set; }
+    }
+    
+    public class SessionInfo
+    {
+        public long SessionId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Status { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}
+
+<style>
+    .loading-container {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .alert {
+        margin: 2rem 0;
+    }
+    
+    .list-unstyled li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn {
+        margin-bottom: 1rem;
+    }
+</style>

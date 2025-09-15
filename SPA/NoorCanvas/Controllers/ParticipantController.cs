@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Models;
+using NoorCanvas.Services;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -13,14 +14,96 @@ namespace NoorCanvas.Controllers
     {
         private readonly CanvasDbContext _context;
         private readonly ILogger<ParticipantController> _logger;
+        private readonly SecureTokenService _tokenService;
 
-        public ParticipantController(CanvasDbContext context, ILogger<ParticipantController> logger)
+        public ParticipantController(CanvasDbContext context, ILogger<ParticipantController> logger, SecureTokenService tokenService)
         {
             _context = context;
             _logger = logger;
+            _tokenService = tokenService;
         }
 
-        [HttpGet("session/{sessionGuid}/validate")]
+        /// <summary>
+        /// Validate a session token for participant access (Phase 3.6 - Friendly Tokens)
+        /// </summary>
+        [HttpGet("session/{token}/validate")]
+        public async Task<IActionResult> ValidateSessionToken(string token)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            
+            _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Session token validation request for token: {Token} from {ClientIp}", 
+                requestId, token, clientIp);
+            
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token) || token.Length != 8)
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT: [{RequestId}] Invalid token format: {Token}", requestId, token);
+                    return BadRequest(new { error = "Invalid token format", message = "Token must be 8 characters", requestId });
+                }
+
+                // Validate as user token (isHostToken = false)
+                var secureToken = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
+                
+                if (secureToken == null)
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT: [{RequestId}] Token validation failed for participant token: {Token}", 
+                        requestId, token);
+                    return NotFound(new { 
+                        error = "Invalid or expired session token", 
+                        token,
+                        message = "The session token is invalid, expired, or has been revoked",
+                        requestId 
+                    });
+                }
+
+                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Successful participant token validation: {Token} → Session {SessionId}", 
+                    requestId, token, secureToken.SessionId);
+
+                // Return participant-specific session information
+                return Ok(new
+                {
+                    valid = true,
+                    sessionId = secureToken.SessionId,
+                    token = token,
+                    expiresAt = secureToken.ExpiresAt,
+                    session = new
+                    {
+                        sessionId = secureToken.Session?.SessionId,
+                        title = secureToken.Session?.Title,
+                        description = secureToken.Session?.Description,
+                        status = secureToken.Session?.Status,
+                        participantCount = secureToken.Session?.ParticipantCount,
+                        maxParticipants = secureToken.Session?.MaxParticipants,
+                        startedAt = secureToken.Session?.StartedAt,
+                        createdAt = secureToken.Session?.CreatedAt
+                    },
+                    participant = new
+                    {
+                        joinUrl = $"/session/{token}",
+                        accessCount = secureToken.AccessCount,
+                        lastAccessedAt = secureToken.LastAccessedAt
+                    },
+                    requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("NOOR-PARTICIPANT: [{RequestId}] Exception during participant token validation: {Error}", 
+                    requestId, ex.Message);
+                return StatusCode(500, new { 
+                    error = "Internal server error", 
+                    message = "Unable to validate session token",
+                    requestId 
+                });
+            }
+        }
+
+        /// <summary>
+        /// Validate session using GUID (Legacy - Phase 1-3 compatibility)
+        /// </summary>
+        [HttpGet("session/{sessionGuid:guid}/validate")]
         public async Task<IActionResult> ValidateSession(string sessionGuid)
         {
             try

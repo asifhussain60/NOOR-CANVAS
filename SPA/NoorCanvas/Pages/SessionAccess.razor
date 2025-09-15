@@ -1,0 +1,206 @@
+@page "/session/{token}"
+@using Microsoft.AspNetCore.Components
+@using System.Net.Http.Json
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@inject ILogger<SessionAccess> Logger
+@inject IJSRuntime JSRuntime
+
+<div class="session-access-container min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-xl p-8 border-4 border-purple-500">
+        
+        @if (isLoading)
+        {
+            <!-- Loading State -->
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Validating Session Token</h2>
+                <p class="text-gray-600">Please wait while we verify your access...</p>
+            </div>
+        }
+        else if (validationError != null)
+        {
+            <!-- Error State -->
+            <div class="text-center">
+                <i class="fa-solid fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                <h2 class="text-xl font-semibold text-red-800 mb-2">Access Denied</h2>
+                <p class="text-gray-700 mb-4">@validationError</p>
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                    <p class="text-red-700 text-sm">
+                        <strong>Token:</strong> @Token<br>
+                        <strong>Status:</strong> Invalid or expired
+                    </p>
+                </div>
+                <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors" 
+                        @onclick="ReturnHome">
+                    <i class="fa-solid fa-home me-2"></i>Return to Home
+                </button>
+            </div>
+        }
+        else if (sessionInfo != null)
+        {
+            <!-- Success State - Session Found -->
+            <div class="text-center">
+                <img src="images/NoorCanvas.png" alt="NOOR Canvas" class="h-16 mx-auto mb-4" />
+                <h2 class="text-2xl font-bold text-purple-800 mb-2">Welcome to Session</h2>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">@sessionInfo.Session?.Title</h3>
+                
+                @if (!string.IsNullOrEmpty(sessionInfo.Session?.Description))
+                {
+                    <p class="text-gray-600 mb-6 text-sm">@sessionInfo.Session.Description</p>
+                }
+                
+                <div class="bg-purple-50 rounded-lg p-4 mb-6 text-left">
+                    <h4 class="font-semibold text-purple-800 mb-2">
+                        <i class="fa-solid fa-info-circle me-2"></i>Session Details
+                    </h4>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <div><strong>Session ID:</strong> @sessionInfo.SessionId</div>
+                        <div><strong>Status:</strong> 
+                            <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-800">@sessionInfo.Session?.Status</span>
+                        </div>
+                        @if (sessionInfo.Session?.ParticipantCount.HasValue == true)
+                        {
+                            <div><strong>Participants:</strong> @sessionInfo.Session.ParticipantCount / @sessionInfo.Session?.MaxParticipants</div>
+                        }
+                        @if (sessionInfo.Session?.StartedAt.HasValue == true)
+                        {
+                            <div><strong>Started:</strong> @sessionInfo.Session.StartedAt.Value.ToString("MMM dd, yyyy HH:mm")</div>
+                        }
+                        <div><strong>Token Expires:</strong> @sessionInfo.ExpiresAt.ToString("MMM dd, yyyy HH:mm")</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    @if (sessionInfo.Session?.Status == "Active" || sessionInfo.Session?.StartedAt.HasValue == true)
+                    {
+                        <button class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                                @onclick="JoinActiveSession">
+                            <i class="fa-solid fa-play me-2"></i>Join Active Session
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                                @onclick="JoinWaitingRoom">
+                            <i class="fa-solid fa-clock me-2"></i>Enter Waiting Room
+                        </button>
+                    }
+                    
+                    <button class="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                            @onclick="ReturnHome">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Back to Home
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+    
+    private bool isLoading = true;
+    private string? validationError = null;
+    private SessionValidationResponse? sessionInfo = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("NOOR-SESSION-ACCESS: Validating token {Token}", Token);
+        
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Token) || Token.Length != 8)
+            {
+                validationError = "Invalid session token format. Please check your link and try again.";
+                isLoading = false;
+                return;
+            }
+
+            using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            
+            Logger.LogInformation("NOOR-SESSION-ACCESS: Calling validation API for token {Token}", Token);
+            var response = await httpClient.GetAsync($"api/participant/session/{Token}/validate");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                sessionInfo = await response.Content.ReadFromJsonAsync<SessionValidationResponse>();
+                Logger.LogInformation("NOOR-SESSION-ACCESS: Token validation successful for session {SessionId}", 
+                    sessionInfo?.SessionId);
+            }
+            else
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("NOOR-SESSION-ACCESS: Token validation failed for {Token}: {Error}", Token, errorText);
+                validationError = response.StatusCode == System.Net.HttpStatusCode.NotFound 
+                    ? "This session token is invalid or has expired. Please request a new link from your host."
+                    : "Unable to validate session token. Please try again later.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-SESSION-ACCESS: Error validating token {Token}", Token);
+            validationError = "A technical error occurred. Please try again later.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void JoinActiveSession()
+    {
+        Logger.LogInformation("NOOR-SESSION-ACCESS: Joining active session {SessionId} with token {Token}", 
+            sessionInfo?.SessionId, Token);
+        
+        // Navigate to active session page
+        Navigation.NavigateTo($"/session-active?token={Token}");
+    }
+
+    private void JoinWaitingRoom()
+    {
+        Logger.LogInformation("NOOR-SESSION-ACCESS: Joining waiting room for session {SessionId} with token {Token}", 
+            sessionInfo?.SessionId, Token);
+        
+        // Navigate to waiting room
+        Navigation.NavigateTo($"/session-waiting?token={Token}");
+    }
+
+    private void ReturnHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    // Response model for token validation
+    public class SessionValidationResponse
+    {
+        public bool Valid { get; set; }
+        public long SessionId { get; set; }
+        public string Token { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public SessionInfo? Session { get; set; }
+        public ParticipantInfo? Participant { get; set; }
+        public string RequestId { get; set; } = string.Empty;
+    }
+
+    public class SessionInfo
+    {
+        public long SessionId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Status { get; set; }
+        public int? ParticipantCount { get; set; }
+        public int? MaxParticipants { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class ParticipantInfo
+    {
+        public string JoinUrl { get; set; } = string.Empty;
+        public int AccessCount { get; set; }
+        public DateTime? LastAccessedAt { get; set; }
+    }
+}

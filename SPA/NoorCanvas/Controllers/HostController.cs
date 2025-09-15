@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
+using NoorCanvas.Hubs;
 using NoorCanvas.Models;
 using NoorCanvas.Models.KSESSIONS;
 
@@ -13,12 +15,14 @@ namespace NoorCanvas.Controllers
         private readonly CanvasDbContext _context;
         private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<HostController> _logger;
+        private readonly IHubContext<SessionHub> _sessionHub;
 
-        public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger)
+        public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
+            _sessionHub = sessionHub;
         }
 
         [HttpPost("authenticate")]
@@ -170,7 +174,20 @@ namespace NoorCanvas.Controllers
                 session.StartedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Session started: {SessionId}", sessionId);
+                // Broadcast SessionBegan event via SignalR
+                var sessionData = new
+                {
+                    sessionId = session.SessionId,
+                    groupId = session.GroupId,
+                    startedAt = session.StartedAt,
+                    expiresAt = session.ExpiresAt,
+                    maxParticipants = session.MaxParticipants
+                };
+
+                var groupName = $"session_{sessionId}";
+                await _sessionHub.Clients.Group(groupName).SendAsync("SessionBegan", sessionData);
+
+                _logger.LogInformation("NOOR-SUCCESS: Session started and SessionBegan event broadcasted: {SessionId}", sessionId);
                 return Ok(new { success = true, status = "Active" });
             }
             catch (Exception ex)
@@ -196,7 +213,18 @@ namespace NoorCanvas.Controllers
                 session.EndedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Session ended: {SessionId}", sessionId);
+                // Broadcast SessionEnded event via SignalR
+                var sessionEndData = new
+                {
+                    sessionId = session.SessionId,
+                    endedAt = session.EndedAt,
+                    reason = "Host ended session"
+                };
+
+                var groupName = $"session_{sessionId}";
+                await _sessionHub.Clients.Group(groupName).SendAsync("SessionEnded", sessionEndData);
+
+                _logger.LogInformation("NOOR-SUCCESS: Session ended and SessionEnded event broadcasted: {SessionId}", sessionId);
                 return Ok(new { success = true, status = "Completed" });
             }
             catch (Exception ex)
@@ -352,14 +380,50 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { error = "Invalid host GUID" });
                 }
 
-                // TODO Phase 4: Update session status in database and broadcast SessionBegan event via SignalR
+                // Find existing session or create a placeholder for the KSESSIONS sessionId
+                var session = await _context.Sessions
+                    .FirstOrDefaultAsync(s => s.HostGuid == guid && s.EndedAt == null)
+                    ?? new Session
+                    {
+                        GroupId = Guid.NewGuid(),
+                        HostGuid = guid,
+                        CreatedAt = DateTime.UtcNow,
+                        StartedAt = DateTime.UtcNow,
+                        ExpiresAt = DateTime.UtcNow.AddHours(3)
+                    };
 
-                _logger.LogInformation("NOOR-SUCCESS: Session {SessionId} started successfully", sessionId);
+                if (session.SessionId == 0)
+                {
+                    _context.Sessions.Add(session);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    session.StartedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+
+                // Broadcast SessionBegan event via SignalR
+                var sessionData = new
+                {
+                    sessionId = session.SessionId,
+                    ksessionId = sessionId, // KSESSIONS database session ID
+                    groupId = session.GroupId,
+                    startedAt = session.StartedAt,
+                    expiresAt = session.ExpiresAt,
+                    hostGuid = guid
+                };
+
+                var groupName = $"session_{session.SessionId}";
+                await _sessionHub.Clients.Group(groupName).SendAsync("SessionBegan", sessionData);
+
+                _logger.LogInformation("NOOR-SUCCESS: Session {SessionId} started successfully and SessionBegan event broadcasted", sessionId);
                 return Ok(new 
                 {
                     status = "Live",
-                    sessionId = sessionId,
-                    startedAt = DateTime.UtcNow,
+                    sessionId = session.SessionId,
+                    ksessionId = sessionId,
+                    startedAt = session.StartedAt,
                     message = "Session started successfully"
                 });
             }

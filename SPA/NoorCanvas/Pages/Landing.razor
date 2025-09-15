@@ -15,78 +15,55 @@
          alt="NOOR Canvas Logo" 
          class="noor-main-logo" />
 
-    <!-- 2-Step UX Implementation: Issue-67 -->
-    <div class="noor-flex-panel-wide noor-max-w-6xl mx-auto p-4 @(currentStep == 2 ? "noor-step-2" : "")">
+    <!-- Phase 3.6: Host-Only Landing Page (User Token Card Removed) -->
+    <div class="noor-flex-single noor-max-w-2xl mx-auto p-4">
         
-        <!-- Host Panel -->
-        <div id="host-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500 @GetCardClasses("host")">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Manage Session</h2>
+        <!-- Host Panel (Centered, Full Width) -->
+        <div id="host-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center text-center border-4 border-purple-500">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Host Control Panel</h2>
             
             @if (currentStep == 1)
             {
                 <!-- Step 1: Large Button Design -->
                 <div class="noor-large-button-content">
-                    <i class="fa-solid fa-key noor-large-icon text-blue-600 mb-6"></i>
-                    <p class="noor-large-button-text text-gray-800 font-semibold">HOST</p>
+                    <i class="fa-solid fa-chalkboard-teacher noor-large-icon text-blue-600 mb-6" style="font-size: 4rem;"></i>
+                    <p class="noor-large-button-text text-gray-800 font-semibold text-xl mb-4">HOST SESSION</p>
+                    <p class="text-gray-600 mb-8">Manage Islamic learning sessions with interactive tools</p>
                 </div>
-                <button class="noor-btn noor-btn-primary w-full mt-8" @onclick="() => ShowHostForm()">
-                    <i class="fa-solid fa-arrow-right me-2"></i>Continue as Host
+                <button class="noor-btn noor-btn-primary w-full mt-8 text-lg py-4" @onclick="() => ShowHostForm()">
+                    <i class="fa-solid fa-arrow-right me-2"></i>Access Host Dashboard
                 </button>
             }
             else
             {
                 <!-- Step 2: Input Form -->
-                <p class="text-gray-600 mb-6">Enter The Access Token</p>
+                <p class="text-gray-600 mb-6 text-lg">Enter Your Host Authentication Token</p>
                 <div class="w-full mb-6">
-                    <label class="noor-label mb-2 text-left" for="hostGuid">
+                    <label class="noor-label mb-2 text-left text-lg" for="hostGuid">
                         <i class="fa-solid fa-key text-blue-500 me-2"></i>Host GUID
                     </label>
                     <input type="text" 
                            id="hostGuid" 
-                           class="noor-input w-full" 
-                           placeholder="Enter your Token"
+                           class="noor-input w-full text-lg py-3" 
+                           placeholder="Enter your Host GUID Token"
                            @bind="hostGuid" />
-                    <small class="text-gray-500 mt-1 d-block">Get your Host GUID from the HostProvisioner tool</small>
+                    <small class="text-gray-500 mt-2 d-block">Get your Host GUID from the HostProvisioner tool or system administrator</small>
                 </div>
-                <button class="noor-btn noor-btn-primary w-full" @onclick="() => HandleHostAccess()">
-                    <i class="fa-solid fa-sign-in-alt me-2"></i>Access Dashboard
+                <button class="noor-btn noor-btn-primary w-full text-lg py-4" @onclick="() => HandleHostAccess()">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i>Access Host Dashboard
                 </button>
-            }
-        </div>
-
-        <!-- Participant Panel -->
-        <div id="participant-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500 @GetCardClasses("participant")">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Join Session</h2>
-            
-            @if (currentStep == 1)
-            {
-                <!-- Step 1: Large Button Design -->
-                <div class="noor-large-button-content">
-                    <i class="fa-solid fa-link noor-large-icon text-green-600 mb-6"></i>
-                    <p class="noor-large-button-text text-gray-800 font-semibold">ATTEND</p>
+                
+                <!-- Phase 3.6: Information about User Access -->
+                <div class="mt-8 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    <h6 class="text-blue-800 font-semibold mb-2">
+                        <i class="fa-solid fa-info-circle me-2"></i>For Session Participants
+                    </h6>
+                    <p class="text-blue-700 text-sm">
+                        Participants join sessions using direct token links provided by the host. 
+                        If you have a session token, use the direct URL format: 
+                        <code class="bg-blue-100 px-2 py-1 rounded">/user/{token}</code>
+                    </p>
                 </div>
-                <button class="noor-btn noor-btn-success w-full mt-8" @onclick="() => ShowParticipantForm()">
-                    <i class="fa-solid fa-arrow-right me-2"></i>Continue as Participant
-                </button>
-            }
-            else
-            {
-                <!-- Step 2: Input Form -->
-                <p class="text-gray-600 mb-6">Enter The Access Token</p>
-                <div class="w-full mb-6">
-                    <label class="noor-label mb-2 text-left" for="sessionLink">
-                        <i class="fa-solid fa-link text-green-500 me-2"></i>Session Link or ID
-                    </label>
-                    <input type="text" 
-                           id="sessionLink" 
-                           class="noor-input w-full" 
-                           placeholder="Enter Your Token"
-                           @bind="sessionLink" />
-                    <small class="text-gray-500 mt-1 d-block">Copy and Paste For Ease</small>
-                </div>
-                <button class="noor-btn noor-btn-success w-full" @onclick="() => HandleSessionJoin()">
-                    <i class="fa-solid fa-sign-in-alt me-2"></i>Join Session
-                </button>
             }
         </div>
     </div>
@@ -121,27 +98,7 @@
                         </div>
                     </div>
 
-                    <!-- Participant Authentication -->
-                    <div id="participant-auth" style="display: none;">
-                        <div class="auth-card">
-                            <h4><i class="fas fa-link"></i> Join Session</h4>
-                            <p>Enter Your Token</p>
-                            <form @onsubmit="JoinSession" @onsubmit:preventDefault="true">
-                                <div class="mb-3">
-                                    <label class="form-label">Session Link or ID</label>
-                                    <input type="text" class="form-control" @bind="sessionLink" 
-                                           placeholder="https://noorcanvas.com/session/... or Session ID" required />
-                                </div>
-                                <button type="submit" class="btn btn-success w-100" disabled="@isLoading">
-                                    @if (isLoading)
-                                    {
-                                        <span class="spinner-border spinner-border-sm me-2"></span>
-                                    }
-                                    Join Session
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                    <!-- Phase 3.6: Participant Authentication removed for host-only UX -->
                 </div>
             </div>
         </div>
@@ -149,11 +106,10 @@
 </div>
 
 @code {
-    // Issue-67: 2-Step UX State Management
-    private int currentStep = 1; // 1 = Feature Lists, 2 = Input Forms
-    private string selectedRole = "";
+    // Phase 3.6: Host-Only Landing Page State Management
+    private int currentStep = 1; // 1 = Feature Display, 2 = Input Form
+    private string selectedRole = "host"; // Always host in Phase 3.6
     private string hostGuid = "";
-    private string sessionLink = "";
     private string errorMessage = "";
     private bool isLoading = false;
     
@@ -286,84 +242,7 @@
         }
     }
 
-    private async Task JoinSession()
-    {
-        if (string.IsNullOrWhiteSpace(sessionLink))
-            return;
-
-        isLoading = true;
-        Logger.LogInformation("NOOR-INFO: Participant join attempt with session: {SessionLink}", sessionLink);
-        
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-JOIN", "Session join initiated", new { sessionLink });
-
-            // Extract session ID from link or use direct ID
-            string sessionId = ExtractSessionId(sessionLink);
-            
-            // ✅ LIVE API: Validate session exists and is active
-            using var httpClient = HttpClientFactory.CreateClient("default");
-            var response = await httpClient.GetAsync($"/api/participant/session/{sessionId}/validate");
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var validationResponse = await response.Content.ReadFromJsonAsync<SessionValidationResponse>();
-                if (validationResponse?.IsValid == true)
-                {
-                    Logger.LogInformation("NOOR-SUCCESS: Valid session ID extracted, redirecting to registration");
-                    await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-JOIN", "Session validation successful", new { sessionId });
-                    Navigation.NavigateTo($"/participant/register?session={sessionId}");
-                }
-                else
-                {
-                    Logger.LogWarning("NOOR-WARNING: Session validation failed: {SessionLink}", sessionLink);
-                    await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Session validation failed", new { sessionLink });
-                    await DialogService.ShowErrorAsync("Session is not active or does not exist.", "Invalid Session");
-                }
-            }
-            else
-            {
-                Logger.LogWarning("NOOR-WARNING: Session validation API error: {SessionLink}", sessionLink);
-                await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Session validation API error", new { sessionLink, status = response.StatusCode });
-                await DialogService.ShowErrorAsync("Unable to validate session. Please check the link and try again.", "Validation Failed");
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-ERROR: Participant session join failed");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.error", "PARTICIPANT-JOIN", "Join failed", new { error = ex.Message });
-            await DialogService.ShowErrorAsync("Failed to join session. Please try again.", "Session Join Failed");
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    private string ExtractSessionId(string sessionLink)
-    {
-        // Handle direct GUID
-        if (Guid.TryParse(sessionLink, out Guid directGuid))
-        {
-            return directGuid.ToString();
-        }
-
-        // Handle URL format
-        if (sessionLink.Contains("/session/"))
-        {
-            var parts = sessionLink.Split("/session/");
-            if (parts.Length > 1)
-            {
-                var idPart = parts[1].Split('?')[0]; // Remove query parameters
-                if (Guid.TryParse(idPart, out Guid urlGuid))
-                {
-                    return urlGuid.ToString();
-                }
-            }
-        }
-
-        return "";
-    }
+    // Phase 3.6: Participant methods removed - users access via /user/{token} URLs
 
     // API Response Models
     public class HostAuthResponse
@@ -389,44 +268,20 @@
         public DateTime? ExpiresAt { get; set; }
     }
 
-    // Issue-67: 2-Step UX Transition Methods
+    // Phase 3.6: Host-Only Form Transition
     private async Task ShowHostForm()
     {
         selectedRole = "host";
         currentStep = 2;
         
-        Logger.LogInformation("NOOR-UX-DEBUG: ShowHostForm called - selectedRole: {Role}, currentStep: {Step}", selectedRole, currentStep);
-        await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX-DEBUG: ShowHostForm - Host card expanding, Participant card hiding");
-        
-        // Issue-75 & Issue-76 Debug: Log card sizing during interaction
-        await JSRuntime.InvokeVoidAsync("console.log", "📏 Issue-75/76 DEBUG: Host card interaction - verifying 30% reduced sizing");
-        
-        // Trigger animations: expand host card, hide participant card
-        await JSRuntime.InvokeVoidAsync("NoorCardAnimator.expandCard", "host-card", "participant-card");
+        Logger.LogInformation("NOOR-UX: ShowHostForm called - transitioning to host input form");
+        await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX: Host form transition - single card mode");
         
         Logger.LogInformation("NOOR-UX: Transitioned to Host input form (Step 2)");
-        await JSRuntime.InvokeVoidAsync("console.log", "✅ NOOR-UX-DEBUG: Host form displayed, participant card hidden with display:none");
         StateHasChanged(); // Force re-render to show input form
     }
 
-    private async Task ShowParticipantForm()
-    {
-        selectedRole = "participant";
-        currentStep = 2;
-        
-        Logger.LogInformation("NOOR-UX-DEBUG: ShowParticipantForm called - selectedRole: {Role}, currentStep: {Step}", selectedRole, currentStep);
-        await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX-DEBUG: ShowParticipantForm - Participant card expanding, Host card hiding");
-        
-        // Issue-75 & Issue-76 Debug: Log card sizing during interaction  
-        await JSRuntime.InvokeVoidAsync("console.log", "📏 Issue-75/76 DEBUG: Participant card interaction - verifying 30% reduced sizing");
-        
-        // Trigger animations: expand participant card, hide host card  
-        await JSRuntime.InvokeVoidAsync("NoorCardAnimator.expandCard", "participant-card", "host-card");
-        
-        Logger.LogInformation("NOOR-UX: Transitioned to Participant input form (Step 2)");
-        await JSRuntime.InvokeVoidAsync("console.log", "✅ NOOR-UX-DEBUG: Participant form displayed, host card hidden with display:none");
-        StateHasChanged(); // Force re-render to show input form
-    }
+    // Phase 3.6: ShowParticipantForm method removed - replaced by direct /user/{token} routing
 
     // Enhanced Interactive Card Handlers
     private async Task HandleHostAccess()
@@ -435,11 +290,7 @@
         await AuthenticateHost();
     }
 
-    private async Task HandleSessionJoin()
-    {
-        // Call existing session join method
-        await JoinSession();
-    }
+    // Phase 3.6: HandleSessionJoin method removed - users access via /user/{token} URLs
 
     private static bool IsBase64String(string s)
     {

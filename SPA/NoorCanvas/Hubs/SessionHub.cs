@@ -63,6 +63,46 @@ public class SessionHub : Hub
         await Clients.Caller.SendAsync("Pong", DateTime.UtcNow);
     }
 
+    /// <summary>
+    /// Broadcast session began event to all participants
+    /// </summary>
+    public async Task BroadcastSessionBegan(long sessionId, object sessionData)
+    {
+        var groupName = $"session_{sessionId}";
+        
+        _logger.LogInformation("NOOR-HUB: Broadcasting SessionBegan for session {SessionId}", sessionId);
+
+        await Clients.Group(groupName).SendAsync("SessionBegan", new 
+        {
+            sessionId = sessionId,
+            sessionData = sessionData,
+            startedAt = DateTime.UtcNow,
+            timestamp = DateTime.UtcNow
+        });
+
+        _logger.LogInformation("NOOR-HUB: SessionBegan broadcast completed for session {SessionId}", sessionId);
+    }
+
+    /// <summary>
+    /// Broadcast session ended event to all participants
+    /// </summary>
+    public async Task BroadcastSessionEnded(long sessionId, string reason = "Host ended session")
+    {
+        var groupName = $"session_{sessionId}";
+        
+        _logger.LogInformation("NOOR-HUB: Broadcasting SessionEnded for session {SessionId}, reason: {Reason}", sessionId, reason);
+
+        await Clients.Group(groupName).SendAsync("SessionEnded", new 
+        {
+            sessionId = sessionId,
+            reason = reason,
+            endedAt = DateTime.UtcNow,
+            timestamp = DateTime.UtcNow
+        });
+
+        _logger.LogInformation("NOOR-HUB: SessionEnded broadcast completed for session {SessionId}", sessionId);
+    }
+
     public override async Task OnConnectedAsync()
     {
         _logger.LogDebug("NOOR-HUB: Connection established: {ConnectionId}", Context.ConnectionId);
