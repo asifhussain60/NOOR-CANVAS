@@ -14,7 +14,7 @@
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
-    <link href="css/noor-canvas.css" rel="stylesheet" />
+    <link href="css/noor-canvas.css?v=@DateTime.Now.Ticks" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="NoorCanvas.styles.css" rel="stylesheet" />
 </head>
@@ -41,6 +41,43 @@
             NoorLogger.info('NOOR-INIT', 'NOOR Canvas application loaded', {
                 blazorMode: 'ServerPrerendered',
                 environment: '@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production")'
+            });
+            
+            // Enhanced CSS Debug Logging (Issue: CSS padding changes not visible)
+            window.addEventListener('DOMContentLoaded', function() {
+                console.log('🎨 CSS DEBUG: Starting CSS verification...');
+                
+                // Check if noor-canvas.css loaded
+                const noorCanvasLink = document.querySelector('link[href*="noor-canvas.css"]');
+                if (noorCanvasLink) {
+                    console.log('✅ CSS DEBUG: noor-canvas.css link found:', noorCanvasLink.href);
+                    
+                    // Test for .noor-btn class padding
+                    setTimeout(function() {
+                        const testBtn = document.querySelector('.noor-btn');
+                        if (testBtn) {
+                            const styles = window.getComputedStyle(testBtn);
+                            console.log('🔍 CSS DEBUG: .noor-btn padding values:', {
+                                paddingTop: styles.paddingTop,
+                                paddingRight: styles.paddingRight,
+                                paddingBottom: styles.paddingBottom,
+                                paddingLeft: styles.paddingLeft,
+                                padding: styles.padding
+                            });
+                        } else {
+                            console.log('⚠️ CSS DEBUG: No .noor-btn elements found to test');
+                        }
+                    }, 500);
+                } else {
+                    console.error('❌ CSS DEBUG: noor-canvas.css link not found!');
+                }
+                
+                // Log all loaded CSS files
+                const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
+                console.log('📋 CSS DEBUG: All loaded CSS files:');
+                cssLinks.forEach((link, index) => {
+                    console.log(`  ${index + 1}. ${link.href}`);
+                });
             });
             
             // Blazor Server auto-starts, monitor the connection status

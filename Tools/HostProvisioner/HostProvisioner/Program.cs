@@ -171,7 +171,12 @@ class Program
                         // Try to parse as Session ID
                         if (long.TryParse(input, out long sessionId))
                         {
-                            await ProcessSessionId(serviceProvider, sessionId);
+                            var success = await ProcessSessionId(serviceProvider, sessionId);
+                            if (success)
+                            {
+                                // Tokens generated successfully - exit interactive mode
+                                return;
+                            }
                         }
                         else
                         {
@@ -189,7 +194,20 @@ class Program
 
     private static void ClearAndShowHeader()
     {
-        Console.Clear();
+        try
+        {
+            Console.Clear();
+        }
+        catch (IOException)
+        {
+            // Console.Clear() is not supported in some environments (like VS Code terminal)
+            // Just continue without clearing the console
+        }
+        catch (Exception)
+        {
+            // Ignore any other console clearing issues
+        }
+        
         Console.WriteLine("🔐 NOOR Canvas Host Provisioner - Interactive Mode");
         Console.WriteLine("================================================");
         Console.WriteLine();
@@ -237,7 +255,7 @@ class Program
         Console.WriteLine();
     }
 
-    private static async Task ProcessSessionId(IServiceProvider serviceProvider, long sessionId)
+    private static async Task<bool> ProcessSessionId(IServiceProvider serviceProvider, long sessionId)
     {
         try
         {
@@ -247,10 +265,12 @@ class Program
 
             // Create Host GUID with database persistence
             await CreateHostGuidWithDatabase(serviceProvider, sessionId, "Interactive User", null, false);
+            return true; // Success - tokens were generated
         }
         catch (Exception ex)
         {
             ShowUserFriendlyError(ex, sessionId);
+            return false; // Failed - continue interactive mode
         }
     }
 
@@ -706,14 +726,22 @@ class Program
             var tokenMatch = participantUrl.Split("/session/").LastOrDefault()?.Split('?').FirstOrDefault();
             if (!string.IsNullOrEmpty(tokenMatch))
             {
-                Console.WriteLine("🔗 FRIENDLY SESSION ACCESS:");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("══════════════════════════════════════");
+                Console.WriteLine("🔗 USER AUTHENTICATION:");
+                Console.WriteLine("══════════════════════════════════════");
+                Console.ResetColor();
                 Console.WriteLine($"   Participant Token: {tokenMatch}");
                 Console.WriteLine($"   Participant URL: {participantUrl}");
                 Console.WriteLine();
             }
         }
         
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("══════════════════════════════════════");
         Console.WriteLine("🔐 HOST AUTHENTICATION:");
+        Console.WriteLine("══════════════════════════════════════");
+        Console.ResetColor();
         Console.WriteLine($"   Host GUID: {hostGuid}");
         if (userId.HasValue)
         {
@@ -721,12 +749,20 @@ class Program
         }
         Console.WriteLine();
         
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("══════════════════════════════════════");
         Console.WriteLine("📊 DATABASE:");
+        Console.WriteLine("══════════════════════════════════════");
+        Console.ResetColor();
         Console.WriteLine($"   Saved to: canvas.HostSessions, canvas.SecureTokens");
         Console.WriteLine($"   Host Session ID: {hostSessionId}");
         
         Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine("══════════════════════════════════════");
         Console.WriteLine("📋 INSTRUCTIONS:");
+        Console.WriteLine("══════════════════════════════════════");
+        Console.ResetColor();
         Console.WriteLine("   1. Copy the Host GUID for authentication");
         if (!string.IsNullOrEmpty(participantUrl) && participantUrl.Contains("/session/"))
         {
@@ -738,9 +774,13 @@ class Program
         }
         Console.WriteLine("   3. All tokens are stored securely with expiration tracking");
         Console.WriteLine();
+        
         Console.Write("Press any key to continue...");
         Console.ReadKey();
         Console.WriteLine();
         Console.WriteLine();
+        Console.WriteLine("✅ Host Provisioner completed successfully!");
+        Console.WriteLine("Goodbye! 👋");
+        Environment.Exit(0); // Exit the program completely
     }
 }

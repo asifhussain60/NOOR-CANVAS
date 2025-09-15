@@ -289,7 +289,39 @@ docfx serve _site --port 9093
 - Use direct DocFX serve command when Python dependencies are unavailable
 - Consider updating ncdoc script to include Python dependency fallback
 
-#### **Enhanced HealthCheck System with DocFX Integration (September 2025)**
+#### **HTML View Creation & Evaluation Standards (December 2024)**
+**CRITICAL REQUIREMENT**: For all future HTML view creations, GitHub Copilot must follow these standards:
+
+**Modern Minimalistic Design Principles:**
+- **Maintain Current Colors**: Preserve existing NOOR Canvas color scheme (blue #3B82F6, purple #8B5CF6, etc.)
+- **Modernization Allowed**: Update styling to contemporary minimalistic standards while keeping color identity
+- **Clean Typography**: Use Inter font family with proper weight hierarchy (400, 500, 600, 700)
+- **Spacious Layout**: Generous padding and margins following modern design principles
+- **Subtle Animations**: Smooth transitions using cubic-bezier easing functions
+
+**HTML Evaluation Workflow - MANDATORY:**
+1. **Silent Creation**: Create HTML views without asking permission
+2. **Automatic Evaluation**: Silently analyze rendered HTML structure and styling
+3. **Rendering Validation**: Check if HTML renders as expected with proper CSS application  
+4. **Style Consistency**: Verify color scheme, typography, and spacing match design standards
+5. **Responsive Testing**: Ensure mobile and desktop layouts work correctly
+6. **Report Results**: Provide evaluation summary with any identified issues
+
+**CSS Class Management:**
+- **Remove Conflicting Classes**: Eliminate Tailwind utility classes that conflict with custom CSS (py-4, w-full, text-lg when custom equivalents exist)
+- **Use Custom Classes**: Prefer NOOR Canvas custom CSS classes over inline utilities
+- **Cache-Busting**: Include version parameters for CSS files to ensure latest styles load
+- **Consistent Naming**: Use .noor-* prefix for all custom classes
+
+**Quality Gates for HTML Views:**
+- ✅ **Visual Fidelity**: Matches intended modern minimalistic design
+- ✅ **Color Compliance**: Uses established NOOR Canvas color variables
+- ✅ **Typography**: Inter font loads and renders correctly
+- ✅ **Responsive**: Works on mobile, tablet, and desktop viewports
+- ✅ **Performance**: Fast loading with optimized CSS and assets
+- ✅ **Accessibility**: Proper semantic markup and keyboard navigation
+
+### **Enhanced HealthCheck System with DocFX Integration (September 2025)**
 **Purpose**: Comprehensive workspace validation with DocFX implementation plan refresh capabilities
 
 **Enhanced HealthCheck Commands:**

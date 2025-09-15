@@ -1,4 +1,6 @@
-﻿# ðŸ“Š N**ðŸš¨**ðŸ† RECENTLY COMPLETED CRITICAL FIXES:**
+﻿# ðŸ“Š N****ðŸš¨ CURRENT CRITICAL BLOCKERS:**
+- 🚨 **Issue-84** — [Ambiguous Host Token Route Conflict - HostToken vs HostTokenAccess](NOT%20STARTED/Issue-84-ambiguous-host-token-route-conflict.md) 🔴🔴 **CRITICAL APPLICATION BREAKING** - Duplicate /host/{token} routes prevent application startup, complete Phase 3.6 testing blockage  
+- âŒ **Issue-60** â€" [HostSessionManager Initialization Failure After Authentication](NOT%20STARTED/Issue-60-hostsessionmanager-initialization-failure-authentication.md) ï¿½ **CRITICAL BUG** - Session manager fails to initialize despite successful host authentication, recurring issue after multiple fix attemptsš¨**ðŸ† RECENTLY COMPLETED CRITICAL FIXES:**
 - âœ… **Issue-60** â€" [HostSessionManager Initialization Failure After Authentication](COMPLETED/Issue-60-hostsessionmanager-initialization-failure-authentication.md) ï¿½ **CRITICAL BUG RESOLVED** - Session manager now initializes properly after host authentication, albums/categories load correctly from KSESSIONS databaseCURRENT CRITICAL BLOCKERS:**
 - âŒ **Issue-64** â€" [Visual Design Mismatch - Mock vs Implementation](NOT%20STARTED/Issue-64-visual-design-mismatch-mock-implementation.md) ï¿½ **CRITICAL VISUAL BUG** - Landing and CreateSession pages DO NOT match provided design mocks - CSS/styling complete mismatchSSUE TRACKER
 
