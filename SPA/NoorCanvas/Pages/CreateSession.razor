@@ -155,7 +155,7 @@
         {
             Logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS_DEV");
             
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             var response = await httpClient.GetAsync("/api/host/albums");
             
             if (response.IsSuccessStatusCode)
@@ -202,7 +202,7 @@
         {
             Logger.LogInformation("NOOR-INFO: Loading categories for album {AlbumId}", albumId);
             
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             var response = await httpClient.GetAsync($"/api/host/categories/{albumId}");
             
             if (response.IsSuccessStatusCode)
@@ -247,7 +247,7 @@
         {
             Logger.LogInformation("NOOR-INFO: Loading sessions for category {CategoryId}", categoryId);
             
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             var response = await httpClient.GetAsync($"/api/host/sessions/{categoryId}");
             
             if (response.IsSuccessStatusCode)
@@ -292,7 +292,7 @@
                 CategoryId = int.Parse(selectedCategoryId!)
             };
 
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             var response = await httpClient.PostAsJsonAsync("/api/host/create-session", createRequest);
 
             if (response.IsSuccessStatusCode)

@@ -37,26 +37,39 @@ class Program
         var rootCommand = new RootCommand("NOOR Canvas Host Provisioner - Generate and manage Host GUIDs");
 
         // Create command
+        var sessionIdOption = new Option<long>("--session-id", "Session ID to associate with the host GUID") { IsRequired = true };
+        var createdByOption = new Option<string>("--created-by", "Name of the person creating the host session") { IsRequired = false };
+        var expiresOption = new Option<string>("--expires", "Expiration date (yyyy-MM-dd)") { IsRequired = false };
+        var dryRunOption = new Option<bool>("--dry-run", "Show what would be done without making changes") { IsRequired = false };
+        var createUserOption = new Option<bool>("--create-user", "Also generate and persist a User GUID for session participation") { IsRequired = false };
+        var createRegistrationOption = new Option<bool>("--create-registration", "Also create a registration linking the created user to the session") { IsRequired = false };
+        var forceNewOption = new Option<bool>("--force-new", "Force creation of new record even if Session ID exists") { IsRequired = false };
+        var rotationReasonOption = new Option<string>("--rotation-reason", "Reason for GUID rotation (for audit purposes)") { IsRequired = false };
+
         var createCommand = new Command("create", "Generate a new Host GUID")
         {
-            new Option<long>("--session-id", "Session ID to associate with the host GUID") { IsRequired = true },
-            new Option<string>("--created-by", "Name of the person creating the host session") { IsRequired = false },
-            new Option<string>("--expires", "Expiration date (yyyy-MM-dd)") { IsRequired = false },
-            new Option<bool>("--dry-run", "Show what would be done without making changes") { IsRequired = false },
-            new Option<bool>("--force-new", "Force creation of new record even if Session ID exists") { IsRequired = false },
-            new Option<string>("--rotation-reason", "Reason for GUID rotation (for audit purposes)") { IsRequired = false }
+            sessionIdOption,
+            createdByOption,
+            expiresOption,
+            dryRunOption,
+            createUserOption,
+            createRegistrationOption,
+            forceNewOption,
+            rotationReasonOption
         };
 
-        createCommand.SetHandler(async (long sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew, string? rotationReason) =>
+        createCommand.SetHandler(async (long sessionId, string? createdBy, string? expires, bool dryRun, bool createUser, bool createRegistration, bool forceNew, string? rotationReason) =>
         {
-            await CreateHostGuidWithDatabase(serviceProvider, sessionId, createdBy, expires, dryRun, forceNew, rotationReason);
+            await CreateHostGuidWithDatabase(serviceProvider, sessionId, createdBy, expires, dryRun, forceNew, rotationReason, createUser, createRegistration);
         },
-        createCommand.Options.OfType<Option<long>>().First(),           // --session-id
-        createCommand.Options.OfType<Option<string>>().First(),         // --created-by
-        createCommand.Options.OfType<Option<string>>().Skip(1).First(), // --expires
-        createCommand.Options.OfType<Option<bool>>().First(),           // --dry-run
-        createCommand.Options.OfType<Option<bool>>().Skip(1).First(),   // --force-new
-        createCommand.Options.OfType<Option<string>>().Skip(2).First()); // --rotation-reason
+        sessionIdOption,
+        createdByOption,
+        expiresOption,
+        dryRunOption,
+        createUserOption,
+        createRegistrationOption,
+        forceNewOption,
+        rotationReasonOption);
 
         // Rotate command
         var rotateCommand = new Command("rotate", "Rotate an existing Host GUID")
@@ -318,7 +331,7 @@ class Program
         }
     }
 
-    private static async Task CreateHostGuidWithDatabase(IServiceProvider serviceProvider, long sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew = false, string? rotationReason = null)
+    private static async Task CreateHostGuidWithDatabase(IServiceProvider serviceProvider, long sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew = false, string? rotationReason = null, bool createUser = false, bool createRegistration = false)
     {
         try
         {
@@ -480,19 +493,104 @@ class Program
             await context.SaveChangesAsync();
             Log.Information("PROVISIONER: SaveChangesAsync completed successfully");
 
+            // Optional: Create a sample User and Registration if requested
+            Guid? createdUserId = null;
+            if (createUser)
+            {
+                try
+                {
+                    var userGuid = Guid.NewGuid();
+                    var user = new NoorCanvas.Models.User
+                    {
+                        UserId = userGuid,
+                        UserGuid = userGuid.ToString(),
+                        Name = createdBy ?? "Provisioner User",
+                        CreatedAt = DateTime.UtcNow,
+                        ModifiedAt = DateTime.UtcNow,
+                        FirstJoinedAt = DateTime.UtcNow,
+                        LastJoinedAt = DateTime.UtcNow,
+                        IsActive = true
+                    };
+
+                    Log.Information("PROVISIONER: Creating User with UserGuid {UserGuid}", user.UserGuid);
+                    context.Users.Add(user);
+                    await context.SaveChangesAsync();
+                    createdUserId = user.UserId;
+                    Log.Information("PROVISIONER: User created with UserId {UserId}", createdUserId);
+
+                    if (createRegistration && createdUserId.HasValue)
+                    {
+                        var registration = new NoorCanvas.Models.Registration
+                        {
+                            SessionId = canvasSession.SessionId,
+                            UserId = createdUserId.Value,
+                            JoinTime = DateTime.UtcNow
+                        };
+
+                        context.Registrations.Add(registration);
+                        await context.SaveChangesAsync();
+                        Log.Information("PROVISIONER: Registration created linking User {UserId} to Session {SessionId}", createdUserId, canvasSession.SessionId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "PROVISIONER-WARNING: Failed to create sample user or registration");
+                }
+            }
+
+            // Create SessionLink for participant access (when creating user)
+            Guid? sessionLinkGuid = null;
+            string? participantUrl = null;
+            if (createUser && createdUserId.HasValue)
+            {
+                try
+                {
+                    var sessionLink = new NoorCanvas.Models.SessionLink
+                    {
+                        SessionId = canvasSession.SessionId,
+                        Guid = Guid.NewGuid(),
+                        State = 1, // Active
+                        CreatedAt = DateTime.UtcNow,
+                        UseCount = 0
+                    };
+
+                    context.SessionLinks.Add(sessionLink);
+                    await context.SaveChangesAsync();
+                    sessionLinkGuid = sessionLink.Guid;
+                    
+                    // Generate participant URL with User GUID attached
+                    participantUrl = $"https://localhost:9091/join/{sessionLink.Guid}?userGuid={createdUserId.Value}";
+                    
+                    Log.Information("PROVISIONER: SessionLink created with GUID {SessionLinkGuid}", sessionLink.Guid);
+                    Log.Information("PROVISIONER: Participant URL: {ParticipantUrl}", participantUrl);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "PROVISIONER-WARNING: Failed to create session link");
+                }
+            }
+
             // Display results
             Log.Information("SUCCESS: Host GUID created and saved to database");
             Log.Information("KSESSIONS Session ID: {KSessionsId}", sessionId);
             Log.Information("Canvas Session ID: {CanvasSessionId}", canvasSession.SessionId);
             Log.Information("Host GUID: {HostGuid}", hostGuid);
             Log.Information("Host Session ID: {HostSessionId}", hostSession.HostSessionId);
+            if (createdUserId.HasValue)
+            {
+                Log.Information("User GUID: {UserId}", createdUserId.Value);
+            }
+            if (!string.IsNullOrEmpty(participantUrl))
+            {
+                Log.Information("Participant URL: {ParticipantUrl}", participantUrl);
+            }
             Log.Information("Created By: {CreatedBy}", createdBy ?? "Interactive User");
-            Log.Information("Database Record: ✅ Saved to canvas.HostSessions");
+            Log.Information("Database Record: Saved to canvas.HostSessions");
             
             // Interactive mode specific output (Issue-44: Enhanced UX with pause)
             if (createdBy == "Interactive User")
             {
-                DisplayGuidWithPause(hostGuid, sessionId, hostSession.HostSessionId);
+                DisplayGuidWithPause(hostGuid, sessionId, hostSession.HostSessionId, createdUserId, participantUrl);
             }
         }
         catch (Exception ex)
@@ -546,19 +644,35 @@ class Program
         return Convert.ToBase64String(hashBytes);
     }
 
-    private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId)
+    private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null)
     {
         Console.WriteLine();
-        Console.WriteLine("✅ Host GUID Generated Successfully!");
+        Console.WriteLine("Host GUID Generated Successfully!");
         Console.WriteLine("===================================");
-        Console.WriteLine($"📊 Session ID: {sessionId}");
-        Console.WriteLine($"🆔 Host GUID: {hostGuid}");
-        Console.WriteLine($"🔢 Host Session ID: {hostSessionId}");
-        Console.WriteLine($"⏰ Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
-        Console.WriteLine($"💾 Database: ✅ Saved to canvas.HostSessions");
+        Console.WriteLine($"Session ID: {sessionId}");
+        Console.WriteLine($"Host GUID: {hostGuid}");
+        if (userId.HasValue)
+        {
+            Console.WriteLine($"User Session GUID: {userId.Value}");
+        }
+        Console.WriteLine($"Host Session ID: {hostSessionId}");
+        Console.WriteLine($"Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        Console.WriteLine($"Database: Saved to canvas.HostSessions");
+        
+        if (!string.IsNullOrEmpty(participantUrl))
+        {
+            Console.WriteLine();
+            Console.WriteLine("Participant Session Link:");
+            Console.WriteLine($"{participantUrl}");
+        }
+        
         Console.WriteLine();
-        Console.WriteLine("📋 Copy the Host GUID above to use for authentication.");
-        Console.WriteLine("🔑 The GUID is stored securely in the database.");
+        Console.WriteLine("Copy the Host GUID above to use for authentication.");
+        if (userId.HasValue)
+        {
+            Console.WriteLine("Share the Participant Session Link with users to join.");
+        }
+        Console.WriteLine("The GUIDs are stored securely in the database.");
         Console.WriteLine();
         Console.Write("Press any key to continue...");
         Console.ReadKey();

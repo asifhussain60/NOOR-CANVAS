@@ -119,7 +119,7 @@
 
             if (Guid.TryParse(hostGuid, out Guid guid))
             {
-                using var httpClient = HttpClientFactory.CreateClient();
+                using var httpClient = HttpClientFactory.CreateClient("default");
                 httpClient.BaseAddress = new Uri(Navigation.BaseUri);
                 
                 var request = new { HostGuid = hostGuid };

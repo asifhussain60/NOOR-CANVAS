@@ -1,5 +1,8 @@
 - name: Technical Documentation
   href: articles/technical/
+  items:
+    - name: Implementation
+      href: articles/implementation/user-guid-registration.md
 - name: Development Guide  
   href: articles/development/
 - name: User Guides

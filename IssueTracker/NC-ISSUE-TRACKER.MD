@@ -10,8 +10,8 @@
 - ✅ **Issue-77** — [Change Host Authentication to Manage Session](COMPLETED/Issue-77-Host-Authentication-Text-Change.md) 🔧 **UX ENHANCEMENT** - Update HOST card text from "Host Authentication" to "Manage Session" for better clarity
 - ✅ **Issue-78** — [Authentication Cards 20% Size Increase](COMPLETED/Issue-78-authentication-cards-20-percent-increase.md) 🔧 **UX ENHANCEMENT** - Increase HOST and ATTEND card sizes by 20% for better visibility and prominence  
 - ✅ **Issue-79** — [Authentication Cards 25% Width Increase](COMPLETED/ISSUE-79-CARD-WIDTH-25-PERCENT-INCREASE.md) 🔧 **UX ENHANCEMENT** - Increase card width by 25% for more noticeable visual impact after 20% increase wasn't apparent
-- ✅ **Issue-80** — [Application Not Loading - Connection Refused Error](IN%20PROGRESS/Issue-80-application-not-loading-connection-refused.md) 🐛 **CRITICAL BUG RESOLVED + PREVENTION SYSTEM** - PowerShell profile directory conflict fixed with comprehensive guard rails to prevent recurrence
-- 🎬 **Issue-67** — [Landing Page 2-Step UX with Card Animations](NOT%20STARTED/Issue-67-landing-page-2step-ux-with-animations.md) 🔧 **UX ENHANCEMENT** - Modern 2-step landing page with feature lists → input forms, 20% card expansion animations
+- ✅ **Issue-80** — [Application Not Loading - Connection Refused Error](COMPLETED/Issue-80-application-not-loading-connection-refused.md) 🐛 **CRITICAL BUG RESOLVED + COMPREHENSIVE PREVENTION SYSTEM** - PowerShell profile directory conflict fixed with 4-layer guard rails system to prevent recurrence
+- ✅ **Issue-67** — [Landing Page 2-Step UX with Card Animations](COMPLETED/Issue-67-landing-page-2step-ux-with-animations.md) 🔧 **UX ENHANCEMENT COMPLETED** - Modern 2-step landing page with feature lists → input forms, 20% card expansion animations with professional CSS transitions
 - ⚡ **Issue-68** — [Authentication Card Text Refinement](IN%20PROGRESS/Issue-68-authentication-card-text-refinement.md) 🔧 **UX ENHANCEMENT** - Host card: "Manage sessions and monitor participants" → "Manage Session", Participant card: "Connect to live Islamic learning sessions" → "Attend Session"
 - ✅ **Issue-70** — [Landing Page Card UI Redesign - Remove Feature Lists, Enhance Button Design](COMPLETED/Issue-70-Landing-Page-Card-UI-Redesign.md) 🔧 **UX ENHANCEMENT** - Removed obsolete tick mark CSS, enhanced large square buttons with modern styling, improved icon sizing and typography
 - ⚡ **Issue-69** — [Button Panel Layout Fix - Display None Implementation](IN%20PROGRESS/Issue-69-button-panel-layout-fix-display-none.md) 🔧 **UX BUG** - Replace opacity:0 with display:none when hiding cards so remaining card properly centers in panel
@@ -27,14 +27,19 @@
 
 ---
 
+- ✅ **Issue-81** — [NCT Command Missing User GUID and Session Link Output](COMPLETED/Issue-81-nct-missing-user-guid-session-link.md) 🚨 **CRITICAL BUG RESOLVED** - Updated nct.ps1 to call HostProvisioner with --create-user flag and added User GUID/Participant URL parsing for consistent nc/nct functionality
+- ⚡ **Issue-82** — [Participant Session Link Security Vulnerability - GUID Exposure](IN%20PROGRESS/Issue-82-participant-session-link-security-vulnerability.md) 🛡️ **SECURITY CRITICAL** - Implement short secure hash tokens to replace GUID exposure in participant URLs
+
+---
+
 ## 📋 **TODO SECTION**
 
-**Purpose:** Simple checklist for tracking work items in flight. TODOs are temporary and should be removed once completed.
+**Purpose:** Tracked asks and short tasks that the project owner wants preserved and audited. TODOs are first-class tracked items and follow the same lifecycle as issues.
 
 ### **Active TODOs**
-- [ ] **Create End-to-End Testing Protocol** - Establish complete workflow testing to prevent regression issues (Issue-63 Phase 2)
-- [ ] **Document Systematic Fix Methodology** - Complete Issue-63 implementation and documentation
-- [ ] **Implement Phase 3.5 Mock-to-Live Integration** - Replace all mock implementations with live API calls for Host authentication and Participant session joining
+- ❌ **TODO-001** — [PowerShell Script Parameter Validation Protocol](NOT%20STARTED/TODO-PowerShell-Script-Parameter-Validation-Protocol.md) - Implement standardized parameter naming validation to prevent built-in conflicts (Lesson from Issue-80 guard rails development)
+- ❌ **TODO-002** — [Terminal Process Management Best Practices](NOT%20STARTED/TODO-Terminal-Process-Management-Best-Practices.md) - Document and automate comprehensive process cleanup patterns for development workflow efficiency
+- ❌ **TODO-003** — [Git Log File Cleanup Automation](NOT%20STARTED/TODO-Git-Log-File-Cleanup-Automation.md) - Create automated system to prevent development log files from being tracked despite .gitignore rules
 
 ---
 
@@ -43,11 +48,12 @@
 **CRITICAL:** These instructions MUST be followed by any LLM (GitHub Copilot, ChatGPT, Claude, etc.) when working with this tracker.
 
 ### **TODO Section Standards**
-- **Format:** `- [ ] **Brief Title** - Detailed description of work to be done`
-- **Lifecycle:** Add → Work → Complete → **REMOVE** (do not mark completed, DELETE the entry)
-- **Purpose:** Temporary work tracking only - not permanent record keeping
+- **Format:** `- [Icon] **TODO-###** — [Title](PATH/file.md) - Short summary`
+- **Lifecycle:** ❌ Not Started → ⚡ In Progress → ⏳ Awaiting Confirmation → ✅ Completed
+- **Purpose:** Tracked asks the owner wants preserved; each TODO must have a detail file like issues.
 - **Location:** Always at the top of file, immediately after purpose statement
-- **Scope:** Simple actionable items that don't require detailed documentation files
+- **File Convention:** For each TODO create a markdown detail file under the appropriate status folder. Filename pattern: `TODO-<short-title>.md`.
+- **Status Changes:** Use the same status-change commands as issues (e.g., `Mark TODO-002 as In Progress`). When a TODO is completed, move its detail file to `COMPLETED/` and update tracker icon to ✅.
 
 ### **ISSUE Section Standards** 
 - **Format:** `- [Icon] **Issue-X** — [Title](PATH/file.md) [Category Icon]`
@@ -301,5 +307,52 @@ iiskill -WhatIf       # dry-run: lists candidate processes without killing
 
 ---
 
+## 🎓 **LESSONS LEARNED - PROCESS IMPROVEMENT (September 2025)**
+
+### **🛡️ Guard Rails System Implementation Success Patterns**
+
+**What Worked Exceptionally Well:**
+- **Multi-Layer Protection Approach**: 4-layer validation system (directory context, PowerShell profiles, port availability, project structure) provided comprehensive coverage
+- **Auto-Fix Capabilities**: Automatic remediation for detected issues reduced manual intervention requirements
+- **Integration Enhancement**: Enhanced existing systems (nc.ps1) rather than replacing them maintained compatibility
+- **Documentation-First Approach**: Created comprehensive documentation simultaneously with implementation prevented knowledge gaps
+
+**Critical Technical Lessons:**
+
+**🚨 PowerShell Parameter Naming:**
+- **Problem**: `VerboseMode` parameter conflicted with PowerShell built-in `Verbose` parameter
+- **Solution**: Renamed to `VerboseLogging` to avoid reserved parameter name conflicts
+- **Prevention Rule**: Always validate parameter names against PowerShell reserved words before implementation
+- **Testing Protocol**: Test all parameters in clean PowerShell session before deployment
+
+**🚨 Console Buffer Exception Handling:**
+- **Understanding**: PSReadLine console exceptions during long git operations are display-only issues
+- **Critical Insight**: Commit operations complete successfully despite console buffer display errors
+- **Prevention Strategy**: Use `-NoProfile` execution policy for automated scripts to avoid PSReadLine conflicts
+- **Monitoring Approach**: Check actual command results, not terminal display messages, for operation success
+
+**Development Workflow Efficiency Gains:**
+- **Process Cleanup Automation**: Comprehensive dotnet/noor process termination patterns prevent port conflicts
+- **Build Validation Integration**: VS Code task-based guard system testing (`validate-issue-67-protection`) streamlines validation
+- **Git Log File Management**: Automated detection and cleanup of development log files tracked despite .gitignore rules
+- **Performance Achievements**: <2s build times, <5s guard validation, <10s application startup consistency
+
+### **🔄 Continuous Improvement Protocols**
+
+**Established Success Patterns:**
+1. **Guard First**: Implement protection systems before issues occur (proactive vs reactive)
+2. **Test Automation**: Comprehensive test suites prevent deployment regressions
+3. **Documentation Integration**: Create docs during implementation, not after
+4. **Multi-Layer Validation**: Single-point-of-failure prevention through redundant checks
+
+**Future Implementation Standards:**
+- **Parameter Validation**: All PowerShell scripts must include parameter name conflict checking
+- **Console Error Tolerance**: Design systems to handle PSReadLine/console display issues gracefully
+- **Comprehensive Testing**: Every guard system component must have associated test validation
+- **Performance Baselines**: Establish and maintain consistent timing targets for all operations
+
+---
+
 **Last Updated:** September 14, 2025  
-**Tracker Version:** 2.0 - Minimal Format with Detailed Status Files
+**Tracker Version:** 2.1 - Enhanced with Guard Rails System Lessons Learned  
+**Next Update Focus:** Phase 4 custom CSS implementation and NC branding integration

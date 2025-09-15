@@ -1,0 +1,15 @@
+[2025-09-15 05:33:25.604 -04:00 INF] Program ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {}
+[2025-09-15 05:33:26.661 -04:00 INF] Microsoft.EntityFrameworkCore.Database.Command Executed DbCommand (17ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"}}
+[2025-09-15 05:33:26.673 -04:00 INF] Program ✅ NOOR-VALIDATION: Canvas database connection verified {}
+[2025-09-15 05:33:26.675 -04:00 INF] Program ✅ NOOR-VALIDATION: All critical configurations validated successfully {}
+[2025-09-15 05:33:26.718 -04:00 INF] Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager User profile is available. Using 'C:\Users\asifh\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"}}
+[2025-09-15 05:33:26.797 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: json, implemented by Microsoft.AspNetCore.SignalR.Protocol.JsonHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 05:33:26.801 -04:00 DBG] Microsoft.AspNetCore.SignalR.Internal.DefaultHubProtocolResolver Registered SignalR Protocol: blazorpack, implemented by Microsoft.AspNetCore.Components.Server.BlazorPack.BlazorPackHubProtocol. {"EventId":{"Id":1,"Name":"RegisteredSignalRProtocol"}}
+[2025-09-15 05:33:26.925 -04:00 INF]  NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
+[2025-09-15 05:33:27.040 -04:00 WRN] Microsoft.AspNetCore.Server.Kestrel Overriding address(es) 'https://localhost:9091, http://localhost:9090'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. {}
+[2025-09-15 05:33:27.078 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: http://localhost:9090 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 05:33:27.084 -04:00 INF] Microsoft.Hosting.Lifetime Now listening on: https://localhost:9091 {"EventId":{"Id":14,"Name":"ListeningOnAddress"}}
+[2025-09-15 05:33:27.089 -04:00 INF] Microsoft.Hosting.Lifetime Application started. Press Ctrl+C to shut down. {}
+[2025-09-15 05:33:27.090 -04:00 INF] Microsoft.Hosting.Lifetime Hosting environment: Development {}
+[2025-09-15 05:33:27.092 -04:00 INF] Microsoft.Hosting.Lifetime Content root path: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas {}

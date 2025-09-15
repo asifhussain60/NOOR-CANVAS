@@ -430,7 +430,7 @@
 
             if (selectedAlbumId.HasValue)
             {
-                using var httpClient = HttpClientFactory.CreateClient();
+                using var httpClient = HttpClientFactory.CreateClient("default");
                 Logger.LogInformation("NOOR-DEBUG: Loading categories for album: {AlbumId}", selectedAlbumId);
                 
                 var response = await httpClient.GetAsync($"/api/host/categories/{selectedAlbumId}?guid={Guid}");
@@ -464,7 +464,7 @@
 
             if (selectedCategoryId.HasValue)
             {
-                using var httpClient = HttpClientFactory.CreateClient();
+                using var httpClient = HttpClientFactory.CreateClient("default");
                 Logger.LogInformation("NOOR-INFO: Loading sessions for category: {CategoryId}", selectedCategoryId);
                 
                 var response = await httpClient.GetAsync($"/api/host/sessions/{selectedCategoryId}?guid={Guid}");
@@ -500,7 +500,7 @@
 
         try
         {
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             isGeneratingToken = true;
             Logger.LogInformation("NOOR-INFO: Generating session token for session: {SessionId}", selectedSessionId);
 
@@ -536,7 +536,7 @@
 
         try
         {
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             isStartingSession = true;
             Logger.LogInformation("NOOR-INFO: Starting session: {SessionId}", selectedSessionId);
 
@@ -575,7 +575,7 @@
 
         try
         {
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             isEndingSession = true;
             Logger.LogInformation("NOOR-INFO: Ending current session");
 
@@ -607,7 +607,7 @@
     {
         try
         {
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             var response = await httpClient.GetAsync($"/api/host/session-status?guid={Guid}");
             if (response.IsSuccessStatusCode)
             {

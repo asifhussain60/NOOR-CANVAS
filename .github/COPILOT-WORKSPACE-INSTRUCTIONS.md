@@ -209,6 +209,72 @@ To avoid encoding and script parsing issues on Windows PowerShell, DO NOT use em
 3. **Resolution** → Implement fix with proper testing
 4. **Update Status** → Mark issue as completed in tracker
 
+### **TODO Prompt Handling**
+When a user begins a prompt with a leading `TODO:`, the assistant MUST treat that request as a tracked TODO and follow these rules:
+
+- Add a TODO entry to `Workspaces/IMPLEMENTATION-TRACKER.MD` using the exact same format as issues (icon + brief title + detailed section). Use one of the status icons: ❌ Not Started, ⚡ In Progress, ⏳ Awaiting Confirmation, ✅ Completed. By default set new TODOs to ❌ Not Started unless the user indicates work has already started.
+- Create a detailed section within IMPLEMENTATION-TRACKER.MD for the TODO (same conventions as issues). Section format: `#### **🎯 TODO-X: [Title] (Date)**` and include implementation summary, technical details, acceptance criteria, and status tracking.
+- Move the TODO through the same lifecycle as issues: ❌ → ⚡ → ⏳ → ✅. When work is complete, update the tracker entry to use the ✅ icon and mark section as **COMPLETED**. Do NOT delete completed TODO entries or sections - preserve them as implementation history.
+- Treat TODOs as first-class tracked implementation work (not ephemeral reminders). They must be discoverable in the implementation tracker, have detailed technical documentation, and support the same status-change commands as issues.
+- TODOs are tracked in IMPLEMENTATION-TRACKER.MD because they represent implementation work rather than bugs/defects (which belong in NC-ISSUE-TRACKER.MD).
+
+Rationale: This ensures implementation asks are preserved, verified, and auditable in the same comprehensive workflow as formal technical implementations, maintaining single source of truth for all development work.
+
+### **Enhanced Debugging Patterns & Error Prevention (September 2025)**
+
+#### **PowerShell Script Development Best Practices**
+**CRITICAL LESSON: Parameter Naming Conflicts**
+- **❌ AVOID**: Using parameter names that conflict with PowerShell built-ins (`Verbose`, `Debug`, `ErrorAction`)
+- **✅ CORRECT**: Use descriptive alternatives (`VerboseLogging`, `DebugMode`, `CustomErrorAction`)
+- **Validation**: Always test parameter names in clean PowerShell session before implementation
+- **Impact**: Prevents script execution failures and cryptic error messages
+
+**Console Buffer Exception Handling:**
+- **Understanding**: PSReadLine console exceptions during long operations are display-only issues
+- **Git Operations**: Commit operations complete successfully despite console buffer errors  
+- **Prevention**: Use `-NoProfile` execution policy for automated scripts to avoid PSReadLine conflicts
+- **Mitigation**: Terminal display issues don't indicate operation failure - check actual command results
+
+#### **Terminal Management Efficiency Patterns**
+**Process Cleanup Best Practices:**
+```powershell
+# ✅ COMPREHENSIVE CLEANUP (Most Effective)
+Get-Process -Name "*dotnet*" -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "dotnet" } | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# ✅ GRACEFUL FALLBACK 
+Get-Process -Name "*noor*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+```
+
+**Build Validation Workflow:**
+1. **Clean Processes**: Always kill existing dotnet/noor processes before rebuild
+2. **Build Verification**: Run `dotnet build --verbosity quiet` to check for compilation errors
+3. **Port Validation**: Check port 9091 availability before starting application
+4. **Guard System**: Use `.guards/Issue-80-Protection.ps1` for comprehensive environment validation
+
+#### **Git Workflow Efficiency Improvements**
+**Log File Management:**
+- **Problem**: Development log files tracking despite .gitignore rules
+- **Solution**: `git rm --cached [log-files]` to remove from tracking without deletion
+- **Prevention**: Regular cleanup of tracked log files that should be ignored
+- **Automation**: Guard rails system includes automatic .gitignore validation
+
+**Commit Message Excellence:**
+- **Long Messages**: Use comprehensive multi-paragraph commit messages for major changes
+- **Console Issues**: Commit operations complete successfully despite PSReadLine display errors
+- **Structure**: Use conventional commit format with detailed implementation summaries
+
+#### **Development Environment Protection**
+**Issue-80 Prevention System:**
+- **Guard Rails**: Comprehensive 4-layer protection system operational
+- **Validation**: Directory context, PowerShell profiles, port availability, project structure
+- **Auto-Fix**: Automatic remediation for detected environment issues
+- **Integration**: VS Code task-based testing (`validate-issue-67-protection`)
+
+**Performance Monitoring:**
+- **Build Times**: Target <2s for incremental builds (achieved: 1.9s average)
+- **Application Startup**: Target <10s for full application startup on localhost:9091
+- **Guard Validation**: <5s for complete guard system validation
+
 ## 9. Automatic Logging Implementation
 
 ### **Server-Side Automatic Logging (Serilog Integration)**
