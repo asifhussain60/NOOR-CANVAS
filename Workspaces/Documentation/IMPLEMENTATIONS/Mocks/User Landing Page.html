@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
+        
+        .inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .cinzel-decorative {
+            font-family: 'Cinzel Decorative', serif;
+        }
+
+        .golden-gradient {
+            background-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358);
+        }
+
+        .gold-border {
+            border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+        }
+
+        .shadow-golden {
+            box-shadow: 0 10px 15px -3px rgba(197, 179, 88, 0.4), 0 4px 6px -2px rgba(197, 179, 88, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-[#F8F5F1] flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-sm sm:max-w-md md:max-w-lg bg-[#FFFFFF] rounded-3xl p-8 sm:p-12 shadow-2xl shadow-gray-400 border border-gray-200">
+        <!-- Header Section -->
+        <h2 class="text-4xl cinzel-decorative font-bold text-[#8B6E36] mb-4 text-center">{Session Name}</h2>
+        <p class="text-sm inter text-[#706357] text-center mb-8">we understand how the exemplary character of our prophet (Salallahu alayhi wa aalihee wa sallam) was a miracle for non-Arabs.</p>
+
+        <!-- Form Controls -->
+        <div class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm inter font-medium text-[#4B3C2B] mb-2">Name</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-user text-[#706357]"></i>
+                    </div>
+                    <input type="text" id="name" name="name" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]">
+                </div>
+            </div>
+            <div>
+                <label for="email" class="block text-sm inter font-medium text-[#4B3C2B] mb-2">Email Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-envelope text-[#706357]"></i>
+                    </div>
+                    <input type="email" id="email" name="email" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]">
+                </div>
+            </div>
+            <div>
+                <label for="country" class="block text-sm inter font-medium text-[#4B3C2B] mb-2">Country</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-earth-americas text-[#706357]"></i>
+                    </div>
+                    <select id="country" name="country" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]">
+                        <option value="">Select your country</option>
+                        <!-- Add country options here if needed -->
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="space-y-4 mt-8">
+            <button class="w-full flex items-center justify-center py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-golden" style="background-color: #006400;">
+                <i class="fa-solid fa-door-open mr-2"></i>
+                <span>Enter Waiting Room</span>
+            </button>
+        </div>
+    </div>
+</body>
+</html>

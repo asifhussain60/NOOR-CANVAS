@@ -28,7 +28,7 @@ namespace NoorCanvas.Tests.Authentication
 
         /// <summary>
         /// TC-AUTH-001: Full authentication workflow test
-        /// Tests the complete flow from Landing.razor to successful authentication
+        /// Tests the complete flow from HostLanding.razor to successful authentication
         /// </summary>
         [Fact]
         [Trait("Category", "Integration")]

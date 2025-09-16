@@ -16,7 +16,7 @@ namespace NoorCanvas.Core.Tests.Routing
     /// These tests validate that:
     /// 1. No ambiguous route conflicts exist between pages
     /// 2. Index.razor correctly routes to /home only
-    /// 3. Landing.razor correctly handles root route / and /landing
+    /// 3. HostLanding.razor correctly handles root route / and /landing
     /// 4. Application can start without routing exceptions
     /// </summary>
     public class BlazorRoutingTests
@@ -62,7 +62,7 @@ namespace NoorCanvas.Core.Tests.Routing
             Assert.Contains("/landing", routes);
             Assert.Equal(2, routes.Count);
 
-            _output.WriteLine($"✅ Issue-18 Test Passed: Landing.razor handles root route and /landing");
+            _output.WriteLine($"✅ Issue-18 Test Passed: HostLanding.razor handles root route and /landing");
             _output.WriteLine($"   Routes found: {string.Join(", ", routes)}");
         }
 

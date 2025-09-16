@@ -6,7 +6,7 @@
 @using System.Text.Json.Serialization
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
-@inject ILogger<Landing> Logger
+@inject ILogger<HostLanding> Logger
 @inject DialogService DialogService
 @inject IHttpClientFactory HttpClientFactory
 
@@ -131,11 +131,11 @@
             DialogService.RegisterAlertDialog(alertDialog);
             DialogService.RegisterConfirmDialog(confirmDialog);
             
-            Logger.LogInformation("NOOR-INFO: Landing page rendered for new visitor");
-            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "LANDING", "Landing page loaded", new { timestamp = DateTime.UtcNow });
+            Logger.LogInformation("NOOR-INFO: HostLanding page rendered for new visitor");
+            await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-LANDING", "HostLanding page loaded", new { timestamp = DateTime.UtcNow });
 
             // Add CSS debug logging for Issue-64
-            await JSRuntime.InvokeVoidAsync("console.log", "🎨 NOOR-CSS-DEBUG: Landing page rendered - Issue-64 debugging");
+            await JSRuntime.InvokeVoidAsync("console.log", "🎨 NOOR-CSS-DEBUG: HostLanding page rendered - Issue-64 debugging");
             
             // Issue-75 & Issue-76 Debug Logging: Logo and Card Sizing Changes
             await JSRuntime.InvokeVoidAsync("console.log", "📏 NOOR-SIZING-DEBUG Issue-75: Logo increased to 280px height (was 160px) - LARGE and prominent");
@@ -697,4 +697,3 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Dialog Components -->
 <AlertDialog @ref="alertDialog" />
 <ConfirmDialog @ref="confirmDialog" />
-

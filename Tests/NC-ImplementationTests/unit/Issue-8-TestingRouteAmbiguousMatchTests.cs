@@ -8,7 +8,7 @@ namespace NC_ImplementationTests.Unit
     /// Test coverage for Issue-8: Testing Route Ambiguous Match Exception
     /// 
     /// Ensures routing configuration resolves ambiguous routes correctly
-    /// and Index.razor vs Landing.razor route conflicts are resolved.
+    /// and Index.razor vs HostLanding.razor route conflicts are resolved.
     /// </summary>
     public class Issue8TestingRouteAmbiguousMatchTests : IClassFixture<WebApplicationFactory<Program>>
     {

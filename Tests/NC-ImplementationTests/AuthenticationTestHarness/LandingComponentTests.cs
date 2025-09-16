@@ -7,9 +7,9 @@ using Xunit;
 namespace NoorCanvas.Tests.Authentication
 {
     /// <summary>
-    /// Blazor component UI tests for Landing.razor authentication interface
+    /// Blazor component UI tests for HostLanding.razor authentication interface
     /// Tests user interface behavior and component interaction
-    /// NOTE: These tests require the Landing component to be properly structured
+    /// NOTE: These tests require the HostLanding component to be properly structured
     /// They may fail if the actual component implementation differs significantly
     /// </summary>
     public class LandingComponentTests : TestContext
@@ -23,20 +23,20 @@ namespace NoorCanvas.Tests.Authentication
         }
 
         /// <summary>
-        /// TC-AUTH-005: Test Landing.razor component renders correctly
+        /// TC-AUTH-005: Test HostLanding.razor component renders correctly
         /// </summary>
         [Fact]
         [Trait("Category", "UI")]
-        public void Landing_Component_RendersCorrectly()
+        public void HostLanding_Component_RendersCorrectly()
         {
-            // Act: Render the Landing component
-            var component = RenderComponent<NoorCanvas.Pages.Landing>();
+            // Act: Render the HostLanding component
+            var component = RenderComponent<NoorCanvas.Pages.HostLanding>();
 
             // Assert: Component should render without errors
             Assert.NotNull(component);
             
             // Basic test - component should render successfully
-            // More specific assertions would require knowing exact Landing.razor structure
+            // More specific assertions would require knowing exact HostLanding.razor structure
         }
 
         /// <summary>
@@ -45,10 +45,10 @@ namespace NoorCanvas.Tests.Authentication
         /// </summary>
         [Fact]
         [Trait("Category", "UI")]
-        public void Landing_Component_RendersWithoutExceptions()
+        public void HostLanding_Component_RendersWithoutExceptions()
         {
             // Arrange & Act: Render component
-            var component = RenderComponent<NoorCanvas.Pages.Landing>();
+            var component = RenderComponent<NoorCanvas.Pages.HostLanding>();
 
             // Assert: Component should render without throwing exceptions
             Assert.NotNull(component);
@@ -62,13 +62,13 @@ namespace NoorCanvas.Tests.Authentication
         /// </summary>
         [Fact]
         [Trait("Category", "UI")]
-        public void Landing_HttpClientFactory_InjectedCorrectly()
+        public void HostLanding_HttpClientFactory_InjectedCorrectly()
         {
             // Arrange: Get HttpClientFactory service  
             var mockFactory = Services.GetService<IHttpClientFactory>();
             
             // Act: Render component (should use injected factory)
-            var component = RenderComponent<NoorCanvas.Pages.Landing>();
+            var component = RenderComponent<NoorCanvas.Pages.HostLanding>();
 
             // Assert: Component should render without DI errors
             Assert.NotNull(component);
@@ -86,10 +86,10 @@ namespace NoorCanvas.Tests.Authentication
         /// </summary>
         [Fact]
         [Trait("Category", "UI")]
-        public void Landing_Component_BasicFunctionality()
+        public void HostLanding_Component_BasicFunctionality()
         {
             // Arrange & Act: Render component
-            var component = RenderComponent<NoorCanvas.Pages.Landing>();
+            var component = RenderComponent<NoorCanvas.Pages.HostLanding>();
 
             // Assert: Component should function at basic level
             Assert.NotNull(component);
