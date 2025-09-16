@@ -12,27 +12,50 @@
 ## Critical Implementation Protocol
 
 ### 1. MANDATORY HEADER STRUCTURE
+**CRITICAL REQUIREMENT**: Every Blazor view/page MUST include the NC branding header. **No exceptions.**
+
+**UPDATED RULE**: The NC-Header.png header MUST be included in ALL Razor views by default, **regardless of whether the mock includes it or not**. This is a universal requirement for brand consistency across the entire NOOR Canvas application.
+
+**File Location**: The NC-Header.png file MUST be located at:
+- **Source**: `D:\PROJECTS\NOOR CANVAS\Workspaces\Documentation\IMPLEMENTATIONS\NC-Assets\NC-Header.png`
+- **SPA Location**: `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\branding\NC-Header.png`
+- **Web Path**: `/images/branding/NC-Header.png`
+
 **ALWAYS** include this exact header at the top of every view (no exceptions):
 ```razor
 <header class="nc-branding-header">
-    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" />
+    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
 </header>
 ```
 
+**IMPLEMENTATION NOTE**: Even if a mock does not show the NC-Header.png logo, you MUST add it as the first element after the root container. This ensures brand consistency across all views in the NOOR Canvas platform.
+
+**Asset Management**: If the file is missing from the SPA project, copy it from the source location:
+```powershell
+New-Item -ItemType Directory -Path "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\branding" -Force
+Copy-Item "D:\PROJECTS\NOOR CANVAS\Workspaces\Documentation\IMPLEMENTATIONS\NC-Assets\NC-Header.png" "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\branding\NC-Header.png"
+```
+
 ### 2. ROOT CONTAINER PATTERN
-Every view must follow this exact structure:
+Every view must follow this exact structure for proper centering:
 ```razor
 <div class="nc-landing-wrapper nc-landing-body">
-    <!-- NOOR Canvas Branding Header -->
+    <!-- NOOR Canvas Branding Header - MANDATORY FOR ALL VIEWS -->
     <header class="nc-branding-header">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" />
+        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
     </header>
 
-    <div class="nc-card-container nc-p-0">
+    <div class="nc-card-container">
         <!-- Mock content implementation here -->
     </div>
 </div>
 ```
+
+**Layout Rules**: 
+- The header MUST be the first element after the root container div
+- Use `nc-landing-wrapper` for proper vertical and horizontal centering
+- Use `nc-landing-body` to control max-width and flex layout
+- The `nc-card-container` provides the white card background matching the mock
 
 ### 3. MOCK-TO-CODE MEASUREMENT PRECISION
 
@@ -51,16 +74,39 @@ Every view must follow this exact structure:
 - **Input Padding**: `padding: 0.75rem 1rem` (12px 16px)
 - **Icon Margins**: `margin-right: 0.5rem` (8px) for icon-text combinations
 
-#### Color Accuracy (Exact Brand Colors):
-- **NOOR Gold Primary**: `#D4AF37`
-- **NOOR Gold Lighter**: `#C5B358`  
+#### Color Accuracy (Comprehensive NOOR Canvas Palette):
+
+**Core Brand Colors:**
+- **NOOR Gold Primary**: `#D4AF37` (primary gold, buttons, accents)
+- **NOOR Gold Secondary**: `#C5B358` (lighter gold, gradients)
 - **Gold Gradient**: `linear-gradient(to right, #C5B358, #D4AF37, #C5B358)`
-- **Page Background**: `#F8F5F1` (warm off-white)
-- **Card Background**: `#FFFFFF` (pure white)
+
+**Background Colors:**
+- **Page Background**: `#F8F5F1` (warm cream background)
+- **Card Background**: `#FFFFFF` (pure white cards)
+- **Alt Background**: `#F8F9FA` (light gray sections)
+
+**Text Colors:**
 - **Text Primary**: `#8B6E36` (warm brown for headings)
-- **Text Secondary**: `#6B7280` (gray for descriptions)
-- **Islamic Green**: `#006400` (for educational icons)
-- **Button Green**: `#059669` (success actions)
+- **Text Secondary**: `#6B7280` (medium gray for descriptions)
+- **Text Dark**: `#4B3C2B` (deep brown for emphasis)
+- **Text Light**: `#2C5530` (dark green for special content)
+
+**Semantic Colors:**
+- **Islamic Green**: `#006400` (education icons, success states)
+- **Button Green**: `#059669` (action buttons, success)
+- **Error Red**: `#721C24` (error states, warnings)
+- **Info Blue**: `#007BFF` (information, links)
+
+**UI Element Colors:**
+- **Border Light**: `#E5E7EB` (subtle borders, dividers)
+- **Border Medium**: `#D1D5DB` (form inputs, cards)
+- **Shadow**: `rgba(0,0,0,0.12)` (card shadows, depth)
+- **Hover State**: `rgba(0,0,0,0.05)` (interaction feedback)
+
+**Navigation Colors:**
+- **Nav Text**: `#D7D7D7` (navigation menu items)
+- **Nav Active**: `#FFFFFF` (active navigation states)
 
 ### 4. CRITICAL GAP PREVENTION (Based on Previous Failures)
 
@@ -119,7 +165,24 @@ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 - [ ] **Logo**: Positioned correctly with proper sizing (400px)
 - [ ] **Responsive**: Layout works on mobile (320px) to desktop
 
-### 7. RAZOR VIEW TEMPLATE
+### 7. RAZOR VIEW IMPLEMENTATION WORKFLOW
+
+#### Step 1: Verify Development Environment
+**BEFORE creating any Razor view, ensure the development server is ready:**
+
+```powershell
+# Check IIS Express status
+Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue
+
+# If not running, start the server
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet run
+
+# Verify server accessibility
+# Should see: "Now listening on: https://localhost:9091"
+```
+
+#### Step 2: Razor View Template
 
 ```razor
 @page "/[ROUTE-PATH]"
@@ -128,9 +191,9 @@ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 <!-- Add additional usings as needed for models/services -->
 
 <div class="nc-landing-wrapper nc-landing-body">
-    <!-- NOOR Canvas Branding Header - MANDATORY -->
+    <!-- NOOR Canvas Branding Header - MANDATORY FOR ALL VIEWS (even if not in mock) -->
     <header class="nc-branding-header">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" />
+        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
     </header>
 
     <div class="nc-card-container nc-p-0">
@@ -172,13 +235,44 @@ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 }
 ```
 
+#### Step 3: Test in Simple Browser
+**IMMEDIATELY after creating the view, test it using VS Code Simple Browser:**
+
+1. **Save the Razor file** and wait for hot reload (if running `dotnet run`)
+2. **Open Simple Browser** in VS Code (`Ctrl+Shift+P` → "Simple Browser: Show")
+3. **Navigate to your route**: `https://localhost:9091/[ROUTE-PATH]`
+4. **Compare with mock**: Keep mock image open for side-by-side validation
+5. **Use DevTools**: Right-click in Simple Browser → "Inspect Element" for measurements
+
+**Testing URL Examples:**
+- Landing Page: `https://localhost:9091/landing`
+- Host Auth: `https://localhost:9091/host-auth` 
+- Admin Dashboard: `https://localhost:9091/admin`
+
+**Validation Steps:**
+- [ ] Page loads without errors in Simple Browser
+- [ ] NC-Header.png displays (mandatory for all views)
+- [ ] Layout matches mock proportions
+- [ ] Colors match NOOR Canvas brand palette
+- [ ] Fonts render correctly (Inter/Poppins)
+- [ ] Interactive elements work (buttons, forms, hover states)
+```
+
 ### 8. ASSET MANAGEMENT PROTOCOL
 
 #### File Paths (Always Use Absolute Paths):
-- **Logo**: `/images/branding/NC-Header.png?v=@DateTime.Now.Ticks`
+- **NC Header Logo**: `/images/branding/NC-Header.png?v=@DateTime.Now.Ticks` (MANDATORY - must exist in SPA project)
 - **Fonts**: Served from `wwwroot/fonts/` via noor-fonts.css
 - **Icons**: Font Awesome 6.5.1 CDN (`fa-solid`, `fa-regular`, `fa-brands`)
 - **Custom CSS**: `/css/nc-gold-theme.css?v=@DateTime.Now.Ticks`
+
+**Asset Verification Checklist**:
+- [ ] NC-Header.png exists at `/wwwroot/images/branding/NC-Header.png`
+- [ ] File size is **exactly 1,769,400 bytes** (confirmed specification)
+- [ ] Last modified: September 16, 2025, 6:55:03 AM
+- [ ] Cache-busting parameter `?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()` is included
+- [ ] Alt text includes "NOOR Canvas - Real-time Islamic Content Sharing Platform"
+- [ ] Image displays with transparent background using `style="background: transparent !important;"`
 
 #### Cache-Busting Strategy:
 ```razor
@@ -192,7 +286,64 @@ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 <script src="/js/custom.js?v=@DateTime.Now.Ticks"></script>
 ```
 
-### 9. DEBUGGING IMPLEMENTATION FAILURES
+### 9. DEVELOPMENT SERVER & TESTING PROTOCOL
+
+#### IIS Express Management:
+**ALWAYS verify IIS Express is running before implementing or testing views.**
+
+**Check Server Status:**
+```powershell
+# Verify IIS Express is running
+Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue
+
+# Check if port 9091 is in use (NOOR Canvas default)
+netstat -an | findstr ":9091"
+```
+
+**Start Development Server:**
+```powershell
+# Navigate to SPA project directory
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+
+# Clean and build (if needed)
+dotnet clean
+dotnet build
+
+# Start the application
+dotnet run
+```
+
+**Alternative - Use VS Code Tasks:**
+- Use `Ctrl+Shift+P` → "Tasks: Run Task" → "build" or "run-with-iiskill"
+- Tasks automatically handle IIS Express lifecycle management
+
+#### Simple Browser Testing Workflow:
+**MANDATORY**: Use VS Code Simple Browser for immediate view testing during implementation.
+
+**Load View in Simple Browser:**
+1. **Verify Server Running**: Confirm https://localhost:9091 is accessible
+2. **Open Simple Browser**: Use VS Code Simple Browser for side-by-side comparison
+3. **Navigation URL Format**: `https://localhost:9091/[route-name]`
+   - Example: `https://localhost:9091/landing` for Landing page
+   - Example: `https://localhost:9091/host-auth` for Host Authentication
+4. **Compare with Mock**: Keep mock image open alongside Simple Browser for pixel-perfect comparison
+
+**Benefits of Simple Browser Testing:**
+- ✅ **Immediate Feedback**: See changes instantly without leaving VS Code
+- ✅ **Side-by-Side Comparison**: Mock image + live view in same editor
+- ✅ **Faster Iteration**: No need to switch between applications
+- ✅ **Development Tools**: Access Chrome DevTools for measurement and debugging
+
+**Testing Checklist:**
+- [ ] IIS Express running and accessible at https://localhost:9091
+- [ ] Simple Browser loads the implemented view without errors
+- [ ] NC-Header.png displays correctly (1,769,400 bytes, transparent background)
+- [ ] All fonts load properly (Inter, Poppins via noor-fonts.css)
+- [ ] Colors match NOOR Canvas brand palette exactly
+- [ ] Layout matches mock proportions and spacing
+- [ ] Responsive design works across different viewport sizes
+
+### 10. DEBUGGING IMPLEMENTATION FAILURES
 
 #### Common Failure Points & Solutions:
 
@@ -224,20 +375,58 @@ grep "noor-fonts" Pages/_Host.cshtml
 
 **Logo Display Problems:**
 - Confirm file exists: `wwwroot/images/branding/NC-Header.png`
-- Check file size (should be ~1.77MB, not 2.07MB)
+- Check file size (should be exactly 1,769,400 bytes)
 - Verify cache-busting parameter updates
+
+**IIS Express Connection Issues:**
+```powershell
+# Kill any hanging IIS Express processes
+Stop-Process -Name "iisexpress" -Force -ErrorAction SilentlyContinue
+Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
+
+# Clear any port conflicts
+netstat -an | findstr ":9091"
+
+# Restart the application
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet clean
+dotnet build
+dotnet run
+```
+
+**Simple Browser Loading Issues:**
+- Ensure https://localhost:9091 is accessible in external browser first
+- Check for SSL certificate issues (accept development certificate)
+- Verify VS Code Simple Browser extension is installed and updated
+- Try refreshing Simple Browser or opening new Simple Browser window
 
 ### 10. QUALITY ASSURANCE WORKFLOW
 
 #### Pre-Implementation:
 1. **Mock Analysis**: Measure font sizes, spacing, colors using dev tools
 2. **Asset Check**: Verify all required icons, fonts, images are available
+   - **CRITICAL**: Confirm NC-Header.png exists at `/wwwroot/images/branding/NC-Header.png`
+   - If missing, copy from source: `D:\PROJECTS\NOOR CANVAS\Workspaces\Documentation\IMPLEMENTATIONS\NC-Assets\NC-Header.png`
 3. **Template Setup**: Use standard Razor template with mandatory header
+4. **Development Server Check**: Verify IIS Express is running before implementation
 
 #### During Implementation:
-1. **Incremental Testing**: Test each component (header → card → buttons → forms)
-2. **Cross-Browser**: Test Chrome, Edge, Firefox for consistency
-3. **Responsive Check**: Test 320px, 768px, 1024px, 1440px widths
+1. **Development Server Verification**: Always verify IIS Express is running before testing
+   ```powershell
+   # Check if IIS Express is running
+   Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue
+   
+   # If not running, start the application
+   cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+   dotnet run
+   ```
+2. **Simple Browser Testing**: Load views in VS Code Simple Browser for immediate feedback
+   - Use Simple Browser to view `https://localhost:9091/[your-route]`
+   - Enables side-by-side comparison with mock images
+   - Faster iteration cycle than external browsers
+3. **Incremental Testing**: Test each component (header → card → buttons → forms)
+4. **Cross-Browser**: Test Chrome, Edge, Firefox for consistency
+5. **Responsive Check**: Test 320px, 768px, 1024px, 1440px widths
 
 #### Post-Implementation:
 1. **Side-by-Side**: Compare mock image with live implementation
@@ -266,7 +455,9 @@ grep "noor-fonts" Pages/_Host.cshtml
 
 ## Implementation Success Metrics
 
-- ✅ **Visual Accuracy**: 95%+ match to provided mock
+- ✅ **Development Server**: IIS Express running and accessible at https://localhost:9091
+- ✅ **Simple Browser Testing**: View loads correctly in VS Code Simple Browser
+- ✅ **Visual Accuracy**: 95%+ match to provided mock (verified via side-by-side comparison)
 - ✅ **Performance**: Page loads <2s on localhost:9091
 - ✅ **Responsiveness**: Works 320px to 1440px+ widths  
 - ✅ **Accessibility**: Proper alt text, semantic HTML, keyboard navigation
