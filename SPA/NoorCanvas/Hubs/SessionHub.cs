@@ -16,11 +16,11 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        
-        _logger.LogInformation("NOOR-HUB: User {ConnectionId} joined session {SessionId} as {Role}", 
+
+        _logger.LogInformation("NOOR-HUB: User {ConnectionId} joined session {SessionId} as {Role}",
             Context.ConnectionId, sessionId, role);
 
-        await Clients.Group(groupName).SendAsync("UserJoined", new 
+        await Clients.Group(groupName).SendAsync("UserJoined", new
         {
             connectionId = Context.ConnectionId,
             role = role,
@@ -32,11 +32,11 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        
-        _logger.LogInformation("NOOR-HUB: User {ConnectionId} left session {SessionId}", 
+
+        _logger.LogInformation("NOOR-HUB: User {ConnectionId} left session {SessionId}",
             Context.ConnectionId, sessionId);
 
-        await Clients.Group(groupName).SendAsync("UserLeft", new 
+        await Clients.Group(groupName).SendAsync("UserLeft", new
         {
             connectionId = Context.ConnectionId,
             timestamp = DateTime.UtcNow
@@ -46,10 +46,10 @@ public class SessionHub : Hub
     public async Task ShareAsset(long sessionId, object assetData)
     {
         var groupName = $"session_{sessionId}";
-        
+
         _logger.LogDebug("NOOR-HUB: Asset shared in session {SessionId}", sessionId);
 
-        await Clients.Group(groupName).SendAsync("AssetShared", new 
+        await Clients.Group(groupName).SendAsync("AssetShared", new
         {
             sessionId = sessionId,
             asset = assetData,
@@ -69,10 +69,10 @@ public class SessionHub : Hub
     public async Task BroadcastSessionBegan(long sessionId, object sessionData)
     {
         var groupName = $"session_{sessionId}";
-        
+
         _logger.LogInformation("NOOR-HUB: Broadcasting SessionBegan for session {SessionId}", sessionId);
 
-        await Clients.Group(groupName).SendAsync("SessionBegan", new 
+        await Clients.Group(groupName).SendAsync("SessionBegan", new
         {
             sessionId = sessionId,
             sessionData = sessionData,
@@ -89,10 +89,10 @@ public class SessionHub : Hub
     public async Task BroadcastSessionEnded(long sessionId, string reason = "Host ended session")
     {
         var groupName = $"session_{sessionId}";
-        
+
         _logger.LogInformation("NOOR-HUB: Broadcasting SessionEnded for session {SessionId}, reason: {Reason}", sessionId, reason);
 
-        await Clients.Group(groupName).SendAsync("SessionEnded", new 
+        await Clients.Group(groupName).SendAsync("SessionEnded", new
         {
             sessionId = sessionId,
             reason = reason,
@@ -119,7 +119,7 @@ public class SessionHub : Hub
         {
             _logger.LogDebug("NOOR-HUB: Connection {ConnectionId} disconnected normally", Context.ConnectionId);
         }
-        
+
         await base.OnDisconnectedAsync(exception);
     }
 }

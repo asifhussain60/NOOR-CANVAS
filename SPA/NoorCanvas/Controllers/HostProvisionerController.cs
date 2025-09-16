@@ -43,7 +43,7 @@ namespace NoorCanvas.Controllers
                 _context.HostSessions.Add(hostSession);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-HOSTPROV: Host token generated and saved to database - Session {SessionId}, HostSessionId {HostSessionId}", 
+                _logger.LogInformation("NOOR-HOSTPROV: Host token generated and saved to database - Session {SessionId}, HostSessionId {HostSessionId}",
                     request.SessionId, hostSession.HostSessionId);
 
                 var response = new GenerateTokenResponse
@@ -68,11 +68,11 @@ namespace NoorCanvas.Controllers
         [HttpGet("status")]
         public IActionResult GetStatus()
         {
-            return Ok(new 
-            { 
-                status = "operational", 
+            return Ok(new
+            {
+                status = "operational",
                 service = "HostProvisioner API",
-                timestamp = DateTime.UtcNow 
+                timestamp = DateTime.UtcNow
             });
         }
 

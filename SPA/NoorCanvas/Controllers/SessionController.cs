@@ -85,7 +85,7 @@ namespace NoorCanvas.Controllers
                     timestamp = DateTime.UtcNow
                 };
 
-                _logger.LogInformation("NOOR-SUCCESS: Session state retrieved for session {SessionId} with {AnnotationCount} annotations and {ParticipantCount} participants", 
+                _logger.LogInformation("NOOR-SUCCESS: Session state retrieved for session {SessionId} with {AnnotationCount} annotations and {ParticipantCount} participants",
                     sessionId, annotations.Count, participants.Count);
 
                 return Ok(sessionState);

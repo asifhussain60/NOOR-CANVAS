@@ -8,40 +8,40 @@ public class Session
 {
     [Key]
     public long SessionId { get; set; }
-    
+
     /// <summary>
     /// Reference to the KSESSIONS database SessionId for Islamic content integration
     /// </summary>
     public long? KSessionsId { get; set; }
-    
+
     public Guid GroupId { get; set; }
-    
+
     [StringLength(200)]
     public string? Title { get; set; }
-    
+
     [StringLength(1000)]
     public string? Description { get; set; }
-    
+
     [StringLength(50)]
     public string? Status { get; set; } = "Created";
-    
+
     public int? ParticipantCount { get; set; } = 0;
-    
+
     public int? MaxParticipants { get; set; }
-    
+
     [StringLength(100)]
     public string HostGuid { get; set; } = string.Empty;
-    
+
     public DateTime? StartedAt { get; set; }
-    
+
     public DateTime? EndedAt { get; set; }
-    
+
     public DateTime? ExpiresAt { get; set; }
-    
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
+
     public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
-    
+
     // Navigation properties
     public virtual ICollection<SessionLink> SessionLinks { get; set; } = new List<SessionLink>();
     public virtual ICollection<HostSession> HostSessions { get; set; } = new List<HostSession>();

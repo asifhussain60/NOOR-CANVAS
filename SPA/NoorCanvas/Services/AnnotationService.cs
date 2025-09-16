@@ -36,7 +36,7 @@ namespace NoorCanvas.Services
                     .OrderBy(a => a.CreatedAt)
                     .ToListAsync();
 
-                _logger.LogInformation("NOOR-ANNOTATION: Loaded {Count} annotations for session {SessionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION: Loaded {Count} annotations for session {SessionId}",
                     annotations.Count, sessionId);
 
                 return annotations;
@@ -52,7 +52,7 @@ namespace NoorCanvas.Services
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION: Creating annotation for session {SessionId} by {CreatedBy}", 
+                _logger.LogInformation("NOOR-ANNOTATION: Creating annotation for session {SessionId} by {CreatedBy}",
                     sessionId, createdBy);
 
                 var annotation = new Annotation
@@ -66,7 +66,7 @@ namespace NoorCanvas.Services
                 _context.Annotations.Add(annotation);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-ANNOTATION: Created annotation {AnnotationId} for session {SessionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION: Created annotation {AnnotationId} for session {SessionId}",
                     annotation.AnnotationId, sessionId);
 
                 return annotation;
@@ -82,7 +82,7 @@ namespace NoorCanvas.Services
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION: Deleting annotation {AnnotationId} by user {UserId}", 
+                _logger.LogInformation("NOOR-ANNOTATION: Deleting annotation {AnnotationId} by user {UserId}",
                     annotationId, userId);
 
                 var annotation = await _context.Annotations
@@ -97,7 +97,7 @@ namespace NoorCanvas.Services
                 // Check if user has permission to delete (owner or admin)
                 if (annotation.CreatedBy != userId)
                 {
-                    _logger.LogWarning("NOOR-ANNOTATION: User {UserId} attempted to delete annotation {AnnotationId} owned by {CreatedBy}", 
+                    _logger.LogWarning("NOOR-ANNOTATION: User {UserId} attempted to delete annotation {AnnotationId} owned by {CreatedBy}",
                         userId, annotationId, annotation.CreatedBy);
                     return false;
                 }
@@ -119,7 +119,7 @@ namespace NoorCanvas.Services
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION: Updating annotation {AnnotationId} by user {UserId}", 
+                _logger.LogInformation("NOOR-ANNOTATION: Updating annotation {AnnotationId} by user {UserId}",
                     annotationId, userId);
 
                 var annotation = await _context.Annotations
@@ -134,7 +134,7 @@ namespace NoorCanvas.Services
                 // Check if user has permission to update (owner or admin)
                 if (annotation.CreatedBy != userId)
                 {
-                    _logger.LogWarning("NOOR-ANNOTATION: User {UserId} attempted to update annotation {AnnotationId} owned by {CreatedBy}", 
+                    _logger.LogWarning("NOOR-ANNOTATION: User {UserId} attempted to update annotation {AnnotationId} owned by {CreatedBy}",
                         userId, annotationId, annotation.CreatedBy);
                     return false;
                 }
@@ -156,7 +156,7 @@ namespace NoorCanvas.Services
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION: Clearing annotations for session {SessionId} by user {UserId}", 
+                _logger.LogInformation("NOOR-ANNOTATION: Clearing annotations for session {SessionId} by user {UserId}",
                     sessionId, userId);
 
                 // For now, allow any user to clear their own annotations
@@ -170,12 +170,12 @@ namespace NoorCanvas.Services
                     _context.Annotations.RemoveRange(userAnnotations);
                     await _context.SaveChangesAsync();
 
-                    _logger.LogInformation("NOOR-ANNOTATION: Cleared {Count} annotations for session {SessionId} by user {UserId}", 
+                    _logger.LogInformation("NOOR-ANNOTATION: Cleared {Count} annotations for session {SessionId} by user {UserId}",
                         userAnnotations.Count, sessionId, userId);
                 }
                 else
                 {
-                    _logger.LogInformation("NOOR-ANNOTATION: No annotations found to clear for session {SessionId} by user {UserId}", 
+                    _logger.LogInformation("NOOR-ANNOTATION: No annotations found to clear for session {SessionId} by user {UserId}",
                         sessionId, userId);
                 }
             }

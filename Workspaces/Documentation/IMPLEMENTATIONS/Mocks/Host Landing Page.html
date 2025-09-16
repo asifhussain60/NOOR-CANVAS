@@ -9,20 +9,20 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
         
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         .inter {
             font-family: 'Inter', sans-serif;
         }
 
-        .playfair {
-            font-family: 'Playfair Display', serif;
+        .poppins {
+            font-family: 'Poppins', sans-serif;
         }
 
         .cinzel-decorative {
             font-family: 'Cinzel Decorative', serif;
-        }
-
-        .poppins {
-            font-family: 'Poppins', sans-serif;
         }
 
         .golden-gradient {
@@ -36,39 +36,46 @@
         .shadow-golden {
             box-shadow: 0 10px 15px -3px rgba(197, 179, 88, 0.4), 0 4px 6px -2px rgba(197, 179, 88, 0.2);
         }
+
+        .shadow-green {
+            box-shadow: 0 10px 15px -3px rgba(0, 100, 0, 0.4), 0 4px 6px -2px rgba(0, 100, 0, 0.2);
+        }
     </style>
 </head>
 <body class="bg-[#F8F5F1] flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-sm sm:max-w-md md:max-w-lg bg-[#FFFFFF] rounded-3xl p-8 sm:p-12 shadow-2xl shadow-gray-700 border border-gray-200 text-center">
+        <!-- Title Section -->
+        <h1 class="text-3xl sm:text-4xl poppins font-bold text-[#006400] mb-2 drop-shadow-md">Host Authentication</h1>
 
-    <div class="w-full max-w-sm sm:max-w-md md:max-w-lg bg-[#FFFFFF] rounded-3xl p-8 sm:p-12 shadow-2xl shadow-gray-400 border border-gray-200">
-        
-        <!-- Header Section -->
-        <h1 class="text-4xl poppins font-bold text-[#8B6E36] mb-8 text-center">Host Authentication</h1>
-
-        <!-- Session Card -->
-        <div class="relative w-full rounded-3xl p-6 sm:p-8 mb-8 text-center overflow-hidden border-2 gold-border border-[#C5B358]/20">
-            <div class="absolute inset-0 bg-[#FBF8EF] rounded-xl transform rotate-2"></div>
-            <div class="relative z-10">
-                <!-- Icon -->
-                <div class="flex items-center justify-center w-20 h-20 mx-auto mb-4 bg-[#F2E5C9] rounded-full shadow-lg">
-                    <i class="fa-solid fa-user-graduate text-5xl text-[#006400]"></i>
+        <!-- Host Session Card -->
+        <div class="w-full bg-[#F8F5F1] rounded-3xl border-2 border-[#D4AF37] p-8 sm:p-12 text-center mt-8 space-y-6">
+            <div class="flex items-center justify-center">
+                <div class="bg-white p-6 rounded-full shadow-md shadow-inner-lg">
+                    <i class="fa-solid fa-user-lock text-5xl text-[#006400]"></i>
                 </div>
-                <!-- Title -->
-                <h2 class="text-2xl inter font-semibold text-[#4B3C2B] mb-2">HOST SESSION</h2>
-                <!-- Description -->
-                <p class="text-sm inter text-[#706357]">Manage Islamic learning sessions with interactive tools</p>
+            </div>
+            
+            <h2 class="text-2xl inter font-bold text-[#4B3C2B]">HOST SESSION</h2>
+            <p class="inter text-sm text-[#706357]">Manage Islamic learning sessions with interactive tools</p>
+
+            <div class="text-left space-y-4">
+                <h3 class="text-sm inter font-medium text-[#4B3C2B]">Enter Your Host Authentication Token</h3>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-key text-[#706357]"></i>
+                    </div>
+                    <input type="text" placeholder="Enter your Host GUID Token" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]">
+                </div>
+                <p class="inter text-xs text-[#706357]">Get your Host GUID from the HostProvisioner tool or system administrator</p>
             </div>
         </div>
         
         <!-- Button -->
-        <button class="w-full flex items-center justify-center py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-golden" style="background-color: #006400;">
-            <span class="mr-2">Access Host Dashboard</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-            </svg>
-        </button>
-
+        <div class="mt-8">
+            <button class="w-full py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-green bg-[#006400]">
+                Access Host Control Panel
+            </button>
+        </div>
     </div>
-
 </body>
 </html>

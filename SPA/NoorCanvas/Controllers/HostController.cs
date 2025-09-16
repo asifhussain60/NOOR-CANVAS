@@ -30,7 +30,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Host authentication attempt for GUID: {HostGuid}", 
+                _logger.LogInformation("NOOR-INFO: Host authentication attempt for GUID: {HostGuid}",
                     request.HostGuid?.Substring(0, 8) + "...");
 
                 if (string.IsNullOrWhiteSpace(request.HostGuid))
@@ -59,10 +59,10 @@ namespace NoorCanvas.Controllers
                         _logger.LogWarning("NOOR-WARNING: Host GUID hash not found in database");
                         return BadRequest(new { error = "Invalid Host GUID" });
                     }
-                    
+
                     _logger.LogInformation("NOOR-SUCCESS: Host authenticated with hash for Session {SessionId}", session.SessionId);
                     var sessionTokenHash = Guid.NewGuid().ToString();
-                    
+
                     return Ok(new HostAuthResponse
                     {
                         Success = true,
@@ -74,9 +74,9 @@ namespace NoorCanvas.Controllers
 
                 // For Phase 2, accept any valid GUID format as proof of concept
                 _logger.LogInformation("NOOR-SUCCESS: Host GUID format validated");
-                
+
                 var sessionToken = Guid.NewGuid().ToString();
-                
+
                 return Ok(new HostAuthResponse
                 {
                     Success = true,
@@ -99,7 +99,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Creating new session for Host GUID: {HostGuid}, Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}", 
+                _logger.LogInformation("NOOR-INFO: Creating new session for Host GUID: {HostGuid}, Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}",
                     request.HostGuid?.Substring(0, 8) + "...", request.AlbumId, request.CategoryId, request.SessionId);
 
                 // Validate required fields
@@ -140,7 +140,7 @@ namespace NoorCanvas.Controllers
 
                 var joinLink = $"https://localhost:9091/session/{sessionLink.Guid}";
 
-                _logger.LogInformation("NOOR-SUCCESS: Session created with ID: {SessionId}, Join Link: {JoinLink}", 
+                _logger.LogInformation("NOOR-SUCCESS: Session created with ID: {SessionId}, Join Link: {JoinLink}",
                     session.SessionId, joinLink);
 
                 return Ok(new CreateSessionResponse
@@ -252,10 +252,10 @@ namespace NoorCanvas.Controllers
                 var albums = await _kSessionsContext.Groups
                     .Where(g => g.IsActive == true || g.IsActive == null) // Include groups where IsActive is true or null
                     .OrderBy(g => g.GroupName)
-                    .Select(g => new AlbumData 
-                    { 
-                        GroupId = g.GroupId, 
-                        GroupName = g.GroupName 
+                    .Select(g => new AlbumData
+                    {
+                        GroupId = g.GroupId,
+                        GroupName = g.GroupName
                     })
                     .ToListAsync();
 
@@ -285,10 +285,10 @@ namespace NoorCanvas.Controllers
                 var categories = await _kSessionsContext.Categories
                     .Where(c => c.GroupId == albumId && (c.IsActive == true || c.IsActive == null))
                     .OrderBy(c => c.SortOrder ?? c.CategoryId) // Sort by SortOrder if available, fallback to CategoryId
-                    .Select(c => new CategoryData 
-                    { 
-                        CategoryId = c.CategoryId, 
-                        CategoryName = c.CategoryName 
+                    .Select(c => new CategoryData
+                    {
+                        CategoryId = c.CategoryId,
+                        CategoryName = c.CategoryName
                     })
                     .ToListAsync();
 
@@ -318,10 +318,10 @@ namespace NoorCanvas.Controllers
                 var sessions = await _kSessionsContext.Sessions
                     .Where(s => s.CategoryId == categoryId && (s.IsActive == true || s.IsActive == null))
                     .OrderBy(s => s.Sequence ?? s.SessionId) // Sort by Sequence if available, fallback to SessionId
-                    .Select(s => new SessionData 
-                    { 
-                        SessionId = s.SessionId, 
-                        SessionName = s.SessionName 
+                    .Select(s => new SessionData
+                    {
+                        SessionId = s.SessionId,
+                        SessionName = s.SessionName
                     })
                     .ToListAsync();
 
@@ -351,9 +351,9 @@ namespace NoorCanvas.Controllers
                 var expiresAt = DateTime.UtcNow.AddHours(3); // 3-hour session duration
 
                 // TODO Phase 4: Store session token in database with session association
-                
+
                 _logger.LogInformation("NOOR-SUCCESS: Session token generated for session {SessionId}", sessionId);
-                return Ok(new 
+                return Ok(new
                 {
                     sessionToken = sessionToken.ToString(),
                     sessionId = sessionId,
@@ -418,7 +418,7 @@ namespace NoorCanvas.Controllers
                 await _sessionHub.Clients.Group(groupName).SendAsync("SessionBegan", sessionData);
 
                 _logger.LogInformation("NOOR-SUCCESS: Session {SessionId} started successfully and SessionBegan event broadcasted", sessionId);
-                return Ok(new 
+                return Ok(new
                 {
                     status = "Live",
                     sessionId = session.SessionId,
@@ -462,7 +462,7 @@ namespace NoorCanvas.Controllers
         private static bool IsBase64String(string s)
         {
             if (string.IsNullOrWhiteSpace(s)) return false;
-            
+
             try
             {
                 // Check if it's a valid base64 string
@@ -497,7 +497,7 @@ namespace NoorCanvas.Controllers
         public int SessionId { get; set; }
         public int AlbumId { get; set; }
         public int CategoryId { get; set; }
-        
+
         // Optional properties for session customization
         public string Title { get; set; } = "New Session";
         public string Description { get; set; } = string.Empty;
@@ -524,26 +524,26 @@ namespace NoorCanvas.Controllers
     // HostDashboardResponse and SessionSummaryResponse removed - Phase 4 update
 
     // Issue-17 Cascading Dropdown Models
-    public class AlbumData 
-    { 
-        public int GroupId { get; set; } 
-        public string GroupName { get; set; } = string.Empty; 
+    public class AlbumData
+    {
+        public int GroupId { get; set; }
+        public string GroupName { get; set; } = string.Empty;
     }
 
-    public class CategoryData 
-    { 
-        public int CategoryId { get; set; } 
-        public string CategoryName { get; set; } = string.Empty; 
+    public class CategoryData
+    {
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
     }
 
-    public class SessionData 
-    { 
-        public int SessionId { get; set; } 
-        public string SessionName { get; set; } = string.Empty; 
+    public class SessionData
+    {
+        public int SessionId { get; set; }
+        public string SessionName { get; set; } = string.Empty;
     }
 
-    public class SessionStatusData 
-    { 
+    public class SessionStatusData
+    {
         public string SessionName { get; set; } = string.Empty;
         public int ParticipantCount { get; set; }
         public DateTime? StartedAt { get; set; }

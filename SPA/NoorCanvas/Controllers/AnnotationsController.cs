@@ -33,11 +33,12 @@ namespace NoorCanvas.Controllers
                 }
 
                 var annotations = await _annotationService.GetSessionAnnotationsAsync(sessionId);
-                
-                _logger.LogInformation("NOOR-API: Retrieved {Count} annotations for session {SessionId}", 
+
+                _logger.LogInformation("NOOR-API: Retrieved {Count} annotations for session {SessionId}",
                     annotations.Count(), sessionId);
 
-                return Ok(new { 
+                return Ok(new
+                {
                     sessionId = sessionId,
                     annotations = annotations,
                     count = annotations.Count()
@@ -58,7 +59,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-API: Creating annotation for session {SessionId} by user {UserId}", 
+                _logger.LogInformation("NOOR-API: Creating annotation for session {SessionId} by user {UserId}",
                     request.SessionId, request.CreatedBy);
 
                 if (!ModelState.IsValid)
@@ -67,16 +68,17 @@ namespace NoorCanvas.Controllers
                 }
 
                 var annotation = await _annotationService.CreateAnnotationAsync(
-                    request.SessionId, 
-                    request.CreatedBy, 
+                    request.SessionId,
+                    request.CreatedBy,
                     request.AnnotationData);
 
                 _logger.LogInformation("NOOR-API: Created annotation {AnnotationId}", annotation.AnnotationId);
 
                 return CreatedAtAction(
-                    nameof(GetAnnotation), 
-                    new { id = annotation.AnnotationId }, 
-                    new { 
+                    nameof(GetAnnotation),
+                    new { id = annotation.AnnotationId },
+                    new
+                    {
                         annotationId = annotation.AnnotationId,
                         sessionId = annotation.SessionId,
                         createdBy = annotation.CreatedBy,
@@ -131,7 +133,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-API: Updating annotation {AnnotationId} by user {UserId}", 
+                _logger.LogInformation("NOOR-API: Updating annotation {AnnotationId} by user {UserId}",
                     id, request.UserId);
 
                 if (!ModelState.IsValid)
@@ -206,7 +208,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-API: Clearing annotations for session {SessionId} by user {UserId}", 
+                _logger.LogInformation("NOOR-API: Clearing annotations for session {SessionId} by user {UserId}",
                     sessionId, userId);
 
                 if (sessionId <= 0)

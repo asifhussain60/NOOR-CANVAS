@@ -31,10 +31,10 @@ namespace NoorCanvas.Controllers
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
             var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            
-            _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Session token validation request for token: {Token} from {ClientIp}", 
+
+            _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Session token validation request for token: {Token} from {ClientIp}",
                 requestId, token, clientIp);
-            
+
             try
             {
                 if (string.IsNullOrWhiteSpace(token) || token.Length != 8)
@@ -45,20 +45,21 @@ namespace NoorCanvas.Controllers
 
                 // Validate as user token (isHostToken = false)
                 var secureToken = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
-                
+
                 if (secureToken == null)
                 {
-                    _logger.LogWarning("NOOR-PARTICIPANT: [{RequestId}] Token validation failed for participant token: {Token}", 
+                    _logger.LogWarning("NOOR-PARTICIPANT: [{RequestId}] Token validation failed for participant token: {Token}",
                         requestId, token);
-                    return NotFound(new { 
-                        error = "Invalid or expired session token", 
+                    return NotFound(new
+                    {
+                        error = "Invalid or expired session token",
                         token,
                         message = "The session token is invalid, expired, or has been revoked",
-                        requestId 
+                        requestId
                     });
                 }
 
-                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Successful participant token validation: {Token} → Session {SessionId}", 
+                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Successful participant token validation: {Token} → Session {SessionId}",
                     requestId, token, secureToken.SessionId);
 
                 // Return participant-specific session information
@@ -90,12 +91,13 @@ namespace NoorCanvas.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("NOOR-PARTICIPANT: [{RequestId}] Exception during participant token validation: {Error}", 
+                _logger.LogError("NOOR-PARTICIPANT: [{RequestId}] Exception during participant token validation: {Error}",
                     requestId, ex.Message);
-                return StatusCode(500, new { 
-                    error = "Internal server error", 
+                return StatusCode(500, new
+                {
+                    error = "Internal server error",
                     message = "Unable to validate session token",
-                    requestId 
+                    requestId
                 });
             }
         }
@@ -166,8 +168,8 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogInformation("NOOR-INFO: Participant registration: {Name}", request.Name);
 
-                if (string.IsNullOrWhiteSpace(request.Name) || 
-                    string.IsNullOrWhiteSpace(request.City) || 
+                if (string.IsNullOrWhiteSpace(request.Name) ||
+                    string.IsNullOrWhiteSpace(request.City) ||
                     string.IsNullOrWhiteSpace(request.Country))
                 {
                     return BadRequest(new { error = "Name, city, and country are required" });
@@ -195,7 +197,7 @@ namespace NoorCanvas.Controllers
 
                 // Create or find user
                 Guid userId = string.IsNullOrEmpty(request.UserId) ? Guid.NewGuid() : Guid.Parse(request.UserId);
-                
+
                 var existingUser = await _context.Users.FindAsync(userId);
                 if (existingUser == null)
                 {
@@ -230,7 +232,7 @@ namespace NoorCanvas.Controllers
                 _context.Registrations.Add(registration);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Participant registered: {Name} (ID: {UserId})", 
+                _logger.LogInformation("NOOR-SUCCESS: Participant registered: {Name} (ID: {UserId})",
                     request.Name, userId);
 
                 return Ok(new ParticipantRegistrationResponse
@@ -272,7 +274,7 @@ namespace NoorCanvas.Controllers
 
                 var session = sessionLink.Session;
                 Registration? userRegistration = null;
-                
+
                 if (!string.IsNullOrEmpty(userId) && Guid.TryParse(userId, out Guid userGuid))
                 {
                     userRegistration = await _context.Registrations

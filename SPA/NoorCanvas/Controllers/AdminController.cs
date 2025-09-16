@@ -75,8 +75,8 @@ namespace NoorCanvas.Controllers
 
                 // Validate admin session
                 var adminSession = await _context.AdminSessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken && 
-                                            s.IsActive && 
+                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken &&
+                                            s.IsActive &&
                                             s.ExpiresAt > DateTime.UtcNow);
 
                 if (adminSession == null)
@@ -330,8 +330,8 @@ namespace NoorCanvas.Controllers
         private async Task<bool> IsValidAdminSession(string sessionToken)
         {
             var adminSession = await _context.AdminSessions
-                .FirstOrDefaultAsync(s => s.SessionToken == sessionToken && 
-                                        s.IsActive && 
+                .FirstOrDefaultAsync(s => s.SessionToken == sessionToken &&
+                                        s.IsActive &&
                                         s.ExpiresAt > DateTime.UtcNow);
             return adminSession != null;
         }

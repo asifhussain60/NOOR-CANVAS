@@ -22,7 +22,7 @@ namespace NoorCanvas.Middleware
         {
             // Resolve DebugService from the request scope
             var debugService = context.RequestServices.GetRequiredService<DebugService>();
-            
+
             if (!debugService.IsDebugEnabled)
             {
                 await _next(context);
@@ -31,7 +31,7 @@ namespace NoorCanvas.Middleware
 
             var stopwatch = Stopwatch.StartNew();
             var correlationId = Guid.NewGuid().ToString("N")[..8];
-            
+
             // Add correlation ID to response headers
             context.Response.Headers.Append("X-Debug-CorrelationId", correlationId);
 
@@ -64,7 +64,7 @@ namespace NoorCanvas.Middleware
                 }, correlationId);
 
                 // Log performance metrics
-                debugService.LogPerformanceMetric($"HTTP_{context.Request.Method}_{context.Request.Path}", 
+                debugService.LogPerformanceMetric($"HTTP_{context.Request.Method}_{context.Request.Path}",
                     stopwatch.Elapsed, "HTTP_MIDDLEWARE");
             }
             catch (Exception ex)
@@ -80,7 +80,7 @@ namespace NoorCanvas.Middleware
                     DurationMs = stopwatch.ElapsedMilliseconds
                 }, correlationId);
 
-                _logger.LogError(ex, "NOOR_DEBUG: Request failed for {Method} {Path} (CorrelationId: {CorrelationId})", 
+                _logger.LogError(ex, "NOOR_DEBUG: Request failed for {Method} {Path} (CorrelationId: {CorrelationId})",
                     context.Request.Method, context.Request.Path, correlationId);
 
                 throw; // Re-throw to maintain error handling behavior

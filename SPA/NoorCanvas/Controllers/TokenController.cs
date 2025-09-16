@@ -26,14 +26,14 @@ public class TokenController : ControllerBase
         var requestId = Guid.NewGuid().ToString("N")[..8];
         var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         var userAgent = Request.Headers["User-Agent"].ToString();
-        
+
         _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Validation request started", requestId);
-        _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Token: {Token}, IsHost: {IsHost}, ClientIP: {ClientIp}", 
+        _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Token: {Token}, IsHost: {IsHost}, ClientIP: {ClientIp}",
             requestId, token, isHost, clientIp);
         _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] UserAgent: {UserAgent}", requestId, userAgent);
-        _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Request URL: {Scheme}://{Host}{Path}{Query}", 
+        _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Request URL: {Scheme}://{Host}{Path}{Query}",
             requestId, Request.Scheme, Request.Host, Request.Path, Request.QueryString);
-        
+
         try
         {
             if (string.IsNullOrWhiteSpace(token))
@@ -41,37 +41,39 @@ public class TokenController : ControllerBase
                 _logger.LogWarning("NOOR-TOKEN-DEBUG: [{RequestId}] Token is null or empty", requestId);
                 return BadRequest(new { error = "Invalid token format", message = "Token cannot be empty", requestId });
             }
-            
+
             if (token.Length != 8)
             {
-                _logger.LogWarning("NOOR-TOKEN-DEBUG: [{RequestId}] Invalid token length: {Length}, expected 8 characters", 
+                _logger.LogWarning("NOOR-TOKEN-DEBUG: [{RequestId}] Invalid token length: {Length}, expected 8 characters",
                     requestId, token.Length);
-                return BadRequest(new { 
-                    error = "Invalid token format", 
-                    message = "Token must be 8 characters", 
+                return BadRequest(new
+                {
+                    error = "Invalid token format",
+                    message = "Token must be 8 characters",
                     actualLength = token.Length,
-                    requestId 
+                    requestId
                 });
             }
 
             _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Calling SecureTokenService.ValidateTokenAsync", requestId);
             var secureToken = await _tokenService.ValidateTokenAsync(token, isHost);
-            _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] SecureTokenService returned: {Result}", 
+            _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] SecureTokenService returned: {Result}",
                 requestId, secureToken != null ? "Valid token object" : "null");
-            
+
             if (secureToken == null)
             {
-                _logger.LogWarning("NOOR-TOKEN-DEBUG: [{RequestId}] Token validation failed for {TokenType} token: {Token}", 
+                _logger.LogWarning("NOOR-TOKEN-DEBUG: [{RequestId}] Token validation failed for {TokenType} token: {Token}",
                     requestId, isHost ? "HOST" : "USER", token);
-                return NotFound(new { 
-                    error = "Invalid or expired token", 
-                    token, 
+                return NotFound(new
+                {
+                    error = "Invalid or expired token",
+                    token,
                     tokenType = isHost ? "host" : "user",
-                    requestId 
+                    requestId
                 });
             }
 
-            _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Successful {TokenType} token validation: {Token} → Session {SessionId}", 
+            _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Successful {TokenType} token validation: {Token} → Session {SessionId}",
                 requestId, isHost ? "HOST" : "USER", token, secureToken.SessionId);
 
             var response = new
@@ -90,19 +92,20 @@ public class TokenController : ControllerBase
                     createdAt = secureToken.Session?.CreatedAt
                 }
             };
-            
+
             _logger.LogInformation("NOOR-TOKEN-DEBUG: [{RequestId}] Returning successful response", requestId);
             return Ok(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError("NOOR-TOKEN-DEBUG: [{RequestId}] Exception during token validation: {Error}", 
+            _logger.LogError("NOOR-TOKEN-DEBUG: [{RequestId}] Exception during token validation: {Error}",
                 requestId, ex.Message);
             _logger.LogError("NOOR-TOKEN-DEBUG: [{RequestId}] Stack trace: {StackTrace}", requestId, ex.StackTrace);
-            return StatusCode(500, new { 
-                error = "Internal server error", 
+            return StatusCode(500, new
+            {
+                error = "Internal server error",
                 message = ex.Message,
-                requestId 
+                requestId
             });
         }
     }
@@ -116,7 +119,7 @@ public class TokenController : ControllerBase
         try
         {
             var (hostToken, userToken) = await _tokenService.GenerateTokenPairAsync(
-                sessionId, 
+                sessionId,
                 validHours,
                 HttpContext.Connection.RemoteIpAddress?.ToString());
 
@@ -152,7 +155,7 @@ public class TokenController : ControllerBase
         try
         {
             var token = await _tokenService.GetTokenBySessionIdAsync(sessionId);
-            
+
             if (token == null)
             {
                 return NotFound(new { error = "No active tokens found for session", sessionId });

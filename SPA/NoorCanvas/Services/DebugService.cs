@@ -23,11 +23,11 @@ namespace NoorCanvas.Services
             _jsRuntime = jsRuntime;
             _configuration = configuration;
             _metrics = new DebugMetrics();
-            
+
             // Enhanced debug configuration with component-level control
-            _isDebugEnabled = _configuration.GetValue<bool>("DebugConfiguration:EnableDebugMode", false) || 
+            _isDebugEnabled = _configuration.GetValue<bool>("DebugConfiguration:EnableDebugMode", false) ||
                             Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-            
+
             // Load component-specific debug settings
             _componentDebugSettings = new Dictionary<string, bool>
             {
@@ -44,7 +44,7 @@ namespace NoorCanvas.Services
                 ["RTL"] = _configuration.GetValue<bool>("DebugConfiguration:DebugComponents:RTL", true),
                 ["CrossApp"] = _configuration.GetValue<bool>("DebugConfiguration:DebugComponents:CrossApp", true)
             };
-            
+
             // Load performance thresholds
             _performanceThresholds = new Dictionary<string, int>
             {
@@ -148,10 +148,10 @@ namespace NoorCanvas.Services
 
                 var groupStyle = GetComponentGroupStyle(component);
                 await _jsRuntime.InvokeVoidAsync("console.group", $"%c🔍 NOOR_DEBUG: {component}", groupStyle);
-                
+
                 var messageStyle = GetLogLevelStyle(logLevel);
                 await _jsRuntime.InvokeVoidAsync($"console.{logLevel}", $"%c{message}", messageStyle);
-                
+
                 if (data != null)
                 {
                     await _jsRuntime.InvokeVoidAsync("console.log", "Data:", data);
@@ -180,7 +180,7 @@ namespace NoorCanvas.Services
                 responseData
             };
 
-            _logger.LogInformation("NOOR_DEBUG: [HTTP] {Method} {Endpoint} | Request: {@RequestData} | Response: {@ResponseData}", 
+            _logger.LogInformation("NOOR_DEBUG: [HTTP] {Method} {Endpoint} | Request: {@RequestData} | Response: {@ResponseData}",
                 method, endpoint, requestData, responseData);
         }
 
@@ -232,7 +232,7 @@ namespace NoorCanvas.Services
 
             var durationMs = duration.TotalMilliseconds;
             var componentKey = component ?? "General";
-            
+
             // Update metrics
             if (!_metrics.AverageOperationTimes.ContainsKey(operation))
             {
@@ -240,10 +240,10 @@ namespace NoorCanvas.Services
             }
             else
             {
-                _metrics.AverageOperationTimes[operation] = 
+                _metrics.AverageOperationTimes[operation] =
                     (_metrics.AverageOperationTimes[operation] + durationMs) / 2;
             }
-            
+
             // Check for slow operations
             if (durationMs > _performanceThresholds["VerySlowOperationMs"])
             {
@@ -255,8 +255,9 @@ namespace NoorCanvas.Services
                     Timestamp = DateTime.UtcNow,
                     Severity = "Critical"
                 });
-                
-                LogDebugAdvanced("PERFORMANCE", $"CRITICAL SLOW OPERATION: {operation}", new { 
+
+                LogDebugAdvanced("PERFORMANCE", $"CRITICAL SLOW OPERATION: {operation}", new
+                {
                     DurationMs = durationMs,
                     ThresholdMs = _performanceThresholds["VerySlowOperationMs"],
                     Component = componentKey
@@ -272,8 +273,9 @@ namespace NoorCanvas.Services
                     Timestamp = DateTime.UtcNow,
                     Severity = "Warning"
                 });
-                
-                LogDebugAdvanced("PERFORMANCE", $"Slow Operation: {operation}", new { 
+
+                LogDebugAdvanced("PERFORMANCE", $"Slow Operation: {operation}", new
+                {
                     DurationMs = durationMs,
                     ThresholdMs = _performanceThresholds["SlowOperationMs"],
                     Component = componentKey
@@ -281,7 +283,8 @@ namespace NoorCanvas.Services
             }
             else
             {
-                LogDebugAdvanced("PERFORMANCE", $"Operation Completed: {operation}", new { 
+                LogDebugAdvanced("PERFORMANCE", $"Operation Completed: {operation}", new
+                {
                     DurationMs = durationMs,
                     Component = componentKey
                 });
@@ -308,12 +311,12 @@ namespace NoorCanvas.Services
         {
             return _componentDebugSettings.GetValueOrDefault(component, true);
         }
-        
+
         /// <summary>
         /// Get debug metrics for monitoring
         /// </summary>
         public DebugMetrics GetMetrics() => _metrics;
-        
+
         /// <summary>
         /// Get component-specific console styling
         /// </summary>
@@ -332,7 +335,7 @@ namespace NoorCanvas.Services
                 _ => "color: #7f8c8d; font-weight: bold;"
             };
         }
-        
+
         /// <summary>
         /// Get log level specific styling
         /// </summary>
@@ -374,7 +377,7 @@ namespace NoorCanvas.Services
         }
 
         public TimeSpan ElapsedTime => DateTime.UtcNow - _startTime;
-        
+
         public double ElapsedMilliseconds => ElapsedTime.TotalMilliseconds;
 
         public void Dispose()
@@ -386,7 +389,7 @@ namespace NoorCanvas.Services
             }
         }
     }
-    
+
     /// <summary>
     /// Debug metrics collection class
     /// </summary>
@@ -398,13 +401,13 @@ namespace NoorCanvas.Services
         public List<PerformanceAlert> SlowOperations { get; set; } = new();
         public int ErrorCount { get; set; }
         public DateTime LastActivity { get; set; }
-        
+
         public double AverageResponseTime => AverageOperationTimes.Values.Any() ? AverageOperationTimes.Values.Average() : 0;
         public int SlowOperationCount => SlowOperations.Count;
-        public string MostActiveComponent => ComponentMessageCounts.Any() ? 
+        public string MostActiveComponent => ComponentMessageCounts.Any() ?
             ComponentMessageCounts.OrderByDescending(x => x.Value).First().Key : "None";
     }
-    
+
     /// <summary>
     /// Performance alert for monitoring slow operations
     /// </summary>

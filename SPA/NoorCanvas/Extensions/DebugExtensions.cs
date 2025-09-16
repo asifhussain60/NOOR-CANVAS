@@ -19,7 +19,7 @@ namespace NoorCanvas.Extensions
         /// <summary>
         /// Extension for Blazor components to easily add debug logging
         /// </summary>
-        public static async Task DebugLifecycleAsync(this Microsoft.AspNetCore.Components.ComponentBase component, 
+        public static async Task DebugLifecycleAsync(this Microsoft.AspNetCore.Components.ComponentBase component,
             DebugService debugService, string lifecycleEvent, object? parameters = null)
         {
             await debugService.LogComponentLifecycle(component.GetType().Name, lifecycleEvent, parameters);

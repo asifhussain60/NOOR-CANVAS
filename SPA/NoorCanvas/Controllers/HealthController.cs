@@ -34,16 +34,16 @@ public class HealthController : ControllerBase
         {
             // Database connectivity check
             var canConnect = await _context.Database.CanConnectAsync();
-            health.checks.Add("database", new 
-            { 
+            health.checks.Add("database", new
+            {
                 status = canConnect ? "healthy" : "unhealthy",
                 responseTime = "< 100ms"
             });
 
             // Canvas schema check
             var tableCount = await _context.Sessions.CountAsync();
-            health.checks.Add("canvas_schema", new 
-            { 
+            health.checks.Add("canvas_schema", new
+            {
                 status = "healthy",
                 table_count = tableCount
             });
@@ -55,7 +55,7 @@ public class HealthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "NOOR-ERROR: Health check failed");
-            
+
             var errorHealth = new
             {
                 status = "error",

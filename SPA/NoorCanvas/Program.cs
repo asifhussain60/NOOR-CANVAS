@@ -15,13 +15,13 @@ if (builder.Environment.IsDevelopment())
 {
     // Development: include debug and verbose console output
     loggerConfig.WriteTo.Debug();
-    loggerConfig.WriteTo.Console(outputTemplate: 
+    loggerConfig.WriteTo.Console(outputTemplate:
         "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj} {Properties:j}{NewLine}{Exception}");
 }
 else
 {
     // Production: rely on appsettings.Production.json for file sinks and use minimal console template
-    loggerConfig.WriteTo.Console(outputTemplate: 
+    loggerConfig.WriteTo.Console(outputTemplate:
         "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
 }
 
@@ -56,14 +56,14 @@ else
 {
     // Use SQL Server for development and production
     builder.Services.AddDbContext<CanvasDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
             "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
 }
 
 // Add KSESSIONS Database Context (Read-only for Groups, Categories, Sessions)
 builder.Services.AddDbContext<KSessionsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ?? 
-        builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ??
+        builder.Configuration.GetConnectionString("DefaultConnection") ??
         "Server=(localdb)\\mssqllocaldb;Database=KSESSIONS;Trusted_Connection=true;MultipleActiveResultSets=true")
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Read-only optimization
 
@@ -93,8 +93,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient("default", client =>
 {
     // Configure base address for relative URL requests
-    var baseAddress = builder.Environment.IsDevelopment() 
-        ? "https://localhost:9091" 
+    var baseAddress = builder.Environment.IsDevelopment()
+        ? "https://localhost:9091"
         : "https://localhost:9091"; // Update this for production
     client.BaseAddress = new Uri(baseAddress);
     client.DefaultRequestHeaders.Add("User-Agent", "NoorCanvas-BlazorServer");
@@ -175,9 +175,9 @@ app.MapHub<QAHub>("/hub/qa");
 app.MapHub<AnnotationHub>("/hub/annotation");
 
 // Health endpoint (also available at /healthz via controller)
-app.MapGet("/healthz", () => new 
+app.MapGet("/healthz", () => new
 {
-    status = "ok", 
+    status = "ok",
     timestamp = DateTime.UtcNow,
     version = "1.0.0-phase1"
 });
@@ -190,10 +190,10 @@ if (app.Environment.IsDevelopment())
         context.Response.Headers["Content-Type"] = "text/event-stream";
         context.Response.Headers["Cache-Control"] = "no-cache";
         context.Response.Headers["Connection"] = "keep-alive";
-        
+
         await context.Response.WriteAsync("data: {\"event\":\"observer-connected\",\"timestamp\":\"" + DateTime.UtcNow + "\"}\n\n");
         await context.Response.Body.FlushAsync();
-        
+
         // Keep connection alive for observer stream
         while (!context.RequestAborted.IsCancellationRequested)
         {
@@ -226,25 +226,25 @@ finally
 static void ValidateStartupConfiguration(IServiceProvider services)
 {
     var logger = services.GetRequiredService<ILogger<Program>>();
-    
-    try 
+
+    try
     {
         // CRITICAL: HttpClient BaseAddress Validation (Issue-62 Prevention)
         var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
         var defaultClient = httpClientFactory.CreateClient("default");
-        
+
         if (defaultClient.BaseAddress == null)
         {
             throw new InvalidOperationException("NOOR-FATAL: HttpClient 'default' BaseAddress not configured. This causes API authentication failures.");
         }
-        
+
         logger.LogInformation("✅ NOOR-VALIDATION: HttpClient BaseAddress configured: {BaseAddress}", defaultClient.BaseAddress);
-        
+
         // Database Connection Validation (using proper scope)
         using var scope = services.CreateScope();
         var canvasDbContext = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
         var canConnect = canvasDbContext.Database.CanConnect();
-        
+
         if (!canConnect)
         {
             logger.LogWarning("⚠️ NOOR-WARNING: Canvas database connection failed during startup validation");
@@ -253,7 +253,7 @@ static void ValidateStartupConfiguration(IServiceProvider services)
         {
             logger.LogInformation("✅ NOOR-VALIDATION: Canvas database connection verified");
         }
-        
+
         logger.LogInformation("✅ NOOR-VALIDATION: All critical configurations validated successfully");
     }
     catch (Exception ex)

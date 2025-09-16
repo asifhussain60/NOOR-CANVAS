@@ -40,7 +40,7 @@ public class IssueController : ControllerBase
                 // Validate request
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("NOOR-WARN: Invalid issue creation request: {Errors}", 
+                    _logger.LogWarning("NOOR-WARN: Invalid issue creation request: {Errors}",
                         string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                     return BadRequest(ModelState);
                 }
@@ -62,7 +62,7 @@ public class IssueController : ControllerBase
                 _context.Issues.Add(issue);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Issue {IssueId} created successfully with title '{Title}'", 
+                _logger.LogInformation("NOOR-SUCCESS: Issue {IssueId} created successfully with title '{Title}'",
                     issue.IssueId, issue.Title);
 
                 var response = new IssueResponse
@@ -142,7 +142,7 @@ public class IssueController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("NOOR-INFO: Retrieving issues with filters - Status: {Status}, Priority: {Priority}, Category: {Category}", 
+            _logger.LogInformation("NOOR-INFO: Retrieving issues with filters - Status: {Status}, Priority: {Priority}, Category: {Category}",
                 status, priority, category);
 
             var query = _context.Issues.AsQueryable();

@@ -1,1370 +1,396 @@
-/* NOOR CANVAS DESIGN SYSTEM v1.0 - Phase 4 Implementation
- * Based on design mocks analysis - September 2025
- * Implements Inter font, Tailwind-style colors, rounded-xl styling
- * Replaces McBeatch theme with custom NOOR Canvas branding
+/* 
+ * NOOR Canvas CSS Foundation
+ * Generated from Host Landing Page.html and User Landing Page.html mocks
+ * Date: September 16, 2025
+ * 
+ * This file contains the essential styling extracted from the mocks
+ * to achieve pixel-perfect match with minimal CSS bloat.
  */
 
-/* Import Google Fonts Inter family and Poppins for headings */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+/* Import Google Fonts - Exact matches from mocks */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
 
-/* NOOR Canvas CSS Variables (Extracted from Design Mocks) */
+/* Font Family Utilities */
+.inter {
+    font-family: 'Inter', sans-serif;
+}
+
+.poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+.cinzel-decorative {
+    font-family: 'Cinzel Decorative', serif;
+}
+
+/* Mock-Based Color System - Extracted from both mock files */
 :root {
-  /* Primary Color Palette */
-  --noor-primary-blue: #3B82F6;      /* blue-500 */
-  --noor-secondary-golden: #F59E0B;   /* golden-500 */
-  --noor-accent-green: #10B981;       /* green-500 */
-  --noor-border-golden: #D97706;      /* golden-600 for borders */
-  
-  /* Gray Scale */
-  --noor-gray-50: #F9FAFB;
-  --noor-gray-100: #F3F4F6;
-  --noor-gray-200: #E5E7EB;
-  --noor-gray-300: #D1D5DB;
-  --noor-gray-400: #9CA3AF;
-  --noor-gray-600: #4B5563;
-  --noor-gray-700: #374151;
-  --noor-gray-800: #1F2937;
-  --noor-gray-900: #111827;
-  
-  /* Typography */
-  --noor-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --noor-heading-font: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  /* Layout & Effects */
-  --noor-border-radius: 12px;         /* rounded-xl equivalent */
-  --noor-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --noor-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  
-  /* Golden Border Styling (Mock Signature) */
-  --noor-golden-border: 4px solid var(--noor-border-golden);
+    /* Primary Colors - From Mocks */
+    --noor-bg-page: #F8F5F1;          /* Page background */
+    --noor-bg-card: #FFFFFF;          /* Card background */
+    --noor-bg-inner: #F8F5F1;         /* Inner card background */
+    
+    /* Text Colors - From Mocks */
+    --noor-text-green: #006400;       /* Primary green headings */
+    --noor-text-gold: #D4AF37;        /* Gold accent text */
+    --noor-text-brown: #4B3C2B;       /* Dark brown text */
+    --noor-text-gray: #706357;        /* Medium gray text */
+    
+    /* Border Colors - From Mocks */
+    --noor-border-gold: #D4AF37;      /* Gold borders */
+    --noor-border-gray: #E5E7EB;      /* Light gray borders */
+    
+    /* Button Colors - From Mocks */
+    --noor-btn-green: #006400;        /* Green buttons */
+    --noor-btn-focus: #D4AF37;        /* Focus rings */
 }
 
-/* Global Base Styles */
-html, body {
-  font-family: var(--noor-font-family);
-  background-color: var(--noor-gray-100);
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
+/* Global Base Styles - Matching Mock Layout */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--noor-bg-page);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
 }
 
-/* Issue-67: Modern Card Animation System */
-.noor-card-interactive {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-  will-change: transform, opacity;
+/* Main Card Container - Extracted from Both Mocks */
+div.noor-main-card {
+    width: 100% !important;
+    max-width: 28rem !important; /* 448px - matches mock proportions */
+    background-color: #FFFFFF !important;
+    border-radius: 1.5rem !important; /* 24px - rounded-3xl */
+    padding: 2rem !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid #E5E7EB !important;
+    text-align: center !important;
+    margin: 0 auto !important;
 }
 
-.noor-card-expanded {
-  transform: scale(1.2); /* 20% expansion */
-  z-index: 10;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+/* Responsive Card Padding */
+@media (min-width: 640px) {
+    div.noor-main-card {
+        max-width: 32rem !important; /* 512px - md size */
+        padding: 3rem !important;
+    }
 }
 
-.noor-card-hidden {
-  display: none;
-  transform: scale(0.95);
-  pointer-events: none;
-}
-
-/* Enhanced centering when one card is hidden */
-.noor-flex-panel-wide.noor-step-2 {
-  justify-content: center;
-  align-items: center;
-}
-
-.noor-flex-panel-wide.noor-step-2 .noor-card-expanded {
-  max-width: 500px; /* Constrain width for better centering */
-  margin: 0 auto;
-}
-
-.noor-card-step1 {
-  /* Step 1: Feature list display state */
-  opacity: 1;
-  transform: scale(1);
-}
-
-.noor-card-step2 {
-  /* Step 2: Input form display state */
-  opacity: 1;
-  transform: scale(1.2);
-}
-
-/* Landing Container - Main Page Background */
-.landing-container {
-  background-color: #f3f4f6; /* Gray-100 from design mock */
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 1rem;
-}
-
-/* NOOR Canvas Elegant Header Styling */
-.noor-elegant-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-  margin: 0 auto 2rem auto;
-  max-width: 600px;
-  text-align: center;
-}
-
-.noor-logo-container {
-  margin-bottom: 1.5rem;
-}
-
-.noor-app-logo {
-  height: 80px;
-  width: auto;
-  display: block;
-  margin: 0 auto;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-  transition: transform 0.3s ease-in-out;
-}
-
-.noor-app-logo:hover {
-  transform: scale(1.05);
-}
-
-.noor-app-title {
-  font-family: var(--noor-font-family);
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--noor-gray-800);
-  margin: 0 0 0.5rem 0;
-  letter-spacing: 2px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.noor-app-subtitle {
-  font-family: var(--noor-font-family);
-  font-size: 1.125rem;
-  font-weight: 400;
-  color: var(--noor-gray-600);
-  margin: 0;
-  font-style: italic;
-  letter-spacing: 0.5px;
-}
-
-/* Responsive header sizing for elegant header */
 @media (min-width: 768px) {
-  .noor-elegant-header {
-    padding: 3rem 1rem;
-  }
-  
-  .noor-app-logo {
-    height: 100px;
-  }
-  
-  .noor-app-title {
-    font-size: 4rem;
-    letter-spacing: 3px;
-  }
-  
-  .noor-app-subtitle {
-    font-size: 1.25rem;
-  }
+    div.noor-main-card {
+        max-width: 36rem !important; /* 576px - lg size */
+    }
 }
 
-@media (min-width: 1024px) {
-  .noor-elegant-header {
-    padding: 4rem 1rem;
-  }
-  
-  .noor-app-logo {
-    height: 120px;
-  }
-  
-  .noor-app-title {
-    font-size: 5rem;
-    letter-spacing: 4px;
-  }
-  
-  .noor-app-subtitle {
-    font-size: 1.5rem;
-  }
+/* Typography - Exact Mock Measurements - Issue-93 Fix - Updated for single line fit */
+div.noor-main-card h1.noor-title-large.poppins {
+    font-size: 2.25rem !important; /* 36px - reduced from 48px to fit on single line */
+    font-weight: 700 !important;
+    color: #006400 !important; /* Force green color to override any conflicts */
+    margin-bottom: 0.25rem !important; /* Reduced from 0.5rem to minimize spacing */
+    margin-top: 0.25rem !important; /* Reduced from 0 to minimize spacing after logo */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    font-family: 'Poppins', sans-serif !important;
 }
 
-/* NOOR Canvas Logo Styling */
-.noor-logo {
-  height: 48px;
-  width: auto;
-  display: block;
+/* Additional specificity for Issue-93 */
+.noor-layout-wrapper .noor-page-container .noor-main-card h1.noor-title-large {
+    color: #006400 !important;
 }
 
-.nav-logo {
-  height: 32px;
-  width: auto;
-}
-
-/* Header Container (Mock Pattern Replacement) */
-.noor-header-container {
-  width: 100%;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2rem auto;
-}
-
-/* Header Image Balance with Panel Container */
-.noor-header-container .noor-max-w-4xl {
-  max-width: 896px; /* Same as panels below for perfect alignment */
-  width: 100%;
+/* Nuclear option for Issue-93 - Ultimate specificity */
+h1[style*="color: #006400"] {
+    color: #006400 !important;
 }
 
 @media (min-width: 640px) {
-  .noor-header-container {
-    padding: 1.5rem;
-  }
+    div.noor-main-card h1.noor-title-large.poppins {
+        font-size: 2.25rem !important; /* 36px - reduced to fit on single line */
+    }
+    
+    /* Issue-93 responsive fix */
+    .noor-layout-wrapper .noor-page-container .noor-main-card h1.noor-title-large {
+        font-size: 2.25rem !important;
+        color: #006400 !important;
+    }
 }
 
-/* NOOR Canvas Elegant Header Styling - Phase 4 Branding */
-.noor-elegant-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem 3rem 1rem;
-  text-align: center;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  margin-bottom: 2rem;
-  border-bottom: 3px solid var(--noor-primary-blue);
+.noor-title-medium {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 700;
+    color: var(--noor-text-gold);
+    margin: 1rem 0;
 }
 
-.noor-logo-container {
-  margin-bottom: 1rem;
+@media (min-width: 640px) {
+    .noor-title-medium {
+        font-size: 1.5rem; /* 24px */
+    }
 }
 
-.noor-app-logo {
-  height: 80px;
-  width: auto;
-  display: block;
-  margin: 0 auto;
-  filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.2));
-  transition: transform 0.3s ease-in-out;
+.noor-description {
+    font-size: 0.875rem; /* 14px */
+    color: var(--noor-text-gray);
+    margin-bottom: 2rem;
+    line-height: 1.5;
 }
 
-.noor-app-logo:hover {
-  transform: scale(1.05);
+/* Inner Card - Session/Authentication Card */
+.noor-inner-card {
+    width: 100%;
+    background-color: var(--noor-bg-inner);
+    border-radius: 1.5rem; /* 24px - rounded-3xl to match mock */
+    border: 2px solid var(--noor-border-gold);
+    padding: 2rem;
+    margin-top: 2rem; /* mt-8 equivalent */
+    text-align: center;
 }
 
-.noor-app-title {
-  font-family: var(--noor-font-family);
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: var(--noor-primary-blue);
-  margin: 0.5rem 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+@media (min-width: 640px) {
+    .noor-inner-card {
+        padding: 3rem;
+    }
 }
 
-.noor-app-subtitle {
-  font-family: var(--noor-font-family);
-  font-size: 1.25rem;
-  font-weight: 400;
-  color: var(--noor-gray-600);
-  margin: 0;
-  font-style: italic;
-  letter-spacing: 0.025em;
+/* Inner card spacing */
+.noor-inner-card > * + * {
+    margin-top: 1.5rem; /* space-y-6 equivalent */
 }
 
-/* Responsive Header Adjustments */
-@media (max-width: 768px) {
-  .noor-app-title {
-    font-size: 2.5rem;
-  }
-  
-  .noor-app-subtitle {
-    font-size: 1rem;
-  }
-  
-  .noor-app-logo {
-    height: 60px;
-  }
-  
-  .noor-elegant-header {
-    padding: 1.5rem 1rem 2rem 1rem;
-  }
+/* Icon Circle - For Host Authentication */
+.noor-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-@media (max-width: 480px) {
-  .noor-app-title {
-    font-size: 2rem;
-  }
-  
-  .noor-app-logo {
-    height: 50px;
-  }
+.noor-icon-circle {
+    background-color: #FFFFFF; /* bg-white */
+    padding: 1.5rem; /* p-6 */
+    border-radius: 50%; /* rounded-full */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
 }
 
-/* Main Logo - Standalone (LARGE and Prominent - Issue-75) */
-.noor-main-logo {
-    height: 480px;
-    width: auto;
+.noor-icon-large {
+    font-size: 3rem; /* 48px - text-5xl equivalent */
+    color: #006400 !important; /* Force green color */
+}
+
+/* Card Content Typography */
+.noor-card-title {
+    font-size: 1.5rem; /* 24px - text-2xl */
+    font-weight: 700;
+    color: #4B3C2B !important; /* Force brown color to match mock */
+    text-align: center;
+}
+
+.noor-card-description {
+    font-size: 0.875rem; /* 14px */
+    color: var(--noor-text-gray);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Elements */
+.noor-form-section {
+    margin-bottom: 1.5rem;
+}
+
+.noor-form-label {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500;
+    color: var(--noor-text-brown);
     display: block;
-    margin: 2rem auto 10px auto;
-    opacity: 0.7;
-    filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.3));
-    transition: transform 0.3s 
-ease-in-out;
+    margin-bottom: 0.5rem;
 }
 
-.noor-main-logo:hover {
-  transform: scale(1.05);
+.noor-input-group {
+    position: relative;
+    margin-bottom: 1rem;
 }
 
-/* Wide Flex Panel Container */
-.noor-flex-panel-wide {
-  display: flex;
-  gap: 2.5rem; /* Slightly increased gap */
-  flex-wrap: wrap;
-  align-items: stretch;
-  justify-content: center;
+.noor-input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--noor-text-gray);
+    pointer-events: none;
+    z-index: 1;
 }
 
-@media (max-width: 768px) {
-  .noor-flex-panel-wide {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .noor-main-logo {
-    height: 200px; /* LARGE on mobile - proportionally scaled from 280px */
-    opacity: 0.7; /* Reduced opacity by 30% (from 1.0 to 0.7) */
-  }
-}
-
-/* Issue-70: Enhanced Square Button Cards - Issue-78: 25% Width Increase + 20% Additional Width */
-.noor-card-wide {
-  flex: 1;
-  min-width: 398px; /* 20% wider - was 332px (332 × 1.2 = 398px) */
-  max-width: 504px; /* 20% wider - was 420px (420 × 1.2 = 504px) */
-  aspect-ratio: 1.2; /* Wider aspect ratio for more prominent appearance */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 1.75rem; /* 25% larger - was 1.4rem (1.4 × 1.25 = 1.75rem) */
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 16px 32px -8px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  /* Issue-CSS-Card-Internal-Padding: Generous internal spacing from golden border */
-  padding: 3rem; /* Explicit padding for modern minimalistic spacing */
-}
-
-/* Interactive Card Animation */
-.noor-card-interactive {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-}
-
-.noor-card-expanded {
-  transform: scale(1.2);
-  z-index: 10;
-  position: relative;
-}
-
-/* Issue-70: Enhanced Large Square Button Design for Landing Cards - Issue-78: 25% Size Increase */
-.noor-large-button-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2.625rem 1.75rem; /* 25% larger - was 2.1rem 1.4rem (2.1×1.25=2.625, 1.4×1.25=1.75) */
-  min-height: 245px; /* 25% larger - was 196px (196 × 1.25 = 245px) */
-  border-radius: 1.31rem; /* 25% larger - was 1.05rem (1.05 × 1.25 = 1.31rem) */
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
-    border: 2px solid rgb(217 119 6);
-}
-
-.noor-large-icon {
-  font-size: 6rem; /* Even larger icon for prominence */
-  line-height: 1;
-  margin-bottom: 1.5rem; /* More space between icon and text */
-  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-}
-
-.noor-large-button-text {
-  font-size: 1.75rem; /* Larger text size for better visibility */
-  font-weight: 700; /* Bolder text */
-  text-align: center;
-  line-height: 1.2;
-  margin: 0;
-  text-transform: uppercase; /* More prominent text styling */
-  letter-spacing: 0.5px; /* Better letter spacing */
-}
-
-/* Enhanced hover effects for the large square buttons */
-.noor-card-interactive:hover .noor-large-icon {
-  transform: scale(1.15) rotate(5deg); /* More dynamic hover effect */
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
-}
-
-.noor-card-interactive:hover .noor-large-button-content {
-  transform: translateY(-4px); /* Subtle lift effect */
-  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-}
-
-.noor-card-interactive:hover .noor-large-button-text {
-  transform: scale(1.05); /* Slight text scaling on hover */
-}
-
-/* Input Styling - Enhanced Modern Minimalistic Design */
 .noor-input {
-  width: 100%;
-  padding: 1.125rem 1.5rem; /* More generous padding for modern feel */
-  min-height: 3.5rem; /* Consistent height with buttons */
-  border: 2px solid var(--noor-gray-300);
-  border-radius: 1rem; /* Consistent rounded corners */
-  background-color: white;
-  font-size: 1rem; /* Larger text for better readability */
-  color: var(--noor-gray-700);
-  font-family: var(--noor-font-family);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); /* Subtle shadow */
-  letter-spacing: 0.025em;
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 2.5rem; /* Left padding for icon */
+    border: 1px solid #D1D5DB; /* border-gray-300 */
+    border-radius: 0.75rem; /* 12px - rounded-xl */
+    font-size: 1rem;
+    color: var(--noor-text-brown);
+    background-color: var(--noor-bg-card);
+    box-sizing: border-box;
 }
 
 .noor-input:focus {
-  outline: none;
-  border-color: var(--noor-primary-blue);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12), 0 8px 20px rgba(0, 0, 0, 0.08);
-  background-color: #fafbff;
-  transform: translateY(-1px); /* Subtle lift on focus */
+    outline: none;
+    border-color: var(--noor-btn-focus);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .noor-input::placeholder {
-  color: var(--noor-gray-400);
-  font-style: normal; /* Remove italic for cleaner look */
-  font-weight: 400;
+    color: #9CA3AF; /* text-gray-400 */
 }
 
-/* Responsive input sizing */
-@media (min-width: 768px) {
-  .noor-input {
-    padding: 1.25rem 1.75rem;
-    min-height: 4rem;
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-input {
-    padding: 1rem 1.25rem;
-    min-height: 3rem;
-    font-size: 0.95rem;
-  }
-}
-
-/* Wide Container Max Width */
-.noor-max-w-6xl {
-  max-width: 72rem; /* Wider than max-w-4xl (56rem) */
-}
-
-/* Tablet responsive design */
-@media (max-width: 768px) {
-  .noor-card-wide {
-    padding: 2.5rem; /* Medium padding for tablet screens */
-  }
-}
-
-@media (max-width: 480px) {
-  .noor-main-logo {
-    height: 160px; /* LARGE on very small screens - proportionally scaled */
-    opacity: 0.7; /* Reduced opacity by 30% (from 1.0 to 0.7) */
-  }
-  
-  .noor-card-wide {
-    min-width: 245px; /* 25% larger - was 196px (196 × 1.25 = 245px) */
-    max-width: 100%;
-    padding: 2rem; /* Reduced padding on small screens but still generous */
-  }
-}
-
-/* Golden Border Container - Enhanced Modern Minimalistic Design */
-.noor-main-container {
-  width: 95%;
-  max-width: 1200px; /* Constrain maximum width for better readability */
-  background-color: white;
-  border-radius: 1.5rem; /* More rounded for modern look */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
-  padding: 3rem 2.5rem; /* Much more generous padding */
-  border: 3px solid var(--noor-border-golden); /* Slightly thinner border for elegance */
-  margin: 2rem auto; /* Add top/bottom margin for breathing room */
-  transition: all 0.3s ease;
-}
-
-.noor-main-container:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
-  transform: translateY(-2px); /* Subtle hover lift */
-}
-
-/* Responsive container padding and sizing */
-@media (min-width: 1024px) {
-  .noor-main-container {
-    padding: 4rem 3.5rem; /* Maximum spaciousness on large screens */
-  }
-}
-
-@media (min-width: 768px) {
-  .noor-main-container {
-    padding: 3.5rem 3rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-main-container {
-    width: 92%;
-    padding: 2.5rem 1.5rem; /* Adjusted for mobile while maintaining spaciousness */
-    margin: 1.5rem auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .noor-main-container {
-    width: 90%;
-    padding: 2rem 1.25rem;
-    margin: 1rem auto;
-  }
-}
-
-/* Panel Styling - Enhanced Modern Minimalistic Design */
-.noor-panel {
-  background-color: var(--noor-gray-50);
-  border-radius: 1.5rem; /* More rounded for modern look */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--noor-gray-200);
-  padding: 2.5rem; /* Much more generous padding */
-  flex: 1;
-  transition: all 0.3s ease;
-}
-
-.noor-panel:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  transform: translateY(-1px); /* Subtle hover lift */
-}
-
-/* Responsive panel padding */
-@media (min-width: 768px) {
-  .noor-panel {
-    padding: 3rem; /* Even more spacious on larger screens */
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-panel {
-    padding: 2rem; /* Adjusted for mobile while maintaining spaciousness */
-  }
-}
-
-/* Form Controls - Enhanced Modern Minimalistic Design */
+/* Select Dropdown Styling */
 .noor-select {
-  width: 100%;
-  padding: 1.125rem 1.5rem; /* Consistent with input padding */
-  min-height: 3.5rem; /* Consistent height with buttons and inputs */
-  border: 2px solid var(--noor-gray-300);
-  border-radius: 1rem; /* Consistent rounded corners */
-  background-color: white;
-  font-size: 1rem; /* Consistent with input font size */
-  color: var(--noor-gray-700);
-  font-family: var(--noor-font-family);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); /* Subtle shadow matching inputs */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.025em;
-  cursor: pointer;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 1rem center;
-  background-repeat: no-repeat;
-  background-size: 1.25em 1.25em;
-  padding-right: 3rem; /* Space for dropdown arrow */
+    width: 100%;
+    padding: 0.5rem 2.5rem 0.5rem 2.5rem; /* Left padding for icon, right for chevron */
+    border: 1px solid #D1D5DB;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    color: var(--noor-text-brown);
+    background-color: var(--noor-bg-card);
+    appearance: none;
+    box-sizing: border-box;
 }
 
 .noor-select:focus {
-  outline: none;
-  border-color: var(--noor-primary-blue);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12), 0 8px 20px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px); /* Subtle lift on focus */
+    outline: none;
+    border-color: var(--noor-btn-focus);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
-.noor-select option:disabled {
-  color: var(--noor-gray-400);
+.noor-select-chevron {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--noor-text-gray);
+    pointer-events: none;
 }
 
-/* Responsive select sizing */
-@media (min-width: 768px) {
-  .noor-select {
-    padding: 1.25rem 1.75rem;
-    min-height: 4rem;
-    font-size: 1.1rem;
-    padding-right: 3.5rem;
-  }
+/* Help Text */
+.noor-help-text {
+    font-size: 0.75rem; /* 12px */
+    color: var(--noor-text-gray);
+    margin-top: 0.5rem;
 }
 
-@media (max-width: 640px) {
-  .noor-select {
-    padding: 1rem 1.25rem;
-    min-height: 3rem;
-    font-size: 0.95rem;
-    padding-right: 2.75rem;
-  }
-}
-
-/* Button Styling - Enhanced Minimalistic Modern Design */
-.noor-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem 2.5rem; /* Extensive padding for modern spacious feel */
-  min-height: 3.5rem; /* Ensure consistent button height */
-  border-radius: 1rem; /* More rounded for modern minimalistic look */
-  font-weight: 500; /* Slightly lighter weight for elegance */
-  font-size: 1rem; /* Larger text size for better readability */
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother easing */
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow for minimalism */
-  letter-spacing: 0.025em; /* Subtle letter spacing for elegance */
-  white-space: nowrap; /* Prevent text wrapping */
-  position: relative;
-  overflow: hidden;
-}
-
-/* Enhanced responsive button sizing */
-@media (min-width: 768px) {
-  .noor-btn {
-    padding: 1.5rem 3rem; /* Even more spacious on larger screens */
-    min-height: 4rem;
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-btn {
-    padding: 1rem 2rem; /* Adjusted for mobile while maintaining spaciousness */
-    min-height: 3rem;
-    font-size: 0.95rem;
-  }
-}
-
+/* Primary Button - Extracted from Both Mocks */
 .noor-btn-primary {
-  background-color: var(--noor-primary-blue);
-  color: white;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--noor-btn-green);
+    color: white;
+    border: none;
+    border-radius: 0.75rem; /* 12px - rounded-xl */
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    margin-top: 2rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 100, 0, 0.4), 0 4px 6px -2px rgba(0, 100, 0, 0.2);
 }
 
 .noor-btn-primary:hover {
-  background-color: #2563EB; /* blue-600 */
-  transform: translateY(-2px) scale(1.02); /* Enhanced subtle lift and scale */
-  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1); /* Color-matched shadow */
+    transform: scale(1.05);
 }
 
-/* Full-width button modifier - Modern minimalistic approach */
-.noor-btn-full {
-  width: 100%;
-  margin-top: 2rem;
-  font-size: 1.125rem; /* text-lg equivalent but in custom CSS */
+.noor-btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.3);
 }
 
-.noor-btn-success {
-  background-color: var(--noor-accent-green);
-  color: white;
+.noor-btn-primary i {
+    margin-right: 0.5rem;
 }
 
-.noor-btn-success:hover {
-  background-color: #059669; /* green-600 */
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.noor-btn-danger {
-  background-color: #EF4444; /* red-500 */
-  color: white;
-}
-
-.noor-btn-danger:hover {
-  background-color: #DC2626; /* red-600 */
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* Secondary and Outline Button Variants for Modern Minimalism */
-.noor-btn-secondary {
-  background-color: var(--noor-gray-100);
-  color: var(--noor-gray-700);
-  border: 1px solid var(--noor-gray-300);
-}
-
-.noor-btn-secondary:hover {
-  background-color: var(--noor-gray-200);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
-}
-
-.noor-btn-outline {
-  background-color: transparent;
-  color: var(--noor-primary-blue);
-  border: 2px solid var(--noor-primary-blue);
-}
-
-.noor-btn-outline:hover {
-  background-color: var(--noor-primary-blue);
-  color: white;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced Button Icon Styling - Modern Minimalistic Design */
-.noor-btn i {
-  font-size: 1.25rem; /* Larger icons for modern look */
-  margin-right: 0.875rem; /* More generous spacing for breathable design */
-  flex-shrink: 0; /* Prevent icon from shrinking */
-  transition: transform 0.3s ease; /* Smooth icon animation */
-}
-
-.noor-btn:hover i {
-  transform: scale(1.1); /* Subtle icon scaling on hover */
-}
-
-/* Icon-only buttons for compact scenarios */
-.noor-btn-icon-only {
-  padding: 1.25rem; /* Square padding for icon-only buttons */
-  min-width: 3.5rem;
-}
-
-.noor-btn-icon-only i {
-  margin: 0; /* Remove margin for centered icon */
-  font-size: 1.5rem; /* Larger icon for icon-only buttons */
-}
-
-/* Responsive icon sizing for mobile */
-@media (min-width: 768px) {
-  .noor-btn i {
-    font-size: 1.375rem;
-    margin-right: 1rem;
-  }
-  
-  .noor-btn-icon-only {
-    padding: 1.5rem;
-    min-width: 4rem;
-  }
-  
-  .noor-btn-icon-only i {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-btn i {
-    font-size: 1.125rem;
-    margin-right: 0.75rem;
-  }
-  
-  .noor-btn-icon-only {
-    padding: 1rem;
-    min-width: 3rem;
-  }
-  
-  .noor-btn-icon-only i {
-    font-size: 1.25rem;
-  }
-}
-
-/* Typography */
-.noor-title {
-  font-size: 2.25rem; /* text-4xl */
-  font-weight: 700;
-  color: var(--noor-primary-blue);
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.noor-subtitle {
-  font-size: 1.5rem; /* text-2xl */
-  font-weight: 700;
-  color: var(--noor-gray-900);
-  margin-bottom: 1rem;
-}
-
-.noor-section-title {
-  font-size: 1.125rem; /* text-lg */
-  font-weight: 700;
-  color: var(--noor-gray-900);
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-/* Host Control Panel Title - Enhanced Typography */
-.noor-host-title {
-  font-family: var(--noor-heading-font);
-  font-size: 3rem; /* Larger title size for prominence */
-  font-weight: 800; /* Extra bold for maximum impact */
-  color: var(--noor-primary-blue); /* NOOR Canvas primary blue theme */
-  margin-bottom: 2.5rem; /* More spacing below title */
-  text-align: center;
-  letter-spacing: -0.025em; /* Tighter letter spacing for modern look */
-  text-shadow: 0 4px 8px rgba(59, 130, 246, 0.2); /* Subtle blue shadow */
-  line-height: 1.1; /* Tighter line height for impact */
-  text-transform: none; /* Keep natural casing */
-  transition: all 0.3s ease; /* Smooth transitions */
-}
-
-.noor-host-title:hover {
-  transform: scale(1.02); /* Subtle scale on hover */
-  color: #2563EB; /* Slightly darker blue on hover */
-  text-shadow: 0 6px 12px rgba(59, 130, 246, 0.3); /* Enhanced shadow on hover */
-}
-
-/* Responsive sizing for host title */
-@media (min-width: 768px) {
-  .noor-host-title {
-    font-size: 3.5rem; /* Even larger on desktop */
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-host-title {
-    font-size: 2.25rem; /* Scaled down for mobile */
-    margin-bottom: 1.5rem;
-  }
-}
-
-/* Host Control Panel Card - Force 3px Golden Border */
-#host-card {
-  border: 3px solid var(--noor-border-golden) !important;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
-  padding: 2rem !important; /* ensure internal spacing stays consistent */
-}
-
-/* Golden Button Variant */
-.noor-btn-golden {
-  background-color: var(--noor-border-golden);
-  color: white;
-  border: none;
-  box-shadow: 0 8px 20px rgba(217,119,6,0.18);
-}
-
-.noor-btn-golden:hover {
-  background-color: #b45309; /* darker golden on hover */
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 28px rgba(217,119,6,0.22);
-}
-
-/* Ensure Host Title uses Poppins even if other rules exist */
-.noor-host-title {
-  font-family: var(--noor-heading-font) !important;
-}
-
-/* Inner card spacing to separate it from CTA button */
-.noor-large-button-content {
-  margin-bottom: 2rem;
-}
-
-/* Increase host card internal padding for breathing room */
-#host-card {
-  padding: 2rem !important;
-}
-
-/* Centered button variant for landing CTA (moderate width on desktop, full on mobile) */
-.noor-btn-centered {
-  display: inline-block;
-  width: min(60%, 420px);
-  margin: 0.75rem auto 0 auto;
-  text-align: center;
-}
-
-@media (max-width: 640px) {
-  .noor-btn-centered {
-    width: 100%;
-    margin-top: 1rem;
-  }
-}
-
-/* Layout Utilities */
-.noor-flex-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Remove/hide global NOOR header bar (Issue: unwanted purple header band) */
-.noor-header {
-  display: none !important;
-}
-
-@media (min-width: 768px) {
-  .noor-flex-panel {
-    flex-direction: row;
-    align-items: stretch;
-  }
-}
-
+/* Utility Classes */
 .noor-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    text-align: center;
 }
 
-.noor-space-y-4 > * + * {
-  margin-top: 1rem;
+.noor-left {
+    text-align: left;
 }
 
-.noor-space-y-6 > * + * {
-  margin-top: 1.5rem;
+.noor-mb-2 {
+    margin-bottom: 0.5rem;
 }
 
-.noor-space-y-8 > * + * {
-  margin-top: 2rem;
+.noor-mb-4 {
+    margin-bottom: 1rem;
 }
 
-.noor-space-y-12 > * + * {
-  margin-top: 3rem;
-}
-
-/* Modern Button Group Spacing */
-.noor-btn-group {
-  display: flex;
-  gap: 1.5rem; /* Generous spacing between buttons */
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (min-width: 768px) {
-  .noor-btn-group {
-    gap: 2rem; /* Even more space on larger screens */
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-btn-group {
-    gap: 1rem;
-    flex-direction: column; /* Stack buttons on mobile for better touch targets */
-    width: 100%;
-  }
-  
-  .noor-btn-group .noor-btn {
-    width: 100%; /* Full width buttons on mobile */
-    justify-content: center;
-  }
-}
-
-/* Form Field Spacing */
-.noor-form-field {
-  margin-bottom: 2rem; /* Generous spacing between form fields */
-}
-
-.noor-form-field:last-child {
-  margin-bottom: 0;
-}
-
-/* Enhanced spacing for form groups */
-.noor-form-group {
-  margin-bottom: 2.5rem;
-}
-
-@media (min-width: 768px) {
-  .noor-form-field {
-    margin-bottom: 2.5rem;
-  }
-  
-  .noor-form-group {
-    margin-bottom: 3rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .noor-form-field {
-    margin-bottom: 1.5rem;
-  }
-  
-  .noor-form-group {
+.noor-mb-8 {
     margin-bottom: 2rem;
-  }
 }
 
-/* Progress Bar (Mock Implementation) */
-.noor-progress-container {
-  background-color: var(--noor-gray-200);
-  border-radius: 9999px;
-  overflow: hidden;
-  height: 1.5rem;
-  width: 100%;
+.noor-mt-8 {
+    margin-top: 2rem;
 }
 
-.noor-progress-bar {
-  background-color: var(--noor-primary-blue);
-  height: 100%;
-  transition: width 0.5s ease-in-out;
-  border-radius: 9999px;
+/* Space-y utility for form elements */
+.noor-space-y-4 > * + * {
+    margin-top: 1rem;
 }
 
-/* Label Styling (Form Labels) */
-.noor-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--noor-gray-700);
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-  font-size: 0.875rem;
+/* NOOR Canvas Branding Header - Mandatory for all views */
+.nc-branding-header {
+    text-align: center;
+    margin-bottom: 0.75rem; /* Reduced from 2rem to minimize white space */
+    margin-top: 0.5rem; /* Add small top margin for card spacing */
+    width: 100%;
 }
 
-/* Icon Styling (Font Awesome Integration) */
-.noor-icon {
-  width: 1rem;
-  height: 1rem;
+.nc-logo-resized {
+    max-width: 450px; /* Increased by 20% from 400px */
+    width: 100%;
+    height: auto;
+    background: transparent !important;
 }
 
-/* Responsive Utilities */
-.noor-w-95 {
-  width: 95%;
+/* Main Logo Styling - Referenced by CreateSession.razor */
+.noor-main-logo {
+    height: 4rem; /* 64px - matching Tailwind h-16 */
+    margin: 0 auto 0 auto; /* Center horizontally with bottom margin */
+    display: block;
+    max-width: 100%;
+    width: auto;
+    background: transparent !important;
 }
 
-.noor-max-w-4xl {
-  max-width: 56rem;
+/* Layout Wrapper - Centers content vertically and horizontally */
+.noor-layout-wrapper {
+    min-height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1.5rem !important;
+    background-color: #F8F5F1 !important; /* Direct color to override site.css */
+    margin: 0 !important;
 }
 
-/* Animation Classes */
-.noor-fade-in {
-  animation: noorFadeIn 0.3s ease-in-out;
+/* Container for the entire page content */
+.noor-page-container {
+    width: 100%;
+    max-width: 28rem;
+    margin: 0 auto;
 }
 
-@keyframes noorFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@media (min-width: 640px) {
+    .noor-page-container {
+        max-width: 32rem;
+    }
 }
 
-/* Override Bootstrap with Modern Minimalistic Design */
-.btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger {
-  padding: 1.25rem 2.5rem !important;
-  min-height: 3.5rem !important;
-  border-radius: 1rem !important;
-  font-weight: 500 !important;
-  font-size: 1rem !important;
-  font-family: var(--noor-font-family) !important;
-  letter-spacing: 0.025em !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-}
-
-.btn-primary {
-  background-color: var(--noor-primary-blue) !important;
-  color: white !important;
-}
-
-.btn-primary:hover, .btn-primary:focus {
-  background-color: #2563EB !important;
-  color: white !important;
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1) !important;
-}
-
-.btn-secondary {
-  background-color: var(--noor-gray-100) !important;
-  color: var(--noor-gray-700) !important;
-  border: 1px solid var(--noor-gray-300) !important;
-}
-
-.btn-secondary:hover, .btn-secondary:focus {
-  background-color: var(--noor-gray-200) !important;
-  color: var(--noor-gray-700) !important;
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05) !important;
-}
-
-.btn-success {
-  background-color: var(--noor-accent-green) !important;
-  color: white !important;
-}
-
-.btn-success:hover, .btn-success:focus {
-  background-color: #059669 !important;
-  color: white !important;
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1) !important;
-}
-
-.btn-danger {
-  background-color: #EF4444 !important;
-  color: white !important;
-}
-
-.btn-danger:hover, .btn-danger:focus {
-  background-color: #DC2626 !important;
-  color: white !important;
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Responsive Bootstrap button override */
 @media (min-width: 768px) {
-  .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger {
-    padding: 1.5rem 3rem !important;
-    min-height: 4rem !important;
-    font-size: 1.1rem !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger {
-    padding: 1rem 2rem !important;
-    min-height: 3rem !important;
-    font-size: 0.95rem !important;
-  }
-}
-
-/* Ensure NOOR Canvas styling takes precedence */
-body * {
-  font-family: var(--noor-font-family);
-}
-
-/* TAILWIND-EQUIVALENT CLASSES FOR MOCK COMPLIANCE */
-
-/* Layout Classes */
-.noor-flex-panel {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  align-items: stretch;
-}
-
-@media (max-width: 768px) {
-  .noor-flex-panel {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
-.flex-1 {
-  flex: 1;
-  min-width: 0;
-}
-
-.noor-max-w-4xl {
-  max-width: 896px;
-}
-
-/* Background and Border Classes */
-.bg-white {
-  background-color: white !important;
-}
-
-.border-4 {
-  border-width: 4px !important;
-}
-
-.border-golden-500 {
-  border-color: var(--noor-border-golden) !important;
-  border-style: solid !important;
-}
-.border-blue-500 {
-  border-color: #3b82f6 !important;
-  border-style: solid !important;
-}
-
-/* Additional Golden Color Variants for Theme Consistency */
-.text-golden-600 {
-  color: var(--noor-border-golden) !important;
-}
-
-.text-golden-500 {
-  color: var(--noor-secondary-golden) !important;
-}
-
-.bg-golden-50 {
-  background-color: #FFFBEB !important; /* Very light golden background */
-}
-
-.bg-golden-100 {
-  background-color: #FEF3C7 !important; /* Light golden background */
-}
-
-.rounded-3xl {
-  border-radius: 24px !important;
-}
-
-.shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-}
-
-/* Flex Layout Classes */
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-content-between {
-  justify-content: space-between !important;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.w-100 {
-  width: 100%;
-}
-
-.w-full {
-  width: 100% !important;
-}
-
-/* Spacing Classes */
-.p-8 {
-  padding: 2rem !important;
-}
-
-.p-4 {
-  padding: 1rem !important;
-}
-
-.mx-auto {
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-.mx-3 {
-  margin-left: 0.75rem !important;
-  margin-right: 0.75rem !important;
-}
-
-.mb-4 {
-  margin-bottom: 1rem !important;
-}
-
-.mb-6 {
-  margin-bottom: 1.5rem !important;
-}
-
-.mb-8 {
-  margin-bottom: 2rem !important;
-}
-
-.space-y-3 > * + * {
-  margin-top: 0.75rem;
-}
-
-.space-x-3 > * + * {
-  margin-left: 0.75rem;
-}
-
-/* Typography Classes */
-.text-2xl {
-  font-size: 1.5rem !important;
-  line-height: 2rem !important;
-}
-
-.text-6xl {
-  font-size: 3.75rem !important;
-  line-height: 1 !important;
-}
-
-.font-bold {
-  font-weight: 700 !important;
-}
-
-.text-gray-800 {
-  color: var(--noor-gray-800) !important;
-}
-
-.text-gray-600 {
-  color: var(--noor-gray-600) !important;
-}
-
-.text-gray-700 {
-  color: var(--noor-gray-700) !important;
-}
-
-.text-blue-600 {
-  color: var(--noor-primary-blue) !important;
-}
-
-.text-green-600 {
-  color: var(--noor-accent-green) !important;
-}
-
-.text-green-500 {
-  color: var(--noor-accent-green) !important;
-}
-
-.text-blue-500 {
-  color: var(--noor-primary-blue) !important;
-}
-
-/* Icon Sizing Classes */
-.h-6 {
-  height: 1.5rem;
-}
-
-.w-6 {
-  width: 1.5rem;
-}
-
-/* Text Alignment */
-.text-left {
-  text-align: left !important;
-}
-
-/* List Styling - Remove default list styles */
-.noor-feature-list {
-  list-style: none;
-  padding-left: 0;
-}
-
-.noor-feature-list li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  gap: 0.75rem; /* 12px gap between icon and text for better spacing */
-}
-
-.noor-feature-list li i {
-  width: 1.5rem;
-  height: 1.5rem;
-  flex-shrink: 0; /* Prevent icon from shrinking */
-}
-
-.noor-feature-list li:last-child {
-  margin-bottom: 0;
-}
-
-/* Layout Utility Classes */
-.noor-flex-single {
-  display: flex;
-  flex: 1;
-}
-
-.noor-max-w-2xl {
-  max-width: 168rem; /* 4x wider than standard 2xl (42rem * 4 = 168rem) */
+    .noor-page-container {
+        max-width: 36rem;
+    }
 }

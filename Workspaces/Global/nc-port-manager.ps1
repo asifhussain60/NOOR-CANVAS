@@ -203,8 +203,7 @@ if (-not $SkipTokenGeneration) {
     
     Write-LogMessage "Host token generation completed" "SUCCESS"
     Write-Host ""
-    Write-Host "Press any key to continue to build..." -ForegroundColor Yellow
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    Write-Host "Automatically continuing to build..." -ForegroundColor Green
     Write-Host ""
 }
 

@@ -22,7 +22,7 @@ namespace NoorCanvas.Services
         {
             _logger.LogDebug("NOOR-DEBUG: Registering AlertDialog component");
             _alertDialog = alertDialog;
-            
+
             // Process queued operations
             while (_pendingOperations.Count > 0)
             {
@@ -48,16 +48,17 @@ namespace NoorCanvas.Services
         public async Task ShowAlertAsync(string message, string title = "Alert", AlertDialog.AlertType type = AlertDialog.AlertType.Info)
         {
             _logger.LogDebug("NOOR-DEBUG: ShowAlertAsync called - AlertDialog registered: {IsRegistered}", _alertDialog != null);
-            
+
             if (_alertDialog == null)
             {
                 _logger.LogWarning("NOOR-WARNING: Attempted to show alert dialog before registration - Message: {Message}", message);
-                
+
                 // Queue the operation for when dialog is registered
-                _pendingOperations.Enqueue(async () => {
+                _pendingOperations.Enqueue(async () =>
+                {
                     await _alertDialog!.ShowAsync(title, message, type);
                 });
-                
+
                 // Fallback to JavaScript alert for immediate display
                 try
                 {

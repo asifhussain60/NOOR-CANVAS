@@ -81,7 +81,7 @@ namespace NoorCanvas.Models.KSESSIONS
         // Navigation properties
         [ForeignKey("GroupId")]
         public virtual KSessionsGroup Group { get; set; } = null!;
-        
+
         public virtual ICollection<KSessionsSession> Sessions { get; set; } = new List<KSessionsSession>();
     }
 
@@ -147,7 +147,7 @@ namespace NoorCanvas.Models.KSESSIONS
         // Navigation properties
         [ForeignKey("GroupId")]
         public virtual KSessionsGroup Group { get; set; } = null!;
-        
+
         [ForeignKey("CategoryId")]
         public virtual KSessionsCategory Category { get; set; } = null!;
     }

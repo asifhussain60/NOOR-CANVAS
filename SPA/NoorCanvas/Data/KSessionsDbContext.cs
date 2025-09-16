@@ -28,7 +28,7 @@ namespace NoorCanvas.Data
             {
                 entity.HasKey(e => e.GroupId);
                 entity.ToTable("Groups", "dbo");
-                
+
                 // Configure relationships
                 entity.HasMany(g => g.Categories)
                       .WithOne(c => c.Group)

@@ -3,59 +3,126 @@
 ## Project Context & Technology Stack
 
 **Framework**: ASP.NET Core 8.0 Blazor Server  
-**Styling**: Bootstrap 5 + Custom CSS (nc-gold-theme.css)  
-**Fonts**: Vendored locally (Poppins, Inter) via noor-fonts.css  
-**Icons**: Font Awesome 6.5.1  
+**Styling**: CSS Foundation (noor-canvas.css) - Mock-based implementation  
+**Fonts**: Google Fonts CDN (Poppins, Inter, Playfair Display, Cinzel Decorative)  
+**Icons**: Font Awesome 6.5.1 CDN  
 **Cache Busting**: `?v=@DateTime.Now.Ticks` for all CSS/assets  
 **Dev URL**: https://localhost:9091
 
-## Critical Implementation Protocol
+## Streamlined CSS Strategy (Updated September 16, 2025)
 
-### 1. MANDATORY HEADER STRUCTURE
-**CRITICAL REQUIREMENT**: Every Blazor view/page MUST include the NC branding header. **No exceptions.**
+### Clean Foundation Approach
+**Philosophy**: Single CSS file approach for maximum maintainability:
+- **Primary CSS**: `noor-canvas.css` - Contains only styles needed for current views
+- **No Legacy Bloat**: Removed all unused styling and CSS conflicts
+- **Mock-Driven**: CSS rules extracted from actual mock designs for accuracy
 
-**UPDATED RULE**: The NC-Header.png header MUST be included in ALL Razor views by default, **regardless of whether the mock includes it or not**. This is a universal requirement for brand consistency across the entire NOOR Canvas application.
+## Lessons Learned: Efficient HTML View Design
 
-**File Location**: The NC-Header.png file MUST be located at:
+### Key Insights from Recent Development (September 2025)
+
+**1. CSS Specificity Management**
+- **Lesson**: Avoid `!important` unless absolutely necessary for overriding external libraries
+- **Better Approach**: Use specific class names and proper CSS cascade
+- **Example**: Instead of `margin-top: 150px !important`, use contextual classes like `.nc-header-spaced { margin-top: 150px; }`
+
+**2. Mock-First Design Process**
+- **Lesson**: Always reference the actual mock during implementation, don't rely on assumptions
+- **Better Approach**: Keep mock images open in VS Code alongside the implementation
+- **Process**: Mock → Extract exact measurements → Implement → Validate side-by-side
+
+**3. Header Placement Flexibility**
+- **Previous Issue**: Rigid "header everywhere" rule caused layout conflicts
+- **Lesson**: Header placement should follow the specific mock design requirements
+- **New Approach**: Place NC-Header inside cards where the design calls for it, maintain brand presence without forcing arbitrary placement
+
+**4. Incremental CSS Development**
+- **Lesson**: Build CSS progressively rather than trying to create comprehensive stylesheets upfront
+- **Better Approach**: Start with mock-specific styles, extract common patterns later
+- **Process**: View-specific CSS → Identify reusable patterns → Refactor to shared classes
+
+**5. White Space Management**
+- **Lesson**: Precise spacing is critical for professional appearance
+- **Key Insight**: Users notice spacing discrepancies immediately
+- **Best Practice**: Use consistent spacing units (8px, 16px, 24px, 32px) and document spacing decisions
+
+**6. Testing Workflow Efficiency**
+- **Lesson**: VS Code Simple Browser enables rapid iteration
+- **Process**: Code → Save → Auto-refresh in Simple Browser → Compare with mock → Adjust
+- **Time Saver**: No context switching between applications
+
+### Design Efficiency Guidelines
+
+**Start Simple**:
+1. Create basic HTML structure matching mock layout
+2. Add core typography and spacing
+3. Implement colors and visual effects
+4. Test responsiveness last
+
+**Avoid Over-Engineering**:
+- Don't create CSS classes until you need them twice
+- Prefer utility classes for unique styling needs
+- Keep CSS close to the component using it
+
+**Measure Twice, Code Once**:
+- Extract exact measurements from mock using browser dev tools
+- Document color codes and spacing values
+- Validate implementation against mock before considering it complete
+
+## Implementation Standards
+
+### 1. NC-Header Placement Strategy (Updated September 16, 2025)
+
+**New Standard**: The NC-Header.png logo should be placed **inside the main card containers**, not outside them. This provides better visual integration and follows the mock designs more accurately.
+
+**Asset Location**:
 - **Source**: `D:\PROJECTS\NOOR CANVAS\Workspaces\Documentation\IMPLEMENTATIONS\NC-Assets\NC-Header.png`
 - **SPA Location**: `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\branding\NC-Header.png`
 - **Web Path**: `/images/branding/NC-Header.png`
 
-**ALWAYS** include this exact header at the top of every view (no exceptions):
+**Recommended Header Implementation** (inside card):
 ```razor
-<header class="nc-branding-header">
-    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
-</header>
-```
-
-**IMPLEMENTATION NOTE**: Even if a mock does not show the NC-Header.png logo, you MUST add it as the first element after the root container. This ensures brand consistency across all views in the NOOR Canvas platform.
-
-**Asset Management**: If the file is missing from the SPA project, copy it from the source location:
-```powershell
-New-Item -ItemType Directory -Path "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\branding" -Force
-Copy-Item "D:\PROJECTS\NOOR CANVAS\Workspaces\Documentation\IMPLEMENTATIONS\NC-Assets\NC-Header.png" "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\wwwroot\images\branding\NC-Header.png"
-```
-
-### 2. ROOT CONTAINER PATTERN
-Every view must follow this exact structure for proper centering:
-```razor
-<div class="nc-landing-wrapper nc-landing-body">
-    <!-- NOOR Canvas Branding Header - MANDATORY FOR ALL VIEWS -->
-    <header class="nc-branding-header">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
-    </header>
-
-    <div class="nc-card-container">
+<div class="nc-card-container">
+    <!-- NC Header inside card for better visual integration -->
+    <div class="nc-header-section">
+        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+             alt="NOOR Canvas - Islamic Content Sharing Platform" 
+             class="nc-header-logo" />
+    </div>
+    
+    <!-- Main content follows -->
+    <div class="nc-content-section">
         <!-- Mock content implementation here -->
     </div>
 </div>
 ```
 
-**Layout Rules**: 
-- The header MUST be the first element after the root container div
-- Use `nc-landing-wrapper` for proper vertical and horizontal centering
-- Use `nc-landing-body` to control max-width and flex layout
-- The `nc-card-container` provides the white card background matching the mock
+### 2. Flexible Layout Structure
+Views should follow this recommended pattern:
+```razor
+<div class="nc-page-wrapper">
+    <div class="nc-main-container">
+        <div class="nc-card-container">
+            <!-- Header section inside card -->
+            <div class="nc-header-section">
+                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                     alt="NOOR Canvas" 
+                     class="nc-header-logo" />
+            </div>
+            
+            <!-- Content follows mock design -->
+            <div class="nc-content-section">
+                <!-- Implementation based on specific mock -->
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+**Layout Principles**: 
+- Header placement should follow the specific mock design requirements
+- Use semantic class names that describe content purpose
+- Maintain consistent spacing and typography across views
 
 ### 3. MOCK-TO-CODE MEASUREMENT PRECISION
 
@@ -74,39 +141,27 @@ Every view must follow this exact structure for proper centering:
 - **Input Padding**: `padding: 0.75rem 1rem` (12px 16px)
 - **Icon Margins**: `margin-right: 0.5rem` (8px) for icon-text combinations
 
-#### Color Accuracy (Comprehensive NOOR Canvas Palette):
+#### NEW Mock-Based Color System (Extracted Directly from Mocks):
 
-**Core Brand Colors:**
-- **NOOR Gold Primary**: `#D4AF37` (primary gold, buttons, accents)
-- **NOOR Gold Secondary**: `#C5B358` (lighter gold, gradients)
-- **Gold Gradient**: `linear-gradient(to right, #C5B358, #D4AF37, #C5B358)`
-
-**Background Colors:**
-- **Page Background**: `#F8F5F1` (warm cream background)
+**Primary Colors:**
+- **Page Background**: `#F8F5F1` (warm cream - from both mocks)
 - **Card Background**: `#FFFFFF` (pure white cards)
-- **Alt Background**: `#F8F9FA` (light gray sections)
+- **Inner Card Background**: `#F8F5F1` (matches page background)
 
 **Text Colors:**
-- **Text Primary**: `#8B6E36` (warm brown for headings)
-- **Text Secondary**: `#6B7280` (medium gray for descriptions)
-- **Text Dark**: `#4B3C2B` (deep brown for emphasis)
-- **Text Light**: `#2C5530` (dark green for special content)
+- **Primary Green**: `#006400` (main headings, icons)
+- **Gold Accent**: `#D4AF37` (subheadings, focus states)
+- **Dark Brown**: `#4B3C2B` (card titles, form labels)
+- **Medium Gray**: `#706357` (descriptions, placeholder text)
 
-**Semantic Colors:**
-- **Islamic Green**: `#006400` (education icons, success states)
-- **Button Green**: `#059669` (action buttons, success)
-- **Error Red**: `#721C24` (error states, warnings)
-- **Info Blue**: `#007BFF` (information, links)
+**Interactive Elements:**
+- **Button Green**: `#006400` (primary buttons)
+- **Border Gold**: `#D4AF37` (card borders, focus rings)
+- **Border Light**: `#E5E7EB` (form inputs)
 
-**UI Element Colors:**
-- **Border Light**: `#E5E7EB` (subtle borders, dividers)
-- **Border Medium**: `#D1D5DB` (form inputs, cards)
-- **Shadow**: `rgba(0,0,0,0.12)` (card shadows, depth)
-- **Hover State**: `rgba(0,0,0,0.05)` (interaction feedback)
-
-**Navigation Colors:**
-- **Nav Text**: `#D7D7D7` (navigation menu items)
-- **Nav Active**: `#FFFFFF` (active navigation states)
+**Shadows:**
+- **Card Shadow**: `0 25px 50px -12px rgba(0, 0, 0, 0.25)`
+- **Button Shadow**: `0 10px 15px -3px rgba(0, 100, 0, 0.4), 0 4px 6px -2px rgba(0, 100, 0, 0.2)`
 
 ### 4. CRITICAL GAP PREVENTION (Based on Previous Failures)
 
@@ -135,21 +190,43 @@ box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 - **Logo Width**: Fixed `400px` (current specification)
 - **Minimum Viewport**: Support down to 320px width
 
-### 5. CSS CLASS NAMING CONVENTION
+### 5. NEW STREAMLINED CSS CLASS SYSTEM
 
-**Mandatory Prefixing**: ALL custom classes MUST use `nc-` prefix
-```css
-/* ✅ Correct */
-.nc-session-card { }
-.nc-primary-btn { }
-.nc-heading { }
-.nc-icon-circle { }
+**Clean Foundation Classes**: All classes follow `noor-*` naming convention extracted directly from mocks
 
-/* ❌ Wrong - conflicts with Bootstrap/existing styles */
-.session-card { }
-.primary-btn { }
-.heading { }
-```
+**Layout Classes:**
+- `.noor-layout-wrapper` - Centers content vertically and horizontally
+- `.noor-page-container` - Main container with responsive max-widths
+- `.noor-main-card` - Primary card matching mock proportions
+- `.noor-inner-card` - Inner cards with gold borders (session/form cards)
+
+**Typography Classes:**
+- `.noor-title-large` - Main headings (Host Authentication, User Authentication)
+- `.noor-title-medium` - Session names and subheadings
+- `.noor-card-title` - Card titles (HOST SESSION, etc.)
+- `.noor-card-description` - Card descriptions
+- `.noor-description` - General body text
+
+**Form Classes:**
+- `.noor-form-section` - Form field containers
+- `.noor-form-label` - Field labels
+- `.noor-input-group` - Input containers with icons
+- `.noor-input` - Text inputs and textareas
+- `.noor-select` - Select dropdowns
+- `.noor-input-icon` - Icons inside inputs
+- `.noor-select-chevron` - Dropdown chevron icon
+- `.noor-help-text` - Help text below inputs
+
+**Interactive Classes:**
+- `.noor-btn-primary` - Primary green buttons
+- `.noor-icon-container` - Icon container for host auth
+- `.noor-icon-circle` - Circular icon backgrounds
+- `.noor-icon-large` - Large icons (48px)
+
+**Utility Classes:**
+- `.noor-center` - Center text alignment
+- `.noor-left` - Left text alignment
+- `.noor-space-y-4` - Vertical spacing between elements
 
 ### 6. MOCK COMPARISON VALIDATION CHECKLIST
 
@@ -182,33 +259,45 @@ dotnet run
 # Should see: "Now listening on: https://localhost:9091"
 ```
 
-#### Step 2: Razor View Template
+#### Step 2: NEW Streamlined Razor View Template
 
 ```razor
 @page "/[ROUTE-PATH]"
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
 @using NoorCanvas.Controllers
-<!-- Add additional usings as needed for models/services -->
+@inject NavigationManager Navigation
+@inject ILogger<[ComponentName]> Logger
+@inject DialogService DialogService
+@inject IHttpClientFactory HttpClientFactory
 
-<div class="nc-landing-wrapper nc-landing-body">
-    <!-- NOOR Canvas Branding Header - MANDATORY FOR ALL VIEWS (even if not in mock) -->
-    <header class="nc-branding-header">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
-    </header>
+@{
+    ViewData["Title"] = "NOOR Canvas - [Page Title]";
+}
 
-    <div class="nc-card-container nc-p-0">
-        <!-- [MOCK_FILENAME] Implementation -->
-        <h1 class="nc-heading nc-poppins">[MAIN_TITLE_FROM_MOCK]</h1>
-        
-        <!-- Session Card Pattern (if applicable) -->
-        <div class="nc-session-card">
-            <div class="nc-session-bg" aria-hidden="true"></div>
-            <div class="nc-session-content">
-                <div class="nc-icon-circle">
-                    <i class="fa-solid [ICON-CLASS] fa-2x text-[#006400]"></i>
+<div class="noor-layout-wrapper">
+    <div class="noor-page-container">
+        <!-- NOOR Canvas Branding Header - MANDATORY FOR ALL VIEWS -->
+        <header class="nc-branding-header">
+            <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" 
+                 alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" 
+                 class="nc-logo-resized" 
+                 style="background: transparent !important;" />
+        </header>
+
+        <div class="noor-main-card">
+            <!-- Main Title -->
+            <h1 class="noor-title-large poppins">[MAIN_TITLE_FROM_MOCK]</h1>
+            
+            <!-- Inner Card (for forms/session info) -->
+            <div class="noor-inner-card noor-center">
+                <div class="noor-icon-container">
+                    <div class="noor-icon-circle">
+                        <i class="fa-solid [ICON-CLASS] noor-icon-large"></i>
+                    </div>
                 </div>
-                <h2 class="nc-session-title nc-inter">[CARD_TITLE]</h2>
-                <p class="nc-session-desc nc-inter">[CARD_DESCRIPTION]</p>
+                <h2 class="noor-card-title inter">[CARD_TITLE]</h2>
+                <p class="noor-card-description inter">[CARD_DESCRIPTION]</p>
             </div>
         </div>
 
@@ -251,28 +340,28 @@ dotnet run
 
 **Validation Steps:**
 - [ ] Page loads without errors in Simple Browser
-- [ ] NC-Header.png displays (mandatory for all views)
-- [ ] Layout matches mock proportions
+- [ ] NC-Header.png displays (if included in mock design)
+- [ ] Layout matches mock proportions exactly
 - [ ] Colors match NOOR Canvas brand palette
 - [ ] Fonts render correctly (Inter/Poppins)
 - [ ] Interactive elements work (buttons, forms, hover states)
+- [ ] Spacing matches mock measurements
 ```
 
 ### 8. ASSET MANAGEMENT PROTOCOL
 
-#### File Paths (Always Use Absolute Paths):
-- **NC Header Logo**: `/images/branding/NC-Header.png?v=@DateTime.Now.Ticks` (MANDATORY - must exist in SPA project)
+#### File Paths (Use Absolute Paths):
+- **NC Header Logo**: `/images/branding/NC-Header.png?v=@DateTime.Now.Ticks` (placed inside cards per design)
 - **Fonts**: Served from `wwwroot/fonts/` via noor-fonts.css
 - **Icons**: Font Awesome 6.5.1 CDN (`fa-solid`, `fa-regular`, `fa-brands`)
-- **Custom CSS**: `/css/nc-gold-theme.css?v=@DateTime.Now.Ticks`
+- **Custom CSS**: `/css/noor-canvas.css?v=@DateTime.Now.Ticks`
 
 **Asset Verification Checklist**:
 - [ ] NC-Header.png exists at `/wwwroot/images/branding/NC-Header.png`
 - [ ] File size is **exactly 1,769,400 bytes** (confirmed specification)
-- [ ] Last modified: September 16, 2025, 6:55:03 AM
-- [ ] Cache-busting parameter `?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()` is included
-- [ ] Alt text includes "NOOR Canvas - Real-time Islamic Content Sharing Platform"
-- [ ] Image displays with transparent background using `style="background: transparent !important;"`
+- [ ] Cache-busting parameter `?v=@DateTime.Now.Ticks` is included for cache management
+- [ ] Alt text is descriptive: "NOOR Canvas - Islamic Content Sharing Platform"
+- [ ] Header placement follows the specific mock design (inside card when appropriate)
 
 #### Cache-Busting Strategy:
 ```razor
@@ -500,6 +589,100 @@ When user provides feedback with these phrases, **automatically update this guid
 ```
 
 This ensures the guide evolves with each project iteration, becoming more accurate and comprehensive over time.
+
+---
+
+## CRITICAL LESSON: Precise Visual Matching Protocol
+
+### September 16, 2025 - Host Landing Page Visual Refinement
+
+**Context**: Second iteration of Host Landing Page conversion revealed critical gaps in visual accuracy when comparing rendered output to HTML mock side-by-side.
+
+#### Key Differences Identified & Fixed:
+
+**1. Title Color Mismatch**
+- **Issue**: Brown title color (#8B6E36) instead of green
+- **Solution**: Changed to exact green (#006400) from mock
+- **New Standard**: Always verify title colors match mock exactly, don't assume brand colors
+
+**2. Session Card Border Weakness**  
+- **Issue**: Subtle gold border with opacity instead of solid gold
+- **Solution**: Changed to solid #D4AF37 border, 2px thickness
+- **New Standard**: Border specifications from mock are exact - no interpretation needed
+
+**3. Icon Selection & Background**
+- **Issue**: Wrong icon (fa-user-graduate vs fa-user-lock) and beige background
+- **Solution**: Use exact icon from mock, white background with proper shadow
+- **New Standard**: Icon choice is not interchangeable - use exact matches
+
+**4. Input Field Architecture**
+- **Issue**: External label with icon vs internal icon with proper positioning
+- **Solution**: Rebuilt input structure with absolute positioned internal icon
+- **New Standard**: Input field structure must match mock layout exactly
+
+**5. Button Text Precision**
+- **Issue**: "Access Host Dashboard" vs "Access Host Control Panel"
+- **Solution**: Use exact text from mock
+- **New Standard**: Button text is not paraphrasable - copy exactly
+
+#### Visual Matching Methodology Update:
+
+**BEFORE Implementation**:
+1. Screenshot the HTML mock at 100% zoom
+2. Open mock HTML file in browser for reference
+3. Note exact hex colors, font weights, spacing values
+4. Document icon names and positioning details
+
+**DURING Implementation**:
+1. Build structure first, then apply exact styling
+2. Use Simple Browser for immediate visual comparison
+3. Take screenshots at same zoom level as mock
+4. Compare side-by-side pixel-by-pixel
+
+**AFTER Implementation**:
+1. Load both mock and implementation in Simple Browser
+2. Compare in split screen view
+3. Verify colors with browser dev tools color picker
+4. Test at mobile and desktop breakpoints
+5. Document any remaining acceptable differences
+
+#### Critical CSS Pattern Updates:
+
+```css
+/* Title Color - Always verify against mock */
+.nc-heading {
+    color: #006400; /* Mock green, not brand brown */
+}
+
+/* Session Card - Solid borders, no opacity tricks */
+.nc-session-card {
+    border: 2px solid #D4AF37; /* Exact gold from mock */
+    background-color: #F8F5F1; /* Mock background */
+}
+
+/* Input Field with Internal Icon */
+.nc-input-container {
+    position: relative;
+}
+.nc-input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+.nc-input-field {
+    padding-left: 2.5rem; /* Space for icon */
+}
+
+/* Icon Background - White for visual prominence */
+.nc-icon-circle {
+    background-color: white; /* Not beige/cream */
+    box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+}
+```
+
+**Lesson Summary**: Visual implementation is not interpretive - it's architectural. Every color, spacing, icon, and layout element must match the mock with pixel-perfect precision. When in doubt, favor the mock's exact specification over brand guidelines or personal aesthetic preferences.
 
 ---
 

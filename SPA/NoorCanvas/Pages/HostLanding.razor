@@ -17,61 +17,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </HeadContent>
 
-<div class="nc-landing-wrapper">
-    <div class="nc-landing-body">
-        <!-- NOOR Canvas Branding Header - MANDATORY FOR ALL VIEWS -->
-        <header class="nc-branding-header">
-            <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
-        </header>
+<div class="noor-layout-wrapper">
+    <div class="noor-page-container">
+        <div class="noor-main-card">
+            <!-- NOOR Canvas Branding Header - Moved inside card -->
+            <div class="nc-branding-header">
+                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks&force=@Guid.NewGuid()" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" style="background: transparent !important;" />
+            </div>
+            
+            <!-- Header Title -->
+            <h1 class="noor-title-large poppins" style="color: #006400 !important;">Host Authentication</h1>
 
-        <div class="nc-card-container">
-        <!-- Header Title -->
-        <h1 class="nc-heading nc-poppins">Host Authentication</h1>
-
-        <!-- Session Card -->
-        <div class="nc-session-card">
-            <div class="nc-session-bg" aria-hidden="true"></div>
-            <div class="nc-session-content">
+            <!-- Host Session Inner Card -->
+            <div class="noor-inner-card">
                 <!-- Icon -->
-                <div class="nc-icon-circle">
-                    <i class="fa-solid fa-user-graduate" style="font-size: 3rem; color: #006400;"></i>
+                <div class="noor-icon-container">
+                    <div class="noor-icon-circle">
+                        <i class="fa-solid fa-user-lock noor-icon-large"></i>
+                    </div>
                 </div>
+                
                 <!-- Title -->
-                <h2 class="nc-session-title nc-inter">HOST SESSION</h2>
+                <h2 class="noor-card-title inter">HOST SESSION</h2>
+                
                 <!-- Description -->
-                <p class="nc-session-desc nc-inter">Manage Islamic learning sessions with interactive tools</p>
-            </div>
-        </div>
+                <p class="noor-card-description inter">Manage Islamic learning sessions with interactive tools</p>
 
-        @if (currentStep == 1)
-        {
-            <!-- Button -->
-            <button class="nc-primary-btn" @onclick="() => ShowHostForm()">
-                <span class="mr-2">Access Host Dashboard</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                </svg>
-            </button>
-        }
-        else
-        {
-            <!-- Step 2: Input Form (kept from original) -->
-            <p class="text-gray-600 mb-6 text-lg">Enter Your Host Authentication Token</p>
-            <div class="w-full mb-6">
-                <label class="noor-label mb-2 text-left text-lg" for="hostGuid">
-                    <i class="fa-solid fa-key text-blue-500 me-2"></i>Host GUID
-                </label>
-                <input type="text"
-                       id="hostGuid"
-                       class="noor-input w-full text-lg py-3"
-                       placeholder="Enter your Host GUID Token"
-                       @bind="hostGuid" />
-                <small class="text-gray-500 mt-2 d-block">Get your Host GUID from the HostProvisioner tool or system administrator</small>
+                <!-- Form Section -->
+                <div class="noor-form-section" style="text-align: left;">
+                    <label class="noor-form-label inter">Enter Your Host Authentication Token</label>
+                    <div class="noor-input-group">
+                        <div class="noor-input-icon">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <input type="text"
+                               id="hostGuid"
+                               class="noor-input inter"
+                               placeholder="Enter your Host GUID Token"
+                               @bind="hostGuid" />
+                    </div>
+                    <p class="noor-help-text inter">Get your Host GUID from the HostProvisioner tool or system administrator</p>
+                </div>
             </div>
-            <button class="nc-primary-btn" @onclick="() => HandleHostAccess()">
-                <i class="fa-solid fa-sign-in-alt me-2"></i>Access Host Dashboard
+
+            <!-- Authentication Button -->
+            <button class="noor-btn-primary" @onclick="() => HandleHostAccess()">
+                Access Host Control Panel
             </button>
-        }
         </div>
     </div>
 </div>
@@ -113,9 +105,8 @@
     </div>
 
 @code {
-    // Phase 3.6: Host-Only Landing Page State Management
-    private int currentStep = 1; // 1 = Feature Display, 2 = Input Form
-    private string selectedRole = "host"; // Always host in Phase 3.6
+    // Single-Step Host Authentication State Management
+    private string selectedRole = "host"; // Always host in single-step design
     private string hostGuid = "";
     private string errorMessage = "";
     private bool isLoading = false;
@@ -134,8 +125,34 @@
             Logger.LogInformation("NOOR-INFO: HostLanding page rendered for new visitor");
             await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-LANDING", "HostLanding page loaded", new { timestamp = DateTime.UtcNow });
 
-            // Add CSS debug logging for Issue-64
+            // Add CSS debug logging for Issue-64 and Issue-92
             await JSRuntime.InvokeVoidAsync("console.log", "🎨 NOOR-CSS-DEBUG: HostLanding page rendered - Issue-64 debugging");
+            
+            // Issue-92 CSS debugging - Mock comparison
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                setTimeout(() => {
+                    const title = document.querySelector('.noor-title-large');
+                    if (title) {
+                        const styles = getComputedStyle(title);
+                        console.log('🎯 ISSUE-92 DEBUG: Title color:', styles.color, 'Expected: rgb(0, 100, 0)');
+                        console.log('🎯 ISSUE-92 DEBUG: Title font-size:', styles.fontSize, 'Expected: 48px or 64px');
+                        console.log('🎯 ISSUE-92 DEBUG: Title font-weight:', styles.fontWeight);
+                        console.log('🎯 ISSUE-92 DEBUG: Title classes:', title.className);
+                    }
+                    
+                    const card = document.querySelector('.noor-main-card');
+                    if (card) {
+                        console.log('🎯 ISSUE-92 DEBUG: Card dimensions:', card.getBoundingClientRect());
+                    }
+                    
+                    const innerCard = document.querySelector('.noor-inner-card');
+                    if (innerCard) {
+                        const innerStyles = getComputedStyle(innerCard);
+                        console.log('🎯 ISSUE-92 DEBUG: Inner card border:', innerStyles.border);
+                        console.log('🎯 ISSUE-92 DEBUG: Inner card border-radius:', innerStyles.borderRadius);
+                    }
+                }, 100);
+            ");
             
             // Issue-75 & Issue-76 Debug Logging: Logo and Card Sizing Changes
             await JSRuntime.InvokeVoidAsync("console.log", "📏 NOOR-SIZING-DEBUG Issue-75: Logo increased to 280px height (was 160px) - LARGE and prominent");
@@ -275,18 +292,7 @@
         public DateTime? ExpiresAt { get; set; }
     }
 
-    // Phase 3.6: Host-Only Form Transition
-    private async Task ShowHostForm()
-    {
-        selectedRole = "host";
-        currentStep = 2;
-        
-        Logger.LogInformation("NOOR-UX: ShowHostForm called - transitioning to host input form");
-        await JSRuntime.InvokeVoidAsync("console.log", "🎯 NOOR-UX: Host form transition - single card mode");
-        
-        Logger.LogInformation("NOOR-UX: Transitioned to Host input form (Step 2)");
-        StateHasChanged(); // Force re-render to show input form
-    }
+    // ShowHostForm method removed - single-step process no longer needs form transitions
 
     // Phase 3.6: ShowParticipantForm method removed - replaced by direct /user/{token} routing
 
@@ -316,24 +322,7 @@
         }
     }
 
-    // Enhanced Card Animation Class Management - Issue-67 UX Refinement
-    private string GetCardClasses(string cardType)
-    {
-        if (currentStep == 1)
-        {
-            return ""; // Default state in step 1
-        }
-        
-        // Step 2: Apply expansion/hiding classes
-        if (selectedRole == cardType)
-        {
-            return "noor-card-expanded"; // Selected card expands and centers
-        }
-        else
-        {
-            return "noor-card-hidden"; // Other card hides
-        }
-    }
+    // GetCardClasses method removed - single-step process no longer needs card animations
 }
 
 <style>
@@ -399,13 +388,21 @@
     border: 1px solid #E5E7EB; /* border-gray-200 from mock */
 }
 
-/* Heading - Match mock: text-4xl mb-8 */
-.nc-heading {
-    font-size: 2.25rem; /* text-4xl */
-    font-weight: 700; /* font-bold */
-    color: #8B6E36;
+/* Heading - Match mock: text-4xl mb-8 - CRITICAL: Must be green! */
+.nc-heading,
+h1.nc-heading,
+.nc-card-container .nc-heading,
+.noor-host-auth-title-green {
+    font-size: 2.25rem !important; /* text-4xl */
+    font-weight: 700 !important; /* font-bold */
+    color: #006400 !important; /* Green to match mock exactly - OVERRIDE ANY OTHER CSS */
     margin-bottom: 2rem; /* mb-8 */
     text-align: center;
+}
+
+/* Ultra-specific selector to override ANY global CSS */
+h1.nc-heading.nc-poppins.noor-host-auth-title-green {
+    color: #006400 !important; /* FORCE GREEN - NO EXCEPTIONS */
 }
 
 /* Session Card - Match mock: rounded-3xl p-6 sm:p-8 mb-8 */
@@ -413,20 +410,18 @@
     position: relative;
     width: 100%;
     border-radius: 1.5rem; /* rounded-3xl */
-    padding: 1.5rem 2rem; /* p-6 sm:p-8 */
-    margin-bottom: 2rem; /* mb-8 */
+    padding: 2rem 3rem; /* p-8 sm:p-12 to match mock exactly */
+    margin-top: 2rem; /* mt-8 to match mock */
+    margin-bottom: 0; /* Remove mb-8 */
     text-align: center;
     overflow: hidden;
-    border: 2px solid rgba(197, 179, 88, 0.2); /* gold-border border-[#C5B358]/20 */
+    border: 2px solid #D4AF37; /* Exact gold border from mock */
+    background-color: #F8F5F1; /* Match mock background */
 }
 
 .nc-session-bg {
-    position: absolute;
-    inset: 0;
-    background-color: #FBF8EF;
-    border-radius: 0.75rem;
-    transform: rotate(2deg);
-    z-index: 1;
+    /* Removed rotated background - not in mock */
+    display: none;
 }
 
 .nc-session-content {
@@ -438,12 +433,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 5rem;
-    height: 5rem;
-    margin: 0 auto 1rem;
-    background-color: #F2E5C9;
+    width: 6rem; /* Slightly larger to match mock */
+    height: 6rem;
+    margin: 0 auto 1.5rem; /* mb-6 spacing */
+    background-color: white; /* White background to match mock */
     border-radius: 50%;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.1); /* shadow-md from mock */
 }
 
 .nc-session-title {
@@ -458,21 +453,22 @@
     color: #706357;
 }
 
-/* Button Styles */
+/* Button Styles - Match mock exactly */
 .nc-primary-btn {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem; /* py-3 px-6 */
+    border-radius: 0.75rem; /* rounded-xl */
     color: white;
-    font-weight: 600;
-    background-color: #006400;
+    font-weight: 600; /* font-semibold */
+    background-color: #006400; /* bg-[#006400] */
     border: none;
     cursor: pointer;
     transition: transform 0.2s ease;
-    box-shadow: 0 10px 15px -3px rgba(197, 179, 88, 0.4), 0 4px 6px -2px rgba(197, 179, 88, 0.2);
+    box-shadow: 0 10px 15px -3px rgba(0, 100, 0, 0.4), 0 4px 6px -2px rgba(0, 100, 0, 0.2); /* shadow-green */
+    margin-top: 2rem; /* mt-8 */
 }
 
 .nc-primary-btn:hover {
@@ -484,26 +480,55 @@
     height: 1.25rem;
 }
 
-/* Input Styles */
-.noor-input {
-    border-radius: 0.5rem;
-    border: 2px solid #E5E7EB;
-    padding: 0.75rem 1rem;
+/* Input Section - Match mock exactly */
+.nc-input-section {
+    width: 100%;
+    margin-top: 1.5rem; /* space-y-6 spacing */
+    text-align: left;
+}
+
+.nc-input-label {
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: #4B3C2B;
+    margin-bottom: 1rem; /* space-y-4 */
+}
+
+.nc-input-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.nc-input-icon {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem; /* pl-3 */
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.nc-input-field {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.5rem 0.5rem 2.5rem; /* pl-10 pr-4 py-2 */
+    color: #4B3C2B;
+    border: 1px solid #D1D5DB; /* border-gray-300 */
+    border-radius: 0.75rem; /* rounded-xl */
     font-size: 1rem;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.noor-input:focus {
+.nc-input-field:focus {
     outline: none;
-    border-color: #006400;
-    box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.1);
+    border-color: #D4AF37; /* focus:border-[#D4AF37] */
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); /* focus:ring-[#D4AF37] */
 }
 
-.noor-label {
-    display: block;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
+.nc-input-help {
+    font-size: 0.75rem; /* text-xs */
+    color: #706357;
+    margin-top: 0.25rem;
 }
 
 /* Responsive Design - Applied via main class */

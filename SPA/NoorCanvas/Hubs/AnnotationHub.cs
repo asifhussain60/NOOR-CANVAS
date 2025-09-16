@@ -30,7 +30,7 @@ namespace NoorCanvas.Hubs
             {
                 _logger.LogInformation("NOOR-ANNOTATION-HUB: Client disconnected - ConnectionId: {ConnectionId}", Context.ConnectionId);
             }
-            
+
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -41,7 +41,7 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: User {UserId} joining session {SessionId} - ConnectionId: {ConnectionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: User {UserId} joining session {SessionId} - ConnectionId: {ConnectionId}",
                     userId, sessionId, Context.ConnectionId);
 
                 var groupName = $"Session_{sessionId}";
@@ -70,7 +70,7 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: User {UserId} leaving session {SessionId} - ConnectionId: {ConnectionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: User {UserId} leaving session {SessionId} - ConnectionId: {ConnectionId}",
                     userId, sessionId, Context.ConnectionId);
 
                 var groupName = $"Session_{sessionId}";
@@ -94,7 +94,7 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation from user {UserId} in session {SessionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation from user {UserId} in session {SessionId}",
                     userId, sessionId);
 
                 // Save the annotation to database
@@ -119,12 +119,12 @@ namespace NoorCanvas.Hubs
                     status = "created"
                 });
 
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: Successfully broadcast annotation {AnnotationId} from user {UserId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: Successfully broadcast annotation {AnnotationId} from user {UserId}",
                     annotation.AnnotationId, userId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation from user {UserId} in session {SessionId}", 
+                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation from user {UserId} in session {SessionId}",
                     userId, sessionId);
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to create annotation" });
             }
@@ -137,7 +137,7 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation update {AnnotationId} from user {UserId} in session {SessionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation update {AnnotationId} from user {UserId} in session {SessionId}",
                     annotationId, userId, sessionId);
 
                 // Update the annotation in database
@@ -172,7 +172,7 @@ namespace NoorCanvas.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation update {AnnotationId} from user {UserId}", 
+                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation update {AnnotationId} from user {UserId}",
                     annotationId, userId);
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to update annotation" });
             }
@@ -185,7 +185,7 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation deletion {AnnotationId} from user {UserId} in session {SessionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation deletion {AnnotationId} from user {UserId} in session {SessionId}",
                     annotationId, userId, sessionId);
 
                 // Delete the annotation from database
@@ -219,7 +219,7 @@ namespace NoorCanvas.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation deletion {AnnotationId} from user {UserId}", 
+                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation deletion {AnnotationId} from user {UserId}",
                     annotationId, userId);
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to delete annotation" });
             }
@@ -232,7 +232,7 @@ namespace NoorCanvas.Hubs
         {
             try
             {
-                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation clear from user {UserId} in session {SessionId}", 
+                _logger.LogInformation("NOOR-ANNOTATION-HUB: Broadcasting annotation clear from user {UserId} in session {SessionId}",
                     userId, sessionId);
 
                 // Clear user's annotations from database
@@ -251,7 +251,7 @@ namespace NoorCanvas.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation clear from user {UserId} in session {SessionId}", 
+                _logger.LogError(ex, "NOOR-ANNOTATION-HUB: Error broadcasting annotation clear from user {UserId} in session {SessionId}",
                     userId, sessionId);
                 await Clients.Caller.SendAsync("Error", new { message = "Failed to clear annotations" });
             }

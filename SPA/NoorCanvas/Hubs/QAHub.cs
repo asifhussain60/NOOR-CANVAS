@@ -19,8 +19,8 @@ public class QAHub : Hub
     {
         var groupName = $"qa_session_{sessionId}";
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        
-        _logger.LogInformation("NOOR-QA: User {ConnectionId} joined Q&A for session {SessionId}", 
+
+        _logger.LogInformation("NOOR-QA: User {ConnectionId} joined Q&A for session {SessionId}",
             Context.ConnectionId, sessionId);
     }
 
@@ -35,7 +35,7 @@ public class QAHub : Hub
             }
 
             var groupName = $"qa_session_{sessionId}";
-            
+
             // Create question (placeholder - would normally save to DB)
             var question = new
             {
@@ -48,12 +48,12 @@ public class QAHub : Hub
                 status = "Queued"
             };
 
-            _logger.LogInformation("NOOR-QA: Question submitted for session {SessionId}: {Question}", 
+            _logger.LogInformation("NOOR-QA: Question submitted for session {SessionId}: {Question}",
                 sessionId, questionText.Substring(0, Math.Min(50, questionText.Length)));
 
             // Broadcast to Q&A group
             await Clients.Group(groupName).SendAsync("QuestionQueued", question);
-            
+
             // Confirm to sender
             await Clients.Caller.SendAsync("QuestionSubmitted", new { success = true, questionId = question.questionId });
         }
@@ -77,12 +77,12 @@ public class QAHub : Hub
             // Placeholder logic - would normally update database and get session info
             var sessionId = 1L; // Would get this from question lookup
             var groupName = $"qa_session_{sessionId}";
-            
-            _logger.LogInformation("NOOR-QA: Vote cast on question {QuestionId} by user {UserId}: {Vote}", 
+
+            _logger.LogInformation("NOOR-QA: Vote cast on question {QuestionId} by user {UserId}: {Vote}",
                 questionId, userId, voteValue);
 
             // Broadcast vote update
-            await Clients.Group(groupName).SendAsync("QuestionVoteUpdated", new 
+            await Clients.Group(groupName).SendAsync("QuestionVoteUpdated", new
             {
                 questionId = questionId,
                 voteCount = 5, // Placeholder - would calculate from DB
@@ -114,7 +114,7 @@ public class QAHub : Hub
         {
             _logger.LogDebug("NOOR-QA: Connection {ConnectionId} disconnected normally", Context.ConnectionId);
         }
-        
+
         await base.OnDisconnectedAsync(exception);
     }
 }
