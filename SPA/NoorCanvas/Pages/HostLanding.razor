@@ -1,0 +1,293 @@
+﻿@page "/host/landing"
+@page "/"
+@page "/host/landing/{sessionId?}"
+@page "/landing"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<HostLanding> Logger
+
+<PageTitle>NOOR Canvas - Host Authentication</PageTitle>
+
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</HeadContent>
+
+<!-- Root container from mock -->
+<div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
+    
+    <!-- Main card container from mock -->
+    <div style="width:100%;max-width:32rem;background-color:#FFFFFF;border-radius:1.5rem;padding:2rem 3rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #E5E7EB;text-align:center;">
+        
+        <!-- Logo -->
+        <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+            <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="@(Model?.LogoText ?? "NOOR Canvas")" style="max-width:150px;height:auto;margin:0 auto;" />
+        </div>
+
+        <!-- Title Section from mock -->
+        <h1 style="font-size:2.25rem;font-family:'Poppins',sans-serif;font-weight:700;color:#006400;margin-bottom:2rem;">
+            Host Authentication
+        </h1>
+
+        <!-- Host Authentication Card from mock -->
+        <div style="width:100%;background-color:#F8F5F1;border-radius:1rem;border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;padding:2rem 3rem;text-align:left;margin-top:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+            
+            <!-- Icon and title section from mock -->
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                
+                <!-- Icon circle from mock -->
+                <div style="background-color:white;padding:2rem;border-radius:50%;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);">
+                    <i class="fa-solid fa-people-arrows" style="font-size:3rem;color:#D4AF37;"></i>
+                </div>
+                
+                <!-- Title from mock -->
+                <h3 style="font-size:1.5rem;font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;margin-top:1.5rem;margin-bottom:0.5rem;">
+                    HOST SESSION
+                </h3>
+                
+                <!-- Description from mock -->
+                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;margin-bottom:1rem;">
+                    Manage Islamic learning sessions with interactive tools
+                </p>
+            </div>
+
+            <!-- Input Section from mock -->
+            <div style="position:relative;margin-top:1rem;">
+                
+                <!-- Label from mock -->
+                <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;margin-bottom:0.5rem;">
+                    Enter Your Host Authentication Token
+                </p>
+                
+                <!-- Input container with icon -->
+                <div style="position:relative;">
+                    <!-- Icon from mock -->
+                    <div style="position:absolute;top:50%;left:0.75rem;transform:translateY(-50%);pointer-events:none;">
+                        <i class="fa-solid fa-key" style="color:#706357;"></i>
+                    </div>
+                    
+                    <!-- Input field adapted from mock -->
+                    <InputText @bind-Value="Model!.HostGuid" 
+                               placeholder="Enter your Host GUID Token"
+                               disabled="@isLoading"
+                               style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;"
+                               @onfocus="@(() => SetFocusStyle(true))"
+                               @onblur="@(() => SetFocusStyle(false))" />
+                </div>
+                
+                <!-- Help text from mock -->
+                <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-top:0.5rem;">
+                    Get your Host GUID from the HostProvisioner tool or system administrator
+                </p>
+            </div>
+        </div>
+        
+        <!-- Button from mock -->
+        <div style="margin-top:2rem;">
+            <button @onclick="HandleAuthentication" 
+                    disabled="@(isLoading || string.IsNullOrWhiteSpace(Model?.HostGuid))"
+                    style="width:100%;display:flex;align-items:center;justify-content:center;padding:0.75rem 1.5rem;border-radius:0.75rem;color:white;font-weight:600;background-color:#006400;border:none;cursor:@(isLoading || string.IsNullOrWhiteSpace(Model?.HostGuid) ? "not-allowed" : "pointer");opacity:@(isLoading || string.IsNullOrWhiteSpace(Model?.HostGuid) ? "0.6" : "1");transition:transform 0.2s ease;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4),0 4px 6px -2px rgba(0,100,0,0.2);font-family:'Inter',sans-serif;">
+                
+                @if (isLoading)
+                {
+                    <div style="border:2px solid transparent;border-top:2px solid white;border-radius:50%;width:1rem;height:1rem;animation:spin 1s linear infinite;margin-right:0.5rem;"></div>
+                    <span>Authenticating...</span>
+                }
+                else
+                {
+                    <i class="fa-solid fa-arrow-right" style="margin-right:0.5rem;"></i>
+                    <span>Access Host Control Panel</span>
+                }
+            </button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <!-- Error State -->
+            <div style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:0.75rem;padding:1rem;margin-top:1.5rem;">
+                <div style="display:flex;align-items:center;">
+                    <i class="fa-solid fa-exclamation-triangle" style="color:#DC2626;margin-right:0.5rem;"></i>
+                    <span style="color:#DC2626;font-weight:500;font-family:'Inter',sans-serif;">@errorMessage</span>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model?.SessionId))
+        {
+            <div style="margin-top:1rem;text-align:center;">
+                <p style="color:#706357;font-family:'Inter',sans-serif;font-size:0.875rem;">
+                    Session ID: @Model.SessionId
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+@@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+@code {
+    [Parameter] public string? SessionId { get; set; }
+    [Parameter] public HostLandingViewModel? Model { get; set; }
+    
+    private bool isLoading = false;
+    private string errorMessage = "";
+
+    protected override void OnInitialized()
+    {
+        // Seed demo data so the view renders without external inputs
+        Model ??= new HostLandingViewModel
+        {
+            LogoText = "NOOR Canvas",
+            HostGuid = "",
+            SessionId = SessionId
+        };
+
+        Logger.LogInformation("NOOR-HOST: HostLanding page initialized for session: {SessionId}", SessionId ?? "None");
+    }
+
+    private async Task HandleAuthentication()
+    {
+        if (string.IsNullOrWhiteSpace(Model?.HostGuid))
+        {
+            errorMessage = "Please enter a valid Host GUID Token.";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = "";
+        
+        Logger.LogInformation("NOOR-HOST: Host authentication attempt with GUID: {HostGuid}", 
+            Model.HostGuid.Substring(0, Math.Min(8, Model.HostGuid.Length)) + "...");
+        
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("console.log", "NOOR-HOST: Authentication initiated");
+
+            bool isValidFormat = Guid.TryParse(Model.HostGuid, out Guid guid) || IsBase64String(Model.HostGuid);
+            
+            if (!isValidFormat)
+            {
+                errorMessage = "Invalid GUID format. Please check your Host Authentication Token.";
+                Logger.LogWarning("NOOR-HOST: Invalid GUID format provided");
+                return;
+            }
+
+            using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+
+            var authRequest = new HostAuthRequest { HostGuid = Model.HostGuid };
+            var response = await httpClient.PostAsJsonAsync("/api/host/authenticate", authRequest);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var authResponse = await response.Content.ReadFromJsonAsync<HostAuthResponse>();
+                
+                if (authResponse?.Success == true)
+                {
+                    Logger.LogInformation("NOOR-HOST: Authentication successful, redirecting to dashboard");
+                    
+                    if (!string.IsNullOrEmpty(SessionId))
+                    {
+                        Navigation.NavigateTo($"/host/dashboard?token={authResponse.SessionToken}&sessionId={SessionId}");
+                    }
+                    else
+                    {
+                        Navigation.NavigateTo($"/host/dashboard?token={authResponse.SessionToken}");
+                    }
+                }
+                else
+                {
+                    errorMessage = "Authentication failed. Please verify your Host GUID Token.";
+                    Logger.LogWarning("NOOR-HOST: Authentication failed - invalid credentials");
+                }
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                errorMessage = "Invalid Host GUID Token. Please check your credentials.";
+                Logger.LogWarning("NOOR-HOST: Authentication failed - unauthorized");
+            }
+            else
+            {
+                errorMessage = "Authentication service unavailable. Please try again later.";
+                Logger.LogError("NOOR-HOST: Authentication service error - status: {StatusCode}", response.StatusCode);
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = "Network error. Please check your connection and try again.";
+            Logger.LogError(ex, "NOOR-ERROR: Network error during host authentication");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Unexpected error during host authentication");
+            errorMessage = "An unexpected error occurred. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SetFocusStyle(bool focused)
+    {
+        // This method handles focus styling through CSS :focus pseudo-class
+        // No need for dynamic style manipulation as CSS handles it
+    }
+
+    private static bool IsBase64String(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return false;
+        
+        try
+        {
+            Convert.FromBase64String(s);
+            return s.Length % 4 == 0 && System.Text.RegularExpressions.Regex.IsMatch(s, @"^[a-zA-Z0-9+/]*={0,3}$");
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public class HostLandingViewModel
+    {
+        public string? LogoText { get; set; }
+
+        [Required(ErrorMessage = "Host GUID is required")]
+        public string HostGuid { get; set; } = "";
+
+        public string? SessionId { get; set; }
+    }
+
+    public class HostAuthRequest
+    {
+        [JsonPropertyName("hostGuid")]
+        public string HostGuid { get; set; } = "";
+    }
+
+    public class HostAuthResponse
+    {
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+        
+        [JsonPropertyName("sessionToken")]
+        public string SessionToken { get; set; } = "";
+        
+        [JsonPropertyName("expiresAt")]
+        public DateTime ExpiresAt { get; set; }
+        
+        [JsonPropertyName("hostGuid")]
+        public string HostGuid { get; set; } = "";
+    }
+}

@@ -64,10 +64,13 @@ cd "path" && dotnet build
 ## Debugging & Testing
 
 ### Issue Resolution Workflow
-1. **Document First:** Add to `IssueTracker/NC-ISSUE-TRACKER.MD` before fixing
+1. **Document First:** Add to `IssueTracker/ncIssueTracker.MD` before fixing
 2. **Investigate:** Use available tools (terminal output, file contents, compilation errors)
 3. **Test in TEMP:** Place diagnostic scripts in `Workspaces/TEMP/tests/`
 4. **Fix & Update:** Implement solution, mark issue completed
+5. **Validate Consistency:** Run tracker validation before commit attempt
+
+**CRITICAL:** Never bypass validation hooks without user approval - they prevent repository inconsistencies and maintain project quality
 
 ### What Copilot Can Access
 - Terminal output, file contents, build errors, code search
@@ -83,6 +86,30 @@ cd "path" && dotnet build
 - **Issues/Bugs:** Track in `IssueTracker/NC-ISSUE-TRACKER.MD`
 - **Lifecycle:** ❌ Not Started → ⚡ In Progress → ⏳ Awaiting → ✅ Completed
 - **Preserve history:** Don't delete completed items
+
+## Quality Control & Validation
+
+### Issue Tracker Consistency (MANDATORY)
+**Purpose:** Ensures synchronization between issue files and tracker documentation  
+**Hook Location:** `.hooks/validate-tracker-consistency.ps1` (runs pre-commit)  
+**Command:** `.\Workspaces\Global\validate-tracker-consistency.ps1 -Verbose`
+
+**Workflow:**
+1. **Check Status:** Run validation script before any commit attempt
+2. **Fix Issues:** Use `validate-tracker-consistency.ps1 -Fix` to auto-resolve when possible  
+3. **Manual Resolution:** Address inconsistencies that require human intervention
+4. **Commit Only When Clean:** Zero inconsistencies required for commit approval
+
+**Common Inconsistencies:**
+- Issue files exist in folders but missing from `ncIssueTracker.MD`
+- Issues marked completed but files still in `IN PROGRESS` folder
+- Tracker references non-existent issue files
+
+**Known Script Issues (Sep 16, 2025):**
+- Validation script references deleted `project-implementation-tracker.md` (should reference `ncImplementationTracker.MD`)
+- Script hardcoded path needs update: Line 16 in `validate-tracker-consistency.ps1`
+
+**Emergency Override:** Use `git commit --no-verify` ONLY with explicit user permission and documented justification
 
 ## Common Issues & Solutions
 
@@ -132,16 +159,60 @@ dotnet build --verbosity quiet  # Check compilation before launch
 - **Never ask about logging** - it's automatically configured in Program.cs
 - **Pattern:** Structured logging with consistent NOOR-prefixed messages
 
+### Blazor View Builder Strategy (Razor Views)
+When building Blazor `.razor` views from HTML mocks, follow this comprehensive strategy:
+
+**Core Objectives:**
+1. **Complete replacement:** Replace ENTIRE existing markup with provided HTML mock
+2. **Blazor adaptation:** Convert to valid Razor/Blazor (components, bindings, events)
+3. **Data binding:** Replace placeholders with strongly-typed Blazor bindings
+4. **Logo integration:** Insert centered `<div class="noor-canvas-logo">` at `<!-- Logo -->` markers
+5. **Inline styles only:** All styling must be inline to prevent cross-view conflicts
+6. **Syntax validation:** Ensure clean Razor compilation with no analyzer errors
+
+**Detailed Implementation:**
+- **Replace entire view:** Overwrite target `.razor` file completely, preserve structure from mock
+- **Blazor conversion:** Fix self-closing elements, convert `onclick` to `@onclick`, use Blazor components (`<InputText>`, `<EditForm>`)
+- **Data binding:** Detect placeholders (`{{Name}}`, `[[Name]]`, `data-bind="Name"`), replace with `@Model.Property` or `@Property`
+- **Model creation:** Create strongly-typed backing model with `[Parameter] public MyViewModel? Model { get; set; }`
+- **Demo data seeding:** If `Model` is null, seed demo data in `OnInitialized()` for design-time rendering
+- **Logo block insertion:** At `<!-- Logo -->` comment, insert:
+  ```html
+  <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;">
+      <span>@(Model?.LogoText ?? "Noor Canvas")</span>
+  </div>
+  ```
+- **Inline styling:** Use `style="..."` attributes only, no global CSS modifications
+- **Asset handling:** Ensure relative paths resolve under `wwwroot`, add TODO comments for uncertain paths
+- **Accessibility:** Add basic ARIA attributes and semantic roles where straightforward
+
+**Quality Checklist:**
+- ✅ File compiles with no errors/warnings
+- ✅ All `@using`/`@inject` statements present
+- ✅ Event handlers exist in `@code` block
+- ✅ Nullable annotations respected with null checks
+- ✅ No unresolved paths or broken loops
+- ✅ Recommend: `dotnet build` and `dotnet format` validation
+
+**Output Requirements:**
+- Return complete `.razor` file content (markup + `@code` block)
+- Include view model class inline or as separate `.cs` file
+- Provide "What Changed" summary (replaced markup, bindings added, handlers added, logo insertion)
+
 ### Testing & Git Workflow
 - **Automated:** `.hooks/post-build.ps1` runs tests after successful builds
-- **Manual commits:** `git add . ; git commit -m "message"` (no pre-commit hooks)
-- **Cleanup triggers:** "Clean up and commit" → TEMP clear → build verify → commit
+- **Quality Gate:** Pre-commit validation via `validate-tracker-consistency.ps1` prevents commits with inconsistencies
+- **Standard commits:** `git add . ; git commit -m "message"` (validation hook enforced)
+- **Emergency bypass:** `git commit --no-verify -m "message"` (ONLY with explicit user permission)
+- **Cleanup triggers:** "Clean up and commit" → TEMP clear → build verify → **validate consistency** → commit
 
 ### Repository Maintenance
 1. Empty TEMP contents (preserve structure)
 2. Remove build artifacts (bin/, obj/)  
 3. Verify compilation before commit
-4. Use professional file names only
+4. **MANDATORY:** Run `validate-tracker-consistency.ps1` and fix all inconsistencies before commit
+5. Use professional file names only
+6. **Never bypass validation hooks** without explicit user approval
 
 ### Security & Performance
 - **Auth:** GUID-based session tokens (no traditional login)
