@@ -3,85 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOOR Canvas - Welcome</title>
+    <title>Host Authentication</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
+        
+        .inter {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+        }
+
+        .playfair {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .cinzel-decorative {
+            font-family: 'Cinzel Decorative', serif;
+        }
+
+        .poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .golden-gradient {
+            background-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358);
+        }
+
+        .gold-border {
+            border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+        }
+
+        .shadow-golden {
+            box-shadow: 0 10px 15px -3px rgba(197, 179, 88, 0.4), 0 4px 6px -2px rgba(197, 179, 88, 0.2);
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-[#F8F5F1] flex items-center justify-center min-h-screen p-6">
 
-    <!-- Header -->
-    <header class="w-full max-w-4xl p-4 sm:p-6 bg-white rounded-xl shadow-lg flex items-center justify-center mb-8">
-        <div class="text-center font-bold text-2xl">[Header Image Goes Here...]</div>
-    </header>
-
-    <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0 max-w-4xl mx-auto p-4">
+    <div class="w-full max-w-sm sm:max-w-md md:max-w-lg bg-[#FFFFFF] rounded-3xl p-8 sm:p-12 shadow-2xl shadow-gray-400 border border-gray-200">
         
-        <!-- Host Panel -->
-        <div class="flex-1 bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500">
-            <i class="fa-solid fa-house-user text-6xl text-blue-600 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">I am a Host</h2>
-            <p class="text-gray-600 mb-6">Create and manage Islamic content sessions</p>
-            
-            <ul class="text-left w-full space-y-3 mb-8">
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-database h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Create new sessions</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-share-nodes h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Share Islamic content</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-comments h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Manage Q&A discussions</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-highlighter h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Real-time annotations</span>
-                </li>
-            </ul>
-            
-            <button class="mt-auto w-full bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors">
-                Continue as Host
-            </button>
+        <!-- Header Section -->
+        <h1 class="text-4xl poppins font-bold text-[#8B6E36] mb-8 text-center">Host Authentication</h1>
+
+        <!-- Session Card -->
+        <div class="relative w-full rounded-3xl p-6 sm:p-8 mb-8 text-center overflow-hidden border-2 gold-border border-[#C5B358]/20">
+            <div class="absolute inset-0 bg-[#FBF8EF] rounded-xl transform rotate-2"></div>
+            <div class="relative z-10">
+                <!-- Icon -->
+                <div class="flex items-center justify-center w-20 h-20 mx-auto mb-4 bg-[#F2E5C9] rounded-full shadow-lg">
+                    <i class="fa-solid fa-user-graduate text-5xl text-[#006400]"></i>
+                </div>
+                <!-- Title -->
+                <h2 class="text-2xl inter font-semibold text-[#4B3C2B] mb-2">HOST SESSION</h2>
+                <!-- Description -->
+                <p class="text-sm inter text-[#706357]">Manage Islamic learning sessions with interactive tools</p>
+            </div>
         </div>
         
-        <!-- Participant Panel -->
-        <div class="flex-1 bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center text-center border-4 border-purple-500">
-            <i class="fa-solid fa-users text-6xl text-green-500 mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">I am a Participant</h2>
-            <p class="text-gray-600 mb-6">Join existing sessions and engage with content</p>
-            
-            <ul class="text-left w-full space-y-3 mb-8">
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-calendar-plus h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Join active sessions</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-book-open h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">View shared content</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-comments h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Ask questions</span>
-                </li>
-                <li class="flex items-center space-x-3">
-                    <i class="fa-solid fa-hand-pointer h-6 w-6 text-green-500"></i>
-                    <span class="text-gray-700">Vote on discussions</span>
-                </li>
-            </ul>
+        <!-- Button -->
+        <button class="w-full flex items-center justify-center py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-golden" style="background-color: #006400;">
+            <span class="mr-2">Access Host Dashboard</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+        </button>
 
-            <button class="mt-auto w-full bg-green-500 text-white py-3 rounded-xl text-lg font-semibold hover:bg-green-600 transition-colors">
-                Join Session
-            </button>
-        </div>
     </div>
+
 </body>
 </html>

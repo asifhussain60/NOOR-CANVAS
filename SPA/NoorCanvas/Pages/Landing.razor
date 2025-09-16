@@ -9,64 +9,58 @@
 @inject DialogService DialogService
 @inject IHttpClientFactory HttpClientFactory
 
-<div class="landing-container noor-fade-in">
-    <!-- Logo Only - No Header Container -->
-    <img src="images/NoorCanvas.png" 
-         alt="NOOR Canvas Logo" 
-         class="noor-main-logo" />
+<div class="nc-landing-wrapper nc-landing-body">
+    <!-- NOOR Canvas Branding Header -->
+    <header class="nc-branding-header">
+        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="NOOR Canvas - Real-time Islamic Content Sharing Platform" class="nc-logo-resized" />
+    </header>
 
-    <!-- Phase 3.6: Host-Only Landing Page (User Token Card Removed) -->
-    <div class="noor-flex-single noor-max-w-2xl mx-auto p-4">
-        
-        <!-- Host Panel (Centered, Full Width) -->
-        <div id="host-card" class="noor-card-wide noor-card-interactive bg-white rounded-3xl shadow-xl flex flex-col items-center text-center border-4 border-purple-500">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Host Control Panel</h2>
-            
-            @if (currentStep == 1)
-            {
-                <!-- Step 1: Large Button Design -->
-                <div class="noor-large-button-content">
-                    <i class="fa-solid fa-chalkboard-teacher noor-large-icon text-blue-600 mb-6" style="font-size: 4rem;"></i>
-                    <p class="noor-large-button-text text-gray-800 font-semibold text-xl mb-4">HOST SESSION</p>
-                    <p class="text-gray-600 mb-8">Manage Islamic learning sessions with interactive tools</p>
+    <div class="nc-card-container nc-p-0">
+        <!-- Header Title -->
+        <h1 class="nc-heading nc-poppins">Host Authentication</h1>
+
+        <!-- Session Card (mock-accurate) -->
+        <div class="nc-session-card">
+            <div class="nc-session-bg" aria-hidden="true"></div>
+            <div class="nc-session-content">
+                <div class="nc-icon-circle">
+                    <i class="fa-solid fa-user-graduate fa-2x text-[#006400]"></i>
                 </div>
-                <button class="noor-btn noor-btn-primary noor-btn-full" @onclick="() => ShowHostForm()">
-                    <i class="fa-solid fa-arrow-right me-2"></i>Access Host Dashboard
-                </button>
-            }
-            else
-            {
-                <!-- Step 2: Input Form -->
-                <p class="text-gray-600 mb-6 text-lg">Enter Your Host Authentication Token</p>
-                <div class="w-full mb-6">
-                    <label class="noor-label mb-2 text-left text-lg" for="hostGuid">
-                        <i class="fa-solid fa-key text-blue-500 me-2"></i>Host GUID
-                    </label>
-                    <input type="text" 
-                           id="hostGuid" 
-                           class="noor-input w-full text-lg py-3" 
-                           placeholder="Enter your Host GUID Token"
-                           @bind="hostGuid" />
-                    <small class="text-gray-500 mt-2 d-block">Get your Host GUID from the HostProvisioner tool or system administrator</small>
-                </div>
-                <button class="noor-btn noor-btn-primary noor-btn-full" @onclick="() => HandleHostAccess()">
-                    <i class="fa-solid fa-sign-in-alt me-2"></i>Access Host Dashboard
-                </button>
-                
-                <!-- Phase 3.6: Information about User Access -->
-                <div class="mt-8 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                    <h6 class="text-blue-800 font-semibold mb-2">
-                        <i class="fa-solid fa-info-circle me-2"></i>For Session Participants
-                    </h6>
-                    <p class="text-blue-700 text-sm">
-                        Participants join sessions using direct token links provided by the host. 
-                        If you have a session token, use the direct URL format: 
-                        <code class="bg-blue-100 px-2 py-1 rounded">/user/{token}</code>
-                    </p>
-                </div>
-            }
+                <h2 class="nc-session-title nc-inter">HOST SESSION</h2>
+                <p class="nc-session-desc nc-inter">Manage Islamic learning sessions with interactive tools</p>
+            </div>
         </div>
+
+        @if (currentStep == 1)
+        {
+            <button class="nc-primary-btn" @onclick="() => ShowHostForm()">
+                <span class="mr-2">Access Host Dashboard</span>
+                <svg class="" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </button>
+        }
+        else
+        {
+            <!-- Step 2: Input Form (kept from original) -->
+            <p class="text-gray-600 mb-6 text-lg">Enter Your Host Authentication Token</p>
+            <div class="w-full mb-6">
+                <label class="noor-label mb-2 text-left text-lg" for="hostGuid">
+                    <i class="fa-solid fa-key text-blue-500 me-2"></i>Host GUID
+                </label>
+                <input type="text"
+                       id="hostGuid"
+                       class="noor-input w-full text-lg py-3"
+                       placeholder="Enter your Host GUID Token"
+                       @bind="hostGuid" />
+                <small class="text-gray-500 mt-2 d-block">Get your Host GUID from the HostProvisioner tool or system administrator</small>
+            </div>
+            <button class="nc-primary-btn" @onclick="() => HandleHostAccess()">
+                <i class="fa-solid fa-sign-in-alt me-2"></i>Access Host Dashboard
+            </button>
+        }
     </div>
+</div>
 
     <!-- Authentication Forms (Initially Hidden) -->
     <div class="auth-section" id="auth-section" style="display: none;">
@@ -103,7 +97,6 @@
             </div>
         </div>
     </div>
-</div>
 
 @code {
     // Phase 3.6: Host-Only Landing Page State Management

@@ -1,0 +1,169 @@
+/* NC Gold Theme - imported from mock Landing Page.html
+   Prefixed with 'nc-' to avoid conflicts with existing styles
+*/
+
+/* Font families will be loaded from the host HTML via Google Fonts link */
+
+.nc-inter {
+    font-family: 'Inter', sans-serif;
+}
+
+.nc-playfair {
+    font-family: 'Playfair Display', serif;
+}
+
+.nc-cinzel-decorative {
+    font-family: 'Cinzel Decorative', serif;
+}
+
+.nc-poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+.nc-golden-gradient {
+    background-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358);
+}
+
+.nc-gold-border {
+    border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+}
+
+.nc-shadow-golden {
+    box-shadow: 0 10px 15px -3px rgba(197, 179, 88, 0.4), 0 4px 6px -2px rgba(197, 179, 88, 0.2);
+}
+
+/* Page layout */
+.nc-landing-body {
+    background-color: #F8F5F1;
+}
+
+.nc-landing-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    flex-direction: column;
+}
+
+/* NOOR Canvas Branding Header (separate from hidden global header) */
+.nc-branding-header {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 2rem;
+    text-align: center;
+    background: transparent;
+}
+
+/* Logo with fixed 400px width and transparent background */
+.nc-logo-resized {
+    width: 400px;
+    height: auto;
+    background: transparent;
+    display: block;
+    margin: 0 auto;
+}
+
+.nc-max-w-4xl {
+    max-width: 56rem;
+}
+
+.nc-card-container {
+    width: 100%;
+    max-width: 28rem; /* Smaller width to better match mock */
+    background: #FFFFFF;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.nc-heading {
+    font-size: 2.25rem; /* 36px (approx text-4xl) */
+    font-weight: 700;
+    color: #8B6E36;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.nc-session-card {
+    position: relative;
+    width: 100%;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    overflow: hidden;
+    border: 3px solid #D4AF37; /* Golden border as requested */
+    background-clip: padding-box;
+}
+
+.nc-session-card .nc-session-bg {
+    position: absolute;
+    inset: 0;
+    background: #FBF8EF;
+    border-radius: 0.75rem;
+    transform: rotate(2deg);
+}
+
+.nc-session-content {
+    position: relative;
+    z-index: 10;
+}
+
+.nc-icon-circle {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto 1rem auto;
+    background: #F2E5C9;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.nc-icon-circle .fa-user-graduate {
+    color: #006400; /* Green color for the graduation icon as requested */
+    font-size: 1.75rem;
+}
+
+.nc-session-title {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    color: #4B3C2B;
+    margin-bottom: 0.25rem;
+}
+
+.nc-session-desc {
+    font-size: 0.875rem;
+    color: #706357;
+}
+
+.nc-primary-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #006400; /* dark green as in mock */
+    transition: transform .15s ease-in-out;
+}
+
+.nc-primary-btn:hover {
+    transform: scale(1.03);
+}
+
+.nc-primary-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Responsive tweaks */
+@media (min-width: 640px) {
+    .nc-card-container { padding: 3rem; }
+    .nc-heading { font-size: 2.5rem; }
+}

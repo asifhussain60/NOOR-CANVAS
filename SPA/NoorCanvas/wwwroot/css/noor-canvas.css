@@ -4,16 +4,17 @@
  * Replaces McBeatch theme with custom NOOR Canvas branding
  */
 
-/* Import Google Fonts Inter family */
+/* Import Google Fonts Inter family and Poppins for headings */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 /* NOOR Canvas CSS Variables (Extracted from Design Mocks) */
 :root {
   /* Primary Color Palette */
   --noor-primary-blue: #3B82F6;      /* blue-500 */
-  --noor-secondary-purple: #8B5CF6;   /* purple-500 */
+  --noor-secondary-golden: #F59E0B;   /* golden-500 */
   --noor-accent-green: #10B981;       /* green-500 */
-  --noor-border-purple: #A855F7;      /* purple-600 for borders */
+  --noor-border-golden: #D97706;      /* golden-600 for borders */
   
   /* Gray Scale */
   --noor-gray-50: #F9FAFB;
@@ -28,14 +29,15 @@
   
   /* Typography */
   --noor-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --noor-heading-font: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Layout & Effects */
   --noor-border-radius: 12px;         /* rounded-xl equivalent */
   --noor-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --noor-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   
-  /* Purple Border Styling (Mock Signature) */
-  --noor-purple-border: 4px solid var(--noor-border-purple);
+  /* Golden Border Styling (Mock Signature) */
+  --noor-golden-border: 4px solid var(--noor-border-golden);
 }
 
 /* Global Base Styles */
@@ -303,13 +305,14 @@ html, body {
 
 /* Main Logo - Standalone (LARGE and Prominent - Issue-75) */
 .noor-main-logo {
-  height: 280px; /* LARGE size - increased from 160px for maximum prominence */
-  width: auto;
-  display: block;
-  margin: 2rem auto 3rem auto;
-  opacity: 0.7; /* Reduced opacity by 30% (from 1.0 to 0.7) */
-  filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.3));
-  transition: transform 0.3s ease-in-out;
+    height: 480px;
+    width: auto;
+    display: block;
+    margin: 2rem auto 10px auto;
+    opacity: 0.7;
+    filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.3));
+    transition: transform 0.3s 
+ease-in-out;
 }
 
 .noor-main-logo:hover {
@@ -337,11 +340,11 @@ html, body {
   }
 }
 
-/* Issue-70: Enhanced Square Button Cards - Issue-78: 25% Width Increase */
+/* Issue-70: Enhanced Square Button Cards - Issue-78: 25% Width Increase + 20% Additional Width */
 .noor-card-wide {
   flex: 1;
-  min-width: 332px; /* 25% wider - was 266px (266 × 1.25 = 332px) */
-  max-width: 420px; /* 25% wider - was 336px (336 × 1.25 = 420px) */
+  min-width: 398px; /* 20% wider - was 332px (332 × 1.2 = 398px) */
+  max-width: 504px; /* 20% wider - was 420px (420 × 1.2 = 504px) */
   aspect-ratio: 1.2; /* Wider aspect ratio for more prominent appearance */
   display: flex;
   flex-direction: column;
@@ -351,7 +354,7 @@ html, body {
   box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 16px 32px -8px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  /* Issue-CSS-Card-Internal-Padding: Generous internal spacing from purple border */
+  /* Issue-CSS-Card-Internal-Padding: Generous internal spacing from golden border */
   padding: 3rem; /* Explicit padding for modern minimalistic spacing */
 }
 
@@ -379,7 +382,7 @@ html, body {
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
-  border: 1px solid rgba(255,255,255,0.25);
+    border: 2px solid rgb(217 119 6);
 }
 
 .noor-large-icon {
@@ -487,7 +490,7 @@ html, body {
   }
 }
 
-/* Purple Border Container - Enhanced Modern Minimalistic Design */
+/* Golden Border Container - Enhanced Modern Minimalistic Design */
 .noor-main-container {
   width: 95%;
   max-width: 1200px; /* Constrain maximum width for better readability */
@@ -495,7 +498,7 @@ html, body {
   border-radius: 1.5rem; /* More rounded for modern look */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
   padding: 3rem 2.5rem; /* Much more generous padding */
-  border: 3px solid var(--noor-border-purple); /* Slightly thinner border for elegance */
+  border: 3px solid var(--noor-border-golden); /* Slightly thinner border for elegance */
   margin: 2rem auto; /* Add top/bottom margin for breathing room */
   transition: all 0.3s ease;
 }
@@ -805,11 +808,102 @@ html, body {
   text-align: center;
 }
 
+/* Host Control Panel Title - Enhanced Typography */
+.noor-host-title {
+  font-family: var(--noor-heading-font);
+  font-size: 3rem; /* Larger title size for prominence */
+  font-weight: 800; /* Extra bold for maximum impact */
+  color: var(--noor-primary-blue); /* NOOR Canvas primary blue theme */
+  margin-bottom: 2.5rem; /* More spacing below title */
+  text-align: center;
+  letter-spacing: -0.025em; /* Tighter letter spacing for modern look */
+  text-shadow: 0 4px 8px rgba(59, 130, 246, 0.2); /* Subtle blue shadow */
+  line-height: 1.1; /* Tighter line height for impact */
+  text-transform: none; /* Keep natural casing */
+  transition: all 0.3s ease; /* Smooth transitions */
+}
+
+.noor-host-title:hover {
+  transform: scale(1.02); /* Subtle scale on hover */
+  color: #2563EB; /* Slightly darker blue on hover */
+  text-shadow: 0 6px 12px rgba(59, 130, 246, 0.3); /* Enhanced shadow on hover */
+}
+
+/* Responsive sizing for host title */
+@media (min-width: 768px) {
+  .noor-host-title {
+    font-size: 3.5rem; /* Even larger on desktop */
+  }
+}
+
+@media (max-width: 640px) {
+  .noor-host-title {
+    font-size: 2.25rem; /* Scaled down for mobile */
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Host Control Panel Card - Force 3px Golden Border */
+#host-card {
+  border: 3px solid var(--noor-border-golden) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+  padding: 2rem !important; /* ensure internal spacing stays consistent */
+}
+
+/* Golden Button Variant */
+.noor-btn-golden {
+  background-color: var(--noor-border-golden);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 20px rgba(217,119,6,0.18);
+}
+
+.noor-btn-golden:hover {
+  background-color: #b45309; /* darker golden on hover */
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 12px 28px rgba(217,119,6,0.22);
+}
+
+/* Ensure Host Title uses Poppins even if other rules exist */
+.noor-host-title {
+  font-family: var(--noor-heading-font) !important;
+}
+
+/* Inner card spacing to separate it from CTA button */
+.noor-large-button-content {
+  margin-bottom: 2rem;
+}
+
+/* Increase host card internal padding for breathing room */
+#host-card {
+  padding: 2rem !important;
+}
+
+/* Centered button variant for landing CTA (moderate width on desktop, full on mobile) */
+.noor-btn-centered {
+  display: inline-block;
+  width: min(60%, 420px);
+  margin: 0.75rem auto 0 auto;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .noor-btn-centered {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
 /* Layout Utilities */
 .noor-flex-panel {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* Remove/hide global NOOR header bar (Issue: unwanted purple header band) */
+.noor-header {
+  display: none !important;
 }
 
 @media (min-width: 768px) {
@@ -1083,9 +1177,30 @@ body * {
   border-width: 4px !important;
 }
 
-.border-purple-500 {
-  border-color: var(--noor-border-purple) !important;
+.border-golden-500 {
+  border-color: var(--noor-border-golden) !important;
   border-style: solid !important;
+}
+.border-blue-500 {
+  border-color: #3b82f6 !important;
+  border-style: solid !important;
+}
+
+/* Additional Golden Color Variants for Theme Consistency */
+.text-golden-600 {
+  color: var(--noor-border-golden) !important;
+}
+
+.text-golden-500 {
+  color: var(--noor-secondary-golden) !important;
+}
+
+.bg-golden-50 {
+  background-color: #FFFBEB !important; /* Very light golden background */
+}
+
+.bg-golden-100 {
+  background-color: #FEF3C7 !important; /* Light golden background */
 }
 
 .rounded-3xl {
@@ -1242,4 +1357,14 @@ body * {
 
 .noor-feature-list li:last-child {
   margin-bottom: 0;
+}
+
+/* Layout Utility Classes */
+.noor-flex-single {
+  display: flex;
+  flex: 1;
+}
+
+.noor-max-w-2xl {
+  max-width: 168rem; /* 4x wider than standard 2xl (42rem * 4 = 168rem) */
 }

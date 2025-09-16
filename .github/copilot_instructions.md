@@ -1,543 +1,172 @@
-# GitHub Copilot — NOOR CANVAS Workspace Instructions
+# GitHub Copilot Instructions - NOOR CANVAS
 
-## 1. Project Context & Core Technologies
+## Project Overview
+**Islamic Content Sharing Platform** - Real-time collaborative learning system with live annotations, Q&A, and session management.
 
-- **Workspace Root:** `D:\PROJECTS\NOOR CANVAS`
-- **Main Application:** Islamic Content Sharing Platform (NOOR CANVAS) - Real-time annotation system
-- **Backend:** ASP.NET Core 8.0, Entity Framework Core, SignalR (WebSocket real-time communication)
-- **Frontend:** Blazor Server with McBeatch Theme integration
-- **Database:** SQL Server with "canvas" schema + KSESSIONS database integration
-- **Database Environment Strategy:**
-  - **Development:** KSESSIONS_DEV, KQUR_DEV databases
-  - **Production:** KSESSIONS, KQUR databases
-  - **Connection:** sa user with password `adf4961glo`, 1-hour timeout for long operations
-- **Security:** GUID-based session validation (UUIDv4), no traditional authentication required
-- **Real-time:** SignalR Hubs for live annotations, Q&A, participant management
-- **Development:** ASP.NET Core hosting on localhost:9090 (HTTP) / localhost:9091 (HTTPS)
-- **Production:** IIS deployment with dedicated application pool configuration
-- **Project Path:** `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\` (main application)
+**Stack:** ASP.NET Core 8.0 + Blazor Server + SignalR + SQL Server  
+**Main App:** `SPA/NoorCanvas/` | **Dev Ports:** HTTP 9090, HTTPS 9091 (Never use 8080)
 
-## 2. Development Server & Global Commands
+## Quick Start
 
-### **CRITICAL PORT RESERVATIONS - DO NOT CHANGE**
-- **Port 8080**: RESERVED for Beautiful Islam application - NEVER use for NOOR Canvas
-- **Port 9090**: NOOR Canvas HTTP (development)
-- **Port 9091**: NOOR Canvas HTTPS (primary development)
-
-### **Global Commands - NOOR Canvas Command Suite**
-**Location:** `Workspaces/Global/` - Complete command suite
-
-**Available Commands:**
+### Essential Commands (`Workspaces/Global/`)
 ```powershell
-nc                             # Primary application runner with token generation
-nc 215                         # Generate token for session ID 215 + launch app
-nct                           # Host token generator (standalone)
-ncdoc                         # DocFX documentation site launcher (fixed Python dependency issue)
-iiskill                       # Process killer for cleanup
+nc 215                    # Session-specific: token + build + launch
+nc                        # Generic: token + build + launch  
+nct create 123            # Standalone token generation
+ncdoc                     # Documentation (port 8050)
+iiskill                   # Process cleanup
 ```
 
-### **NC Command - Enhanced Application Launcher**
-**Location:** `Workspaces/Global/nc.ps1` - Complete workflow automation
+**Standard Workflow:** `nc <sessionId>` → Press ENTER (not "exit") → App launches on https://localhost:9091
 
-**Usage:**
-```powershell
-nc                             # Full workflow: iiskill + nct + build + launch
-nc 215                         # Session-specific token generation for session 215
-nc -SkipTokenGeneration        # Skip token generation step
-nc -Help                       # Display usage information
-```
+## Architecture Essentials
 
-**Workflow:**
-1. **iiskill** - Clean existing processes
-2. **nct [sessionId]** - Generate Host GUID (session-specific if provided)
-3. **Press ENTER** - Continue to build (not "exit")
-4. **dotnet build** - Build application
-5. **dotnet run** - Start server on https://localhost:9091
+### Database (Dual-Schema)
+- **`canvas.*`** - App data (Sessions, Registrations, Questions, Annotations) 
+- **`KSESSIONS.dbo.*`** - Islamic content (Groups→Categories→Sessions) READ-ONLY
+- **Dev Environment:** KSESSIONS_DEV (mandatory) | **Prod:** KSESSIONS (forbidden in dev)
 
-### **Development Workflow**
-```powershell
-# Recommended: Use nc command
-nc 213                         # For session-specific development
+### SignalR Hubs (3 Active)
+- **SessionHub** - Lifecycle (join/leave, broadcast session events)
+- **AnnotationHub** - Real-time drawing (broadcast annotations, coordinates)  
+- **QAHub** - Q&A system (questions, voting, queue management)
 
-# Manual alternative (from project directory)
-cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
-dotnet run --urls "https://localhost:9091;http://localhost:9090"
-```
-
-## 3. Database Architecture & Integration
-
-### **Canvas Schema (NOOR CANVAS)**
-```sql
--- Development Database: KSESSIONS_DEV
--- Production Database: KSESSIONS
-canvas.Sessions (id, album_id, category_id, guid, host_token, status, created_at, expires_at)
-canvas.SessionTranscripts (id, session_id, html_content, created_at)
-canvas.Registrations (id, session_id, name, country, city, fingerprint_hash, ip_hash, join_time)
-canvas.Questions (id, session_id, participant_id, question_text, answer_text, status, created_at)
-canvas.Annotations (id, session_id, participant_id, annotation_data, created_at)
-```
-
-### **KSESSIONS Database Integration**
-**CRITICAL IMPLEMENTATION REQUIREMENT**: All dropdown data (Albums, Categories, Sessions) MUST load from KSESSIONS database, NOT mock data.
-
-**Database Tables (Read-Only Access):**
-- **KSESSIONS.dbo.Groups (Albums)** - Islamic content collections
-- **KSESSIONS.dbo.Categories** - Subdivisions within Groups  
-- **KSESSIONS.dbo.Sessions** - Individual Islamic learning sessions
-
-**Hierarchical Relationship**: Groups → Categories → Sessions (cascading dropdowns)
-
-## 4. Implementation Progress & Documentation
-
-### **Current Status (September 2025):**
-- **Phase 1-3**: ✅ COMPLETED (Backend, Core Platform, Advanced Features)
-- **Phase 4**: 🔄 IN PROGRESS (NOOR Canvas Branding Integration)
-- **Backend**: 95% complete (8 controllers, 3 SignalR hubs, database complete)
-- **Frontend**: 70% complete (Host UX streamlined, participant features pending)
-- **Testing**: Automated testing workflow implemented
-
-### **Issue Tracking System** 
-- **Main Tracker:** `IssueTracker/NC-ISSUE-TRACKER.MD`
-- **Status Folders:** `NOT STARTED/`, `IN PROGRESS/`, `AWAITING_CONFIRMATION/`, `COMPLETED/`
-- **Commands:**
-  - `Add an issue: [Title] - [Description] - [Priority] - [Category]`
-  - `Mark issue X as [Completed|Pending|In Progress]`
-
-### **TODO vs ISSUE Management - CRITICAL DISTINCTION**
-**TODO Section (Temporary Work Tracking):**
-- **Purpose:** Simple checklist for work items in flight
-- **Format:** `- [ ] **Brief Title** - Description`
-- **Lifecycle:** Add → Work → Complete → **DELETE** (remove entirely when done)
-- **Location:** Top of NC-ISSUE-TRACKER.MD file
-- **Scope:** Simple actionable items without need for detailed documentation
-
-**ISSUE Section (Permanent Problem Tracking):**
-- **Purpose:** Bugs, defects, feature requests requiring detailed documentation
-- **Format:** `- [Icon] **Issue-X** — [Title](PATH/file.md)`
-- **Lifecycle:** NOT STARTED → IN PROGRESS → AWAITING CONFIRMATION → COMPLETED
-- **Files:** Each issue has dedicated .md file in appropriate status folder
-- **Icons:** ❌ Not Started | ⚡ In Progress | ⏳ Awaiting Confirmation | ✅ Completed
-
-**NEVER mix TODOs and Issues - they serve different purposes and have different lifecycles.**
-
-### **Implementation Tracker System - SINGLE SOURCE OF TRUTH**
-- **Master Tracker:** `Workspaces/IMPLEMENTATION-TRACKER.MD`
-- **Purpose:** Comprehensive development progress tracking AND all implementation-related documentation
-- **CRITICAL RULE:** ALL implementation work, technical specifications, user guides, API documentation, and process documentation MUST be consolidated in IMPLEMENTATION-TRACKER.MD
-- **NO SEPARATE FILES:** Do not create separate DocFX files, user guides, technical references, or process documentation for implementation work
-
-## 5. File Management & Best Practices
-
-### **Professional File Naming Standards**
-**❌ NEVER Use These Naming Patterns:**
-- `SampleFilename_Fixed.cs`, `TestFile_Updated.md`, `ComponentName_New.tsx`
-- `-NEW`, `-OLD`, `-DEBUG`, `-TEMP`, `-BACKUP`, `-COPY`, `-DUPLICATE`
-- `_backup`, `_copy`, `_old`, `_new`, `_temp`, `_debug`, `_working`, `_draft`
-
-**✅ ALWAYS Use Professional Names:**
-- `SessionController.cs`, `AnnotationHub.cs`, `ParticipantRegistration.js`
-
-### **TEMP Folder Development Workspace**
-**Location:** `Workspaces/TEMP/`  
-**Purpose:** Designated workspace for ALL non-production development artifacts
-
-**MANDATORY Usage Rules:**
-- **Test Files**: All test implementations, sample code, proof-of-concepts
-- **Debug Files**: Debug scripts, diagnostic tools, troubleshooting files
-- **Experimental Code**: Feature experiments, architecture tests, prototypes
-
-**Cleanup Behavior:**
-- **TEMP Folder Structure**: Always preserved
-- **TEMP Contents**: Emptied during cleanup to maintain clean workspace
-
-## 6. PowerShell & Command Guidelines
-
-### **PowerShell Command Guidelines**
-```powershell
-# ✅ CORRECT: Use semicolon for command separation
-cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build --no-restore
-
-# ❌ WRONG: Do not use && (bash syntax)
-cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas" && dotnet build --no-restore
-```
-
-### **Global Commands File Management**
-**CRITICAL FILE INTEGRITY RULES:**
-- **Never create empty files**: Always verify file content after creation
-- **Avoid encoding issues**: Remove all emojis and special characters from PowerShell scripts
-- **Test after modification**: Always run `nc -Help` to verify functionality
-- **Backup before major changes**: Keep working copies in TEMP folder
-
-### **PowerShell Emoji Policy**
-To avoid encoding and script parsing issues on Windows PowerShell, DO NOT use emojis or non-ASCII glyphs inside PowerShell scripts or batch wrappers. GitHub Copilot (or any automation) must never inject emoji characters into `.ps1`, `.cmd`, or `.bat` files. Use plain ASCII text and simple bullets (`-`) for lists.
-
-## 7. Database Connection Requirements
-
-### **CRITICAL DATABASE ENVIRONMENT REQUIREMENTS**
-**MANDATORY DEVELOPMENT RULE**: All development work MUST use development databases only.
-
-**Development Databases (REQUIRED):**
-- `KSESSIONS_DEV` - Primary NOOR Canvas database with canvas schema
-- `KQUR_DEV` - Quranic content database for cross-application integration
-- **Account**: `sa` user with password `adf4961glo`
-- **Connection Timeout**: 3600 seconds (1 hour) for long operations
-
-**Production Databases (FORBIDDEN in development):**
-- `KSESSIONS` - Production database - **DO NOT TOUCH until deployment**
-- `KQUR` - Production database - **DO NOT TOUCH until deployment**
-
-## 8. Testing & Temporary File Management
-
-### **TEMP Folder Policy - Critical Requirement**
-**MANDATORY RULE**: All temporary test files created during issue resolution must be placed in TEMP directories for easy cleanup.
-
-**TEMP Directory Structure:**
-```
-TEMP/
-├── tests/           # Temporary test scripts created during debugging
-├── docs/           # Temporary documentation files
-└── data/           # Temporary data files and outputs
-```
-
-**Testing File Placement Rules:**
-- ✅ **Temporary diagnostic scripts**: `TEMP/tests/` - Scripts created to test specific issues
-- ✅ **Issue resolution tests**: `TEMP/tests/` - Scripts validating bug fixes
-- ✅ **Debugging helpers**: `TEMP/tests/` - Scripts for troubleshooting
-- ❌ **Permanent tests**: Should go in `Tests/` directory with proper naming
-- ❌ **Production scripts**: Should go in appropriate permanent directories
-
-**Naming Convention for TEMP Tests:**
-- Format: `{issue-description}-test.ps1` or `{component}-diagnostic.ps1`
-- Example: `hostsessionmanager-diagnostic.ps1`, `user-session-validation.ps1`
-- Example: `create-session-api-test.ps1`, `database-connection-test.ps1`
-
-**Cleanup Process:**
-- TEMP folders are cleaned during repository maintenance
-- All TEMP content is considered disposable
-- No production dependencies should reference TEMP files
-
-## 9. Debugging & Issue Resolution
-
-### **Copilot's Debugging Capabilities**
-**What GitHub Copilot CAN Access Automatically:**
-- **Terminal Output:** `get_terminal_output` - All command results and errors
-- **File Contents:** `read_file` - Any file in the workspace for analysis
-- **Compilation Errors:** `get_errors` - Build and lint errors directly
-- **Code Search:** `grep_search`, `semantic_search` - Find code patterns and issues
-
-**What User Must Provide:**
-- **Browser Console Errors:** Developer tools messages, JavaScript errors
-- **Visual UI Issues:** Layout problems, styling issues
-- **Performance Observations:** Slow loading, memory usage issues
-
-### **Issue Documentation Protocol**
-**CRITICAL REQUIREMENT:** Before fixing any issue, GitHub Copilot MUST first document it in the issue tracker.
-
-**Issue Documentation Workflow:**
-1. **Document in NC-ISSUE-TRACKER.MD** immediately
-2. **Investigation** → Use available debugging tools to diagnose
-3. **Resolution** → Implement fix with proper testing
-4. **Update Status** → Mark issue as completed in tracker
-
-### **TODO Prompt Handling**
-When a user begins a prompt with a leading `TODO:`, the assistant MUST treat that request as a tracked TODO and follow these rules:
-
-- Add a TODO entry to `Workspaces/IMPLEMENTATION-TRACKER.MD` using the exact same format as issues (icon + brief title + detailed section). Use one of the status icons: ❌ Not Started, ⚡ In Progress, ⏳ Awaiting Confirmation, ✅ Completed. By default set new TODOs to ❌ Not Started unless the user indicates work has already started.
-- Create a detailed section within IMPLEMENTATION-TRACKER.MD for the TODO (same conventions as issues). Section format: `#### **🎯 TODO-X: [Title] (Date)**` and include implementation summary, technical details, acceptance criteria, and status tracking.
-- Move the TODO through the same lifecycle as issues: ❌ → ⚡ → ⏳ → ✅. When work is complete, update the tracker entry to use the ✅ icon and mark section as **COMPLETED**. Do NOT delete completed TODO entries or sections - preserve them as implementation history.
-- Treat TODOs as first-class tracked implementation work (not ephemeral reminders). They must be discoverable in the implementation tracker, have detailed technical documentation, and support the same status-change commands as issues.
-- TODOs are tracked in IMPLEMENTATION-TRACKER.MD because they represent implementation work rather than bugs/defects (which belong in NC-ISSUE-TRACKER.MD).
-
-Rationale: This ensures implementation asks are preserved, verified, and auditable in the same comprehensive workflow as formal technical implementations, maintaining single source of truth for all development work.
-
-### **Enhanced Debugging Patterns & Error Prevention (September 2025)**
-
-#### **PowerShell Script Development Best Practices**
-**CRITICAL LESSON: Parameter Naming Conflicts**
-- **❌ AVOID**: Using parameter names that conflict with PowerShell built-ins (`Verbose`, `Debug`, `ErrorAction`)
-- **✅ CORRECT**: Use descriptive alternatives (`VerboseLogging`, `DebugMode`, `CustomErrorAction`)
-- **Validation**: Always test parameter names in clean PowerShell session before implementation
-- **Impact**: Prevents script execution failures and cryptic error messages
-
-**Console Buffer Exception Handling:**
-- **Understanding**: PSReadLine console exceptions during long operations are display-only issues
-- **Git Operations**: Commit operations complete successfully despite console buffer errors  
-- **Prevention**: Use `-NoProfile` execution policy for automated scripts to avoid PSReadLine conflicts
-- **Mitigation**: Terminal display issues don't indicate operation failure - check actual command results
-
-#### **NCDOC Documentation Server Troubleshooting (September 15, 2025)**
-**Issue**: Python dependency error when running `ncdoc` command
-**Error Symptom**: "Python was not found; run without arguments to install from the Microsoft Store"
-
-**Root Cause**: `ncdoc` command relies on Python for certain DocFX operations but Python is not installed or configured properly on the system.
-
-**✅ IMMEDIATE WORKAROUND (Tested & Working):**
-```powershell
-# If ncdoc fails with Python error, run DocFX directly
-cd DocFX
-docfx serve _site --port 9093
-```
-
-**Why This Works:**
-- DocFX core functionality doesn't require Python for serving pre-built documentation
-- The `_site` directory contains pre-generated HTML documentation 
-- Direct `docfx serve` bypasses Python dependency checks
-- Documentation loads properly at http://localhost:9093
-
-**Prevention Strategy:**
-- Always check if `_site` directory exists and contains HTML files before running ncdoc
-- Use direct DocFX serve command when Python dependencies are unavailable
-- Consider updating ncdoc script to include Python dependency fallback
-
-#### **HTML View Creation & Evaluation Standards (December 2024)**
-**CRITICAL REQUIREMENT**: For all future HTML view creations, GitHub Copilot must follow these standards:
-
-**Modern Minimalistic Design Principles:**
-- **Maintain Current Colors**: Preserve existing NOOR Canvas color scheme (blue #3B82F6, purple #8B5CF6, etc.)
-- **Modernization Allowed**: Update styling to contemporary minimalistic standards while keeping color identity
-- **Clean Typography**: Use Inter font family with proper weight hierarchy (400, 500, 600, 700)
-- **Spacious Layout**: Generous padding and margins following modern design principles
-- **Subtle Animations**: Smooth transitions using cubic-bezier easing functions
-
-**HTML Evaluation Workflow - MANDATORY:**
-1. **Silent Creation**: Create HTML views without asking permission
-2. **Automatic Evaluation**: Silently analyze rendered HTML structure and styling
-3. **Rendering Validation**: Check if HTML renders as expected with proper CSS application  
-4. **Style Consistency**: Verify color scheme, typography, and spacing match design standards
-5. **Responsive Testing**: Ensure mobile and desktop layouts work correctly
-6. **Report Results**: Provide evaluation summary with any identified issues
-
-**CSS Class Management:**
-- **Remove Conflicting Classes**: Eliminate Tailwind utility classes that conflict with custom CSS (py-4, w-full, text-lg when custom equivalents exist)
-- **Use Custom Classes**: Prefer NOOR Canvas custom CSS classes over inline utilities
-- **Cache-Busting**: Include version parameters for CSS files to ensure latest styles load
-- **Consistent Naming**: Use .noor-* prefix for all custom classes
-
-**Quality Gates for HTML Views:**
-- ✅ **Visual Fidelity**: Matches intended modern minimalistic design
-- ✅ **Color Compliance**: Uses established NOOR Canvas color variables
-- ✅ **Typography**: Inter font loads and renders correctly
-- ✅ **Responsive**: Works on mobile, tablet, and desktop viewports
-- ✅ **Performance**: Fast loading with optimized CSS and assets
-- ✅ **Accessibility**: Proper semantic markup and keyboard navigation
-
-### **Enhanced HealthCheck System with DocFX Integration (September 2025)**
-**Purpose**: Comprehensive workspace validation with DocFX implementation plan refresh capabilities
-
-**Enhanced HealthCheck Commands:**
-```powershell
-# Standard healthcheck with DocFX validation
-.\Tests\HealthCheckWithDocFX.ps1
-
-# HealthCheck with automatic DocFX refresh
-.\Tests\HealthCheckWithDocFX.ps1 -RefreshDocFX
-
-# HealthCheck with implementation docs update
-.\Tests\HealthCheckWithDocFX.ps1 -UpdateImplementationDocs
-
-# Verbose logging for detailed diagnostics
-.\Tests\HealthCheckWithDocFX.ps1 -Verbose -RefreshDocFX
-```
-
-**DocFX Implementation Refresh Quick Commands:**
-```powershell
-ncdoc -Force    # Restart documentation server with latest changes
-```
-
-**What HealthCheck Validates:**
-1. **Workspace Structure**: Required directories and core files
-2. **Codebase Components**: Controllers (8), Hubs (3), Models (13+) 
-3. **Global Commands**: nc, nct, ncdoc functionality testing
-4. **DocFX Documentation**: Implementation plan freshness and accuracy
-5. **Implementation Progress**: Cross-reference against IMPLEMENTATION-TRACKER.MD
-6. **DocFX Server Status**: Service availability and port binding
-
-**Expected Results:**
-- Backend Implementation: 95% complete (8 controllers, 3 hubs operational)
-- Frontend Progress: 70% complete (Blazor components with SignalR integration)
-- Phase 4 Current Status: Canvas Tools completion
-- Documentation Status: Implementation docs synchronized with actual progress
-
-**Known Issues with HealthCheck:**
-- DocFX Python dependency may cause ncdoc failures (use direct docfx serve fallback)
-- Documentation drift between actual progress and DocFX implementation section
-- Port conflicts if multiple DocFX instances running simultaneously
-
-**Quick Reference**: See `Workspaces/HEALTHCHECK-QUICK-REF.md` for complete validation workflow and expected outputs.
-
-#### **Terminal Management Efficiency Patterns**
-**Process Cleanup Best Practices:**
-```powershell
-# ✅ COMPREHENSIVE CLEANUP (Most Effective)
-Get-Process -Name "*dotnet*" -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq "dotnet" } | Stop-Process -Force -ErrorAction SilentlyContinue
-
-# ✅ GRACEFUL FALLBACK 
-Get-Process -Name "*noor*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-```
-
-**Build Validation Workflow:**
-1. **Clean Processes**: Always kill existing dotnet/noor processes before rebuild
-2. **Build Verification**: Run `dotnet build --verbosity quiet` to check for compilation errors
-3. **Port Validation**: Check port 9091 availability before starting application
-4. **Guard System**: Use `.guards/Issue-80-Protection.ps1` for comprehensive environment validation
-
-#### **Git Workflow Efficiency Improvements**
-**Log File Management:**
-- **Problem**: Development log files tracking despite .gitignore rules
-- **Solution**: `git rm --cached [log-files]` to remove from tracking without deletion
-- **Prevention**: Regular cleanup of tracked log files that should be ignored
-- **Automation**: Guard rails system includes automatic .gitignore validation
-
-**Commit Message Excellence:**
-- **Long Messages**: Use comprehensive multi-paragraph commit messages for major changes
-- **Console Issues**: Commit operations complete successfully despite PSReadLine display errors
-- **Structure**: Use conventional commit format with detailed implementation summaries
-
-#### **Development Environment Protection**
-**Issue-80 Prevention System:**
-- **Guard Rails**: Comprehensive 4-layer protection system operational
-- **Validation**: Directory context, PowerShell profiles, port availability, project structure
-- **Auto-Fix**: Automatic remediation for detected environment issues
-- **Integration**: VS Code task-based testing (`validate-issue-67-protection`)
-
-**Performance Monitoring:**
-- **Build Times**: Target <2s for incremental builds (achieved: 1.9s average)
-- **Application Startup**: Target <10s for full application startup on localhost:9091
-- **Guard Validation**: <5s for complete guard system validation
-
-## 9. Automatic Logging Implementation
-
-### **Server-Side Automatic Logging (Serilog Integration)**
-**Implementation Pattern:** Every controller action, service method, and SignalR hub automatically includes:
+**Hub Pattern:**
 ```csharp
-// Automatically added to controllers
-private readonly ILogger<ControllerName> _logger;
-
-// Automatic structured logging in all actions
-_logger.LogInformation("NOOR-INFO: {Action} executed for session {SessionId}", nameof(ActionName), sessionId);
+// Standard group naming: "Session_{sessionId}"
+await Groups.AddToGroupAsync(Context.ConnectionId, $"Session_{sessionId}");
+_logger.LogInformation("NOOR-HUB: {Action} for {UserId} in {SessionId}", action, userId, sessionId);
+await Clients.Group($"Session_{sessionId}").SendAsync("EventName", data);
 ```
 
-**Why This Happens Automatically:**
-- Serilog is pre-configured in `Program.cs` with console + file outputs
-- All services are registered with ILogger<T> dependency injection
-- Structured logging format (`NOOR-[LEVEL]: {Message}`) is the established pattern
+## Development Guidelines
 
-### **Copilot Implementation Guidelines**
-- **NEVER ask** "Should I add logging?" — It's automatically included
-- **ALWAYS include** structured logging in every method you write
-- **ASSUME logging exists** when debugging or troubleshooting
+### File Management
+- **Professional Names Only:** `SessionController.cs` (never `Session_Fixed.cs`, `Session-NEW.cs`)
+- **TEMP Workspace:** `Workspaces/TEMP/` for all experimental/debug files
+- **No PowerShell Emojis:** ASCII only in `.ps1` files (encoding issues)
 
-## 10. Automated Testing Workflow
-
-### **Complete Automated Testing System**
-**Implementation**: Comprehensive automated testing workflow eliminates manual test execution
-
-**Automatic Test Execution After Every Build**
-- **Implementation**: `.hooks/post-build.ps1`
-- **Trigger**: Every successful `dotnet build` command
-- **Smart Detection**: Only runs tests if build output actually changed
-
-**Manual Test Execution Only**
-- **Pre-commit hooks**: REMOVED - No automated test execution during commits
-- **Testing approach**: Manual execution using dedicated test commands when needed
-- **Benefit**: Clean, fast commits without delays or terminal issues
-
-### **Git Commit Guidelines - STREAMLINED**
-
-**Standard Commit Procedure:**
+### PowerShell Best Practices
 ```powershell
-git add .
-git commit -m "Your commit message"
+# ✅ Correct command chaining
+cd "path"; dotnet build
+
+# ❌ Wrong (bash syntax)  
+cd "path" && dotnet build
 ```
 
-**No pre-commit hooks or automated tests** - commits execute immediately without interruption.
+### Core Patterns
+- **Logging:** Always use `"NOOR-{COMPONENT}: {message}"` format with structured logging
+- **Database:** Development = KSESSIONS_DEV mandatory, Production = forbidden
+- **Sessions:** GUID-based tokens, no traditional auth
+- **File Cleanup:** TEMP contents cleared during maintenance, structure preserved
 
-## 11. Repository Cleanup & Maintenance
+## Debugging & Testing
 
-### **Automatic Cleanup Command**
-**Triggers**: `Clean up and commit` OR `Cleanup, Commit changes and push to origin`
+### Issue Resolution Workflow
+1. **Document First:** Add to `IssueTracker/NC-ISSUE-TRACKER.MD` before fixing
+2. **Investigate:** Use available tools (terminal output, file contents, compilation errors)
+3. **Test in TEMP:** Place diagnostic scripts in `Workspaces/TEMP/tests/`
+4. **Fix & Update:** Implement solution, mark issue completed
 
-**MANDATORY Cleanup Procedure:**
-1. **Empty TEMP folder contents** (preserve folder structure)
-2. **Remove build artifacts** (bin, obj folders)
-3. **Remove temporary/working files** (files with unprofessional naming patterns)
-4. **MANDATORY BUILD VERIFICATION** (ensure project compiles before commit)
-5. **Stage all changes** (`git add .`)
-6. **Commit with timestamp**
-7. **Push to origin** (if specifically requested)
+### What Copilot Can Access
+- Terminal output, file contents, build errors, code search
+- **User Must Provide:** Browser console errors, UI issues, performance observations
 
-## 12. Essential Context & Best Practices
+### Testing Strategy
+- **Temporary tests:** `TEMP/tests/` (cleaned during maintenance)
+- **Permanent tests:** `Tests/` directory
+- **Naming:** `{component}-diagnostic.ps1`, `{issue-description}-test.ps1`
 
-### **Islamic Content Considerations**
-- **RTL Support:** Arabic and Urdu text rendering
-- **Cultural Sensitivity:** Appropriate Islamic terminology and presentation
-- **Content Types:** Qur'an, Hadith, Etymology, Islamic Poetry support
+### TODO Tracking
+- **TODO prompts:** Track in `Workspaces/IMPLEMENTATION-TRACKER.MD` 
+- **Issues/Bugs:** Track in `IssueTracker/NC-ISSUE-TRACKER.MD`
+- **Lifecycle:** ❌ Not Started → ⚡ In Progress → ⏳ Awaiting → ✅ Completed
+- **Preserve history:** Don't delete completed items
 
-### **Performance Guidelines**
-- **Real-time Optimization:** Minimize SignalR message size
-- **Database Efficiency:** Use indexes on session_id and participant_id
-- **Asset Management:** Reference existing images, don't duplicate
+## Common Issues & Solutions
 
-### **Security Best Practices**
-- **Session Validation:** GUID-based tokens with expiration
-- **SQL Injection Prevention:** Use parameterized queries
-- **Cross-Schema Access:** Minimal permissions principle
+### NCDOC Python Error
+**Problem:** "Python was not found" when running `ncdoc`  
+**Solution:** Use direct DocFX: `cd DocFX; docfx serve _site --port 9093`
+
+### PowerShell Best Practices
+- **Avoid built-in parameter names:** Use `VerboseLogging` not `Verbose`
+- **Console errors during git:** Display issues only, operations still succeed
+- **Script reliability:** Test parameters in clean PowerShell session
+
+### HTML/UI Standards
+- **Colors:** Preserve NOOR Canvas scheme (blue #3B82F6, purple #8B5CF6)
+- **Typography:** Inter font, clean hierarchy, modern minimalistic design
+- **CSS:** Use `.noor-*` prefix, avoid Tailwind conflicts, responsive design
+
+### Mock-to-View Implementation
+- **CRITICAL:** Always reference `.github/NOOR-Canvas-Mock-Implementation-Guide.md` for UI work
+- **Mandatory Header:** Every view MUST include NOOR Canvas branding header with logo
+- **Pixel-Perfect:** Follow exact measurements, colors, spacing from implementation guide
+- **Template:** Use standardized Razor template with `nc-` prefixed CSS classes
+
+### Continuous Learning Protocol
+- **Adaptation Trigger:** When user says "implement this moving forward" or "update instructions"
+- **Action Required:** Update `.github/NOOR-Canvas-Mock-Implementation-Guide.md` with new requirements ensuring you do not create any conflicts.
+- **Documentation:** Add new patterns, standards, or corrections to prevent future issues
+- **Version Control:** Always commit instruction updates with descriptive messages
+
+### Process Management
+```powershell
+# Process cleanup
+Get-Process -Name "*dotnet*" -ErrorAction SilentlyContinue | Stop-Process -Force
+iiskill  # Or use global command
+
+# Build validation workflow
+dotnet build --verbosity quiet  # Check compilation before launch
+```
+
+### Performance Targets
+- **Build:** <2s incremental | **Startup:** <10s on localhost:9091 | **Guard validation:** <5s
+
+## Implementation Standards
+
+### Automatic Logging (Serilog)
+- **Always include:** `_logger.LogInformation("NOOR-{COMPONENT}: {action}", params)`
+- **Never ask about logging** - it's automatically configured in Program.cs
+- **Pattern:** Structured logging with consistent NOOR-prefixed messages
+
+### Testing & Git Workflow
+- **Automated:** `.hooks/post-build.ps1` runs tests after successful builds
+- **Manual commits:** `git add . ; git commit -m "message"` (no pre-commit hooks)
+- **Cleanup triggers:** "Clean up and commit" → TEMP clear → build verify → commit
+
+### Repository Maintenance
+1. Empty TEMP contents (preserve structure)
+2. Remove build artifacts (bin/, obj/)  
+3. Verify compilation before commit
+4. Use professional file names only
+
+### Security & Performance
+- **Auth:** GUID-based session tokens (no traditional login)
+- **Database:** Parameterized queries, indexed on session_id/participant_id
+- **SignalR:** Minimize message size, JSON protocol only
+- **Content:** RTL support for Arabic/Urdu, cultural sensitivity required
+
+## Quick Reference
+
+### Port Reservations
+- **8080:** Beautiful Islam app (reserved)
+- **8050:** Documentation (ncdoc)  
+- **9090/9091:** NOOR Canvas HTTP/HTTPS
+
+### Key Commands
+```powershell
+nc <sessionId>           # Full workflow: cleanup → token → build → launch
+ncdoc -Force             # Restart documentation server  
+.\Tests\HealthCheck.ps1  # Validate workspace
+```
+
+### Project Status (Sept 2025)
+- **Backend:** 95% complete (10 controllers, 3 hubs active)
+- **Frontend:** 70% complete (Blazor + SignalR integration)
+- **Phase 4:** NOOR Canvas branding integration in progress
 
 ---
-
-## 13. CRITICAL NC COMMAND FIXES (September 2025)
-
-### **Known Issues & Recent Fixes:**
-- **Issue-55**: ✅ NC Simple Browser Integration - Instructions added
-- **Issue-56**: ✅ NC Session ID Parameter Support - `nc 215` functionality 
-- **Issue-57**: ✅ NC Continuation Prompt Fix - Press ENTER (not "exit")
-- **Issue-58**: ✅ NCDOC Python Dependency Fix - Direct DocFX execution workaround
-- **Issue-83**: ✅ NCDOC Port Conflicts & Server Management - Port 8050, server reuse, Force restart
-
-### **NCDOC Command Enhancements (September 15, 2025)**
-
-**Port Change:** Documentation server now uses port **8050** (changed from 9093) to avoid conflicts with reserved port ranges:
-- **8080**: Reserved for Beautiful Islam application  
-- **9090-9091**: Reserved for NOOR Canvas HTTP/HTTPS
-
-**Enhanced Server Management:**
-- **Intelligent Server Detection**: `ncdoc` checks if server already running and reuses existing instance
-- **Force Restart Capability**: `ncdoc -Force` kills existing servers and starts fresh
-- **Improved PID Tracking**: Port-specific PID files for better process management
-
-**New Usage Patterns:**
-```powershell
-ncdoc              # Start server on 8050 or reuse existing
-ncdoc -Force       # Kill existing servers and restart fresh  
-ncdoc -Stop        # Stop documentation server
-ncdoc -Port 8060   # Use alternative port
-```
-
-### **File Management Issues:**
-- **Empty nc.ps1 files**: Always verify file creation with `Get-Item -Path "file.ps1" | Select-Object Length`
-- **Encoding issues**: Remove all emojis and special characters
-- **PowerShell profile**: Ensure global commands are properly registered
-
-### **NC Command Structure (Final):**
-```powershell
-# Session-specific workflow
-nc 213                         # Generate token for session 213 + launch
-
-# Standard workflow  
-nc                             # Generic token + launch
-nc -SkipTokenGeneration        # Skip token step
-nc -Help                       # Display options
-```
-
-**Expected Output:**
-1. ✅ iiskill - Clean processes
-2. ✅ Host token generation (session-specific if provided)
-3. ✅ Press ENTER prompt (not "exit")
-4. ✅ Build successful
-5. ✅ Application starts on https://localhost:9091
-
----
-
-**Last updated:** September 14, 2025  
-**Project Status:** Phase 4 In Progress - NC Command Enhanced  
-**Next Focus:** Phase 4 NOOR Canvas Branding Implementation
+*Updated: September 15, 2025 | Focus: Efficient AI agent guidance*
