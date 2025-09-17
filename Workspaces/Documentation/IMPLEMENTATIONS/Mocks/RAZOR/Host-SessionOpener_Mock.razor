@@ -1,11 +1,9 @@
 @page "/hostsessionopener"
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components.Web
+@inject IJSRuntime JSRuntime
 
-<div class="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-gray-200">
-    <!-- Logo  -->
-    <div class="flex justify-center mb-6 mt-8">
-        <img src="https://placehold.co/120x120/E5D7A9/706357?text=Logo" alt="Logo" class="rounded-full">
-    </div>
-
+<div class="w-full max-w-sm md:max-w-lg lg:max-w-2xl bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-gray-200">
     <h1 class="poppins font-bold text-3xl sm:text-4xl text-[#006400] flex items-center justify-center space-x-2">
         <i class="fa-solid fa-user-tie text-4xl sm:text-5xl text-[#006400]"></i>
         <span>Host Session Opener</span>
@@ -13,20 +11,23 @@
 
     <!-- Session Panel -->
     <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-6 shadow-inner text-center">
-        <div class="flex flex-col items-center space-y-4">
+        <div class="flex flex-col items-center space-y-4 px-[40px]">
             <!-- Error message container -->
-            <div id="error-message" class="text-red-500 text-sm poppins mb-4" style="@(string.IsNullOrEmpty(ErrorMessage) ? "display: none;" : "display: block;")">@ErrorMessage</div>
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="text-red-500 text-sm poppins mb-4">@ErrorMessage</div>
+            }
             <div class="p-4 rounded-full border-4 border-[#006400] mb-4">
                 <i class="fa-solid fa-microphone text-6xl text-[#006400]"></i>
             </div>
             
             <!-- Host Controls Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-lg mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-[400px]">
                 <!-- Dropdown controls -->
                 <div class="space-y-4">
                     <div class="w-full">
                         <label for="album-select" class="block text-sm font-medium text-gray-700 text-left mb-1">Album</label>
-                        <select id="album-select" required @bind="SelectedAlbum" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] @(string.IsNullOrEmpty(SelectedAlbum) ? "placeholder-gray-400-select" : "text-gray-800-select")">
+                        <select id="album-select" @bind="SelectedAlbum" @onchange="ValidateForm" required class="@(SelectedAlbum == null ? "placeholder-gray-400-select" : "text-gray-800-select") w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                             <option value="">Select Album</option>
                             <option value="album1">Album 1</option>
                             <option value="album2">Album 2</option>
@@ -34,7 +35,7 @@
                     </div>
                     <div class="w-full">
                         <label for="category-select" class="block text-sm font-medium text-gray-700 text-left mb-1">Category</label>
-                        <select id="category-select" required @bind="SelectedCategory" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] @(string.IsNullOrEmpty(SelectedCategory) ? "placeholder-gray-400-select" : "text-gray-800-select")">
+                        <select id="category-select" @bind="SelectedCategory" @onchange="ValidateForm" required class="@(SelectedCategory == null ? "placeholder-gray-400-select" : "text-gray-800-select") w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                             <option value="">Select Category</option>
                             <option value="category1">Category 1</option>
                             <option value="category2">Category 2</option>
@@ -42,7 +43,7 @@
                     </div>
                     <div class="w-full">
                         <label for="session-select" class="block text-sm font-medium text-gray-700 text-left mb-1">Session</label>
-                        <select id="session-select" required @bind="SelectedSession" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] @(string.IsNullOrEmpty(SelectedSession) ? "placeholder-gray-400-select" : "text-gray-800-select")">
+                        <select id="session-select" @bind="SelectedSession" @onchange="ValidateForm" required class="@(SelectedSession == null ? "placeholder-gray-400-select" : "text-gray-800-select") w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                             <option value="">Select Session</option>
                             <option value="session1">Session 1</option>
                             <option value="session2">Session 2</option>
@@ -54,21 +55,21 @@
                 <div class="space-y-4">
                     <div class="w-full">
                         <label for="session-date" class="block text-sm font-medium text-gray-700 text-left mb-1">Date</label>
-                        <input type="date" id="session-date" required @bind="SessionDate" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800">
+                        <input type="date" id="session-date" @bind="SessionDate" @onchange="ValidateForm" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800">
                     </div>
                     <div class="w-full">
                         <label for="session-time" class="block text-sm font-medium text-gray-700 text-left mb-1">Start Time (EST)</label>
-                        <input type="text" id="session-time" required placeholder="HH:MM AM/PM" @bind="StartTime" @oninput="FormatTime" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800 placeholder-gray-400">
+                        <input type="text" id="session-time" @bind="SessionTime" @oninput="FormatTime" @onchange="ValidateForm" required placeholder="HH:MM AM/PM" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800 placeholder-gray-400">
                     </div>
                     <div class="w-full">
                         <label for="session-duration" class="block text-sm font-medium text-gray-700 text-left mb-1">Duration (minutes)</label>
-                        <input type="number" id="session-duration" required @bind="SessionDuration" placeholder="Enter duration" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800 placeholder-gray-400">
+                        <input type="number" id="session-duration" @bind="SessionDuration" @oninput="ValidateForm" required placeholder="Enter duration" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800 placeholder-gray-400">
                     </div>
                 </div>
             </div>
 
             <div class="flex justify-center w-full mt-6">
-                <button id="openSessionBtn" @onclick="OpenSession" class="w-full max-w-xs inter font-semibold px-6 py-3 rounded-full bg-[#006400] text-white transition-colors flex items-center justify-center space-x-2 shadow-md @(IsFormValid() ? "" : "disabled:bg-gray-400 disabled:cursor-not-allowed")" disabled="@(!IsFormValid())">
+                <button id="openSessionBtn" @onclick="OpenSession" disabled="@(!IsFormValid)" class="w-full max-w-xs inter font-semibold px-6 py-3 rounded-full bg-[#006400] text-white transition-colors flex items-center justify-center space-x-2 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
                     <i class="fa-solid fa-arrow-right"></i>
                     <span>Open Session</span>
                 </button>
@@ -80,14 +81,14 @@
     <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-4 shadow-inner">
         <h3 class="poppins font-bold text-lg sm:text-xl text-[#006400]">Session URL</h3>
         <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0 sm:space-x-4">
-            <span id="sessionUrl" class="inter text-sm md:text-base font-semibold text-gray-900 break-all">https://localhost:9091/user/hostlanding</span>
-            <button id="copyButton" @onclick="CopyUrlToClipboard" class="inter font-semibold px-4 py-2 rounded-full bg-[#D4AF37] text-white hover:bg-[#C5B358] transition-colors flex items-center space-x-2 shadow-md">
-                <i class="fa-solid fa-copy"></i>
-                <span>Copy Link</span>
+            <span id="sessionUrl" class="inter text-sm md:text-base font-semibold text-gray-900 break-all">@SessionUrl</span>
+            <button id="copyButton" @onclick="CopyUrl" class="inter font-semibold px-4 py-2 rounded-full @(Copied ? "bg-[#006400]" : "bg-[#D4AF37] hover:bg-[#C5B358]") text-white transition-colors flex items-center space-x-2 shadow-md">
+                <i class="fa-solid @(Copied ? "fa-check" : "fa-copy")"></i>
+                <span>@(Copied ? "Copied!" : "Copy Link")</span>
             </button>
         </div>
         <div class="flex justify-center">
-            <button id="openWaitingRoomBtn" class="w-full max-w-xs inter font-semibold px-6 py-3 rounded-full bg-[#006400] text-white hover:bg-[#004d00] transition-colors flex items-center justify-center space-x-2 shadow-md mt-4">
+            <button id="openWaitingRoomBtn" @onclick="OpenWaitingRoom" class="w-full max-w-xs inter font-semibold px-6 py-3 rounded-full bg-[#006400] text-white hover:bg-[#004d00] transition-colors flex items-center justify-center space-x-2 shadow-md mt-4">
                 <i class="fa-solid fa-hourglass-half"></i>
                 <span>Open Waiting Room</span>
             </button>
@@ -95,67 +96,93 @@
     </div>
 </div>
 
+<style>
+    .placeholder-gray-400::placeholder {
+        color: #a0aec0;
+    }
+    
+    .placeholder-gray-400-select {
+        color: #a0aec0;
+    }
+    
+    .text-gray-800-select {
+        color: #4B3C2B;
+    }
+</style>
+
 @code {
     private string SelectedAlbum { get; set; }
     private string SelectedCategory { get; set; }
     private string SelectedSession { get; set; }
-    private DateTime SessionDate { get; set; } = DateTime.Now;
-    private string StartTime { get; set; }
+    private DateTime SessionDate { get; set; } = DateTime.Today;
+    private string SessionTime { get; set; } = "";
     private int? SessionDuration { get; set; }
-    private string ErrorMessage { get; set; }
+    private string ErrorMessage { get; set; } = "";
+    private bool IsFormValid { get; set; }
+    private bool Copied { get; set; }
+    private string SessionUrl { get; set; } = "https://localhost:9091/user/hostlanding";
 
-    private bool IsFormValid()
+    private void ValidateForm()
     {
-        if (string.IsNullOrEmpty(SelectedAlbum) || 
-            string.IsNullOrEmpty(SelectedCategory) || 
-            string.IsNullOrEmpty(SelectedSession) || 
-            SessionDate == default || 
-            string.IsNullOrEmpty(StartTime) || 
-            SessionDuration == null)
-        {
-            return false;
-        }
+        IsFormValid = !string.IsNullOrEmpty(SelectedAlbum) &&
+                      !string.IsNullOrEmpty(SelectedCategory) &&
+                      !string.IsNullOrEmpty(SelectedSession) &&
+                      SessionDate != default &&
+                      !string.IsNullOrEmpty(SessionTime) &&
+                      SessionDuration.HasValue;
 
-        if (!System.Text.RegularExpressions.Regex.IsMatch(StartTime, @"^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+        if (IsFormValid && !ValidateTime(SessionTime))
         {
-            return false;
+            IsFormValid = false;
+            ErrorMessage = "Please enter a valid time in HH:MM AM/PM format.";
         }
+        else
+        {
+            ErrorMessage = IsFormValid ? "" : "Please fill out all fields.";
+        }
+    }
 
-        return true;
+    private bool ValidateTime(string time)
+    {
+        var timeRegex = new Regex(@"^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$", RegexOptions.IgnoreCase);
+        return timeRegex.IsMatch(time);
+    }
+    
+    private void FormatTime(ChangeEventArgs e)
+    {
+        SessionTime = e.Value.ToString();
+        var value = SessionTime.ToUpper().Trim();
+        if (value.Length > 2 && (value.EndsWith("AM") || value.EndsWith("PM")) && value[value.Length - 3] != ' ')
+        {
+            SessionTime = value.Insert(value.Length - 2, " ");
+        }
+        ValidateForm();
+    }
+
+    private async Task CopyUrl()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", SessionUrl);
+        Copied = true;
+        StateHasChanged();
+        await Task.Delay(2000);
+        Copied = false;
+        StateHasChanged();
     }
 
     private void OpenSession()
     {
-        if (IsFormValid())
-        {
-            ErrorMessage = string.Empty;
-            // Handle session opening logic here
-            Console.WriteLine("Session opened!");
-        }
-        else
-        {
-            ErrorMessage = "Please fill out all fields with valid information.";
-        }
+        // Logic for opening the session
+        Console.WriteLine("Open Session button clicked!");
     }
 
-    private void FormatTime(ChangeEventArgs e)
+    private void OpenWaitingRoom()
     {
-        var value = e.Value?.ToString().Trim().ToUpper() ?? string.Empty;
-        if (value.Length > 2 && (value.EndsWith("AM") || value.EndsWith("PM")) && value[value.Length - 3] != ' ')
-        {
-            StartTime = value.Insert(value.Length - 2, " ");
-        }
-        else
-        {
-            StartTime = value;
-        }
+        // Logic for opening the waiting room
+        Console.WriteLine("Open Waiting Room button clicked!");
     }
 
-    private async Task CopyUrlToClipboard()
+    protected override void OnInitialized()
     {
-        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", "https://localhost:9091/user/hostlanding");
+        ValidateForm();
     }
-
-    [Inject]
-    public IJSRuntime JSRuntime { get; set; }
 }

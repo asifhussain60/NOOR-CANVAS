@@ -334,6 +334,148 @@ UserLanding.razor currently shows registration form regardless of token presence
 
 ## 🔴 **CRITICAL ACTIVE ISSUES**
 
+### Issue-109: Host-SessionOpener Form UI and Data Loading Issues
+**Status:** ACTIVE  
+**Priority:** HIGH  
+**Created:** 2025-09-17  
+**Component:** Host-SessionOpener.razor Form Interface  
+
+**Problem Summary:**  
+Multiple UI and data loading issues identified in Host-SessionOpener form that prevent proper session creation workflow.
+
+**Issues Identified:**  
+1. **Form Width Issue**: Current form too wide, excessive white space on sides - needs responsive width constraints
+2. **Database Dropdown Loading**: Album, Category, Session dropdowns not populated from KSESSIONS_DEV database 
+3. **Form Layout Issue**: Fields displaying in single column instead of intended 2-column layout
+
+**Expected vs Actual:**  
+- **Width**: Should use `max-w-sm md:max-w-lg lg:max-w-2xl` responsive constraints  
+- **Data Loading**: Dropdowns should cascade from KSESSIONS database (token→SessionID→CategoryID→GroupID)  
+- **Layout**: Fields should display in 2 columns for better space utilization  
+
+**Technical Investigation Required:**  
+- Database schema analysis for cascade selection feasibility  
+- Review previous form/dropdown fixes from completed issues  
+- Assess KSESSIONS table relationships for efficient data loading  
+
+**Debug Actions Planned:**  
+1. Add comprehensive logging for form rendering and data loading  
+2. Investigate database connection and dropdown population  
+3. Analyze cascade selection path: SecureTokens→Sessions→Categories→Groups  
+4. Review Git history for similar UI/dropdown fixes  
+
+---
+- **Database Status**: Token exists in `canvas.SecureTokens` table
+- **Application Status**: Running on https://localhost:9091
+
+#### **Debug Actions Required**
+1. Add comprehensive logging to HostLanding.razor authentication flow
+2. Verify HostController.AuthenticateHost endpoint accessibility
+3. Check authentication service configuration and connection strings
+4. Validate token format compatibility (8-char vs GUID expectations)
+5. Review network connectivity and service health
+
+#### **Dependencies**
+- HostController authentication endpoint functionality
+- Database connectivity (canvas.SecureTokens table)
+- Host-SessionOpener.razor routing configuration
+
+### Issue-110: Host-SessionOpener Session URL Panel Visibility Logic
+**Status:** ACTIVE - AWAITING USER APPROVAL  
+**Priority:** MEDIUM  
+**Created:** 2025-09-17  
+**Component:** Host-SessionOpener.razor Session URL Panel  
+
+**Problem Summary:**  
+Session URL panel is always visible but should be hidden until "Open Session" button is clicked.
+
+**Issues Identified:**  
+1. **Panel Visibility**: Session URL panel displays immediately on form load ✅ **FIXED**
+2. **URL Generation**: Missing URL generation logic on "Open Session" button click ✅ **FIXED**
+3. **User Token Integration**: Need to generate URL with user token from session data ✅ **FIXED**
+
+**Resolution Implemented:**  
+- ✅ **Conditional Visibility**: Added `@if (ShowSessionUrlPanel)` directive to hide panel by default  
+- ✅ **URL Generation**: Implemented `GenerateSessionUrl()` method with proper token integration  
+- ✅ **State Management**: Added `ShowSessionUrlPanel` boolean field for visibility control  
+- ✅ **User Experience**: Panel appears only after "Open Session" button clicked  
+- ✅ **Copy Functionality**: Added clipboard copy with visual feedback and auto-reset after 2 seconds  
+
+**Implementation Details:**  
+```csharp
+private bool ShowSessionUrlPanel = false;
+private string GenerateSessionUrl() => $"{Navigation.BaseUri.TrimEnd('/')}/user/landing/{FriendlyToken}";
+private void OpenSession() { ShowSessionUrlPanel = true; }
+```
+
+---
+
+### Issue-111: Host-SessionOpener Layout Rendering Corrections
+**Status:** ACTIVE - AWAITING USER APPROVAL  
+**Priority:** HIGH  
+**Created:** 2025-09-17  
+**Component:** Host-SessionOpener.razor Layout Rendering  
+
+**Problem Summary:**  
+Current page renders incorrectly compared to Host-SessionOpener_Mock.razor reference implementation.
+
+**Issues Identified:**  
+1. **Layout Structure**: Missing proper Tailwind CSS to inline style conversions ✅ **FIXED**
+2. **Form Rendering**: Layout differs significantly from mock reference ✅ **FIXED**
+3. **Visual Consistency**: Component styling doesn't match expected design patterns ✅ **FIXED**
+
+**Resolution Implemented:**  
+- ✅ **Fresh Implementation**: Created completely new Host-SessionOpener.razor from scratch  
+- ✅ **Responsive Design**: Proper CSS media queries with `max-w-sm md:max-w-lg lg:max-w-2xl` constraints  
+- ✅ **Grid Layout**: 2-column responsive grid for dropdowns and inputs using `.controls-grid`  
+- ✅ **Inline CSS**: Full Tailwind-to-inline conversion eliminating CSS conflicts  
+- ✅ **Mock Compliance**: Layout structure matches Host-SessionOpener_Mock.razor reference  
+- ✅ **Gold Borders**: Proper gradient border styling matching design system  
+- ✅ **Typography**: Correct Poppins/Inter font usage with proper weights and sizes  
+
+**Technical Implementation:**  
+- Responsive container: `.main-container` with media queries  
+- Grid system: `.controls-grid` with responsive breakpoints  
+- Inline styles: Complete conversion from Tailwind classes  
+- Build verification: ✅ Successful build with no errors  
+
+---
+
+### Issue-112: Host-SessionOpener Layout Rendering Single Column Instead of 2-Column Grid
+**Status:** ACTIVE  
+**Priority:** HIGH  
+**Created:** 2025-09-17  
+**Component:** Host-SessionOpener.razor Layout Grid System  
+
+**Problem Summary:**  
+Fresh implementation renders as single column layout instead of the expected 2-column grid shown in Host-SessionOpener_Mock.html reference.
+
+**Issues Identified:**  
+1. **Grid Layout Missing**: Form renders dropdowns and inputs in single column vertically
+2. **Missing Grid Structure**: `.controls-grid` CSS not applying 2-column layout properly  
+3. **Layout Mismatch**: Current rendering doesn't match Host-SessionOpener_Mock.html reference
+
+**Expected vs Actual:**  
+- **Expected (Mock)**: 2-column grid with dropdowns (Album, Category, Session) on left, inputs (Date, Time, Duration) on right
+- **Actual (Fresh)**: Single column layout with all fields stacked vertically
+- **Reference**: Host-SessionOpener_Mock.html shows proper `grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-[400px]`
+
+**Technical Investigation Required:**  
+- Analyze `.controls-grid` CSS implementation vs mock's `grid grid-cols-1 md:grid-cols-2` classes
+- Check responsive breakpoint behavior at md: (768px) and above  
+- Verify `min-w-[400px]` equivalent in CSS media queries
+- Ensure proper grid-template-columns application
+
+**Mock Reference Structure:**  
+```html
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-[400px]">
+    <div class="space-y-4"><!-- Dropdowns --></div>
+    <div class="space-y-4"><!-- Inputs --></div>
+</div>
+```
+
+---
+
 ### **Issue-103: NCB Command Not Working Globally in PowerShell**
 **Created**: September 17, 2025  
 **Resolved**: September 17, 2025  

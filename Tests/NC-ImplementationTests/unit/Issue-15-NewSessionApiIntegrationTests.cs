@@ -89,22 +89,7 @@ namespace NC_ImplementationTests.Unit
                 "Session validation should handle GUID validation properly");
         }
 
-        [Fact]
-        [Trait("Category", "Integration")]
-        [Trait("Issue", "Issue-15")]
-        public async Task Host_Dashboard_API_Should_Return_Real_Data()
-        {
-            // Arrange
-            var client = _factory.CreateClient();
-
-            // Act
-            var response = await client.GetAsync("/api/host/dashboard");
-
-            // Assert
-            Assert.True(response.IsSuccessStatusCode || 
-                       response.StatusCode == System.Net.HttpStatusCode.Unauthorized,
-                "Dashboard API should return real data or require authentication");
-        }
+        // Host Dashboard API removed - Phase 4 update: Direct CreateSession flow
 
         [Fact]
         [Trait("Category", "Regression")]

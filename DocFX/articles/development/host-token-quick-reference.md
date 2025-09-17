@@ -131,7 +131,7 @@ const authData = await authResponse.json();
 
 if (authData.success) {
     localStorage.setItem('sessionToken', authData.sessionToken);
-    window.location.href = '/host/dashboard';
+    window.location.href = '/host/session-opener'; // Phase 4 update: Dashboard removed
 }
 ```
 

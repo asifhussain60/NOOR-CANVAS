@@ -189,39 +189,7 @@ namespace NoorCanvas.Core.Tests.Integration
             Assert.NotNull(updatedSession.StartedAt);
         }
 
-        [Fact]
-        [Trait("Category", "ApiIntegration")]
-        [Trait("Endpoint", "HostDashboard")]
-        public async Task GetDashboardData_WithValidToken_ShouldReturnDashboardData()
-        {
-            // Arrange - Create test data
-            var session = new Session
-            {
-                GroupId = Guid.NewGuid(),
-                Title = "Dashboard Test Session",
-                StartedAt = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(3)
-            };
-            
-            _context.Sessions.Add(session);
-            await _context.SaveChangesAsync();
-
-            var sessionToken = Guid.NewGuid().ToString();
-
-            // Act
-            var response = await _client.GetAsync($"/api/host/dashboard?sessionToken={sessionToken}");
-
-            // Assert
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var dashboardResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
-
-            Assert.True(dashboardResponse.TryGetProperty("hostName", out _));
-            Assert.True(dashboardResponse.TryGetProperty("activeSessions", out _));
-            Assert.True(dashboardResponse.TryGetProperty("totalParticipants", out _));
-            Assert.True(dashboardResponse.TryGetProperty("recentSessions", out _));
-        }
+        // Host Dashboard API removed - Phase 4 update: Direct CreateSession flow
 
         #endregion
 

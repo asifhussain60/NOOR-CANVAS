@@ -135,8 +135,8 @@ Write-Host "Authentication Success: $($authResponse.success)"
 Write-Host "Session Token: $($authResponse.sessionToken)"
 ```
 
-### **2. Access Host Dashboard**
-Navigate to: `https://localhost:9091/host/dashboard?guid=3cbd173a-a146-4049-9f50-e33eb9ee2f2c`
+### **2. Access Host Session Flow** 
+Navigate to: `https://localhost:9091/host/session-opener` (Dashboard removed - Phase 4 update)
 
 ### **3. Use in Application Testing**
 Enter the Host GUID in any host authentication form in the NOOR Canvas application.

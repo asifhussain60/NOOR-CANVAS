@@ -277,65 +277,64 @@
             StateHasChanged(); // Update UI with session info
             await Task.Delay(500); // Brief pause to show updated session info
 
-            Logger.LogInformation("NOOR-HOST: [{RequestId}] Calling authentication API", requestId);
+            // For friendly tokens, use the token validation endpoint instead of authentication endpoint
+            Logger.LogInformation("NOOR-HOST: [{RequestId}] Using token validation for friendly token authentication", requestId);
             using var httpClient = HttpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(Navigation.BaseUri);
 
-            var authRequest = new HostAuthRequest { HostGuid = Model.FriendlyToken };
-            var response = await httpClient.PostAsJsonAsync("/api/host/authenticate", authRequest);
+            // Call the friendly token validation endpoint
+            var response = await httpClient.GetAsync($"/api/host/token/{Model.FriendlyToken}/validate");
             
-            Logger.LogInformation("NOOR-HOST: [{RequestId}] Authentication API response: {StatusCode}", 
+            Logger.LogInformation("NOOR-HOST: [{RequestId}] Token validation API response: {StatusCode}", 
                 requestId, response.StatusCode);
             
-            if (response.IsSuccessStatusCode)
-            {
-                var authResponse = await response.Content.ReadFromJsonAsync<HostAuthResponse>();
-                
-                if (authResponse?.Success == true)
-                {
-                    Logger.LogInformation("NOOR-HOST: [{RequestId}] Authentication successful", requestId);
-                    
-                    // Load session information if available
-                    if (authResponse.Session != null)
-                    {
-                        Model.SessionName = authResponse.Session.Title;
-                        
-                        Logger.LogInformation("NOOR-HOST: [{RequestId}] Updated session info from auth response - Name: {SessionName}", 
-                            requestId, Model.SessionName);
-                        
-                        StateHasChanged(); // Update UI with new session info
-                        await Task.Delay(1500); // Brief delay to show updated info
-                    }
-                    
-                    Logger.LogInformation("NOOR-HOST: [{RequestId}] Redirecting to dashboard with SessionId: {SessionId}", 
-                        requestId, authResponse.SessionId);
-                    
-                    // Always redirect with session token, sessionId comes from authentication response
-                    if (authResponse.SessionId > 0)
-                    {
-                        Navigation.NavigateTo($"/host/dashboard?token={authResponse.SessionToken}&sessionId={authResponse.SessionId}");
-                    }
-                    else
-                    {
-                        Navigation.NavigateTo($"/host/dashboard?token={authResponse.SessionToken}");
-                    }
-                }
-                else
-                {
-                    errorMessage = "Invalid Token";
-                    Logger.LogWarning("NOOR-HOST: [{RequestId}] Authentication failed - invalid credentials", requestId);
-                }
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 errorMessage = "Invalid Token";
-                Logger.LogWarning("NOOR-HOST: [{RequestId}] Authentication failed - unauthorized", requestId);
+                Logger.LogWarning("NOOR-HOST: [{RequestId}] Token validation failed - token not found", requestId);
+                return;
+            }
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = "Authentication service unavailable. Please try again later.";
+                Logger.LogError("NOOR-HOST: [{RequestId}] Token validation service error - status: {StatusCode}", 
+                    requestId, response.StatusCode);
+                return;
+            }
+            
+            // Parse token validation response
+            var validationResponse = await response.Content.ReadFromJsonAsync<HostSessionValidationResponse>();
+            
+            Logger.LogInformation("NOOR-HOST: [{RequestId}] Token validation response parsed - Valid: {Valid}, SessionId: {SessionId}", 
+                requestId, validationResponse?.Valid, validationResponse?.SessionId);
+            
+            if (validationResponse?.Valid == true)
+            {
+                Logger.LogInformation("NOOR-HOST: [{RequestId}] Token validation successful", requestId);
+                
+                // Load session information if available
+                if (validationResponse.Session != null)
+                {
+                    Model.SessionName = validationResponse.Session.Title;
+                    
+                    Logger.LogInformation("NOOR-HOST: [{RequestId}] Updated session info from validation response - Name: {SessionName}", 
+                        requestId, Model.SessionName);
+                    
+                    StateHasChanged(); // Update UI with new session info
+                    await Task.Delay(1500); // Brief delay to show updated info
+                }
+                
+                Logger.LogInformation("NOOR-HOST: [{RequestId}] Redirecting to session opener with SessionId: {SessionId} and Token: {Token}", 
+                    requestId, validationResponse.SessionId, Model.FriendlyToken);
+                
+                // Navigate to Host-SessionOpener with the friendly token
+                Navigation.NavigateTo($"/host/session-opener/{Model.FriendlyToken}");
             }
             else
             {
-                errorMessage = "Authentication service unavailable. Please try again later.";
-                Logger.LogError("NOOR-HOST: [{RequestId}] Authentication service error - status: {StatusCode}", 
-                    requestId, response.StatusCode);
+                errorMessage = "Invalid Token";
+                Logger.LogWarning("NOOR-HOST: [{RequestId}] Token validation failed - token not valid", requestId);
             }
         }
         catch (HttpRequestException ex)

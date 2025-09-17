@@ -534,7 +534,7 @@ Indexes & constraints: add IX on (SessionId, Status) for Questions; (SessionId, 
 Two-Token System Design
 User GUID (Public): For participants to join sessions - /s/{userGuid}
 
-Host GUID (Private): For host dashboard access - /host/dashboard/{sessionId}?guid={hostGuid}
+Host GUID (Private): For host session management - Phase 4 Update: Direct CreateSession flow (Dashboard removed)
 
 Host Authentication Flow
 Session Creation:

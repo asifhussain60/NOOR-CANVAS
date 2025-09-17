@@ -71,32 +71,7 @@ namespace NC_ImplementationTests.Integration
             }
         }
 
-        [Fact]
-        [Trait("Category", "Integration")]
-        [Trait("Controller", "Host")]
-        public async Task Host_Dashboard_Should_Return_Session_Statistics()
-        {
-            // Arrange
-            var client = _factory.CreateClient();
-
-            // Act
-            var response = await client.GetAsync("/api/host/dashboard");
-
-            // Assert
-            Assert.True(response.IsSuccessStatusCode || 
-                       response.StatusCode == System.Net.HttpStatusCode.Unauthorized,
-                "Dashboard should return data or require authentication");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                Assert.NotEmpty(content);
-                
-                // Should contain dashboard structure
-                var json = JsonDocument.Parse(content);
-                Assert.True(json.RootElement.ValueKind == JsonValueKind.Object);
-            }
-        }
+        // Host Dashboard endpoint removed - Phase 4 update: Direct CreateSession flow
 
         [Fact]
         [Trait("Category", "Integration")]
@@ -147,7 +122,6 @@ namespace NC_ImplementationTests.Integration
 
         [Theory]
         [InlineData("/api/host/authenticate")]
-        [InlineData("/api/host/dashboard")]
         [InlineData("/api/host/sessions")]
         [Trait("Category", "Integration")]
         [Trait("Controller", "Host")]

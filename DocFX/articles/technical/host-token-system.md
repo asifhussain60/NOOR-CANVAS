@@ -358,7 +358,7 @@ async function authenticateHost(hostGuid) {
     const authData = await response.json();
     if (authData.success) {
         localStorage.setItem('sessionToken', authData.sessionToken);
-        window.location.href = '/host/dashboard';
+        window.location.href = '/host/session-opener'; // Phase 4 update: Dashboard removed
     }
 }
 ```
@@ -496,9 +496,9 @@ Write-Host "Success: $($result.success)"
 Write-Host "Session Token: $($result.sessionToken)"
 ```
 
-#### Direct Dashboard Access
+#### Direct Session Flow Access
 
-Navigate to: `https://localhost:9091/host/dashboard?guid=YOUR-GUID`
+Navigate to: `https://localhost:9091/host/session-opener` (Dashboard removed - Phase 4 update)
 
 ### Integration Examples
 
