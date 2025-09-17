@@ -4,6 +4,7 @@
 param(
     [Parameter(Position=0)]
     [string]$NewCommand,
+    [string]$RemoveCommand,
     [switch]$Help,
     [switch]$List,
     [switch]$WhatIf
@@ -69,9 +70,36 @@ if ($List) {
     return
 }
 
+# Handle removal
+if ($RemoveCommand) {
+    $commandArray = $currentCommands -split ', '
+    if ($commandArray -contains $RemoveCommand) {
+        $commandArray = $commandArray | Where-Object { $_ -ne $RemoveCommand }
+        $newCommandsList = $commandArray -join ', '
+        
+        if ($WhatIf) {
+            Write-Host "Would remove '$RemoveCommand' from global commands list:" -ForegroundColor Yellow
+            Write-Host "Old: $currentCommands" -ForegroundColor Red
+            Write-Host "New: $newCommandsList" -ForegroundColor Green
+        } else {
+            Write-Host "Removing '$RemoveCommand' from global commands list..." -ForegroundColor Yellow
+            $updatedContent = $profileContent -replace [regex]::Escape($currentCommands), $newCommandsList
+            $updatedContent | Set-Content $profilePath -Encoding UTF8
+            Write-Host ""
+            Write-Host "✅ Profile updated successfully!" -ForegroundColor Green
+            Write-Host "New global commands: $newCommandsList" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "Command '$RemoveCommand' not found in global commands list" -ForegroundColor Red
+    }
+    return
+}
+
 if (-not $NewCommand) {
-    Write-Host "Please specify a command to add, or use -List to see current commands" -ForegroundColor Yellow
-    Write-Host "Example: .\update-global-commands.ps1 ncs" -ForegroundColor Gray
+    Write-Host "Please specify a command to add/remove, or use -List to see current commands" -ForegroundColor Yellow
+    Write-Host "Examples:" -ForegroundColor Gray
+    Write-Host "  Add:    .\update-global-commands.ps1 ncs" -ForegroundColor Gray
+    Write-Host "  Remove: .\update-global-commands.ps1 -RemoveCommand ncs" -ForegroundColor Gray
     return
 }
 

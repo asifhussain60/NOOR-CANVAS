@@ -1,0 +1,185 @@
+@page "/sessiondetails"
+
+<div class="bg-[#F8F5F1] flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-sm sm:max-w-md md:max-w-lg card rounded-3xl p-8 sm:p-12 text-center">
+      <!-- Logo -->
+        <!-- Main Content -->
+        <div class="space-y-6">
+            <h1 class="text-3xl sm:text-4xl poppins font-bold text-[#006400]">User Authentication</h1>
+            <p class="inter text-2xl text-[#D4AF37] font-semibold mt-2">[Session Name]</p>
+
+            <!-- User Authentication Form -->
+            <div class="w-full bg-[#F8F5F1] rounded-2xl border-2 gold-border p-8 sm:p-12 text-left space-y-4 mt-8 shadow-inner">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-center">
+                        <span class="block sm:inline">@errorMessage</span>
+                    </div>
+                }
+
+                @if (showTokenPanel)
+                {
+                    <div id="enter-token-panel" class="fade-in">
+                        <div class="flex flex-col items-center justify-center">
+                            <h3 class="inter font-bold text-[#4B3C2B] text-2xl mb-2">ENTER TOKEN</h3>
+                            <p class="inter text-sm text-[#706357] mt-2 text-center">Enter your unique token to join the session.</p>
+                        </div>
+                        <div class="relative mt-4">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fa-solid fa-user-lock text-[#706357]"></i>
+                            </div>
+                            <input type="text" @bind-value="tokenInput" @oninput="ClearError" placeholder="Enter your Unique User Token" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37] text-left" required autocomplete="off" />
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div id="register-panel" class="fade-in">
+                        <div class="flex flex-col items-center justify-center mt-2">
+                            <h3 class="inter font-bold text-[#4B3C2B] text-2xl mb-2">REGISTRATION</h3>
+                            <p class="inter text-sm text-[#706357] mt-2 text-center">Please fill out the form to register for this session.</p>
+                        </div>
+                        <div class="relative mt-4">
+                            <label for="name" class="inter font-semibold text-[#4B3C2B] block mb-2">Name</label>
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 top-6 pointer-events-none">
+                                <i class="fa-solid fa-user text-[#706357]"></i>
+                            </div>
+                            <input type="text" @bind-value="nameInput" @oninput="ClearError" placeholder="Enter your name" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]" required autocomplete="off" />
+                        </div>
+                        <div class="relative mt-4">
+                            <label for="email" class="inter font-semibold text-[#4B3C2B] block mb-2">Email Address</label>
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 top-6 pointer-events-none">
+                                <i class="fa-solid fa-envelope text-[#706357]"></i>
+                            </div>
+                            <input type="email" @bind-value="emailInput" @oninput="ClearError" placeholder="Enter your email" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]" required autocomplete="off" />
+                        </div>
+                        <div class="relative mt-4">
+                            <label for="country" class="inter font-semibold text-[#4B3C2B] block mb-2">Country</label>
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 top-6 pointer-events-none">
+                                <i class="fa-solid fa-globe text-[#706357]"></i>
+                            </div>
+                            <select @bind-value="countrySelect" @oninput="ClearError" class="block w-full pl-10 pr-4 py-2 inter text-[#4B3C2B] border border-gray-300 rounded-xl focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]" required autocomplete="off">
+                                <option value="">Select your country</option>
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Button -->
+            <div class="mt-8">
+                <button @onclick="HandleButtonClick" class="w-full flex items-center justify-center py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-green bg-[#006400]">
+                    <i class="@buttonIconClass mr-2"></i>
+                    <span id="button-text">@buttonText</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool showTokenPanel = true;
+    private string tokenInput = "";
+    private string nameInput = "";
+    private string emailInput = "";
+    private string countrySelect = "";
+    private string errorMessage = "";
+    private string buttonText = "Submit";
+    private string buttonIconClass = "fa-solid fa-arrow-right-to-bracket";
+
+    private void ClearError()
+    {
+        errorMessage = "";
+    }
+
+    private void HandleButtonClick()
+    {
+        if (showTokenPanel)
+        {
+            if (string.IsNullOrWhiteSpace(tokenInput) || tokenInput.Length != 8 || !tokenInput.All(char.IsLetterOrDigit))
+            {
+                errorMessage = "Invalid Token";
+                return;
+            }
+
+            showTokenPanel = false;
+            buttonText = "Join Waiting Room";
+            buttonIconClass = "fa-solid fa-hourglass-start";
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(nameInput) || string.IsNullOrWhiteSpace(emailInput) || string.IsNullOrWhiteSpace(countrySelect))
+            {
+                errorMessage = "Please fill in all the required fields.";
+                return;
+            }
+            if (!IsValidEmail(emailInput))
+            {
+                errorMessage = "Please enter a valid email address.";
+                return;
+            }
+
+            errorMessage = "";
+            // Logic to join the waiting room
+            Console.WriteLine("Joining Waiting Room...");
+        }
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap');
+
+    .poppins {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .inter {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .card {
+        background-color: #FFFFFF;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .gold-border {
+        border: 2px solid;
+        border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+    }
+
+    .shadow-green {
+        box-shadow: 0 10px 15px -3px rgba(0, 100, 0, 0.4), 0 4px 6px -2px rgba(0, 100, 0, 0.2);
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
