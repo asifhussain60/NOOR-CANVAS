@@ -1,12 +1,173 @@
 # NOOR Canvas Issue Tracker
 
-**Last Updated**: September 16, 2025  
+**Last Updated**: September 17, 2025  
 **Status**: Active Development Issues  
 **Purpose**: Track and manage implementation issues, bugs, and feature requests
 
 ---
 
 ## 🔴 **CRITICAL ACTIVE ISSUES**
+
+### **Issue-104: Full GUID Generated Instead of 8-Character Friendly Token**
+**Created**: September 17, 2025  
+**Priority**: HIGH  
+**Status**: ACTIVE  
+**Reporter**: User Testing Feedback  
+
+#### **Problem Description**
+The system is generating and displaying full base64 encoded GUIDs in the URL input field instead of the expected 8-character friendly tokens. This creates usability issues and doesn't match the intended design.
+
+#### **Current Issues**
+1. ❌ Full GUID `H/VOsw32idDlHxL3tMHWg8j/jTuFKyYgzz5D4z/r3NA=` appears in input field
+2. ❌ Expected friendly token like `4LE7I9MI` not displayed
+3. ❌ URL becomes unwieldy with full base64 encoded strings
+4. ❌ User experience degraded due to complex token format
+
+#### **Expected Behavior**
+- Display 8-character friendly tokens in input fields
+- Use friendly tokens in URLs for better UX
+- Map friendly tokens to full GUIDs internally
+- Maintain backward compatibility with existing full GUID system
+
+#### **Technical Context**
+- HostProvisioner generates friendly tokens correctly (`4LE7I9MI`)
+- Database stores base64 encoded HostGuid values
+- Need mapping system between friendly tokens and full GUIDs
+- Current URL pattern: `/host/landing/H%2FVOsw32idDlHxL3tMHWg8j%2FjTuFKyYgzz5D4z%2Fr3NA%3D`
+- Expected URL pattern: `/host/landing/4LE7I9MI`
+
+---
+
+### **Issue-105: HostLanding Model Properties Not Populated from Database**
+**Created**: September 17, 2025  
+**Priority**: HIGH  
+**Status**: ACTIVE  
+**Reporter**: Test Validation  
+
+#### **Problem Description**
+When HostLanding view loads, the model properties (Session Name and Description) are not being populated with real data from SQL tables based on token validation and session lookup.
+
+#### **Current Issues**
+1. ❌ Session Name remains hardcoded placeholder
+2. ❌ Session Description shows generic text
+3. ❌ No database lookup using friendly token → SessionID mapping
+4. ❌ Session data available in validation response but not displayed upfront
+
+#### **Expected Behavior**
+- **Session Name**: Load real session name from SQL table by:
+  1. Matching base64/friendly token with SessionID 
+  2. Using SessionID to get Session Name from database
+- **Session Description**: Load session description following same logic
+- Display actual session information before authentication
+- Fallback to placeholders only when no data available
+
+#### **Technical Requirements**
+1. Implement token → SessionID mapping logic
+2. Create database lookup for session information
+3. Populate HostLanding model properties from database
+4. Add comprehensive debug logging for session data retrieval
+5. Follow UserLanding.razor pattern for consistency
+
+---
+
+### **Issue-106: Copilot Instructions Missing IIS Express and Build Process Updates**
+**Created**: September 17, 2025  
+**Priority**: MEDIUM  
+**Status**: ACTIVE  
+**Reporter**: Development Process Improvement  
+
+#### **Problem Description**
+The copilot_instructions.md file needs updates to improve development workflow automation and ensure proper process management.
+
+#### **Required Updates**
+1. **IIS Express Process Checking**: Always check for running iisexpress64 process before serving pages in Simple Browser
+2. **Auto-Launch Integration**: If IIS Express not running, use `nc` command to launch one automatically
+3. **Build Process Enhancement**: Update build process to kill running IIS Express processes before building application
+
+#### **Current Issues**
+1. ❌ Simple Browser operations don't verify IIS Express status
+2. ❌ Manual process required to start/stop IIS Express
+3. ❌ Build conflicts when IIS Express processes are running
+4. ❌ No automated cleanup in build pipeline
+
+#### **Expected Implementation**
+- Add pre-check for iisexpress64.exe process
+- Integrate `nc` command for automated server management
+- Add process cleanup to build pipeline
+- Ensure seamless development workflow
+
+---
+
+### **Issue-103: HostLanding.razor Session Information Not Displayed**
+**Created**: September 17, 2025  
+**Priority**: HIGH  
+**Status**: IMPLEMENTED  
+**Reporter**: User Feedback  
+
+#### **Problem Description**
+HostLanding.razor currently shows hardcoded "HOST SESSION" and generic placeholder text instead of actual session information from database. Similar to Issue-102 that was fixed for UserLanding.razor, the host interface should display:
+1. **Session Name** from database instead of "HOST SESSION"  
+2. **Session Description** instead of "Enter your Host GUID token to load session details"
+
+#### **Expected Behavior**
+- **Session Title Display**: Should show actual session name from Sessions table based on SessionID that created the host token
+- **Session Description Display**: Should show session description from database when available and not blank/null
+- **Fallback Behavior**: Show "HOST SESSION" only when no session information is available
+
+#### **Current Issues**
+1. ❌ Always shows hardcoded "HOST SESSION" text
+2. ❌ Always shows generic "Enter your Host GUID token to load session details" placeholder
+3. ❌ Session information available in HostController authentication response but not displayed upfront
+4. ❌ No database lookup for session information based on host token SessionID
+
+#### **Technical Requirements**
+1. Implement session information loading based on SessionID from host token (similar to UserLanding.razor pattern)
+2. Add API endpoint or enhance existing authentication to return session details upfront
+3. Display actual session name instead of "HOST SESSION"
+4. Display session description instead of generic placeholder text
+5. Add comprehensive debug logging for session information retrieval
+6. Follow same pattern as UserLanding.razor LoadSessionInfoAsync implementation
+
+#### **Similar Issue Reference**
+- **Issue-102**: Successfully fixed session name display for UserLanding.razor with database-driven session information
+- **Implementation Pattern**: Use `/api/participant/session/{token}/validate` pattern for hosts
+
+#### **Technical Context**
+- HostController already returns session information in authentication response via `HostSessionInfo`
+- HostLanding.razor has `SessionName` and `SessionDescription` properties ready for binding
+- Need to load session information BEFORE authentication, similar to UserLanding.razor approach
+
+#### **Implementation Summary**
+✅ **SUCCESSFULLY IMPLEMENTED**: HostLanding.razor now displays database-driven session information
+
+#### **What Was Fixed**
+1. ✅ **Added Session Validation API**: Created `/api/host/session/{hostGuid}/validate` endpoint in HostController
+2. ✅ **Implemented Session Info Loading**: Added LoadSessionInfoAsync method following UserLanding.razor pattern
+3. ✅ **URL Parameter Support**: HostLanding.razor now accepts HostGuid as URL parameter `/host/landing/{hostGuid?}`
+4. ✅ **Dynamic Session Display**: Session name and description now loaded from database instead of hardcoded values
+5. ✅ **Comprehensive Debug Logging**: Added detailed logging across all layers for session loading diagnostics
+6. ✅ **Pre-Authentication Loading**: Session info loads before authentication for better user experience
+
+#### **Technical Implementation Details**
+1. ✅ Created `HostSessionValidationResponse` class for API response structure
+2. ✅ Added `ValidateHostSession` method to HostController for session lookup by HostGuid
+3. ✅ Implemented `LoadSessionInfoAsync` in HostLanding.razor for database session retrieval
+4. ✅ Added URL parameter `HostGuid` to support direct session linking
+5. ✅ Enhanced authentication flow to load session info before/during authentication
+6. ✅ Added comprehensive debug logging with request IDs for troubleshooting
+
+#### **User Experience Improvements**
+✅ **Session Title Display**: Shows actual session name from database instead of "HOST SESSION"  
+✅ **Session Description Display**: Shows session description from database instead of generic placeholder  
+✅ **Pre-Loading Support**: Session info loads immediately when HostGuid provided via URL  
+✅ **Real-time Updates**: Session info updates during authentication process  
+✅ **Error Handling**: Graceful fallback messages when session info unavailable  
+
+#### **Debug Logging Enhancement**
+✅ All operations include request ID tracking for comprehensive debugging  
+✅ Session validation API calls logged with response status and content  
+✅ Authentication flow enhanced with detailed logging at each step  
+✅ Error scenarios logged with appropriate warning/error levels
 
 ### **Issue-101: UserLanding.razor Conditional Display Logic Missing**
 **Created**: September 16, 2025  

@@ -146,8 +146,8 @@ Write-LogMessage "Launching application using nc script..." "STEP"
 $ncPath = Join-Path $root "Workspaces\Global\nc.ps1"
 
 if (Test-Path $ncPath) {
-    Write-LogMessage "Calling nc with SkipBuild flag..." "INFO"
-    & $ncPath -SkipBuild -PreferredHttpPort $HttpPort -PreferredHttpsPort $HttpsPort
+    Write-LogMessage "Calling nc with SkipBuild and SkipTokenGeneration flags..." "INFO"
+    & $ncPath -SkipBuild -SkipTokenGeneration -PreferredHttpPort $HttpPort -PreferredHttpsPort $HttpsPort
 } else {
     Write-LogMessage "ERROR: nc.ps1 not found at expected location: $ncPath" "ERROR"
     exit 1

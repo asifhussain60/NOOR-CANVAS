@@ -219,7 +219,7 @@
         if (firstRender)
         {
             // Register dialogs with the service after they are rendered
-            DialogService.RegisterAlertDialog(alertDialog);
+            await DialogService.RegisterAlertDialog(alertDialog);
             DialogService.RegisterConfirmDialog(confirmDialog);
         }
         await base.OnAfterRenderAsync(firstRender);

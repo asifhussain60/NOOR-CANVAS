@@ -98,6 +98,47 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
+        /// Get basic session information by session ID
+        /// </summary>
+        [HttpGet("{sessionId}")]
+        public async Task<IActionResult> GetSessionInfo(int sessionId)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Getting session info for session: {SessionId}", sessionId);
+
+                var session = await _context.Sessions
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+                if (session == null)
+                {
+                    return NotFound(new { error = "Session not found" });
+                }
+
+                var sessionInfo = new
+                {
+                    sessionId = session.SessionId,
+                    title = session.Title ?? "HOST SESSION",
+                    description = session.Description ?? "Manage Islamic learning sessions with interactive tools",
+                    status = session.Status,
+                    participantCount = session.ParticipantCount ?? 0,
+                    maxParticipants = session.MaxParticipants,
+                    startedAt = session.StartedAt,
+                    createdAt = session.CreatedAt
+                };
+
+                _logger.LogInformation("NOOR-SUCCESS: Session info retrieved for session {SessionId}", sessionId);
+
+                return Ok(sessionInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to get session info for session {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Failed to get session info" });
+            }
+        }
+
+        /// <summary>
         /// Get session state by session GUID for participants
         /// </summary>
         [HttpGet("guid/{sessionGuid}/state")]

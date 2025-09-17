@@ -37,7 +37,7 @@ else
 @code {
     private WeatherForecast[]? forecasts;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         // Generate sample data instead of fetching from API
         var rng = new Random();
@@ -49,6 +49,8 @@ else
             TemperatureC = rng.Next(-20, 55),
             Summary = summaries[rng.Next(summaries.Length)]
         }).ToArray();
+        
+        return Task.CompletedTask;
     }
 
     public class WeatherForecast

@@ -295,7 +295,7 @@
     [SupplyParameterFromQuery]
     public string? Guid { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         Logger.LogInformation("NOOR-INFO: Host Session Manager initializing for GUID: {Guid}", Guid?.Substring(0, 8) + "...");
         
@@ -303,11 +303,12 @@
         {
             Logger.LogWarning("NOOR-WARNING: No host GUID provided, redirecting to landing");
             Navigation.NavigateTo("/");
-            return;
+            return Task.CompletedTask;
         }
         
         // Initialize basic state only - defer authentication until after render
         // This prevents race condition with DialogService registration
+        return Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -315,7 +316,7 @@
         if (firstRender)
         {
             // Register dialogs FIRST before any operations that might need them
-            DialogService.RegisterAlertDialog(alertDialog);
+            await DialogService.RegisterAlertDialog(alertDialog);
             DialogService.RegisterConfirmDialog(confirmDialog);
             
             await JSRuntime.InvokeVoidAsync("NoorLogger.info", "HOST-SESSION-MANAGER", "Session manager initialized", new { guid = Guid });

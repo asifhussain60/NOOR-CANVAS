@@ -457,6 +457,49 @@ Before finalizing, ensure:
 4. **Check loading states** and error message displays
 5. **Confirm navigation flows** work as expected
 
+### **Phase 5: Final Spacing & Visual Cleanup** (15 minutes)
+
+#### **Common Spacing Issues & Solutions**:
+
+**Problem**: Multiple margin/padding sources creating unwanted gaps
+- **Identify**: Look for conflicting `margin-top`, `margin-bottom` on related elements
+- **Solution**: Remove conflicting margins, use single spacing source (flex gap or container margins)
+
+**Problem**: Related content elements appear disconnected  
+- **Identify**: Title and subtitle, or label and description spread too far apart
+- **Solution**: Group related elements in dedicated container with controlled spacing
+
+**Generic Cleanup Pattern:**
+```html
+<!-- BEFORE: Conflicting spacing -->
+<h1 style="margin:0;">Main Title</h1>
+<p style="margin-top:0.5rem;">Subtitle text</p>
+<p style="margin-top:10px;">Description text</p>
+
+<!-- AFTER: Controlled grouping -->
+<h1 style="margin:0;">Main Title</h1>
+<div style="display:flex;flex-direction:column;gap:0.25rem;margin-top:-0.5rem;">
+    <p style="margin:0;">Subtitle text</p>
+    <p style="margin:0;">Description text</p>
+</div>
+```
+
+#### **Spacing Optimization Checklist**:
+- ✅ **Remove conflicting margins**: Eliminate duplicate `margin-top`/`margin-bottom` values
+- ✅ **Group related elements**: Wrap semantically related content in container divs
+- ✅ **Control spacing precisely**: Use `gap` property for consistent element spacing
+- ✅ **Adjust container positioning**: Use negative margins to maintain overall layout balance
+- ✅ **Validate visual hierarchy**: Ensure spacing enhances readability and flow
+
+#### **NOOR Canvas Spacing Standards**:
+```css
+gap: 0.25rem;     /* Tight spacing (related elements) */
+gap: 0.5rem;      /* Close spacing (form elements) */
+gap: 1rem;        /* Normal spacing (sections) */
+gap: 1.5rem;      /* Wide spacing (major sections) */
+margin-top: -0.5rem; /* Container adjustment for grouped elements */
+```
+
 ---
 
 ## 🏆 **SUCCESS CASE STUDY: HostLanding.razor Implementation (September 16, 2025)**

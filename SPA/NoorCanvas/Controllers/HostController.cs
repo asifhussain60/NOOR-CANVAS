@@ -68,7 +68,19 @@ namespace NoorCanvas.Controllers
                         Success = true,
                         SessionToken = sessionTokenHash,
                         ExpiresAt = DateTime.UtcNow.AddHours(8),
-                        HostGuid = request.HostGuid
+                        HostGuid = request.HostGuid,
+                        SessionId = (int)session.SessionId,
+                        Session = new HostSessionInfo
+                        {
+                            SessionId = (int)session.SessionId,
+                            Title = session.Title,
+                            Description = session.Description,
+                            Status = session.Status,
+                            ParticipantCount = session.ParticipantCount ?? 0,
+                            MaxParticipants = session.MaxParticipants,
+                            StartedAt = session.StartedAt,
+                            CreatedAt = session.CreatedAt
+                        }
                     });
                 }
 
@@ -89,6 +101,165 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogError(ex, "NOOR-ERROR: Host authentication failed");
                 return StatusCode(500, new { error = "Authentication failed" });
+            }
+        }
+
+        [HttpGet("session/{hostGuid}/validate")]
+        public async Task<IActionResult> ValidateHostSession(string hostGuid)
+        {
+            try
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Validating session for Host GUID: {HostGuid}", 
+                    requestId, hostGuid?.Substring(0, Math.Min(8, hostGuid?.Length ?? 0)) + "...");
+
+                if (string.IsNullOrWhiteSpace(hostGuid))
+                {
+                    _logger.LogWarning("NOOR-HOST-VALIDATE: [{RequestId}] Empty Host GUID provided", requestId);
+                    return BadRequest(new { error = "Host GUID is required", valid = false, requestId });
+                }
+
+                // Always check database for exact match - token must exist in database to be valid
+                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Looking up session for HostGuid: {HostGuid}", requestId, hostGuid);
+                
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostGuid == hostGuid);
+                if (session != null)
+                {
+                    _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}", 
+                        requestId, session.SessionId, session.Title);
+                    
+                    return Ok(new HostSessionValidationResponse
+                    {
+                        Valid = true,
+                        SessionId = (int)session.SessionId,
+                        HostGuid = hostGuid,
+                        Session = new HostSessionInfo
+                        {
+                            SessionId = (int)session.SessionId,
+                            Title = session.Title,
+                            Description = session.Description,
+                            Status = session.Status,
+                            ParticipantCount = session.ParticipantCount ?? 0,
+                            MaxParticipants = session.MaxParticipants,
+                            StartedAt = session.StartedAt,
+                            CreatedAt = session.CreatedAt
+                        },
+                        RequestId = requestId
+                    });
+                }
+                else
+                {
+                    _logger.LogWarning("NOOR-HOST-VALIDATE: [{RequestId}] No session found for HostGuid: {HostGuid} - treating as invalid", requestId, hostGuid);
+                    return Ok(new HostSessionValidationResponse
+                    {
+                        Valid = false,
+                        SessionId = 0,
+                        HostGuid = hostGuid,
+                        RequestId = requestId
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogError(ex, "NOOR-HOST-VALIDATE: [{RequestId}] Error during host session validation for GUID: {HostGuid}", 
+                    requestId, hostGuid?.Substring(0, Math.Min(8, hostGuid?.Length ?? 0)) + "...");
+                
+                return StatusCode(500, new { 
+                    error = "Validation failed", 
+                    valid = false, 
+                    requestId,
+                    details = ex.Message 
+                });
+            }
+        }
+
+        [HttpGet("token/{friendlyToken}/validate")]
+        public async Task<IActionResult> ValidateHostToken(string friendlyToken)
+        {
+            try
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Validating friendly token: {Token}", 
+                    requestId, friendlyToken);
+
+                if (string.IsNullOrWhiteSpace(friendlyToken))
+                {
+                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Empty token provided", requestId);
+                    return BadRequest(new { error = "Token is required", valid = false, requestId });
+                }
+
+                // Check if token format is valid (8 characters, alphanumeric)
+                if (friendlyToken.Length != 8 || !friendlyToken.All(c => char.IsLetterOrDigit(c)))
+                {
+                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Invalid token format: {Token}", 
+                        requestId, friendlyToken);
+                    return Ok(new HostSessionValidationResponse
+                    {
+                        Valid = false,
+                        SessionId = 0,
+                        HostGuid = friendlyToken,
+                        RequestId = requestId
+                    });
+                }
+
+                // Look up friendly token in SecureTokens table
+                _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Looking up friendly token in database", requestId);
+                
+                var secureToken = await _context.SecureTokens
+                    .Include(st => st.Session)
+                    .Where(st => st.HostToken == friendlyToken && st.IsActive && st.ExpiresAt > DateTime.UtcNow)
+                    .FirstOrDefaultAsync();
+
+                if (secureToken != null)
+                {
+                    _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}", 
+                        requestId, secureToken.Session.SessionId, secureToken.Session.Title);
+                    
+                    return Ok(new HostSessionValidationResponse
+                    {
+                        Valid = true,
+                        SessionId = (int)secureToken.SessionId,
+                        HostGuid = friendlyToken, // Return the friendly token
+                        Session = new HostSessionInfo
+                        {
+                            SessionId = (int)secureToken.Session.SessionId,
+                            Title = secureToken.Session.Title,
+                            Description = secureToken.Session.Description,
+                            Status = secureToken.Session.Status,
+                            ParticipantCount = secureToken.Session.ParticipantCount ?? 0,
+                            MaxParticipants = secureToken.Session.MaxParticipants,
+                            StartedAt = secureToken.Session.StartedAt,
+                            CreatedAt = secureToken.Session.CreatedAt
+                        },
+                        RequestId = requestId
+                    });
+                }
+                else
+                {
+                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] No session found for friendly token: {Token}", 
+                        requestId, friendlyToken);
+                    return Ok(new HostSessionValidationResponse
+                    {
+                        Valid = false,
+                        SessionId = 0,
+                        HostGuid = friendlyToken,
+                        RequestId = requestId
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogError(ex, "NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Error during token validation: {Token}", 
+                    requestId, friendlyToken);
+                
+                return StatusCode(500, new { 
+                    error = "Token validation failed", 
+                    valid = false, 
+                    requestId,
+                    details = ex.Message 
+                });
             }
         }
 
@@ -336,7 +507,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("generate-token")]
-        public async Task<IActionResult> GenerateSessionToken([FromQuery] int sessionId, [FromQuery] string guid)
+        public IActionResult GenerateSessionToken([FromQuery] int sessionId, [FromQuery] string guid)
         {
             try
             {
@@ -435,7 +606,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpGet("session-status")]
-        public async Task<IActionResult> GetSessionStatus([FromQuery] string guid)
+        public IActionResult GetSessionStatus([FromQuery] string guid)
         {
             try
             {
@@ -489,6 +660,29 @@ namespace NoorCanvas.Controllers
         public string SessionToken { get; set; } = string.Empty;
         public DateTime ExpiresAt { get; set; }
         public string HostGuid { get; set; } = string.Empty;
+        public int SessionId { get; set; }
+        public HostSessionInfo? Session { get; set; }
+    }
+
+    public class HostSessionInfo
+    {
+        public int SessionId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Status { get; set; }
+        public int ParticipantCount { get; set; }
+        public int? MaxParticipants { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+    }
+
+    public class HostSessionValidationResponse
+    {
+        public bool Valid { get; set; }
+        public int SessionId { get; set; }
+        public string? HostGuid { get; set; }
+        public HostSessionInfo? Session { get; set; }
+        public string? RequestId { get; set; }
     }
 
     public class CreateSessionRequest
