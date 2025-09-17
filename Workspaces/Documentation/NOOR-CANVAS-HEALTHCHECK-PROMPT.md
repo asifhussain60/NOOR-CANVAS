@@ -176,7 +176,43 @@ Get-Content $PROFILE | Select-String "function iiskill" # Likely missing
 4. **Check health endpoints**: Verify `/healthz` responds correctly
 5. **Test critical user flows**: Validate Host authentication → CreateSession workflow works
 
-**Phase 6: Implementation Documentation Synchronization**
+**Phase 6: Project Cleanup & Space Recovery**
+1. **Safety Commit**: Create git commit before cleanup for recovery capability
+2. **Remove Build Artifacts**: Use PowerShell to recursively remove bin/ and obj/ directories
+3. **Clean DocFX Generated Files**: Remove entire DocFX/_site/ directory contents  
+4. **Eliminate Duplicate Commands**: Remove .cmd/.bat wrapper files, keep .ps1 implementations
+5. **Log File Cleanup**: Remove old development logs (keep most recent 8 files)
+6. **Remove Backup/Temporary Files**: Delete .backup configs, stale PID files, temp artifacts
+7. **Verify Functionality**: Test build, global commands, and application startup after cleanup
+
+**Cleanup Commands Reference**:
+```powershell
+# Build artifacts cleanup
+Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -eq "bin" -or $_.Name -eq "obj" } | Remove-Item -Recurse -Force -Verbose
+
+# DocFX site cleanup  
+Remove-Item 'DocFX\_site\*' -Recurse -Force -Verbose
+
+# Duplicate command files cleanup
+Remove-Item 'Workspaces/Global/*.cmd' -Force -Verbose
+Remove-Item 'Workspaces/Global/*.bat' -Force -Verbose
+
+# Log file cleanup (keep recent 8, remove older)
+Get-ChildItem "Workspaces/Global/logs/" -Filter "*.log" | Sort-Object LastWriteTime -Descending | Select-Object -Skip 8 | Remove-Item -Force -Verbose
+
+# Backup file cleanup
+Remove-Item 'SPA/NoorCanvas/Properties/launchSettings.json.backup' -Force -ErrorAction SilentlyContinue
+```
+
+**Phase 6: Project Cleanup & Space Recovery**
+1. **Remove Build Artifacts**: Clean all bin/ and obj/ directories across solution to recover disk space
+2. **Clean Generated Files**: Remove DocFX _site/ directory and other auto-generated content
+3. **Remove Duplicate Files**: Eliminate redundant .cmd/.bat wrapper files keeping only .ps1 implementations
+4. **Clean Development Logs**: Keep most recent 8 log files, remove older development logs
+5. **Remove Backup Files**: Delete .backup configuration files and stale PID files
+6. **Post-Cleanup Testing**: Verify all functionality works after cleanup (build, global commands, application startup)
+
+**Phase 7: Implementation Documentation Synchronization**
 1. **Update ncImplementationTracker.MD**: Reflect live application state using git history commits for accuracy
 2. **Align NOOR-CANVAS-DESIGN.MD**: Synchronize design documentation with current implementation tracker state
 3. **Optimize blazor-view-builder-strategy.md**: Streamline view building strategy documentation for current architecture
@@ -188,6 +224,8 @@ Get-Content $PROFILE | Select-String "function iiskill" # Likely missing
 - **Global Commands**: All 4 commands (nc, nct, ncdoc, iiskill) functional via PowerShell profile
 - **Implementation Reality**: Accurate Phase 1-3 completion status and Phase 4 readiness assessment
 - **Build Quality**: Clean build with passing tests and functional application startup
+- **Project Cleanup**: Removed duplicate files, build artifacts, and old logs with significant disk space recovery
+- **Functionality Preservation**: All cleanup verified to maintain complete system functionality
 - **Git History**: Proper commit messages for any fixes applied during healthcheck
 
 **Context Files for Healthcheck Execution**:
@@ -223,11 +261,12 @@ GitHub Copilot MUST immediately execute the complete healthcheck workflow withou
 
 **Mandatory Execution Sequence**:
 1. **Start Immediately**: Begin Phase 1 (Issue Validation) without prompt acknowledgment
-2. **Execute All Phases**: Complete all 5 phases systematically in order
+2. **Execute All Phases**: Complete all 7 phases systematically in order
 3. **Provide Progress Updates**: Show status of each phase as it executes
 4. **Apply Corrections**: Make all necessary fixes during execution
-5. **Commit Results**: Commit any corrections with structured messages
-6. **Report Summary**: Provide comprehensive summary of all findings and corrections
+5. **Execute Cleanup**: Remove duplicate files and build artifacts with safety commit
+6. **Commit Results**: Commit any corrections with structured messages
+7. **Report Summary**: Provide comprehensive summary of all findings and corrections
 
 **Non-Interactive Execution**: 
 - **No permission requests**: Execute corrections automatically  
@@ -260,7 +299,8 @@ GitHub Copilot MUST immediately execute the complete healthcheck workflow withou
 3. **Documentation Alignment**: Update all docs to reflect verified reality (no aspirational content)
 4. **Global Command Testing**: Test and repair all 4 global commands with actual execution
 5. **Build & Test Validation**: Ensure clean build and passing tests after any corrections
-6. **Implementation Documentation Sync**: Update ncImplementationTracker.MD, align NOOR-CANVAS-DESIGN.MD, optimize blazor-view-builder-strategy.md and copilot_instructions.md
+6. **Project Cleanup & Space Recovery**: Remove build artifacts, duplicates, and old logs with safety commit
+7. **Implementation Documentation Sync**: Update ncImplementationTracker.MD, align NOOR-CANVAS-DESIGN.MD, optimize blazor-view-builder-strategy.md and copilot_instructions.md
 
 ### **Success Criteria for Completed Healthcheck**
 - ✅ **Issue Tracker Accuracy**: All COMPLETED issues verified against code, false completions reverted
