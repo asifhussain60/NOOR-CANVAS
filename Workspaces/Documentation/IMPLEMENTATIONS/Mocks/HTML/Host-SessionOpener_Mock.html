@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Session Opener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .golden-theme {
+            background-color: #F8F5F1;
+        }
+
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .gold-border {
+            border: 2px solid;
+            border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+        }
+
+        /* Styling for placeholder text to make it light gray */
+        .placeholder-gray-400::placeholder {
+            color: #a0aec0; /* A shade of light gray */
+        }
+        
+        .placeholder-gray-400-select {
+            color: #a0aec0;
+        }
+        
+        .text-gray-800-select {
+            color: #4B3C2B;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F5F1] flex flex-col items-center p-4 min-h-screen">
+
+<div class="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-gray-200">
+    <!-- Logo  -->
+    <div class="flex justify-center mb-6 mt-8">
+        <img src="https://placehold.co/120x120/E5D7A9/706357?text=Logo" alt="Logo" class="rounded-full">
+    </div>
+
+    <h1 class="poppins font-bold text-3xl sm:text-4xl text-[#006400] flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-user-tie text-4xl sm:text-5xl text-[#006400]"></i>
+        <span>Host Session Opener</span>
+    </h1>
+
+    <!-- Session Panel -->
+    <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-6 shadow-inner text-center">
+        <div class="flex flex-col items-center space-y-4">
+            <!-- Error message container -->
+            <div id="error-message" class="text-red-500 text-sm poppins mb-4" style="display: none;"></div>
+            <div class="p-4 rounded-full border-4 border-[#006400] mb-4">
+                <i class="fa-solid fa-microphone text-6xl text-[#006400]"></i>
+            </div>
+            
+            <!-- Host Controls Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-lg mx-auto">
+                <!-- Dropdown controls -->
+                <div class="space-y-4">
+                    <div class="w-full">
+                        <label for="album-select" class="block text-sm font-medium text-gray-700 text-left mb-1">Album</label>
+                        <select id="album-select" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] placeholder-gray-400-select">
+                            <option value="">Select Album</option>
+                            <option value="album1" class="text-gray-800-select">Album 1</option>
+                            <option value="album2" class="text-gray-800-select">Album 2</option>
+                        </select>
+                    </div>
+                    <div class="w-full">
+                        <label for="category-select" class="block text-sm font-medium text-gray-700 text-left mb-1">Category</label>
+                        <select id="category-select" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] placeholder-gray-400-select">
+                            <option value="">Select Category</option>
+                            <option value="category1" class="text-gray-800-select">Category 1</option>
+                            <option value="category2" class="text-gray-800-select">Category 2</option>
+                        </select>
+                    </div>
+                    <div class="w-full">
+                        <label for="session-select" class="block text-sm font-medium text-gray-700 text-left mb-1">Session</label>
+                        <select id="session-select" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] placeholder-gray-400-select">
+                            <option value="">Select Session</option>
+                            <option value="session1" class="text-gray-800-select">Session 1</option>
+                            <option value="session2" class="text-gray-800-select">Session 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Host Inputs -->
+                <div class="space-y-4">
+                    <div class="w-full">
+                        <label for="session-date" class="block text-sm font-medium text-gray-700 text-left mb-1">Date</label>
+                        <input type="date" id="session-date" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800">
+                    </div>
+                    <div class="w-full">
+                        <label for="session-time" class="block text-sm font-medium text-gray-700 text-left mb-1">Start Time (EST)</label>
+                        <input type="text" id="session-time" required placeholder="HH:MM AM/PM" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800 placeholder-gray-400">
+                    </div>
+                    <div class="w-full">
+                        <label for="session-duration" class="block text-sm font-medium text-gray-700 text-left mb-1">Duration (minutes)</label>
+                        <input type="number" id="session-duration" required placeholder="Enter duration" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-gray-800 placeholder-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center w-full mt-6">
+                <button id="openSessionBtn" class="w-full max-w-xs inter font-semibold px-6 py-3 rounded-full bg-[#006400] text-white transition-colors flex items-center justify-center space-x-2 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>Open Session</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Link Panel -->
+    <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-4 shadow-inner">
+        <h3 class="poppins font-bold text-lg sm:text-xl text-[#006400]">Session URL</h3>
+        <div class="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0 sm:space-x-4">
+            <span id="sessionUrl" class="inter text-sm md:text-base font-semibold text-gray-900 break-all">https://localhost:9091/user/hostlanding</span>
+            <button id="copyButton" class="inter font-semibold px-4 py-2 rounded-full bg-[#D4AF37] text-white hover:bg-[#C5B358] transition-colors flex items-center space-x-2 shadow-md">
+                <i class="fa-solid fa-copy"></i>
+                <span>Copy Link</span>
+            </button>
+        </div>
+        <div class="flex justify-center">
+            <button id="openWaitingRoomBtn" class="w-full max-w-xs inter font-semibold px-6 py-3 rounded-full bg-[#006400] text-white hover:bg-[#004d00] transition-colors flex items-center justify-center space-x-2 shadow-md mt-4">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <span>Open Waiting Room</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.querySelector('.gold-border');
+    const openSessionBtn = document.getElementById('openSessionBtn');
+    const errorMessageDiv = document.getElementById('error-message');
+    const selectElements = document.querySelectorAll('select');
+    const timeInput = document.getElementById('session-time');
+
+    selectElements.forEach(select => {
+        select.addEventListener('change', function() {
+            if (this.value === "") {
+                this.classList.remove('text-gray-800-select');
+                this.classList.add('placeholder-gray-400-select');
+            } else {
+                this.classList.remove('placeholder-gray-400-select');
+                this.classList.add('text-gray-800-select');
+            }
+        });
+    });
+
+    timeInput.addEventListener('input', function() {
+        // Automatically add a space before AM/PM if not present
+        const value = this.value.toUpperCase().trim();
+        if (value.length > 2 && (value.endsWith('AM') || value.endsWith('PM')) && value[value.length - 3] !== ' ') {
+            this.value = value.slice(0, -2) + ' ' + value.slice(-2);
+        }
+    });
+
+    function validateTime(time) {
+        // Regex to validate HH:MM AM/PM format
+        const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
+        return timeRegex.test(time);
+    }
+
+    function validateForm() {
+        let isFormValid = true;
+        const requiredFields = document.querySelectorAll('select[required], input[required]');
+        
+        requiredFields.forEach(field => {
+            if (!field.value) {
+                isFormValid = false;
+            }
+        });
+
+        // Specific time validation
+        const timeInput = document.getElementById('session-time');
+        if (timeInput.value && !validateTime(timeInput.value)) {
+            isFormValid = false;
+            errorMessageDiv.textContent = 'Please enter a valid time in HH:MM AM/PM format.';
+            errorMessageDiv.style.display = 'block';
+        } else if (!isFormValid) {
+            errorMessageDiv.textContent = 'Please fill out all fields.';
+            errorMessageDiv.style.display = 'block';
+        } else {
+            errorMessageDiv.style.display = 'none';
+        }
+
+        openSessionBtn.disabled = !isFormValid;
+    }
+    
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('session-date').value = `${yyyy}-${mm}-${dd}`;
+        
+        form.addEventListener('change', validateForm);
+        form.addEventListener('input', validateForm);
+        validateForm(); // Initial validation check on page load
+    });
+
+    document.getElementById('copyButton').addEventListener('click', function() {
+        const urlElement = document.getElementById('sessionUrl');
+        const urlToCopy = urlElement.textContent;
+        const copyButton = document.getElementById('copyButton');
+        const originalButtonText = copyButton.innerHTML;
+        const originalButtonClasses = copyButton.className;
+
+        // Use a hidden textarea to copy the text to the clipboard
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = urlToCopy;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+
+        // Change button text and color to provide visual feedback
+        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copied!</span>';
+        copyButton.classList.remove('bg-[#D4AF37]', 'hover:bg-[#C5B358]');
+        copyButton.classList.add('bg-[#006400]');
+
+        // Revert the button back to its original state after a short delay
+        setTimeout(function() {
+            copyButton.innerHTML = originalButtonText;
+            copyButton.className = originalButtonClasses;
+        }, 2000);
+    });
+
+    document.getElementById('openSessionBtn').addEventListener('click', function() {
+        console.log('Open Session button clicked!');
+    });
+
+    document.getElementById('openWaitingRoomBtn').addEventListener('click', function() {
+        console.log('Open Waiting Room button clicked!');
+    });
+</script>
+
+</body>
+</html>

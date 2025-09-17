@@ -1,0 +1,173 @@
+@page "/waitingroom"
+@inject IHubContext<YourHubName> HubContext
+
+<div class="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-gray-200">
+    <!-- Logo  -->
+
+    <h1 class="poppins font-bold text-3xl sm:text-4xl text-[#006400] flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-hourglass-half text-4xl sm:text-5xl text-[#006400]"></i>
+        <span>Waiting Room</span>
+    </h1>
+
+    <!-- Session Details Panel -->
+    <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-6 shadow-inner">
+        <h2 class="poppins font-bold text-2xl sm:text-3xl text-gray-800 text-center">Mindfulness & Movement</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 bg-white p-4 rounded-xl">
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-calendar-days text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Date</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">Today, Sep 16</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-clock text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Start Time</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">2:00 PM EST</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-hourglass-half text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Duration</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">1 hour</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-user-tie text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Instructor</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">Asif Hussain</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Status & Timer -->
+    <div class="text-center rounded-xl p-6 bg-white shadow-lg gold-border">
+        <p class="inter text-lg font-semibold text-[#4B3C2B]">Session begins in:</p>
+        <div id="countdown-timer" class="text-5xl font-bold text-[#006400] mt-2 mb-4 inter">@FormattedTime</div>
+        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-[#D4AF37] transition-all duration-500 ease-in-out" style="width: @(Progress)%;"></div>
+        </div>
+        <p id="status-message" class="inter text-sm text-[#706357] mt-2">@StatusMessage</p>
+    </div>
+
+    <!-- Participants Panel -->
+    <div class="bg-white p-4 rounded-xl shadow-inner gold-border">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+                <h2 class="inter text-lg font-semibold text-[#4B3C2B]">Participants (12)</h2>
+                <i class="fa-solid fa-users text-2xl text-[#706357]"></i>
+            </div>
+            <div class="flex space-x-2">
+                <button class="inter text-xs px-2 py-1 rounded-full bg-[#F8F5F1] text-[#4B3C2B] font-semibold hover:bg-gray-200 transition-colors">Sort by Name</button>
+                <button class="inter text-xs px-2 py-1 rounded-full bg-[#F8F5F1] text-[#4B3C2B] font-semibold hover:bg-gray-200 transition-colors">Sort by Country</button>
+            </div>
+        </div>
+        <div id="participants-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2">
+            <!-- Sample Participant List -->
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/ma.png" alt="Morocco Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Fatima</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/sa.png" alt="Saudi Arabia Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Ali</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/gb.png" alt="United Kingdom Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Zainab</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/us.png" alt="United States Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Hassan</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/eg.png" alt="Egypt Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Laila</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/ca.png" alt="Canada Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Yusuf</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/fr.png" alt="France Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Maryam</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/tr.png" alt="Turkey Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Omar</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/de.png" alt="Germany Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Sara</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/id.png" alt="Indonesia Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Mohammed</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/pk.png" alt="Pakistan Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Aisha</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/in.png" alt="India Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Ahmed</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private DateTime sessionStartTime;
+    private int durationMilliseconds = 150000;
+    private System.Threading.Timer _timer;
+    private string FormattedTime { get; set; }
+    private int Progress { get; set; }
+    private string StatusMessage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        sessionStartTime = DateTime.Now.AddMilliseconds(durationMilliseconds);
+        _timer = new System.Threading.Timer(new TimerCallback(UpdateCountdown), null, 0, 1000);
+    }
+
+    private void UpdateCountdown(object state)
+    {
+        var timeLeft = sessionStartTime - DateTime.Now;
+        var progress = ((durationMilliseconds - timeLeft.TotalMilliseconds) / durationMilliseconds) * 100;
+
+        if (timeLeft.TotalMilliseconds <= 0)
+        {
+            _timer?.Dispose();
+            FormattedTime = "00:00";
+            Progress = 100;
+            StatusMessage = "Waiting for host to begin the session.";
+        }
+        else
+        {
+            var minutes = Math.Floor(timeLeft.TotalMinutes);
+            var seconds = timeLeft.Seconds;
+            FormattedTime = $"{minutes:00}:{seconds:00}";
+            Progress = (int)progress;
+        }
+
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}

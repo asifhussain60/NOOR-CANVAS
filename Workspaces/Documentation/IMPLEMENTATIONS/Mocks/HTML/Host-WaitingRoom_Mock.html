@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .golden-theme {
+            background-color: #F8F5F1;
+        }
+
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .gold-border {
+            border: 2px solid;
+            border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F5F1] flex flex-col items-center p-4 min-h-screen">
+
+<!-- Overall Card Container -->
+<div class="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-gray-200">
+
+    <!-- Logo Placeholder -->
+    <div class="flex justify-center mb-6 mt-8">
+        <img src="https://placehold.co/120x120/E5D7A9/706357?text=Logo" alt="Logo" class="rounded-full">
+    </div>
+
+    <h1 class="poppins font-bold text-3xl sm:text-4xl text-[#006400] flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-hourglass-half text-4xl sm:text-5xl text-[#006400]"></i>
+        <span>Waiting Room</span>
+    </h1>
+
+    <!-- Session Details Panel -->
+    <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-6 shadow-inner">
+        <h2 class="poppins font-bold text-2xl sm:text-3xl text-gray-800 text-center">Mindfulness & Movement</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 bg-white p-4 rounded-xl">
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-calendar-days text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Date</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">Today, Sep 16</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-clock text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Start Time</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">2:00 PM EST</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-hourglass-half text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Duration</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">1 hour</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                    <i class="fa-solid fa-user-tie text-[#C5B358] text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="inter text-xs text-[#706357]">Instructor</p>
+                    <p class="inter font-semibold text-[#4B3C2B] text-lg">Asif Hussain</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Status & Timer -->
+    <div class="text-center rounded-xl p-6 bg-[#F8F5F1] shadow-lg gold-border">
+        <p class="inter text-lg font-semibold text-[#4B3C2B]">Session begins in:</p>
+        <div id="countdown-timer" class="text-5xl font-bold text-[#006400] mt-2 mb-4 inter">02:30</div>
+        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div id="progress-bar" class="h-full bg-[#D4AF37] transition-all duration-500 ease-in-out" style="width: 50%;"></div>
+        </div>
+        <p id="status-message" class="inter text-sm text-[#706357] mt-2">Waiting for host to begin the session.</p>
+    </div>
+
+    <!-- Participants Panel -->
+    <div class="bg-white p-4 rounded-xl shadow-inner gold-border">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+                <h2 class="inter text-lg font-semibold text-[#4B3C2B]">Participants (12)</h2>
+                <i class="fa-solid fa-users text-2xl text-[#706357]"></i>
+            </div>
+            <div class="flex space-x-2">
+                <button class="inter text-xs px-2 py-1 rounded-full bg-[#F8F5F1] text-[#4B3C2B] font-semibold hover:bg-gray-200 transition-colors">Sort by Name</button>
+                <button class="inter text-xs px-2 py-1 rounded-full bg-[#F8F5F1] text-[#4B3C2B] font-semibold hover:bg-gray-200 transition-colors">Sort by Country</button>
+            </div>
+        </div>
+        <div id="participants-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2">
+            <!-- Sample Participant List -->
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/ma.png" alt="Morocco Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Fatima</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/sa.png" alt="Saudi Arabia Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Ali</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/gb.png" alt="United Kingdom Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Zainab</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/us.png" alt="United States Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Hassan</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/eg.png" alt="Egypt Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Laila</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/ca.png" alt="Canada Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Yusuf</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/fr.png" alt="France Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Maryam</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/tr.png" alt="Turkey Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Omar</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/de.png" alt="Germany Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Sara</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/id.png" alt="Indonesia Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Mohammed</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/pk.png" alt="Pakistan Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Aisha</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[#706357]">
+                <img src="https://flagcdn.com/w20/in.png" alt="India Flag" class="h-4 w-auto rounded border border-gray-300">
+                <span class="inter text-sm">Ahmed</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sessionStartTime = Date.now() + 150000;
+    const duration = 150000;
+
+    const timerElement = document.getElementById('countdown-timer');
+    const progressBar = document.getElementById('progress-bar');
+    const statusMessage = document.getElementById('status-message');
+
+    function updateCountdown() {
+        const now = Date.now();
+        const timeLeft = sessionStartTime - now;
+        const progress = ((duration - timeLeft) / duration) * 100;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            timerElement.textContent = "00:00";
+            progressBar.style.width = '100%';
+            statusMessage.textContent = "Waiting for host to begin the session.";
+        } else {
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timerElement.textContent = formattedTime;
+            progressBar.style.width = `${progress}%`;
+        }
+    }
+
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    updateCountdown(); // Initial call
+</script>
+</body>
+</html>
