@@ -5,6 +5,8 @@ using NoorCanvas.Data;
 using NoorCanvas.Hubs;
 using NoorCanvas.Models;
 using NoorCanvas.Models.KSESSIONS;
+using NoorCanvas.Services;
+using System.Text.Json;
 
 namespace NoorCanvas.Controllers
 {
@@ -16,13 +18,15 @@ namespace NoorCanvas.Controllers
         private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<HostController> _logger;
         private readonly IHubContext<SessionHub> _sessionHub;
+        private readonly SecureTokenService _secureTokenService;
 
-        public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub)
+        public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SecureTokenService secureTokenService)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
             _sessionHub = sessionHub;
+            _secureTokenService = secureTokenService;
         }
 
         [HttpPost("authenticate")]
@@ -329,6 +333,167 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        /// <summary>
+        /// Create session for Host-SessionOpener with friendly token generation
+        /// </summary>
+        [HttpPost("create-session")]
+        public async Task<IActionResult> CreateSessionWithTokens([FromQuery] string token, [FromBody] dynamic sessionData)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-HOST-OPENER: Creating session for host token: {Token}", token);
+
+                // Validate the host token
+                var secureToken = await _secureTokenService.ValidateTokenAsync(token, isHostToken: true);
+                if (secureToken?.Session == null)
+                {
+                    _logger.LogWarning("NOOR-HOST-OPENER: Invalid host token: {Token}", token);
+                    return BadRequest(new { error = "Invalid host token" });
+                }
+
+                var sessionId = secureToken.SessionId;
+                var session = secureToken.Session;
+
+                // Extract session data from the dynamic payload with proper error handling
+                _logger.LogInformation("NOOR-HOST-OPENER: Attempting to parse session data from payload");
+                if (sessionData != null)
+                {
+                    object sessionDataObj = sessionData;
+                    _logger.LogInformation("NOOR-HOST-OPENER: Raw sessionData type: {Type}", sessionDataObj.GetType().Name);
+                    _logger.LogInformation("NOOR-HOST-OPENER: Raw sessionData value: {Value}", sessionDataObj.ToString());
+                }
+                else
+                {
+                    _logger.LogWarning("NOOR-HOST-OPENER: sessionData is null");
+                }
+                
+                string? selectedSession = null;
+                string? selectedCategory = null;
+                string? selectedAlbum = null;
+                string? sessionDate = null;
+                string? sessionTime = null;
+                int sessionDuration = 60;
+
+                try
+                {
+                    // Check if sessionData is JsonElement and handle it properly
+                    if (sessionData is JsonElement jsonElement)
+                    {
+                        _logger.LogInformation("NOOR-HOST-OPENER: sessionData is JsonElement, extracting properties...");
+                        
+                        if (jsonElement.TryGetProperty("SelectedSession", out var sessionProp))
+                        {
+                            selectedSession = sessionProp.GetString() ?? "";
+                            _logger.LogInformation("NOOR-HOST-OPENER: Extracted SelectedSession: {Value}", selectedSession);
+                        }
+                        
+                        if (jsonElement.TryGetProperty("SelectedCategory", out var categoryProp))
+                        {
+                            selectedCategory = categoryProp.GetString() ?? "";
+                            _logger.LogInformation("NOOR-HOST-OPENER: Extracted SelectedCategory: {Value}", selectedCategory);
+                        }
+                        
+                        if (jsonElement.TryGetProperty("SelectedAlbum", out var albumProp))
+                        {
+                            selectedAlbum = albumProp.GetString() ?? "";
+                            _logger.LogInformation("NOOR-HOST-OPENER: Extracted SelectedAlbum: {Value}", selectedAlbum);
+                        }
+                        
+                        if (jsonElement.TryGetProperty("SessionDate", out var dateProp))
+                        {
+                            sessionDate = dateProp.GetString() ?? "";
+                            _logger.LogInformation("NOOR-HOST-OPENER: Extracted SessionDate: {Value}", sessionDate);
+                        }
+                        
+                        if (jsonElement.TryGetProperty("SessionTime", out var timeProp))
+                        {
+                            sessionTime = timeProp.GetString() ?? "";
+                            _logger.LogInformation("NOOR-HOST-OPENER: Extracted SessionTime: {Value}", sessionTime);
+                        }
+                        
+                        if (jsonElement.TryGetProperty("SessionDuration", out var durationProp) && durationProp.TryGetInt32(out int duration))
+                        {
+                            sessionDuration = duration;
+                            _logger.LogInformation("NOOR-HOST-OPENER: Extracted SessionDuration: {Value}", sessionDuration);
+                        }
+                    }
+                    else
+                    {
+                        // Try dynamic access as fallback
+                        selectedSession = sessionData?.SelectedSession?.ToString() ?? "";
+                        selectedCategory = sessionData?.SelectedCategory?.ToString() ?? "";
+                        selectedAlbum = sessionData?.SelectedAlbum?.ToString() ?? "";
+                        sessionDate = sessionData?.SessionDate?.ToString() ?? "";
+                        sessionTime = sessionData?.SessionTime?.ToString() ?? "";
+                        
+                        if (sessionData?.SessionDuration != null)
+                        {
+                            if (sessionData.SessionDuration is int intValue)
+                            {
+                                sessionDuration = intValue;
+                            }
+                            else if (int.TryParse(sessionData.SessionDuration.ToString(), out int parsedValue))
+                            {
+                                sessionDuration = parsedValue;
+                            }
+                        }
+                    }
+                        
+                    _logger.LogInformation("NOOR-HOST-OPENER: Parsed session data - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration}",
+                        selectedAlbum, selectedCategory, selectedSession, sessionDate, sessionTime, sessionDuration);
+                }
+                catch (Exception parseEx)
+                {
+                    _logger.LogError(parseEx, "NOOR-HOST-OPENER: Error parsing session data from payload");
+                    return BadRequest(new { error = "Invalid session data format", details = parseEx.Message });
+                }
+
+                // Validate required fields
+                if (string.IsNullOrEmpty(selectedSession) || string.IsNullOrEmpty(selectedCategory) || string.IsNullOrEmpty(selectedAlbum))
+                {
+                    return BadRequest(new { error = "Selected session, category, and album are required" });
+                }
+
+                // Update canvas.Sessions with the selected session information
+                session.Title = $"Session {selectedSession}";
+                session.Description = $"Album: {selectedAlbum}, Category: {selectedCategory}";
+                session.Status = "Configured";
+                session.ModifiedAt = DateTime.UtcNow;
+                
+                // Parse the session date and time for StartedAt (future implementation)
+                if (DateTime.TryParse($"{sessionDate} {sessionTime}", out DateTime scheduledStart))
+                {
+                    session.StartedAt = scheduledStart;
+                }
+
+                await _context.SaveChangesAsync();
+
+                // Generate a new user token for participants
+                var (hostToken, userToken) = await _secureTokenService.GenerateTokenPairAsync(
+                    sessionId, 
+                    validHours: 24,
+                    clientIp: HttpContext.Connection.RemoteIpAddress?.ToString()
+                );
+
+                _logger.LogInformation("NOOR-HOST-OPENER: Session configured successfully - SessionId: {SessionId}, UserToken: {UserToken}",
+                    sessionId, userToken);
+
+                return Ok(new
+                {
+                    Success = true,
+                    SessionId = sessionId,
+                    UserToken = userToken,
+                    HostToken = hostToken,
+                    Message = "Session created and configured successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-HOST-OPENER: Error creating session with tokens");
+                return StatusCode(500, new { error = "Failed to create session" });
+            }
+        }
+
         [HttpPost("session/{sessionId}/start")]
         public async Task<IActionResult> StartSession(long sessionId)
         {
@@ -412,22 +577,19 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS database for host GUID: {Guid}", guid?.Substring(0, 8) + "...");
+                _logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS database for host token: {Token}", guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
-                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                if (string.IsNullOrWhiteSpace(guid))
                 {
-                    return BadRequest(new { error = "Invalid host GUID" });
+                    return BadRequest(new { error = "Host token is required" });
                 }
 
-                // Query KSESSIONS database for active Groups (Albums)
-                var albums = await _kSessionsContext.Groups
-                    .Where(g => g.IsActive == true || g.IsActive == null) // Include groups where IsActive is true or null
-                    .OrderBy(g => g.GroupName)
-                    .Select(g => new AlbumData
-                    {
-                        GroupId = g.GroupId,
-                        GroupName = g.GroupName
-                    })
+                // KSESSIONS data is read-only and publicly accessible - no GUID validation required
+                // Groups (Albums) are Islamic content available to all authenticated hosts
+
+                // Use stored procedure to get all groups (albums)
+                var albums = await _kSessionsContext.Database
+                    .SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups")
                     .ToListAsync();
 
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {AlbumCount} albums from KSESSIONS database", albums.Count);
@@ -447,20 +609,16 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogInformation("NOOR-INFO: Loading categories from KSESSIONS database for album: {AlbumId}", albumId);
 
-                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                if (string.IsNullOrWhiteSpace(guid))
                 {
-                    return BadRequest(new { error = "Invalid host GUID" });
+                    return BadRequest(new { error = "Host token is required" });
                 }
 
-                // Query KSESSIONS database for Categories within the specified Group
-                var categories = await _kSessionsContext.Categories
-                    .Where(c => c.GroupId == albumId && (c.IsActive == true || c.IsActive == null))
-                    .OrderBy(c => c.SortOrder ?? c.CategoryId) // Sort by SortOrder if available, fallback to CategoryId
-                    .Select(c => new CategoryData
-                    {
-                        CategoryId = c.CategoryId,
-                        CategoryName = c.CategoryName
-                    })
+                // KSESSIONS data is read-only and publicly accessible - no GUID validation required
+
+                // Use stored procedure to get categories for the specified group
+                var categories = await _kSessionsContext.Database
+                    .SqlQuery<CategoryData>($"EXEC dbo.GetCategoriesForGroup {albumId}")
                     .ToListAsync();
 
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {CategoryCount} categories from KSESSIONS database for album {AlbumId}", categories.Count, albumId);
@@ -480,19 +638,23 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogInformation("NOOR-INFO: Loading sessions from KSESSIONS database for category: {CategoryId}", categoryId);
 
-                if (string.IsNullOrWhiteSpace(guid) || !Guid.TryParse(guid, out Guid hostGuid))
+                if (string.IsNullOrWhiteSpace(guid))
                 {
-                    return BadRequest(new { error = "Invalid host GUID" });
+                    return BadRequest(new { error = "Host token is required" });
                 }
 
-                // Query KSESSIONS database for Sessions within the specified Category
+                // KSESSIONS data is read-only and publicly accessible - no GUID validation required
+
+                // Query sessions for the specified category directly (no stored procedure needed)
                 var sessions = await _kSessionsContext.Sessions
-                    .Where(s => s.CategoryId == categoryId && (s.IsActive == true || s.IsActive == null))
-                    .OrderBy(s => s.Sequence ?? s.SessionId) // Sort by Sequence if available, fallback to SessionId
+                    .Where(s => s.CategoryId == categoryId && s.IsActive == true)
                     .Select(s => new SessionData
                     {
-                        SessionId = s.SessionId,
-                        SessionName = s.SessionName
+                        SessionID = s.SessionId,
+                        SessionName = s.SessionName,
+                        Description = s.Description ?? string.Empty,
+                        CategoryID = s.CategoryId,
+                        IsActive = s.IsActive ?? false
                     })
                     .ToListAsync();
 
@@ -720,20 +882,32 @@ namespace NoorCanvas.Controllers
     // Issue-17 Cascading Dropdown Models
     public class AlbumData
     {
-        public int GroupId { get; set; }
-        public string GroupName { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int? SpeakerID { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsCompleted { get; set; }
     }
 
     public class CategoryData
     {
-        public int CategoryId { get; set; }
+        public int CategoryID { get; set; }
         public string CategoryName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+        public int GroupID { get; set; }
+        public int SortOrder { get; set; }
+        public DateTime? CreatedDate { get; set; }
     }
 
     public class SessionData
     {
-        public int SessionId { get; set; }
+        public int SessionID { get; set; }
         public string SessionName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int CategoryID { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public class SessionStatusData

@@ -4,6 +4,12 @@
 
 ### **NEVER mark issues as resolved or completed without explicit user approval.**
 
+### **VIOLATION ALERT: SEPTEMBER 17, 2025**
+**Issue:** GitHub Copilot continued to mark todos as "completed" despite explicit user instructions
+**Evidence:** User said "Despite my earlier instruction to ask for my permission you continued to change status?"
+**Root Cause:** Protocol instructions were not enforced in global behavior
+**Resolution:** Enhanced protocol with MANDATORY enforcement mechanisms
+
 ## **Standard Practice Required:**
 
 ### 1. **Complete Technical Work**

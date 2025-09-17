@@ -1,0 +1,726 @@
+@page "/host/session-opener"
+@page "/host/session-opener/{token?}"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Text.RegularExpressions
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<Host_SessionOpener> Logger
+
+<PageTitle>NOOR Canvas - Host Session Opener</PageTitle>
+
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</HeadContent>
+
+<!-- Root Container with NOOR Canvas Background -->
+<div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
+    
+    <!-- NOOR Canvas Logo -->
+    <div style="position:absolute;top:1.5rem;display:flex;align-items:center;justify-content:center;text-align:center;">
+        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+             alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+             style="max-width:150px;height:auto;" />
+    </div>
+    
+    <!-- Main Component Container -->
+    <div style="width:100%;max-width:46.4rem;background-color:#FFFFFF;border-radius:1.5rem;padding:1.5rem 2rem;gap:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;margin-top:120px;">
+        
+        <!-- Title Section -->
+        <h1 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:2rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:1.5rem;">
+            <i class="fa-solid fa-user-tie" style="font-size:2.5rem;color:#006400;"></i>
+            <span>Host Session Opener</span>
+        </h1>
+
+        <!-- Session Panel -->
+        <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);text-align:center;">
+            
+            <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:0 2.5rem;">
+                
+                <!-- Error message container -->
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <div style="color:#ef4444;font-size:0.875rem;font-family:'Poppins',sans-serif;margin-bottom:1rem;">@ErrorMessage</div>
+                }
+                
+                <!-- Microphone Icon -->
+                <div style="padding:1rem;border-radius:50%;border:4px solid #006400;margin-bottom:1rem;">
+                    <i class="fa-solid fa-microphone" style="font-size:4rem;color:#006400;"></i>
+                </div>
+                
+                <!-- Host Controls Grid -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;width:100%;min-width:25rem;">
+                    
+                    <!-- Dropdown controls (Left Column) -->
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                        
+                        <!-- Album Selection -->
+                        <div style="width:100%;">
+                            <label for="album-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Album</label>
+                            <select id="album-select" @bind="SelectedAlbum" @bind:after="ValidateForm" required 
+                                    style="@(SelectedAlbum == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    disabled="@(Model?.IsLoadingAlbums ?? false)">
+                                <option value="">@((Model?.IsLoadingAlbums ?? false) ? "Loading albums..." : "Select Album")</option>
+                                @if (!(Model?.IsLoadingAlbums ?? false))
+                                {
+                                    @foreach (var album in Albums)
+                                    {
+                                        <option value="@album.Id">@album.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Category Selection -->
+                        <div style="width:100%;">
+                            <label for="category-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Category</label>
+                            <select id="category-select" @bind="SelectedCategory" @bind:after="ValidateForm" required 
+                                    style="@(SelectedCategory == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    disabled="@((Model?.IsLoadingCategories ?? false) || string.IsNullOrEmpty(SelectedAlbum))">
+                                <option value="">@((Model?.IsLoadingCategories ?? false) ? "Loading categories..." : string.IsNullOrEmpty(SelectedAlbum) ? "Select Album First" : "Select Category")</option>
+                                @if (!(Model?.IsLoadingCategories ?? false))
+                                {
+                                    @foreach (var category in Categories)
+                                    {
+                                        <option value="@category.CategoryID">@category.CategoryName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Session Selection -->
+                        <div style="width:100%;">
+                            <label for="session-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Session</label>
+                            <select id="session-select" @bind="SelectedSession" @bind:after="ValidateForm" required 
+                                    style="@(SelectedSession == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    disabled="@((Model?.IsLoadingSessions ?? false) || string.IsNullOrEmpty(SelectedCategory))">
+                                <option value="">@((Model?.IsLoadingSessions ?? false) ? "Loading sessions..." : string.IsNullOrEmpty(SelectedCategory) ? "Select Category First" : "Select Session")</option>
+                                @if (!(Model?.IsLoadingSessions ?? false))
+                                {
+                                    @foreach (var session in Sessions)
+                                    {
+                                        <option value="@session.SessionID">@session.SessionName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Host Inputs (Right Column) -->
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                        
+                        <!-- Date Input -->
+                        <div style="width:100%;">
+                            <label for="session-date" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Date</label>
+                            <input type="date" id="session-date" @bind="SessionDate" @bind:after="ValidateForm" required 
+                                   style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
+                        </div>
+                        
+                        <!-- Time Input -->
+                        <div style="width:100%;">
+                            <label for="session-time" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Start Time (EST)</label>
+                            <input type="text" id="session-time" @bind="SessionTime" @oninput="FormatTime" @bind:after="ValidateForm" required 
+                                   placeholder="HH:MM AM/PM" 
+                                   style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
+                        </div>
+                        
+                        <!-- Duration Input -->
+                        <div style="width:100%;">
+                            <label for="session-duration" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Duration (minutes)</label>
+                            <input type="number" id="session-duration" @bind="SessionDuration" @bind:after="ValidateForm" required 
+                                   placeholder="Enter duration" 
+                                   style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Open Session Button -->
+                <div style="display:flex;justify-content:center;width:100%;margin-top:1.5rem;">
+                    <button id="openSessionBtn" @onclick="() => OpenSession()" disabled="@(!IsFormValid)" 
+                            style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;@(IsFormValid ? "background-color:#006400;cursor:pointer;" : "background-color:#9ca3af;cursor:not-allowed;") color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <span>Open Session</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Link Panel - Hidden by default, shown after session is opened -->
+        @if (ShowSessionUrlPanel)
+        {
+            <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+                
+                <!-- Session URL Title -->
+                <h3 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.25rem;color:#006400;margin-bottom:1rem;">Session URL</h3>
+            
+            <!-- URL Display and Copy Button -->
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0.5rem;">
+                <span id="sessionUrl" style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#1f2937;word-break:break-all;text-align:center;">@SessionUrl</span>
+                <button id="copyButton" @onclick="CopyUrl" 
+                        style="font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1rem;border-radius:50px;@(Copied ? "background-color:#006400;" : "background-color:#D4AF37;") color:#FFFFFF;border:none;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
+                    <i class="fa-solid @(Copied ? "fa-check" : "fa-copy")"></i>
+                    <span>@(Copied ? "Copied!" : "Copy Link")</span>
+                </button>
+            </div>
+            
+            <!-- Open Waiting Room Button -->
+            <div style="display:flex;justify-content:center;margin-top:1rem;">
+                <button id="openWaitingRoomBtn" @onclick="OpenWaitingRoom" 
+                        style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;background-color:#006400;color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>Open Waiting Room</span>
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? Token { get; set; }
+    
+    public class HostSessionOpenerViewModel
+    {
+        public string? LogoText { get; set; } = "NOOR Canvas";
+        public string? HostFriendlyToken { get; set; }
+        public string? SelectedAlbum { get; set; }
+        public string? SelectedCategory { get; set; }
+        public string? SelectedSession { get; set; }
+        public DateTime SessionDate { get; set; } = DateTime.Today;
+        public string SessionTime { get; set; } = "";
+        public int? SessionDuration { get; set; }
+        public string ErrorMessage { get; set; } = "";
+        public bool IsFormValid { get; set; }
+        public bool Copied { get; set; }
+        public string SessionUrl { get; set; } = "https://localhost:9091/user/hostlanding";
+        public bool IsLoadingAlbums { get; set; }
+        public bool IsLoadingCategories { get; set; }
+        public bool IsLoadingSessions { get; set; }
+        public bool ShowSessionUrlPanel { get; set; } = false; // Hidden by default
+    }
+
+    // API Models matching HostController
+    public class AlbumData
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int? SpeakerID { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+
+    public class CategoryData
+    {
+        public int CategoryID { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+        public int GroupID { get; set; }
+        public int SortOrder { get; set; }
+        public DateTime? CreatedDate { get; set; }
+    }
+
+    public class SessionData
+    {
+        public int SessionID { get; set; }
+        public string SessionName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime? SessionDate { get; set; }
+        public int CategoryID { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    private HostSessionOpenerViewModel Model { get; set; } = new();
+    private List<AlbumData> Albums { get; set; } = new();
+    private List<CategoryData> Categories { get; set; } = new();
+    private List<SessionData> Sessions { get; set; } = new();
+    private HttpClient HttpClient { get; set; } = null!;
+    
+    // Properties for direct binding (from mock)
+    private string? SelectedAlbum
+    {
+        get => Model.SelectedAlbum;
+        set
+        {
+            if (Model.SelectedAlbum != value)
+            {
+                Model.SelectedAlbum = value;
+                _ = OnAlbumChanged();
+            }
+        }
+    }
+    
+    private string? SelectedCategory
+    {
+        get => Model.SelectedCategory;
+        set
+        {
+            if (Model.SelectedCategory != value)
+            {
+                Model.SelectedCategory = value;
+                _ = OnCategoryChanged();
+            }
+        }
+    }
+    
+    private string? SelectedSession
+    {
+        get => Model.SelectedSession;
+        set => Model.SelectedSession = value;
+    }
+    
+    private DateTime SessionDate
+    {
+        get => Model.SessionDate;
+        set => Model.SessionDate = value;
+    }
+    
+    private string SessionTime
+    {
+        get => Model.SessionTime;
+        set => Model.SessionTime = value;
+    }
+    
+    private int? SessionDuration
+    {
+        get => Model.SessionDuration;
+        set => Model.SessionDuration = value;
+    }
+    
+    private string ErrorMessage
+    {
+        get => Model.ErrorMessage;
+        set => Model.ErrorMessage = value;
+    }
+    
+    private bool IsFormValid
+    {
+        get => Model.IsFormValid;
+        set => Model.IsFormValid = value;
+    }
+    
+    private bool Copied
+    {
+        get => Model.Copied;
+        set => Model.Copied = value;
+    }
+    
+    private string SessionUrl
+    {
+        get => Model.SessionUrl;
+        set => Model.SessionUrl = value;
+    }
+    
+    private bool ShowSessionUrlPanel
+    {
+        get => Model.ShowSessionUrlPanel;
+        set => Model.ShowSessionUrlPanel = value;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("NOOR-HOST-OPENER: Initializing Host-SessionOpener component with Token: {Token}", Token ?? "None");
+        
+        // Initialize HTTP client
+        HttpClient = HttpClientFactory.CreateClient();
+        HttpClient.BaseAddress = new Uri("https://localhost:9091/");
+        
+        // Initialize with token if provided
+        if (!string.IsNullOrEmpty(Token))
+        {
+            Model.HostFriendlyToken = Token;
+            Logger.LogInformation("NOOR-HOST-OPENER: Host friendly token set: {Token}", Token);
+        }
+        else
+        {
+            // Use demo token for testing
+            Model.HostFriendlyToken = "EP9M9NUN";
+        }
+        
+        // Initialize with demo data for immediate functionality
+        Model.LogoText = "NOOR Canvas - Host Session Management";
+        Model.SessionUrl = "https://localhost:9091/session/waiting/demo-session";
+        
+        // Load albums from database
+        await LoadAlbumsAsync();
+        
+        ValidateForm();
+    }
+
+    private async Task LoadAlbumsAsync()
+    {
+        try
+        {
+            Model.IsLoadingAlbums = true;
+            StateHasChanged();
+            
+            var response = await HttpClient.GetAsync($"api/host/albums?guid={Model.HostFriendlyToken}");
+            if (response.IsSuccessStatusCode)
+            {
+                Albums = await response.Content.ReadFromJsonAsync<List<AlbumData>>() ?? new List<AlbumData>();
+                Logger.LogInformation("NOOR-HOST-OPENER: Loaded {AlbumCount} albums", Albums.Count);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-HOST-OPENER: Failed to load albums - HTTP {StatusCode}", response.StatusCode);
+                Model.ErrorMessage = "Failed to load albums from database.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading albums");
+            Model.ErrorMessage = "Error loading albums. Please refresh the page.";
+        }
+        finally
+        {
+            Model.IsLoadingAlbums = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnAlbumChanged()
+    {
+        try
+        {
+            // Reset dependent selections
+            Model.SelectedCategory = null;
+            Model.SelectedSession = null;
+            Categories.Clear();
+            Sessions.Clear();
+            
+            if (string.IsNullOrEmpty(Model.SelectedAlbum) || !int.TryParse(Model.SelectedAlbum, out int albumId))
+            {
+                ValidateForm();
+                StateHasChanged();
+                return;
+            }
+            
+            Model.IsLoadingCategories = true;
+            StateHasChanged();
+            
+            var response = await HttpClient.GetAsync($"api/host/categories/{albumId}?guid={Model.HostFriendlyToken}");
+            if (response.IsSuccessStatusCode)
+            {
+                Categories = await response.Content.ReadFromJsonAsync<List<CategoryData>>() ?? new List<CategoryData>();
+                Logger.LogInformation("NOOR-HOST-OPENER: Loaded {CategoryCount} categories for album {AlbumId}", Categories.Count, albumId);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-HOST-OPENER: Failed to load categories - HTTP {StatusCode}", response.StatusCode);
+                Model.ErrorMessage = "Failed to load categories.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading categories for album {AlbumId}", Model.SelectedAlbum);
+            Model.ErrorMessage = "Error loading categories. Please try again.";
+        }
+        finally
+        {
+            Model.IsLoadingCategories = false;
+            ValidateForm();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnCategoryChanged()
+    {
+        try
+        {
+            // Reset dependent selection
+            Model.SelectedSession = null;
+            Sessions.Clear();
+            
+            if (string.IsNullOrEmpty(Model.SelectedCategory) || !int.TryParse(Model.SelectedCategory, out int categoryId))
+            {
+                ValidateForm();
+                StateHasChanged();
+                return;
+            }
+            
+            Model.IsLoadingSessions = true;
+            StateHasChanged();
+            
+            var response = await HttpClient.GetAsync($"api/host/sessions/{categoryId}?guid={Model.HostFriendlyToken}");
+            if (response.IsSuccessStatusCode)
+            {
+                Sessions = await response.Content.ReadFromJsonAsync<List<SessionData>>() ?? new List<SessionData>();
+                Logger.LogInformation("NOOR-HOST-OPENER: Loaded {SessionCount} sessions for category {CategoryId}", Sessions.Count, categoryId);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-HOST-OPENER: Failed to load sessions - HTTP {StatusCode}", response.StatusCode);
+                Model.ErrorMessage = "Failed to load sessions.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading sessions for category {CategoryId}", Model.SelectedCategory);
+            Model.ErrorMessage = "Error loading sessions. Please try again.";
+        }
+        finally
+        {
+            Model.IsLoadingSessions = false;
+            ValidateForm();
+            StateHasChanged();
+        }
+    }
+
+    private void ValidateForm()
+    {
+        IsFormValid = !string.IsNullOrEmpty(SelectedAlbum) &&
+                      !string.IsNullOrEmpty(SelectedCategory) &&
+                      !string.IsNullOrEmpty(SelectedSession) &&
+                      SessionDate != default &&
+                      !string.IsNullOrEmpty(SessionTime) &&
+                      SessionDuration.HasValue;
+
+        if (IsFormValid && !ValidateTime(SessionTime))
+        {
+            IsFormValid = false;
+            ErrorMessage = "Please enter a valid time in HH:MM AM/PM format.";
+        }
+        else
+        {
+            ErrorMessage = IsFormValid ? "" : "Please fill out all fields.";
+        }
+        
+        StateHasChanged();
+    }
+
+    private bool ValidateTime(string time)
+    {
+        if (string.IsNullOrEmpty(time)) return false;
+        var timeRegex = new Regex(@"^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$", RegexOptions.IgnoreCase);
+        return timeRegex.IsMatch(time);
+    }
+    
+    private void FormatTime(ChangeEventArgs e)
+    {
+        SessionTime = e.Value?.ToString() ?? "";
+        var value = SessionTime.ToUpper().Trim();
+        if (value.Length > 2 && (value.EndsWith("AM") || value.EndsWith("PM")) && value[value.Length - 3] != ' ')
+        {
+            SessionTime = value.Insert(value.Length - 2, " ");
+        }
+        ValidateForm();
+    }
+
+    private async Task CopyUrl()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", SessionUrl);
+            Copied = true;
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: Session URL copied to clipboard: {Url}", SessionUrl);
+            
+            // Reset after 2 seconds
+            await Task.Delay(2000);
+            Copied = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying URL to clipboard");
+            ErrorMessage = "Failed to copy URL. Please copy manually.";
+        }
+    }
+
+    private async Task OpenSession()
+    {
+        Logger.LogInformation("NOOR-HOST-OPENER: *** ENTERING OpenSession Method ***");
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: Opening session - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration}", 
+                SelectedAlbum, SelectedCategory, SelectedSession, SessionDate, SessionTime, SessionDuration);
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: About to call CreateSessionAndGenerateTokens...");
+            
+            // Step 1: Save session information to canvas.Sessions and generate tokens
+            await CreateSessionAndGenerateTokens();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: CreateSessionAndGenerateTokens completed, calling SaveSessionToLocalStorage...");
+            
+            // Step 2: Save to localStorage
+            await SaveSessionToLocalStorage();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: SaveSessionToLocalStorage completed, showing URL panel...");
+            
+            // Step 3: Show the Session URL panel
+            ShowSessionUrlPanel = true;
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: Session opened successfully - URL Panel now visible");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: *** EXCEPTION in OpenSession: {Message} ***", ex.Message);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: *** FULL EXCEPTION: {Exception} ***", ex);
+            ErrorMessage = "Failed to open session. Please try again.";
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Create session in canvas.Sessions table and generate 8-character user token
+    /// </summary>
+    private async Task CreateSessionAndGenerateTokens()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: *** ENTERING CreateSessionAndGenerateTokens ***");
+            Logger.LogInformation("NOOR-HOST-OPENER: Creating session and generating tokens...");
+
+            Logger.LogInformation("NOOR-HOST-OPENER: Creating HTTP client...");
+            using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            Logger.LogInformation("NOOR-HOST-OPENER: HttpClient BaseAddress set to: {BaseAddress}", httpClient.BaseAddress);
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: Preparing session data payload...");
+            // Prepare session data payload
+            var sessionData = new
+            {
+                HostFriendlyToken = Model.HostFriendlyToken,
+                SelectedSession = SelectedSession,
+                SelectedCategory = SelectedCategory,
+                SelectedAlbum = SelectedAlbum,
+                SessionDate = SessionDate.ToString("yyyy-MM-dd"),
+                SessionTime = SessionTime,
+                SessionDuration = SessionDuration
+            };
+
+            Logger.LogInformation("NOOR-HOST-OPENER: Session data prepared: {SessionData}", 
+                System.Text.Json.JsonSerializer.Serialize(sessionData));
+            Logger.LogInformation("NOOR-HOST-OPENER: Individual values - HostToken: {HostToken}, Session: {Session}, Category: {Category}, Album: {Album}, Date: {Date}, Time: {Time}, Duration: {Duration}",
+                Model.HostFriendlyToken, SelectedSession, SelectedCategory, SelectedAlbum, SessionDate.ToString("yyyy-MM-dd"), SessionTime, SessionDuration);
+
+            Logger.LogInformation("NOOR-HOST-OPENER: Calling session creation API at api/host/create-session?token={Token}...", Model.HostFriendlyToken);
+            
+            // Call the API to create session and generate tokens
+            var response = await httpClient.PostAsJsonAsync($"api/host/create-session?token={Model.HostFriendlyToken}", sessionData);
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: API call completed with status: {StatusCode}", response.StatusCode);
+            
+            // Read response content for detailed logging regardless of success/failure
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Logger.LogInformation("NOOR-HOST-OPENER: Raw API response content: {ResponseContent}", responseContent);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("NOOR-HOST-OPENER: Parsing successful API response...");
+                
+                try
+                {
+                    var result = System.Text.Json.JsonSerializer.Deserialize<SessionCreationResponse>(responseContent, 
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    
+                    Logger.LogInformation("NOOR-HOST-OPENER: API response parsed: {Result}", result == null ? "NULL" : System.Text.Json.JsonSerializer.Serialize(result));
+                    
+                    if (result != null && !string.IsNullOrEmpty(result.UserToken))
+                    {
+                        // Update the session URL with the generated user token
+                        SessionUrl = $"https://localhost:9091/session/{result.UserToken}";
+                        Logger.LogInformation("NOOR-HOST-OPENER: Session created successfully - User Token: {UserToken}, Session URL: {SessionUrl}", result.UserToken, SessionUrl);
+                    }
+                    else
+                    {
+                        Logger.LogError("NOOR-HOST-OPENER: Invalid response from session creation API - Result: {Result}, UserToken: {UserToken}", 
+                            result?.ToString() ?? "NULL", result?.UserToken ?? "NULL");
+                        throw new Exception("Invalid response from session creation API - missing UserToken");
+                    }
+                }
+                catch (JsonException jsonEx)
+                {
+                    Logger.LogError(jsonEx, "NOOR-HOST-OPENER: Failed to parse API response JSON: {ResponseContent}", responseContent);
+                    throw new Exception($"Failed to parse API response: {jsonEx.Message}");
+                }
+            }
+            else
+            {
+                Logger.LogError("NOOR-HOST-OPENER: Session creation API failed - Status: {StatusCode}, Error: {Error}", 
+                    response.StatusCode, responseContent);
+                throw new Exception($"Session creation failed: {response.StatusCode}");
+            }
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: *** EXITING CreateSessionAndGenerateTokens SUCCESSFULLY ***");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: *** ERROR in CreateSessionAndGenerateTokens: {Message} ***", ex.Message);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: *** FULL EXCEPTION in CreateSessionAndGenerateTokens: {Exception} ***", ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Save session data to browser localStorage for host state management
+    /// </summary>
+    private async Task SaveSessionToLocalStorage()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: Saving session data to localStorage...");
+
+            var sessionData = new
+            {
+                HostFriendlyToken = Model.HostFriendlyToken,
+                SelectedSession = SelectedSession,
+                SelectedCategory = SelectedCategory,
+                SelectedAlbum = SelectedAlbum,
+                SessionDate = SessionDate.ToString("yyyy-MM-dd"),
+                SessionTime = SessionTime,
+                SessionDuration = SessionDuration,
+                SessionUrl = SessionUrl,
+                CreatedAt = DateTime.UtcNow.ToString("O")
+            };
+
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noorCanvas_hostSession", System.Text.Json.JsonSerializer.Serialize(sessionData));
+            Logger.LogInformation("NOOR-HOST-OPENER: Session data saved to localStorage successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error saving to localStorage");
+            // Don't throw - localStorage failure shouldn't block the session creation
+        }
+    }
+
+    private void OpenWaitingRoom()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: Opening waiting room for token: {Token}", Model.HostFriendlyToken);
+            
+            // Navigate to waiting room with current session context
+            var sessionId = Model.HostFriendlyToken ?? "demo-session";
+            Navigation.NavigateTo($"/session/waiting/{sessionId}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error opening waiting room");
+            ErrorMessage = "Failed to open waiting room. Please try again.";
+        }
+    }
+
+    /// <summary>
+    /// Response model for session creation API
+    /// </summary>
+    public class SessionCreationResponse
+    {
+        public bool Success { get; set; }
+        public string? UserToken { get; set; }
+        public string? HostToken { get; set; }
+        public long SessionId { get; set; }
+        public string? Message { get; set; }
+    }
+}

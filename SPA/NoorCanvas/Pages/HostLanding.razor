@@ -19,13 +19,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </HeadContent>
 
 <!-- Root container from mock -->
 <div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
     
     <!-- Main card container from mock -->
-    <div style="width:100%;max-width:35rem;background-color:#FFFFFF;border-radius:1.5rem;padding:2rem 3rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #E5E7EB;text-align:center;">
+    <div style="width:100%;max-width:28rem;background-color:#FFFFFF;border-radius:1.5rem;padding:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #E5E7EB;text-align:center;">
+    @* Adjusted max-width from 35rem to 28rem and padding from 2rem 3rem to 2rem to match mock exactly *@
         
         <!-- Logo -->
         <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
@@ -38,7 +40,7 @@
         </h1>
 
         <!-- Host Authentication Card from mock -->
-        <div style="width:100%;background-color:#F8F5F1;border-radius:1rem;border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;padding:2rem 3rem;text-align:left;margin-top:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+        <div style="width:100%;background-color:#F8F5F1;border-radius:1rem;border:2px solid #C5B358;padding:2rem;text-align:left;margin-top:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
             
             @if (!string.IsNullOrEmpty(errorMessage))
             {
@@ -55,17 +57,9 @@
                     <i class="fa-solid fa-people-arrows" style="font-size:3rem;color:#D4AF37;"></i>
                 </div>
                 
-                <!-- Session Title -->
-                <h3 style="font-size:1.5rem;font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;margin-top:1.5rem;margin-bottom:0.5rem;text-align:center;">
-                    @if (!string.IsNullOrEmpty(Model?.SessionName))
-                    {
-                        @Model.SessionName
-                    }
-                    else
-                    {
-                        <span style="color:#706357;">HOST SESSION</span>
-                    }
-                </h3>
+                <!-- Session Title and Description from mock -->
+                <h3 style="font-size:1.5rem;font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;margin-top:1.5rem;margin-bottom:0;">HOST SESSION</h3>
+                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;margin-bottom:0;">Manage Islamic learning sessions with interactive tools</p>
             </div>
 
             <!-- Input Section from mock -->
@@ -74,9 +68,6 @@
                 <!-- Label from mock -->
                 <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;margin-bottom:0.5rem;">
                     Enter Your Host Authentication Token
-                </p>
-                <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-bottom:0.75rem;">
-                    Get your Host GUID from the HostProvisioner tool or system
                 </p>
                 
                 <!-- Input container with icon -->
@@ -88,7 +79,7 @@
                     
                     <!-- Input field adapted from mock -->
                     <InputText @bind-Value="Model!.FriendlyToken" 
-                               placeholder="4LE7I9MI"
+                               placeholder="Enter your Host GUID Token"
                                disabled="@isLoading"
                                style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;"
                                @onfocus="@(() => SetFocusStyle(true))"
@@ -97,7 +88,7 @@
                 
                 <!-- Help text from mock -->
                 <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-top:0.5rem;">
-                    Get your 8-character friendly token from the HostProvisioner tool or system administrator
+                    Get your Host GUID from the HostProvisioner tool or system administrator
                 </p>
             </div>
         </div>

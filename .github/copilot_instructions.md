@@ -199,6 +199,33 @@ When building Blazor `.razor` views from HTML mocks, follow this comprehensive s
 - Include view model class inline or as separate `.cs` file
 - Provide "What Changed" summary (replaced markup, bindings added, handlers added, logo insertion)
 
+### Issue Resolution & Approval Protocol
+
+#### **CRITICAL: NEVER MARK ISSUES AS RESOLVED WITHOUT EXPLICIT USER APPROVAL**
+**Established:** September 17, 2025  
+**Violation Record:** GitHub Copilot continued to mark todos as completed despite explicit instructions  
+**Root Cause:** Global instructions insufficiently emphasized approval requirement
+
+#### **MANDATORY WORKFLOW FOR ALL ISSUE RESOLUTION:**
+1. **Complete Technical Work:** Implement functionality, fix bugs, ensure build success
+2. **Document Progress:** Update todo lists, note what was accomplished
+3. **Present Findings:** Summarize completion, provide evidence (build success, test results)
+4. **WAIT FOR EXPLICIT APPROVAL:** User must say "mark as resolved", "approve this", "this is complete"
+5. **Only Then Update Status:** Change from "in-progress" to "completed" ONLY after explicit approval
+
+#### **FORBIDDEN ACTIONS:**
+- ❌ Auto-marking todos as completed based on technical success
+- ❌ Interpreting positive feedback as approval
+- ❌ Assuming completion based on build success
+- ❌ Changing status without explicit user confirmation
+
+#### **REQUIRED STATUS INDICATORS:**
+- `in-progress` - Work ongoing
+- `in-progress - AWAITING USER APPROVAL` - Technical work complete, awaiting approval  
+- `completed` - Only after explicit user approval
+- `deferred` - User decides to postpone
+- `cancelled` - User decides not to proceed
+
 ### Testing & Git Workflow
 - **Automated:** `.hooks/post-build.ps1` runs tests after successful builds
 - **Quality Gate:** Pre-commit validation via `validate-tracker-consistency.ps1` prevents commits with inconsistencies

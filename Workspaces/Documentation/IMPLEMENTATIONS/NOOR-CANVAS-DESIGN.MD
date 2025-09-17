@@ -32,7 +32,7 @@ This document captures the implementation design for NOOR Canvas (v3.1) synchron
    - **Mock Implementation Guide**: Comprehensive development standards for pixel-perfect implementations
 
 3. **Frontend Implementation** ✅ COMPLETED (95%)
-   - **Host Experience**: HostLanding.razor + HostSessionManager.razor fully operational
+   - **Host Experience**: HostLanding.razor + Host-SessionOpener.razor + HostSessionManager.razor fully operational
    - **User Experience**: UserLanding.razor (dual-mode), SessionWaiting.razor, SessionActive.razor complete
    - **Authentication Flows**: Both host and user authentication working with comprehensive error handling
    - **Real-time Features**: SignalR integration for live session updates and participant management
@@ -178,6 +178,10 @@ This document captures the implementation design for NOOR Canvas (v3.1) synchron
 - **KSessionsDbContext.cs**: Read-only Beautiful Islam integration
 - **Tables**: Sessions, Users, Registrations, Questions, Answers, Annotations, HostSessions, AdminSessions, SessionTranscripts, plus audit tables
 - **Migrations**: 2 EF migrations applied successfully
+- **CRITICAL ARCHITECTURE**: **Token-to-Session Mapping Strategy**
+  - **Friendly Token** (EP9M9NUN) → `canvas.HostSessions` → `canvas.Sessions` → `dbo.Sessions` (CategoryId) → `dbo.Categories` (GroupId) → `dbo.Groups` (Albums)
+  - **Read-Only Constraint**: Only `canvas.*` schema writeable, `dbo.*` schema read-only for KSESSIONS integration
+  - **Cascading Dropdown Logic**: Use token lookup chain to populate Albums → Categories → Sessions without GUID validation
 
 #### **✅ IMPLEMENTED: Console Applications**
 - **HostProvisioner**: Full CLI tool with interactive + command modes (569 lines in Program.cs)
@@ -238,7 +242,7 @@ Authentication (Landing & Role Selection)
 
 Both Hosts and Users start at a single NOOR Canvas landing/login page with basic info about the site. The page presents two primary buttons: "I am the Host" and "I am a User". Clicking either button prompts for the session GUID. The flow then diverges:
 
-- Host flow: The user selects "I am the Host" and enters the Host GUID provisioned earlier by the `Tools/HostProvisioner`. The client POSTs the GUID to `POST /api/auth/validate-guid` for server-side validation. If the token is not provided, or is wrong, invalid, or expired, an error message is displayed. On success, the server issues a short-lived auth cookie or JWT and redirects **directly to the Session Management View** (not a dashboard). The server loads Album/Category/Session metadata in real-time from `KSESSIONS` tables to populate cascading dropdowns. The host selects Album → Category → Session, then generates user session tokens and starts the session directly from this interface.
+- Host flow: The user selects "I am the Host" and enters the Host GUID provisioned earlier by the `Tools/HostProvisioner`. The client POSTs the GUID to `POST /api/auth/validate-guid` for server-side validation. If the token is not provided, or is wrong, invalid, or expired, an error message is displayed. On success, the server issues a short-lived auth cookie or JWT and redirects **directly to the Session Management View** (not a dashboard). **CRITICAL**: The server uses the **friendly token (EP9M9NUN) → canvas.HostSessions → canvas.Sessions → dbo.Sessions → dbo.Categories → dbo.Groups** lookup chain to populate cascading dropdowns from KSESSIONS data while respecting read-only dbo schema constraints. The host selects Album → Category → Session, then generates user session tokens and starts the session directly from this interface.
 
 - User flow: The user selects "I am a User" and enters the GUID.
 - **New Flow:** The client first checks `localStorage` for a previously saved `UserId`.
@@ -247,7 +251,10 @@ Both Hosts and Users start at a single NOOR Canvas landing/login page with basic
 
 - Notes:
 - The Host GUID is a secret and is stored hashed in `canvas.HostSessions` for audit and rotation.
-- Reading Groups/Categories/Sessions live from `KSESSIONS` ensures the Host Console selectors always reflect canonical server data.
+- **Token-to-Session Architecture**: Friendly tokens (EP9M9NUN) map through canvas.HostSessions → canvas.Sessions to locate the session, then dbo.Sessions (CategoryId) → dbo.Categories (GroupId) → dbo.Groups provides the Album context for cascading dropdowns.
+- **Schema Constraints**: Only canvas.* schema is writeable; dbo.* (KSESSIONS) is read-only, accessed via stored procedures.
+- **Stored Procedure Integration**: `EXEC dbo.GetAllGroups` (Albums), `EXEC dbo.GetCategoriesForGroup @GroupId` (Categories), `EXEC dbo.GetSessionsForAlbumAdmin @GroupId, 1` (Sessions with admin access)
+- Reading Groups/Categories/Sessions live from `KSESSIONS` via stored procedures ensures the Host Console selectors always reflect canonical server data.
 - An "Album" (GroupName) is the main topic and can comprise multiple sessions, often with the same users.
 
 User / Participant Flows
@@ -589,9 +596,9 @@ GET    /s/{guid}                           -> Registration or Redirect to /join/
 POST   /api/join/{guid}                    -> {registrationId, sessionId, requiredFields?}
 
 GET   /host/session-manager?guid={hostGuid} -> Host Session Management View
-GET   /api/host/albums?guid={hostGuid} -> [{albumId, albumName}]
-GET   /api/host/categories/{albumId}?guid={hostGuid} -> [{categoryId, categoryName}]  
-GET   /api/host/sessions/{categoryId}?guid={hostGuid} -> [{sessionId, sessionName, metadata}]
+GET   /api/host/albums?guid={hostGuid} -> [{albumId, albumName}] // EXEC dbo.GetAllGroups
+GET   /api/host/categories/{albumId}?guid={hostGuid} -> [{categoryId, categoryName}] // EXEC dbo.GetCategoriesForGroup @GroupId  
+GET   /api/host/sessions/{categoryId}?guid={hostGuid} -> [{sessionId, sessionName, metadata}] // EXEC dbo.GetSessionsForAlbumAdmin @GroupId, 1
 POST  /api/host/generate-token?guid={hostGuid} -> {userAccessUrl, sessionId, expiresAt}
 POST  /api/host/sessions/{id}/begin?guid={hostGuid} -> {status:"Live"}
 POST  /api/host/sessions/{id}/end?guid={hostGuid}   -> {status:"Closed"}
@@ -669,6 +676,44 @@ Layout Strategy: **Action-first interface** - no dashboard, direct session manag
 **Zoom Integration Panel:** Embedded iframe for Zoom (when session is live).
 
 **Key UX Change:** Host bypasses traditional dashboard entirely and goes straight to actionable session management interface.
+
+**Implementation Details: Host-SessionOpener.razor (Issue-115)**
+The Host Session Management interface is implemented via `Host-SessionOpener.razor` with the following features:
+
+*Session URL Panel Management:*
+- **Conditional Display**: Session URL panel hidden by default via `ShowSessionUrlPanel` boolean property
+- **Trigger**: Panel becomes visible when host clicks "Open Session" button after configuring session parameters
+- **State Management**: Uses Blazor StateHasChanged() to trigger UI refresh on panel visibility changes
+
+*Session Configuration Workflow:*
+- **Cascading Dropdowns**: Album → Category → Session selection populated from KSESSIONS data
+- **Async Operations**: OpenSession() method handles session creation, token generation, and state persistence
+- **Error Handling**: Comprehensive try/catch blocks with detailed logging for troubleshooting
+
+*Token Generation & Persistence:*
+- **8-Character Tokens**: Integration with existing SecureTokenService for friendly tokens (CHARSET: "ABCDEFGHIJKLMNPQRSTUVWXYZ23456789")
+- **Database Persistence**: Session data saved to canvas.Sessions and canvas.SecureTokens tables via new HostController API endpoint
+- **localStorage**: Session state persisted in browser storage via JSRuntime for session recovery
+- **Token Pairs**: Host and participant tokens generated simultaneously for complete session access control
+
+*API Integration:*
+- **Backend Endpoint**: New POST /api/host/create-session endpoint in HostController.cs
+- **SecureTokenService Injection**: Dependency injection pattern for token operations
+- **Validation**: Comprehensive token validation and session configuration updates
+- **Logging**: Enhanced debugging throughout request/response cycle
+
+*User Experience Features:*
+- **Copy to Clipboard**: CopyUrl() method with navigator.clipboard API integration and visual feedback
+- **Session URL Generation**: Dynamic URL construction with generated participant tokens for UserLanding.razor integration
+- **Enhanced Debugging**: Detailed console logging for session creation, token generation, and localStorage operations
+
+*Technical Architecture:*
+- **Component**: Blazor Server component with async/await patterns for all operations
+- **Dependencies**: JSRuntime for browser APIs, HostController for backend integration, SecureTokenService for token operations
+- **Error Recovery**: Graceful error handling with user feedback and detailed logging for debugging
+- **State Management**: Proper component lifecycle management with conditional rendering and state updates
+
+This implementation provides the complete host workflow from session configuration through participant token generation and URL sharing, following the action-first interface design philosophy with no intermediate dashboards.
 
 7.0.1 Landing & Authentication UX
 Single landing/login page with two buttons: "I am the Host" and "I am a User".

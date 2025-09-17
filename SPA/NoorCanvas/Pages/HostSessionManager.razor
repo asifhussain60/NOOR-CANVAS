@@ -52,8 +52,8 @@
                                             {
                                                 @foreach (var album in albums)
                                                 {
-                                                    <option value="@album.GroupId" selected="@(selectedAlbumId == album.GroupId)">
-                                                        @album.GroupName
+                                                    <option value="@album.Id" selected="@(selectedAlbumId == album.Id)">
+                                                        @album.Name
                                                     </option>
                                                 }
                                             }
@@ -76,7 +76,7 @@
                                             {
                                                 @foreach (var category in categories)
                                                 {
-                                                    <option value="@category.CategoryId" selected="@(selectedCategoryId == category.CategoryId)">
+                                                    <option value="@category.CategoryID" selected="@(selectedCategoryId == category.CategoryID)">
                                                         @category.CategoryName
                                                     </option>
                                                 }
@@ -104,7 +104,7 @@
                                             {
                                                 @foreach (var session in sessions)
                                                 {
-                                                    <option value="@session.SessionId" selected="@(selectedSessionId == session.SessionId)">
+                                                    <option value="@session.SessionID" selected="@(selectedSessionId == session.SessionID)">
                                                         @session.SessionName
                                                     </option>
                                                 }

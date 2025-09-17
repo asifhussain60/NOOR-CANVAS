@@ -19,3 +19,5 @@ Instructions:
 - If a similar fix exists, inspect the corresponding `COMPLETED` files and apply the same or adapted fix.
 - Add additional debug and console logging to help diagnose and fix this error.
 - Do **NOT** mark any issue as resolved or completed until you have explicit permission from the user.
+- Add an instruction at the end of the issue reminding copilot to get user approval before marking as resolved or completed.
+- If you see unresolved issues in the `ISSUE-TRACKER`, without the reminder to get user approval, add that reminder.
