@@ -19,6 +19,6 @@ namespace NoorCanvas.Models.KSESSIONS
         public DateTime? ChangedDate { get; set; }
 
         // Navigation property to Session
-        public virtual KSessionsSession Session { get; set; }
+        public virtual KSessionsSession Session { get; set; } = null!;
     }
 }

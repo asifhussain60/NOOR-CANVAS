@@ -95,10 +95,11 @@
         await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{ModalId}').focus()");
     }
 
-    public async Task HideAsync()
+    public Task HideAsync()
     {
         IsVisible = false;
         StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private async Task OnConfirm()

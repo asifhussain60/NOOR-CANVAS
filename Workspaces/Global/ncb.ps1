@@ -121,36 +121,7 @@ function Build-Application {
     }
 }
 
-function Start-ApplicationWithIIS {
-    param(
-        [string]$ProjectPath,
-        [int]$HttpPort,
-        [int]$HttpsPort
-    )
-    
-    Write-LogMessage "Starting application with Kestrel server..." "STEP"
-    
-    # Set environment variables
-    $env:ASPNETCORE_ENVIRONMENT = "Development"
-    $env:ASPNETCORE_URLS = "https://localhost:$HttpsPort;http://localhost:$HttpPort"
-    
-    Write-LogMessage "Application will be available at:" "SUCCESS"
-    Write-LogMessage "  HTTP:  http://localhost:$HttpPort" "SUCCESS"
-    Write-LogMessage "  HTTPS: https://localhost:$HttpsPort" "SUCCESS"
-    
-    # Change to project directory and run
-    Push-Location $ProjectPath
-    
-    try {
-        Write-LogMessage "Launching built application..." "INFO"
-        
-        # Use the Release build we just created
-        dotnet run --configuration Release --no-build --urls "https://localhost:$HttpsPort;http://localhost:$HttpPort"
-    }
-    finally {
-        Pop-Location
-    }
-}
+# Function removed - now using nc.ps1 for application launch for better reusability
 
 # Main Execution
 Write-LogMessage "NOOR Canvas Build (ncb) - Starting..." "STEP"
@@ -170,8 +141,17 @@ Stop-IISExpressProcesses
 # Step 2: Build the application
 Build-Application -ProjectPath $project
 
-# Step 3: Start application with built artifacts
-Start-ApplicationWithIIS -ProjectPath $project -HttpPort $HttpPort -HttpsPort $HttpsPort
+# Step 3: Launch application using nc (for reusability)
+Write-LogMessage "Launching application using nc script..." "STEP"
+$ncPath = Join-Path $root "Workspaces\Global\nc.ps1"
+
+if (Test-Path $ncPath) {
+    Write-LogMessage "Calling nc with SkipBuild flag..." "INFO"
+    & $ncPath -SkipBuild -PreferredHttpPort $HttpPort -PreferredHttpsPort $HttpsPort
+} else {
+    Write-LogMessage "ERROR: nc.ps1 not found at expected location: $ncPath" "ERROR"
+    exit 1
+}
 
 Write-LogMessage "NCB (Noor Canvas Build) workflow completed!" "SUCCESS"
 Write-Host ""

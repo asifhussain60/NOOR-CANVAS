@@ -1,7 +1,0 @@
-[2025-09-14 10:08:29.995 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
-[2025-09-14 10:08:29.995 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
-[2025-09-14 10:08:30.275 -04:00 WRN] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development. {"EventId":{"Id":10400,"Name":"Microsoft.EntityFrameworkCore.Infrastructure.SensitiveDataLoggingEnabledWarning"},"SourceContext":"Microsoft.EntityFrameworkCore.Model.Validation"}
-[2025-09-14 10:08:30.333 -04:00 INF] ✅ NOOR-VALIDATION: Canvas database connection verified {"SourceContext":"Program"}
-[2025-09-14 10:08:30.333 -04:00 INF] ✅ NOOR-VALIDATION: All critical configurations validated successfully {"SourceContext":"Program"}
-[2025-09-14 10:08:30.333 -04:00 INF] ✅ NOOR-VALIDATION: Canvas database connection verified {"SourceContext":"Program"}
-[2025-09-14 10:08:30.333 -04:00 INF] ✅ NOOR-VALIDATION: All critical configurations validated successfully {"SourceContext":"Program"}

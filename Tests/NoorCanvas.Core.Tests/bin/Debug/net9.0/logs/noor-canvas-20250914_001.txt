@@ -1,9 +1,0 @@
-[2025-09-14 10:08:30.125 -04:00 INF] ✅ NOOR-VALIDATION: HttpClient BaseAddress configured: "https://localhost:9091/" {"SourceContext":"Program"}
-[2025-09-14 10:08:30.334 -04:00 INF] ✅ NOOR-VALIDATION: Canvas database connection verified {"SourceContext":"Program"}
-[2025-09-14 10:08:30.334 -04:00 INF] ✅ NOOR-VALIDATION: All critical configurations validated successfully {"SourceContext":"Program"}
-[2025-09-14 10:08:30.790 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
-[2025-09-14 10:08:30.819 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
-[2025-09-14 10:08:30.825 -04:00 INF] NOOR-STARTUP: NOOR Canvas Phase 1 application starting {}
-[2025-09-14 10:08:31.124 -04:00 WRN] Failed to determine the https port for redirect. {"EventId":{"Id":3,"Name":"FailedToDeterminePort"},"SourceContext":"Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware","RequestId":"0HNFJJ0NLB34M","RequestPath":"/landing"}
-[2025-09-14 10:08:31.123 -04:00 WRN] Failed to determine the https port for redirect. {"EventId":{"Id":3,"Name":"FailedToDeterminePort"},"SourceContext":"Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware","RequestId":"0HNFJJ0NLB34L","RequestPath":"/healthz"}
-[2025-09-14 10:08:31.326 -04:00 WRN] Failed to determine the https port for redirect. {"EventId":{"Id":3,"Name":"FailedToDeterminePort"},"SourceContext":"Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware","RequestId":"0HNFJJ0NLB34N","RequestPath":"/api/nonexistent/endpoint"}
