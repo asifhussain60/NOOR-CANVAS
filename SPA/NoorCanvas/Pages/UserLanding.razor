@@ -311,7 +311,7 @@
                 requestId, Model.TokenInput);
 
             // Call the real token validation API
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             var response = await httpClient.GetAsync($"/api/participant/session/{Model.TokenInput}/validate");
             
             Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Token validation API response: {StatusCode}", 
