@@ -66,87 +66,6 @@ namespace NoorCanvas.Controllers
             }
         }
 
-        [HttpGet("dashboard")]
-        public async Task<IActionResult> GetAdminDashboard([FromQuery] string sessionToken)
-        {
-            try
-            {
-                _logger.LogInformation("NOOR-ADMIN-DASHBOARD: Dashboard request with token: {SessionToken}", sessionToken);
-
-                // Validate admin session
-                var adminSession = await _context.AdminSessions
-                    .FirstOrDefaultAsync(s => s.SessionToken == sessionToken &&
-                                            s.IsActive &&
-                                            s.ExpiresAt > DateTime.UtcNow);
-
-                if (adminSession == null)
-                {
-                    _logger.LogWarning("NOOR-ADMIN-DASHBOARD: Invalid or expired session token: {SessionToken}", sessionToken);
-                    return Unauthorized(new { error = "Invalid or expired session" });
-                }
-
-                // Get dashboard statistics
-                var totalSessions = await _context.Sessions.CountAsync();
-                var activeSessions = await _context.Sessions.CountAsync(s => s.Status == "Active");
-                var totalUsers = await _context.Users.CountAsync();
-                var totalRegistrations = await _context.Registrations.CountAsync();
-
-                // Get recent sessions
-                var recentSessions = await _context.Sessions
-                    .Include(s => s.HostSessions)
-                    .OrderByDescending(s => s.CreatedAt)
-                    .Take(10)
-                    .Select(s => new AdminSessionSummary
-                    {
-                        SessionId = s.SessionId,
-                        Title = s.Title ?? "Untitled Session",
-                        Status = s.Status ?? "Unknown",
-                        ParticipantCount = s.ParticipantCount ?? 0,
-                        CreatedAt = s.CreatedAt,
-                        HostName = s.HostSessions.Any() ? s.HostSessions.First().CreatedBy ?? "Host" : "Unknown Host"
-                    })
-                    .ToListAsync();
-
-                // Get recent users
-                var recentUsers = await _context.Users
-                    .OrderByDescending(u => u.CreatedAt)
-                    .Take(10)
-                    .Select(u => new AdminUserSummary
-                    {
-                        UserId = u.UserId.ToString(),
-                        Name = u.Name ?? "Unknown",
-                        City = u.City ?? "Unknown",
-                        Country = u.Country ?? "Unknown",
-                        CreatedAt = u.CreatedAt,
-                        IsActive = u.IsActive
-                    })
-                    .ToListAsync();
-
-                var dashboardData = new AdminDashboardResponse
-                {
-                    Statistics = new AdminStatistics
-                    {
-                        TotalSessions = totalSessions,
-                        ActiveSessions = activeSessions,
-                        TotalUsers = totalUsers,
-                        TotalRegistrations = totalRegistrations,
-                        SystemUptime = GetSystemUptime()
-                    },
-                    RecentSessions = recentSessions,
-                    RecentUsers = recentUsers,
-                    LastUpdated = DateTime.UtcNow
-                };
-
-                _logger.LogInformation("NOOR-ADMIN-DASHBOARD: Dashboard data retrieved successfully");
-                return Ok(dashboardData);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "NOOR-ERROR: Admin dashboard retrieval failed");
-                return StatusCode(500, new { error = "Failed to retrieve dashboard data" });
-            }
-        }
-
         [HttpGet("sessions")]
         public async Task<IActionResult> GetAllSessions([FromQuery] string sessionToken, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
@@ -365,23 +284,6 @@ namespace NoorCanvas.Controllers
         public string SessionToken { get; set; } = string.Empty;
         public DateTime ExpiresAt { get; set; }
         public string AdminGuid { get; set; } = string.Empty;
-    }
-
-    public class AdminDashboardResponse
-    {
-        public AdminStatistics Statistics { get; set; } = new();
-        public List<AdminSessionSummary> RecentSessions { get; set; } = new();
-        public List<AdminUserSummary> RecentUsers { get; set; } = new();
-        public DateTime LastUpdated { get; set; }
-    }
-
-    public class AdminStatistics
-    {
-        public int TotalSessions { get; set; }
-        public int ActiveSessions { get; set; }
-        public int TotalUsers { get; set; }
-        public int TotalRegistrations { get; set; }
-        public string SystemUptime { get; set; } = string.Empty;
     }
 
     public class AdminSessionSummary

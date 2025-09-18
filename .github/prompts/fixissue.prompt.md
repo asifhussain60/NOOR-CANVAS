@@ -2,7 +2,34 @@
 mode: agent
 ---
 name: fixissue
-description: Track and fix issues by reviewing ISSUE-TRACKER, Git history, and COMPLETED files. Supports numeric-leading arguments for existing issues and text-leading for new issues.
+description: Track and fix issues by reviewing ISSUE-TRACKER, Git history, and COMPLETED files. Supports numeric**If ### Actions Based on I**I### Actions Based on Interpretation
+**If numeric-leading (existing issue):**
+- Locate **Issue-<ID>** in `ncIssueTracker.md`; append "Feedback / Additional Context" (no status change without permission).
+- Cross-check Git history and any related `COMPLETED` entries.
+- Apply the **Fixing Protocol** (including Self-Testing, Mandatory Playwright Test Creation Protocol, Issue Numbering Sequence Protocol, and Testing & Data Protocols).
+- **CRITICAL:** Before marking any issue as resolved, create/update Playwright tests and provide execution evidence.
+
+**If text-leading (new issue):**ic-leading (existing issue):**
+- Locate **Issue-<ID>** in `ncIssueTracker.md`; append "Feedback / Additional Context" (no status change without permission).
+- Cross-check Git history and any related `COMPLETED` entries.
+- Apply the **Fixing Protocol** (including Self-Testing, Mandatory Playwright Test Creation Protocol, Issue Numbering Sequence Protocol, and Testing & Data Protocols).
+- **CRITICAL:** Before marking any issue as resolved, create/update Playwright tests and provide execution evidence.pretation
+**If numeric-leading (existing issue):**
+- Locate **Issue-<ID>**; append "Feedback / Additional Context" (no status change without permission).
+- Cross-check Git history and any related `COMPLETED` entries.
+- Apply the **Fixing Protocol** (including Self-Testing, Mandatory Playwright Test Creation Protocol, and Testing & Data Protocols).
+- **CRITICAL:** Before marking any issue as resolved, create/update Playwright tests and provide execution evidence.
+
+**If text-leading (new issue):**
+- **FIRST:** Check `ncIssueTracker.md` via grep search to determine next available issue number (currently Issue-108+)
+- Draft a **proposed Issue title + short description** with minimal repro and acceptance criteria.
+- Suggest a tracker entry under **NOT STARTED** with a link-ready detail filename using correct sequential number.
+- Include **planned test scenarios** in the issue description for future validation.
+- Await explicit approval before creating files or changing statuses.ding (existing issue):**
+- Locate **Issue-<ID>**; append "Feedback / Additional Context" (no status change without permission).
+- Cross-check Git history and any related `COMPLETED` entries.
+- Apply the **Fixing Protocol** (including Self-Testing, Mandatory Playwright Test Creation Protocol, and Testing & Data Protocols).
+- **CRITICAL:** Before marking any issue as resolved, create/update Playwright tests and provide execution evidence.ding arguments for existing issues and text-leading for new issues.
 parameters:
   - name: issue
     description: A description of the issue provided by the user (multi-line supported). If it begins with a number, treat that number as an existing Issue ID.
@@ -25,6 +52,7 @@ You are tasked with addressing the following input:
 - Record/track this work in `ISSUE-TRACKER` concisely.
 - Review Git history and `ISSUE-TRACKER` for prior fixes; reuse/adapt from `COMPLETED/` where applicable.
 - Do **NOT** mark any item as resolved or completed without **explicit user permission**.
+- **Issue Number Sequence Maintenance:** Always check `ncIssueTracker.md` to determine the next available issue number. Current sequence: Issue-107 is the highest existing number, so new issues start at Issue-108.
 
 ---
 
@@ -38,6 +66,7 @@ You are tasked with addressing the following input:
    - Detect races in logs with correlation IDs, timestamps, thread/task markers.
 5. Implement fixes **incrementally**:  
    - After each stage, **pause** and request explicit user confirmation before proceeding.
+   - For UI/UX fixes, validate changes in browser before proceeding to next stage.
 6. After changes:  
    - Take a holistic view of modifications.  
    - Ensure **all modified code, views, and JavaScript** pass linting.  
@@ -58,7 +87,28 @@ You are tasked with addressing the following input:
     - After applying a fix, create **self-test code or scenarios** to confirm the resolution.  
     - Place **all test scripts, harnesses, or artifacts** strictly under `Workspaces/TEMP/` (e.g., `Workspaces/TEMP/tests/`).  
     - Never commit these temporary test files to production code; remove or archive them once resolution is confirmed.
-11. **UI Test Runner Protocol (VSCode Test Explorer - MANDATORY METHOD):**
+11. **Mandatory Playwright Test Creation Protocol:**
+    - **REQUIREMENT:** For every fix implemented, create or update corresponding Playwright test(s) in `Tests/UI/`
+    - **Naming Convention:** Use `issue-{ID}-{description}.spec.ts` for issue-specific tests
+    - **Test Categories:**
+      - **Regression Tests:** Validate the specific bug doesn't reoccur (test exact failure scenario)
+      - **Feature Tests:** Confirm new functionality works as designed  
+      - **Integration Tests:** Test complete user workflows end-to-end
+      - **Session Flow Tests:** For authentication/session issues, test complete token generation → validation → user access flow
+    - **Test Structure Requirements:**
+      - Include detailed JSDoc comments explaining what's being tested
+      - Reference the issue number and resolution approach
+      - Add both positive and negative test scenarios
+      - Include proper error handling validation
+    - **Evidence Requirements:** 
+      - Run tests via VSCode Test Explorer before marking issue complete
+      - Provide test report output showing pass status
+      - Include screenshots/videos of test execution when UI changes are involved
+    - **Test Data Management:**
+      - Use realistic test data that mirrors production scenarios
+      - Include boundary condition testing (empty values, edge cases)
+      - Test with both valid and invalid inputs
+12. **UI Test Runner Protocol (VSCode Test Explorer - MANDATORY METHOD):**
     - **REQUIREMENT:** All UI testing must use VSCode Playwright extension's Test Explorer interface
     - **Primary Method:** VSCode Activity Bar → Testing (flask icon) → Playwright section
     - **Test Execution:** Click "Run All Tests" button or individual test play buttons
@@ -68,15 +118,26 @@ You are tasked with addressing the following input:
     - **Test Discovery:** Automatic detection in `Tests/UI/` directory
     - **Real-time Results:** Live pass/fail status and execution feedback in UI
     - **Report Access:** Test Explorer provides direct links to generated reports
-    - **Forbidden Methods:** Terminal commands (`npm test`, `npx playwright test`) are prohibited
-    - **Exception:** `playwright show-report` allowed only for report viewing
     - **All artifacts:** Screenshots, videos, traces automatically saved to `TEMP/` folders
     - **Test Management:** Visual interface eliminates need for command memorization
-12. **Playwright Prerequisite Protocol:**  
+13. **Host Authentication Validation Protocol:**
+    - **API Validation:** When claiming host authentication fixes, provide API response evidence
+    - **Friendly Token Testing:** Use test token `JHINFLXN` for validation scenarios
+    - **Expected Response Format:** JSON array with album objects containing id, name, image, description, speakerID, isActive, isCompleted fields
+    - **Success Criteria:** API returns 200 status with properly formatted album data
+    - **Example Valid Response:** `[{"id":18,"name":"Asaas Al-Taveel","image":"18.jpg","description":"<p>Taveel book</p>","speakerID":1,"isActive":true,"isCompleted":false},...]`
+14. **Playwright Prerequisite Protocol:**  
     - As you run or set up Playwright tests, document all **prerequisites, environment variables, test data, and setup requirements** in the referenced issue detail file.  
     - Add them incrementally as they are discovered, preventing repetition of setup mistakes across different issues.  
     - Use a consistent format (e.g., `### Playwright Prerequisites` section with bullet points).  
     - Ensure that any teammate can re-run the same test by following the prerequisites recorded.
+15. **Issue Numbering Sequence Protocol:**
+    - **MANDATORY:** Before creating any new issue, query `ncIssueTracker.md` to identify the highest existing issue number
+    - **Current Status:** Issue-107 is the highest number (as of Sept 18, 2025). Next new issue should be Issue-108
+    - **Sequence Validation:** Use grep search `Issue-(\d+)` to find all existing numbers and increment from highest
+    - **TODO Sequence:** Separate from issues. Current TODO-101 through TODO-107 exist. Next TODO should be TODO-108
+    - **Gap Prevention:** Never reuse old issue numbers, even if they were deleted or moved
+    - **Cross-Reference Check:** Verify issue number doesn't conflict with existing `NOT STARTED/`, `IN PROGRESS/`, `AWAITING CONFIRMATION/`, or `COMPLETED/` folders
 
 ---
 
@@ -85,6 +146,8 @@ You are tasked with addressing the following input:
   - **MANDATORY:** Use VSCode Playwright Test Explorer (not terminal commands) for all UI testing  
   - **Purpose:** Simulate end-user workflows when debugging Razor view/UI issues  
   - **Integration:** Built-in debugging, reporting, and artifact management  
+  - **Test Creation:** Every fix MUST include corresponding Playwright test creation/updates
+  - **Test Evidence:** Provide test execution reports and pass/fail status before resolution
 
 - **Database Testing (KSESSIONS_DEV only):**  
   - For issues involving data, **connect directly to the development database environment** `KSESSIONS_DEV` to run tests and validate results.  
@@ -92,6 +155,7 @@ You are tasked with addressing the following input:
   - In `KSESSIONS_DEV`, the `dbo` schema is **read-only**. Any feature work or modifications must use the **`canvas`** schema.  
   - Use environment-based (non-hardcoded) connection settings; do not log secrets.  
   - Wrap write operations in transactions where appropriate and verify row counts/side effects.
+  - When Copilot asserts that a Playwright test is fixed, it must provide the corresponding Playwright test report as evidence.
 
 ---
 
@@ -99,6 +163,7 @@ You are tasked with addressing the following input:
 - **Lifecycle:** Issues → NOT STARTED → IN PROGRESS → AWAITING CONFIRMATION → COMPLETED.  
   TODOs → ❌ → ⚡ → ⏳ → ✅.
 - **File Sync & Formatting:** Keep entries in sync with their detail `.md` files; preserve exact icon/ID/link formatting.  
+- **Number Sequence:** Maintain sequential issue numbering. Current: Issue-107 highest, next Issue-108. TODOs: TODO-107 highest, next TODO-108.
 - **TEMP Policy:** Place temporary artifacts under `Workspaces/TEMP` (subfolders for tests/docs/data).  
 - **Regressions:** Compare with `COMPLETED` fixes and reuse proven patterns.
 
@@ -128,6 +193,8 @@ You are tasked with addressing the following input:
 - Apply the **Fixing Protocol** (including Self-Testing, Playwright Prerequisite Protocol, and Testing & Data Protocols).
 
 **If text-leading (new issue):**
+- **FIRST:** Check `ncIssueTracker.md` via grep search to determine next available issue number (currently Issue-108+)
 - Draft a **proposed Issue title + short description** with minimal repro and acceptance criteria.
-- Suggest a tracker entry under **NOT STARTED** with a link-ready detail filename.
+- Suggest a tracker entry under **NOT STARTED** with a link-ready detail filename using correct sequential number.
+- Include **planned test scenarios** in the issue description for future validation.
 - Await explicit approval before creating files or changing statuses.

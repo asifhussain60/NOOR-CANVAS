@@ -64,7 +64,7 @@ else
 builder.Services.AddDbContext<KSessionsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ??
         builder.Configuration.GetConnectionString("DefaultConnection") ??
-        "Server=(localdb)\\mssqllocaldb;Database=KSESSIONS;Trusted_Connection=true;MultipleActiveResultSets=true")
+        "Server=(localdb)\\mssqllocaldb;Database=KSESSIONS_DEV;Trusted_Connection=true;MultipleActiveResultSets=true")
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Read-only optimization
 
 // Add SignalR with JSON protocol only (avoiding BlazorPack compatibility issues)

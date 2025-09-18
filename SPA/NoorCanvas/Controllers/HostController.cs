@@ -218,8 +218,36 @@ namespace NoorCanvas.Controllers
 
                 if (secureToken != null)
                 {
+                    // Fetch fresh session info (title and description) from KSESSIONS database instead of using stale stored data
+                    string sessionTitle = secureToken.Session.Title ?? "Session " + secureToken.Session.SessionId;
+                    string sessionDescription = secureToken.Session.Description ?? "Session description not available";
+                    
+                    if (secureToken.Session.KSessionsId.HasValue)
+                    {
+                        var ksessionInfo = await _kSessionsContext.Sessions
+                            .Where(s => s.SessionId == secureToken.Session.KSessionsId.Value)
+                            .Select(s => new { s.SessionName, s.Description })
+                            .FirstOrDefaultAsync();
+                            
+                        if (ksessionInfo != null)
+                        {
+                            if (!string.IsNullOrEmpty(ksessionInfo.SessionName))
+                            {
+                                sessionTitle = ksessionInfo.SessionName;
+                            }
+                            
+                            if (!string.IsNullOrEmpty(ksessionInfo.Description))
+                            {
+                                sessionDescription = ksessionInfo.Description;
+                            }
+                            
+                            _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Updated session info from KSESSIONS: Title='{Title}', Description='{Description}' for session {SessionId}",
+                                requestId, sessionTitle, sessionDescription, secureToken.Session.SessionId);
+                        }
+                    }
+
                     _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
-                        requestId, secureToken.Session.SessionId, secureToken.Session.Title);
+                        requestId, secureToken.Session.SessionId, sessionTitle);
 
                     return Ok(new HostSessionValidationResponse
                     {
@@ -229,8 +257,8 @@ namespace NoorCanvas.Controllers
                         Session = new HostSessionInfo
                         {
                             SessionId = (int)secureToken.Session.SessionId,
-                            Title = secureToken.Session.Title,
-                            Description = secureToken.Session.Description,
+                            Title = sessionTitle, // Use fresh title from KSESSIONS
+                            Description = sessionDescription,
                             Status = secureToken.Session.Status,
                             ParticipantCount = secureToken.Session.ParticipantCount ?? 0,
                             MaxParticipants = secureToken.Session.MaxParticipants,
@@ -479,8 +507,32 @@ namespace NoorCanvas.Controllers
                     });
                 }
 
+                // Lookup actual session name from KSESSIONS database
+                string sessionTitle = $"Session {selectedSession}"; // fallback
+                if (int.TryParse(selectedSession, out int ksessionId))
+                {
+                    var ksession = await _kSessionsContext.Sessions
+                        .Where(s => s.SessionId == ksessionId)
+                        .Select(s => s.SessionName)
+                        .FirstOrDefaultAsync();
+                    
+                    if (!string.IsNullOrEmpty(ksession))
+                    {
+                        sessionTitle = ksession;
+                        _logger.LogInformation("NOOR-HOST-OPENER: Found session name '{SessionName}' for SessionID {SessionId}", ksession, ksessionId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("NOOR-HOST-OPENER: No session name found for SessionID {SessionId}, using fallback", ksessionId);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("NOOR-HOST-OPENER: Could not parse selectedSession '{SelectedSession}' as integer", selectedSession);
+                }
+
                 // Update canvas.Sessions with the selected session information
-                session.Title = $"Session {selectedSession}";
+                session.Title = sessionTitle;
                 session.Description = $"Album: {selectedAlbum}, Category: {selectedCategory}";
                 session.Status = "Configured";
                 session.ModifiedAt = DateTime.UtcNow;

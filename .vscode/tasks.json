@@ -254,6 +254,18 @@
 					"endsPattern": "^.*Application started.*|^.*Now listening on.*"
 				}
 			}
+		},
+		{
+			"label": "test-session-title-fix",
+			"type": "shell",
+			"command": "npx",
+			"args": [
+				"playwright",
+				"test",
+				"Tests/UI/issue-108-session-name-display-fix.spec.ts",
+				"--headed"
+			],
+			"group": "test"
 		}
 	]
 }

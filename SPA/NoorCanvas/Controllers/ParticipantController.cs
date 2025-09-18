@@ -13,12 +13,14 @@ namespace NoorCanvas.Controllers
     public class ParticipantController : ControllerBase
     {
         private readonly CanvasDbContext _context;
+        private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<ParticipantController> _logger;
         private readonly SecureTokenService _tokenService;
 
-        public ParticipantController(CanvasDbContext context, ILogger<ParticipantController> logger, SecureTokenService tokenService)
+        public ParticipantController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<ParticipantController> logger, SecureTokenService tokenService)
         {
             _context = context;
+            _kSessionsContext = kSessionsContext;
             _logger = logger;
             _tokenService = tokenService;
         }
@@ -59,8 +61,36 @@ namespace NoorCanvas.Controllers
                     });
                 }
 
-                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Successful participant token validation: {Token} → Session {SessionId}",
-                    requestId, token, secureToken.SessionId);
+                // Fetch fresh session title from KSESSIONS database instead of using stale stored title
+                string sessionTitle = secureToken.Session?.Title ?? "Session " + secureToken.SessionId;
+                string sessionDescription = secureToken.Session?.Description ?? "Session description not available";
+                
+                if (secureToken.Session?.KSessionsId.HasValue == true)
+                {
+                    var ksessionInfo = await _kSessionsContext.Sessions
+                        .Where(s => s.SessionId == secureToken.Session.KSessionsId.Value)
+                        .Select(s => new { s.SessionName, s.Description })
+                        .FirstOrDefaultAsync();
+                        
+                    if (ksessionInfo != null)
+                    {
+                        if (!string.IsNullOrEmpty(ksessionInfo.SessionName))
+                        {
+                            sessionTitle = ksessionInfo.SessionName;
+                        }
+                        
+                        if (!string.IsNullOrEmpty(ksessionInfo.Description))
+                        {
+                            sessionDescription = ksessionInfo.Description;
+                        }
+                        
+                        _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Updated session info from KSESSIONS: Title='{Title}', Description='{Description}' for session {SessionId}",
+                            requestId, sessionTitle, sessionDescription, secureToken.SessionId);
+                    }
+                }
+
+                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Successful participant token validation: {Token} → Session {SessionId} - '{Title}'",
+                    requestId, token, secureToken.SessionId, sessionTitle);
 
                 // Return participant-specific session information
                 return Ok(new
@@ -72,8 +102,8 @@ namespace NoorCanvas.Controllers
                     session = new
                     {
                         sessionId = secureToken.Session?.SessionId,
-                        title = secureToken.Session?.Title,
-                        description = secureToken.Session?.Description,
+                        title = sessionTitle, // Use fresh title from KSESSIONS
+                        description = sessionDescription,
                         status = secureToken.Session?.Status,
                         participantCount = secureToken.Session?.ParticipantCount,
                         maxParticipants = secureToken.Session?.MaxParticipants,
