@@ -1,5 +1,4 @@
-﻿@page "/host/landing"
-@page "/host/{friendlyToken?}"
+﻿@page "/host/{friendlyToken?}"
 @page "/"
 @page "/landing"
 @layout EmptyLayout
@@ -134,6 +133,9 @@
     protected override async Task OnInitializedAsync()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("NOOR-HOST-ROUTE: [{RequestId}] HostLanding component initialized - Route: {CurrentUrl}, FriendlyToken: {FriendlyToken}", 
+            requestId, Navigation.Uri, FriendlyToken ?? "null");
+        
         Logger.LogInformation("NOOR-HOST: [{RequestId}] HostLanding OnInitialized - FriendlyToken: {FriendlyToken}", 
             requestId, FriendlyToken ?? "null");
 

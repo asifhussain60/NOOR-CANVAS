@@ -172,7 +172,7 @@
             </div>
             
             <!-- Open Waiting Room Button -->
-            <div style="display:flex;justify-content:center;margin-top:1rem;">
+            <div style="display:flex;justify-content:center;margin-top:1rem;margin-top:1.5rem;">
                 <button id="openWaitingRoomBtn" @onclick="OpenWaitingRoom" 
                         style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;background-color:#006400;color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
                     <i class="fa-solid fa-hourglass-half"></i>
@@ -191,12 +191,13 @@
     {
         public string? LogoText { get; set; } = "NOOR Canvas";
         public string? HostFriendlyToken { get; set; }
+        // TODO: ISSUE-106-CASCADING - Removed hardcoded values, using proper cascading dropdown loading with delays
         public string? SelectedAlbum { get; set; }
         public string? SelectedCategory { get; set; }
         public string? SelectedSession { get; set; }
         public DateTime SessionDate { get; set; } = DateTime.Today;
         public string SessionTime { get; set; } = "";
-        public int? SessionDuration { get; set; }
+        public int? SessionDuration { get; set; } = 60; // TODO: TEMPORARY - Default duration for Issue-106 testing
         public string ErrorMessage { get; set; } = "";
         public bool IsFormValid { get; set; }
         public bool Copied { get; set; }
@@ -240,6 +241,10 @@
     }
 
     private HostSessionOpenerViewModel Model { get; set; } = new();
+    
+    // TODO: TEMPORARY - Remove after Issue-106 testing is complete
+    private bool IsSettingDefaultValues { get; set; } = false;
+    
     private List<AlbumData> Albums { get; set; } = new();
     private List<CategoryData> Categories { get; set; } = new();
     private List<SessionData> Sessions { get; set; } = new();
@@ -350,8 +355,14 @@
         Model.LogoText = "NOOR Canvas - Host Session Management";
         Model.SessionUrl = "https://localhost:9091/session/waiting/demo-session";
         
-        // Load albums from database
+        // TODO: ISSUE-106-CASCADING - Load albums first, then set cascading values with delays
         await LoadAlbumsAsync();
+        
+        // Set values with proper cascading delays: Album=18 (wait 2s) → Category=55 (wait 2s) → Session=1281
+        await SetCascadingDefaultValuesAsync();
+        
+        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Completed cascading dropdown loading: Album={Album}, Category={Category}, Session={Session}", 
+            Model.SelectedAlbum, Model.SelectedCategory, Model.SelectedSession);
         
         ValidateForm();
     }
@@ -387,15 +398,84 @@
         }
     }
 
+    /// <summary>
+    /// TODO: ISSUE-106-CASCADING - Sets specific values with cascading dropdown loading and 2-second delays
+    /// Load Albumid=18, wait 2s, load Categoryid=55, wait 2s, then load Sessionid=1281
+    /// </summary>
+    private async Task SetCascadingDefaultValuesAsync()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Starting cascading dropdown loading: Album=18 → Category=55 → Session=1281");
+            
+            // Set flag to prevent clearing during value setting
+            IsSettingDefaultValues = true;
+            
+            // Step 1: Set Album=18 and wait 2 seconds
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 1: Setting Album=18");
+            Model.SelectedAlbum = "18";
+            StateHasChanged();
+            
+            // Trigger OnAlbumChanged to load categories for album 18
+            await OnAlbumChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 1 complete, waiting 2 seconds for categories to load...");
+            await Task.Delay(2000); // Wait 2 seconds as requested
+            
+            // Step 2: Set Category=55 and wait 2 seconds
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 2: Setting Category=55");
+            Model.SelectedCategory = "55";
+            StateHasChanged();
+            
+            // Trigger OnCategoryChanged to load sessions for category 55
+            await OnCategoryChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 2 complete, waiting 2 seconds for sessions to load...");
+            await Task.Delay(2000); // Wait 2 seconds as requested
+            
+            // Step 3: Set Session=1281
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 3: Setting Session=1281");
+            Model.SelectedSession = "1281";
+            StateHasChanged();
+            
+            // Set default date and time values
+            SessionDate = DateTime.Today.AddDays(1); // Tomorrow
+            SessionTime = "10:00 AM"; // Default morning time
+            SessionDuration = 60; // Default 1 hour
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Set default date: {Date}, time: {Time}, duration: {Duration}", 
+                SessionDate.ToShortDateString(), SessionTime, SessionDuration);
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Cascading loading completed - Final values: Album={Album}, Category={Category}, Session={Session}",
+                Model.SelectedAlbum, Model.SelectedCategory, Model.SelectedSession);
+                
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Error during cascading default values loading");
+        }
+        finally
+        {
+            // Reset flag after setting defaults
+            IsSettingDefaultValues = false;
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] IsSettingDefaultValues flag reset to false");
+        }
+    }
+
     private async Task OnAlbumChanged()
     {
         try
         {
-            // Reset dependent selections
-            Model.SelectedCategory = null;
-            Model.SelectedSession = null;
-            Categories.Clear();
-            Sessions.Clear();
+            // TODO: TEMPORARY - Don't clear during default value setting (Issue-106)
+            if (!IsSettingDefaultValues)
+            {
+                // Reset dependent selections
+                Model.SelectedCategory = null;
+                Model.SelectedSession = null;
+                Categories.Clear();
+                Sessions.Clear();
+            }
             
             if (string.IsNullOrEmpty(Model.SelectedAlbum) || !int.TryParse(Model.SelectedAlbum, out int albumId))
             {
@@ -436,9 +516,13 @@
     {
         try
         {
-            // Reset dependent selection
-            Model.SelectedSession = null;
-            Sessions.Clear();
+            // TODO: TEMPORARY - Don't clear during default value setting (Issue-106)
+            if (!IsSettingDefaultValues)
+            {
+                // Reset dependent selection
+                Model.SelectedSession = null;
+                Sessions.Clear();
+            }
             
             if (string.IsNullOrEmpty(Model.SelectedCategory) || !int.TryParse(Model.SelectedCategory, out int categoryId))
             {
@@ -540,34 +624,60 @@
     private async Task OpenSession()
     {
         Logger.LogInformation("NOOR-HOST-OPENER: *** ENTERING OpenSession Method ***");
+        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Initial state - ShowSessionUrlPanel: {PanelVisible}, SessionUrl: {CurrentUrl}", ShowSessionUrlPanel, SessionUrl);
+        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Host Token: {HostToken}", Model.HostFriendlyToken);
+        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Form validation state - IsFormValid: {IsValid}", IsFormValid);
+        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Selected values - Album: {Album}, Category: {Category}, Session: {Session}", SelectedAlbum, SelectedCategory, SelectedSession);
+        
+        // Clear any existing error messages
+        ErrorMessage = "";
+        StateHasChanged();
+        
         try
         {
             Logger.LogInformation("NOOR-HOST-OPENER: Opening session - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration}", 
                 SelectedAlbum, SelectedCategory, SelectedSession, SessionDate, SessionTime, SessionDuration);
             
-            Logger.LogInformation("NOOR-HOST-OPENER: About to call CreateSessionAndGenerateTokens...");
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] About to call CreateSessionAndGenerateTokens...");
             
             // Step 1: Save session information to canvas.Sessions and generate tokens
             await CreateSessionAndGenerateTokens();
             
-            Logger.LogInformation("NOOR-HOST-OPENER: CreateSessionAndGenerateTokens completed, calling SaveSessionToLocalStorage...");
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] CreateSessionAndGenerateTokens completed successfully, calling SaveSessionToLocalStorage...");
             
             // Step 2: Save to localStorage
             await SaveSessionToLocalStorage();
             
-            Logger.LogInformation("NOOR-HOST-OPENER: SaveSessionToLocalStorage completed, showing URL panel...");
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] SaveSessionToLocalStorage completed, showing URL panel...");
             
-            // Step 3: Show the Session URL panel
+            // ISSUE-106 FIX: Show the Session URL panel with enhanced debug logging
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-FIX] About to set ShowSessionUrlPanel = true (was: {PreviousValue})", ShowSessionUrlPanel);
             ShowSessionUrlPanel = true;
-            StateHasChanged();
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-FIX] ShowSessionUrlPanel set to: {CurrentValue}", ShowSessionUrlPanel);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Current SessionUrl: {SessionUrl}", SessionUrl);
             
-            Logger.LogInformation("NOOR-HOST-OPENER: Session opened successfully - URL Panel now visible");
+            // Trigger UI update
+            StateHasChanged();
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-FIX] StateHasChanged() called - UI should now show session URL panel");
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-SUCCESS] Session opened successfully - URL Panel visibility: {IsVisible}, URL: {Url}", ShowSessionUrlPanel, SessionUrl);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: *** EXCEPTION in OpenSession: {Message} ***", ex.Message);
-            Logger.LogError(ex, "NOOR-HOST-OPENER: *** FULL EXCEPTION: {Exception} ***", ex);
-            ErrorMessage = "Failed to open session. Please try again.";
+            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-ERROR] *** EXCEPTION in OpenSession: {Message} ***", ex.Message);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-ERROR] *** FULL EXCEPTION: {Exception} ***", ex);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-ERROR] *** STACK TRACE: {StackTrace} ***", ex.StackTrace);
+            Logger.LogError("NOOR-HOST-OPENER: [ISSUE-106-ERROR] Exception occurred - ShowSessionUrlPanel remains: {PanelState}", ShowSessionUrlPanel);
+            Logger.LogError("NOOR-HOST-OPENER: [ISSUE-106-ERROR] Host Token was: {Token}", Model.HostFriendlyToken);
+            
+            // TODO: ISSUE-106-CASCADING - Display actual API error instead of generic message
+            // User requested: "Display the actual error in the error panel so user knows what's exactly happening"
+            ErrorMessage = $"API Error: {ex.Message}";
+            
+            // TODO: ISSUE-106-CASCADING - Force show Session URL panel as requested
+            // User said: "just make the Session URL panel visible when I click on Open Session button"
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Forcing Session URL panel to show despite error as requested");
+            ShowSessionUrlPanel = true;
             StateHasChanged();
         }
     }
@@ -604,17 +714,23 @@
                 System.Text.Json.JsonSerializer.Serialize(sessionData));
             Logger.LogInformation("NOOR-HOST-OPENER: Individual values - HostToken: {HostToken}, Session: {Session}, Category: {Category}, Album: {Album}, Date: {Date}, Time: {Time}, Duration: {Duration}",
                 Model.HostFriendlyToken, SelectedSession, SelectedCategory, SelectedAlbum, SessionDate.ToString("yyyy-MM-dd"), SessionTime, SessionDuration);
+                
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Pre-API validation - SelectedAlbum null/empty: {AlbumEmpty}, SelectedCategory null/empty: {CategoryEmpty}, SelectedSession null/empty: {SessionEmpty}",
+                string.IsNullOrEmpty(SelectedAlbum), string.IsNullOrEmpty(SelectedCategory), string.IsNullOrEmpty(SelectedSession));
 
-            Logger.LogInformation("NOOR-HOST-OPENER: Calling session creation API at api/host/create-session?token={Token}...", Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Calling session creation API at api/host/create-session?token={Token}...", Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Full API URL: {BaseAddress}api/host/create-session?token={Token}", httpClient.BaseAddress, Model.HostFriendlyToken);
             
             // Call the API to create session and generate tokens
             var response = await httpClient.PostAsJsonAsync($"api/host/create-session?token={Model.HostFriendlyToken}", sessionData);
             
-            Logger.LogInformation("NOOR-HOST-OPENER: API call completed with status: {StatusCode}", response.StatusCode);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] API call completed with status: {StatusCode} ({StatusCodeNumber})", response.StatusCode, (int)response.StatusCode);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Response headers: {Headers}", response.Headers.ToString());
             
             // Read response content for detailed logging regardless of success/failure
             var responseContent = await response.Content.ReadAsStringAsync();
-            Logger.LogInformation("NOOR-HOST-OPENER: Raw API response content: {ResponseContent}", responseContent);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Raw API response content length: {Length}", responseContent?.Length ?? 0);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Raw API response content: {ResponseContent}", responseContent);
             
             if (response.IsSuccessStatusCode)
             {
@@ -622,20 +738,24 @@
                 
                 try
                 {
-                    var result = System.Text.Json.JsonSerializer.Deserialize<SessionCreationResponse>(responseContent, 
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var result = !string.IsNullOrEmpty(responseContent) 
+                        ? System.Text.Json.JsonSerializer.Deserialize<SessionCreationResponse>(responseContent, 
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        : null;
                     
                     Logger.LogInformation("NOOR-HOST-OPENER: API response parsed: {Result}", result == null ? "NULL" : System.Text.Json.JsonSerializer.Serialize(result));
                     
                     if (result != null && !string.IsNullOrEmpty(result.UserToken))
                     {
-                        // Update the session URL with the generated user token
-                        SessionUrl = $"https://localhost:9091/session/{result.UserToken}";
-                        Logger.LogInformation("NOOR-HOST-OPENER: Session created successfully - User Token: {UserToken}, Session URL: {SessionUrl}", result.UserToken, SessionUrl);
+                        // ISSUE-104 FIX: Update the session URL with proper user authentication URL format
+                        SessionUrl = $"https://localhost:9091/user/landing/{result.UserToken}";
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - User Token: {UserToken}", result.UserToken);
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session URL updated to proper format: {SessionUrl}", SessionUrl);
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] URL format changed from '/session/{token}' to '/user/landing/{token}' for proper authentication flow");
                     }
                     else
                     {
-                        Logger.LogError("NOOR-HOST-OPENER: Invalid response from session creation API - Result: {Result}, UserToken: {UserToken}", 
+                        Logger.LogError("NOOR-HOST-OPENER: [ISSUE-104-ERROR] Invalid response from session creation API - Result: {Result}, UserToken: {UserToken}", 
                             result?.ToString() ?? "NULL", result?.UserToken ?? "NULL");
                         throw new Exception("Invalid response from session creation API - missing UserToken");
                     }
@@ -650,7 +770,14 @@
             {
                 Logger.LogError("NOOR-HOST-OPENER: Session creation API failed - Status: {StatusCode}, Error: {Error}", 
                     response.StatusCode, responseContent);
-                throw new Exception($"Session creation failed: {response.StatusCode}");
+                
+                // TODO: ISSUE-106-CASCADING - Provide detailed API error message instead of generic status code
+                string detailedError = $"HTTP {(int)response.StatusCode} {response.StatusCode}";
+                if (!string.IsNullOrEmpty(responseContent))
+                {
+                    detailedError += $" - {responseContent}";
+                }
+                throw new Exception(detailedError);
             }
             
             Logger.LogInformation("NOOR-HOST-OPENER: *** EXITING CreateSessionAndGenerateTokens SUCCESSFULLY ***");

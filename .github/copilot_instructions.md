@@ -60,6 +60,7 @@ cd "path" && dotnet build
 - **Database:** Development = KSESSIONS_DEV mandatory, Production = forbidden
 - **Sessions:** GUID-based tokens, no traditional auth
 - **File Cleanup:** TEMP contents cleared during maintenance, structure preserved
+- **Build Monitoring:** ALWAYS use `Start-Sleep -Seconds 2-3` between build operations and output checks to prevent terminal hangups
 
 ## Debugging & Testing
 
@@ -72,14 +73,62 @@ cd "path" && dotnet build
 
 **CRITICAL:** Never bypass validation hooks without user approval - they prevent repository inconsistencies and maintain project quality
 
+### UI Test Runner Framework (Playwright) - TypeScript Enhanced
+**Installation Status:** ✅ **VSCode Playwright Extension + GitHub Copilot Installed** (September 18, 2025)  
+**Framework:** Playwright with TypeScript support for enhanced GitHub Copilot integration
+
+**Test Suite Coverage (Migrated to TypeScript):**
+- `Tests/UI/host-authentication.spec.ts` - Landing page, token validation, session config with enhanced typing
+- `Tests/UI/cascading-dropdowns.spec.ts` - Issue-106 cascading with 2-second delays and race condition prevention
+- `Tests/UI/user-authentication.spec.ts` - User workflows & Issue-102 routing fixes with type safety
+- `Tests/UI/api-integration.spec.ts` - Backend APIs, database connectivity, security with structured interfaces
+
+**TypeScript + Copilot Enhanced Commands:**
+```powershell
+# Run all TypeScript tests
+cd "d:\PROJECTS\NOOR CANVAS"; npm test; Start-Sleep -Seconds 3
+
+# Run with visible browser (TypeScript debugging)
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:headed; Start-Sleep -Seconds 5
+
+# Test specific functionality (TypeScript files)
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:cascading; Start-Sleep -Seconds 3  # Issue-106 validation
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:host; Start-Sleep -Seconds 3      # Host auth flow
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:user; Start-Sleep -Seconds 3      # User auth (Issue-102)
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:api; Start-Sleep -Seconds 3       # API endpoints
+
+# Enhanced Copilot workflow commands  
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:codegen; Start-Sleep -Seconds 3   # Generate TypeScript test code
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:ui-mode; Start-Sleep -Seconds 5   # Interactive UI mode
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:debug; Start-Sleep -Seconds 5     # Debug with TypeScript
+
+# TypeScript validation and reports
+cd "d:\PROJECTS\NOOR CANVAS"; npm run build:tests; Start-Sleep -Seconds 2    # Type checking
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:report; Start-Sleep -Seconds 2     # Generate reports
+```
+
+**Enhanced VSCode + GitHub Copilot Integration:**
+- **Playwright Extension:** Test explorer, debugging, and execution within VSCode with TypeScript support
+- **GitHub Copilot:** AI-powered code suggestions optimized for Playwright + TypeScript patterns
+- **Test Discovery:** Automatically detects TypeScript tests (`.spec.ts`) in `Tests/UI/` directory
+- **Debug Mode:** Step-through debugging with breakpoints and TypeScript variable inspection
+- **Live Browser:** Watch tests execute in real-time with enhanced browser dev tools
+- **Copilot Chat:** Ask questions about test patterns, get TypeScript code suggestions
+- **IntelliSense:** Full TypeScript autocompletion for Playwright APIs and custom interfaces
+
 ### What Copilot Can Access
-- Terminal output, file contents, build errors, code search
+- Terminal output, file contents, build errors, code search, Playwright test results
 - **User Must Provide:** Browser console errors, UI issues, performance observations
 
 ### Testing Strategy
-- **Temporary tests:** `TEMP/tests/` (cleaned during maintenance)
+- **UI Tests:** `Tests/UI/` Playwright test suite with **MANDATORY VSCode Test Explorer usage**
+- **Primary Method:** VSCode Playwright extension Test Explorer (Visual UI-based testing)
+- **Secondary Method:** PowerShell diagnostic scripts for infrastructure testing
+- **Temporary tests:** `TEMP/tests/` (cleaned during maintenance)  
 - **Permanent tests:** `Tests/` directory
 - **Naming:** `{component}-diagnostic.ps1`, `{issue-description}-test.ps1`
+- **Build Monitoring:** Always use `Start-Sleep -Seconds 2-3` after build commands and between output checks to prevent terminal session hangups
+- **UI Test Execution:** **EXCLUSIVELY through Test Explorer** - Terminal commands prohibited
 
 ### TODO Tracking
 - **TODO prompts:** Track in `Workspaces/IMPLEMENTATION-TRACKER.MD` 
@@ -145,8 +194,58 @@ cd "path" && dotnet build
 Get-Process -Name "*dotnet*" -ErrorAction SilentlyContinue | Stop-Process -Force
 iiskill  # Or use global command
 
-# Build validation workflow
+# Build validation workflow with progress monitoring
 dotnet build --verbosity quiet  # Check compilation before launch
+Start-Sleep -Seconds 2          # Allow build process to stabilize
+
+# CRITICAL: Build Monitoring Protocol (prevents terminal hangups)
+# Always add sleep timers when monitoring long-running build operations:
+dotnet build; Start-Sleep -Seconds 3; echo "Build completed - checking output..."
+# For task monitoring: run task → sleep 2-3 seconds → check output → repeat as needed
+# Never chain multiple get_task_output calls without sleep intervals
+
+# UI Testing Commands (with hangup prevention)
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test; Start-Sleep -Seconds 3
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:headed; Start-Sleep -Seconds 5  # Browser startup needs more time
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:cascading; Start-Sleep -Seconds 3
+cd "d:\PROJECTS\NOOR CANVAS"; npm run test:debug; Start-Sleep -Seconds 5    # Debug mode requires extra time
+```
+
+### VSCode Playwright Test Explorer Integration (MANDATORY METHOD)
+**REQUIREMENT: All UI testing must use VSCode Playwright extension's Test Explorer. Terminal commands are forbidden except for specific debugging scenarios.**
+
+**Primary Testing Method - Playwright Test Explorer:**
+- **Access**: VSCode Activity Bar → Testing (flask icon) → Playwright section
+- **Run All Tests**: Click "Run All Tests" button in Test Explorer
+- **Run Specific Tests**: Click play button next to individual test files or test cases
+- **Run Issue-106 Tests**: Navigate to `cascading-dropdowns.spec.js` and click run button
+- **Debug Mode**: Right-click test → "Debug Test" for breakpoint debugging
+- **Visual Testing**: Use "Show Browser" option for headed test execution
+- **Test Discovery**: Automatic detection of tests in `Tests/UI/` directory
+
+**Test Explorer Benefits:**
+- **No Terminal Commands Required**: Point-and-click test execution
+- **Visual Test Management**: See all tests, their status, and results in UI
+- **Integrated Debugging**: Breakpoints, step-through debugging, variable inspection
+- **Real-time Results**: Live test execution feedback with pass/fail status
+- **Report Integration**: Automatic report generation and viewing
+
+**Forbidden Methods:**
+- ❌ `npm test` commands in terminal
+- ❌ `npx playwright test` in PowerShell
+- ❌ Manual terminal-based test execution
+- ❌ Command-line Playwright execution (except for CI/CD)
+
+**Exception Cases (Terminal Commands Allowed):**
+- **Report Generation Only**: `playwright show-report` to view HTML reports
+- **CI/CD Pipeline**: Automated testing in build systems
+- **Advanced Debugging**: `playwright codegen` for test generation
+
+**Automatic Report Storage in TEMP/:**
+- All Playwright HTML reports: `Workspaces/TEMP/playwright-report/`
+- Test artifacts (screenshots, videos): `Workspaces/TEMP/test-artifacts/`
+- Trace files for debugging: `Workspaces/TEMP/traces/`
+- Configuration ensures all outputs redirect to TEMP folder for easy cleanup
 ```
 
 ### Performance Targets
@@ -227,6 +326,7 @@ When building Blazor `.razor` views from HTML mocks, follow this comprehensive s
 - `cancelled` - User decides not to proceed
 
 ### Testing & Git Workflow
+- **UI Testing:** Playwright suite with VSCode extension (`npm test`, `npm run test:headed`) 
 - **Automated:** `.hooks/post-build.ps1` runs tests after successful builds
 - **Quality Gate:** Pre-commit validation via `validate-tracker-consistency.ps1` prevents commits with inconsistencies
 - **Standard commits:** `git add . ; git commit -m "message"` (validation hook enforced)
@@ -260,6 +360,14 @@ nc <sessionId>           # Full workflow: cleanup → token → build → launch
 ncdoc -Force             # Restart documentation server  
 .\Tests\HealthCheck.ps1  # Validate workspace
 ```
+
+**UI Testing (MANDATORY: Use VSCode Test Explorer Only):**
+- **Access**: VSCode → Testing Panel → Playwright → Run Tests
+- **Issue-106 Testing**: Navigate to `cascading-dropdowns.spec.js` → Click Run
+- **All Tests**: Click "Run All Tests" in Test Explorer
+- **Debug Mode**: Right-click test → "Debug Test"
+- **Visual Testing**: Enable "Show Browser" option in Test Explorer
+- **Reports**: Automatic generation in `Workspaces/TEMP/playwright-report/`
 
 ### Project Status (Sept 2025)
 - **Backend:** 95% complete (10 controllers, 3 hubs active)
