@@ -29,6 +29,19 @@ parameters:
 - Preserve history by **renaming/moving** instead of deleting where content is canonical; delete only redundant/outdated.
 - Keep the repo **language-agnostic**: detect stack and choose appropriate tools.
 
+## Test File Organization Principles
+- **DO NOT MOVE SUCCESSFUL TESTS TO TEMP**: Test files that represent successful issue resolution should be preserved in dedicated testing workspaces.
+- **Organize by Issue Resolution**: Create structured directories under `Workspaces/Testing/` organized by resolved issue numbers.
+- **Two-Way Linking**: Maintain bidirectional references between test files and issue tracker entries.
+- **Dedicated Test Locations**: 
+  - `Workspaces/Testing/Issue-###-Description/` for issue-specific test files
+  - `Workspaces/Testing/Category/` for general testing by category (e.g., Host-Authentication, API-Validation)
+- **Documentation Requirements**: Each test directory must include README.md with:
+  - Links back to source issue in tracker
+  - Description of test purpose and validation results  
+  - Cross-references to related components and files
+- **Preservation Standards**: Test files represent reference implementations and should be maintained as permanent documentation.
+
 ## High-Level Plan (Copilot Execution Order)
 1) **Detect Project Stack & Tooling**
    - If `package.json` → Node/TS/JS; use `eslint` + `prettier`.
@@ -56,10 +69,16 @@ parameters:
    - Consolidate “feature guides” into `README.md` sections or `docs/feature-name.md` with kebab-case.
    - Delete/replace poorly named files (e.g., `setup_new.md`, `instructions_final.md`) once merged.
 
-4) **Duplicate & Orphan Cleanup**
+4) **Duplicate & Orphan Cleanup & Test File Organization**
    - Detect file dupes (hash match or >90% similarity). Keep the newest **valid** content.
    - Remove unused screenshots/assets if no references remain (grep for paths).
    - Ensure there is **one** of each standard file (e.g., one `LICENSE`, one `README.md`).
+   - **ORGANIZE SUCCESSFUL TEST FILES**: Move test files that represent successful issue resolution to dedicated testing workspaces:
+     - Create `Workspaces/Testing/Issue-###-Description/` directories for issue-specific tests
+     - Create `Workspaces/Testing/Category/` directories for general testing categories
+     - Add README.md documentation with two-way links to issue tracker
+     - Update issue tracker with references to test file locations
+   - **DO NOT MOVE SUCCESSFUL TESTS TO TEMP**: Test files are reference implementations, not temporary artifacts.
 
 5) **TEMP Hygiene**
    - Clear irrelevant items in `/TEMP`, `/temp`, `/tmp`, `.cache`, and common tool temp dirs **that are not tracked by VCS**.

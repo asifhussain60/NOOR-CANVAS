@@ -114,7 +114,7 @@ namespace NoorCanvas.Controllers
             try
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Validating session for Host GUID: {HostGuid}", 
+                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Validating session for Host GUID: {HostGuid}",
                     requestId, hostGuid?.Substring(0, Math.Min(8, hostGuid?.Length ?? 0)) + "...");
 
                 if (string.IsNullOrWhiteSpace(hostGuid))
@@ -125,13 +125,13 @@ namespace NoorCanvas.Controllers
 
                 // Always check database for exact match - token must exist in database to be valid
                 _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Looking up session for HostGuid: {HostGuid}", requestId, hostGuid);
-                
+
                 var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostGuid == hostGuid);
                 if (session != null)
                 {
-                    _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}", 
+                    _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
                         requestId, session.SessionId, session.Title);
-                    
+
                     return Ok(new HostSessionValidationResponse
                     {
                         Valid = true,
@@ -166,14 +166,15 @@ namespace NoorCanvas.Controllers
             catch (Exception ex)
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                _logger.LogError(ex, "NOOR-HOST-VALIDATE: [{RequestId}] Error during host session validation for GUID: {HostGuid}", 
+                _logger.LogError(ex, "NOOR-HOST-VALIDATE: [{RequestId}] Error during host session validation for GUID: {HostGuid}",
                     requestId, hostGuid?.Substring(0, Math.Min(8, hostGuid?.Length ?? 0)) + "...");
-                
-                return StatusCode(500, new { 
-                    error = "Validation failed", 
-                    valid = false, 
+
+                return StatusCode(500, new
+                {
+                    error = "Validation failed",
+                    valid = false,
                     requestId,
-                    details = ex.Message 
+                    details = ex.Message
                 });
             }
         }
@@ -184,7 +185,7 @@ namespace NoorCanvas.Controllers
             try
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Validating friendly token: {Token}", 
+                _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Validating friendly token: {Token}",
                     requestId, friendlyToken);
 
                 if (string.IsNullOrWhiteSpace(friendlyToken))
@@ -196,7 +197,7 @@ namespace NoorCanvas.Controllers
                 // Check if token format is valid (8 characters, alphanumeric)
                 if (friendlyToken.Length != 8 || !friendlyToken.All(c => char.IsLetterOrDigit(c)))
                 {
-                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Invalid token format: {Token}", 
+                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Invalid token format: {Token}",
                         requestId, friendlyToken);
                     return Ok(new HostSessionValidationResponse
                     {
@@ -209,7 +210,7 @@ namespace NoorCanvas.Controllers
 
                 // Look up friendly token in SecureTokens table
                 _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Looking up friendly token in database", requestId);
-                
+
                 var secureToken = await _context.SecureTokens
                     .Include(st => st.Session)
                     .Where(st => st.HostToken == friendlyToken && st.IsActive && st.ExpiresAt > DateTime.UtcNow)
@@ -217,9 +218,9 @@ namespace NoorCanvas.Controllers
 
                 if (secureToken != null)
                 {
-                    _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}", 
+                    _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
                         requestId, secureToken.Session.SessionId, secureToken.Session.Title);
-                    
+
                     return Ok(new HostSessionValidationResponse
                     {
                         Valid = true,
@@ -241,7 +242,7 @@ namespace NoorCanvas.Controllers
                 }
                 else
                 {
-                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] No session found for friendly token: {Token}", 
+                    _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] No session found for friendly token: {Token}",
                         requestId, friendlyToken);
                     return Ok(new HostSessionValidationResponse
                     {
@@ -255,14 +256,15 @@ namespace NoorCanvas.Controllers
             catch (Exception ex)
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                _logger.LogError(ex, "NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Error during token validation: {Token}", 
+                _logger.LogError(ex, "NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Error during token validation: {Token}",
                     requestId, friendlyToken);
-                
-                return StatusCode(500, new { 
-                    error = "Token validation failed", 
-                    valid = false, 
+
+                return StatusCode(500, new
+                {
+                    error = "Token validation failed",
+                    valid = false,
                     requestId,
-                    details = ex.Message 
+                    details = ex.Message
                 });
             }
         }
@@ -365,7 +367,7 @@ namespace NoorCanvas.Controllers
                 {
                     _logger.LogWarning("NOOR-HOST-OPENER: sessionData is null or undefined");
                 }
-                
+
                 string? selectedSession = null;
                 string? selectedCategory = null;
                 string? selectedAlbum = null;
@@ -377,75 +379,77 @@ namespace NoorCanvas.Controllers
                 {
                     // Extract properties directly from the JsonElement parameter
                     _logger.LogInformation("NOOR-HOST-OPENER: sessionData ValueKind: {Kind}, extracting properties...", sessionData.ValueKind);
-                    
-                    if (sessionData.TryGetProperty("SelectedSession", out var sessionProp))
+
+                    // ISSUE-107 FIX: Use correct camelCase property names that match frontend payload
+                    if (sessionData.TryGetProperty("selectedSession", out var sessionProp))
                     {
                         selectedSession = sessionProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted SelectedSession: '{Value}'", selectedSession);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedSession: '{Value}'", selectedSession);
                     }
                     else
                     {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract SelectedSession property");
+                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedSession property");
                     }
-                    
-                    if (sessionData.TryGetProperty("SelectedCategory", out var categoryProp))
+
+                    if (sessionData.TryGetProperty("selectedCategory", out var categoryProp))
                     {
                         selectedCategory = categoryProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted SelectedCategory: '{Value}'", selectedCategory);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedCategory: '{Value}'", selectedCategory);
                     }
                     else
                     {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract SelectedCategory property");
+                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedCategory property");
                     }
-                    
-                    if (sessionData.TryGetProperty("SelectedAlbum", out var albumProp))
+
+                    if (sessionData.TryGetProperty("selectedAlbum", out var albumProp))
                     {
                         selectedAlbum = albumProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted SelectedAlbum: '{Value}'", selectedAlbum);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedAlbum: '{Value}'", selectedAlbum);
                     }
                     else
                     {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract SelectedAlbum property");
+                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedAlbum property");
                     }
-                    
-                    if (sessionData.TryGetProperty("SessionDate", out var dateProp))
+
+                    if (sessionData.TryGetProperty("sessionDate", out var dateProp))
                     {
                         sessionDate = dateProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted SessionDate: '{Value}'", sessionDate);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted sessionDate: '{Value}'", sessionDate);
                     }
                     else
                     {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract SessionDate property");
+                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract sessionDate property");
                     }
-                    
-                    if (sessionData.TryGetProperty("SessionTime", out var timeProp))
+
+                    if (sessionData.TryGetProperty("sessionTime", out var timeProp))
                     {
                         sessionTime = timeProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted SessionTime: '{Value}'", sessionTime);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted sessionTime: '{Value}'", sessionTime);
                     }
                     else
                     {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract SessionTime property");
+                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract sessionTime property");
                     }
-                    
-                    if (sessionData.TryGetProperty("SessionDuration", out var durationProp) && durationProp.TryGetInt32(out int duration))
+
+                    // ISSUE-107 FIX: Use correct camelCase property name for sessionDuration
+                    if (sessionData.TryGetProperty("sessionDuration", out var durationProp) && durationProp.TryGetInt32(out int duration))
                     {
                         sessionDuration = duration;
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted SessionDuration: {Value}", sessionDuration);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted sessionDuration: {Value}", sessionDuration);
                     }
                     else
                     {
-                        _logger.LogInformation("NOOR-HOST-OPENER: Using default SessionDuration: {Value}", sessionDuration);
+                        _logger.LogInformation("NOOR-HOST-OPENER: Using default sessionDuration: {Value}", sessionDuration);
                     }
 
                     // Log all available properties in the JsonElement for debugging
                     _logger.LogInformation("NOOR-HOST-OPENER: Available properties in JsonElement:");
                     foreach (var property in sessionData.EnumerateObject())
                     {
-                        _logger.LogInformation("NOOR-HOST-OPENER: Property '{Name}' = '{Value}' (ValueKind: {Kind})", 
+                        _logger.LogInformation("NOOR-HOST-OPENER: Property '{Name}' = '{Value}' (ValueKind: {Kind})",
                             property.Name, property.Value.ToString(), property.Value.ValueKind);
                     }
-                        
+
                     _logger.LogInformation("NOOR-HOST-OPENER: Parsed session data - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration}",
                         selectedAlbum, selectedCategory, selectedSession, sessionDate, sessionTime, sessionDuration);
                 }
@@ -456,19 +460,21 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Validate required fields
-                _logger.LogInformation("NOOR-HOST-OPENER: Validating required fields - Session: '{Session}', Category: '{Category}', Album: '{Album}'", 
+                _logger.LogInformation("NOOR-HOST-OPENER: Validating required fields - Session: '{Session}', Category: '{Category}', Album: '{Album}'",
                     selectedSession, selectedCategory, selectedAlbum);
 
                 if (string.IsNullOrEmpty(selectedSession) || string.IsNullOrEmpty(selectedCategory) || string.IsNullOrEmpty(selectedAlbum))
                 {
-                    _logger.LogWarning("NOOR-HOST-OPENER: Validation failed - Session: '{Session}', Category: '{Category}', Album: '{Album}'", 
+                    _logger.LogWarning("NOOR-HOST-OPENER: Validation failed - Session: '{Session}', Category: '{Category}', Album: '{Album}'",
                         selectedSession ?? "NULL", selectedCategory ?? "NULL", selectedAlbum ?? "NULL");
-                    return BadRequest(new { 
+                    return BadRequest(new
+                    {
                         error = "Selected session, category, and album are required",
-                        received = new { 
-                            selectedSession = selectedSession ?? "NULL", 
-                            selectedCategory = selectedCategory ?? "NULL", 
-                            selectedAlbum = selectedAlbum ?? "NULL" 
+                        received = new
+                        {
+                            selectedSession = selectedSession ?? "NULL",
+                            selectedCategory = selectedCategory ?? "NULL",
+                            selectedAlbum = selectedAlbum ?? "NULL"
                         }
                     });
                 }
@@ -478,7 +484,7 @@ namespace NoorCanvas.Controllers
                 session.Description = $"Album: {selectedAlbum}, Category: {selectedCategory}";
                 session.Status = "Configured";
                 session.ModifiedAt = DateTime.UtcNow;
-                
+
                 // Parse the session date and time for StartedAt (future implementation)
                 if (DateTime.TryParse($"{sessionDate} {sessionTime}", out DateTime scheduledStart))
                 {
@@ -489,7 +495,7 @@ namespace NoorCanvas.Controllers
 
                 // Generate a new user token for participants
                 var (hostToken, userToken) = await _secureTokenService.GenerateTokenPairAsync(
-                    sessionId, 
+                    sessionId,
                     validHours: 24,
                     clientIp: HttpContext.Connection.RemoteIpAddress?.ToString()
                 );
