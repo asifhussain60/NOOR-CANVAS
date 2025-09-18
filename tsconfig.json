@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+    "outDir": "./TEMP/compiled-tests",
+    "rootDir": "./Tests",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "incremental": true,
+    "tsBuildInfoFile": "./TEMP/.tsbuildinfo",
+    "types": ["node", "@playwright/test"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./Tests/*"],
+      "@ui/*": ["./Tests/UI/*"]
+    }
+  },
+  "include": [
+    "Tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "TEMP",
+    "test-results",
+    "playwright-report",
+    "SPA/**/*"
+  ]
+}

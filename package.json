@@ -1,0 +1,42 @@
+{
+  "name": "noor-canvas",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:host": "playwright test host-authentication.spec.ts",
+    "test:cascading": "playwright test cascading-dropdowns.spec.ts",
+    "test:user": "playwright test user-authentication.spec.ts",
+    "test:api": "playwright test api-integration.spec.ts",
+    "test:report": "playwright show-report",
+    "test:install": "playwright install",
+    "test:codegen": "playwright codegen https://localhost:9091",
+    "test:ui-mode": "playwright test --ui",
+    "test:trace": "playwright show-trace",
+    "test:typescript": "playwright test --config=playwright.config.ts",
+    "test:copilot-demo": "playwright codegen --target=typescript https://localhost:9091",
+    "build:tests": "tsc --noEmit",
+    "lint:tests": "eslint Tests/**/*.ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asifhussain60/NOOR-CANVAS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asifhussain60/NOOR-CANVAS/issues"
+  },
+  "homepage": "https://github.com/asifhussain60/NOOR-CANVAS#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.5.2",
+    "playwright": "^1.55.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

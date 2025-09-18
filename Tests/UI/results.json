@@ -1,0 +1,1362 @@
+{
+  "config": {
+    "configFile": "D:\\PROJECTS\\NOOR CANVAS\\playwright.config.js",
+    "rootDir": "D:/PROJECTS/NOOR CANVAS/Tests/UI",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "./Tests/UI/reports"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./Tests/UI/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/PROJECTS/NOOR CANVAS/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/PROJECTS/NOOR CANVAS/Tests/UI",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": {
+      "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"./run-with-iiskill.ps1\"",
+      "url": "https://localhost:9091",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "ignoreHTTPSErrors": true
+    }
+  },
+  "suites": [
+    {
+      "title": "cascading-dropdowns.spec.js",
+      "file": "cascading-dropdowns.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Host Authentication Flow",
+          "file": "host-authentication.spec.js",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display host landing page with proper branding",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 40249,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:06:50.278Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 29170,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:07:37.846Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-adf7c-g-page-with-proper-branding-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-3515a9b7222f95ac5c70",
+              "file": "host-authentication.spec.js",
+              "line": 23,
+              "column": 3
+            },
+            {
+              "title": "should show validation error for empty token",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 24211,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:08:17.148Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 31960,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:08:50.320Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-ada62-ation-error-for-empty-token-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-85c8d320891c1c907984",
+              "file": "host-authentication.spec.js",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "should show validation error for invalid token format",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 24518,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:09:32.536Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 24040,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:10:10.723Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-2f7ee-or-for-invalid-token-format-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-b67dea031f302ef47e25",
+              "file": "host-authentication.spec.js",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "should generate new host token via API",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 28009,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:10:45.983Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18161,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:11:26.053Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-bb05e-rate-new-host-token-via-API-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-85c208051af6a64fddf5",
+              "file": "host-authentication.spec.js",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "should handle expired token gracefully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15353,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:11:53.039Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 16273,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:12:16.845Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-6f192-le-expired-token-gracefully-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-1836a8b00befaeea12d8",
+              "file": "host-authentication.spec.js",
+              "line": 89,
+              "column": 3
+            },
+            {
+              "title": "should maintain NOOR Canvas styling throughout flow",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 19152,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:12:42.286Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 23376,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 38,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 38,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 3\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+             Host Authentication\u001b[39m\n\u001b[31m+ \u001b[43m        \u001b[49m\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    13 × locator resolved to <h1>↵            Host Authentication↵        </h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m            Host Authentication\u001b[22m\n\u001b[2m        \"\u001b[22m\n\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// Wait for page to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m   test(\u001b[32m'should display host landing page with proper branding'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:20:38\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:13:09.509Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Host-A-f11da-vas-styling-throughout-flow-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 38,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-89381ba68fccb83ffa9f",
+              "file": "host-authentication.spec.js",
+              "line": 101,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Issue-106: Cascading Dropdown Implementation",
+          "file": "cascading-dropdowns.spec.js",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load cascading dropdown with proper 2-second delays",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Error: Failed to generate token: 400",
+                        "stack": "Error: Failed to generate token: 400\n    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:127:11)\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:20:23",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 11,
+                          "line": 127
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhost-authentication.spec.js:127\n\n\u001b[0m \u001b[90m 125 |\u001b[39m   \n \u001b[90m 126 |\u001b[39m   \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m     \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m   }\n \u001b[90m 129 |\u001b[39m   \n \u001b[90m 130 |\u001b[39m   \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 11,
+                            "line": 127
+                          },
+                          "message": "Error: Failed to generate token: 400\n\n\u001b[90m   at \u001b[39mhost-authentication.spec.js:127\n\n\u001b[0m \u001b[90m 125 |\u001b[39m   \n \u001b[90m 126 |\u001b[39m   \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m     \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m   }\n \u001b[90m 129 |\u001b[39m   \n \u001b[90m 130 |\u001b[39m   \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:127:11)\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:20:23\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:13:40.584Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 11,
+                        "line": 127
+                      }
+                    },
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Error: Failed to generate token: 400",
+                        "stack": "Error: Failed to generate token: 400\n    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:127:11)\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:20:23",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                          "column": 11,
+                          "line": 127
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhost-authentication.spec.js:127\n\n\u001b[0m \u001b[90m 125 |\u001b[39m   \n \u001b[90m 126 |\u001b[39m   \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m     \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m   }\n \u001b[90m 129 |\u001b[39m   \n \u001b[90m 130 |\u001b[39m   \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                            "column": 11,
+                            "line": 127
+                          },
+                          "message": "Error: Failed to generate token: 400\n\n\u001b[90m   at \u001b[39mhost-authentication.spec.js:127\n\n\u001b[0m \u001b[90m 125 |\u001b[39m   \n \u001b[90m 126 |\u001b[39m   \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 127 |\u001b[39m     \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 128 |\u001b[39m   }\n \u001b[90m 129 |\u001b[39m   \n \u001b[90m 130 |\u001b[39m   \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js:127:11)\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:20:23\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:13:48.204Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--4b752-with-proper-2-second-delays-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\host-authentication.spec.js",
+                        "column": 11,
+                        "line": 127
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-c946ed6a1a60b83f6e3c",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 32,
+              "column": 3
+            },
+            {
+              "title": "should handle Open Session button click with cascaded values",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:13:42.727Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:13:52.555Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-d68466ab4c5b71b971eb",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 72,
+              "column": 3
+            },
+            {
+              "title": "should prevent race conditions during cascading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:13:42.730Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:13:52.576Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-6874e8fb08782826c255",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 108,
+              "column": 3
+            },
+            {
+              "title": "should maintain dropdown selections throughout cascading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:13:42.733Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:13:52.577Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-536259f490e3d1e178ed",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should complete full workflow: cascading -> open session -> url display",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:13:42.734Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:13:52.601Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-e1c076a0d0384b065a47",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 154,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Issue-106: Error Handling & Edge Cases",
+          "file": "cascading-dropdowns.spec.js",
+          "line": 188,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle API errors gracefully during cascading",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 40110,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:199:32",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js",
+                          "column": 32,
+                          "line": 199
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 197 |\u001b[39m     \u001b[90m// Should display error message but not crash\u001b[39m\n \u001b[90m 198 |\u001b[39m     \u001b[36mconst\u001b[39m errorElement \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"error\", text=\"failed\", text=\"invalid\"'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m     \u001b[36mawait\u001b[39m expect(errorElement)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m\n \u001b[90m 202 |\u001b[39m   test(\u001b[32m'should recover from network timeouts during cascading'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js",
+                            "column": 32,
+                            "line": 199
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 197 |\u001b[39m     \u001b[90m// Should display error message but not crash\u001b[39m\n \u001b[90m 198 |\u001b[39m     \u001b[36mconst\u001b[39m errorElement \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"error\", text=\"failed\", text=\"invalid\"'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m     \u001b[36mawait\u001b[39m expect(errorElement)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m\n \u001b[90m 202 |\u001b[39m   test(\u001b[32m'should recover from network timeouts during cascading'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:199:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:13:58.769Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js",
+                        "column": 32,
+                        "line": 199
+                      }
+                    },
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 26404,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:199:32",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js",
+                          "column": 32,
+                          "line": 199
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 197 |\u001b[39m     \u001b[90m// Should display error message but not crash\u001b[39m\n \u001b[90m 198 |\u001b[39m     \u001b[36mconst\u001b[39m errorElement \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"error\", text=\"failed\", text=\"invalid\"'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m     \u001b[36mawait\u001b[39m expect(errorElement)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m\n \u001b[90m 202 |\u001b[39m   test(\u001b[32m'should recover from network timeouts during cascading'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js",
+                            "column": 32,
+                            "line": 199
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=\"error\", text=\"failed\", text=\"invalid\"').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 197 |\u001b[39m     \u001b[90m// Should display error message but not crash\u001b[39m\n \u001b[90m 198 |\u001b[39m     \u001b[36mconst\u001b[39m errorElement \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=\"error\", text=\"failed\", text=\"invalid\"'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m     \u001b[36mawait\u001b[39m expect(errorElement)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 201 |\u001b[39m\n \u001b[90m 202 |\u001b[39m   test(\u001b[32m'should recover from network timeouts during cascading'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js:199:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T10:14:44.205Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\cascading-dropdowns-Issue--d4779-gracefully-during-cascading-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\cascading-dropdowns.spec.js",
+                        "column": 32,
+                        "line": 199
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-6970116c1a1023e9dba4",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 190,
+              "column": 3
+            },
+            {
+              "title": "should recover from network timeouts during cascading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13263,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Error state handling: Not found\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T10:15:16.725Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "67b7b6c62783e8eb5b1d-d58cfaddca54048f23f0",
+              "file": "cascading-dropdowns.spec.js",
+              "line": 202,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-18T10:06:35.589Z",
+    "duration": 535197.881,
+    "expected": 1,
+    "skipped": 4,
+    "unexpected": 8,
+    "flaky": 0
+  }
+}
