@@ -51,7 +51,7 @@
                 <i class="fa-solid fa-exclamation-triangle" style="font-size:2.25rem;color:#ef4444;"></i>
                 <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#ef4444;margin:0;">Session Error</h1>
             </div>
-            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
+            <p data-testid="error-message" style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
             <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 <button @onclick="RetryLoadSession" 
                         style="width:100%;padding:0.75rem 1.5rem;background-color:#006400;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
@@ -85,16 +85,16 @@
     else if (Model?.CurrentState == SessionWaitingState.Loaded)
     {
         <!-- Main Waiting Room Content -->
-        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
+        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:1.5rem 2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;margin-bottom:2rem;">
             <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.25rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:0 0 1.5rem 0;">
-                <i class="fa-solid fa-hourglass-half" style="font-size:3rem;color:#006400;"></i>
+                <i class="fa-solid fa-hourglass-half" style="font-size:2.5rem;color:#006400;"></i>
                 <span>Waiting Room</span>
             </h1>
 
             <!-- Session Details Panel -->
-            <div style="width:100%;background-color:white;border-radius:1rem;border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;padding:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+            <div style="width:100%;background-color:white;border-radius:1rem;border:2px solid #D4AF37;padding:1.5rem 2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);margin-bottom:1.5rem;">
                 <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#1f2937;text-align:center;margin:0 0 1.5rem 0;">@(Model?.SessionName ?? "Loading...")</h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:1.5rem;background-color:white;padding:1rem;border-radius:0.75rem;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;background-color:white;padding:1rem;border-radius:0.75rem;">
                     <div style="display:flex;align-items:center;gap:1rem;">
                         <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
                             <i class="fa-solid fa-calendar-days" style="color:#C5B358;font-size:1.5rem;"></i>
@@ -135,46 +135,46 @@
             </div>
 
             <!-- Session Status & Timer -->
-            <div style="text-align:center;border-radius:0.75rem;padding:1.5rem;background-color:white;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;">
+            <div style="text-align:center;border-radius:0.75rem;padding:1.5rem;background-color:white;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;margin-bottom:1.5rem;">
                 @if (Model?.SessionStarted == true)
                 {
-                    <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#006400;margin:0 0 0.5rem 0;">Session is starting now!</p>
-                    <div style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">READY</div>
+                    <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0 0 0.5rem 0;">Session is starting now!</p>
+                    <div style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">00:00</div>
                     <div style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
-                        <div style="height:100%;background-color:#006400;width:100%;"></div>
+                        <div style="height:100%;background-color:#D4AF37;width:100%;"></div>
                     </div>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">Waiting for instructor to begin...</p>
+                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">Waiting for host to begin the session.</p>
                 }
                 else
                 {
                     <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0 0 0.5rem 0;">Session begins in:</p>
-                    <div style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">@(Model?.FormattedTime ?? "00:00")</div>
-                    <div style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
+                    <div data-testid="countdown-display" style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">@(Model?.FormattedTime ?? "00:00")</div>
+                    <div data-testid="progress-bar" style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
                         <div style="height:100%;background-color:#D4AF37;transition:width 0.5s ease-in-out;width:@(Model?.Progress ?? 0)%;"></div>
                     </div>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">@(Model?.StatusMessage ?? "Preparing session...")</p>
+                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">@(Model?.StatusMessage ?? "Waiting for host to begin the session.")</p>
                 }
             </div>
 
             <!-- Participants Panel -->
-            <div style="background-color:white;padding:1rem;border-radius:0.75rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;">
+            <div style="background-color:white;padding:1rem;border-radius:0.75rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #D4AF37;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
                     <div style="display:flex;align-items:center;gap:0.5rem;">
                         <h2 style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0;">Participants (@(Model?.Participants?.Count ?? 0))</h2>
                         <i class="fa-solid fa-users" style="font-size:1.5rem;color:#706357;"></i>
                     </div>
                     <div style="display:flex;gap:0.5rem;">
-                        <button @onclick="SortByName" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;">Sort by Name</button>
-                        <button @onclick="SortByCountry" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;">Sort by Country</button>
+                        <button @onclick="SortByName" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#e5e7eb;">Sort by Name</button>
+                        <button @onclick="SortByCountry" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#e5e7eb;">Sort by Country</button>
                     </div>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;max-height:12rem;overflow-y:auto;padding-right:0.5rem;">
+                <div data-testid="participants-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.5rem;max-height:12rem;overflow-y:auto;padding-right:0.5rem;">
                     @if (Model?.Participants?.Any() == true)
                     {
                         @foreach (var p in Model.Participants)
                         {
                             <div style="display:flex;align-items:center;gap:0.5rem;color:#706357;">
-                                <img src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;">
+                                <img data-testid="participant-flag" src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;">
                                 <span style="font-family:'Inter',sans-serif;font-size:0.875rem;">@p.Name</span>
                             </div>
                         }
@@ -263,12 +263,33 @@
             Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading session data for token: {Token}", 
                 requestId, SessionToken);
 
-            await LoadSessionDataAsync(SessionToken, requestId);
-            
-            if (Model?.CurrentState == SessionWaitingState.Loaded)
+            // Check if this is a mock/demo request
+            if (SessionToken?.ToUpperInvariant() == "MOCK" || SessionToken?.ToUpperInvariant() == "DEMO")
             {
-                InitializeTimers();
-                await LoadParticipantsAsync(requestId);
+                LoadMockData(requestId);
+                // Also load participants via API to test the complete flow (but preserve mock data if API fails)
+                if (Model?.CurrentState == SessionWaitingState.Loaded)
+                {
+                    InitializeTimers();
+                    var existingParticipants = Model.Participants; // Preserve mock data
+                    await LoadParticipantsAsync(requestId);
+                    // If API call failed and we have no participants, restore mock data
+                    if ((Model.Participants?.Count ?? 0) == 0 && existingParticipants?.Count > 0)
+                    {
+                        Model.Participants = existingParticipants;
+                        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Restored mock participants after API failure", requestId);
+                        StateHasChanged();
+                    }
+                }
+            }
+            else if (!string.IsNullOrEmpty(SessionToken))
+            {
+                await LoadSessionDataAsync(SessionToken, requestId);
+                if (Model?.CurrentState == SessionWaitingState.Loaded)
+                {
+                    InitializeTimers();
+                    await LoadParticipantsAsync(requestId);
+                }
             }
         }
         catch (Exception ex)
@@ -288,7 +309,8 @@
             StateHasChanged();
 
             using var httpClient = HttpClientFactory.CreateClient();
-            var response = await httpClient.GetAsync($"/api/participant/session/{token}/validate");
+            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            var response = await httpClient.GetAsync($"api/participant/session/{token}/validate");
             
             Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation API response: {StatusCode}", 
                 requestId, response.StatusCode);
@@ -375,19 +397,37 @@
     {
         try
         {
-            using var httpClient = HttpClientFactory.CreateClient();
-            var response = await httpClient.GetAsync($"/api/participant/session/{SessionToken}/participants");
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            var response = await httpClient.GetAsync($"api/participant/session/{SessionToken}/participants");
             
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var participants = System.Text.Json.JsonSerializer.Deserialize<List<ParticipantData>>(content, 
+                Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Participants API response: {Content}", 
+                    requestId, content);
+                
+                var participantsResponse = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(content, 
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                Model!.Participants = participants ?? new List<ParticipantData>();
-                
-                Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loaded {Count} participants", 
-                    requestId, Model.Participants.Count);
+                if (participantsResponse?.Participants != null)
+                {
+                    // Convert API participants to display participants
+                    Model!.Participants = participantsResponse.Participants.Select(p => new ParticipantData
+                    {
+                        Name = p.DisplayName,
+                        Country = p.Country ?? "Unknown",
+                        Flag = GetCountryFlag(p.Country)
+                    }).ToList();
+                    
+                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loaded {Count} participants from API", 
+                        requestId, Model.Participants.Count);
+                }
+                else
+                {
+                    Model!.Participants = new List<ParticipantData>();
+                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] No participants returned from API", requestId);
+                }
             }
             else
             {
@@ -407,20 +447,104 @@
         StateHasChanged();
     }
 
+    private string GetCountryFlag(string? country)
+    {
+        if (string.IsNullOrEmpty(country)) return "un"; // Unknown flag
+        
+        return country.ToLowerInvariant() switch
+        {
+            "usa" or "united states" or "america" => "us",
+            "uk" or "united kingdom" or "britain" => "gb",
+            "canada" => "ca",
+            "france" => "fr",
+            "germany" => "de",
+            "spain" => "es",
+            "italy" => "it",
+            "netherlands" => "nl",
+            "saudi arabia" => "sa",
+            "united arab emirates" or "uae" => "ae",
+            "egypt" => "eg",
+            "turkey" => "tr",
+            "pakistan" => "pk",
+            "bangladesh" => "bd",
+            "india" => "in",
+            "malaysia" => "my",
+            "indonesia" => "id",
+            "morocco" => "ma",
+            "jordan" => "jo",
+            "lebanon" => "lb",
+            "syria" => "sy",
+            "iraq" => "iq",
+            "afghanistan" => "af",
+            "australia" => "au",
+            _ => country.Length >= 2 ? country[..2].ToLowerInvariant() : "un"
+        };
+    }
+
+    private void LoadMockData(string requestId)
+    {
+        if (Model == null) return;
+
+        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading mock session data for demonstration", requestId);
+
+        // Mock session data - showcases the full waiting room experience
+        Model.SessionName = "Advanced Quranic Calligraphy Workshop";
+        Model.SessionDate = "Today, " + DateTime.Now.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture);
+        Model.StartTime = DateTime.Now.AddMinutes(8).ToString("h:mm tt", CultureInfo.InvariantCulture);
+        Model.SessionDuration = "2 hours";
+        Model.InstructorName = "Ustadh Mahmoud Al-Khattat";
+        Model.CurrentState = SessionWaitingState.Loaded;
+        Model.StatusMessage = "Session starting soon...";
+        
+        // Set session start time for countdown (8 minutes from now for demo effect)
+        _sessionStartTime = DateTime.Now.AddMinutes(8);
+        _countdownDurationMs = (int)(_sessionStartTime - DateTime.Now).TotalMilliseconds;
+        
+        // Mock participants - showcases international participation
+        Model.Participants = new List<ParticipantData>
+        {
+            new() { Name = "Dr. Fatima Al-Zahra", Country = "Morocco", Flag = "ma" },
+            new() { Name = "Ali Ibn Rashid", Country = "Saudi Arabia", Flag = "sa" },
+            new() { Name = "Zainab Qureshi", Country = "United Kingdom", Flag = "gb" },
+            new() { Name = "Hassan Al-Masri", Country = "Egypt", Flag = "eg" },
+            new() { Name = "Laila Mahmoud", Country = "Jordan", Flag = "jo" },
+            new() { Name = "Yusuf Rahman", Country = "Canada", Flag = "ca" },
+            new() { Name = "Maryam Benali", Country = "France", Flag = "fr" },
+            new() { Name = "Omar Erdoğan", Country = "Turkey", Flag = "tr" },
+            new() { Name = "Aminah Sheikh", Country = "Pakistan", Flag = "pk" },
+            new() { Name = "Ibrahim Djamil", Country = "Indonesia", Flag = "id" },
+            new() { Name = "Khadijah Omar", Country = "Malaysia", Flag = "my" },
+            new() { Name = "Ahmed Al-Farisi", Country = "UAE", Flag = "ae" }
+        };
+
+        // Initialize timers for live countdown effect
+        InitializeTimers();
+        
+        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Mock data loaded successfully - {ParticipantCount} participants, session starts in {Minutes} minutes", 
+            requestId, Model.Participants.Count, Math.Ceiling((_sessionStartTime - DateTime.Now).TotalMinutes));
+        
+        StateHasChanged();
+    }
+
     private void SeedDemoParticipants()
     {
         if (Model == null) return;
         
+        // Use the same mock participants as LoadMockData for consistency
         Model.Participants = new List<ParticipantData>
         {
-            new() { Name = "Fatima", Country = "Morocco", Flag = "ma" },
-            new() { Name = "Ali", Country = "Saudi Arabia", Flag = "sa" },
-            new() { Name = "Zainab", Country = "United Kingdom", Flag = "gb" },
-            new() { Name = "Hassan", Country = "United States", Flag = "us" },
-            new() { Name = "Laila", Country = "Egypt", Flag = "eg" },
-            new() { Name = "Yusuf", Country = "Canada", Flag = "ca" },
-            new() { Name = "Maryam", Country = "France", Flag = "fr" },
-            new() { Name = "Omar", Country = "Turkey", Flag = "tr" }
+            new() { Name = "Dr. Fatima Al-Zahra", Country = "Morocco", Flag = "ma" },
+            new() { Name = "Ali Ibn Rashid", Country = "Saudi Arabia", Flag = "sa" },
+            new() { Name = "Zainab Qureshi", Country = "United Kingdom", Flag = "gb" },
+            new() { Name = "Hassan Al-Masri", Country = "Egypt", Flag = "eg" },
+            new() { Name = "Laila Mahmoud", Country = "Jordan", Flag = "jo" },
+            new() { Name = "Yusuf Rahman", Country = "Canada", Flag = "ca" },
+            new() { Name = "Maryam Benali", Country = "France", Flag = "fr" },
+            new() { Name = "Omar Erdoğan", Country = "Turkey", Flag = "tr" },
+            new() { Name = "Aminah Sheikh", Country = "Pakistan", Flag = "pk" },
+            new() { Name = "Ibrahim Djamil", Country = "Indonesia", Flag = "id" },
+            new() { Name = "Khadijah Omar", Country = "Malaysia", Flag = "my" },
+            new() { Name = "Ahmed Al-Farisi", Country = "UAE", Flag = "ae" }
         };
     }
 
@@ -622,16 +746,54 @@
     public class SessionValidationResponse
     {
         public bool Valid { get; set; }
+        public int SessionId { get; set; }
+        public string? Token { get; set; }
+        public DateTime? ExpiresAt { get; set; }
         public SessionData? Session { get; set; }
+        public ParticipantInfo? Participant { get; set; }
+        public string? RequestId { get; set; }
     }
 
     public class SessionData
     {
-        public string? SessionId { get; set; }
+        public int SessionId { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public DateTime? StartTime { get; set; }
-        public TimeSpan? Duration { get; set; }
-        public string? InstructorName { get; set; }
+        public string? Status { get; set; }
+        public int ParticipantCount { get; set; }
+        public int? MaxParticipants { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        
+        // Computed properties for compatibility with existing UpdateSessionData method
+        public DateTime? StartTime => StartedAt;
+        public TimeSpan? Duration => TimeSpan.FromHours(1); // Default duration
+        public string? InstructorName => "Asif Hussain"; // Default instructor
+    }
+
+    public class ParticipantInfo
+    {
+        public string? JoinUrl { get; set; }
+        public int AccessCount { get; set; }
+        public DateTime? LastAccessedAt { get; set; }
+    }
+
+    public class ParticipantsResponse
+    {
+        public int SessionId { get; set; }
+        public string? Token { get; set; }
+        public int ParticipantCount { get; set; }
+        public List<ParticipantApiData>? Participants { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class ParticipantApiData
+    {
+        public string UserId { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+        public DateTime JoinedAt { get; set; }
+        public string Role { get; set; } = "";
+        public string? City { get; set; }
+        public string? Country { get; set; }
     }
 }

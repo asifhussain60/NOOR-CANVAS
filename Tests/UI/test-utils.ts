@@ -43,8 +43,9 @@ export async function generateTestToken(request: APIRequestContext): Promise<Tok
         title: `Test Session ${Date.now()}`
     };
 
-    const response = await request.post('/api/host/generate-token', {
-        data: tokenRequest
+    const response = await request.post('https://localhost:9091/api/host/generate-token', {
+        data: tokenRequest,
+        ignoreHTTPSErrors: true
     });
 
     if (!response.ok()) {

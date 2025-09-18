@@ -51,7 +51,7 @@ namespace NoorCanvas.Core.Tests.Routing
         public void Issue18_LandingPage_ShouldRouteToRootAndLanding()
         {
             // Arrange
-            var landingPageType = typeof(Landing);
+            var landingPageType = typeof(NoorCanvas.Pages.UserLanding);
             var routeAttributes = landingPageType.GetCustomAttributes<RouteAttribute>();
 
             // Act
@@ -133,7 +133,7 @@ namespace NoorCanvas.Core.Tests.Routing
 
             // Assert
             Assert.Single(rootRouteComponents);
-            Assert.Equal(typeof(Landing), rootRouteComponents.First());
+            Assert.Equal(typeof(NoorCanvas.Pages.UserLanding), rootRouteComponents.First());
 
             _output.WriteLine($"✅ Issue-19 Test Passed: Root route (/) only mapped to Landing page");
             _output.WriteLine($"   Root route component: {rootRouteComponents.First().Name}");
@@ -187,8 +187,8 @@ namespace NoorCanvas.Core.Tests.Routing
 
         [Theory]
         [InlineData("/home", typeof(NoorCanvas.Pages.Index))]
-        [InlineData("/", typeof(Landing))]
-        [InlineData("/landing", typeof(Landing))]
+        [InlineData("/", typeof(NoorCanvas.Pages.UserLanding))]
+        [InlineData("/landing", typeof(NoorCanvas.Pages.UserLanding))]
         [InlineData("/counter", typeof(Counter))]
         [InlineData("/fetchdata", typeof(FetchData))]
         public void SpecificRoutes_ShouldMapToCorrectComponents(string route, Type expectedComponent)

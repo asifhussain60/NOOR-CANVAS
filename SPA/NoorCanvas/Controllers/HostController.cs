@@ -221,26 +221,26 @@ namespace NoorCanvas.Controllers
                     // Fetch fresh session info (title and description) from KSESSIONS database instead of using stale stored data
                     string sessionTitle = secureToken.Session.Title ?? "Session " + secureToken.Session.SessionId;
                     string sessionDescription = secureToken.Session.Description ?? "Session description not available";
-                    
+
                     if (secureToken.Session.KSessionsId.HasValue)
                     {
                         var ksessionInfo = await _kSessionsContext.Sessions
                             .Where(s => s.SessionId == secureToken.Session.KSessionsId.Value)
                             .Select(s => new { s.SessionName, s.Description })
                             .FirstOrDefaultAsync();
-                            
+
                         if (ksessionInfo != null)
                         {
                             if (!string.IsNullOrEmpty(ksessionInfo.SessionName))
                             {
                                 sessionTitle = ksessionInfo.SessionName;
                             }
-                            
+
                             if (!string.IsNullOrEmpty(ksessionInfo.Description))
                             {
                                 sessionDescription = ksessionInfo.Description;
                             }
-                            
+
                             _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Updated session info from KSESSIONS: Title='{Title}', Description='{Description}' for session {SessionId}",
                                 requestId, sessionTitle, sessionDescription, secureToken.Session.SessionId);
                         }
@@ -399,7 +399,7 @@ namespace NoorCanvas.Controllers
                 string? selectedSession = null;
                 string? selectedCategory = null;
                 string? selectedAlbum = null;
-                string? selectedCountry = null;
+                // Issue-112: selectedCountry removed from UI per design spec
                 string? sessionDate = null;
                 string? sessionTime = null;
                 int sessionDuration = 60;
@@ -440,15 +440,7 @@ namespace NoorCanvas.Controllers
                         _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedAlbum property");
                     }
 
-                    if (sessionData.TryGetProperty("selectedCountry", out var countryProp))
-                    {
-                        selectedCountry = countryProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedCountry: '{Value}'", selectedCountry);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedCountry property");
-                    }
+                    // Issue-112: selectedCountry extraction removed per design spec
 
                     if (sessionData.TryGetProperty("sessionDate", out var dateProp))
                     {
@@ -489,8 +481,8 @@ namespace NoorCanvas.Controllers
                             property.Name, property.Value.ToString(), property.Value.ValueKind);
                     }
 
-                    _logger.LogInformation("NOOR-HOST-OPENER: Parsed session data - Album: {Album}, Category: {Category}, Session: {Session}, Country: {Country}, Date: {Date}, Time: {Time}, Duration: {Duration}",
-                        selectedAlbum, selectedCategory, selectedSession, selectedCountry, sessionDate, sessionTime, sessionDuration);
+                    _logger.LogInformation("NOOR-HOST-OPENER: Parsed session data - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration} (Issue-112: Country field removed)",
+                        selectedAlbum, selectedCategory, selectedSession, sessionDate, sessionTime, sessionDuration);
                 }
                 catch (Exception parseEx)
                 {
@@ -498,23 +490,22 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { error = "Invalid session data format", details = parseEx.Message });
                 }
 
-                // Validate required fields
-                _logger.LogInformation("NOOR-HOST-OPENER: Validating required fields - Session: '{Session}', Category: '{Category}', Album: '{Album}', Country: '{Country}'",
-                    selectedSession, selectedCategory, selectedAlbum, selectedCountry);
+                // Validate required fields (Issue-112: Country field removed from UI per design spec)
+                _logger.LogInformation("NOOR-HOST-OPENER: Validating required fields - Session: '{Session}', Category: '{Category}', Album: '{Album}'",
+                    selectedSession, selectedCategory, selectedAlbum);
 
-                if (string.IsNullOrEmpty(selectedSession) || string.IsNullOrEmpty(selectedCategory) || string.IsNullOrEmpty(selectedAlbum) || string.IsNullOrEmpty(selectedCountry))
+                if (string.IsNullOrEmpty(selectedSession) || string.IsNullOrEmpty(selectedCategory) || string.IsNullOrEmpty(selectedAlbum))
                 {
-                    _logger.LogWarning("NOOR-HOST-OPENER: Validation failed - Session: '{Session}', Category: '{Category}', Album: '{Album}', Country: '{Country}'",
-                        selectedSession ?? "NULL", selectedCategory ?? "NULL", selectedAlbum ?? "NULL", selectedCountry ?? "NULL");
+                    _logger.LogWarning("NOOR-HOST-OPENER: Validation failed - Session: '{Session}', Category: '{Category}', Album: '{Album}'",
+                        selectedSession ?? "NULL", selectedCategory ?? "NULL", selectedAlbum ?? "NULL");
                     return BadRequest(new
                     {
-                        error = "Selected session, category, album, and country are required",
+                        error = "Selected session, category, and album are required",
                         received = new
                         {
                             selectedSession = selectedSession ?? "NULL",
                             selectedCategory = selectedCategory ?? "NULL",
-                            selectedAlbum = selectedAlbum ?? "NULL",
-                            selectedCountry = selectedCountry ?? "NULL"
+                            selectedAlbum = selectedAlbum ?? "NULL"
                         }
                     });
                 }
@@ -527,7 +518,7 @@ namespace NoorCanvas.Controllers
                         .Where(s => s.SessionId == ksessionId)
                         .Select(s => s.SessionName)
                         .FirstOrDefaultAsync();
-                    
+
                     if (!string.IsNullOrEmpty(ksession))
                     {
                         sessionTitle = ksession;

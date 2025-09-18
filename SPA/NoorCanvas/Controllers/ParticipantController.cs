@@ -64,26 +64,26 @@ namespace NoorCanvas.Controllers
                 // Fetch fresh session title from KSESSIONS database instead of using stale stored title
                 string sessionTitle = secureToken.Session?.Title ?? "Session " + secureToken.SessionId;
                 string sessionDescription = secureToken.Session?.Description ?? "Session description not available";
-                
+
                 if (secureToken.Session?.KSessionsId.HasValue == true)
                 {
                     var ksessionInfo = await _kSessionsContext.Sessions
                         .Where(s => s.SessionId == secureToken.Session.KSessionsId.Value)
                         .Select(s => new { s.SessionName, s.Description })
                         .FirstOrDefaultAsync();
-                        
+
                     if (ksessionInfo != null)
                     {
                         if (!string.IsNullOrEmpty(ksessionInfo.SessionName))
                         {
                             sessionTitle = ksessionInfo.SessionName;
                         }
-                        
+
                         if (!string.IsNullOrEmpty(ksessionInfo.Description))
                         {
                             sessionDescription = ksessionInfo.Description;
                         }
-                        
+
                         _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Updated session info from KSESSIONS: Title='{Title}', Description='{Description}' for session {SessionId}",
                             requestId, sessionTitle, sessionDescription, secureToken.SessionId);
                     }
@@ -278,6 +278,128 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogError(ex, "NOOR-ERROR: Failed to register participant");
                 return StatusCode(500, new { error = "Registration failed" });
+            }
+        }
+
+        /// <summary>
+        /// Get participants for a session using token (Phase 3.6 - Friendly Tokens)
+        /// </summary>
+        [HttpGet("session/{token}/participants")]
+        public async Task<IActionResult> GetSessionParticipants(string token)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+
+            _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Getting participants for session token: {Token}",
+                requestId, token);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    return BadRequest(new { error = "Invalid token format", message = "Token is required", requestId });
+                }
+
+                // Handle mock tokens for testing/demo purposes
+                if (token.Equals("MOCK", StringComparison.OrdinalIgnoreCase) ||
+                    token.Equals("DEMO", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Returning mock participants for token: {Token}",
+                        requestId, token);
+
+                    var mockParticipants = new[]
+                    {
+                        new { userId = "1", displayName = "Dr. Fatima Al-Zahra", joinedAt = DateTime.UtcNow.AddMinutes(-15), role = "participant", city = "Cairo", country = "Egypt" },
+                        new { userId = "2", displayName = "Ali Ibn Rashid", joinedAt = DateTime.UtcNow.AddMinutes(-12), role = "participant", city = "Dubai", country = "UAE" },
+                        new { userId = "3", displayName = "Zainab Qureshi", joinedAt = DateTime.UtcNow.AddMinutes(-10), role = "participant", city = "Karachi", country = "Pakistan" },
+                        new { userId = "4", displayName = "Omar Hassan", joinedAt = DateTime.UtcNow.AddMinutes(-8), role = "participant", city = "Tunis", country = "Tunisia" },
+                        new { userId = "5", displayName = "Aisha Rahman", joinedAt = DateTime.UtcNow.AddMinutes(-6), role = "participant", city = "Dhaka", country = "Bangladesh" },
+                        new { userId = "6", displayName = "Yusuf Al-Maghribi", joinedAt = DateTime.UtcNow.AddMinutes(-5), role = "participant", city = "Casablanca", country = "Morocco" },
+                        new { userId = "7", displayName = "Mariam Khoury", joinedAt = DateTime.UtcNow.AddMinutes(-4), role = "participant", city = "Beirut", country = "Lebanon" },
+                        new { userId = "8", displayName = "Ahmed El-Sayed", joinedAt = DateTime.UtcNow.AddMinutes(-3), role = "participant", city = "Alexandria", country = "Egypt" },
+                        new { userId = "9", displayName = "Hafsa Nasir", joinedAt = DateTime.UtcNow.AddMinutes(-2), role = "participant", city = "Lahore", country = "Pakistan" },
+                        new { userId = "10", displayName = "Ibrahim Maliki", joinedAt = DateTime.UtcNow.AddMinutes(-1), role = "participant", city = "Rabat", country = "Morocco" },
+                        new { userId = "11", displayName = "Khadija Touré", joinedAt = DateTime.UtcNow.AddMinutes(-1), role = "participant", city = "Dakar", country = "Senegal" },
+                        new { userId = "12", displayName = "Bilal Osman", joinedAt = DateTime.UtcNow, role = "participant", city = "Istanbul", country = "Turkey" }
+                    };
+
+                    return Ok(new
+                    {
+                        sessionId = "mock-session-123",
+                        token,
+                        participantCount = mockParticipants.Length,
+                        participants = mockParticipants,
+                        requestId
+                    });
+                }
+
+                if (token.Length != 8)
+                {
+                    return BadRequest(new { error = "Invalid token format", message = "Token must be 8 characters", requestId });
+                }
+
+                // Validate the token first
+                var secureToken = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
+                if (secureToken?.Session == null)
+                {
+                    return NotFound(new { error = "Session not found or token invalid", requestId });
+                }
+
+                var sessionId = secureToken.Session.SessionId;
+
+                // Get participants from SessionParticipants table (active participants)
+                var participants = await _context.SessionParticipants
+                    .Where(sp => sp.SessionId == sessionId && sp.JoinedAt != null && sp.LeftAt == null)
+                    .Select(sp => new
+                    {
+                        userId = sp.UserId,
+                        displayName = sp.DisplayName ?? "Anonymous",
+                        joinedAt = sp.JoinedAt ?? DateTime.UtcNow,
+                        role = "participant",
+                        city = (string?)null,
+                        country = (string?)null
+                    })
+                    .ToListAsync();
+
+                // Also get registered participants from Registrations table
+                var registrations = await _context.Registrations
+                    .Include(r => r.User)
+                    .Where(r => r.SessionId == sessionId)
+                    .Select(r => new
+                    {
+                        userId = r.UserId.ToString(), // Convert Guid to string to match SessionParticipant.UserId
+                        displayName = (r.User != null ? r.User.Name : null) ?? "Unknown User", // Ensure non-null
+                        joinedAt = r.JoinTime,
+                        role = "registered",
+                        city = r.User != null ? r.User.City : null,
+                        country = r.User != null ? r.User.Country : null
+                    })
+                    .ToListAsync();
+
+                // Combine and deduplicate participants
+                var allParticipants = participants
+                    .Union(registrations)
+                    .GroupBy(p => p.userId)
+                    .Select(g => g.OrderBy(p => p.role == "participant" ? 0 : 1).First()) // Prefer active participants
+                    .OrderBy(p => p.joinedAt)
+                    .ToList();
+
+                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Found {Count} participants for session {SessionId}",
+                    requestId, allParticipants.Count, sessionId);
+
+                return Ok(new
+                {
+                    sessionId,
+                    token,
+                    participantCount = allParticipants.Count,
+                    participants = allParticipants,
+                    requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-PARTICIPANT: [{RequestId}] Failed to get participants for token: {Token}",
+                    requestId, token);
+                return StatusCode(500, new { error = "Failed to get participants", requestId });
             }
         }
 

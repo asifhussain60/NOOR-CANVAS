@@ -105,5 +105,6 @@
   "// === Copilot Chat Enhancement ===": "",
   "workbench.panel.defaultLocation": "right",
   "chat.editor.fontSize": 14,
-  "chat.editor.wordWrap": "on"
+  "chat.editor.wordWrap": "on",
+  "testing.automaticallyOpenTestResults": "neverOpen"
 }
