@@ -24,39 +24,21 @@
 <!-- Root Container with NOOR Canvas Background -->
 <div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
     
-    <!-- NOOR Canvas Logo -->
-    <div style="position:absolute;top:1.5rem;display:flex;align-items:center;justify-content:center;text-align:center;">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-             alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-             style="max-width:150px;height:auto;" />
-    </div>
-    
     <!-- Main Component Container -->
-    <div style="width:100%;max-width:46.4rem;background-color:#FFFFFF;border-radius:1.5rem;padding:1.5rem 2rem;gap:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;margin-top:120px;">
+    <div style="width:100%;max-width:46.4rem;background-color:#FFFFFF;border-radius:1.5rem;padding:1.5rem 2rem;gap:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
+        
+        <!-- NOOR Canvas Logo -->
+        <div style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+            <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                 alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                 style="max-width:150px;height:auto;margin:0 auto;" />
+        </div>
         
         <!-- Title Section -->
         <h1 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:2rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:1.5rem;">
             <i class="fa-solid fa-user-tie" style="font-size:2.5rem;color:#006400;"></i>
             <span>Host Session Opener</span>
         </h1>
-
-        <!-- Debug Information Panel -->
-        <div style="background-color:#f1f5f9;border:1px solid #cbd5e1;border-radius:0.5rem;padding:1rem;margin-bottom:1.5rem;">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-                <div style="display:flex;align-items:center;gap:0.5rem;">
-                    <i class="fa-solid fa-info-circle" style="color:#3b82f6;"></i>
-                    <span style="font-weight:600;color:#1e293b;font-size:0.875rem;">Debug Info:</span>
-                </div>
-                <div style="display:flex;gap:1.5rem;font-size:0.875rem;color:#475569;">
-                    <span><strong>Album:</strong> @(SelectedAlbum ?? "Not selected")</span>
-                    <span><strong>Category:</strong> @(SelectedCategory ?? "Not selected")</span>
-                    <span><strong>Session:</strong> @(SelectedSession ?? "Not selected")</span>
-                </div>
-                <div style="font-size:0.75rem;color:#64748b;">
-                    <span>Target: Album: 18, Category: 55</span>
-                </div>
-            </div>
-        </div>
 
         <!-- Session Panel -->
         <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);text-align:center;">
@@ -130,6 +112,8 @@
                                 }
                             </select>
                         </div>
+
+
                     </div>
 
                     <!-- Host Inputs (Right Column) -->
@@ -174,7 +158,7 @@
         <!-- Link Panel - Hidden by default, shown after session is opened -->
         @if (ShowSessionUrlPanel)
         {
-            <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+            <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);margin-top:1.5rem;">
                 
                 <!-- Session URL Title -->
                 <h3 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.25rem;color:#006400;margin-bottom:1rem;">Session URL</h3>
@@ -209,13 +193,13 @@
     {
         public string? LogoText { get; set; } = "NOOR Canvas";
         public string? HostFriendlyToken { get; set; }
-        // TODO: ISSUE-106-CASCADING - Removed hardcoded values, using proper cascading dropdown loading with delays
+        // Using cascading dropdown loading
         public string? SelectedAlbum { get; set; }
         public string? SelectedCategory { get; set; }
         public string? SelectedSession { get; set; }
         public DateTime SessionDate { get; set; } = DateTime.Today;
         public string SessionTime { get; set; } = "";
-        public int? SessionDuration { get; set; } = 60; // TODO: TEMPORARY - Default duration for Issue-106 testing
+        public int? SessionDuration { get; set; } = 60; // Default duration
         public string ErrorMessage { get; set; } = "";
         public bool IsFormValid { get; set; }
         public bool Copied { get; set; }
@@ -258,14 +242,16 @@
         public bool IsActive { get; set; }
     }
 
+
+
     private HostSessionOpenerViewModel Model { get; set; } = new();
     
-    // TODO: TEMPORARY - Remove after Issue-106 testing is complete
-    private bool IsSettingDefaultValues { get; set; } = false;
+
     
     private List<AlbumData> Albums { get; set; } = new();
     private List<CategoryData> Categories { get; set; } = new();
     private List<SessionData> Sessions { get; set; } = new();
+
     private HttpClient HttpClient { get; set; } = null!;
     
     // Properties for direct binding (from mock)
@@ -300,6 +286,8 @@
         get => Model.SelectedSession;
         set => Model.SelectedSession = value;
     }
+    
+
     
     private DateTime SessionDate
     {
@@ -357,7 +345,7 @@
         HttpClient = HttpClientFactory.CreateClient();
         HttpClient.BaseAddress = new Uri("https://localhost:9091/");
         
-        // Initialize with token if provided
+        // CRITICAL: No token provided - redirect to authentication
         if (!string.IsNullOrEmpty(Token))
         {
             Model.HostFriendlyToken = Token;
@@ -365,22 +353,17 @@
         }
         else
         {
-            // Use demo token for testing
-            Model.HostFriendlyToken = "EP9M9NUN";
+            Logger.LogCritical("NOOR-SECURITY-CRITICAL: Host-SessionOpener accessed without authentication token. Redirecting to host login.");
+            Navigation.NavigateTo("/host/landing", forceLoad: true);
+            return;
         }
         
         // Initialize with demo data for immediate functionality
         Model.LogoText = "NOOR Canvas - Host Session Management";
         Model.SessionUrl = "https://localhost:9091/session/waiting/demo-session";
         
-        // TODO: ISSUE-106-CASCADING - Load albums first, then set cascading values with delays
+        // Load albums for user selection
         await LoadAlbumsAsync();
-        
-        // Set values with proper cascading delays: Album=18 (wait 2s) → Category=55 (wait 2s) → Session=1281
-        await SetCascadingDefaultValuesAsync();
-        
-        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Completed cascading dropdown loading: Album={Album}, Category={Category}, Session={Session}", 
-            Model.SelectedAlbum, Model.SelectedCategory, Model.SelectedSession);
         
         ValidateForm();
     }
@@ -416,84 +399,19 @@
         }
     }
 
-    /// <summary>
-    /// TODO: ISSUE-106-CASCADING - Sets specific values with cascading dropdown loading and 2-second delays
-    /// Load Albumid=18, wait 2s, load Categoryid=55, wait 2s, then load Sessionid=1281
-    /// </summary>
-    private async Task SetCascadingDefaultValuesAsync()
-    {
-        try
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Starting cascading dropdown loading: Album=18 → Category=55 → Session=1281");
-            
-            // Set flag to prevent clearing during value setting
-            IsSettingDefaultValues = true;
-            
-            // Step 1: Set Album=18 and wait 2 seconds
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 1: Setting Album=18");
-            Model.SelectedAlbum = "18";
-            StateHasChanged();
-            
-            // Trigger OnAlbumChanged to load categories for album 18
-            await OnAlbumChanged();
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 1 complete, waiting 2 seconds for categories to load...");
-            await Task.Delay(2000); // Wait 2 seconds as requested
-            
-            // Step 2: Set Category=55 and wait 2 seconds
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 2: Setting Category=55");
-            Model.SelectedCategory = "55";
-            StateHasChanged();
-            
-            // Trigger OnCategoryChanged to load sessions for category 55
-            await OnCategoryChanged();
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 2 complete, waiting 2 seconds for sessions to load...");
-            await Task.Delay(2000); // Wait 2 seconds as requested
-            
-            // Step 3: Set Session=1281
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Step 3: Setting Session=1281");
-            Model.SelectedSession = "1281";
-            StateHasChanged();
-            
-            // Set default date and time values
-            SessionDate = DateTime.Today.AddDays(1); // Tomorrow
-            SessionTime = "10:00 AM"; // Default morning time
-            SessionDuration = 60; // Default 1 hour
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Set default date: {Date}, time: {Time}, duration: {Duration}", 
-                SessionDate.ToShortDateString(), SessionTime, SessionDuration);
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Cascading loading completed - Final values: Album={Album}, Category={Category}, Session={Session}",
-                Model.SelectedAlbum, Model.SelectedCategory, Model.SelectedSession);
-                
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Error during cascading default values loading");
-        }
-        finally
-        {
-            // Reset flag after setting defaults
-            IsSettingDefaultValues = false;
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] IsSettingDefaultValues flag reset to false");
-        }
-    }
+
+
+
 
     private async Task OnAlbumChanged()
     {
         try
         {
-            // TODO: TEMPORARY - Don't clear during default value setting (Issue-106)
-            if (!IsSettingDefaultValues)
-            {
-                // Reset dependent selections
-                Model.SelectedCategory = null;
-                Model.SelectedSession = null;
-                Categories.Clear();
-                Sessions.Clear();
-            }
+            // Reset dependent selections when album changes
+            Model.SelectedCategory = null;
+            Model.SelectedSession = null;
+            Categories.Clear();
+            Sessions.Clear();
             
             if (string.IsNullOrEmpty(Model.SelectedAlbum) || !int.TryParse(Model.SelectedAlbum, out int albumId))
             {
@@ -534,13 +452,9 @@
     {
         try
         {
-            // TODO: TEMPORARY - Don't clear during default value setting (Issue-106)
-            if (!IsSettingDefaultValues)
-            {
-                // Reset dependent selection
-                Model.SelectedSession = null;
-                Sessions.Clear();
-            }
+            // Reset dependent selection when category changes
+            Model.SelectedSession = null;
+            Sessions.Clear();
             
             if (string.IsNullOrEmpty(Model.SelectedCategory) || !int.TryParse(Model.SelectedCategory, out int categoryId))
             {

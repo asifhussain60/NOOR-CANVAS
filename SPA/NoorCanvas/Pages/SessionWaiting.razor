@@ -1,0 +1,637 @@
+@page "/session/waiting/{sessionToken?}"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.HtmlRendering
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using System.Timers
+@using System.Globalization
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<SessionWaiting> Logger
+
+<PageTitle>NOOR Canvas - Session Waiting Room</PageTitle>
+
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</HeadContent>
+
+<div style="background-color:#F8F5F1;display:flex;flex-direction:column;align-items:center;padding:1rem;min-height:100vh;">
+
+    <!-- Logo -->
+    <div style="display:flex;justify-content:center;margin-bottom:1.5rem;margin-top:2rem;">
+        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+             alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+             style="max-width:150px;height:auto;margin:0 auto;" />
+    </div>
+
+    @if (Model?.CurrentState == SessionWaitingState.Loading)
+    {
+        <!-- Loading State -->
+        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size:2.25rem;color:#006400;"></i>
+                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#006400;margin:0;">Loading Session...</h1>
+            </div>
+            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0;">Please wait while we prepare your session.</p>
+        </div>
+    }
+    else if (Model?.CurrentState == SessionWaitingState.SessionNotFound || Model?.CurrentState == SessionWaitingState.InvalidToken)
+    {
+        <!-- Error State -->
+        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fecaca;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
+                <i class="fa-solid fa-exclamation-triangle" style="font-size:2.25rem;color:#ef4444;"></i>
+                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#ef4444;margin:0;">Session Error</h1>
+            </div>
+            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <button @onclick="RetryLoadSession" 
+                        style="width:100%;padding:0.75rem 1.5rem;background-color:#006400;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
+                    <i class="fa-solid fa-refresh" style="margin-right:0.5rem;"></i>
+                    Try Again
+                </button>
+                <button @onclick="NavigateHome" 
+                        style="width:100%;padding:0.75rem 1.5rem;background-color:#6b7280;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
+                    <i class="fa-solid fa-home" style="margin-right:0.5rem;"></i>
+                    Return Home
+                </button>
+            </div>
+        </div>
+    }
+    else if (Model?.CurrentState == SessionWaitingState.NetworkError)
+    {
+        <!-- Network Error State -->
+        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fed7aa;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
+                <i class="fa-solid fa-wifi" style="font-size:2.25rem;color:#f97316;"></i>
+                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#f97316;margin:0;">Connection Error</h1>
+            </div>
+            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">Unable to connect to the server. Please check your internet connection.</p>
+            <button @onclick="RetryLoadSession" 
+                    style="width:100%;padding:0.75rem 1.5rem;background-color:#006400;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
+                <i class="fa-solid fa-refresh" style="margin-right:0.5rem;"></i>
+                Retry Connection
+            </button>
+        </div>
+    }
+    else if (Model?.CurrentState == SessionWaitingState.Loaded)
+    {
+        <!-- Main Waiting Room Content -->
+        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
+            <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.25rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:0 0 1.5rem 0;">
+                <i class="fa-solid fa-hourglass-half" style="font-size:3rem;color:#006400;"></i>
+                <span>Waiting Room</span>
+            </h1>
+
+            <!-- Session Details Panel -->
+            <div style="width:100%;background-color:white;border-radius:1rem;border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;padding:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+                <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#1f2937;text-align:center;margin:0 0 1.5rem 0;">@(Model?.SessionName ?? "Loading...")</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:1.5rem;background-color:white;padding:1rem;border-radius:0.75rem;">
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
+                            <i class="fa-solid fa-calendar-days" style="color:#C5B358;font-size:1.5rem;"></i>
+                        </div>
+                        <div style="text-align:left;">
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Date</p>
+                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.SessionDate ?? "Today")</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
+                            <i class="fa-solid fa-clock" style="color:#C5B358;font-size:1.5rem;"></i>
+                        </div>
+                        <div style="text-align:left;">
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Start Time</p>
+                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.StartTime ?? "2:00 PM EST")</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
+                            <i class="fa-solid fa-hourglass-half" style="color:#C5B358;font-size:1.5rem;"></i>
+                        </div>
+                        <div style="text-align:left;">
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Duration</p>
+                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.SessionDuration ?? "1 hour")</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
+                            <i class="fa-solid fa-user-tie" style="color:#C5B358;font-size:1.5rem;"></i>
+                        </div>
+                        <div style="text-align:left;">
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Instructor</p>
+                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.InstructorName ?? "Asif Hussain")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Status & Timer -->
+            <div style="text-align:center;border-radius:0.75rem;padding:1.5rem;background-color:white;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;">
+                @if (Model?.SessionStarted == true)
+                {
+                    <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#006400;margin:0 0 0.5rem 0;">Session is starting now!</p>
+                    <div style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">READY</div>
+                    <div style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
+                        <div style="height:100%;background-color:#006400;width:100%;"></div>
+                    </div>
+                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">Waiting for instructor to begin...</p>
+                }
+                else
+                {
+                    <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0 0 0.5rem 0;">Session begins in:</p>
+                    <div style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">@(Model?.FormattedTime ?? "00:00")</div>
+                    <div style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
+                        <div style="height:100%;background-color:#D4AF37;transition:width 0.5s ease-in-out;width:@(Model?.Progress ?? 0)%;"></div>
+                    </div>
+                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">@(Model?.StatusMessage ?? "Preparing session...")</p>
+                }
+            </div>
+
+            <!-- Participants Panel -->
+            <div style="background-color:white;padding:1rem;border-radius:0.75rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <h2 style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0;">Participants (@(Model?.Participants?.Count ?? 0))</h2>
+                        <i class="fa-solid fa-users" style="font-size:1.5rem;color:#706357;"></i>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button @onclick="SortByName" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;">Sort by Name</button>
+                        <button @onclick="SortByCountry" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;">Sort by Country</button>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;max-height:12rem;overflow-y:auto;padding-right:0.5rem;">
+                    @if (Model?.Participants?.Any() == true)
+                    {
+                        @foreach (var p in Model.Participants)
+                        {
+                            <div style="display:flex;align-items:center;gap:0.5rem;color:#706357;">
+                                <img src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;">
+                                <span style="font-family:'Inter',sans-serif;font-size:0.875rem;">@p.Name</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="grid-column:1 / -1;text-align:center;color:#706357;font-family:'Inter',sans-serif;font-size:0.875rem;padding:1rem 0;">
+                            No participants yet. You're the first!
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Connection Status -->
+            @if (Model?.CurrentState == SessionWaitingState.ConnectionIssue)
+            {
+                <div style="background-color:#fefce8;border:1px solid #fde047;border-radius:0.75rem;padding:1rem;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <i class="fa-solid fa-exclamation-triangle" style="color:#ca8a04;"></i>
+                        <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#a16207;margin:0;">Connection unstable. Updates may be delayed.</p>
+                        <button @onclick="RetryConnection" style="color:#a16207;background:none;border:none;text-decoration:underline;cursor:pointer;">Retry</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- CSS Animation for FontAwesome Spinner -->
+<style>
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+@code {
+    [Parameter] public string? SessionToken { get; set; }
+    
+    private SessionWaitingViewModel? Model { get; set; }
+    private System.Timers.Timer? _countdownTimer;
+    private System.Timers.Timer? _participantUpdateTimer;
+    private DateTime _sessionStartTime;
+    private int _countdownDurationMs = 300000; // 5 minutes default
+    private int _retryAttempts = 0;
+    private const int MaxRetryAttempts = 3;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] SessionWaiting OnInitialized - SessionToken: {SessionToken}", 
+            requestId, SessionToken ?? "null");
+
+        Model = new SessionWaitingViewModel
+        {
+            LogoText = "NOOR Canvas",
+            CurrentState = SessionWaitingState.Loading,
+            SessionName = "Loading Session...",
+            SessionDate = "Today",
+            StartTime = "Loading...",
+            SessionDuration = "Loading...",
+            InstructorName = "Loading...",
+            FormattedTime = "00:00",
+            Progress = 0,
+            StatusMessage = "Preparing session...",
+            Participants = new List<ParticipantData>(),
+            SessionStarted = false
+        };
+
+        await InitializeSessionAsync(requestId);
+    }
+
+    private async Task InitializeSessionAsync(string requestId)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(SessionToken))
+            {
+                Logger.LogWarning("NOOR-DEBUG: [{RequestId}] No session token provided", requestId);
+                Model!.CurrentState = SessionWaitingState.InvalidToken;
+                Model.ErrorMessage = "No session token provided. Please use a valid session link.";
+                StateHasChanged();
+                return;
+            }
+
+            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading session data for token: {Token}", 
+                requestId, SessionToken);
+
+            await LoadSessionDataAsync(SessionToken, requestId);
+            
+            if (Model?.CurrentState == SessionWaitingState.Loaded)
+            {
+                InitializeTimers();
+                await LoadParticipantsAsync(requestId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Fatal error during session initialization", requestId);
+            Model!.CurrentState = SessionWaitingState.CriticalError;
+            Model.ErrorMessage = "A critical error occurred while loading the session.";
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadSessionDataAsync(string token, string requestId)
+    {
+        try
+        {
+            Model!.CurrentState = SessionWaitingState.Loading;
+            StateHasChanged();
+
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync($"/api/participant/session/{token}/validate");
+            
+            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation API response: {StatusCode}", 
+                requestId, response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var validationResult = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(content, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (validationResult?.Valid == true && validationResult.Session != null)
+                {
+                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation successful - SessionID: {SessionId}, Title: {Title}", 
+                        requestId, validationResult.Session.SessionId, validationResult.Session.Title);
+
+                    UpdateSessionData(validationResult.Session);
+                    Model.CurrentState = SessionWaitingState.Loaded;
+                    _retryAttempts = 0; // Reset retry counter on success
+                }
+                else
+                {
+                    Logger.LogWarning("NOOR-DEBUG: [{RequestId}] Session validation returned invalid result", requestId);
+                    Model.CurrentState = SessionWaitingState.InvalidToken;
+                    Model.ErrorMessage = "Invalid session token. Please check your session link.";
+                }
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Model.CurrentState = SessionWaitingState.SessionNotFound;
+                Model.ErrorMessage = "Session not found. The session may have been canceled or expired.";
+            }
+            else
+            {
+                Logger.LogError("NOOR-DEBUG: [{RequestId}] Session validation failed with status: {StatusCode}", 
+                    requestId, response.StatusCode);
+                Model.CurrentState = SessionWaitingState.ApiError;
+                Model.ErrorMessage = $"Server error ({response.StatusCode}). Please try again later.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Network error during session validation", requestId);
+            Model!.CurrentState = SessionWaitingState.NetworkError;
+            Model.ErrorMessage = "Network error. Please check your internet connection.";
+        }
+        catch (TaskCanceledException ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Request timeout during session validation", requestId);
+            Model!.CurrentState = SessionWaitingState.Timeout;
+            Model.ErrorMessage = "Request timed out. Please try again.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Unexpected error during session validation", requestId);
+            Model!.CurrentState = SessionWaitingState.CriticalError;
+            Model.ErrorMessage = "An unexpected error occurred. Please try again.";
+        }
+        
+        StateHasChanged();
+    }
+
+    private void UpdateSessionData(SessionData session)
+    {
+        if (Model == null) return;
+
+        Model.SessionName = session.Title ?? "Unknown Session";
+        Model.SessionDate = FormatDate(session.StartTime);
+        Model.StartTime = FormatTime(session.StartTime);
+        Model.SessionDuration = FormatDuration(session.Duration);
+        Model.InstructorName = session.InstructorName ?? "Asif Hussain";
+        
+        // Set session start time for countdown
+        _sessionStartTime = session.StartTime ?? DateTime.Now.AddMinutes(5);
+        _countdownDurationMs = (int)(_sessionStartTime - DateTime.Now).TotalMilliseconds;
+        
+        if (_countdownDurationMs <= 0)
+        {
+            Model.SessionStarted = true;
+            Model.StatusMessage = "Session is ready to begin!";
+        }
+    }
+
+    private async Task LoadParticipantsAsync(string requestId)
+    {
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync($"/api/participant/session/{SessionToken}/participants");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var participants = System.Text.Json.JsonSerializer.Deserialize<List<ParticipantData>>(content, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                Model!.Participants = participants ?? new List<ParticipantData>();
+                
+                Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loaded {Count} participants", 
+                    requestId, Model.Participants.Count);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-DEBUG: [{RequestId}] Failed to load participants: {StatusCode}", 
+                    requestId, response.StatusCode);
+                
+                // Fallback to demo data for better UX
+                SeedDemoParticipants();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Error loading participants", requestId);
+            SeedDemoParticipants();
+        }
+        
+        StateHasChanged();
+    }
+
+    private void SeedDemoParticipants()
+    {
+        if (Model == null) return;
+        
+        Model.Participants = new List<ParticipantData>
+        {
+            new() { Name = "Fatima", Country = "Morocco", Flag = "ma" },
+            new() { Name = "Ali", Country = "Saudi Arabia", Flag = "sa" },
+            new() { Name = "Zainab", Country = "United Kingdom", Flag = "gb" },
+            new() { Name = "Hassan", Country = "United States", Flag = "us" },
+            new() { Name = "Laila", Country = "Egypt", Flag = "eg" },
+            new() { Name = "Yusuf", Country = "Canada", Flag = "ca" },
+            new() { Name = "Maryam", Country = "France", Flag = "fr" },
+            new() { Name = "Omar", Country = "Turkey", Flag = "tr" }
+        };
+    }
+
+    private void InitializeTimers()
+    {
+        // Countdown timer
+        _countdownTimer = new System.Timers.Timer(1000); // Update every second
+        _countdownTimer.Elapsed += UpdateCountdown;
+        _countdownTimer.Enabled = true;
+
+        // Participant update timer
+        _participantUpdateTimer = new System.Timers.Timer(30000); // Update every 30 seconds
+        _participantUpdateTimer.Elapsed += async (s, e) => await UpdateParticipants();
+        _participantUpdateTimer.Enabled = true;
+    }
+
+    private void UpdateCountdown(object? source, ElapsedEventArgs e)
+    {
+        if (Model == null || Model.SessionStarted) return;
+
+        try
+        {
+            var timeLeft = _sessionStartTime - DateTime.Now;
+            
+            if (timeLeft.TotalMilliseconds <= 0)
+            {
+                Model.SessionStarted = true;
+                Model.FormattedTime = "00:00";
+                Model.Progress = 100;
+                Model.StatusMessage = "Session is ready to begin!";
+                _countdownTimer?.Stop();
+            }
+            else
+            {
+                var totalMinutes = Math.Floor(timeLeft.TotalMinutes);
+                var seconds = timeLeft.Seconds;
+                Model.FormattedTime = $"{totalMinutes:00}:{seconds:00}";
+                
+                var progress = ((_countdownDurationMs - timeLeft.TotalMilliseconds) / _countdownDurationMs) * 100;
+                Model.Progress = Math.Max(0, Math.Min(100, (int)progress));
+                
+                if (timeLeft.TotalMinutes < 1)
+                {
+                    Model.StatusMessage = "Starting very soon...";
+                }
+                else if (timeLeft.TotalMinutes < 5)
+                {
+                    Model.StatusMessage = "Starting soon...";
+                }
+                else
+                {
+                    Model.StatusMessage = "Waiting for session to begin.";
+                }
+            }
+
+            InvokeAsync(() => StateHasChanged());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error updating countdown timer");
+        }
+    }
+
+    private async Task UpdateParticipants()
+    {
+        if (Model?.CurrentState != SessionWaitingState.Loaded) return;
+        
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        await LoadParticipantsAsync(requestId);
+    }
+
+    private async Task RetryLoadSession()
+    {
+        if (_retryAttempts >= MaxRetryAttempts)
+        {
+            Model!.ErrorMessage = "Maximum retry attempts exceeded. Please refresh the page or contact support.";
+            return;
+        }
+        
+        _retryAttempts++;
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Retrying session load, attempt {Attempt}", 
+            requestId, _retryAttempts);
+            
+        await InitializeSessionAsync(requestId);
+    }
+
+    private async Task RetryConnection()
+    {
+        Model!.CurrentState = SessionWaitingState.Loaded;
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        await UpdateParticipants();
+    }
+
+    private void NavigateHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private void SortByName()
+    {
+        if (Model?.Participants != null)
+        {
+            Model.Participants = Model.Participants.OrderBy(p => p.Name).ToList();
+            StateHasChanged();
+        }
+    }
+
+    private void SortByCountry()
+    {
+        if (Model?.Participants != null)
+        {
+            Model.Participants = Model.Participants.OrderBy(p => p.Country).ToList();
+            StateHasChanged();
+        }
+    }
+
+    private static string FormatDate(DateTime? dateTime)
+    {
+        if (!dateTime.HasValue) return "Today";
+        
+        var date = dateTime.Value.Date;
+        var today = DateTime.Today;
+        
+        if (date == today) return "Today";
+        if (date == today.AddDays(1)) return "Tomorrow";
+        
+        return date.ToString("MMM dd, yyyy");
+    }
+
+    private static string FormatTime(DateTime? dateTime)
+    {
+        return dateTime?.ToString("h:mm tt") ?? "TBD";
+    }
+
+    private static string FormatDuration(TimeSpan? duration)
+    {
+        if (!duration.HasValue) return "1 hour";
+        
+        var hours = duration.Value.Hours;
+        var minutes = duration.Value.Minutes;
+        
+        if (hours > 0 && minutes > 0)
+            return $"{hours}h {minutes}m";
+        if (hours > 0)
+            return $"{hours} hour{(hours > 1 ? "s" : "")}";
+        if (minutes > 0)
+            return $"{minutes} minute{(minutes > 1 ? "s" : "")}";
+            
+        return "30 minutes";
+    }
+
+    public void Dispose()
+    {
+        _countdownTimer?.Stop();
+        _countdownTimer?.Dispose();
+        _participantUpdateTimer?.Stop();
+        _participantUpdateTimer?.Dispose();
+    }
+
+    // ViewModel and Data Classes
+    public class SessionWaitingViewModel
+    {
+        public string? LogoText { get; set; }
+        public SessionWaitingState CurrentState { get; set; }
+        public string? SessionName { get; set; }
+        public string? SessionDate { get; set; }
+        public string? StartTime { get; set; }
+        public string? SessionDuration { get; set; }
+        public string? InstructorName { get; set; }
+        public string? FormattedTime { get; set; }
+        public int Progress { get; set; }
+        public string? StatusMessage { get; set; }
+        public List<ParticipantData>? Participants { get; set; }
+        public bool SessionStarted { get; set; }
+        public string? ErrorMessage { get; set; }
+    }
+
+    public enum SessionWaitingState
+    {
+        Loading,
+        Loaded,
+        SessionNotFound,
+        InvalidToken,
+        NetworkError,
+        ApiError,
+        Timeout,
+        ConnectionIssue,
+        CriticalError
+    }
+
+    public class ParticipantData
+    {
+        public string Name { get; set; } = "";
+        public string Country { get; set; } = "";
+        public string Flag { get; set; } = "";
+    }
+
+    public class SessionValidationResponse
+    {
+        public bool Valid { get; set; }
+        public SessionData? Session { get; set; }
+    }
+
+    public class SessionData
+    {
+        public string? SessionId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public DateTime? StartTime { get; set; }
+        public TimeSpan? Duration { get; set; }
+        public string? InstructorName { get; set; }
+    }
+}

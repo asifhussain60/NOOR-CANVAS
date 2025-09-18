@@ -10,7 +10,9 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 1
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -44,7 +46,9 @@
         "outputDir": "D:/PROJECTS/NOOR CANVAS/TEMP/test-artifacts",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 1
+        },
         "id": "chromium",
         "name": "chromium",
         "testDir": "D:/PROJECTS/NOOR CANVAS/Tests/UI",
@@ -53,7 +57,7 @@
           "**/*.spec.ts",
           "**/*.spec.js"
         ],
-        "timeout": 60000
+        "timeout": 30000
       }
     ],
     "shard": null,
@@ -73,948 +77,276 @@
   },
   "suites": [
     {
-      "title": "api-integration.spec.ts",
-      "file": "api-integration.spec.ts",
+      "title": "issue-112-country-dropdown-removal-verification.spec.ts",
+      "file": "issue-112-country-dropdown-removal-verification.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "API Integration Tests",
-          "file": "api-integration.spec.ts",
-          "line": 83,
+          "title": "Issue-112: Country Dropdown Removal Verification",
+          "file": "issue-112-country-dropdown-removal-verification.spec.ts",
+          "line": 12,
           "column": 6,
           "specs": [
             {
-              "title": "should generate host token via API",
-              "ok": true,
+              "title": "should NOT display country dropdown in Host-SessionOpener view",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 926,
+                      "error": {
+                        "message": "Error: Failed to generate token: 400",
+                        "stack": "Error: Failed to generate token: 400\n    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:18:27",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                          "column": 15,
+                          "line": 51
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                            "column": 15,
+                            "line": 51
+                          },
+                          "message": "Error: Failed to generate token: 400\n\n\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:18:27\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Testing Issue-112 resolution: Verifying country dropdown removal...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T17:12:15.861Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-855ca--in-Host-SessionOpener-view-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-855ca--in-Host-SessionOpener-view-chromium\\video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                        "column": 15,
+                        "line": 51
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1169,
+                      "error": {
+                        "message": "Error: Failed to generate token: 400",
+                        "stack": "Error: Failed to generate token: 400\n    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:18:27",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                          "column": 15,
+                          "line": 51
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                            "column": 15,
+                            "line": 51
+                          },
+                          "message": "Error: Failed to generate token: 400\n\n\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:18:27\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Testing Issue-112 resolution: Verifying country dropdown removal...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T17:12:19.184Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-855ca--in-Host-SessionOpener-view-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-855ca--in-Host-SessionOpener-view-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-855ca--in-Host-SessionOpener-view-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                        "column": 15,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
                 }
               ],
-              "id": "6814873ab357f121eca0-8183e53caa6f2dd219d6",
-              "file": "api-integration.spec.ts",
-              "line": 85,
+              "id": "a86a2617b5ea63cb8d97-026d427a62843f670292",
+              "file": "issue-112-country-dropdown-removal-verification.spec.ts",
+              "line": 14,
               "column": 9
             },
             {
-              "title": "should validate host token via API",
-              "ok": true,
+              "title": "should allow form validation without country selection requirement",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 60000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 932,
+                      "error": {
+                        "message": "Error: Failed to generate token: 400",
+                        "stack": "Error: Failed to generate token: 400\n    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:76:27",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                          "column": 15,
+                          "line": 51
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                            "column": 15,
+                            "line": 51
+                          },
+                          "message": "Error: Failed to generate token: 400\n\n\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:76:27\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Testing Issue-112 form validation: Country no longer required...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-18T17:12:22.897Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-7668f-untry-selection-requirement-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-7668f-untry-selection-requirement-chromium\\video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                        "column": 15,
+                        "line": 51
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1011,
+                      "error": {
+                        "message": "Error: Failed to generate token: 400",
+                        "stack": "Error: Failed to generate token: 400\n    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:76:27",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                          "column": 15,
+                          "line": 51
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                            "column": 15,
+                            "line": 51
+                          },
+                          "message": "Error: Failed to generate token: 400\n\n\u001b[90m   at \u001b[39mtest-utils.ts:51\n\n\u001b[0m \u001b[90m 49 |\u001b[39m\n \u001b[90m 50 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mresponse\u001b[33m.\u001b[39mok()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 51 |\u001b[39m         \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m`Failed to generate token: ${response.status()}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 52 |\u001b[39m     }\n \u001b[90m 53 |\u001b[39m\n \u001b[90m 54 |\u001b[39m     \u001b[36mreturn\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson() \u001b[36mas\u001b[39m \u001b[33mTokenData\u001b[39m\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at generateTestToken (D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts:51:15)\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\issue-112-country-dropdown-removal-verification.spec.ts:76:27\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Testing Issue-112 form validation: Country no longer required...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-09-18T17:12:26.301Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-7668f-untry-selection-requirement-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-7668f-untry-selection-requirement-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\TEMP\\test-artifacts\\issue-112-country-dropdown-7668f-untry-selection-requirement-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\test-utils.ts",
+                        "column": 15,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
                 }
               ],
-              "id": "6814873ab357f121eca0-73ea34894b60d8f2a153",
-              "file": "api-integration.spec.ts",
-              "line": 112,
-              "column": 9
-            },
-            {
-              "title": "should reject invalid host tokens",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-889ca8cc81e56643b5ee",
-              "file": "api-integration.spec.ts",
-              "line": 146,
-              "column": 9
-            },
-            {
-              "title": "should handle database connectivity issues",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-4f027c503309a2e2bb3b",
-              "file": "api-integration.spec.ts",
-              "line": 170,
-              "column": 9
-            },
-            {
-              "title": "should load Islamic content data via API",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-3b38215e4e26bbc825cd",
-              "file": "api-integration.spec.ts",
-              "line": 187,
-              "column": 9
-            },
-            {
-              "title": "should load categories for specific album",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-d5cf7da3f3007724a787",
-              "file": "api-integration.spec.ts",
-              "line": 211,
-              "column": 9
-            },
-            {
-              "title": "should load sessions for album and category",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-e9b14a00f9918d13b2cc",
-              "file": "api-integration.spec.ts",
-              "line": 234,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Performance & Load Tests",
-          "file": "api-integration.spec.ts",
-          "line": 257,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should handle multiple concurrent token generations",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-72c37dd296341c93ec4f",
-              "file": "api-integration.spec.ts",
-              "line": 259,
-              "column": 9
-            },
-            {
-              "title": "should handle rapid API calls without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-4cb10c5699885e27230b",
-              "file": "api-integration.spec.ts",
-              "line": 288,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Security & Validation Tests",
-          "file": "api-integration.spec.ts",
-          "line": 310,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should reject malformed requests",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-d055a4208382af79530c",
-              "file": "api-integration.spec.ts",
-              "line": 312,
-              "column": 9
-            },
-            {
-              "title": "should validate required fields",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-a3b4c8c7d8e286d58170",
-              "file": "api-integration.spec.ts",
-              "line": 326,
-              "column": 9
-            },
-            {
-              "title": "should handle SQL injection attempts safely",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6814873ab357f121eca0-540224fd727b242aaeea",
-              "file": "api-integration.spec.ts",
-              "line": 342,
-              "column": 9
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "cascading-dropdowns.spec.ts",
-      "file": "cascading-dropdowns.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-106: Cascading Dropdown Implementation",
-          "file": "cascading-dropdowns.spec.ts",
-          "line": 44,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load cascading dropdown with proper 2-second delays",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-f31a3c74026cdbb9ca38",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 62,
-              "column": 9
-            },
-            {
-              "title": "should handle Open Session button click with cascaded values",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-8e13858a9e4e3bd3802c",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 105,
-              "column": 9
-            },
-            {
-              "title": "should prevent race conditions during cascading",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-f5e754177410f8a77cb6",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 177,
-              "column": 9
-            },
-            {
-              "title": "should maintain dropdown selections throughout cascading",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-c969daf8f05521c75a56",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 202,
-              "column": 9
-            },
-            {
-              "title": "should complete full workflow: cascading -> open session -> url display",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-c7dd46482b8ee57cec51",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 225,
-              "column": 9
-            },
-            {
-              "title": "should generate correct user URLs for Open Session functionality",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-c659887b86b33533e8ab",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 258,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Issue-106: Error Handling & Edge Cases",
-          "file": "cascading-dropdowns.spec.ts",
-          "line": 323,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should handle API errors gracefully during cascading",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-abeda6142826b33c7599",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 325,
-              "column": 9
-            },
-            {
-              "title": "should recover from network timeouts during cascading",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "b96a6a32f40bd1d7a9b2-a35a6e0c922038292280",
-              "file": "cascading-dropdowns.spec.ts",
-              "line": 337,
-              "column": 9
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "host-authentication.spec.ts",
-      "file": "host-authentication.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Host Authentication Flow",
-          "file": "host-authentication.spec.ts",
-          "line": 24,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display host landing page with proper branding",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "256d7318f0b5d4d16d9a-33e955b3c7e3a1c146c7",
-              "file": "host-authentication.spec.ts",
-              "line": 34,
-              "column": 9
-            },
-            {
-              "title": "should show validation error for empty token",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "256d7318f0b5d4d16d9a-ca3bf367bf1ac0101e57",
-              "file": "host-authentication.spec.ts",
-              "line": 56,
-              "column": 9
-            },
-            {
-              "title": "should show validation error for invalid token format",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "256d7318f0b5d4d16d9a-ed15af318b5e3bdcc9b8",
-              "file": "host-authentication.spec.ts",
-              "line": 65,
-              "column": 9
-            },
-            {
-              "title": "should generate new host token via API",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "256d7318f0b5d4d16d9a-7c1d6392339381e3c5ab",
-              "file": "host-authentication.spec.ts",
-              "line": 75,
-              "column": 9
-            },
-            {
-              "title": "should handle expired token gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "256d7318f0b5d4d16d9a-ee24b09a4650364523eb",
-              "file": "host-authentication.spec.ts",
-              "line": 103,
-              "column": 9
-            },
-            {
-              "title": "should maintain NOOR Canvas styling throughout flow",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "256d7318f0b5d4d16d9a-40a390487266688c7b0c",
-              "file": "host-authentication.spec.ts",
-              "line": 115,
-              "column": 9
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "issue-106-validation.spec.ts",
-      "file": "issue-106-validation.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-106: Direct Cascading Dropdown Validation",
-          "file": "issue-106-validation.spec.ts",
-          "line": 18,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should validate cascading dropdown implementation per ncIssueTracker.MD resolution",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "ae931f5fc57ea0f0ff20-f841e0f69d9ee2ce3ce5",
-              "file": "issue-106-validation.spec.ts",
-              "line": 20,
-              "column": 9
-            },
-            {
-              "title": "should validate 2-second cascading delays as specified in Issue-106",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "ae931f5fc57ea0f0ff20-cb3bb1f56ede7868ed7a",
-              "file": "issue-106-validation.spec.ts",
-              "line": 48,
-              "column": 9
-            },
-            {
-              "title": "should validate Open Session URL generation per Issue-106 requirements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "ae931f5fc57ea0f0ff20-ee4d26dff12cd4c3d52a",
-              "file": "issue-106-validation.spec.ts",
-              "line": 80,
-              "column": 9
-            },
-            {
-              "title": "should validate Issue-106 SessionURL panel visibility requirements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "ae931f5fc57ea0f0ff20-66b3f5c95d3a929a3b4b",
-              "file": "issue-106-validation.spec.ts",
-              "line": 123,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Issue-106: Environment and API Validation",
-          "file": "issue-106-validation.spec.ts",
-          "line": 155,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should validate Issue-106 API endpoints availability",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "ae931f5fc57ea0f0ff20-3bb066d86eae28a5daf4",
-              "file": "issue-106-validation.spec.ts",
-              "line": 157,
-              "column": 9
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "user-authentication.spec.ts",
-      "file": "user-authentication.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "User Authentication Flow",
-          "file": "user-authentication.spec.ts",
-          "line": 22,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display user landing page for no token",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-46fdb855fd4c97f50912",
-              "file": "user-authentication.spec.ts",
-              "line": 24,
-              "column": 9
-            },
-            {
-              "title": "should display token entry form for invalid token",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-458a3b1cc891dd2c8cd1",
-              "file": "user-authentication.spec.ts",
-              "line": 40,
-              "column": 9
-            },
-            {
-              "title": "should handle valid session token and show session details",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-df373a87e650d5437791",
-              "file": "user-authentication.spec.ts",
-              "line": 52,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Session Waiting Room",
-          "file": "user-authentication.spec.ts",
-          "line": 79,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display waiting room with countdown timer",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-bdf54a64ffdf1d1c3d03",
-              "file": "user-authentication.spec.ts",
-              "line": 81,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Active Session Canvas",
-          "file": "user-authentication.spec.ts",
-          "line": 105,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display canvas interface for active session",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-a977a2fae2096ed94ab9",
-              "file": "user-authentication.spec.ts",
-              "line": 107,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "End-to-End User Journey",
-          "file": "user-authentication.spec.ts",
-          "line": 132,
-          "column": 6,
-          "specs": [
-            {
-              "title": "complete user flow: token entry -> waiting room -> active session",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-785fa2d844565e6341bb",
-              "file": "user-authentication.spec.ts",
-              "line": 134,
-              "column": 9
-            }
-          ]
-        },
-        {
-          "title": "Issue-102: Routing Logic Fixes",
-          "file": "user-authentication.spec.ts",
-          "line": 178,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should show token entry form for no token (not registration)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-7f04ab4d0d91c74a705a",
-              "file": "user-authentication.spec.ts",
-              "line": 180,
-              "column": 9
-            },
-            {
-              "title": "should show token entry form for invalid token (not registration)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-86b681b892a09c18e0d0",
-              "file": "user-authentication.spec.ts",
-              "line": 194,
-              "column": 9
-            },
-            {
-              "title": "should handle API validation failures correctly",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "40df8cb7ac66b33c4861-d47bbf3eff1128b6fc90",
-              "file": "user-authentication.spec.ts",
-              "line": 212,
+              "id": "a86a2617b5ea63cb8d97-0c9949caddfba3eb9fd9",
+              "file": "issue-112-country-dropdown-removal-verification.spec.ts",
+              "line": 72,
               "column": 9
             }
           ]
@@ -1024,11 +356,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-18T11:37:46.985Z",
-    "duration": 459.683,
+    "startTime": "2025-09-18T17:12:13.978Z",
+    "duration": 14039.923,
     "expected": 0,
-    "skipped": 40,
-    "unexpected": 0,
+    "skipped": 0,
+    "unexpected": 2,
     "flaky": 0
   }
 }

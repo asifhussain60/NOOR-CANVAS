@@ -1,0 +1,176 @@
+@page "/waitingroom"
+
+@using System.Timers
+@using System.Globalization
+
+<div class="bg-[#F8F5F1] flex flex-col items-center p-4 min-h-screen">
+
+    <!-- Logo Placeholder -->
+    <div class="flex justify-center mb-6 mt-8">
+        <!-- Insert your logo here -->
+    </div>
+
+    <div class="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl bg-white rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-xl border border-gray-200">
+        <h1 class="poppins font-bold text-3xl sm:text-4xl text-[#006400] flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-hourglass-half text-4xl sm:text-5xl text-[#006400]"></i>
+            <span>Waiting Room</span>
+        </h1>
+
+        <!-- Session Details Panel -->
+        <div class="w-full bg-white rounded-2xl gold-border p-6 sm:p-8 space-y-6 shadow-inner">
+            <h2 class="poppins font-bold text-2xl sm:text-3xl text-gray-800 text-center">@sessionName</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 bg-white p-4 rounded-xl">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                        <i class="fa-solid fa-calendar-days text-[#C5B358] text-2xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="inter text-xs text-[#706357]">Date</p>
+                        <p class="inter font-semibold text-[#4B3C2B] text-lg">@sessionDate</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                        <i class="fa-solid fa-clock text-[#C5B358] text-2xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="inter text-xs text-[#706357]">Start Time</p>
+                        <p class="inter font-semibold text-[#4B3C2B] text-lg">2:00 PM EST</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                        <i class="fa-solid fa-hourglass-half text-[#C5B358] text-2xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="inter text-xs text-[#706357]">Duration</p>
+                        <p class="inter font-semibold text-[#4B3C2B] text-lg">@sessionDuration</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-[#E5D7A9] rounded-xl">
+                        <i class="fa-solid fa-user-tie text-[#C5B358] text-2xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="inter text-xs text-[#706357]">Instructor</p>
+                        <p class="inter font-semibold text-[#4B3C2B] text-lg">Asif Hussain</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Status & Timer -->
+        <div class="text-center rounded-xl p-6 bg-white shadow-lg gold-border">
+            <p class="inter text-lg font-semibold text-[#4B3C2B]">Session begins in:</p>
+            <div id="countdown-timer" class="text-5xl font-bold text-[#006400] mt-2 mb-4 inter">@FormattedTime</div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-[#D4AF37] transition-all duration-500 ease-in-out" style="width: @(Progress)%;"></div>
+            </div>
+            <p id="status-message" class="inter text-sm text-[#706357] mt-2">@StatusMessage</p>
+        </div>
+
+        <!-- Participants Panel -->
+        <div class="bg-white p-4 rounded-xl shadow-inner gold-border">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-2">
+                    <h2 class="inter text-lg font-semibold text-[#4B3C2B]">Participants (@participants.Count)</h2>
+                    <i class="fa-solid fa-users text-2xl text-[#706357]"></i>
+                </div>
+                <div class="flex space-x-2">
+                    <button @onclick="SortByName" class="inter text-xs px-2 py-1 rounded-full bg-[#F8F5F1] text-[#4B3C2B] font-semibold hover:bg-gray-200 transition-colors">Sort by Name</button>
+                    <button @onclick="SortByCountry" class="inter text-xs px-2 py-1 rounded-full bg-[#F8F5F1] text-[#4B3C2B] font-semibold hover:bg-gray-200 transition-colors">Sort by Country</button>
+                </div>
+            </div>
+            <div id="participants-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2">
+                @foreach (var p in participants)
+                {
+                    <div class="flex items-center space-x-2 text-[#706357]">
+                        <img src="@($"https://flagcdn.com/w20/{p.flag}.png")" alt="@($"{p.country} Flag")" class="h-4 w-auto rounded border border-gray-300">
+                        <span class="inter text-sm">@p.name</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private string sessionName = "Mindfulness & Movement";
+    private string sessionDate = "Today, Sep 16";
+    private string sessionDuration = "1 hour";
+    private System.Timers.Timer _timer;
+    private DateTime sessionStartTime;
+    private int durationMilliseconds = 150000;
+
+    private string FormattedTime { get; set; } = "00:00";
+    private int Progress { get; set; } = 0;
+    private string StatusMessage { get; set; } = "Waiting for host to begin the session.";
+
+    private List<Participant> participants = new List<Participant>
+    {
+        new Participant { name = "Fatima", country = "Morocco", flag = "ma" },
+        new Participant { name = "Ali", country = "Saudi Arabia", flag = "sa" },
+        new Participant { name = "Zainab", country = "United Kingdom", flag = "gb" },
+        new Participant { name = "Hassan", country = "United States", flag = "us" },
+        new Participant { name = "Laila", country = "Egypt", flag = "eg" },
+        new Participant { name = "Yusuf", country = "Canada", flag = "ca" },
+        new Participant { name = "Maryam", country = "France", flag = "fr" },
+        new Participant { name = "Omar", country = "Turkey", flag = "tr" },
+        new Participant { name = "Sara", country = "Germany", flag = "de" },
+        new Participant { name = "Mohammed", country = "Indonesia", flag = "id" },
+        new Participant { name = "Aisha", country = "Pakistan", flag = "pk" },
+        new Participant { name = "Ahmed", country = "India", flag = "in" },
+        new Participant { name = "Junaid", country = "Pakistan", flag = "pk" },
+        new Participant { name = "Priya", country = "India", flag = "in" },
+        new Participant { name = "Mustafa", country = "Pakistan", flag = "pk" }
+    };
+
+    protected override void OnInitialized()
+    {
+        sessionStartTime = DateTime.Now.AddMilliseconds(durationMilliseconds);
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += UpdateCountdown;
+        _timer.Enabled = true;
+    }
+
+    private void UpdateCountdown(object source, ElapsedEventArgs e)
+    {
+        var timeLeft = sessionStartTime - DateTime.Now;
+        var progress = ((double)durationMilliseconds - timeLeft.TotalMilliseconds) / durationMilliseconds * 100;
+
+        if (timeLeft.TotalMilliseconds <= 0)
+        {
+            _timer?.Stop();
+            FormattedTime = "00:00";
+            Progress = 100;
+            StatusMessage = "Waiting for host to begin the session.";
+        }
+        else
+        {
+            var minutes = Math.Floor(timeLeft.TotalMinutes);
+            var seconds = timeLeft.Seconds;
+            FormattedTime = $"{minutes:00}:{seconds:00}";
+            Progress = (int)progress;
+        }
+
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void SortByName()
+    {
+        participants.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
+    }
+
+    public void SortByCountry()
+    {
+        participants.Sort((a, b) => string.Compare(a.country, b.country, StringComparison.Ordinal));
+    }
+
+    public class Participant
+    {
+        public string name { get; set; }
+        public string country { get; set; }
+        public string flag { get; set; }
+    }
+}

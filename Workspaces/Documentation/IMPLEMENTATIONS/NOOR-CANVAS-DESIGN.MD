@@ -686,7 +686,8 @@ The Host Session Management interface is implemented via `Host-SessionOpener.raz
 - **State Management**: Uses Blazor StateHasChanged() to trigger UI refresh on panel visibility changes
 
 *Session Configuration Workflow:*
-- **Cascading Dropdowns**: Album → Category → Session selection populated from KSESSIONS data
+- **Cascading Dropdowns**: Album → Category → Session selection populated from KSESSIONS data (Note: Country selection is NOT part of host session configuration - country is collected during user registration only)
+- **Host Session Parameters**: Date, Time, Duration selection for session scheduling
 - **Async Operations**: OpenSession() method handles session creation, token generation, and state persistence
 - **Error Handling**: Comprehensive try/catch blocks with detailed logging for troubleshooting
 

@@ -106,19 +106,17 @@
                             </div>
                             <InputSelect @bind-Value="Model!.CountrySelect" 
                                         @onfocus="ClearError" 
+                                        disabled="@(Model?.IsLoadingCountries ?? false)"
                                         style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
                                         autocomplete="off">
-                                <option value="">Select your country</option>
-                                <option value="US">United States</option>
-                                <option value="CA">Canada</option>
-                                <option value="UK">United Kingdom</option>
-                                <option value="AU">Australia</option>
-                                <option value="DE">Germany</option>
-                                <option value="FR">France</option>
-                                <option value="JP">Japan</option>
-                                <option value="IN">India</option>
-                                <option value="BR">Brazil</option>
-                                <option value="MX">Mexico</option>
+                                <option value="">@((Model?.IsLoadingCountries ?? false) ? "Loading countries..." : "Select your country")</option>
+                                @if (!(Model?.IsLoadingCountries ?? false))
+                                {
+                                    @foreach (var country in Countries)
+                                    {
+                                        <option value="@country.ISO2">@country.CountryName</option>
+                                    }
+                                }
                             </InputSelect>
                         </div>
                     </div>
@@ -149,6 +147,7 @@
     [Parameter] public string? SessionToken { get; set; }
     
     private UserLandingViewModel? Model { get; set; }
+    private List<CountryData> Countries { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -165,6 +164,9 @@
             ButtonIconClass = "fa-solid fa-arrow-right-to-bracket",
             IsLoading = false
         };
+
+        // Load countries for registration dropdown
+        await LoadCountriesAsync();
 
         // If session token provided via URL, populate it and load session info
         if (!string.IsNullOrEmpty(SessionToken))
@@ -431,6 +433,52 @@
         }
     }
 
+    private async Task LoadCountriesAsync()
+    {
+        try
+        {
+            Model!.IsLoadingCountries = true;
+            StateHasChanged();
+            
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Loading countries from API...", requestId);
+            
+            using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "demo-token-12345");
+            var response = await httpClient.GetAsync("api/host/countries");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                Countries = await response.Content.ReadFromJsonAsync<List<CountryData>>() ?? new List<CountryData>();
+                Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Loaded {CountryCount} countries successfully", requestId, Countries.Count);
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-USER-LANDING: [{RequestId}] Failed to load countries - HTTP {StatusCode}", requestId, response.StatusCode);
+                if (Model != null)
+                {
+                    Model.ErrorMessage = "Failed to load countries from database.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-USER-LANDING: Error loading countries");
+            if (Model != null)
+            {
+                Model.ErrorMessage = "Error loading countries. Please refresh the page.";
+            }
+        }
+        finally
+        {
+            if (Model != null)
+            {
+                Model.IsLoadingCountries = false;
+                StateHasChanged();
+            }
+        }
+    }
+
     public class UserLandingViewModel
     {
         public string? LogoText { get; set; }
@@ -445,6 +493,16 @@
         public string ButtonText { get; set; } = "Submit";
         public string ButtonIconClass { get; set; } = "fa-solid fa-arrow-right-to-bracket";
         public bool IsLoading { get; set; }
+        public bool IsLoadingCountries { get; set; }
+    }
+    
+    public class CountryData
+    {
+        public int CountryID { get; set; }
+        public string CountryName { get; set; } = string.Empty;
+        public string ISO2 { get; set; } = string.Empty;
+        public string? ISO3 { get; set; }
+        public bool IsActive { get; set; }
     }
 
     /// <summary>

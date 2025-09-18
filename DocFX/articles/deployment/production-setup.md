@@ -17,7 +17,7 @@ Complete guide for deploying NOOR Canvas to production environment.
 ```sql
 -- Primary application database
 Server: AHHOME
-Database: KSESSIONS_DEV (development)
+Database: KSESSIONS (production)
 Schema: canvas (NOOR Canvas tables)
 
 -- Cross-application integration  
@@ -30,8 +30,8 @@ Schema: dbo (Beautiful Islam integration)
 // appsettings.Production.json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=[SECURE];Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;",
-    "KSessionsDb": "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=[SECURE];Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;"
+    "DefaultConnection": "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=[SECURE];Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;",
+    "KSessionsDb": "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=[SECURE];Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;"
   }
 }
 ```

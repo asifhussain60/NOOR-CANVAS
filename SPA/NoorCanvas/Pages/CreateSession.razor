@@ -129,6 +129,38 @@
     protected override async Task OnInitializedAsync()
     {
         Logger.LogInformation("NOOR-INFO: CreateSession page initialized");
+        
+        // Validate host authentication before allowing access
+        if (string.IsNullOrEmpty(Guid))
+        {
+            Logger.LogCritical("NOOR-SECURITY: CreateSession accessed without host GUID - redirecting to authentication");
+            Navigation.NavigateTo("/host/landing");
+            return;
+        }
+        
+        // Authenticate host GUID with API
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var request = new { HostGuid = Guid };
+            var response = await httpClient.PostAsJsonAsync("/api/host/authenticate", request);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogCritical("NOOR-SECURITY: Host authentication failed for GUID {Guid} - redirecting to authentication", Guid?.Substring(0, 8) + "...");
+                Navigation.NavigateTo("/host/landing?error=auth_failed");
+                return;
+            }
+            
+            Logger.LogInformation("NOOR-INFO: Host authentication successful for CreateSession");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-ERROR: Authentication error in CreateSession");
+            Navigation.NavigateTo("/host/landing?error=auth_error");
+            return;
+        }
+        
         await LoadAlbums();
     }
 
