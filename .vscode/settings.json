@@ -1,0 +1,109 @@
+{
+  "// Enhanced GitHub Copilot + Playwright Integration Settings": "Optimized for NOOR Canvas project",
+  
+  "// === GitHub Copilot Configuration ===": "",
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "typescript": true,
+    "javascript": true,
+    "json": true
+  },
+  "github.copilot.advanced": {
+    "inlineSuggestEnable": true,
+    "authProvider": "github"
+  },
+  "github.copilot.chat.followUps": "on",
+  "github.copilot.chat.localeOverride": "en",
+  "github.copilot.editor.enableAutoCompletions": true,
+  
+  "// === Playwright Test Runner Integration ===": "",
+  "playwright.testDirectory": "./Tests/UI",
+  "playwright.showTrace": false,
+  "playwright.reuseBrowser": false,
+  "playwright.showBrowser": false,
+  "files.associations": {
+    "*.spec.ts": "typescript",
+    "*.test.ts": "typescript"
+  },
+  
+  "// === TypeScript IntelliSense Enhancement ===": "",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.variableTypes.enabled": true,
+  
+  "// === Editor Optimizations for Test Development ===": "",
+  "editor.suggestSelection": "first",
+  "editor.tabCompletion": "on",
+  "editor.wordBasedSuggestions": "matchingDocuments",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": true,
+    "strings": true
+  },
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.inlineSuggest.enabled": true,
+  
+  "// === Test Explorer and Debugging ===": "",
+  "testing.automaticallyOpenPeekView": "failureInVisibleDocument",
+  "testing.defaultGutterClickAction": "run",
+  "testing.openTesting": "neverOpen",
+  "debug.allowBreakpointsEverywhere": true,
+  
+  "// === File Explorer Optimizations ===": "",
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.spec.ts": "$(capture).spec.js",
+    "*.test.ts": "$(capture).test.js"
+  },
+  
+  "// === Terminal Integration ===": "",
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  
+  "// === Search and Code Navigation ===": "",
+  "search.exclude": {
+    "**/TEMP/**": true,
+    "**/test-results/**": true,
+    "**/playwright-report/**": true,
+    "**/node_modules": true,
+    "**/.git": true
+  },
+  "files.watcherExclude": {
+    "**/TEMP/**": true,
+    "**/test-results/**": true,
+    "**/playwright-report/**": true
+  },
+  
+  "// === Language Specific Settings ===": "",
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+  
+  "// === Playwright Specific Optimizations ===": "",
+  "emmet.includeLanguages": {
+    "typescript": "html"
+  },
+  "html.suggest.html5": true,
+  
+  "// === Copilot Chat Enhancement ===": "",
+  "workbench.panel.defaultLocation": "right",
+  "chat.editor.fontSize": 14,
+  "chat.editor.wordWrap": "on"
+}
