@@ -25,6 +25,18 @@
 - ✅ **Duplicate Views Elimination**: Host.razor removed to eliminate routing confusion (September 17, 2025)
 - ✅ **Issue-106 Cascading Implementation**: Complete cascading dropdown system with 2-second delays (September 18, 2025)
 - ✅ **UI Test Runner Framework**: Comprehensive Playwright test suite for automated functionality validation (September 18, 2025)
+- ✅ **SECURITY ENHANCEMENT - September 18, 2025**: **CRITICAL SECURITY VULNERABILITY REMEDIATED**
+  - **Hardcoded Demo Token Removed**: Eliminated EP9M9NUN hardcoded authentication bypass from Host-SessionOpener.razor
+  - **Authentication Guards Implemented**: All protected pages now require proper /api/host/authenticate validation
+  - **Test Security Updated**: Playwright tests updated to use generateTestToken() instead of hardcoded tokens
+  - **Security Logging Added**: Critical security violations now logged for monitoring and audit trails
+  - **Authentication-First Architecture**: All host pages redirect to proper authentication flow when tokens missing/invalid
+- ✅ **UI/UX CORRECTION - September 18, 2025**: **COUNTRY DROPDOWN REMOVED FROM HOST-SESSIONOPENER**
+  - **Issue Identified**: Country selection dropdown was incorrectly present on Host-SessionOpener view
+  - **UI Cleanup**: Complete removal of country dropdown, SelectedCountry property, CountryData class, and LoadCountriesAsync method
+  - **Form Validation Updated**: Removed country requirement from form validation logic
+  - **API Integration**: Updated session creation payload to exclude country data (not required for host session setup)
+  - **Design Compliance**: Host-SessionOpener now focuses on Album→Category→Session cascading selection only
 
 ### ✅ **COMPLETED TASKS (RECENT SUCCESS)**
 - ✅ **HostLanding.razor**: **SUCCESSFULLY IMPLEMENTED** using Host Landing Page.html mock (Actual: 2 hours)
@@ -33,6 +45,16 @@
   - **Quality**: Production-ready with full Blazor View Builder compliance
   - **Evidence**: Application running successfully, all features working
   - **Methodology**: Perfect example of Blazor View Builder Strategy execution
+
+- ✅ **Issue-108 Token Validation Fix**: **SUCCESSFULLY RESOLVED** - HttpClient configuration error fixed (September 18, 2025)
+  - **Status**: 100% Complete and committed ✅
+  - **Problem**: Token TXZ25W6K showing "Unable to validate token" error despite valid database record
+  - **Root Cause**: Client-side HttpClient created without BaseAddress configuration causing invalid request URI
+  - **Solution**: Changed UserLanding.razor line 315 from `HttpClientFactory.CreateClient()` to `HttpClientFactory.CreateClient("default")`
+  - **Verification**: Token validation now returns HTTP 200 responses with proper session data
+  - **Git Commit**: 40a887d - "Issue-108 fix: resolve token validation HttpClient configuration error"
+  - **Documentation**: Complete investigation and resolution documented in IssueTracker/COMPLETED/
+  - **Methodology**: Perfect example of systematic issue investigation and resolution protocol
 
 ### ✅ **SEPTEMBER 17, 2025 - HOST AUTHENTICATION VISUAL PERFECTION**
 - ✅ **Host Authentication Styling Enhancement**: **CRITICAL UX IMPROVEMENT** (September 17, 2025)
@@ -184,6 +206,17 @@
 ### 🔄 **PENDING TASKS**
 - 🔄 **SessionActive.razor**: Live canvas using User - Canvas Experience.html (Est: 4-5 hours)
 
+### 🔄 **NEW REQUIREMENTS - HOST-SESSIONOPENER.RAZOR ENHANCEMENT**
+- 🔄 **Countries Dropdown Integration**: **NEW REQUIREMENT** - Add country selection to session configuration (Est: 1-2 hours)
+  - **Database Source**: KSESSIONS_DEV `dbo.Countries` table for dropdown population
+  - **Integration Point**: Host-SessionOpener.razor session configuration form
+  - **API Endpoint**: Create `/api/host/countries` endpoint to load country list
+  - **UI Placement**: Add countries dropdown alongside existing Album/Category/Session cascading dropdowns
+  - **Data Binding**: Store selected country with session configuration data
+  - **Database Schema**: Utilize existing dbo.Countries table structure with proper foreign key relationships
+  - **Validation**: Ensure country selection is part of form validation before session creation
+  - **Success Criteria**: Countries loaded from KSESSIONS_DEV, dropdown functional, selection stored with session
+
 ### ⏳ **NOT STARTED**
 - ⏳ **Integration Testing**: Cross-browser validation and mobile testing (Est: 1-2 hours)
 - ⏳ **Performance Optimization**: CSS loading and rendering optimization (Est: 1-2 hours)
@@ -205,13 +238,15 @@
 - **Repository Hygiene**: 100% Complete ✅ (Comprehensive cleanup with test organization)
 - **Test Organization**: 100% Complete ✅ (New infrastructure for preserving successful tests)
 - **Documentation**: 100% Complete ✅ (Root README.md, consolidated instructions, cross-references)
-- **Testing & QA**: 85% Complete (Host workflow + comprehensive test organization) ✅
-- **Total Project**: ~92% Complete
+- **Issue Resolution & Debugging**: 100% Complete ✅ (Issue-108 HttpClient configuration resolved)
+- **Testing & QA**: 90% Complete (Host workflow + comprehensive test organization + token validation fixes) ✅
+- **Total Project**: ~94% Complete
 
-**Estimated Remaining Work**: 3-4 hours  
+**Estimated Remaining Work**: 6-8 hours (6 hours SessionWaiting.razor with comprehensive error handling + 1-2 hours Countries dropdown + 1 hour integration testing)  
 **REPOSITORY CLEANUP**: ✅ **COMPLETED** - Comprehensive 8-step cleanup with test organization innovation  
 **APPLICATION STATUS**: ✅ **OPERATIONAL** - ncb command working, application launches successfully on https://localhost:9091  
-**CURRENT PRIORITY**: **SessionWaiting.razor** (3-4 hours) - **READY FOR IMMEDIATE IMPLEMENTATION** 🚀
+**ISSUE-108 TOKEN VALIDATION**: ✅ **RESOLVED** - HttpClient BaseAddress configuration fixed, commit 40a887d  
+**CURRENT PRIORITY**: **SessionWaiting.razor with Comprehensive Error Handling** (6 hours) + **Countries Dropdown Enhancement** (1-2 hours) - **READY FOR IMPLEMENTATION** 🚀
 
 ---
 
@@ -247,7 +282,7 @@ HostLanding.razor → Host-SessionOpener.razor → SessionWaiting.razor ✅
 
 #### **🗄️ DATABASE INTEGRATION REQUIREMENTS - TOKEN-TO-SESSION ARCHITECTURE**
 
-**✅ CRITICAL ARCHITECTURE INSIGHT**: **EP9M9NUN Token → Session Mapping Strategy**
+**✅ CRITICAL ARCHITECTURE INSIGHT**: **8-Character Friendly Token → Session Mapping Strategy** (Example format: ABCD1234)
 
 **Token Lookup Chain** (Respecting Read-Only dbo Schema):
 ```sql
@@ -273,7 +308,7 @@ WHERE dbo.Sessions.SessionID = @canvasSessionId
 **Database Schema Constraints**:
 - **canvas.*** schema: **WRITEABLE** - Token management, session association
 - **dbo.*** schema (KSESSIONS): **READ-ONLY** - Islamic content, Groups/Categories/Sessions
-- **Token Security**: Friendly tokens (EP9M9NUN) stored hashed in canvas.HostSessions
+- **Token Security**: 8-character friendly tokens stored hashed in canvas.HostSessions, NO hardcoded demo tokens in production
 
 **Session Association Logic** (Canvas Schema Updates Only):
 ```sql
@@ -523,7 +558,7 @@ private async Task OnOpenSession()
 - 🔄 **Session Status Updates**: Real-time communication with host session management
 - 🔄 **Database Binding**: Session details, instructor info, timing from KSESSIONS_DEV
 
-#### **📊 IMPLEMENTATION TIMELINE - DETAILED BREAKDOWN**
+#### **📊 IMPLEMENTATION TIMELINE - DETAILED BREAKDOWN WITH ERROR HANDLING**
 
 | Phase | Task | Duration | Complexity | Prerequisites |
 |-------|------|----------|------------|---------------|
@@ -531,17 +566,19 @@ private async Task OnOpenSession()
 | 2 | **Database Integration & Session Loading** | 90 minutes | Medium-High | ISessionService ✅ |
 | 3 | **SignalR Real-time Participants** | 60 minutes | High | SessionHub ✅ |
 | 4 | **Timer Synchronization & Status Updates** | 45 minutes | Medium | Session timing logic |
-| 5 | **Testing & Quality Assurance** | 45 minutes | Low | Build system ✅ |
-| **TOTAL** | **Complete SessionWaiting.razor** | **5.5 hours** | **Medium-High** | **All Met ✅** |
+| 5 | **Comprehensive Error Handling & Graceful States** | 60 minutes | Medium-High | Error recovery patterns |
+| 6 | **Testing & Quality Assurance** | 45 minutes | Low | Build system ✅ |
+| **TOTAL** | **Complete Production-Ready SessionWaiting.razor** | **6 hours** | **Medium-High** | **All Met ✅** |
 
 #### **🎨 CONVERSION REQUIREMENTS - BLAZOR VIEW BUILDER PROTOCOL**
 
 **Phase 1: CSS & Markup Conversion (60 minutes)**
 - **Tailwind → Inline CSS**: Convert all `class="..."` attributes to `style="..."` inline properties
-- **Logo Integration**: Replace `<!-- Logo -->` comment with proper NC-Header.png div
+- **Logo Integration**: Replace `<!-- Insert your logo here -->` comment with proper NC-Header.png div **INSIDE** the main white card container (after title, before session details)
 - **Layout Structure**: Maintain responsive grid layout with proper Blazor component structure
 - **Font Integration**: Add Google Fonts (Poppins, Inter) via HeadContent component
 - **Icon Integration**: Convert FontAwesome classes to proper icon elements
+- **Mock Data Transformation**: Convert hardcoded mock objects to application-compatible ViewModels and API integration
 
 **Critical CSS Conversions**:
 ```html
@@ -552,24 +589,40 @@ class="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl bg-white rounded-3x
 style="width:100%;max-width:64rem;background-color:#FFFFFF;border-radius:1.5rem;padding:1.5rem 2rem;gap:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;"
 ```
 
-**Phase 2: Database Integration & Session Loading (90 minutes)**
-- **Session Details API**: Load real session data from KSESSIONS_DEV database
+**Phase 2: Mock Data Transformation & Database Integration (90 minutes)**
+- **Mock Object Conversion**: Transform WaitingRoom_Mock.razor hardcoded data structures to application ViewModels
+  - Convert `private string sessionName = "Mindfulness & Movement"` to `@Model.SessionName` with API binding
+  - Replace `private List<Participant> participants = new List<Participant> { ... }` with dynamic participant loading
+  - Transform hardcoded session details (`sessionDate`, `sessionDuration`) to database-driven session information
+- **Session Details API**: Load real session data from KSESSIONS_DEV database via token validation
 - **Instructor Information**: Bind session instructor, description, timing from database
+- **Participant Loading**: Replace static participant list with real-time participant API data
 - **Session Status**: Real-time session status monitoring (Waiting → Active transition)  
 - **Error Handling**: Comprehensive error handling for invalid sessions or network issues
 
-**Required Database Bindings**:
+**Required Database Bindings** (Replacing Mock Data):
 ```csharp
 public class SessionWaitingViewModel
 {
+    // Replace mock: private string sessionName = "Mindfulness & Movement";
     public string SessionName { get; set; } = "";
     public string SessionDescription { get; set; } = "";
     public string InstructorName { get; set; } = "";
     public DateTime SessionStartTime { get; set; }
     public TimeSpan SessionDuration { get; set; }
     public string SessionStatus { get; set; } = "Waiting";
-    public List<ParticipantInfo> Participants { get; set; } = new();
+    // Replace mock: private List<Participant> participants
+    public List<ParticipantData> Participants { get; set; } = new();
     public int TotalParticipants => Participants.Count;
+}
+
+// Replace mock: public class Participant
+public class ParticipantData
+{
+    public string Name { get; set; } = ""; // was: name
+    public string Country { get; set; } = ""; // was: country
+    public string CountryCode { get; set; } = ""; // was: flag (rename for clarity)
+    public DateTime JoinedAt { get; set; } // NEW: track join time
 }
 ```
 
@@ -651,12 +704,44 @@ private async Task HandleSessionStart()
 }
 ```
 
-**Phase 5: Testing & Quality Assurance (45 minutes)**
-- **Build Verification**: Ensure zero compilation errors with new SignalR and database code
-- **Timer Testing**: Verify countdown accuracy and progress bar synchronization  
-- **SignalR Testing**: Test participant list updates and real-time features
-- **Navigation Testing**: Confirm proper routing to SessionActive when session begins
-- **Error Scenario Testing**: Test network failures, invalid sessions, connection drops
+**Phase 5: Comprehensive Error Handling & Graceful Page States (60 minutes)**
+- **Empty Page Graceful Handling**: Users accessing `/session/waiting` without token redirect to UserLanding with informative message
+- **Invalid Token Recovery**: Token validation failures show error message with option to re-enter token or return to landing
+- **Network Resilience**: Connection drops show "Reconnecting..." states with automatic retry mechanisms
+- **Session State Validation**: Invalid or expired sessions redirect gracefully with clear explanations
+- **Loading State Management**: Proper loading indicators for all async operations (token validation, participant loading, session data)
+- **Error Boundary Implementation**: Comprehensive try/catch blocks with user-friendly error messages
+- **Fallback Content**: When session data fails to load, show skeleton screens with retry options
+- **Progressive Enhancement**: Core functionality works even if SignalR fails, with polling fallback
+- **Build Verification**: Ensure zero compilation errors with all error handling code
+- **Comprehensive Error Scenario Testing**: Test all failure modes systematically
+
+**Error Handling Requirements**:
+```csharp
+// Comprehensive error states for SessionWaiting.razor
+public enum SessionWaitingState
+{
+    Loading,           // Initial page load
+    TokenValidating,   // Validating session token
+    SessionLoading,    // Loading session details
+    WaitingForStart,   // Normal waiting room state
+    SessionStarting,   // Transitioning to active session
+    ConnectionLost,    // SignalR connection dropped
+    TokenInvalid,      // Invalid or expired token
+    SessionNotFound,   // Session does not exist
+    SessionEnded,      // Session has already ended
+    NetworkError,      // General network connectivity issues
+    UnexpectedError    // Catch-all for unexpected errors
+}
+
+// Graceful error recovery methods
+private async Task HandleTokenValidationFailure(string errorCode)
+private async Task HandleNetworkError(Exception ex)
+private async Task HandleSessionNotFound()
+private async Task HandleUnexpectedError(Exception ex)
+private void ShowRetryOptions()
+private void RedirectToLandingWithMessage(string message)
+```
 
 #### **🎯 SUCCESS CRITERIA & VALIDATION**
 
@@ -667,13 +752,41 @@ private async Task HandleSessionStart()
 - ✅ **Database Integration**: Session details loaded from KSESSIONS_DEV
 - ✅ **Session Transition**: Automatic navigation to canvas when session starts
 - ✅ **Visual Accuracy**: Perfect match with Waiting Room Mock.html design
+- ✅ **Error Resilience**: All error scenarios handled gracefully with user-friendly messages
+- ✅ **Empty Page Protection**: No blank/broken pages - always show meaningful content or redirect
+- ✅ **Progressive Fallbacks**: Core functionality works even when advanced features fail
 
-**Testing Scenarios**:
+**Comprehensive Testing Scenarios**:
 1. **Valid Session Token**: User enters waiting room, sees countdown and participants
 2. **Participant Join/Leave**: Real-time participant list updates
 3. **Session Start**: Countdown reaches zero, automatic navigation to canvas
-4. **Network Recovery**: SignalR reconnection after temporary disconnect
+4. **Network Recovery**: SignalR reconnection after temporary disconnect with status indicators
 5. **Invalid Session**: Proper error handling for expired or invalid sessions
+6. **Empty Page Access**: Direct navigation to `/session/waiting` without token redirects to UserLanding
+7. **Token Validation Failure**: Clear error message with retry/redirect options
+8. **Session Data Loading Failure**: Skeleton screen with retry mechanism
+9. **SignalR Connection Failure**: Graceful fallback to polling with connection status indicator
+10. **Session Already Ended**: Informative message with navigation back to user landing
+11. **Malformed Token**: Input validation with helpful format guidance
+12. **Network Connectivity Loss**: Offline indicator with automatic reconnection attempts
+13. **Database Connectivity Issues**: Service unavailable message with retry options
+14. **Concurrent Session Limit**: Appropriate handling if user joins multiple sessions
+15. **Session Cancellation**: Real-time notification if host cancels session
+
+**Error Recovery Flow Examples**:
+```
+Scenario 1: Empty Page Access
+/session/waiting → Redirect to /user/landing + "Please enter a valid session token"
+
+Scenario 2: Invalid Token
+Token validation fails → Show error + "Re-enter Token" button + "Return to Landing" link
+
+Scenario 3: Network Error
+API call fails → "Connection problem. Retrying..." + Auto-retry (3 attempts) + Manual retry button
+
+Scenario 4: Session Ended
+Session status = "Ended" → "This session has ended. Thank you for participating!" + "Join Another Session" button
+```
 
 #### **🔧 REQUIRED SERVICES & DEPENDENCIES**
 
@@ -709,7 +822,302 @@ private async Task HandleSessionStart()
 - ✅ **Error Handling**: Comprehensive patterns from previous implementations
 - ✅ **Build Quality**: Zero-warning build system already established
 
-**Expected Outcome**: **Production-ready SessionWaiting.razor with full real-time functionality in 5.5 hours** with comprehensive testing and zero compilation errors.
+**Expected Outcome**: **Production-ready SessionWaiting.razor with full real-time functionality and comprehensive error handling in 6 hours** with bulletproof error recovery, graceful empty page handling, and zero compilation errors.
+
+#### **🛡️ COMPREHENSIVE ERROR HANDLING IMPLEMENTATION REQUIREMENTS**
+
+**1. Route Protection & Empty Page Prevention**
+```csharp
+protected override async Task OnInitializedAsync()
+{
+    // CRITICAL: Always validate token parameter first
+    if (string.IsNullOrEmpty(Token))
+    {
+        Logger.LogWarning("NOOR-WAITING-ROOM: Empty page access attempt - redirecting to UserLanding");
+        Navigation.NavigateTo("/user/landing?error=token_required", forceLoad: true);
+        return;
+    }
+    
+    try
+    {
+        CurrentState = SessionWaitingState.TokenValidating;
+        StateHasChanged();
+        
+        await ValidateTokenAndLoadSession();
+    }
+    catch (Exception ex)
+    {
+        await HandleUnexpectedError(ex);
+    }
+}
+```
+
+**2. Token Validation with Graceful Failure Handling**
+```csharp
+private async Task ValidateTokenAndLoadSession()
+{
+    try
+    {
+        var validationResult = await TokenService.ValidateTokenAsync(Token, isHostToken: false);
+        
+        if (!validationResult.IsValid)
+        {
+            await HandleTokenValidationFailure(validationResult.ErrorCode);
+            return;
+        }
+        
+        CurrentState = SessionWaitingState.SessionLoading;
+        StateHasChanged();
+        
+        await LoadSessionDetails(validationResult.SessionId);
+    }
+    catch (HttpRequestException ex)
+    {
+        await HandleNetworkError(ex);
+    }
+    catch (TimeoutException ex)
+    {
+        await HandleTimeoutError(ex);
+    }
+    catch (Exception ex)
+    {
+        await HandleUnexpectedError(ex);
+    }
+}
+```
+
+**3. Progressive Error Recovery with User Options**
+```csharp
+private async Task HandleTokenValidationFailure(string errorCode)
+{
+    CurrentState = SessionWaitingState.TokenInvalid;
+    
+    ErrorMessage = errorCode switch
+    {
+        "TOKEN_EXPIRED" => "This session token has expired. Please contact the host for a new token.",
+        "TOKEN_NOT_FOUND" => "Invalid session token. Please check the token and try again.",
+        "SESSION_ENDED" => "This session has ended and is no longer accepting participants.",
+        "TOKEN_ALREADY_USED" => "This token has already been used. Please contact the host if you need assistance.",
+        _ => "Unable to validate session token. Please try again or contact support."
+    };
+    
+    ShowRetryOptions = true;
+    StateHasChanged();
+    
+    Logger.LogWarning("NOOR-WAITING-ROOM: Token validation failed - {ErrorCode} for token {Token}", errorCode, Token);
+}
+
+private async Task HandleNetworkError(Exception ex)
+{
+    CurrentState = SessionWaitingState.NetworkError;
+    ErrorMessage = "Connection problem. Please check your internet connection.";
+    ShowRetryOptions = true;
+    AutoRetryCount = 0;
+    StateHasChanged();
+    
+    Logger.LogError(ex, "NOOR-WAITING-ROOM: Network error during session loading");
+    
+    // Auto-retry with exponential backoff
+    await StartAutoRetrySequence();
+}
+```
+
+**4. SignalR Connection Resilience**
+```csharp
+private async Task InitializeSignalRWithFallback()
+{
+    try
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/sessionHub"))
+            .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10) })
+            .Build();
+            
+        hubConnection.Reconnecting += (error) =>
+        {
+            ConnectionStatus = "Reconnecting...";
+            StateHasChanged();
+            return Task.CompletedTask;
+        };
+        
+        hubConnection.Reconnected += (connectionId) =>
+        {
+            ConnectionStatus = "Connected";
+            StateHasChanged();
+            return Task.CompletedTask;
+        };
+        
+        hubConnection.Closed += async (error) =>
+        {
+            ConnectionStatus = "Disconnected";
+            StateHasChanged();
+            
+            // Fallback to polling if SignalR fails completely
+            if (!_isPollingFallbackActive)
+            {
+                Logger.LogWarning("NOOR-WAITING-ROOM: SignalR connection lost, switching to polling fallback");
+                await StartPollingFallback();
+            }
+        };
+        
+        await hubConnection.StartAsync();
+        ConnectionStatus = "Connected";
+    }
+    catch (Exception ex)
+    {
+        Logger.LogError(ex, "NOOR-WAITING-ROOM: SignalR initialization failed, using polling fallback");
+        await StartPollingFallback();
+    }
+}
+```
+
+**5. Skeleton Loading States with Retry Mechanisms**
+```csharp
+private void ShowLoadingSkeleton()
+{
+    LoadingSkeletonVisible = true;
+    StateHasChanged();
+}
+
+private void HideLoadingSkeleton()
+{
+    LoadingSkeletonVisible = false;
+    StateHasChanged();
+}
+
+private async Task RetryOperation(Func<Task> operation, int maxAttempts = 3)
+{
+    int attempts = 0;
+    
+    while (attempts < maxAttempts)
+    {
+        try
+        {
+            attempts++;
+            ErrorMessage = string.Empty;
+            ShowRetryOptions = false;
+            StateHasChanged();
+            
+            await operation();
+            return; // Success
+        }
+        catch (Exception ex) when (attempts < maxAttempts)
+        {
+            Logger.LogWarning("NOOR-WAITING-ROOM: Retry attempt {Attempt} of {MaxAttempts} failed: {Error}", 
+                attempts, maxAttempts, ex.Message);
+                
+            await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempts))); // Exponential backoff
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-WAITING-ROOM: All retry attempts failed");
+            await HandleUnexpectedError(ex);
+            return;
+        }
+    }
+}
+```
+
+**6. User-Friendly Error UI Components**
+```razor
+@if (CurrentState == SessionWaitingState.TokenInvalid || CurrentState == SessionWaitingState.NetworkError)
+{
+    <div style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:1rem;padding:2rem;margin:1rem 0;text-align:center;">
+        <div style="display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i class="fa-solid fa-exclamation-triangle" style="color:#DC2626;font-size:2rem;margin-right:0.5rem;"></i>
+            <h3 style="color:#DC2626;font-weight:600;margin:0;">Connection Problem</h3>
+        </div>
+        
+        <p style="color:#7F1D1D;margin-bottom:1.5rem;">@ErrorMessage</p>
+        
+        @if (ShowRetryOptions)
+        {
+            <div style="display:flex;flex-direction:column;gap:0.75rem;align-items:center;">
+                <button @onclick="RetryConnection" 
+                        disabled="@IsRetrying"
+                        style="padding:0.75rem 1.5rem;background-color:#DC2626;color:white;border:none;border-radius:0.5rem;font-weight:600;cursor:pointer;">
+                    @if (IsRetrying)
+                    {
+                        <i class="fa-solid fa-spinner fa-spin" style="margin-right:0.5rem;"></i>
+                        <span>Retrying...</span>
+                    }
+                    else
+                    {
+                        <span>Try Again</span>
+                    }
+                </button>
+                
+                <button @onclick="ReturnToLanding" 
+                        style="padding:0.5rem 1rem;background-color:transparent;color:#DC2626;border:1px solid #DC2626;border-radius:0.5rem;cursor:pointer;">
+                    Return to Landing Page
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@if (CurrentState == SessionWaitingState.Loading || LoadingSkeletonVisible)
+{
+    <!-- Skeleton loading screen -->
+    <div style="background-color:#FFFFFF;border-radius:1.5rem;padding:2rem;margin:1rem 0;">
+        <div style="display:flex;align-items:center;justify-content:center;margin-bottom:2rem;">
+            <div style="width:150px;height:40px;background-color:#F3F4F6;border-radius:0.5rem;animation:pulse 2s infinite;"></div>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem;">
+            @for (int i = 0; i < 4; i++)
+            {
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="width:48px;height:48px;background-color:#F3F4F6;border-radius:0.75rem;animation:pulse 2s infinite;"></div>
+                    <div style="flex:1;">
+                        <div style="width:75%;height:16px;background-color:#F3F4F6;border-radius:0.25rem;margin-bottom:0.5rem;animation:pulse 2s infinite;"></div>
+                        <div style="width:50%;height:12px;background-color:#F3F4F6;border-radius:0.25rem;animation:pulse 2s infinite;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div style="text-align:center;">
+            <div style="width:200px;height:60px;background-color:#F3F4F6;border-radius:0.5rem;margin:0 auto;animation:pulse 2s infinite;"></div>
+        </div>
+    </div>
+}
+```
+
+**7. Automatic Retry and Recovery Sequences**
+```csharp
+private async Task StartAutoRetrySequence()
+{
+    _isAutoRetrying = true;
+    
+    for (int attempt = 1; attempt <= MAX_AUTO_RETRY_ATTEMPTS; attempt++)
+    {
+        try
+        {
+            ErrorMessage = $"Retrying connection... (Attempt {attempt} of {MAX_AUTO_RETRY_ATTEMPTS})";
+            StateHasChanged();
+            
+            await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+            
+            await ValidateTokenAndLoadSession();
+            
+            // Success - exit retry loop
+            _isAutoRetrying = false;
+            return;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning("NOOR-WAITING-ROOM: Auto-retry attempt {Attempt} failed: {Error}", attempt, ex.Message);
+        }
+    }
+    
+    // All auto-retry attempts failed
+    _isAutoRetrying = false;
+    ErrorMessage = "Unable to connect after multiple attempts. Please check your connection and try again.";
+    ShowRetryOptions = true;
+    StateHasChanged();
+}
+```
 
 ---
 
