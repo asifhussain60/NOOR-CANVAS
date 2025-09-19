@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9aAR3bLArSw=",
+  "dgSpecHash": "laC7I85JqqE=",
   "success": true,
-  "projectFilePath": "d:\\PROJECTS\\NOOR CANVAS\\Tests\\NoorCanvas.Core.Tests\\NoorCanvas.Core.Tests.csproj",
+  "projectFilePath": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\NoorCanvas.Core.Tests\\NoorCanvas.Core.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\asifh\\.nuget\\packages\\anglesharp\\1.1.2\\anglesharp.1.1.2.nupkg.sha512",
     "C:\\Users\\asifh\\.nuget\\packages\\anglesharp.css\\1.0.0-beta.139\\anglesharp.css.1.0.0-beta.139.nupkg.sha512",

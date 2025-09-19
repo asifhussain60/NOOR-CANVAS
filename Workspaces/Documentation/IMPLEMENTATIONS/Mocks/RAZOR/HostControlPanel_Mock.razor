@@ -1,0 +1,472 @@
+<<<<<<< HEAD
+@page "/host-control-panel"
+
+<div class="w-[95%] bg-white rounded-xl shadow-2xl p-6 sm:p-8 space-y-6">
+
+    <!-- Header & Session Info -->
+    <header class="text-center">
+        <div class="flex justify-center mb-4">
+            <div class="w-24 h-24 rounded-full border-2 border-[#006400] flex items-center justify-center">
+                <span class="text-[#006400] font-bold text-xl">LOGO</span>
+            </div>
+        </div>
+        <h1 class="text-4xl font-bold text-[#006400] mb-2 flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-gear text-[#006400]"></i>
+            <span>HOST CONTROL PANEL</span>
+        </h1>
+    </header>
+
+    <!-- Session Details Panel -->
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-[#D4AF37]">
+        <h2 class="font-bold text-2xl text-[#D4AF37] mb-4">@SessionName</h2>
+        <p class="text-gray-600 text-sm leading-relaxed mb-4">@SessionDescription</p>
+    </div>
+
+    <div class="flex justify-center w-full">
+        <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 items-stretch w-1/2">
+            <!-- Session Controls Panel -->
+            <div class="w-full md:w-full bg-white rounded-xl shadow-inner border border-[#D4AF37] p-6 flex flex-col items-center justify-center space-y-4">
+                <h3 class="flex items-center justify-center space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-center">
+                    <i class="fa-solid fa-sliders text-[#006400]"></i>
+                    <span>SESSION CONTROLS</span>
+                </h3>
+                <div class="w-full flex justify-between space-x-4">
+                    <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-[#006400] hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" @onclick="() => ShowMessage('Start Session')">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Start Session</span>
+                    </button>
+                    <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" @onclick="() => ShowMessage('End Session')">
+                        <i class="fa-solid fa-stop"></i>
+                        <span>End Session</span>
+                    </button>
+                </div>
+                <button class="w-full py-3 px-6 rounded-xl shadow-lg text-gray-700 font-bold bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" @onclick="() => ShowMessage('Pause')">
+                    <i class="fa-solid fa-pause"></i>
+                    <span>Pause</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Session Transcript Panel -->
+    <div class="w-full bg-white rounded-xl shadow-inner border border-[#D4AF37] p-6 space-y-4">
+        <h3 class="flex items-center justify-start space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-left">
+            <i class="fa-solid fa-file-lines text-[#006400]"></i>
+            <span>Session Transcript</span>
+        </h3>
+        <div class="w-full h-[700px] overflow-y-auto border-2 border-dotted border-gray-400 rounded-lg p-4">
+            @((MarkupString)SessionTranscriptHTML)
+        </div>
+    </div>
+
+    <!-- Q&A Panel -->
+    <div class="bg-white p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+        <div class="flex items-center justify-start mb-2">
+            <h3 class="flex items-center justify-start space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-left">
+                <i class="fa-solid fa-clipboard-question text-[#006400]"></i>
+                <span>Questions & Answers</span>
+            </h3>
+        </div>
+        <div class="w-full h-[200px] overflow-y-auto pr-2">
+            @foreach (var question in FilteredQuestions)
+            {
+                <div class="@(GetQuestionClass(question.IsAnswered))" @key="question.Id">
+                    <div class="flex items-center space-x-2 flex-1">
+                        <i class="@(GetQuestionIcon(question.IsAnswered)) @(GetQuestionIconColor(question.IsAnswered))"></i>
+                        <span class="flex-1">@question.Text</span>
+                    </div>
+                    <div class="flex space-x-2 items-center">
+                        <button class="@(question.IsAnswered ? "text-gray-400" : "text-green-500 hover:text-green-600") focus:outline-none" @onclick="() => MarkQuestionAnswered(question.Id)" disabled="@question.IsAnswered">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </button>
+                        <button class="text-red-500 hover:text-red-600 focus:outline-none" @onclick="() => ShowDeleteModal(question.Id)">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <!-- Participants Panel -->
+    <div class="bg-white p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="flex items-center space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-center">
+                <i class="fa-solid fa-users text-[#006400]"></i>
+                <span>Participants (12)</span>
+            </h3>
+            <div class="flex space-x-2">
+                <button class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300">Sort by Name</button>
+                <button class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300">Sort by Country</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-2">
+            @foreach (var participant in ParticipantsData)
+            {
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <img src="@participant.FlagUrl" alt="@(participant.Country) Flag" class="h-4 w-auto rounded border border-gray-300">
+                    <span>@participant.Name</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Custom Confirmation Modal -->
+@if (showModal)
+{
+    <div class="modal">
+        <div class="modal-content">
+            <p class="text-lg font-bold text-gray-800 mb-4">Confirm Deletion</p>
+            <p class="text-gray-600 mb-6">Are you sure you want to delete this question?</p>
+            <div class="flex justify-center space-x-4">
+                <button class="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300" @onclick="CancelDelete">Cancel</button>
+                <button class="px-4 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600" @onclick="ConfirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="fixed top-2 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-xl bg-blue-500 text-white shadow-lg transition-opacity duration-500" style="opacity: @(showMessage ? "1" : "0"); visibility: @(showMessage ? "visible" : "hidden");">
+    @messageText
+=======
+@page "/hostcontrolpanel"
+
+<div class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+    <div class="w-[95%] bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-6">
+        
+        <!-- Header & Session Info -->
+        <header class="text-center">
+            <div class="flex justify-center mb-4">
+                <div class="w-24 h-24 rounded-full border-2 border-[#006400] flex items-center justify-center">
+                    <span class="text-[#006400] font-bold text-xl">LOGO</span>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-[#006400] mb-2 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-gear text-[#006400]"></i>
+                <span>HOST CONTROL PANEL</span>
+            </h1>
+        </header>
+
+        <!-- Session Details Panel -->
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-[#D4AF37]">
+            <h2 class="font-bold text-2xl text-[#D4AF37] mb-4">@SessionName</h2>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4">@SessionDescription</p>
+        </div>
+
+        <div class="flex justify-center w-full">
+            <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 items-stretch w-1/2">
+                <!-- Session Controls Panel -->
+                <div class="w-full md:w-full bg-[#f8f5f1] rounded-xl shadow-inner border border-[#D4AF37] p-6 flex flex-col items-center justify-center space-y-4">
+                    <h3 class="flex items-center justify-center space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-center">
+                        <i class="fa-solid fa-sliders text-[#006400]"></i>
+                        <span>SESSION CONTROLS</span>
+                    </h3>
+                    <div class="w-full flex justify-between space-x-4">
+                        <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-[#006400] hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" @onclick="() => ShowMessage('Start Session')">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start Session</span>
+                        </button>
+                        <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" @onclick="() => ShowMessage('End Session')">
+                            <i class="fa-solid fa-stop"></i>
+                            <span>End Session</span>
+                        </button>
+                    </div>
+                    <button class="w-full py-3 px-6 rounded-xl shadow-lg text-gray-700 font-bold bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" @onclick="() => ShowMessage('Pause')">
+                        <i class="fa-solid fa-pause"></i>
+                        <span>Pause</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Session Transcript Panel -->
+        <div class="w-full bg-white rounded-xl shadow-inner border border-[#D4AF37] p-6 space-y-4">
+            <h3 class="flex items-center justify-start space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-left">
+                <i class="fa-solid fa-file-lines text-[#006400]"></i>
+                <span>Session Transcript</span>
+            </h3>
+            <div class="w-full h-[700px] overflow-y-auto border-2 border-dotted border-gray-400 rounded-lg p-4">
+                <div @bind-innerHTML="SessionTranscript"></div>
+            </div>
+        </div>
+
+        <!-- Q&A Panel -->
+        <div class="bg-white p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+            <div class="flex items-center justify-start mb-2">
+                <h3 class="flex items-center justify-start space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-left">
+                    <i class="fa-solid fa-clipboard-question text-[#006400]"></i>
+                    <span>Questions & Answers</span>
+                </h3>
+            </div>
+            <div class="w-full h-[200px] overflow-y-auto pr-2">
+                @foreach (var question in QuestionsData.OrderBy(q => q.IsAnswered))
+                {
+                    <div class="@(question.IsAnswered ? "answered-question p-2 flex items-center justify-between space-x-2 text-gray-700 question-row border-b border-gray-200" : "p-2 flex items-center justify-between space-x-2 text-gray-700 question-row border-b border-gray-200 odd:bg-white even:bg-gray-50")" @key="question.Id">
+                        <div class="flex items-center space-x-2 flex-1">
+                            <i class="@(question.IsAnswered ? "fa-solid fa-circle-check text-green-500" : "fa-solid fa-circle-question text-blue-500")"></i>
+                            <span class="flex-1">@question.Text</span>
+                        </div>
+                        <div class="flex space-x-2 items-center">
+                            <button class="answer-btn text-green-500 hover:text-green-600 focus:outline-none" disabled="@question.IsAnswered" @onclick="() => MarkAsAnswered(question.Id)">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </button>
+                            <button class="delete-btn text-red-500 hover:text-red-600 focus:outline-none" @onclick="() => ShowDeleteModal(question.Id)">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- Participants Panel -->
+        <div class="bg-white p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="flex items-center space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-center">
+                    <i class="fa-solid fa-users text-[#006400]"></i>
+                    <span>Participants (12)</span>
+                </h3>
+                <div class="flex space-x-2">
+                    <button class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300">Sort by Name</button>
+                    <button class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300">Sort by Country</button>
+                </div>
+            </div>
+            <div id="participants-list" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-2">
+                <!-- Sample Participant List -->
+                @foreach (var participant in ParticipantsData)
+                {
+                    <div class="flex items-center space-x-2 text-gray-600">
+                        <img src="@participant.FlagUrl" alt="@participant.Country Flag" class="h-4 w-auto rounded border border-gray-300">
+                        <span>@participant.Name</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    @if (ShowModal)
+    {
+        <div class="modal" style="display: flex;">
+            <div class="modal-content">
+                <p class="text-lg font-bold text-gray-800 mb-4">Confirm Deletion</p>
+                <p class="text-gray-600 mb-6">Are you sure you want to delete this question?</p>
+                <div class="flex justify-center space-x-4">
+                    <button class="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300" @onclick="CancelDelete">Cancel</button>
+                    <button class="px-4 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600" @onclick="ConfirmDelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Tailwind CSS for Blazor -->
+    <style>
+        .answered-question {
+            color: #9ca3af !important;
+            background-color: #f9fafb !important;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            text-align: center;
+        }
+    </style>
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+</div>
+
+@code {
+    private string SessionName = "Sample Session";
+    private string SessionDescription = "This is a sample description for the session. It provides a brief overview of the topics that will be discussed and the goals of the session.";
+<<<<<<< HEAD
+    private string SessionTranscriptHTML =
+        @"<p class=""text-center italic text-gray-600 leading-relaxed"">""And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.""</p>
+        <p class=""text-center font-semibold mt-2"">- The Holy Quran, Surah Ar-Rum (30:21)</p>";
+
+    private List<Question> questionsData = new List<Question>
+    {
+        new Question { Id = "q1", Text = "How do you structure a successful Quran study session?", IsAnswered = false },
+        new Question { Id = "q2", Text = "What is the most effective way to lose weight during Ramadan?", IsAnswered = true },
+        new Question { Id = "q3", Text = "What are the key differences between various schools of Islamic thought?", IsAnswered = false },
+        new Question { Id = "q4", Text = "Where can I find a good English translation of the Quran?", IsAnswered = true },
+        new Question { Id = "q5", Text = "What are some practical tips for incorporating daily prayers into a busy schedule?", IsAnswered = false }
+    };
+    
+=======
+    private string SessionTranscript = @"
+        <p class=""text-center italic text-gray-600 leading-relaxed"">""And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.""</p>
+        <p class=""text-center font-semibold mt-2"">- The Holy Quran, Surah Ar-Rum (30:21)</p>
+    ";
+
+    private List<Question> QuestionsData = new List<Question>
+    {
+        new Question { Id = Guid.NewGuid(), Text = "How do you structure a successful Quran study session?", IsAnswered = false },
+        new Question { Id = Guid.NewGuid(), Text = "What is the most effective way to lose weight during Ramadan?", IsAnswered = true },
+        new Question { Id = Guid.NewGuid(), Text = "What are the key differences between various schools of Islamic thought?", IsAnswered = false },
+        new Question { Id = Guid.NewGuid(), Text = "Where can I find a good English translation of the Quran?", IsAnswered = true },
+        new Question { Id = Guid.NewGuid(), Text = "What are some practical tips for incorporating daily prayers into a busy schedule?", IsAnswered = false }
+    };
+
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+    private List<Participant> ParticipantsData = new List<Participant>
+    {
+        new Participant { Name = "Fatima", Country = "Morocco", FlagUrl = "https://flagcdn.com/w20/ma.png" },
+        new Participant { Name = "Ali", Country = "Saudi Arabia", FlagUrl = "https://flagcdn.com/w20/sa.png" },
+        new Participant { Name = "Zainab", Country = "United Kingdom", FlagUrl = "https://flagcdn.com/w20/gb.png" },
+        new Participant { Name = "Hassan", Country = "United States", FlagUrl = "https://flagcdn.com/w20/us.png" },
+        new Participant { Name = "Laila", Country = "Egypt", FlagUrl = "https://flagcdn.com/w20/eg.png" },
+        new Participant { Name = "Yusuf", Country = "Canada", FlagUrl = "https://flagcdn.com/w20/ca.png" },
+        new Participant { Name = "Maryam", Country = "France", FlagUrl = "https://flagcdn.com/w20/fr.png" },
+        new Participant { Name = "Omar", Country = "Turkey", FlagUrl = "https://flagcdn.com/w20/tr.png" },
+        new Participant { Name = "Sara", Country = "Germany", FlagUrl = "https://flagcdn.com/w20/de.png" },
+        new Participant { Name = "Mohammed", Country = "Indonesia", FlagUrl = "https://flagcdn.com/w20/id.png" },
+        new Participant { Name = "Aisha", Country = "Pakistan", FlagUrl = "https://flagcdn.com/w20/pk.png" },
+        new Participant { Name = "Ahmed", Country = "India", FlagUrl = "https://flagcdn.com/w20/in.png" }
+    };
+
+<<<<<<< HEAD
+    private bool showModal = false;
+    private string questionToDeleteId;
+    private bool showMessage = false;
+    private string messageText;
+    private Timer messageTimer;
+
+    private void ShowMessage(string message)
+    {
+        messageText = message;
+        showMessage = true;
+        StateHasChanged();
+
+        if (messageTimer != null)
+        {
+            messageTimer.Dispose();
+        }
+
+        messageTimer = new Timer(HideMessage, null, 2000, Timeout.Infinite);
+    }
+
+    private void HideMessage(object state)
+    {
+        showMessage = false;
+        StateHasChanged();
+    }
+
+    private List<Question> FilteredQuestions => questionsData.OrderBy(q => q.IsAnswered).ToList();
+
+    private string GetQuestionClass(bool isAnswered)
+    {
+        if (isAnswered)
+        {
+            return "p-2 flex items-center justify-between space-x-2 text-gray-700 question-row border-b border-gray-200 answered-question";
+        }
+        else
+        {
+            return "p-2 flex items-center justify-between space-x-2 text-gray-700 question-row border-b border-gray-200 even:bg-white odd:bg-gray-50";
+        }
+    }
+
+    private string GetQuestionIcon(bool isAnswered)
+    {
+        return isAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question";
+    }
+
+    private string GetQuestionIconColor(bool isAnswered)
+    {
+        return isAnswered ? "text-green-500" : "text-blue-500";
+    }
+
+    private void MarkQuestionAnswered(string id)
+    {
+        var question = questionsData.FirstOrDefault(q => q.Id == id);
+=======
+    private bool ShowModal { get; set; }
+    private Guid QuestionToDeleteId { get; set; }
+
+    private void MarkAsAnswered(Guid id)
+    {
+        var question = QuestionsData.FirstOrDefault(q => q.Id == id);
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+        if (question != null)
+        {
+            question.IsAnswered = true;
+        }
+    }
+
+<<<<<<< HEAD
+    private void ShowDeleteModal(string id)
+    {
+        questionToDeleteId = id;
+        showModal = true;
+=======
+    private void ShowDeleteModal(Guid id)
+    {
+        QuestionToDeleteId = id;
+        ShowModal = true;
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+    }
+
+    private void ConfirmDelete()
+    {
+<<<<<<< HEAD
+        questionsData.RemoveAll(q => q.Id == questionToDeleteId);
+        showModal = false;
+=======
+        QuestionsData.RemoveAll(q => q.Id == QuestionToDeleteId);
+        ShowModal = false;
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+    }
+
+    private void CancelDelete()
+    {
+<<<<<<< HEAD
+        showModal = false;
+=======
+        ShowModal = false;
+    }
+
+    private void ShowMessage(string message)
+    {
+        // For Blazor, we can't use a simple JS alert. We can create a temporary message.
+        // For now, this method can be used as a placeholder for future functionality.
+        Console.WriteLine($"Button clicked: {message}");
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+    }
+
+    public class Question
+    {
+<<<<<<< HEAD
+        public string Id { get; set; }
+        public string Text { get; set; }
+        public bool IsAnswered { get; set; }
+    }
+    
+=======
+        public Guid Id { get; set; }
+        public string Text { get; set; }
+        public bool IsAnswered { get; set; }
+    }
+
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
+    public class Participant
+    {
+        public string Name { get; set; }
+        public string Country { get; set; }
+        public string FlagUrl { get; set; }
+    }
+}

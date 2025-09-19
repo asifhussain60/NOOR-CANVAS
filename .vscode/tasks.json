@@ -266,6 +266,40 @@
 				"--headed"
 			],
 			"group": "test"
+		},
+		{
+			"label": "run-noorcanvas",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "run-noorcanvas-app",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"run"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "run-app-with-cd",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-Command",
+				"cd 'd:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas'; dotnet run"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
 		}
 	]
 }

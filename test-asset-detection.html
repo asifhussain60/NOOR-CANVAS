@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Asset Detection for Session 212</title>
+</head>
+<body>
+    <div>
+        <!-- Sample content similar to session 212 transcript -->
+        <h2>The Purpose of Messengers: A Call to Awaken from Heedlessness</h2>
+        <p>The purpose and need for sending messengers, the <span class="inlineArabic">رسول</span>, are intertwined. The purpose emanates from the need, and the need justifies the purpose.</p>
+
+        <div class="etymology-derivative-card">
+            <h3>Etymology Analysis</h3>
+            <p>The word <span class="inlineArabic">رسول</span> comes from the root ر-س-ل meaning "to send".</p>
+        </div>
+
+        <div class="ahadees-content">
+            <p><strong>Hadith:</strong> The Prophet ﷺ said: "I have been sent to perfect good character."</p>
+        </div>
+
+        <h3 class="ayah-header">Quranic Verses</h3>
+        
+        <div class="ayah-card">
+            <p>And We did not send any messenger except to be obeyed by permission of Allah.</p>
+            <span class="inlineArabic">وَمَا أَرْسَلْنَا مِن رَّسُولٍ إِلَّا لِيُطَاعَ بِإِذْنِ اللَّهِ</span>
+        </div>
+
+        <p>This concept is further elaborated with <span class="inlineArabic">الهداية</span> (guidance).</p>
+
+        <div class="etymology-derivative-card">
+            <h4>Derivative Analysis</h4>
+            <p>From the same root, we get <span class="inlineArabic">رسالة</span> (message) and <span class="inlineArabic">مرسل</span> (sender).</p>
+        </div>
+
+        <h4>Additional Context</h4>
+        <p>The messenger brings <span class="inlineArabic">النور</span> (light) to humanity.</p>
+
+        <div class="ahadees-content">
+            <p><strong>Another Hadith:</strong> "The example of guidance and knowledge with which Allah has sent me is like abundant rain..."</p>
+        </div>
+    </div>
+
+    <script>
+        // Test the asset detection patterns
+        function testAssetDetection() {
+            const patterns = {
+                "etymology-derivative-card": ["class=\"etymology-derivative-card\"", "class='etymology-derivative-card'", "etymology-derivative"],
+                "inline-arabic": ["class=\"inlineArabic\"", "class='inlineArabic'", "lang=\"ar\"", "lang='ar'"],
+                "ayah-card": ["class=\"ayah-card\"", "class='ayah-card'", "ayah"],
+                "ahadees-content": ["class=\"ahadees-content\"", "class='ahadees-content'", "ahadees", "hadith"],
+                "ayah-header": ["<h2", "<h3", "<h4"]
+            };
+
+            let totalFound = 0;
+            const html = document.body.innerHTML;
+
+            console.log("Testing asset detection on sample HTML...");
+            console.log("HTML length:", html.length);
+
+            for (const [assetType, selectors] of Object.entries(patterns)) {
+                let foundForType = 0;
+                
+                for (const selector of selectors) {
+                    let index = 0;
+                    let searchStart = 0;
+                    
+                    while ((index = html.indexOf(selector, searchStart)) !== -1) {
+                        foundForType++;
+                        searchStart = index + selector.length;
+                        console.log(`Found ${assetType} pattern "${selector}" at position ${index}`);
+                    }
+                }
+                
+                if (foundForType > 0) {
+                    console.log(`Total ${assetType}: ${foundForType} instances`);
+                    totalFound += foundForType;
+                }
+            }
+
+            console.log(`TOTAL ASSETS DETECTED: ${totalFound}`);
+            
+            // Test specific elements
+            const etymologyCards = document.querySelectorAll('.etymology-derivative-card');
+            const inlineArabic = document.querySelectorAll('.inlineArabic');
+            const ayahCards = document.querySelectorAll('.ayah-card');
+            const ahadeesContent = document.querySelectorAll('.ahadees-content');
+            const headers = document.querySelectorAll('h2, h3, h4');
+
+            console.log("Element counts:");
+            console.log("- etymology-derivative-card elements:", etymologyCards.length);
+            console.log("- inlineArabic spans:", inlineArabic.length);
+            console.log("- ayah-card elements:", ayahCards.length);
+            console.log("- ahadees-content elements:", ahadeesContent.length);
+            console.log("- header elements (h2,h3,h4):", headers.length);
+            
+            return {
+                totalPatternMatches: totalFound,
+                elementCounts: {
+                    etymologyCards: etymologyCards.length,
+                    inlineArabic: inlineArabic.length,
+                    ayahCards: ayahCards.length,
+                    ahadeesContent: ahadeesContent.length,
+                    headers: headers.length
+                }
+            };
+        }
+
+        // Run test when page loads
+        window.addEventListener('load', function() {
+            setTimeout(testAssetDetection, 1000);
+        });
+    </script>
+</body>
+</html>

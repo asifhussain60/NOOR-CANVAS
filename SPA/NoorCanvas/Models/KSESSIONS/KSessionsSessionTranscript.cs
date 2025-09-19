@@ -16,6 +16,20 @@ namespace NoorCanvas.Models.KSESSIONS
         [Required]
         public int SessionId { get; set; }
 
+        /// <summary>
+        /// Transcript content in HTML format with Arabic text support
+        /// Maps to nvarchar(MAX) field in database
+        /// </summary>
+        public string? Transcript { get; set; }
+
+        /// <summary>
+        /// When transcript was originally created
+        /// </summary>
+        public DateTime? CreatedDate { get; set; }
+
+        /// <summary>
+        /// When transcript was last modified
+        /// </summary>
         public DateTime? ChangedDate { get; set; }
 
         // Navigation property to Session

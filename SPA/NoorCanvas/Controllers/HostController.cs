@@ -888,34 +888,45 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Getting session details for sessionId: {SessionId}", sessionId);
+                _logger.LogInformation("NOOR-ISSUE-121-DEBUG: Getting session details for sessionId: {SessionId} with guid: {Guid}", 
+                    sessionId, guid?.Substring(0, Math.Min(8, guid.Length)) + "...");
 
                 if (string.IsNullOrWhiteSpace(guid))
                 {
                     return BadRequest(new { error = "Host token is required" });
                 }
 
-                // Query KSESSIONS database to get GroupId and CategoryId from SessionId
-                var sessionDetails = await _kSessionsContext.Sessions
-                    .Where(s => s.SessionId == sessionId)
-                    .Select(s => new 
-                    {
-                        SessionId = s.SessionId,
-                        GroupId = s.GroupId,      // This is the Album ID
-                        CategoryId = s.CategoryId,
-                        SessionName = s.SessionName,
-                        Description = s.Description
-                    })
-                    .FirstOrDefaultAsync();
+                // Query KSESSIONS database to get session details including transcript
+                // ISSUE-121 FIX: JOIN with SessionTranscripts to include transcript content
+                var sessionDetails = await (from session in _kSessionsContext.Sessions
+                                           join transcript in _kSessionsContext.SessionTranscripts
+                                           on session.SessionId equals transcript.SessionId into transcripts
+                                           from t in transcripts.DefaultIfEmpty()
+                                           where session.SessionId == sessionId
+                                           select new 
+                                           {
+                                               SessionId = session.SessionId,
+                                               GroupId = session.GroupId,      // This is the Album ID
+                                               CategoryId = session.CategoryId,
+                                               SessionName = session.SessionName,
+                                               Description = session.Description,
+                                               Transcript = t.Transcript ?? string.Empty // ✅ ISSUE-121: Include transcript content
+                                           }).FirstOrDefaultAsync();
 
                 if (sessionDetails == null)
                 {
-                    _logger.LogWarning("NOOR-WARNING: Session not found for SessionId: {SessionId}", sessionId);
+                    _logger.LogWarning("NOOR-ISSUE-121-ERROR: Session not found for SessionId: {SessionId}", sessionId);
                     return NotFound(new { error = "Session not found" });
                 }
 
-                _logger.LogInformation("NOOR-SUCCESS: Found session details - SessionId: {SessionId}, GroupId: {GroupId}, CategoryId: {CategoryId}", 
-                    sessionDetails.SessionId, sessionDetails.GroupId, sessionDetails.CategoryId);
+                // ISSUE-121 DEBUG: Log transcript details
+                var transcriptLength = sessionDetails.Transcript?.Length ?? 0;
+                var transcriptPreview = transcriptLength > 0 && !string.IsNullOrEmpty(sessionDetails.Transcript)
+                    ? sessionDetails.Transcript.Substring(0, Math.Min(100, transcriptLength)) 
+                    : "NULL";
+                
+                _logger.LogInformation("NOOR-ISSUE-121-SUCCESS: Found session details - SessionId: {SessionId}, GroupId: {GroupId}, CategoryId: {CategoryId}, TranscriptLength: {TranscriptLength}, Preview: {Preview}", 
+                    sessionDetails.SessionId, sessionDetails.GroupId, sessionDetails.CategoryId, transcriptLength, transcriptPreview);
 
                 return Ok(sessionDetails);
             }
@@ -948,6 +959,142 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogError(ex, "NOOR-ERROR: Failed to load session status");
                 return StatusCode(500, new { error = "Failed to load session status" });
+            }
+        }
+
+        [HttpGet("asset-patterns/{sessionId}")]
+        public IActionResult GetAssetPatterns(int sessionId, [FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-ASSET-API: Getting asset patterns for SessionId: {SessionId} with guid: {Guid}", 
+                    sessionId, guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
+
+                if (string.IsNullOrWhiteSpace(guid))
+                {
+                    return BadRequest(new { error = "Host token is required" });
+                }
+
+                // TODO: Add host token validation if needed
+                // For now, return predefined asset patterns based on the content we see in transcripts
+                
+                var assetPatterns = new
+                {
+                    sessionId = sessionId,
+                    patterns = new[]
+                    {
+                        new
+                        {
+                            type = "ayah-card",
+                            selector = ".ayah-card",
+                            description = "Quranic verse cards with Arabic text and translation",
+                            priority = 1
+                        },
+                        new
+                        {
+                            type = "inline-arabic",
+                            selector = ".inlineArabic",
+                            description = "Inline Arabic text spans within content",
+                            priority = 2
+                        },
+                        new
+                        {
+                            type = "ahadees-content",
+                            selector = "[id*='ahadees-']",
+                            description = "Hadith content blocks",
+                            priority = 1
+                        },
+                        new
+                        {
+                            type = "ayah-header", 
+                            selector = ".clickable-ayah-header",
+                            description = "Clickable Quranic verse headers",
+                            priority = 3
+                        }
+                    }
+                };
+
+                _logger.LogInformation("NOOR-ASSET-API: Returning {PatternCount} asset patterns for session {SessionId}", 
+                    assetPatterns.patterns.Length, sessionId);
+
+                return Ok(assetPatterns);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ASSET-API-ERROR: Failed to get asset patterns for SessionId: {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Failed to get asset patterns" });
+            }
+        }
+
+        [HttpPost("share-asset")]
+        public async Task<IActionResult> ShareAsset([FromBody] ShareAssetRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-SHARE-ASSET: Processing asset share request for session {SessionId}, asset type: {AssetType}", 
+                    request.SessionId, request.AssetPayload?.Type);
+
+                if (request.SessionId <= 0)
+                {
+                    return BadRequest(new { error = "Valid session ID is required" });
+                }
+
+                if (request.AssetPayload == null)
+                {
+                    return BadRequest(new { error = "Asset payload is required" });
+                }
+
+                if (string.IsNullOrEmpty(request.AssetPayload.Type) || string.IsNullOrEmpty(request.AssetPayload.Selector))
+                {
+                    return BadRequest(new { error = "Asset type and selector are required" });
+                }
+
+                // TODO: Add host token validation if needed
+                
+                // Store asset in SharedAssets table
+                var sharedAsset = new Models.SharedAsset
+                {
+                    SessionId = request.SessionId,
+                    AssetType = request.AssetPayload.Type,
+                    AssetData = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        selector = request.AssetPayload.Selector,
+                        metadata = request.AssetPayload.Metadata
+                    }),
+                    SharedAt = DateTime.UtcNow
+                };
+
+                _context.SharedAssets.Add(sharedAsset);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("NOOR-SHARE-ASSET: Asset stored with ID {AssetId} for session {SessionId}", 
+                    sharedAsset.AssetId, request.SessionId);
+
+                // Broadcast to session participants via SessionHub (UC-L1 workflow)
+                var sessionGroupName = $"Session_{request.SessionId}";
+                await _sessionHub.Clients.Group(sessionGroupName).SendAsync("AssetShared", new
+                {
+                    assetId = sharedAsset.AssetId,
+                    sessionId = request.SessionId,
+                    assetType = sharedAsset.AssetType,
+                    selector = request.AssetPayload.Selector,
+                    metadata = request.AssetPayload.Metadata,
+                    sharedAt = sharedAsset.SharedAt
+                });
+
+                _logger.LogInformation("NOOR-SHARE-ASSET: Asset broadcast completed for session group {SessionGroup}", sessionGroupName);
+
+                return Ok(new
+                {
+                    success = true,
+                    assetId = sharedAsset.AssetId,
+                    message = "Asset shared successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-SHARE-ASSET-ERROR: Failed to share asset for session {SessionId}", request?.SessionId);
+                return StatusCode(500, new { error = "Failed to share asset" });
             }
         }
 
@@ -1084,5 +1231,20 @@ namespace NoorCanvas.Controllers
         public string SessionName { get; set; } = string.Empty;
         public int ParticipantCount { get; set; }
         public DateTime? StartedAt { get; set; }
+    }
+
+    // Asset sharing models for UC-L1 workflow
+    public class ShareAssetRequest
+    {
+        public int SessionId { get; set; }
+        public string? HostToken { get; set; }
+        public AssetPayloadDto? AssetPayload { get; set; }
+    }
+
+    public class AssetPayloadDto
+    {
+        public string Type { get; set; } = string.Empty;
+        public string Selector { get; set; } = string.Empty;
+        public Dictionary<string, object> Metadata { get; set; } = new();
     }
 }

@@ -17,8 +17,18 @@ public class SharedAsset
     [MaxLength(50)]
     public string? AssetType { get; set; }
 
+    // Legacy full HTML storage (being phased out)
     [Column(TypeName = "nvarchar(max)")]
     public string? AssetData { get; set; }
+
+    // New selector-based approach (efficient storage)
+    [MaxLength(500)]
+    public string? AssetSelector { get; set; }
+
+    public int? AssetPosition { get; set; }
+
+    [Column(TypeName = "nvarchar(max)")]
+    public string? AssetMetadata { get; set; }
 
     // Navigation properties
     [ForeignKey(nameof(SessionId))]

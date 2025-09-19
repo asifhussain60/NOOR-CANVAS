@@ -110,6 +110,7 @@ builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
 builder.Services.AddScoped<SecureTokenService>(); // Secure token generation service
+builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service
 
 var app = builder.Build();
 
