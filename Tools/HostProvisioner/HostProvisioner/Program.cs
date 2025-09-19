@@ -584,7 +584,7 @@ class Program
                 
                 // Generate friendly URLs using 8-character tokens
                 hostUrl = $"https://localhost:9091/host/{hostToken}";
-                participantUrl = $"https://localhost:9091/session/{userToken}";
+                participantUrl = $"https://localhost:9091/user/landing/{userToken}";
                 
                 Log.Information("PROVISIONER-TOKEN: Generated friendly token pair for Session {SessionId}", canvasSession.SessionId);
                 Log.Information("PROVISIONER-TOKEN: Host Token: {HostToken}", hostToken);
@@ -655,7 +655,7 @@ class Program
             // Interactive mode specific output (Issue-44: Enhanced UX with pause)
             if (createdBy == "Interactive User")
             {
-                DisplayGuidWithPause(hostGuid, sessionId, hostSession.HostSessionId, createdUserId, participantUrl);
+                DisplayGuidWithPause(hostGuid, sessionId, hostSession.HostSessionId, createdUserId, participantUrl, hostToken, userToken);
             }
         }
         catch (Exception ex)
@@ -709,7 +709,7 @@ class Program
         return Convert.ToBase64String(hashBytes);
     }
 
-    private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null)
+    private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null, string? hostToken = null, string? userToken = null)
     {
         Console.WriteLine();
         Console.WriteLine("🎯 Session Tokens Generated Successfully!");
@@ -719,11 +719,24 @@ class Program
         Console.WriteLine($"Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
         Console.WriteLine();
         
-        // Prioritize friendly token display
-        if (!string.IsNullOrEmpty(participantUrl) && participantUrl.Contains("/session/"))
+        // Display friendly token information (prioritize direct tokens over URL extraction)
+        if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(participantUrl))
         {
-            // Extract friendly token from URL
-            var tokenMatch = participantUrl.Split("/session/").LastOrDefault()?.Split('?').FirstOrDefault();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("══════════════════════════════════════");
+            Console.WriteLine("🔗 USER AUTHENTICATION:");
+            Console.WriteLine("══════════════════════════════════════");
+            Console.ResetColor();
+            Console.WriteLine($"   Participant Token: {userToken}");
+            Console.WriteLine($"   Participant URL: {participantUrl}");
+            Console.WriteLine();
+        }
+        else if (!string.IsNullOrEmpty(participantUrl) && (participantUrl.Contains("/session/") || participantUrl.Contains("/user/landing/")))
+        {
+            // Fallback: Extract friendly token from URL for backward compatibility
+            var tokenMatch = participantUrl.Contains("/user/landing/") 
+                ? participantUrl.Split("/user/landing/").LastOrDefault()?.Split('?').FirstOrDefault()
+                : participantUrl.Split("/session/").LastOrDefault()?.Split('?').FirstOrDefault();
             if (!string.IsNullOrEmpty(tokenMatch))
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
@@ -742,7 +755,14 @@ class Program
         Console.WriteLine("🔐 HOST AUTHENTICATION:");
         Console.WriteLine("══════════════════════════════════════");
         Console.ResetColor();
-        Console.WriteLine($"   Host GUID: {hostGuid}");
+        if (!string.IsNullOrEmpty(hostToken))
+        {
+            Console.WriteLine($"   Host Token: {hostToken}");
+        }
+        else
+        {
+            Console.WriteLine($"   Host GUID: {hostGuid}");
+        }
         if (userId.HasValue)
         {
             Console.WriteLine($"   User GUID: {userId.Value}");
