@@ -14,7 +14,7 @@
 @inject NavigationManager Navigation
 @inject ILogger<SessionWaiting> Logger
 
-<PageTitle>NOOR Canvas - Session Waiting Room</PageTitle>
+<PageTitle>NoorCanvas</PageTitle>
 
 <HeadContent>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +59,7 @@
                 <i class="fa-solid fa-exclamation-triangle" style="font-size:2.25rem;color:#ef4444;"></i>
                 <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#ef4444;margin:0;">Session Error</h1>
             </div>
-            <p data-testid="error-message" style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
+            <p data-testid="error-message" style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model?.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
             <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 <button @onclick="RetryLoadSession" 
                         style="width:100%;padding:0.75rem 1.5rem;background-color:#006400;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">

@@ -300,6 +300,75 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
+        /// Register participant using token directly (for UserLanding.razor)
+        /// </summary>
+        [HttpPost("register-with-token")]
+        public async Task<IActionResult> RegisterParticipantWithToken([FromBody] TokenBasedRegistrationRequest request)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            
+            try
+            {
+                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Token-based registration for {Name}", requestId, request.Name);
+
+                if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Country) || string.IsNullOrWhiteSpace(request.Token))
+                {
+                    return BadRequest(new { error = "Name, country, and token are required", requestId });
+                }
+
+                // Validate the token first
+                var secureToken = await _tokenService.ValidateTokenAsync(request.Token, isHostToken: false);
+                if (secureToken?.Session == null)
+                {
+                    return NotFound(new { error = "Invalid token or session not found", requestId });
+                }
+
+                var session = secureToken.Session;
+
+                // Create or find user
+                var userId = Guid.NewGuid();
+                var newUser = new User
+                {
+                    UserId = userId,
+                    Name = request.Name.Trim(),
+                    Country = request.Country.Trim(),
+                    FirstJoinedAt = DateTime.UtcNow,
+                    LastJoinedAt = DateTime.UtcNow
+                };
+                _context.Users.Add(newUser);
+
+                // Create registration
+                var registration = new Registration
+                {
+                    SessionId = session.SessionId,
+                    UserId = userId,
+                    JoinTime = DateTime.UtcNow
+                };
+                _context.Registrations.Add(registration);
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Registration successful - Name: {Name}, UserId: {UserId}, SessionId: {SessionId}", 
+                    requestId, request.Name, userId, session.SessionId);
+
+                return Ok(new
+                {
+                    success = true,
+                    userId = userId.ToString(),
+                    registrationId = registration.RegistrationId,
+                    waitingRoomUrl = $"/session/waiting/{request.Token}",
+                    joinTime = registration.JoinTime,
+                    requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-PARTICIPANT: [{RequestId}] Failed to register participant with token: {Token}", requestId, request.Token);
+                return StatusCode(500, new { error = "Registration failed", requestId });
+            }
+        }
+
+        /// <summary>
         /// Get participants for a session using token (Phase 3.6 - Friendly Tokens)
         /// </summary>
         [HttpGet("session/{token}/participants")]
@@ -470,6 +539,49 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to get session status" });
             }
         }
+
+        /// <summary>
+        /// Test-only endpoint for creating token pairs for E2E testing
+        /// Only available in development environment
+        /// </summary>
+        [HttpPost("test/create-token-pair")]
+        public async Task<IActionResult> CreateTestTokenPair([FromBody] TestTokenCreationRequest request)
+        {
+            #if !DEBUG
+            return NotFound();
+            #endif
+            
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            
+            try
+            {
+                _logger.LogInformation("NOOR-TEST: [{RequestId}] Creating test token pair for SessionId {SessionId}", 
+                    requestId, request.SessionId);
+
+                var (hostToken, userToken) = await _tokenService.GenerateTokenPairAsync(
+                    request.SessionId, 
+                    request.ValidHours ?? 24,
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
+
+                _logger.LogInformation("NOOR-TEST: [{RequestId}] Test token pair created - Host: {HostToken}, User: {UserToken}", 
+                    requestId, hostToken, userToken);
+
+                return Ok(new
+                {
+                    hostToken,
+                    userToken,
+                    sessionId = request.SessionId,
+                    expiresAt = DateTime.UtcNow.AddHours(request.ValidHours ?? 24),
+                    requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-TEST: [{RequestId}] Failed to create test token pair for SessionId {SessionId}", 
+                    requestId, request.SessionId);
+                return StatusCode(500, new { error = "Failed to create test token pair", requestId });
+            }
+        }
     }
 
     // Request/Response Models
@@ -513,5 +625,21 @@ namespace NoorCanvas.Controllers
         public string? UserRegistration { get; set; }
         public DateTime? StartedAt { get; set; }
         public bool CanJoin { get; set; }
+    }
+
+    public class TokenBasedRegistrationRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string Country { get; set; } = string.Empty;
+    }
+
+    public class TestTokenCreationRequest
+    {
+        public long SessionId { get; set; }
+        public string? HostToken { get; set; }
+        public string? UserToken { get; set; }
+        public int? ValidHours { get; set; }
     }
 }

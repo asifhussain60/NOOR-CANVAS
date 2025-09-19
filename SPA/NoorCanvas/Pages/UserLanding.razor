@@ -1,5 +1,6 @@
 @page "/user/landing"
 @page "/user/landing/{sessionToken?}"
+@page "/landing"
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
@@ -7,6 +8,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
+@using System.Web
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -168,14 +170,23 @@
         // NOTE: Countries will be loaded AFTER successful token validation (Issue-114 fix)
         // Do NOT load countries here to prevent loading during token entry phase
 
+        // Check for token from route parameter or query parameter
+        var token = SessionToken;
+        if (string.IsNullOrEmpty(token))
+        {
+            var uri = new Uri(Navigation.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            token = query["token"];
+        }
+
         // If session token provided via URL, populate it and load session info
-        if (!string.IsNullOrEmpty(SessionToken))
+        if (!string.IsNullOrEmpty(token))
         {
             Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading session info for token: {Token}", 
-                requestId, SessionToken);
+                requestId, token);
             
-            Model.TokenInput = SessionToken;
-            await LoadSessionInfoAsync(SessionToken, requestId);
+            Model.TokenInput = token;
+            await LoadSessionInfoAsync(token, requestId);
         }
         else
         {
@@ -398,17 +409,37 @@
 
         try
         {
-            // TODO: Replace with actual user registration API call
-            // var registrationResult = await UserService.RegisterUserAsync(new UserRegistrationRequest
-            // {
-            //     Token = Model.TokenInput,
-            //     Name = Model.NameInput,
-            //     Email = Model.EmailInput,
-            //     Country = Model.CountrySelect
-            // });
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Starting participant registration for {Name}", requestId, Model.NameInput);
 
-            // Simulate API call for now
-            await Task.Delay(1500);
+            // Call the token-based registration API
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+
+            // Create registration request using the token directly
+            var registrationRequest = new
+            {
+                Token = Model.TokenInput,
+                Name = Model.NameInput,
+                Email = Model.EmailInput,
+                Country = Model.CountrySelect
+            };
+
+            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Sending registration to API - Name: {Name}, Country: {Country}", 
+                requestId, registrationRequest.Name, registrationRequest.Country);
+
+            var registrationResponse = await httpClient.PostAsJsonAsync("api/participant/register-with-token", registrationRequest);
+
+            if (!registrationResponse.IsSuccessStatusCode)
+            {
+                var error = await registrationResponse.Content.ReadAsStringAsync();
+                Logger.LogError("NOOR-USER-LANDING: [{RequestId}] Registration failed: {Error}", requestId, error);
+                Model.ErrorMessage = "Registration failed. Please try again.";
+                return;
+            }
+
+            var registrationResult = await registrationResponse.Content.ReadFromJsonAsync<dynamic>();
+            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Registration successful - proceeding to waiting room", requestId);
 
             // Navigate to waiting room
             Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
