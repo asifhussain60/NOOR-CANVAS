@@ -39,11 +39,11 @@ export interface UserSessionRequest {
  */
 export async function generateTestToken(request: APIRequestContext): Promise<TokenData> {
     const sessionId = Math.floor(Math.random() * 1000) + 200;
-    
+
     // Generate 8-character tokens using same charset as SecureTokenService
     const hostToken = generateRandomToken();
     const userToken = generateRandomToken();
-    
+
     // Create session record first
     const sessionResponse = await request.post('https://localhost:9091/api/session/create', {
         ignoreHTTPSErrors: true,
@@ -73,7 +73,7 @@ export async function generateTestToken(request: APIRequestContext): Promise<Tok
     } catch (error) {
         console.warn('Failed to create token pair via API, tokens may not validate:', error);
     }
-    
+
     return {
         hostToken: hostToken,
         userToken: userToken,
@@ -90,12 +90,12 @@ export async function generateTestToken(request: APIRequestContext): Promise<Tok
 function generateRandomToken(): string {
     const CHARSET = "ABCDEFGHIJKLMNPQRSTUVWXYZ23456789"; // Same as SecureTokenService
     const TOKEN_LENGTH = 8;
-    
+
     let token = '';
     for (let i = 0; i < TOKEN_LENGTH; i++) {
         const randomIndex = Math.floor(Math.random() * CHARSET.length);
         token += CHARSET[randomIndex];
     }
-    
+
     return token;
 }
