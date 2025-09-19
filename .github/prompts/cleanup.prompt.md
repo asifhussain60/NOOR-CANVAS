@@ -18,13 +18,24 @@ description: >
 - **Functional Validation**: All tests remain discoverable and executable after reorganization
 - **Build Success**: Project builds successfully with `dotnet build` after cleanup
 - **Historical Preservation**: Valuable debugging insights archived in IssueTracker/COMPLETED/
+- **Issue Tracker Synchronization**: 100% consistency between tracker file and folder structure:
+  - All tracker entries have corresponding issue files in correct status folders
+  - All issue files are properly referenced in main tracker with accurate status icons
+  - No orphaned files or missing references detected
+  - File path links match actual locations after cleanup reorganization
 
 ### Post-Cleanup Validation
 1. **Test Discovery**: Verify all tests are discoverable: `npx playwright test --list`
 2. **Build Verification**: Confirm clean build: `dotnet build`
 3. **Configuration Integrity**: Validate config file redirections work correctly
 4. **Documentation Links**: Check that all cross-references and links remain functional
-5. **Git Status**: Ensure working tree is clean with no uncommitted artifacts
+5. **Issue Tracker Consistency**: Validate bi-directional sync between tracker file and folders:
+   - All tracker issue entries have corresponding files in correct status folders
+   - All issue files in folders are referenced in main tracker
+   - Status icons match folder locations (❌→NOT STARTED, ⚡→IN PROGRESS, ⏳→AWAITING_CONFIRMATION, ✅→COMPLETED)
+   - File path links in tracker point to actual file locations
+   - No orphaned files or missing references
+6. **Git Status**: Ensure working tree is clean with no uncommitted artifacts
 
 ### Lessons Learned
 - **Centralized Test Infrastructure**: Single PlayWright/ directory improves maintainability over scattered test locations
@@ -79,6 +90,25 @@ parameters:
 - No placeholder names: `clean`, `cleaned`, `fixed`, `final`, `new`, `copy`, `backup`, `old`, `tmp`, `test`, `junk`, dates/timestamps in names (unless changelog).
 - Preserve history by **renaming/moving** instead of deleting where content is canonical; delete only redundant/outdated.
 - Keep the repo **language-agnostic**: detect stack and choose appropriate tools.
+
+## Issue Tracker Synchronization Principles
+- **MASTER TRACKER FILE**: `IssueTracker/ncIssueTracker.MD` serves as single source of truth for issue status
+- **FOLDER STRUCTURE CONSISTENCY**: Each issue mentioned in tracker must have corresponding `.md` file in appropriate status folder:
+  - `IssueTracker/NOT STARTED/` - Issues that haven't been worked on (❌ icon)
+  - `IssueTracker/IN PROGRESS/` - Issues currently being developed (⚡ icon)  
+  - `IssueTracker/AWAITING_CONFIRMATION/` - Issues pending validation or testing (⏳ icon)
+  - `IssueTracker/COMPLETED/` - Fully resolved issues with implementation details (✅ icon)
+- **BI-DIRECTIONAL SYNC**: Every file in status folders should be referenced in main tracker file
+- **STATUS ACCURACY**: Issue files must be in folders matching their current status in tracker
+- **ICON-STATUS MAPPING**: Status icons in tracker must match folder locations:
+  - ❌ (NOT STARTED) → `NOT STARTED/` folder
+  - ⚡ (IN PROGRESS) → `IN PROGRESS/` folder
+  - ⏳ (AWAITING CONFIRMATION) → `AWAITING_CONFIRMATION/` folder
+  - ✅ (RESOLVED/COMPLETED) → `COMPLETED/` folder
+- **TODO INTEGRATION**: All TODOs mentioned in tracker must have corresponding detail files
+- **ORPHAN DETECTION**: Identify and integrate files that exist in folders but aren't referenced in tracker
+- **HISTORICAL PRESERVATION**: Archive analysis documents and audit reports in COMPLETED folder with proper references
+- **LINK ACCURACY**: File path links in tracker must match actual file locations after folder moves
 
 ## Test File Organization Principles
 - **CENTRALIZED PLAYWRIGHT STRUCTURE**: All Playwright tests should be organized under `PlayWright/` directory with subdirectories:
@@ -141,6 +171,21 @@ parameters:
      - Preserve valuable debugging insights in `IssueTracker/COMPLETED/Historical-*.md`
      - Remove outdated root-level documentation files after content preservation
    - **DO NOT MOVE SUCCESSFUL TESTS TO TEMP**: Test files are reference implementations, not temporary artifacts.
+   - **SYNCHRONIZE ISSUE TRACKER**: Ensure IssueTracker structure is consistent and up-to-date:
+     - **Parse Tracker File**: Extract all issue references from `IssueTracker/ncIssueTracker.MD` with their status icons (❌⚡⏳✅)
+     - **Validate File Existence**: Verify each tracker entry has corresponding `.md` file in appropriate status folder
+     - **Detect Status Mismatches**: Compare issue icons in tracker with actual folder locations:
+       - ❌ issues must be in `NOT STARTED/` folder
+       - ⚡ issues must be in `IN PROGRESS/` folder  
+       - ⏳ issues must be in `AWAITING_CONFIRMATION/` folder
+       - ✅ issues must be in `COMPLETED/` folder
+     - **Move Misplaced Files**: Relocate issue files to folders matching their tracker status
+     - **Update File Links**: Correct file path references in tracker after moving files
+     - **Orphan Integration**: Scan all status folders for files not referenced in tracker and add entries
+     - **Missing File Creation**: Create skeleton `.md` files for tracker entries without corresponding files
+     - **TODO Validation**: Ensure all TODOs mentioned in tracker have corresponding detail files in appropriate folders
+     - **Status Icon Correction**: Update tracker icons to match actual implementation progress and folder locations
+     - **Historical Analysis**: Archive completed analysis documents with proper status folder placement and tracker references
 
 5) **Build Artifacts & Cache Cleanup**
    - Remove .NET build artifacts: `bin/`, `obj/` directories from all projects
@@ -167,6 +212,55 @@ parameters:
 
 ## Command Playbook (Cross-Platform)
 Use the variant that matches the user shell; prefer Bash in VSCode integrated terminal, with PowerShell alternatives.
+
+**Issue Tracker Synchronization (PowerShell)**
+```powershell
+# Extract issue references and status icons from tracker file
+rg -o 'Issue-\d+.*?[❌⚡⏳✅]' IssueTracker/ncIssueTracker.MD > .tracker_issues.txt
+
+# Find all issue files in status folders
+Get-ChildItem "IssueTracker\*\Issue-*.md" -Recurse | ForEach-Object { "$($_.Directory.Name)\$($_.Name)" } > .folder_issues.txt
+
+# Compare tracker references with actual files to find mismatches
+# Use file comparison to identify orphaned files and missing references
+
+# Verify TODO files existence  
+rg -o 'TODO-\d+.*?[❌⚡⏳✅]' IssueTracker/ncIssueTracker.MD > .tracker_todos.txt
+Get-ChildItem "IssueTracker\*\TODO-*.md" -Recurse | ForEach-Object { "$($_.Directory.Name)\$($_.Name)" } > .folder_todos.txt
+
+# Issue Status Validation and Auto-Fix
+function Sync-IssueTracker {
+    # Parse tracker for issue status mappings
+    $trackerIssues = @{}
+    rg '### \*\*Issue-(\d+).*?\*\* ([❌⚡⏳✅])' IssueTracker/ncIssueTracker.MD | ForEach-Object {
+        if ($_ -match 'Issue-(\d+).*?([❌⚡⏳✅])') {
+            $issueNum = $matches[1]
+            $icon = $matches[2]
+            $expectedFolder = switch ($icon) {
+                '❌' { 'NOT STARTED' }
+                '⚡' { 'IN PROGRESS' } 
+                '⏳' { 'AWAITING_CONFIRMATION' }
+                '✅' { 'COMPLETED' }
+            }
+            $trackerIssues[$issueNum] = $expectedFolder
+        }
+    }
+    
+    # Check actual file locations and move if needed
+    Get-ChildItem "IssueTracker\*\Issue-*.md" -Recurse | ForEach-Object {
+        if ($_.Name -match 'Issue-(\d+)') {
+            $issueNum = $matches[1]
+            $currentFolder = $_.Directory.Name
+            $expectedFolder = $trackerIssues[$issueNum]
+            
+            if ($expectedFolder -and $currentFolder -ne $expectedFolder) {
+                Write-Host "Moving Issue-$issueNum from $currentFolder to $expectedFolder"
+                Move-Item $_.FullName "IssueTracker\$expectedFolder\$($_.Name)" -Force
+            }
+        }
+    }
+}
+```
 
 **Inventory & Similarity (Bash)**
 ```bash
