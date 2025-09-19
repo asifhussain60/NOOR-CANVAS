@@ -20,7 +20,7 @@ test.describe('Issue-119: Playwright Reorganization Validation', () => {
     test('Directory structure exists and is accessible', async () => {
         // This test validates that the new directory structure is properly set up
         // and that Playwright can access all required directories
-        
+
         // Test will pass if it can run from the new location
         // which implies directory structure is correct
         expect(true).toBe(true);
@@ -32,7 +32,7 @@ test.describe('Issue-119: Playwright Reorganization Validation', () => {
 
         // Navigate to the application
         await page.goto('/');
-        
+
         // Basic page load validation
         await expect(page).toHaveTitle(/NoorCanvas/);
         console.log('✅ Application accessible and page title validation working');
@@ -45,10 +45,10 @@ test.describe('Issue-119: Playwright Reorganization Validation', () => {
     test('Configuration paths resolve correctly', async ({ page }) => {
         // Test that the configuration file properly references the new paths
         console.log('🔧 Validating configuration paths from PlayWright/config/playwright.config.js');
-        
+
         // Navigate to test basic functionality
         await page.goto('/');
-        
+
         // Verify base URL configuration is working
         expect(page.url()).toContain('localhost:9091');
         console.log('✅ Base URL configuration working correctly');
@@ -68,10 +68,10 @@ test.describe('Issue-119: Playwright Reorganization Validation', () => {
         console.log('📁 Testing artifact generation in new directory structure');
 
         await page.goto('/');
-        
+
         // Perform actions that would generate artifacts
         await page.waitForTimeout(1000); // Brief pause for video generation
-        
+
         // Force a failure to test failure artifact generation
         try {
             await expect(page.locator('validation-test-element')).toBeVisible({ timeout: 500 });
