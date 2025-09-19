@@ -1,0 +1,70 @@
+@page "/host/control-panel/{sessionId?}"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject ILogger<HostControlPanel> Logger
+
+<PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
+
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</HeadContent>
+
+<!-- Root container matching NOOR Canvas styling -->
+<div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
+    
+    <!-- Main card container -->
+    <div style="width:100%;max-width:56rem;background-color:#FFFFFF;border-radius:1.5rem;padding:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #E5E7EB;text-align:center;">
+        
+        <!-- Logo -->
+        <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+            <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="NOOR Canvas" style="max-width:150px;height:auto;margin:0 auto;" />
+        </div>
+
+        <!-- Title Section -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:2rem;">
+            <i class="fa-solid fa-cogs" style="font-size:2.25rem;color:#006400;"></i>
+            <h1 style="font-size:2.25rem;font-family:'Poppins',sans-serif;font-weight:700;color:#006400;margin:0;">
+                HOST CONTROL PANEL
+            </h1>
+        </div>
+
+        <!-- Session Information Card -->
+        <div style="width:100%;background-color:#F8F5F1;border-radius:1rem;border:2px solid #C5B358;padding:2rem;text-align:left;margin-bottom:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+            <h3 style="font-family:'Inter',sans-serif;font-weight:600;color:#006400;margin:0 0 1rem 0;font-size:1.25rem;">
+                <i class="fa-solid fa-info-circle" style="margin-right:0.5rem;"></i>
+                Session Information
+            </h3>
+            <p style="font-family:'Inter',sans-serif;color:#706357;margin:0;font-size:1rem;">
+                <strong>Session ID:</strong> @(SessionId ?? "Not Available")
+            </p>
+            <p style="font-family:'Inter',sans-serif;color:#706357;margin:0.5rem 0 0 0;font-size:0.875rem;">
+                Welcome to the Host Control Panel. This is where you can manage your session.
+            </p>
+        </div>
+
+        <!-- Coming Soon Section -->
+        <div style="width:100%;background-color:#E6F7FF;border-radius:1rem;border:2px solid #91D5FF;padding:2rem;text-align:center;">
+            <i class="fa-solid fa-construction" style="font-size:3rem;color:#1890FF;margin-bottom:1rem;"></i>
+            <h3 style="font-family:'Inter',sans-serif;font-weight:600;color:#1890FF;margin:0 0 1rem 0;font-size:1.5rem;">
+                More Features Coming Soon
+            </h3>
+            <p style="font-family:'Inter',sans-serif;color:#0050B3;margin:0;font-size:1rem;">
+                The Host Control Panel is under development. Additional session management features will be available soon.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? SessionId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("HOST-CONTROL-PANEL: Initialized with SessionId: {SessionId}", SessionId);
+    }
+}
