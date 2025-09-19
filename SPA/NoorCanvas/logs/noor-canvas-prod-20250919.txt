@@ -4,3 +4,52 @@
 [2025-09-19 06:08:18 INF] NOOR-HOST-ROUTE: [b14f14c5] HostLanding component initialized - Route: https://localhost:9091/, FriendlyToken: null
 [2025-09-19 06:08:18 INF] NOOR-HOST: [b14f14c5] HostLanding OnInitialized - FriendlyToken: null
 [2025-09-19 06:08:18 INF] NOOR-HOST: [b14f14c5] No friendly token provided, using default session info
+[2025-09-19 06:42:39 INF] NOOR-HOST-OPENER: Initializing Host-SessionOpener component with Token: Y57ZZEHE
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: Host friendly token set: Y57ZZEHE
+[2025-09-19 06:42:40 INF] NOOR-INFO: Loading albums from KSESSIONS database for host token: Y57ZZEHE...
+[2025-09-19 06:42:40 INF] NOOR-SUCCESS: Loaded 16 albums from KSESSIONS database
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: Loaded 16 albums
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Starting session tracing and auto-population...
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Using demo KSessionsId 1281 for auto-population demonstration
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Tracing session details for KSessionsId: 1281
+[2025-09-19 06:42:40 INF] NOOR-INFO: Getting session details for sessionId: 1281
+[2025-09-19 06:42:40 INF] NOOR-SUCCESS: Found session details - SessionId: 1281, GroupId: 18, CategoryId: 55
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Found session details - GroupId: 18, CategoryId: 55, SessionId: 1281
+[2025-09-19 06:42:40 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Step 1: Setting Album to GroupId 18
+[2025-09-19 06:42:41 INF] NOOR-INFO: Loading categories from KSESSIONS database for album: 18
+[2025-09-19 06:42:42 INF] NOOR-SUCCESS: Loaded 7 categories from KSESSIONS database for album 18
+[2025-09-19 06:42:42 INF] NOOR-HOST-OPENER: Loaded 7 categories for album 18
+[2025-09-19 06:42:43 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Step 2: Setting Category to CategoryId 55
+[2025-09-19 06:42:44 INF] NOOR-INFO: Loading sessions from KSESSIONS database for category: 55
+[2025-09-19 06:42:44 INF] NOOR-SUCCESS: Loaded 3 sessions from KSESSIONS database for category 55
+[2025-09-19 06:42:44 INF] NOOR-HOST-OPENER: Loaded 3 sessions for category 55
+[2025-09-19 06:42:45 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Step 3: Setting Session to SessionId 1281
+[2025-09-19 06:42:45 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Cascading auto-population completed successfully
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: Initializing Host-SessionOpener component with Token: Y57ZZEHE
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: Host friendly token set: Y57ZZEHE
+[2025-09-19 06:42:46 INF] NOOR-INFO: Loading albums from KSESSIONS database for host token: Y57ZZEHE...
+[2025-09-19 06:42:46 INF] NOOR-SUCCESS: Loaded 16 albums from KSESSIONS database
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: Loaded 16 albums
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Starting session tracing and auto-population...
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Using demo KSessionsId 1281 for auto-population demonstration
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Tracing session details for KSessionsId: 1281
+[2025-09-19 06:42:46 INF] NOOR-INFO: Getting session details for sessionId: 1281
+[2025-09-19 06:42:46 INF] NOOR-SUCCESS: Found session details - SessionId: 1281, GroupId: 18, CategoryId: 55
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Found session details - GroupId: 18, CategoryId: 55, SessionId: 1281
+[2025-09-19 06:42:46 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Step 1: Setting Album to GroupId 18
+[2025-09-19 06:42:47 INF] NOOR-INFO: Loading categories from KSESSIONS database for album: 18
+[2025-09-19 06:42:47 INF] NOOR-SUCCESS: Loaded 7 categories from KSESSIONS database for album 18
+[2025-09-19 06:42:47 INF] NOOR-HOST-OPENER: Loaded 7 categories for album 18
+[2025-09-19 06:42:48 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Step 2: Setting Category to CategoryId 55
+[2025-09-19 06:42:49 INF] NOOR-INFO: Loading sessions from KSESSIONS database for category: 55
+[2025-09-19 06:42:49 INF] NOOR-SUCCESS: Loaded 3 sessions from KSESSIONS database for category 55
+[2025-09-19 06:42:49 INF] NOOR-HOST-OPENER: Loaded 3 sessions for category 55
+[2025-09-19 06:42:50 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Step 3: Setting Session to SessionId 1281
+[2025-09-19 06:42:50 INF] NOOR-HOST-OPENER: [AUTO-LOAD] Cascading auto-population completed successfully
+[2025-09-19 06:43:32 INF] NOOR-HOST-TOKEN-VALIDATE: [aac3d419] Validating friendly token: Y57ZZEHE
+[2025-09-19 06:43:32 INF] NOOR-HOST-TOKEN-VALIDATE: [aac3d419] Looking up friendly token in database
+[2025-09-19 06:43:32 INF] NOOR-HOST-TOKEN-VALIDATE: [aac3d419] Updated session info from KSESSIONS: Title='The Story Of Adam (ZAHIR)', Description='Paraphrased Version of the original story' for session 10226
+[2025-09-19 06:43:32 INF] NOOR-HOST-TOKEN-VALIDATE: [aac3d419] Found session 10226 with title: The Story Of Adam (ZAHIR)
+[2025-09-19 06:59:21 INF] NOOR-HOST-ROUTE: [67cb212f] HostLanding component initialized - Route: https://localhost:9091/, FriendlyToken: null
+[2025-09-19 06:59:21 INF] NOOR-HOST: [67cb212f] HostLanding OnInitialized - FriendlyToken: null
+[2025-09-19 06:59:21 INF] NOOR-HOST: [67cb212f] No friendly token provided, using default session info

@@ -77,6 +77,7 @@ namespace NoorCanvas.Controllers
                         Session = new HostSessionInfo
                         {
                             SessionId = (int)session.SessionId,
+                            KSessionsId = session.KSessionsId,
                             Title = session.Title,
                             Description = session.Description,
                             Status = session.Status,
@@ -140,6 +141,7 @@ namespace NoorCanvas.Controllers
                         Session = new HostSessionInfo
                         {
                             SessionId = (int)session.SessionId,
+                            KSessionsId = session.KSessionsId,
                             Title = session.Title,
                             Description = session.Description,
                             Status = session.Status,
@@ -257,6 +259,7 @@ namespace NoorCanvas.Controllers
                         Session = new HostSessionInfo
                         {
                             SessionId = (int)secureToken.Session.SessionId,
+                            KSessionsId = secureToken.Session.KSessionsId,  // NEW: Include for session tracing
                             Title = sessionTitle, // Use fresh title from KSESSIONS
                             Description = sessionDescription,
                             Status = secureToken.Session.Status,
@@ -880,6 +883,49 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        [HttpGet("session-details/{sessionId}")]
+        public async Task<IActionResult> GetSessionDetails(int sessionId, [FromQuery] string guid)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Getting session details for sessionId: {SessionId}", sessionId);
+
+                if (string.IsNullOrWhiteSpace(guid))
+                {
+                    return BadRequest(new { error = "Host token is required" });
+                }
+
+                // Query KSESSIONS database to get GroupId and CategoryId from SessionId
+                var sessionDetails = await _kSessionsContext.Sessions
+                    .Where(s => s.SessionId == sessionId)
+                    .Select(s => new 
+                    {
+                        SessionId = s.SessionId,
+                        GroupId = s.GroupId,      // This is the Album ID
+                        CategoryId = s.CategoryId,
+                        SessionName = s.SessionName,
+                        Description = s.Description
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (sessionDetails == null)
+                {
+                    _logger.LogWarning("NOOR-WARNING: Session not found for SessionId: {SessionId}", sessionId);
+                    return NotFound(new { error = "Session not found" });
+                }
+
+                _logger.LogInformation("NOOR-SUCCESS: Found session details - SessionId: {SessionId}, GroupId: {GroupId}, CategoryId: {CategoryId}", 
+                    sessionDetails.SessionId, sessionDetails.GroupId, sessionDetails.CategoryId);
+
+                return Ok(sessionDetails);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to get session details for SessionId: {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Failed to get session details" });
+            }
+        }
+
         [HttpGet("session-status")]
         public IActionResult GetSessionStatus([FromQuery] string guid)
         {
@@ -942,6 +988,7 @@ namespace NoorCanvas.Controllers
     public class HostSessionInfo
     {
         public int SessionId { get; set; }
+        public long? KSessionsId { get; set; }     // NEW: For session tracing
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? Status { get; set; }

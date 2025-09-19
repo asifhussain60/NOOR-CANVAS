@@ -198,7 +198,7 @@
         public string? SelectedCategory { get; set; }
         public string? SelectedSession { get; set; }
         public DateTime SessionDate { get; set; } = DateTime.Today;
-        public string SessionTime { get; set; } = "";
+        public string SessionTime { get; set; } = "6:00 AM"; // Default to 6:00 AM EST
         public int? SessionDuration { get; set; } = 60; // Default duration
         public string ErrorMessage { get; set; } = "";
         public bool IsFormValid { get; set; }
@@ -240,6 +240,37 @@
         public DateTime? SessionDate { get; set; }
         public int CategoryID { get; set; }
         public bool IsActive { get; set; }
+    }
+
+    public class SessionDetailsResponse
+    {
+        public int SessionId { get; set; }
+        public int GroupId { get; set; }        // Album ID
+        public int CategoryId { get; set; }     // Category ID
+        public string SessionName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class HostSessionValidationResponse
+    {
+        public bool Valid { get; set; }
+        public int SessionId { get; set; }
+        public string? HostGuid { get; set; }
+        public HostSessionInfo? Session { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class HostSessionInfo
+    {
+        public int SessionId { get; set; }
+        public long? KSessionsId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? Status { get; set; }
+        public int ParticipantCount { get; set; }
+        public int? MaxParticipants { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 
 
@@ -365,6 +396,9 @@
         // Load albums for user selection
         await LoadAlbumsAsync();
         
+        // NEW: Auto-load dropdowns based on current session if we have a sessionId
+        await SetCascadingDefaultValuesFromSessionAsync();
+        
         ValidateForm();
     }
 
@@ -396,6 +430,94 @@
         {
             Model.IsLoadingAlbums = false;
             StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// NEW: Auto-load cascading dropdowns based on current session's KSESSIONS data
+    /// Traces sessionId back to get GroupId (Album) and CategoryId, then populates dropdowns with 1-second delays
+    /// </summary>
+    private async Task SetCascadingDefaultValuesFromSessionAsync()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Starting session tracing and auto-population...");
+            
+            // Get the current session's KSessionsId from the host's session in canvas.Sessions table
+            // We need to find the session associated with this host token and check if it has KSessionsId set
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Checking for existing session with KSessionsId for host token: {Token}", Model.HostFriendlyToken);
+            
+            // First, validate the host token and get session info
+            var tokenValidationResponse = await HttpClient.GetAsync($"api/host/token/{Model.HostFriendlyToken}/validate");
+            if (!tokenValidationResponse.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Host token validation failed - skipping auto-population");
+                return;
+            }
+            
+            var tokenInfo = await tokenValidationResponse.Content.ReadFromJsonAsync<HostSessionValidationResponse>();
+            if (tokenInfo?.Valid != true || tokenInfo.Session?.KSessionsId == null)
+            {
+                Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] No session with KSessionsId found for host token - this is normal for new sessions");
+                return;
+            }
+            
+            int kSessionsId = (int)tokenInfo.Session.KSessionsId.Value;
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Found existing session with KSessionsId: {KSessionsId}", kSessionsId);
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Tracing session details for KSessionsId: {KSessionsId}", kSessionsId);
+            
+            // Get session details (GroupId, CategoryId) from KSESSIONS database
+            var detailsResponse = await HttpClient.GetAsync($"api/host/session-details/{kSessionsId}?guid={Model.HostFriendlyToken}");
+            if (!detailsResponse.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("NOOR-HOST-OPENER: [AUTO-LOAD] Failed to get session details for KSessionsId: {KSessionsId}", kSessionsId);
+                return;
+            }
+            
+            var sessionDetails = await detailsResponse.Content.ReadFromJsonAsync<SessionDetailsResponse>();
+            if (sessionDetails == null)
+            {
+                Logger.LogWarning("NOOR-HOST-OPENER: [AUTO-LOAD] Null session details response");
+                return;
+            }
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Found session details - GroupId: {GroupId}, CategoryId: {CategoryId}, SessionId: {SessionId}", 
+                sessionDetails.GroupId, sessionDetails.CategoryId, sessionDetails.SessionId);
+            
+            // Step 1: Auto-select Album (GroupId) → wait 1 second → load categories
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Step 1: Setting Album to GroupId {GroupId}", sessionDetails.GroupId);
+            Model.SelectedAlbum = sessionDetails.GroupId.ToString();
+            StateHasChanged();
+            await Task.Delay(1000);
+            
+            // Load categories for the selected album
+            await OnAlbumChanged();
+            await Task.Delay(1000);
+            
+            // Step 2: Auto-select Category (CategoryId) → wait 1 second → load sessions  
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Step 2: Setting Category to CategoryId {CategoryId}", sessionDetails.CategoryId);
+            Model.SelectedCategory = sessionDetails.CategoryId.ToString();
+            StateHasChanged();
+            await Task.Delay(1000);
+            
+            // Load sessions for the selected category
+            await OnCategoryChanged();
+            await Task.Delay(1000);
+            
+            // Step 3: Auto-select Session (SessionId)
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Step 3: Setting Session to SessionId {SessionId}", sessionDetails.SessionId);
+            Model.SelectedSession = sessionDetails.SessionId.ToString();
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Cascading auto-population completed successfully");
+            ValidateForm();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: [AUTO-LOAD] Error during cascading auto-population");
+            // Don't show error to user - auto-population is optional enhancement
         }
     }
 
