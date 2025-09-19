@@ -3,7 +3,35 @@ mode: agent
 ---
 name: cleanup
 description: >
-  Comprehensive repo cleanup. Enforces industry-standard file names, consolidates and optimizes
+  Comprehensive repo cleanup. Enforces industry-standard file names, consolidat8) **Commit & Push**
+   - Stage all changes.
+   - Commit with a comprehensive message (template below).
+   - Push to the current branch's `origin`.
+   - Verify "working tree clean" (`git status --porcelain` empty). Git Extensions should show 0 uncommitted files.
+
+## Success Metrics & Validation (NOOR Canvas Example)
+
+### Cleanup Success Indicators
+- **File Reduction**: Successfully removed 916+ files while preserving functionality
+- **Line Reduction**: Eliminated 118K+ lines of outdated/redundant content
+- **Test Organization**: Centralized 121 tests in 29 files under PlayWright/ structure
+- **Functional Validation**: All tests remain discoverable and executable after reorganization
+- **Build Success**: Project builds successfully with `dotnet build` after cleanup
+- **Historical Preservation**: Valuable debugging insights archived in IssueTracker/COMPLETED/
+
+### Post-Cleanup Validation
+1. **Test Discovery**: Verify all tests are discoverable: `npx playwright test --list`
+2. **Build Verification**: Confirm clean build: `dotnet build`
+3. **Configuration Integrity**: Validate config file redirections work correctly
+4. **Documentation Links**: Check that all cross-references and links remain functional
+5. **Git Status**: Ensure working tree is clean with no uncommitted artifacts
+
+### Lessons Learned
+- **Centralized Test Infrastructure**: Single PlayWright/ directory improves maintainability over scattered test locations
+- **Script Organization**: Dedicated Scripts/ directory with logical subdirectories improves team collaboration  
+- **Content Preservation**: Archive valuable debugging content in issue tracker rather than deleting outright
+- **Incremental Validation**: Test functionality after each major reorganization phase to catch issues early
+- **Clear Communication**: Detailed commit messages and documentation updates help team understand changesd optimizes
   instructional Markdown, removes duplicates and TEMP clutter, runs linters/formatters,
   builds the project, and pushes a clean commit so Git history and Git Extensions show 0 uncommitted files.
 parameters:
@@ -20,6 +48,29 @@ parameters:
 - **Build** successfully.
 - Commit with a **clear, comprehensive message** and **push**; working tree must be pristine (0 uncommitted files).
 
+## Project Structure Patterns (NOOR Canvas)
+
+### Established Directory Structure
+- **PlayWright/**: Centralized test infrastructure
+  - `config/`: Test configuration files
+  - `tests/`: All test files organized by feature
+  - `reports/`: Test execution reports
+  - `results/`: Test result artifacts
+  - `artifacts/`: Screenshots, videos, and test data
+- **Scripts/**: Organized build and validation scripts
+  - `Validation/`: Issue validation scripts
+  - Root-level convenience scripts (build-with-iiskill.ps1, run-with-iiskill.ps1)
+- **IssueTracker/**: Issue management with proper status directories
+  - `COMPLETED/`: Archived completed issues with technical insights
+  - `IN PROGRESS/`: Active work items
+  - `NOT STARTED/`: Planned work
+- **Documentation/**: Technical documentation separate from root-level files
+
+### Root-Level File Organization
+- Keep only essential files in root: README.md, .sln, package.json, configuration files
+- Archive or relocate lengthy analysis files to appropriate subdirectories
+- Maintain single source of truth for each type of documentation
+
 ## Constraints & Principles
 - Prefer **conventional, well-known names**:
   - `README.md` (canonical instruction/usage guide – the ONE).
@@ -30,12 +81,17 @@ parameters:
 - Keep the repo **language-agnostic**: detect stack and choose appropriate tools.
 
 ## Test File Organization Principles
+- **CENTRALIZED PLAYWRIGHT STRUCTURE**: All Playwright tests should be organized under `PlayWright/` directory with subdirectories:
+  - `PlayWright/tests/` - All .spec.ts/.spec.js test files (centralized from Tests/UI/)
+  - `PlayWright/reports/` - HTML test reports 
+  - `PlayWright/results/` - JSON test results
+  - `PlayWright/artifacts/` - Screenshots, videos, traces
+  - `PlayWright/config/` - Configuration files
 - **DO NOT MOVE SUCCESSFUL TESTS TO TEMP**: Test files that represent successful issue resolution should be preserved in dedicated testing workspaces.
-- **Organize by Issue Resolution**: Create structured directories under `Workspaces/Testing/` organized by resolved issue numbers.
+- **Issue-Specific Test Organization**: 
+  - Tests for specific issues should remain in centralized `PlayWright/tests/` with issue naming (e.g., `issue-119-playwright-reorganization-validation.spec.ts`)
+  - Create `Workspaces/Testing/Issue-###-Description/` only for complex multi-file test scenarios
 - **Two-Way Linking**: Maintain bidirectional references between test files and issue tracker entries.
-- **Dedicated Test Locations**: 
-  - `Workspaces/Testing/Issue-###-Description/` for issue-specific test files
-  - `Workspaces/Testing/Category/` for general testing by category (e.g., Host-Authentication, API-Validation)
 - **Documentation Requirements**: Each test directory must include README.md with:
   - Links back to source issue in tracker
   - Description of test purpose and validation results  
@@ -73,15 +129,25 @@ parameters:
    - Detect file dupes (hash match or >90% similarity). Keep the newest **valid** content.
    - Remove unused screenshots/assets if no references remain (grep for paths).
    - Ensure there is **one** of each standard file (e.g., one `LICENSE`, one `README.md`).
-   - **ORGANIZE SUCCESSFUL TEST FILES**: Move test files that represent successful issue resolution to dedicated testing workspaces:
-     - Create `Workspaces/Testing/Issue-###-Description/` directories for issue-specific tests
-     - Create `Workspaces/Testing/Category/` directories for general testing categories
-     - Add README.md documentation with two-way links to issue tracker
-     - Update issue tracker with references to test file locations
+   - **CENTRALIZE PLAYWRIGHT TESTS**: Consolidate all test files under `PlayWright/tests/` directory:
+     - Move .spec.ts/.spec.js files from `Tests/UI/` to `PlayWright/tests/`
+     - Organize test artifacts under `PlayWright/` subdirectories (reports, results, artifacts)
+     - Update configuration to reference centralized structure
+     - Remove old test artifact directories after successful migration
+   - **ORGANIZE SCRIPTS**: Create `Scripts/` directory with logical subdirectories:
+     - `Scripts/Validation/` for issue validation files (validate-issue-*.*)
+     - `Scripts/` root for build/deployment scripts (build-with-*.ps1, run-with-*.ps1)
+   - **ARCHIVE OUTDATED DOCUMENTATION**: Move historical analysis to issue tracker:
+     - Preserve valuable debugging insights in `IssueTracker/COMPLETED/Historical-*.md`
+     - Remove outdated root-level documentation files after content preservation
    - **DO NOT MOVE SUCCESSFUL TESTS TO TEMP**: Test files are reference implementations, not temporary artifacts.
 
-5) **TEMP Hygiene**
-   - Clear irrelevant items in `/TEMP`, `/temp`, `/tmp`, `.cache`, and common tool temp dirs **that are not tracked by VCS**.
+5) **Build Artifacts & Cache Cleanup**
+   - Remove .NET build artifacts: `bin/`, `obj/` directories from all projects
+   - Clear application logs: `logs/*.txt` files from SPA directories  
+   - Clean test cache: `.test-cache/` contents
+   - Remove temporary build files: `.cache`, `*.tmp`, `*.bak` files
+   - Clear TEMP directories of test artifacts that have been centralized under PlayWright/
    - Add/update `.gitignore` to prevent reappearance (e.g., `temp/`, `*.log`, coverage artifacts, build outputs).
 
 6) **Lint & Format (Touched Files)**
