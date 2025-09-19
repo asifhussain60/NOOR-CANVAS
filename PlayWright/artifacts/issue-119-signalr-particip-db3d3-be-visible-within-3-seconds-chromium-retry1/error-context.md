@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - img "NOOR Canvas" [ref=e6]
+  - heading " Waiting Room" [level=1] [ref=e7]:
+    - generic [ref=e8]: 
+    - generic [ref=e9]: Waiting Room
+  - generic [ref=e10]:
+    - heading "Lowering Ones Gaze" [level=2] [ref=e11]
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e15]: 
+        - generic [ref=e16]:
+          - paragraph [ref=e17]: Date
+          - paragraph [ref=e18]: Today
+      - generic [ref=e19]:
+        - generic [ref=e21]: 
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Start Time
+          - paragraph [ref=e24]: TBD
+      - generic [ref=e25]:
+        - generic [ref=e27]: 
+        - generic [ref=e28]:
+          - paragraph [ref=e29]: Duration
+          - paragraph [ref=e30]: 1 hour
+      - generic [ref=e31]:
+        - generic [ref=e33]: 
+        - generic [ref=e34]:
+          - paragraph [ref=e35]: Instructor
+          - paragraph [ref=e36]: Asif Hussain
+  - generic [ref=e37]:
+    - paragraph [ref=e38]: "Session begins in:"
+    - generic [ref=e39]: 04:49
+    - paragraph [ref=e42]: Starting soon...
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - heading "Participants (2)" [level=2] [ref=e46]
+        - generic [ref=e47]: 
+      - generic [ref=e48]:
+        - button "Sort by Name" [ref=e49] [cursor=pointer]
+        - button "Sort by Country" [ref=e50] [cursor=pointer]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - img "United States Flag" [ref=e53]
+        - generic [ref=e54]: Syed Asif Hussain
+      - generic [ref=e55]:
+        - img "Canada Flag" [ref=e56]
+        - generic [ref=e57]: Test User 2
+```
