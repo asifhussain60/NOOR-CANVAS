@@ -10,7 +10,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+<<<<<<< HEAD
             background-color: #f8f5f1;
+=======
+            background-color: #f3f4f6;
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
         }
         .answered-question {
             color: #9ca3af !important;
@@ -39,9 +43,15 @@
         }
     </style>
 </head>
+<<<<<<< HEAD
 <body class="bg-[#f8f5f1] min-h-screen flex flex-col items-center p-4">
 
     <div class="w-[95%] bg-white rounded-xl shadow-2xl p-6 sm:p-8 space-y-6">
+=======
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+
+    <div class="w-[95%] bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-6">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
         
         <!-- Header & Session Info -->
         <header class="text-center">
@@ -66,6 +76,7 @@
             <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 items-stretch w-1/2">
                 <!-- Session Controls Panel -->
                 <div class="w-full md:w-full bg-[#f8f5f1] rounded-xl shadow-inner border border-[#D4AF37] p-6 flex flex-col items-center justify-center space-y-4">
+<<<<<<< HEAD
                     <h3 class="flex items-center justify-center space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-center">
                         <i class="fa-solid fa-sliders text-[#006400]"></i>
                         <span>SESSION CONTROLS</span>
@@ -76,11 +87,27 @@
                             <span>Start Session</span>
                         </button>
                         <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" onclick="showMessage('End Session')">
+=======
+                    <h3 class="flex items-center justify-center space-x-2 font-extrabold text-2xl text-blue-900 mb-2 text-center">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>SESSION CONTROLS</span>
+                    </h3>
+                    <div class="w-full flex justify-between space-x-4">
+                        <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-[#006400] hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start Session</span>
+                        </button>
+                        <button class="flex-1 py-3 px-6 rounded-xl shadow-lg text-white font-bold bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
                             <i class="fa-solid fa-stop"></i>
                             <span>End Session</span>
                         </button>
                     </div>
+<<<<<<< HEAD
                     <button class="w-full py-3 px-6 rounded-xl shadow-lg text-gray-700 font-bold bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2" onclick="showMessage('Pause')">
+=======
+                    <button class="w-full py-3 px-6 rounded-xl shadow-lg text-gray-700 font-bold bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
                         <i class="fa-solid fa-pause"></i>
                         <span>Pause</span>
                     </button>
@@ -89,19 +116,31 @@
         </div>
         
         <!-- Session Transcript Panel -->
+<<<<<<< HEAD
         <div class="w-full bg-white rounded-xl shadow-inner border border-[#D4AF37] p-6 space-y-4">
+=======
+        <div class="w-full bg-gray-50 rounded-xl shadow-inner border border-[#D4AF37] p-6 space-y-4">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
             <h3 class="flex items-center justify-start space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-left">
                 <i class="fa-solid fa-file-lines text-[#006400]"></i>
                 <span>Session Transcript</span>
             </h3>
+<<<<<<< HEAD
             <div id="session-transcript-container" class="w-full h-[700px] overflow-y-auto border-2 border-dotted border-gray-400 rounded-lg p-4">
+=======
+            <div class="w-full h-[700px] overflow-y-auto border-2 border-dotted border-gray-400 rounded-lg p-4">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
                 <p class="text-center italic text-gray-600 leading-relaxed">"And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought."</p>
                 <p class="text-center font-semibold mt-2">- The Holy Quran, Surah Ar-Rum (30:21)</p>
             </div>
         </div>
 
         <!-- Q&A Panel -->
+<<<<<<< HEAD
         <div class="bg-white p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+=======
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
             <div class="flex items-center justify-start mb-2">
                 <h3 class="flex items-center justify-start space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-left">
                     <i class="fa-solid fa-clipboard-question text-[#006400]"></i>
@@ -115,7 +154,11 @@
         </div>
         
         <!-- Participants Panel -->
+<<<<<<< HEAD
         <div class="bg-white p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+=======
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner border border-[#D4AF37]">
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
             <div class="flex items-center justify-between mb-2">
                 <h3 class="flex items-center space-x-2 font-extrabold text-2xl text-[#006400] mb-2 text-center">
                     <i class="fa-solid fa-users text-[#006400]"></i>
@@ -192,17 +235,23 @@
         </div>
     </div>
 
+<<<<<<< HEAD
     <div id="message-box" class="opacity-0 invisible transition-opacity duration-500"></div>
 
+=======
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
     <script>
         const sessionData = {
             sessionName: 'Sample Session',
             sessionDescription: "This is a sample description for the session. It provides a brief overview of the topics that will be discussed and the goals of the session."
         };
+<<<<<<< HEAD
         const sessionTranscriptHTML = `
             <p class="text-center italic text-gray-600 leading-relaxed">"And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought."</p>
             <p class="text-center font-semibold mt-2">- The Holy Quran, Surah Ar-Rum (30:21)</p>
         `;
+=======
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
 
         let questionsData = [
             { id: 'q1', text: 'How do you structure a successful Quran study session?', isAnswered: false },
@@ -215,13 +264,19 @@
         window.onload = function() {
             const sessionNameElement = document.getElementById('session-name');
             const sessionDescriptionElement = document.getElementById('session-description');
+<<<<<<< HEAD
             const sessionTranscriptContainer = document.getElementById('session-transcript-container');
+=======
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
             const questionsListContainer = document.getElementById('questions-list-container');
             const deleteModal = document.getElementById('delete-modal');
             const confirmDeleteBtn = document.getElementById('confirm-delete');
             const cancelDeleteBtn = document.getElementById('cancel-delete');
+<<<<<<< HEAD
             const messageBox = document.getElementById('message-box');
 
+=======
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
             let questionToDeleteId = null;
             
             // Populate Session Details from JS object
@@ -232,6 +287,7 @@
                 sessionDescriptionElement.textContent = sessionData.sessionDescription;
             }
 
+<<<<<<< HEAD
             // Populate Session Transcript from JS object
             if (sessionTranscriptContainer) {
                 sessionTranscriptContainer.innerHTML = sessionTranscriptHTML;
@@ -248,6 +304,8 @@
                 }, 2000);
             }
 
+=======
+>>>>>>> 8a0a591dc00ca578a6741695c24af81521f79f45
             // Function to render the questions list
             const renderQuestions = () => {
                 // Sort questions to move answered ones to the bottom
