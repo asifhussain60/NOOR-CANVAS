@@ -103,6 +103,51 @@ public class SessionHub : Hub
         _logger.LogInformation("NOOR-HUB: SessionEnded broadcast completed for session {SessionId}", sessionId);
     }
 
+    /// <summary>
+    /// Broadcast participant joined event to session group (called from ParticipantController)
+    /// </summary>
+    public async Task BroadcastParticipantJoined(long sessionId, string participantId, string displayName, string? country, DateTime joinedAt)
+    {
+        var groupName = $"session_{sessionId}";
+
+        _logger.LogInformation("NOOR-HUB: Broadcasting ParticipantJoined for session {SessionId}, participant {ParticipantId}", 
+            sessionId, participantId);
+
+        await Clients.Group(groupName).SendAsync("ParticipantJoined", new
+        {
+            sessionId = sessionId,
+            participantId = participantId,
+            displayName = displayName,
+            country = country,
+            joinedAt = joinedAt,
+            timestamp = DateTime.UtcNow
+        });
+
+        _logger.LogInformation("NOOR-HUB: ParticipantJoined broadcast completed for session {SessionId}", sessionId);
+    }
+
+    /// <summary>
+    /// Broadcast participant left event to session group
+    /// </summary>
+    public async Task BroadcastParticipantLeft(long sessionId, string participantId, string displayName)
+    {
+        var groupName = $"session_{sessionId}";
+
+        _logger.LogInformation("NOOR-HUB: Broadcasting ParticipantLeft for session {SessionId}, participant {ParticipantId}", 
+            sessionId, participantId);
+
+        await Clients.Group(groupName).SendAsync("ParticipantLeft", new
+        {
+            sessionId = sessionId,
+            participantId = participantId,
+            displayName = displayName,
+            leftAt = DateTime.UtcNow,
+            timestamp = DateTime.UtcNow
+        });
+
+        _logger.LogInformation("NOOR-HUB: ParticipantLeft broadcast completed for session {SessionId}", sessionId);
+    }
+
     public override async Task OnConnectedAsync()
     {
         _logger.LogDebug("NOOR-HUB: Connection established: {ConnectionId}", Context.ConnectionId);

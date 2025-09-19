@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
+using NoorCanvas.Hubs;
 using NoorCanvas.Models;
 using NoorCanvas.Services;
 using System.Security.Cryptography;
@@ -16,13 +18,15 @@ namespace NoorCanvas.Controllers
         private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<ParticipantController> _logger;
         private readonly SecureTokenService _tokenService;
+        private readonly IHubContext<SessionHub> _sessionHub;
 
-        public ParticipantController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<ParticipantController> logger, SecureTokenService tokenService)
+        public ParticipantController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<ParticipantController> logger, SecureTokenService tokenService, IHubContext<SessionHub> sessionHub)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
             _tokenService = tokenService;
+            _sessionHub = sessionHub;
         }
 
         /// <summary>
@@ -283,6 +287,29 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-SUCCESS: Participant registered: {Name} (ID: {UserId}) for session token: {UserToken}",
                     request.Name, userId, secureToken.UserToken);
 
+                // Broadcast participant joined event to session group for real-time updates
+                try
+                {
+                    await _sessionHub.Clients.Group($"session_{session.SessionId}")
+                        .SendAsync("ParticipantJoined", new
+                        {
+                            sessionId = session.SessionId,
+                            participantId = userId.ToString(),
+                            displayName = request.Name,
+                            country = request.Country,
+                            joinedAt = registration.JoinTime,
+                            timestamp = DateTime.UtcNow
+                        });
+                    
+                    _logger.LogInformation("NOOR-SIGNALR: [{UserId}] Broadcasted ParticipantJoined event for session {SessionId}", 
+                        userId, session.SessionId);
+                }
+                catch (Exception signalREx)
+                {
+                    _logger.LogWarning(signalREx, "NOOR-SIGNALR: Failed to broadcast ParticipantJoined event for session {SessionId}", session.SessionId);
+                    // Don't fail the registration if SignalR broadcasting fails
+                }
+
                 return Ok(new ParticipantRegistrationResponse
                 {
                     Success = true,
@@ -325,6 +352,31 @@ namespace NoorCanvas.Controllers
 
                 var session = secureToken.Session;
 
+                // Check if user already registered for this session (prevent duplicates)
+                var existingRegistration = await _context.Registrations
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.SessionId == session.SessionId && 
+                                            r.User != null &&
+                                            r.User.Name != null && r.User.Name.Trim().ToLower() == request.Name.Trim().ToLower() &&
+                                            r.User.Country != null && r.User.Country.Trim().ToLower() == request.Country.Trim().ToLower());
+
+                if (existingRegistration != null)
+                {
+                    _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] User {Name} from {Country} already registered for session {SessionId}", 
+                        requestId, request.Name, request.Country, session.SessionId);
+                    
+                    return Ok(new
+                    {
+                        success = true,
+                        userId = existingRegistration.UserId.ToString(),
+                        registrationId = existingRegistration.RegistrationId,
+                        waitingRoomUrl = $"/session/waiting/{request.Token}",
+                        joinTime = existingRegistration.JoinTime,
+                        requestId,
+                        message = "Already registered"
+                    });
+                }
+
                 // Create or find user
                 var userId = Guid.NewGuid();
                 var newUser = new User
@@ -350,6 +402,30 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Registration successful - Name: {Name}, UserId: {UserId}, SessionId: {SessionId}", 
                     requestId, request.Name, userId, session.SessionId);
+
+                // Broadcast participant joined event to session group for real-time updates
+                try
+                {
+                    await _sessionHub.Clients.Group($"session_{session.SessionId}")
+                        .SendAsync("ParticipantJoined", new
+                        {
+                            sessionId = session.SessionId,
+                            participantId = userId.ToString(),
+                            displayName = request.Name,
+                            country = request.Country,
+                            joinedAt = registration.JoinTime,
+                            timestamp = DateTime.UtcNow
+                        });
+                    
+                    _logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Broadcasted ParticipantJoined event for session {SessionId}", 
+                        requestId, session.SessionId);
+                }
+                catch (Exception signalREx)
+                {
+                    _logger.LogWarning(signalREx, "NOOR-SIGNALR: [{RequestId}] Failed to broadcast ParticipantJoined event for session {SessionId}", 
+                        requestId, session.SessionId);
+                    // Don't fail the registration if SignalR broadcasting fails
+                }
 
                 return Ok(new
                 {
