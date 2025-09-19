@@ -173,12 +173,12 @@
                 </button>
             </div>
             
-            <!-- Open Waiting Room Button -->
+            <!-- Load Control Panel Button -->
             <div style="display:flex;justify-content:center;margin-top:1rem;margin-top:1.5rem;">
-                <button id="openWaitingRoomBtn" @onclick="OpenWaitingRoom" 
+                <button id="loadControlPanelBtn" @onclick="LoadControlPanel" 
                         style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;background-color:#006400;color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                    <span>Open Waiting Room</span>
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Load Control Panel</span>
                 </button>
             </div>
         </div>
@@ -876,20 +876,20 @@
         }
     }
 
-    private void OpenWaitingRoom()
+    private void LoadControlPanel()
     {
         try
         {
-            Logger.LogInformation("NOOR-HOST-OPENER: Opening waiting room for token: {Token}", Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: Loading control panel for token: {Token}", Model.HostFriendlyToken);
             
-            // Navigate to session waiting room with current session context
-            var sessionId = Model.HostFriendlyToken ?? "demo-session";
-            Navigation.NavigateTo($"/session/waiting/{sessionId}");
+            // Navigate to host control panel with host token
+            var hostToken = Model.HostFriendlyToken ?? "demo-session";
+            Navigation.NavigateTo($"/host/control-panel/{hostToken}");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: Error opening waiting room");
-            ErrorMessage = "Failed to open waiting room. Please try again.";
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading control panel");
+            ErrorMessage = "Failed to load control panel. Please try again.";
         }
     }
 
