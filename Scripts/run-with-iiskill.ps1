@@ -50,7 +50,7 @@ Write-Host "Step 2: Starting NOOR Canvas application..." -ForegroundColor Yellow
 Push-Location "SPA\NoorCanvas"
 
 try {
-    Write-Host "Running dotnet run..." -ForegroundColor Cyan
+    Write-Host "Running with IIS Express..." -ForegroundColor Cyan
     Write-Host "Application will be available at:" -ForegroundColor Green
     Write-Host "  - HTTPS: https://localhost:9091" -ForegroundColor Cyan  
     Write-Host "  - HTTP:  http://localhost:9090" -ForegroundColor Cyan
@@ -58,7 +58,7 @@ try {
     Write-Host "Press Ctrl+C to stop the application" -ForegroundColor Yellow
     Write-Host "----------------------------------------" -ForegroundColor Gray
     
-    dotnet run
+    dotnet run --launch-profile "IIS Express"
 } catch {
     Write-Error "Failed to start application: $($_.Exception.Message)"
     exit 1

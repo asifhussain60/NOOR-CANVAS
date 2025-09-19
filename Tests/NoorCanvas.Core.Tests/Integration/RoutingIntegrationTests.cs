@@ -56,9 +56,6 @@ namespace NoorCanvas.Core.Tests.Integration
         [Theory]
         [InlineData("/")]
         [InlineData("/landing")]
-        [InlineData("/home")]
-        [InlineData("/counter")]
-        [InlineData("/fetchdata")]
         public async Task FixedRoutes_ShouldBeAccessible(string route)
         {
             // Arrange & Act
@@ -138,7 +135,7 @@ namespace NoorCanvas.Core.Tests.Integration
         public async Task MultipleSimultaneousRequests_ShouldNotCauseRoutingConflicts()
         {
             // Arrange
-            var routes = new[] { "/", "/home", "/landing", "/counter", "/fetchdata", "/healthz" };
+            var routes = new[] { "/", "/landing", "/healthz" };
             var tasks = new List<Task<HttpResponseMessage>>();
 
             // Act

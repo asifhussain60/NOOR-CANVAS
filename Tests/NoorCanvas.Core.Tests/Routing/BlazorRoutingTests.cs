@@ -28,24 +28,7 @@ namespace NoorCanvas.Core.Tests.Routing
             _output = output;
         }
 
-        [Fact]
-        public void Issue18_IndexPage_ShouldOnlyRouteToHome()
-        {
-            // Arrange
-            var indexPageType = typeof(NoorCanvas.Pages.Index);
-            var routeAttributes = indexPageType.GetCustomAttributes<RouteAttribute>();
-
-            // Act
-            var routes = routeAttributes.Select(r => r.Template).ToList();
-
-            // Assert
-            Assert.Single(routes);
-            Assert.Contains("/home", routes);
-            Assert.DoesNotContain("/", routes);
-
-            _output.WriteLine($"✅ Issue-18 Test Passed: Index.razor routes only to /home");
-            _output.WriteLine($"   Routes found: {string.Join(", ", routes)}");
-        }
+        // Note: Index.razor test removed as component was deleted during cleanup
 
         [Fact]
         public void Issue18_LandingPage_ShouldRouteToRootAndLanding()
@@ -186,11 +169,8 @@ namespace NoorCanvas.Core.Tests.Routing
         }
 
         [Theory]
-        [InlineData("/home", typeof(NoorCanvas.Pages.Index))]
         [InlineData("/", typeof(NoorCanvas.Pages.UserLanding))]
         [InlineData("/landing", typeof(NoorCanvas.Pages.UserLanding))]
-        [InlineData("/counter", typeof(Counter))]
-        [InlineData("/fetchdata", typeof(FetchData))]
         public void SpecificRoutes_ShouldMapToCorrectComponents(string route, Type expectedComponent)
         {
             // Arrange
