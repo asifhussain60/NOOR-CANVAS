@@ -17,7 +17,8 @@ namespace NoorCanvas.Tests.Authentication
         public LandingComponentTests()
         {
             // Configure test services
-            Services.AddHttpClient("default", client => {
+            Services.AddHttpClient("default", client =>
+            {
                 client.BaseAddress = new Uri("https://localhost:9091");
             });
         }
@@ -34,7 +35,7 @@ namespace NoorCanvas.Tests.Authentication
 
             // Assert: Component should render without errors
             Assert.NotNull(component);
-            
+
             // Basic test - component should render successfully
             // More specific assertions would require knowing exact HostLanding.razor structure
         }
@@ -66,14 +67,14 @@ namespace NoorCanvas.Tests.Authentication
         {
             // Arrange: Get HttpClientFactory service  
             var mockFactory = Services.GetService<IHttpClientFactory>();
-            
+
             // Act: Render component (should use injected factory)
             var component = RenderComponent<NoorCanvas.Pages.HostLanding>();
 
             // Assert: Component should render without DI errors
             Assert.NotNull(component);
             Assert.NotNull(mockFactory);
-            
+
             // Component should be able to create HttpClient
             var httpClient = mockFactory.CreateClient("default");
             Assert.NotNull(httpClient);
@@ -93,12 +94,12 @@ namespace NoorCanvas.Tests.Authentication
 
             // Assert: Component should function at basic level
             Assert.NotNull(component);
-            
+
             // Should render some content
             Assert.False(string.IsNullOrEmpty(component.Markup));
-            
+
             // Component should not throw exceptions during render
-            Assert.True(component.Markup.Contains("host") || component.Markup.Contains("auth") || 
+            Assert.True(component.Markup.Contains("host") || component.Markup.Contains("auth") ||
                        component.Markup.Length > 50, "Component should render meaningful content");
         }
     }

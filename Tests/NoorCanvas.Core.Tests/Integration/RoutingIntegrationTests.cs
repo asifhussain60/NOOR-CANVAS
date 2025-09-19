@@ -39,7 +39,7 @@ namespace NoorCanvas.Core.Tests.Integration
         {
             // This test validates that the web application factory can create the app
             // without throwing InvalidOperationException due to ambiguous routes
-            
+
             // Arrange & Act
             var exception = Record.Exception(() =>
             {
@@ -81,7 +81,7 @@ namespace NoorCanvas.Core.Tests.Integration
             var response = await _client.GetAsync("/healthz");
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode, 
+            Assert.True(response.IsSuccessStatusCode,
                 $"Health endpoint should work after routing fix, but got: {response.StatusCode}");
 
             var content = await response.Content.ReadAsStringAsync();
@@ -97,12 +97,12 @@ namespace NoorCanvas.Core.Tests.Integration
             // Assert
             // For Blazor Server, we expect HTML content with the app structure
             Assert.True(response.IsSuccessStatusCode);
-            
+
             var content = await response.Content.ReadAsStringAsync();
-            
+
             // Should contain HTML structure indicating Blazor app loaded
             Assert.Contains("<!DOCTYPE html>", content);
-            
+
             _output.WriteLine("✅ Root Route Test Passed: Landing page serves correctly");
         }
 
@@ -114,10 +114,10 @@ namespace NoorCanvas.Core.Tests.Integration
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
-            
+
             var content = await response.Content.ReadAsStringAsync();
             Assert.Contains("<!DOCTYPE html>", content);
-            
+
             _output.WriteLine("✅ Home Route Test Passed: Index page serves correctly at /home");
         }
 
@@ -130,7 +130,7 @@ namespace NoorCanvas.Core.Tests.Integration
             // Assert
             // Should either return 404 or serve the Blazor fallback (which then shows "Sorry, there's nothing at this address")
             Assert.True(response.StatusCode == HttpStatusCode.NotFound || response.IsSuccessStatusCode);
-            
+
             _output.WriteLine($"✅ Non-existent Route Test: /nonexistent-route-test -> {response.StatusCode}");
         }
 
@@ -155,7 +155,7 @@ namespace NoorCanvas.Core.Tests.Integration
                 var route = routes[index];
                 Assert.True(response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotFound,
                     $"Concurrent request to {route} failed with: {response.StatusCode}");
-                
+
                 _output.WriteLine($"✅ Concurrent Route Test: {route} -> {response.StatusCode}");
             }
 
@@ -170,6 +170,7 @@ namespace NoorCanvas.Core.Tests.Integration
             }
         }
 
+        [Fact]
         public void Dispose()
         {
             Dispose(true);

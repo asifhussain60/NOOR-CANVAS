@@ -22,10 +22,11 @@ namespace NoorCanvas.Tests.Authentication
         {
             // Arrange: Create service collection with NOOR Canvas configuration
             var services = new ServiceCollection();
-            
+
             // Simulate the same configuration from Program.cs
             var baseAddress = "https://localhost:9091"; // Development environment
-            services.AddHttpClient("default", client => {
+            services.AddHttpClient("default", client =>
+            {
                 client.BaseAddress = new Uri(baseAddress);
             });
 
@@ -58,7 +59,7 @@ namespace NoorCanvas.Tests.Authentication
             );
 
             Assert.Contains("An invalid request URI was provided", exception.Message);
-            Assert.Contains("Either the request URI must be an absolute URI or BaseAddress must be set", 
+            Assert.Contains("Either the request URI must be an absolute URI or BaseAddress must be set",
                           exception.Message);
         }
 
@@ -75,7 +76,7 @@ namespace NoorCanvas.Tests.Authentication
 
             // Act & Assert: Absolute URL should work without BaseAddress
             var request = new HttpRequestMessage(HttpMethod.Post, absoluteUrl);
-            
+
             // This should NOT throw an exception (validates the workaround)
             Assert.NotNull(request.RequestUri);
             Assert.True(request.RequestUri.IsAbsoluteUri);
@@ -98,13 +99,14 @@ namespace NoorCanvas.Tests.Authentication
             foreach (var testCase in testCases)
             {
                 var services = new ServiceCollection();
-                
+
                 // Simulate environment-aware configuration
-                var baseAddress = testCase.Environment == "Development" 
-                    ? "https://localhost:9091" 
+                var baseAddress = testCase.Environment == "Development"
+                    ? "https://localhost:9091"
                     : "https://yourproductionurl.com";
-                    
-                services.AddHttpClient("default", client => {
+
+                services.AddHttpClient("default", client =>
+                {
                     client.BaseAddress = new Uri(baseAddress);
                 });
 
@@ -128,12 +130,14 @@ namespace NoorCanvas.Tests.Authentication
         {
             // Arrange: Configure multiple named clients
             var services = new ServiceCollection();
-            
-            services.AddHttpClient("default", client => {
+
+            services.AddHttpClient("default", client =>
+            {
                 client.BaseAddress = new Uri("https://localhost:9091");
             });
-            
-            services.AddHttpClient("external", client => {
+
+            services.AddHttpClient("external", client =>
+            {
                 client.BaseAddress = new Uri("https://api.external.com");
                 client.Timeout = TimeSpan.FromSeconds(30);
             });

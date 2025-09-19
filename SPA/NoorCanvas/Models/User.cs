@@ -13,9 +13,6 @@ public class User
     public string? Name { get; set; }
 
     [MaxLength(128)]
-    public string? City { get; set; }
-
-    [MaxLength(128)]
     public string? Country { get; set; }
 
     public DateTime FirstJoinedAt { get; set; } = DateTime.UtcNow;

@@ -24,7 +24,7 @@ namespace NoorCanvas.Core.Tests.Integration
 
             _serviceProvider = services.BuildServiceProvider();
             _context = _serviceProvider.GetRequiredService<CanvasDbContext>();
-            
+
             // Ensure database is created
             _context.Database.EnsureCreated();
         }
@@ -76,7 +76,6 @@ namespace NoorCanvas.Core.Tests.Integration
             {
                 UserId = Guid.NewGuid(),
                 Name = "Schema Test User",
-                City = "Test City",
                 Country = "Test Country",
                 FirstJoinedAt = DateTime.UtcNow
             };
@@ -260,7 +259,6 @@ namespace NoorCanvas.Core.Tests.Integration
                 {
                     UserId = Guid.NewGuid(),
                     Name = $"Bulk User {i}",
-                    City = $"City {i}",
                     Country = "Test Country",
                     FirstJoinedAt = DateTime.UtcNow
                 };
@@ -277,13 +275,13 @@ namespace NoorCanvas.Core.Tests.Integration
 
             // Act - Bulk insert
             var startTime = DateTime.UtcNow;
-            
+
             _context.Users.AddRange(users);
             await _context.SaveChangesAsync();
-            
+
             _context.Registrations.AddRange(registrations);
             await _context.SaveChangesAsync();
-            
+
             var endTime = DateTime.UtcNow;
 
             // Assert - Verify all records were created
@@ -293,7 +291,7 @@ namespace NoorCanvas.Core.Tests.Integration
 
             Assert.True(userCount >= 50);
             Assert.Equal(50, registrationCount);
-            
+
             // Performance assertion (bulk operations should complete reasonably quickly)
             var operationTime = endTime - startTime;
             Assert.True(operationTime.TotalSeconds < 10, $"Bulk operation took {operationTime.TotalSeconds} seconds");
@@ -448,7 +446,7 @@ namespace NoorCanvas.Core.Tests.Integration
                     JoinTime = DateTime.UtcNow
                 };
                 _context.Registrations.Add(registration);
-                
+
                 // Add annotation
                 var annotation = new Annotation
                 {
@@ -492,7 +490,7 @@ namespace NoorCanvas.Core.Tests.Integration
             // Act - Create sample data for each entity type
             var session = await CreateTestSession("Migration Test Session");
             var user = await CreateTestUser("Migration Test User");
-            
+
             var sessionLink = new SessionLink
             {
                 SessionId = session.SessionId,
@@ -519,7 +517,7 @@ namespace NoorCanvas.Core.Tests.Integration
             _context.SessionLinks.Add(sessionLink);
             _context.Registrations.Add(registration);
             _context.Annotations.Add(annotation);
-            
+
             // Assert - Should save without errors
             await _context.SaveChangesAsync();
 
@@ -558,7 +556,6 @@ namespace NoorCanvas.Core.Tests.Integration
             {
                 UserId = Guid.NewGuid(),
                 Name = name,
-                City = "Test City",
                 Country = "Test Country",
                 FirstJoinedAt = DateTime.UtcNow
             };

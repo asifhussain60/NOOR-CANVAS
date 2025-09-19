@@ -18,51 +18,51 @@ namespace NoorCanvas.Core.Tests.Fixtures
             var builder = base.CreateWebHostBuilder();
             return builder?.UseEnvironment("Testing");
         }
-        
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             // Double-check environment is set
             builder.UseEnvironment("Testing");
-            
+
             builder.ConfigureServices(services =>
             {
                 // Remove any existing DbContext registrations to avoid conflicts
-                var canvasDescriptor = services.SingleOrDefault(d => 
+                var canvasDescriptor = services.SingleOrDefault(d =>
                     d.ServiceType == typeof(DbContextOptions<CanvasDbContext>));
                 if (canvasDescriptor != null)
                 {
                     services.Remove(canvasDescriptor);
                 }
-                
+
                 // Also remove by implementation type to be thorough
-                var canvasDbContextDescriptor = services.SingleOrDefault(d => 
+                var canvasDbContextDescriptor = services.SingleOrDefault(d =>
                     d.ServiceType == typeof(CanvasDbContext));
                 if (canvasDbContextDescriptor != null)
                 {
                     services.Remove(canvasDbContextDescriptor);
                 }
-                
-                var kSessionsDescriptor = services.SingleOrDefault(d => 
+
+                var kSessionsDescriptor = services.SingleOrDefault(d =>
                     d.ServiceType == typeof(DbContextOptions<KSessionsDbContext>));
                 if (kSessionsDescriptor != null)
                 {
                     services.Remove(kSessionsDescriptor);
                 }
-                
-                var kSessionsDbContextDescriptor = services.SingleOrDefault(d => 
+
+                var kSessionsDbContextDescriptor = services.SingleOrDefault(d =>
                     d.ServiceType == typeof(KSessionsDbContext));
                 if (kSessionsDbContextDescriptor != null)
                 {
                     services.Remove(kSessionsDbContextDescriptor);
                 }
-                
+
                 // Register In-Memory databases for testing
                 services.AddDbContext<CanvasDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("NoorCanvasTestDb");
                     options.EnableSensitiveDataLogging();
                 });
-                
+
                 services.AddDbContext<KSessionsDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("KSessionsTestDb");

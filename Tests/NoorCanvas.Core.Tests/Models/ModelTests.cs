@@ -98,7 +98,7 @@ namespace NoorCanvas.Core.Tests.Models
         [InlineData(null)]
         [InlineData("")]
         [InlineData("This title is way too long and exceeds the maximum length allowed for session titles which should be validated properly by the model constraints")]
-        public void Session_WithInvalidTitle_ShouldFailValidation(string invalidTitle)
+        public void Session_WithInvalidTitle_ShouldFailValidation(string? invalidTitle)
         {
             // Arrange
             var session = new Session
@@ -111,7 +111,7 @@ namespace NoorCanvas.Core.Tests.Models
 
             // Act & Assert
             var validationResults = ValidateModel(session);
-            
+
             if (string.IsNullOrEmpty(invalidTitle))
             {
                 // Null/empty titles should be allowed (optional field)
@@ -138,7 +138,6 @@ namespace NoorCanvas.Core.Tests.Models
             {
                 UserId = Guid.NewGuid(),
                 Name = "John Doe",
-                City = "New York",
                 Country = "United States",
                 FirstJoinedAt = DateTime.UtcNow.AddDays(-30),
                 LastJoinedAt = DateTime.UtcNow
@@ -147,7 +146,6 @@ namespace NoorCanvas.Core.Tests.Models
             // Assert
             Assert.True(user.UserId != Guid.Empty);
             Assert.Equal("John Doe", user.Name);
-            Assert.Equal("New York", user.City);
             Assert.Equal("United States", user.Country);
             Assert.True(user.FirstJoinedAt < user.LastJoinedAt);
             Assert.NotNull(user.Registrations);
@@ -164,14 +162,13 @@ namespace NoorCanvas.Core.Tests.Models
         [InlineData("Valid Name", null, "Valid Country")]
         [InlineData("Valid Name", "Valid City", "")]
         [InlineData("Valid Name", "Valid City", null)]
-        public void User_WithMissingRequiredFields_ShouldFailValidation(string name, string city, string country)
+        public void User_WithMissingRequiredFields_ShouldFailValidation(string? name, string? city, string? country)
         {
             // Arrange
             var user = new User
             {
                 UserId = Guid.NewGuid(),
                 Name = name,
-                City = city,
                 Country = country,
                 FirstJoinedAt = DateTime.UtcNow
             };
@@ -259,7 +256,7 @@ namespace NoorCanvas.Core.Tests.Models
             await _context.SaveChangesAsync();
 
             _context.Registrations.Add(registration2);
-            
+
             await Assert.ThrowsAsync<InvalidOperationException>(() => _context.SaveChangesAsync());
         }
 
@@ -305,7 +302,7 @@ namespace NoorCanvas.Core.Tests.Models
         [Trait("Entity", "Annotation")]
         [InlineData(null)]
         [InlineData("")]
-        public void Annotation_WithInvalidAnnotationData_ShouldFailValidation(string invalidData)
+        public void Annotation_WithInvalidAnnotationData_ShouldFailValidation(string? invalidData)
         {
             // Arrange
             var annotation = new Annotation
@@ -439,7 +436,7 @@ namespace NoorCanvas.Core.Tests.Models
             Assert.Null(await _context.Registrations.FindAsync(registrationId));
             Assert.Null(await _context.Annotations.FindAsync(annotationId));
             Assert.Null(await _context.SessionLinks.FindAsync(sessionLinkId));
-            
+
             // User should still exist (restrict delete)
             Assert.NotNull(await _context.Users.FindAsync(user.UserId));
         }
@@ -487,7 +484,6 @@ namespace NoorCanvas.Core.Tests.Models
             {
                 UserId = Guid.NewGuid(),
                 Name = "Test User",
-                City = "Test City", 
                 Country = "Test Country",
                 FirstJoinedAt = DateTime.UtcNow
             };
@@ -582,7 +578,7 @@ namespace NoorCanvas.Core.Tests.Models
             // Assert
             var participantCount = await _context.Registrations
                 .CountAsync(r => r.SessionId == session.SessionId);
-            
+
             Assert.Equal(3, participantCount);
         }
 
@@ -666,7 +662,6 @@ namespace NoorCanvas.Core.Tests.Models
             {
                 UserId = Guid.NewGuid(),
                 Name = "Test User",
-                City = "Test City",
                 Country = "Test Country",
                 FirstJoinedAt = DateTime.UtcNow.AddDays(-30),
                 LastJoinedAt = DateTime.UtcNow.AddDays(-7)
@@ -691,8 +686,8 @@ namespace NoorCanvas.Core.Tests.Models
         // Helper methods
         private bool IsSessionActive(Session session)
         {
-            return session.StartedAt.HasValue && 
-                   !session.EndedAt.HasValue && 
+            return session.StartedAt.HasValue &&
+                   !session.EndedAt.HasValue &&
                    session.ExpiresAt > DateTime.UtcNow;
         }
 
@@ -717,7 +712,6 @@ namespace NoorCanvas.Core.Tests.Models
             {
                 UserId = Guid.NewGuid(),
                 Name = name,
-                City = "Test City",
                 Country = "Test Country",
                 FirstJoinedAt = DateTime.UtcNow
             };

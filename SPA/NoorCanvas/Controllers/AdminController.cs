@@ -175,7 +175,6 @@ namespace NoorCanvas.Controllers
                         UserId = u.UserId.ToString(),
                         UserGuid = u.UserGuid,
                         Name = u.Name ?? "Unknown",
-                        City = u.City ?? "Unknown",
                         Country = u.Country ?? "Unknown",
                         CreatedAt = u.CreatedAt,
                         ModifiedAt = u.ModifiedAt,

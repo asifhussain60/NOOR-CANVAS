@@ -59,7 +59,7 @@ namespace NoorCanvas.Core.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             var response = JsonSerializer.Deserialize<HostAuthResponse>(
                 JsonSerializer.Serialize(okResult.Value), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            
+
             Assert.NotNull(response);
             Assert.True(response.Success);
             Assert.NotEmpty(response.SessionToken);
@@ -73,7 +73,7 @@ namespace NoorCanvas.Core.Tests.Controllers
         [InlineData("")]
         [InlineData(null)]
         [InlineData("   ")]
-        public async Task AuthenticateHost_WithInvalidHostGuid_ShouldReturnBadRequest(string invalidGuid)
+        public async Task AuthenticateHost_WithInvalidHostGuid_ShouldReturnBadRequest(string? invalidGuid)
         {
             // Arrange
             var request = new HostAuthRequest { HostGuid = invalidGuid };
@@ -118,7 +118,7 @@ namespace NoorCanvas.Core.Tests.Controllers
             // Verify database records
             var session = await _context.Sessions.FirstOrDefaultAsync();
             Assert.NotNull(session);
-            
+
             var sessionLink = await _context.SessionLinks.FirstOrDefaultAsync();
             Assert.NotNull(sessionLink);
             Assert.Equal(1, sessionLink.State); // Active state
@@ -136,7 +136,7 @@ namespace NoorCanvas.Core.Tests.Controllers
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddHours(3)
             };
-            
+
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
 
@@ -187,7 +187,7 @@ namespace NoorCanvas.Core.Tests.Controllers
                 StartedAt = DateTime.UtcNow.AddMinutes(-30),
                 ExpiresAt = DateTime.UtcNow.AddHours(3)
             };
-            
+
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
 
@@ -258,22 +258,22 @@ namespace NoorCanvas.Core.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            
+
             // Serialize the response to JSON to verify camelCase property names
             var jsonResponse = JsonSerializer.Serialize(okResult.Value);
-            
+
             // Verify that the JSON contains camelCase property names (as expected by frontend)
             Assert.Contains("\"success\":", jsonResponse);
             Assert.Contains("\"sessionToken\":", jsonResponse);
             Assert.Contains("\"hostGuid\":", jsonResponse);
             Assert.Contains("\"expiresAt\":", jsonResponse);
-            
+
             // Verify that PascalCase properties are NOT present (would cause deserialization issues)
             Assert.DoesNotContain("\"Success\":", jsonResponse);
             Assert.DoesNotContain("\"SessionToken\":", jsonResponse);
             Assert.DoesNotContain("\"HostGuid\":", jsonResponse);
             Assert.DoesNotContain("\"ExpiresAt\":", jsonResponse);
-            
+
             // Verify the response can be deserialized with camelCase property names
             var deserializedResponse = JsonSerializer.Deserialize<HostAuthResponse>(jsonResponse);
             Assert.NotNull(deserializedResponse);

@@ -28,7 +28,7 @@ namespace NC_ImplementationTests.Unit
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             var logEntry = new
             {
                 level = "INFO",
@@ -46,7 +46,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.PostAsync("/api/logs", content);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode, 
+            Assert.True(response.IsSuccessStatusCode,
                 $"Browser logging API should accept valid entries. Status: {response.StatusCode}");
         }
 
@@ -57,7 +57,7 @@ namespace NC_ImplementationTests.Unit
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             // Malformed JSON that might cause parsing errors
             var malformedJson = "{ \"level\": \"ERROR\", \"message\": \"Test\", }"; // Trailing comma
             var content = new StringContent(malformedJson, Encoding.UTF8, "application/json");
@@ -77,7 +77,7 @@ namespace NC_ImplementationTests.Unit
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             // Log entry with missing optional properties
             var minimalLogEntry = new
             {
@@ -93,7 +93,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.PostAsync("/api/logs", content);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode, 
+            Assert.True(response.IsSuccessStatusCode,
                 "Browser logging API should handle entries with missing optional properties");
         }
 
@@ -104,7 +104,7 @@ namespace NC_ImplementationTests.Unit
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             // Large log message that might cause processing issues
             var largeMessage = new string('x', 10000); // 10KB message
             var logEntry = new
@@ -121,7 +121,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.PostAsync("/api/logs", content);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.StatusCode == System.Net.HttpStatusCode.BadRequest,
                 "API should either accept large messages or return 400, not 500");
         }
@@ -153,7 +153,7 @@ namespace NC_ImplementationTests.Unit
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             var logEntry = new
             {
                 level = logLevel,
@@ -168,7 +168,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.PostAsync("/api/logs", content);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode, 
+            Assert.True(response.IsSuccessStatusCode,
                 $"Browser logging API should accept {logLevel} level entries");
         }
     }

@@ -52,7 +52,7 @@ namespace NoorCanvas.Core.Tests.Commands
             {
                 var exists = File.Exists(path);
                 Assert.False(exists, $"Deprecated ncrun file should not exist: {path}");
-                
+
                 if (!exists)
                 {
                     _output.WriteLine($"✅ Confirmed removed: {Path.GetFileName(path)}");
@@ -82,7 +82,7 @@ namespace NoorCanvas.Core.Tests.Commands
         {
             // Arrange
             var ncPath = Path.Combine(_globalCommandsPath, "nc.ps1");
-            
+
             // Act
             var content = File.ReadAllText(ncPath);
 
@@ -188,7 +188,7 @@ namespace NoorCanvas.Core.Tests.Commands
             {
                 var path = Path.Combine(_globalCommandsPath, expectedFile);
                 var exists = File.Exists(path);
-                
+
                 if (!exists && expectedFile != "README.md") // README.md is optional
                 {
                     _output.WriteLine($"⚠️ Expected file missing: {expectedFile}");
@@ -201,7 +201,7 @@ namespace NoorCanvas.Core.Tests.Commands
                 var path = Path.Combine(_globalCommandsPath, forbiddenFile);
                 var exists = File.Exists(path);
                 Assert.False(exists, $"Deprecated file should not exist: {forbiddenFile}");
-                
+
                 if (!exists)
                 {
                     _output.WriteLine($"✅ Confirmed absent: {forbiddenFile}");
@@ -215,13 +215,13 @@ namespace NoorCanvas.Core.Tests.Commands
         {
             int count = 0;
             int index = 0;
-            
+
             while ((index = text.IndexOf(searchString, index, StringComparison.Ordinal)) != -1)
             {
                 count++;
                 index += searchString.Length;
             }
-            
+
             return count;
         }
     }

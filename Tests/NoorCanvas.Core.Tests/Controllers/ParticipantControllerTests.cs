@@ -190,7 +190,7 @@ namespace NoorCanvas.Core.Tests.Controllers
             {
                 SessionGuid = session.sessionLink.Guid.ToString(),
                 Name = "Updated Name",
-                City = "Updated City", 
+                City = "Updated City",
                 Country = "Updated Country",
                 UserId = existingUser.UserId.ToString(),
                 Fingerprint = "test-fingerprint"
@@ -201,7 +201,7 @@ namespace NoorCanvas.Core.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            
+
             // Verify user was updated
             var updatedUser = await _context.Users.FindAsync(existingUser.UserId);
             Assert.NotNull(updatedUser);
@@ -252,7 +252,7 @@ namespace NoorCanvas.Core.Tests.Controllers
             {
                 SessionGuid = session.sessionLink.Guid.ToString(),
                 Name = "John Doe",
-                City = "New York", 
+                City = "New York",
                 Country = "United States"
             };
 
@@ -319,7 +319,7 @@ namespace NoorCanvas.Core.Tests.Controllers
 
             // Act
             var result = await _controller.GetSessionStatus(
-                session.sessionLink.Guid.ToString(), 
+                session.sessionLink.Guid.ToString(),
                 user.UserId.ToString());
 
             // Assert
@@ -346,7 +346,7 @@ namespace NoorCanvas.Core.Tests.Controllers
 
             // Act
             var result = await _controller.GetSessionStatus(
-                session.sessionLink.Guid.ToString(), 
+                session.sessionLink.Guid.ToString(),
                 unregisteredUserId);
 
             // Assert
@@ -399,8 +399,8 @@ namespace NoorCanvas.Core.Tests.Controllers
 
         // Helper method to create test session with session link
         private async Task<(Session session, SessionLink sessionLink)> CreateTestSessionWithLink(
-            DateTime? expiresAt = null, 
-            DateTime? endedAt = null, 
+            DateTime? expiresAt = null,
+            DateTime? endedAt = null,
             int linkState = 1)
         {
             var session = new Session

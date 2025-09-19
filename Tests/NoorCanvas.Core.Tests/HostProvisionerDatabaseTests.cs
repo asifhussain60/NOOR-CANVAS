@@ -17,7 +17,7 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
     public class HostProvisionerDatabaseTests
     {
         private readonly ITestOutputHelper _output;
-        
+
         public HostProvisionerDatabaseTests(ITestOutputHelper output)
         {
             _output = output;
@@ -28,24 +28,24 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
         {
             // Arrange - Use In-Memory database for consistent testing environment
             var services = new ServiceCollection();
-            
+
             services.AddDbContext<CanvasDbContext>(options =>
                 options.UseInMemoryDatabase("HostProvisionerTestDb"));
-            
+
             services.AddDbContext<KSessionsDbContext>(options =>
                 options.UseInMemoryDatabase("KSessionsProvisionerTestDb"));
-            
+
             var serviceProvider = services.BuildServiceProvider();
 
             // Act & Assert
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
-            
+
             try
             {
                 // Ensure database is created for In-Memory provider
                 await context.Database.EnsureCreatedAsync();
-                
+
                 // Test 1: Database connection (In-Memory provider always connects)
                 var canConnect = await context.Database.CanConnectAsync();
                 _output.WriteLine($"In-Memory database connection test: {canConnect}");
@@ -82,10 +82,10 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
         {
             // Arrange - Use In-Memory database for consistent testing environment
             var services = new ServiceCollection();
-            
+
             services.AddDbContext<CanvasDbContext>(options =>
                 options.UseInMemoryDatabase("HostProvisionerTestDb2"));
-            
+
             var serviceProvider = services.BuildServiceProvider();
 
             // Act
@@ -126,12 +126,12 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
             {
                 context.HostSessions.Add(hostSession);
                 await context.SaveChangesAsync();
-                
+
                 _output.WriteLine($"Host Session created successfully:");
                 _output.WriteLine($"  HostSessionId: {hostSession.HostSessionId}");
                 _output.WriteLine($"  SessionId: {hostSession.SessionId}");
                 _output.WriteLine($"  HostGuidHash: {hostSession.HostGuidHash}");
-                
+
                 Assert.True(hostSession.HostSessionId > 0, "HostSessionId should be generated");
                 Assert.Equal(215, hostSession.SessionId);
 
@@ -154,16 +154,16 @@ namespace NoorCanvas.Core.Tests.HostProvisioner
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true)
                 .Build();
-                
+
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            
+
             // Assert
             Assert.NotNull(connectionString);
             Assert.Contains("KSESSIONS_DEV", connectionString);
             Assert.DoesNotContain("KSESSIONS;", connectionString);
             Assert.Contains("adf4961glo", connectionString);
             Assert.DoesNotContain("Password=123", connectionString);
-            
+
             _output.WriteLine($"Configuration test passed. Connection string uses KSESSIONS_DEV");
         }
     }

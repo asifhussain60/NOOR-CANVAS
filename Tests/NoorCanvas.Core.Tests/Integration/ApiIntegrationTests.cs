@@ -29,7 +29,7 @@ namespace NoorCanvas.Core.Tests.Integration
             _client = _factory.CreateClient();
             _scope = _factory.Services.CreateScope();
             _context = _scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
-            
+
             // Ensure database is created and seeded
             _context.Database.EnsureCreated();
             SeedTestData();
@@ -55,9 +55,9 @@ namespace NoorCanvas.Core.Tests.Integration
                     ExpiresAt = DateTime.UtcNow.AddHours(1),
                     KSessionsId = 15 // Reference to KSESSIONS for testing
                 };
-                
+
                 _context.Sessions.Add(testSession);
-                
+
                 // Add test host session
                 var testHostSession = new HostSession
                 {
@@ -68,7 +68,7 @@ namespace NoorCanvas.Core.Tests.Integration
                     ExpiresAt = DateTime.UtcNow.AddMinutes(30),
                     IsActive = true
                 };
-                
+
                 _context.HostSessions.Add(testHostSession);
                 _context.SaveChanges();
             }
@@ -88,7 +88,7 @@ namespace NoorCanvas.Core.Tests.Integration
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             var healthData = JsonSerializer.Deserialize<JsonElement>(content);
-            
+
             Assert.Equal("ok", healthData.GetProperty("status").GetString());
             Assert.True(healthData.TryGetProperty("timestamp", out _));
         }
@@ -126,7 +126,7 @@ namespace NoorCanvas.Core.Tests.Integration
         public async Task CreateSession_WithValidRequest_ShouldCreateSessionSuccessfully()
         {
             // Arrange
-            var request = new 
+            var request = new
             {
                 Title = "API Integration Test Session",
                 Description = "Testing session creation via API",
@@ -146,7 +146,7 @@ namespace NoorCanvas.Core.Tests.Integration
             Assert.True(sessionResponse.TryGetProperty("sessionId", out _));
             Assert.True(sessionResponse.TryGetProperty("sessionGuid", out _));
             Assert.True(sessionResponse.TryGetProperty("joinLink", out _));
-            
+
             var joinLink = sessionResponse.GetProperty("joinLink").GetString();
             Assert.Contains("localhost", joinLink);
             Assert.Contains("/session/", joinLink);
@@ -169,7 +169,7 @@ namespace NoorCanvas.Core.Tests.Integration
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddHours(3)
             };
-            
+
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
 
@@ -273,7 +273,6 @@ namespace NoorCanvas.Core.Tests.Integration
             {
                 SessionGuid = sessionLink.Guid.ToString(),
                 Name = "API Test User",
-                City = "Test City",
                 Country = "Test Country",
                 UserId = "",
                 Fingerprint = "api-test-fingerprint"
@@ -298,7 +297,7 @@ namespace NoorCanvas.Core.Tests.Integration
             // Verify database records
             var userCount = await _context.Users.CountAsync();
             var registrationCount = await _context.Registrations.CountAsync();
-            
+
             Assert.True(userCount > 0);
             Assert.True(registrationCount > 0);
         }
@@ -336,7 +335,6 @@ namespace NoorCanvas.Core.Tests.Integration
             {
                 UserId = Guid.NewGuid(),
                 Name = "Status Test User",
-                City = "Test City",
                 Country = "Test Country",
                 FirstJoinedAt = DateTime.UtcNow
             };
@@ -430,12 +428,12 @@ namespace NoorCanvas.Core.Tests.Integration
             var hostAuthRequest = new { HostGuid = Guid.NewGuid().ToString() };
             var hostAuthJson = JsonSerializer.Serialize(hostAuthRequest);
             var hostAuthContent = new StringContent(hostAuthJson, Encoding.UTF8, "application/json");
-            
+
             var hostAuthResponse = await _client.PostAsync("/api/host/authenticate", hostAuthContent);
             hostAuthResponse.EnsureSuccessStatusCode();
 
             // Step 2: Create Session
-            var createSessionRequest = new 
+            var createSessionRequest = new
             {
                 Title = "E2E Test Session",
                 Description = "End-to-end workflow test",
@@ -443,10 +441,10 @@ namespace NoorCanvas.Core.Tests.Integration
             };
             var createSessionJson = JsonSerializer.Serialize(createSessionRequest);
             var createSessionContent = new StringContent(createSessionJson, Encoding.UTF8, "application/json");
-            
+
             var createSessionResponse = await _client.PostAsync("/api/host/session/create", createSessionContent);
             createSessionResponse.EnsureSuccessStatusCode();
-            
+
             var sessionResponseContent = await createSessionResponse.Content.ReadAsStringAsync();
             var sessionData = JsonSerializer.Deserialize<JsonElement>(sessionResponseContent);
             var sessionGuid = sessionData.GetProperty("sessionGuid").GetString();
@@ -455,7 +453,7 @@ namespace NoorCanvas.Core.Tests.Integration
             // Step 3: Validate Session (Participant perspective)
             var validateResponse = await _client.GetAsync($"/api/participant/session/{sessionGuid}/validate");
             validateResponse.EnsureSuccessStatusCode();
-            
+
             var validateContent = await validateResponse.Content.ReadAsStringAsync();
             var validateData = JsonSerializer.Deserialize<JsonElement>(validateContent);
             Assert.True(validateData.GetProperty("valid").GetBoolean());
@@ -465,17 +463,16 @@ namespace NoorCanvas.Core.Tests.Integration
             {
                 SessionGuid = sessionGuid,
                 Name = "E2E Test Participant",
-                City = "Test City",
                 Country = "Test Country",
                 UserId = "",
                 Fingerprint = "e2e-test-fingerprint"
             };
             var registerJson = JsonSerializer.Serialize(registerRequest);
             var registerContent = new StringContent(registerJson, Encoding.UTF8, "application/json");
-            
+
             var registerResponse = await _client.PostAsync("/api/participant/register", registerContent);
             registerResponse.EnsureSuccessStatusCode();
-            
+
             var registerResponseContent = await registerResponse.Content.ReadAsStringAsync();
             var registerData = JsonSerializer.Deserialize<JsonElement>(registerResponseContent);
             var userId = registerData.GetProperty("userId").GetString();
@@ -488,7 +485,7 @@ namespace NoorCanvas.Core.Tests.Integration
             // Step 6: Check Session Status
             var statusResponse = await _client.GetAsync($"/api/participant/session/{sessionGuid}/status?userId={userId}");
             statusResponse.EnsureSuccessStatusCode();
-            
+
             var statusContent = await statusResponse.Content.ReadAsStringAsync();
             var statusData = JsonSerializer.Deserialize<JsonElement>(statusContent);
             Assert.Equal("Active", statusData.GetProperty("status").GetString());
@@ -501,7 +498,7 @@ namespace NoorCanvas.Core.Tests.Integration
             // Final verification - Check final status
             var finalStatusResponse = await _client.GetAsync($"/api/participant/session/{sessionGuid}/status?userId={userId}");
             finalStatusResponse.EnsureSuccessStatusCode();
-            
+
             var finalStatusContent = await finalStatusResponse.Content.ReadAsStringAsync();
             var finalStatusData = JsonSerializer.Deserialize<JsonElement>(finalStatusContent);
             Assert.Equal("Completed", finalStatusData.GetProperty("status").GetString());
@@ -553,7 +550,7 @@ namespace NoorCanvas.Core.Tests.Integration
 
             // Act - Execute concurrent requests
             var startTime = DateTime.UtcNow;
-            
+
             for (int i = 0; i < concurrentRequests; i++)
             {
                 tasks.Add(_client.GetAsync("/healthz"));
@@ -587,9 +584,9 @@ namespace NoorCanvas.Core.Tests.Integration
             // Assert
             response.EnsureSuccessStatusCode();
             var responseTime = endTime - startTime;
-            Assert.True(responseTime.TotalMilliseconds < 5000, 
+            Assert.True(responseTime.TotalMilliseconds < 5000,
                 $"Endpoint {endpoint} took {responseTime.TotalMilliseconds}ms to respond");
-            
+
             response.Dispose();
         }
 

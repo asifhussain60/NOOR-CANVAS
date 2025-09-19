@@ -122,7 +122,7 @@ namespace NoorCanvas.Core.Tests.Services
             // Arrange
             var session = await CreateTestSession();
             var sessionId = session.SessionId;
-            
+
             // Create multiple annotations
             var annotations = new[]
             {
@@ -159,7 +159,7 @@ namespace NoorCanvas.Core.Tests.Services
             Assert.NotNull(result);
             var annotationList = result.ToList();
             Assert.Equal(3, annotationList.Count);
-            
+
             // Verify ordering (should be by creation time)
             Assert.True(annotationList[0].CreatedAt <= annotationList[1].CreatedAt);
             Assert.True(annotationList[1].CreatedAt <= annotationList[2].CreatedAt);
@@ -208,7 +208,7 @@ namespace NoorCanvas.Core.Tests.Services
             // Verify the update
             var updatedAnnotation = await _context.Annotations.FindAsync(annotation.AnnotationId);
             Assert.NotNull(updatedAnnotation);
-            
+
             var parsedData = JsonSerializer.Deserialize<JsonElement>(updatedAnnotation.AnnotationData);
             Assert.Equal("Updated text", parsedData.GetProperty("text").GetString());
             Assert.Equal("#ff0000", parsedData.GetProperty("color").GetString());
@@ -335,7 +335,7 @@ namespace NoorCanvas.Core.Tests.Services
             // Assert
             Assert.Single(session1Annotations);
             Assert.Single(session2Annotations);
-            
+
             Assert.Equal(session1.SessionId, session1Annotations.First().SessionId);
             Assert.Equal(session2.SessionId, session2Annotations.First().SessionId);
         }
@@ -403,7 +403,7 @@ namespace NoorCanvas.Core.Tests.Services
             // Mock dependencies for DialogService
             var loggerMock = new Mock<ILogger<DialogService>>();
             var jsRuntimeMock = new Mock<IJSRuntime>();
-            
+
             _dialogService = new DialogService(loggerMock.Object, jsRuntimeMock.Object);
         }
 
@@ -418,7 +418,7 @@ namespace NoorCanvas.Core.Tests.Services
 
             // Act & Assert - Should not throw
             await _dialogService.ShowAlertAsync(message, title);
-            
+
             // Verify the method completes successfully
             Assert.True(true); // If we get here, the method executed without throwing
         }
@@ -430,11 +430,11 @@ namespace NoorCanvas.Core.Tests.Services
         [InlineData("error")]
         [InlineData("warning")]
         [InlineData("info")]
-        public async Task ShowAlertAsync_WithDifferentTypes_ShouldHandleAllTypes(string alertType)
+        public async Task ShowAlertAsync_WithDifferentTypes_ShouldHandleAllTypes()
         {
             // Arrange & Act & Assert - Should not throw
             await _dialogService.ShowAlertAsync("Message", "Title");
-            
+
             // Verify the method completes successfully with different alert types
             Assert.True(true); // If we get here, the method executed without throwing
         }
@@ -483,7 +483,7 @@ namespace NoorCanvas.Core.Tests.Services
         {
             // Act & Assert - Should not throw even with null/empty parameters
             await _dialogService.ShowAlertAsync("", "");
-            
+
             // Verify method handles edge cases gracefully
             Assert.True(true); // If we get here, the method handled null parameters without throwing
         }
@@ -499,7 +499,7 @@ namespace NoorCanvas.Core.Tests.Services
 
             // Assert
             Assert.IsType<bool>(confirmResult);
-            
+
             // If we get here, multiple DialogService calls executed successfully
             Assert.True(true);
         }

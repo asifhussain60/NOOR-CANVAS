@@ -80,7 +80,7 @@ namespace NC_ImplementationTests.Integration
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             var sessionData = new
             {
                 title = "Test Session",
@@ -97,7 +97,7 @@ namespace NC_ImplementationTests.Integration
             var response = await client.PostAsync("/api/host/session/create", content);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.StatusCode == System.Net.HttpStatusCode.BadRequest ||
                        response.StatusCode == System.Net.HttpStatusCode.Unauthorized,
                 "Session creation should handle requests properly");

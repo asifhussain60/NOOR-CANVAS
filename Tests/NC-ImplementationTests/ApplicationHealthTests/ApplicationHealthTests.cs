@@ -16,18 +16,18 @@ namespace NoorCanvas.Tests.Infrastructure
     {
         private readonly ILogger<ApplicationHealthTests> _logger;
         private readonly HttpClient _httpClient;
-        
+
         // Test configuration
         private readonly string _httpsUrl = "https://localhost:9091";
         private readonly string _httpUrl = "http://localhost:9090";
         private readonly string _healthEndpoint = "/healthz";
         private readonly int[] _expectedPorts = { 9090, 9091 };
-        
+
         public ApplicationHealthTests()
         {
             var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             _logger = loggerFactory.CreateLogger<ApplicationHealthTests>();
-            
+
             // Configure HttpClient to accept self-signed certificates
             var handler = new HttpClientHandler()
             {
@@ -44,14 +44,14 @@ namespace NoorCanvas.Tests.Infrastructure
             // Arrange & Act
             var dotnetProcesses = Process.GetProcessesByName("dotnet");
             var iisProcesses = Process.GetProcessesByName("iisexpress");
-            
+
             // Assert
             var totalProcesses = dotnetProcesses.Length + iisProcesses.Length;
             _logger.LogInformation($"Found {totalProcesses} application processes");
-            
+
             // Should have at least one process running for a healthy application
             Assert.True(totalProcesses > 0, "No application processes found - application may not be running");
-            
+
             // Log process details for debugging
             foreach (var proc in dotnetProcesses.Concat(iisProcesses))
             {
@@ -65,22 +65,22 @@ namespace NoorCanvas.Tests.Infrastructure
         {
             // Arrange & Act
             var portBindings = new List<(int Port, bool IsBound, int? PID)>();
-            
+
             foreach (var port in _expectedPorts)
             {
                 var isBound = IsPortInUse(port, out var pid);
                 portBindings.Add((port, isBound, pid));
                 _logger.LogInformation($"Port {port}: {(isBound ? "BOUND" : "FREE")} {(pid.HasValue ? $"(PID: {pid})" : "")}");
             }
-            
+
             // Assert
             var boundPorts = portBindings.Where(p => p.IsBound).ToList();
             Assert.True(boundPorts.Count > 0, "No expected ports are bound - application not listening");
-            
+
             // Check if both HTTP and HTTPS ports are bound to same process (ideal scenario)
             var httpBinding = portBindings.FirstOrDefault(p => p.Port == 9090 && p.IsBound);
             var httpsBinding = portBindings.FirstOrDefault(p => p.Port == 9091 && p.IsBound);
-            
+
             if (httpBinding.PID.HasValue && httpsBinding.PID.HasValue)
             {
                 Assert.Equal(httpBinding.PID.Value, httpsBinding.PID.Value);
@@ -93,17 +93,17 @@ namespace NoorCanvas.Tests.Infrastructure
         {
             // Test HTTP connectivity
             var httpSuccess = await TestConnectivity(_httpUrl, "HTTP");
-            
+
             // Test HTTPS connectivity  
             var httpsSuccess = await TestConnectivity(_httpsUrl, "HTTPS");
-            
+
             // Assert - at least one should be working
-            Assert.True(httpSuccess || httpsSuccess, 
+            Assert.True(httpSuccess || httpsSuccess,
                 "Neither HTTP nor HTTPS connectivity is working - application not responsive");
-            
+
             if (!httpSuccess)
                 _logger.LogWarning("HTTP connectivity failed - only HTTPS available");
-                
+
             if (!httpsSuccess)
                 _logger.LogWarning("HTTPS connectivity failed - only HTTP available");
         }
@@ -115,7 +115,7 @@ namespace NoorCanvas.Tests.Infrastructure
             // Test health endpoints
             var healthUrls = new[] { $"{_httpsUrl}{_healthEndpoint}", $"{_httpUrl}{_healthEndpoint}" };
             var healthResponses = new List<(string Url, bool Success, string Response)>();
-            
+
             foreach (var url in healthUrls)
             {
                 try
@@ -123,7 +123,7 @@ namespace NoorCanvas.Tests.Infrastructure
                     var response = await _httpClient.GetAsync(url);
                     var content = await response.Content.ReadAsStringAsync();
                     var success = response.IsSuccessStatusCode;
-                    
+
                     healthResponses.Add((url, success, content));
                     _logger.LogInformation($"Health check {url}: {(success ? "SUCCESS" : "FAILED")} - {response.StatusCode}");
                 }
@@ -133,7 +133,7 @@ namespace NoorCanvas.Tests.Infrastructure
                     _logger.LogError(ex, $"Health check {url}: EXCEPTION");
                 }
             }
-            
+
             // Assert - at least one health endpoint should respond
             var successfulHealth = healthResponses.Any(r => r.Success);
             Assert.True(successfulHealth, "No health endpoints are responding - application health unknown");
@@ -145,34 +145,34 @@ namespace NoorCanvas.Tests.Infrastructure
         {
             // This test specifically addresses Issue-26 scenario:
             // IIS Express process exists but ports bound to different PID
-            
+
             var processes = Process.GetProcessesByName("iisexpress");
             var portBindings = new Dictionary<int, int?>();
-            
+
             foreach (var port in _expectedPorts)
             {
                 IsPortInUse(port, out var pid);
                 portBindings[port] = pid;
             }
-            
+
             if (processes.Length > 0)
             {
                 var iisProcessIds = processes.Select(p => p.Id).ToHashSet();
                 var boundProcessIds = portBindings.Values.Where(p => p.HasValue).Select(p => p!.Value).ToHashSet();
-                
+
                 // If IIS Express is running, it should own the port bindings
                 if (boundProcessIds.Count > 0)
                 {
                     var mismatch = !boundProcessIds.All(pid => iisProcessIds.Contains(pid));
-                    
+
                     if (mismatch)
                     {
                         _logger.LogError("Issue-26 detected: IIS Express running but ports bound to different processes");
                         _logger.LogError($"IIS Express PIDs: {string.Join(", ", iisProcessIds)}");
                         _logger.LogError($"Port binding PIDs: {string.Join(", ", boundProcessIds)}");
                     }
-                    
-                    Assert.False(mismatch, 
+
+                    Assert.False(mismatch,
                         "Issue-26 regression detected: Process/port binding mismatch indicates stale processes");
                 }
             }
@@ -183,19 +183,19 @@ namespace NoorCanvas.Tests.Infrastructure
         public async Task Test_ApplicationResponseTime_ShouldBeFast()
         {
             var stopwatch = Stopwatch.StartNew();
-            
+
             try
             {
                 var response = await _httpClient.GetAsync(_httpUrl);
                 stopwatch.Stop();
-                
+
                 _logger.LogInformation($"Application response time: {stopwatch.ElapsedMilliseconds}ms");
-                
+
                 // Assert response time should be reasonable for development
-                Assert.True(stopwatch.ElapsedMilliseconds < 5000, 
+                Assert.True(stopwatch.ElapsedMilliseconds < 5000,
                     "Application response time is too slow - may indicate performance issues");
-                    
-                Assert.True(response.IsSuccessStatusCode, 
+
+                Assert.True(response.IsSuccessStatusCode,
                     "Application returned non-success status code");
             }
             catch (HttpRequestException ex)
@@ -212,36 +212,36 @@ namespace NoorCanvas.Tests.Infrastructure
         {
             // Test the diagnostic capabilities that would trigger auto-recovery
             var issues = new List<string>();
-            
+
             // Check for multiple processes (stale process detection)
             var allProcesses = Process.GetProcessesByName("dotnet").Concat(Process.GetProcessesByName("iisexpress"));
             if (allProcesses.Count() > 2)
             {
                 issues.Add("Multiple application processes detected");
             }
-            
+
             // Check for port binding without processes
             var boundPorts = _expectedPorts.Where(p => IsPortInUse(p, out _)).Count();
             var runningProcesses = allProcesses.Count();
-            
+
             if (boundPorts > 0 && runningProcesses == 0)
             {
                 issues.Add("Ports bound but no application processes running");
             }
-            
+
             _logger.LogInformation($"Diagnostic check found {issues.Count} potential issues");
             foreach (var issue in issues)
             {
                 _logger.LogWarning($"Issue detected: {issue}");
             }
-            
+
             // This test passes if we can detect issues (for auto-recovery)
             // In a healthy system, issues.Count should be 0
             Assert.True(issues.Count >= 0, "Issue detection system is functional");
         }
 
         // Helper Methods
-        
+
         private async Task<bool> TestConnectivity(string url, string protocol)
         {
             try
@@ -257,17 +257,17 @@ namespace NoorCanvas.Tests.Infrastructure
                 return false;
             }
         }
-        
+
         private bool IsPortInUse(int port, out int? pid)
         {
             pid = null;
-            
+
             try
             {
                 var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
                 var tcpConnections = ipGlobalProperties.GetActiveTcpConnections();
                 var tcpListeners = ipGlobalProperties.GetActiveTcpListeners();
-                
+
                 // Check active connections
                 var activeConnection = tcpConnections.FirstOrDefault(c => c.LocalEndPoint.Port == port);
                 if (activeConnection != null)
@@ -276,7 +276,7 @@ namespace NoorCanvas.Tests.Infrastructure
                     // would need P/Invoke or external tools like netstat
                     return true;
                 }
-                
+
                 // Check listeners
                 var listener = tcpListeners.FirstOrDefault(l => l.Port == port);
                 return listener != null;

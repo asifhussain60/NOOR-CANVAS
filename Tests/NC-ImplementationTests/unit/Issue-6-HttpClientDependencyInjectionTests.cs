@@ -76,7 +76,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.GetAsync("/api/health");
 
             // Assert - Should not fail due to missing HttpClient dependency
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.StatusCode == System.Net.HttpStatusCode.NotFound,
                 "Controllers should not fail due to missing HttpClient dependency");
         }

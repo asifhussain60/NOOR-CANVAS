@@ -11,7 +11,7 @@
  * 4. Reproduce the specific "Enter Waiting Room" error
  */
 
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 
 const BASE_URL = 'https://localhost:9091';
 
@@ -57,25 +57,25 @@ test.describe('Direct Waiting Room Access Test', () => {
         for (const urlPath of waitingRoomUrls) {
             try {
                 console.log(`   Testing: ${BASE_URL}${urlPath}`);
-                
-                const response = await page.goto(`${BASE_URL}${urlPath}`, { 
+
+                const response = await page.goto(`${BASE_URL}${urlPath}`, {
                     waitUntil: 'networkidle',
-                    timeout: 10000 
+                    timeout: 10000
                 });
-                
+
                 await page.waitForTimeout(3000);
-                
+
                 const pageText = await page.textContent('body');
                 const statusCode = response?.status() || 0;
-                
+
                 console.log(`   Status: ${statusCode}`);
-                
+
                 if (pageText && !pageText.includes('404') && !pageText.includes('Not Found')) {
                     console.log(`✅ Found working waiting room URL: ${urlPath}`);
                     console.log(`📄 Content preview: ${pageText.substring(0, 200)}`);
-                    
+
                     await page.screenshot({ path: `./screenshots/waiting-room-${urlPath.replace(/\//g, '-')}.png`, fullPage: true });
-                    
+
                     // Check for session error in this page
                     if (pageText.includes('Session Error') || pageText.includes('Session not found')) {
                         console.log('🎯 FOUND SESSION ERROR in waiting room!');
@@ -83,7 +83,7 @@ test.describe('Direct Waiting Room Access Test', () => {
                 } else {
                     console.log(`   ❌ ${urlPath}: Not found or error`);
                 }
-                
+
             } catch (error) {
                 console.log(`   ⚠️ ${urlPath}: ${error}`);
             }
@@ -95,7 +95,7 @@ test.describe('Direct Waiting Room Access Test', () => {
         // Test participant landing URLs with various token patterns
         const testTokens = [
             'TEST1234',
-            'ADMIN123', 
+            'ADMIN123',
             'SAMPLE01',
             'DEMO1234',
             '12345678',
@@ -107,41 +107,41 @@ test.describe('Direct Waiting Room Access Test', () => {
             try {
                 const landingUrl = `${BASE_URL}/user/landing/${token}`;
                 console.log(`   Testing participant URL: ${landingUrl}`);
-                
+
                 await page.goto(landingUrl, { waitUntil: 'networkidle', timeout: 10000 });
                 await page.waitForTimeout(3000);
-                
+
                 const pageText = await page.textContent('body');
-                
+
                 if (pageText) {
                     // Look for Enter Waiting Room button on participant landing pages
-                    const hasEnterButton = pageText.includes('Enter Waiting Room') || 
-                                         pageText.includes('Join Session') ||
-                                         pageText.includes('Enter Session');
-                    
+                    const hasEnterButton = pageText.includes('Enter Waiting Room') ||
+                        pageText.includes('Join Session') ||
+                        pageText.includes('Enter Session');
+
                     if (hasEnterButton) {
                         console.log(`✅ Found participant page with enter button: ${token}`);
-                        
+
                         // Try to click the Enter Waiting Room button
                         const enterButton = page.locator('button:has-text("Enter Waiting Room"), a:has-text("Enter Waiting Room"), button:has-text("Join Session"), a:has-text("Join Session")');
-                        
+
                         const buttonCount = await enterButton.count();
                         if (buttonCount > 0) {
                             console.log(`🎯 Found ${buttonCount} enter button(s), testing click...`);
-                            
+
                             await page.screenshot({ path: `./screenshots/before-enter-${token}.png`, fullPage: true });
-                            
+
                             await enterButton.first().click();
                             await page.waitForLoadState('networkidle');
                             await page.waitForTimeout(5000);
-                            
+
                             const afterClickText = await page.textContent('body');
                             const finalUrl = page.url();
-                            
+
                             await page.screenshot({ path: `./screenshots/after-enter-${token}.png`, fullPage: true });
-                            
+
                             console.log(`🏁 After click URL: ${finalUrl}`);
-                            
+
                             // Check for session error
                             if (afterClickText?.includes('Session Error')) {
                                 console.log('🎯 REPRODUCED SESSION ERROR!');
@@ -163,7 +163,7 @@ test.describe('Direct Waiting Room Access Test', () => {
                         }
                     }
                 }
-                
+
             } catch (error) {
                 console.log(`   ⚠️ ${token}: ${error}`);
             }
@@ -200,7 +200,7 @@ test.describe('Direct Waiting Room Access Test', () => {
                     const participantPageText = await page.textContent('body');
                     if (participantPageText?.includes('Enter Waiting Room')) {
                         console.log('🎯 Testing API-generated session...');
-                        
+
                         const enterBtn = page.locator('button:has-text("Enter Waiting Room"), a:has-text("Enter Waiting Room")');
                         await enterBtn.click();
                         await page.waitForTimeout(5000);

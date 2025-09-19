@@ -23,7 +23,7 @@ namespace NC_ImplementationTests.unit
         {
             // Arrange & Act: Create client (this will start the application)
             var client = _factory.CreateClient();
-            
+
             // Assert: If we reach this point, the application started successfully without throwing
             // InvalidOperationException about missing _Host endpoint
             Assert.NotNull(client);
@@ -39,9 +39,9 @@ namespace NC_ImplementationTests.unit
             var response = await client.GetAsync("/");
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode, 
+            Assert.True(response.IsSuccessStatusCode,
                 $"Expected successful response, got {response.StatusCode}: {response.ReasonPhrase}");
-            
+
             var content = await response.Content.ReadAsStringAsync();
             Assert.Contains("NoorCanvas", content);
             Assert.Contains("<!DOCTYPE html>", content);

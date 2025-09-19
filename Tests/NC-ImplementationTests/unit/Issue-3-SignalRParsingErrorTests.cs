@@ -30,7 +30,7 @@ namespace NC_ImplementationTests.Unit
             // Arrange
             var client = _factory.CreateClient();
             var baseAddress = client.BaseAddress?.ToString().TrimEnd('/');
-            
+
             var connection = new HubConnectionBuilder()
                 .WithUrl($"{baseAddress}/hub/session")
                 .Build();
@@ -81,13 +81,14 @@ namespace NC_ImplementationTests.Unit
             // Arrange
             var client = _factory.CreateClient();
             var baseAddress = client.BaseAddress?.ToString().TrimEnd('/');
-            
+
             var connection = new HubConnectionBuilder()
                 .WithUrl($"{baseAddress}/hub/session")
                 .Build();
 
             var messageReceived = false;
-            connection.On<string>("SessionUpdate", (message) => {
+            connection.On<string>("SessionUpdate", (message) =>
+            {
                 messageReceived = true;
             });
 
@@ -95,7 +96,7 @@ namespace NC_ImplementationTests.Unit
             {
                 // Act
                 await connection.StartAsync();
-                
+
                 // Simulate a hub method call that might cause parsing errors
                 await connection.InvokeAsync("JoinSession", Guid.NewGuid().ToString());
 

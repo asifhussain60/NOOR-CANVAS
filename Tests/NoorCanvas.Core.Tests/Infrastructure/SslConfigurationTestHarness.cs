@@ -21,7 +21,7 @@ namespace NoorCanvas.Core.Tests.Infrastructure
         public SslConfigurationTestHarness(ITestOutputHelper output)
         {
             _output = output;
-            
+
             // Build configuration matching application setup
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -39,7 +39,7 @@ namespace NoorCanvas.Core.Tests.Infrastructure
             // Arrange
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
             _output.WriteLine($"Testing connection string: {MaskPassword(connectionString)}");
-            
+
             // Act & Assert
             ValidateSslBypassConnection(connectionString, "DefaultConnection (Canvas Schema)");
         }
@@ -48,10 +48,10 @@ namespace NoorCanvas.Core.Tests.Infrastructure
         public void KSessionsDb_SslBypassConfiguration_ShouldConnectSuccessfully()
         {
             // Arrange
-            var connectionString = _configuration.GetConnectionString("KSessionsDb") ?? 
+            var connectionString = _configuration.GetConnectionString("KSessionsDb") ??
                                  _configuration.GetConnectionString("DefaultConnection");
             _output.WriteLine($"Testing KSessionsDb connection: {MaskPassword(connectionString)}");
-            
+
             // Act & Assert
             ValidateSslBypassConnection(connectionString, "KSessionsDb (Albums/Categories)");
         }
@@ -60,10 +60,10 @@ namespace NoorCanvas.Core.Tests.Infrastructure
         public void KQurDb_SslBypassConfiguration_ShouldConnectSuccessfully()
         {
             // Arrange
-            var connectionString = _configuration.GetConnectionString("KQurDb") ?? 
+            var connectionString = _configuration.GetConnectionString("KQurDb") ??
                                  _configuration.GetConnectionString("DefaultConnection");
             _output.WriteLine($"Testing KQurDb connection: {MaskPassword(connectionString)}");
-            
+
             // Act & Assert
             ValidateSslBypassConnection(connectionString, "KQurDb (Quranic Content)");
         }
@@ -85,13 +85,13 @@ namespace NoorCanvas.Core.Tests.Infrastructure
                 if (!string.IsNullOrEmpty(connection.Value))
                 {
                     _output.WriteLine($"Validating {connection.Key}: {MaskPassword(connection.Value)}");
-                    
+
                     // Check for SSL bypass parameters
                     Assert.Contains("TrustServerCertificate=true", connection.Value,
                         StringComparison.OrdinalIgnoreCase);
                     Assert.Contains("Encrypt=false", connection.Value,
                         StringComparison.OrdinalIgnoreCase);
-                    
+
                     _output.WriteLine($"✅ {connection.Key} contains required SSL bypass parameters");
                 }
             }
@@ -104,7 +104,7 @@ namespace NoorCanvas.Core.Tests.Infrastructure
             var baseConfig = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
-                
+
             var devConfig = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false)
                 .AddJsonFile("appsettings.Development.json", optional: true)
@@ -113,17 +113,17 @@ namespace NoorCanvas.Core.Tests.Infrastructure
             // Act
             var baseConnectionString = baseConfig.GetConnectionString("DefaultConnection");
             var devConnectionString = devConfig.GetConnectionString("DefaultConnection");
-            
+
             // Assert
             _output.WriteLine($"Base connection: {MaskPassword(baseConnectionString)}");
             _output.WriteLine($"Dev connection: {MaskPassword(devConnectionString)}");
-            
+
             // Development should have SSL bypass parameters
-            Assert.Contains("TrustServerCertificate=true", devConnectionString ?? string.Empty, 
+            Assert.Contains("TrustServerCertificate=true", devConnectionString ?? string.Empty,
                 StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("Encrypt=false", devConnectionString ?? string.Empty, 
+            Assert.Contains("Encrypt=false", devConnectionString ?? string.Empty,
                 StringComparison.OrdinalIgnoreCase);
-                
+
             _output.WriteLine("✅ Development configuration properly overrides SSL settings");
         }
 
@@ -144,10 +144,10 @@ namespace NoorCanvas.Core.Tests.Infrastructure
                     {
                         using var connection = new SqlConnection(connectionString);
                         await connection.OpenAsync();
-                        
+
                         var command = new SqlCommand("SELECT 1 AS TestValue", connection);
                         var result = await command.ExecuteScalarAsync();
-                        
+
                         _output.WriteLine($"✅ Connection {connectionId}: Successfully executed test query, result: {result}");
                     }
                     catch (Exception ex)
@@ -170,18 +170,18 @@ namespace NoorCanvas.Core.Tests.Infrastructure
         {
             // Arrange
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            
+
             // Act & Assert
             using var connection = new SqlConnection(connectionString);
             connection.Open();
-            
+
             var command = new SqlCommand(versionQuery, connection);
             var version = command.ExecuteScalar()?.ToString();
-            
+
             _output.WriteLine($"SQL Server Version: {version}");
             Assert.NotNull(version);
             Assert.NotEmpty(version);
-            
+
             _output.WriteLine($"✅ SQL Server version query successful with SSL bypass");
         }
 
@@ -190,22 +190,22 @@ namespace NoorCanvas.Core.Tests.Infrastructure
             // Arrange
             Assert.NotNull(connectionString);
             Assert.NotEmpty(connectionString);
-            
+
             _logger.LogInformation("NOOR-TEST: Testing SSL bypass connection for {Context}", contextName);
-            
+
             try
             {
                 // Act - Attempt database connection
                 using var connection = new SqlConnection(connectionString);
                 connection.Open();
-                
+
                 // Verify connection is actually open
                 Assert.Equal(System.Data.ConnectionState.Open, connection.State);
-                
+
                 // Execute a simple query to verify functionality
                 var command = new SqlCommand("SELECT GETDATE() AS CurrentTime", connection);
                 var result = command.ExecuteScalar();
-                
+
                 // Assert
                 Assert.NotNull(result);
                 _output.WriteLine($"✅ {contextName}: Connection successful, server time: {result}");
@@ -215,13 +215,13 @@ namespace NoorCanvas.Core.Tests.Infrastructure
             {
                 _output.WriteLine($"❌ {contextName}: SQL Exception - {ex.Message}");
                 _logger.LogError(ex, "NOOR-ERROR: SSL bypass connection failed for {Context}", contextName);
-                
+
                 // Check if this is an SSL-related error
                 if (ex.Message.Contains("certificate") || ex.Message.Contains("SSL") || ex.Message.Contains("trust"))
                 {
                     Assert.Fail($"SSL certificate error detected for {contextName}. Ensure TrustServerCertificate=true and Encrypt=false are configured.");
                 }
-                
+
                 throw;
             }
             catch (Exception ex)
@@ -236,12 +236,12 @@ namespace NoorCanvas.Core.Tests.Infrastructure
         {
             if (string.IsNullOrEmpty(connectionString))
                 return "NULL or EMPTY";
-                
+
             // Mask password for logging
             return System.Text.RegularExpressions.Regex.Replace(
-                connectionString, 
-                @"Password=([^;]+)", 
-                "Password=***", 
+                connectionString,
+                @"Password=([^;]+)",
+                "Password=***",
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
     }

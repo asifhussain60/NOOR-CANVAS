@@ -25,17 +25,17 @@
 
 <div style="background-color:#F8F5F1;display:flex;flex-direction:column;align-items:center;padding:1rem;min-height:100vh;">
 
-    <!-- Logo -->
-    <div style="display:flex;justify-content:center;margin-bottom:1.5rem;margin-top:2rem;">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-             alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-             style="max-width:150px;height:auto;margin:0 auto;" />
-    </div>
-
     @if (Model?.CurrentState == SessionWaitingState.Loading)
     {
         <!-- Loading State -->
         <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
+            
+            <!-- Logo -->
+            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                     style="max-width:150px;height:auto;margin:0 auto;" />
+            </div>
             <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
                 <i class="fa-solid fa-spinner fa-spin" style="font-size:2.25rem;color:#006400;"></i>
                 <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#006400;margin:0;">Loading Session...</h1>
@@ -47,6 +47,14 @@
     {
         <!-- Error State -->
         <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fecaca;">
+            
+            <!-- Logo -->
+            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                     style="max-width:150px;height:auto;margin:0 auto;" />
+            </div>
+            
             <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
                 <i class="fa-solid fa-exclamation-triangle" style="font-size:2.25rem;color:#ef4444;"></i>
                 <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#ef4444;margin:0;">Session Error</h1>
@@ -70,6 +78,14 @@
     {
         <!-- Network Error State -->
         <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fed7aa;">
+            
+            <!-- Logo -->
+            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                     style="max-width:150px;height:auto;margin:0 auto;" />
+            </div>
+            
             <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
                 <i class="fa-solid fa-wifi" style="font-size:2.25rem;color:#f97316;"></i>
                 <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#f97316;margin:0;">Connection Error</h1>
@@ -86,6 +102,14 @@
     {
         <!-- Main Waiting Room Content -->
         <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:1.5rem 2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;margin-bottom:2rem;">
+            
+            <!-- Logo -->
+            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                     style="max-width:150px;height:auto;margin:0 auto;" />
+            </div>
+            
             <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.25rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:0 0 1.5rem 0;">
                 <i class="fa-solid fa-hourglass-half" style="font-size:2.5rem;color:#006400;"></i>
                 <span>Waiting Room</span>
@@ -263,26 +287,8 @@
             Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading session data for token: {Token}", 
                 requestId, SessionToken);
 
-            // Check if this is a mock/demo request
-            if (SessionToken?.ToUpperInvariant() == "MOCK" || SessionToken?.ToUpperInvariant() == "DEMO")
-            {
-                LoadMockData(requestId);
-                // Also load participants via API to test the complete flow (but preserve mock data if API fails)
-                if (Model?.CurrentState == SessionWaitingState.Loaded)
-                {
-                    InitializeTimers();
-                    var existingParticipants = Model.Participants; // Preserve mock data
-                    await LoadParticipantsAsync(requestId);
-                    // If API call failed and we have no participants, restore mock data
-                    if ((Model.Participants?.Count ?? 0) == 0 && existingParticipants?.Count > 0)
-                    {
-                        Model.Participants = existingParticipants;
-                        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Restored mock participants after API failure", requestId);
-                        StateHasChanged();
-                    }
-                }
-            }
-            else if (!string.IsNullOrEmpty(SessionToken))
+            // Only handle real session tokens - no mock/demo data
+            if (!string.IsNullOrEmpty(SessionToken))
             {
                 await LoadSessionDataAsync(SessionToken, requestId);
                 if (Model?.CurrentState == SessionWaitingState.Loaded)
@@ -397,9 +403,19 @@
     {
         try
         {
+            Logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Starting LoadParticipantsAsync with SessionToken: {SessionToken}", 
+                requestId, SessionToken);
+            
             using var httpClient = HttpClientFactory.CreateClient("default");
             httpClient.BaseAddress = new Uri("https://localhost:9091/");
-            var response = await httpClient.GetAsync($"api/participant/session/{SessionToken}/participants");
+            
+            var apiUrl = $"api/participant/session/{SessionToken}/participants";
+            Logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Making API call to: {ApiUrl}", requestId, apiUrl);
+            
+            var response = await httpClient.GetAsync(apiUrl);
+            
+            Logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] API response status: {StatusCode}", 
+                requestId, response.StatusCode);
             
             if (response.IsSuccessStatusCode)
             {
@@ -431,20 +447,24 @@
             }
             else
             {
-                Logger.LogWarning("NOOR-DEBUG: [{RequestId}] Failed to load participants: {StatusCode}", 
-                    requestId, response.StatusCode);
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("NOOR-DEBUG: [{RequestId}] Failed to load participants: {StatusCode} - {ErrorContent}", 
+                    requestId, response.StatusCode, errorContent);
                 
-                // Fallback to demo data for better UX
-                SeedDemoParticipants();
+                // Only use real data - no fallback to demo data
+                Model!.Participants = new List<ParticipantData>();
+                Logger.LogError("NOOR-DEBUG: [{RequestId}] Participants API call failed - Token: {Token}, URL: {Url}, Status: {Status} - NO FALLBACK USED", 
+                    requestId, SessionToken, $"api/participant/session/{SessionToken}/participants", response.StatusCode);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Error loading participants", requestId);
-            SeedDemoParticipants();
+            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Error loading participants - NO FALLBACK USED", requestId);
+            // Only use real data - no fallback to demo data
+            Model!.Participants = new List<ParticipantData>();
         }
         
-        StateHasChanged();
+        await InvokeAsync(() => StateHasChanged());
     }
 
     private string GetCountryFlag(string? country)
@@ -481,72 +501,9 @@
         };
     }
 
-    private void LoadMockData(string requestId)
-    {
-        if (Model == null) return;
 
-        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading mock session data for demonstration", requestId);
 
-        // Mock session data - showcases the full waiting room experience
-        Model.SessionName = "Advanced Quranic Calligraphy Workshop";
-        Model.SessionDate = "Today, " + DateTime.Now.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture);
-        Model.StartTime = DateTime.Now.AddMinutes(8).ToString("h:mm tt", CultureInfo.InvariantCulture);
-        Model.SessionDuration = "2 hours";
-        Model.InstructorName = "Ustadh Mahmoud Al-Khattat";
-        Model.CurrentState = SessionWaitingState.Loaded;
-        Model.StatusMessage = "Session starting soon...";
-        
-        // Set session start time for countdown (8 minutes from now for demo effect)
-        _sessionStartTime = DateTime.Now.AddMinutes(8);
-        _countdownDurationMs = (int)(_sessionStartTime - DateTime.Now).TotalMilliseconds;
-        
-        // Mock participants - showcases international participation
-        Model.Participants = new List<ParticipantData>
-        {
-            new() { Name = "Dr. Fatima Al-Zahra", Country = "Morocco", Flag = "ma" },
-            new() { Name = "Ali Ibn Rashid", Country = "Saudi Arabia", Flag = "sa" },
-            new() { Name = "Zainab Qureshi", Country = "United Kingdom", Flag = "gb" },
-            new() { Name = "Hassan Al-Masri", Country = "Egypt", Flag = "eg" },
-            new() { Name = "Laila Mahmoud", Country = "Jordan", Flag = "jo" },
-            new() { Name = "Yusuf Rahman", Country = "Canada", Flag = "ca" },
-            new() { Name = "Maryam Benali", Country = "France", Flag = "fr" },
-            new() { Name = "Omar Erdoğan", Country = "Turkey", Flag = "tr" },
-            new() { Name = "Aminah Sheikh", Country = "Pakistan", Flag = "pk" },
-            new() { Name = "Ibrahim Djamil", Country = "Indonesia", Flag = "id" },
-            new() { Name = "Khadijah Omar", Country = "Malaysia", Flag = "my" },
-            new() { Name = "Ahmed Al-Farisi", Country = "UAE", Flag = "ae" }
-        };
 
-        // Initialize timers for live countdown effect
-        InitializeTimers();
-        
-        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Mock data loaded successfully - {ParticipantCount} participants, session starts in {Minutes} minutes", 
-            requestId, Model.Participants.Count, Math.Ceiling((_sessionStartTime - DateTime.Now).TotalMinutes));
-        
-        StateHasChanged();
-    }
-
-    private void SeedDemoParticipants()
-    {
-        if (Model == null) return;
-        
-        // Use the same mock participants as LoadMockData for consistency
-        Model.Participants = new List<ParticipantData>
-        {
-            new() { Name = "Dr. Fatima Al-Zahra", Country = "Morocco", Flag = "ma" },
-            new() { Name = "Ali Ibn Rashid", Country = "Saudi Arabia", Flag = "sa" },
-            new() { Name = "Zainab Qureshi", Country = "United Kingdom", Flag = "gb" },
-            new() { Name = "Hassan Al-Masri", Country = "Egypt", Flag = "eg" },
-            new() { Name = "Laila Mahmoud", Country = "Jordan", Flag = "jo" },
-            new() { Name = "Yusuf Rahman", Country = "Canada", Flag = "ca" },
-            new() { Name = "Maryam Benali", Country = "France", Flag = "fr" },
-            new() { Name = "Omar Erdoğan", Country = "Turkey", Flag = "tr" },
-            new() { Name = "Aminah Sheikh", Country = "Pakistan", Flag = "pk" },
-            new() { Name = "Ibrahim Djamil", Country = "Indonesia", Flag = "id" },
-            new() { Name = "Khadijah Omar", Country = "Malaysia", Flag = "my" },
-            new() { Name = "Ahmed Al-Farisi", Country = "UAE", Flag = "ae" }
-        };
-    }
 
     private void InitializeTimers()
     {

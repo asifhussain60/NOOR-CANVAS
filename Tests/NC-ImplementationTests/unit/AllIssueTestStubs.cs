@@ -6,7 +6,7 @@ namespace NC_ImplementationTests.Unit
     /// Simple test coverage stubs for all completed issues
     /// These are placeholder tests to ensure all completed issues have test coverage
     /// </summary>
-    
+
     public class Issue2Tests
     {
         [Fact]

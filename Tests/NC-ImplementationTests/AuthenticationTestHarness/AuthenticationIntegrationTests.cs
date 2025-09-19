@@ -50,9 +50,9 @@ namespace NoorCanvas.Tests.Authentication
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var responseData = JsonSerializer.Deserialize<JsonElement>(content);
-                
+
                 // Should contain success indicator
-                Assert.True(responseData.TryGetProperty("success", out var successProperty) && 
+                Assert.True(responseData.TryGetProperty("success", out var successProperty) &&
                            successProperty.GetBoolean());
             }
         }
@@ -72,7 +72,7 @@ namespace NoorCanvas.Tests.Authentication
             var response = await _client.PostAsJsonAsync("/api/host/authenticate", requestData);
 
             // Assert: Should return error status
-            Assert.False(response.IsSuccessStatusCode, 
+            Assert.False(response.IsSuccessStatusCode,
                         $"Expected error status for invalid GUID, got {response.StatusCode}");
         }
 
@@ -109,7 +109,7 @@ namespace NoorCanvas.Tests.Authentication
 
             // Assert: Should not return 404 Not Found
             Assert.NotEqual(HttpStatusCode.NotFound, response.StatusCode);
-            
+
             // Should not return 405 Method Not Allowed  
             Assert.NotEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
         }
@@ -131,7 +131,7 @@ namespace NoorCanvas.Tests.Authentication
             var response = await _client.SendAsync(request);
 
             // Assert: Should allow the request
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.Headers.Contains("Access-Control-Allow-Origin"),
                        "CORS should be configured to allow authentication requests");
         }
@@ -146,7 +146,7 @@ namespace NoorCanvas.Tests.Authentication
         [InlineData("   ", "Whitespace GUID")]
         [InlineData("not-a-guid", "Invalid format")]
         [InlineData("00000000-0000-0000-0000-000000000000", "Empty Guid")]
-        public async Task Authentication_ErrorScenarios_HandledCorrectly(string hostGuid, string scenario)
+        public async Task Authentication_ErrorScenarios_HandledCorrectly(string? hostGuid, string scenario)
         {
             // Arrange: Various error scenarios
             var requestData = new { HostGuid = hostGuid };
@@ -156,7 +156,7 @@ namespace NoorCanvas.Tests.Authentication
 
             // Assert: Should handle errors gracefully (not 500 Internal Server Error)
             Assert.NotEqual(HttpStatusCode.InternalServerError, response.StatusCode);
-            
+
             // Should return appropriate client error status
             Assert.True((int)response.StatusCode >= 400 && (int)response.StatusCode < 500,
                        $"Scenario '{scenario}' should return client error status, got {response.StatusCode}");

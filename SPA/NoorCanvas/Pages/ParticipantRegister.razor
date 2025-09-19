@@ -75,22 +75,15 @@
                                                placeholder="Enter your full name" required maxlength="100" />
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">City *</label>
-                                            <input type="text" class="form-control" @bind="registration.City" 
-                                                   placeholder="Your city" required maxlength="50" />
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Country *</label>
-                                            <select class="form-select" @bind="registration.Country" required>
-                                                <option value="">Select Country</option>
-                                                @foreach (var country in GetCountries())
-                                                {
-                                                    <option value="@country">@country</option>
-                                                }
-                                            </select>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Country *</label>
+                                        <select class="form-select" @bind="registration.Country" required>
+                                            <option value="">Select Country</option>
+                                            @foreach (var country in GetCountries())
+                                            {
+                                                <option value="@country">@country</option>
+                                            }
+                                        </select>
                                     </div>
 
                                     <div class="form-text mb-3">
@@ -271,7 +264,6 @@
     private async Task RegisterParticipant()
     {
         if (string.IsNullOrWhiteSpace(registration.Name) || 
-            string.IsNullOrWhiteSpace(registration.City) || 
             string.IsNullOrWhiteSpace(registration.Country))
         {
             await DialogService.ShowWarningAsync("Please fill in all required fields.", "Missing Information");
@@ -281,11 +273,11 @@
         isRegistering = true;
         try
         {
-            Logger.LogInformation("NOOR-INFO: Registering participant: {Name} from {City}, {Country}", 
-                registration.Name, registration.City, registration.Country);
+            Logger.LogInformation("NOOR-INFO: Registering participant: {Name} from {Country}", 
+                registration.Name, registration.Country);
 
             await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTRATION", "Registration started", 
-                new { name = registration.Name, city = registration.City, country = registration.Country });
+                new { name = registration.Name, country = registration.Country });
 
             // Generate browser fingerprint for fraud detection
             try
@@ -302,7 +294,7 @@
             registration.SessionId = Session ?? string.Empty;
             
             // ✅ LIVE API: Register participant via REST API
-            var response = await Http.PostAsJsonAsync("/api/participants/register", registration);
+            var response = await Http.PostAsJsonAsync("/api/participant/register", registration);
             
             if (response.IsSuccessStatusCode)
             {
@@ -317,7 +309,6 @@
                     {
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserId);
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userName", registration.Name);
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCity", registration.City);
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCountry", registration.Country);
                     }
                     catch 
@@ -425,7 +416,6 @@
         public string SessionId { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? Fingerprint { get; set; }
     }

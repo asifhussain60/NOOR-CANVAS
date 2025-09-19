@@ -7,7 +7,7 @@
  * 3. Investigate the token generation endpoint directly
  */
 
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 
 const BASE_URL = 'https://localhost:9091';
 
@@ -32,20 +32,20 @@ test.describe('Host Token Discovery', () => {
         console.log('🧪 Method 1: Testing common token patterns...');
         for (const token of possibleTokens) {
             console.log(`   Testing token: ${token}`);
-            
+
             try {
                 const response = await page.goto(`${BASE_URL}/host/session-opener/${token}`, {
                     waitUntil: 'networkidle',
                     timeout: 10000
                 });
-                
+
                 await page.waitForTimeout(3000);
                 const pageContent = await page.textContent('body');
-                
+
                 if (pageContent && !pageContent.includes('Invalid host token') && !pageContent.includes('API Error')) {
                     console.log(`✅ FOUND WORKING TOKEN: ${token}`);
                     console.log(`📄 Page content preview: ${pageContent.substring(0, 200)}`);
-                    
+
                     await page.screenshot({ path: `./screenshots/working-token-${token}.png`, fullPage: true });
                     return; // Exit if we find a working token
                 } else {
@@ -58,13 +58,13 @@ test.describe('Host Token Discovery', () => {
 
         // Method 2: Try to investigate the token generation API directly
         console.log('🔧 Method 2: Investigating token generation API...');
-        
+
         try {
             // Check if there's a way to list existing tokens
             const tokenListResponse = await request.get(`${BASE_URL}/api/host/tokens`, {
                 ignoreHTTPSErrors: true
             });
-            
+
             if (tokenListResponse.ok()) {
                 const tokenList = await tokenListResponse.json();
                 console.log('📋 Found existing tokens:', tokenList);
@@ -77,7 +77,7 @@ test.describe('Host Token Discovery', () => {
 
         // Method 3: Try to generate a new token with different parameters
         console.log('🔧 Method 3: Attempting token generation with various parameters...');
-        
+
         const tokenRequests = [
             {
                 sessionId: 1,
@@ -98,21 +98,21 @@ test.describe('Host Token Discovery', () => {
         for (const tokenRequest of tokenRequests) {
             try {
                 console.log(`   Trying token generation with:`, tokenRequest);
-                
+
                 const tokenResponse = await request.post(`${BASE_URL}/api/host/generate-token`, {
                     data: tokenRequest,
                     ignoreHTTPSErrors: true
                 });
-                
+
                 if (tokenResponse.ok()) {
                     const tokenData = await tokenResponse.json();
                     console.log(`✅ SUCCESSFULLY GENERATED TOKEN:`, tokenData);
-                    
+
                     if (tokenData.hostToken) {
                         // Test the generated token
                         await page.goto(`${BASE_URL}/host/session-opener/${tokenData.hostToken}`);
                         await page.waitForTimeout(3000);
-                        
+
                         const pageContent = await page.textContent('body');
                         if (pageContent && !pageContent.includes('Invalid host token')) {
                             console.log(`🎯 CONFIRMED WORKING: Generated token ${tokenData.hostToken} works!`);
@@ -131,13 +131,13 @@ test.describe('Host Token Discovery', () => {
 
         // Method 4: Check database or configuration files (if accessible)
         console.log('🔧 Method 4: Looking for configuration or database hints...');
-        
+
         try {
             // Try to access any configuration endpoints
             const configResponse = await request.get(`${BASE_URL}/api/config`, {
                 ignoreHTTPSErrors: true
             });
-            
+
             if (configResponse.ok()) {
                 const config = await configResponse.json();
                 console.log('⚙️ Found configuration:', config);

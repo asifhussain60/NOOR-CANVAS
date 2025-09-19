@@ -165,8 +165,8 @@
             IsLoading = false
         };
 
-        // Load countries for registration dropdown
-        await LoadCountriesAsync();
+        // NOTE: Countries will be loaded AFTER successful token validation (Issue-114 fix)
+        // Do NOT load countries here to prevent loading during token entry phase
 
         // If session token provided via URL, populate it and load session info
         if (!string.IsNullOrEmpty(SessionToken))
@@ -347,6 +347,10 @@
                     Model.ErrorMessage = string.Empty;
                     
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Successfully switched to registration panel", requestId);
+
+                    // ISSUE-114 FIX: Load countries ONLY after successful token validation
+                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading countries dropdown after token validation...", requestId);
+                    await LoadCountriesAsync();
                 }
                 else
                 {
@@ -443,9 +447,12 @@
             var requestId = Guid.NewGuid().ToString("N")[..8];
             Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Loading countries from API...", requestId);
             
-            using var httpClient = HttpClientFactory.CreateClient();
+            using var httpClient = HttpClientFactory.CreateClient("default");
             httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "demo-token-12345");
-            var response = await httpClient.GetAsync("api/host/countries");
+            
+            // Use participant token for countries request (countries are reference data available to all users)
+            var countriesUrl = $"/api/host/countries?guid={Uri.EscapeDataString(Model?.TokenInput ?? "USERREF001")}";
+            var response = await httpClient.GetAsync(countriesUrl);
             
             if (response.IsSuccessStatusCode)
             {

@@ -16,7 +16,7 @@ namespace NC.ImplementationTests.Fixtures
         {
             // Set environment to Testing BEFORE application configuration runs
             builder.UseEnvironment("Testing");
-            
+
             builder.ConfigureServices(services =>
             {
                 // Remove any existing DbContext registrations to avoid conflicts
@@ -25,20 +25,20 @@ namespace NC.ImplementationTests.Fixtures
                 {
                     services.Remove(canvasDescriptor);
                 }
-                
+
                 var kSessionsDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<KSessionsDbContext>));
                 if (kSessionsDescriptor != null)
                 {
                     services.Remove(kSessionsDescriptor);
                 }
-                
+
                 // Register In-Memory databases for testing
                 services.AddDbContext<CanvasDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("NoorCanvasTestDb");
                     options.EnableSensitiveDataLogging();
                 });
-                
+
                 services.AddDbContext<KSessionsDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("KSessionsTestDb");
@@ -57,12 +57,12 @@ namespace NC.ImplementationTests.Fixtures
                 {
                     var canvasContext = scope.ServiceProvider.GetService<CanvasDbContext>();
                     canvasContext?.Database.EnsureDeleted();
-                    
+
                     var kSessionsContext = scope.ServiceProvider.GetService<KSessionsDbContext>();
                     kSessionsContext?.Database.EnsureDeleted();
                 }
             }
-            
+
             base.Dispose(disposing);
         }
     }

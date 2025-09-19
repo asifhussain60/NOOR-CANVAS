@@ -197,12 +197,15 @@ namespace NoorCanvas.Controllers
             try
             {
                 _logger.LogInformation("NOOR-INFO: Participant registration: {Name}", request.Name);
+                _logger.LogInformation("NOOR-DEBUG-REG: Name='{Name}', Country='{Country}'", 
+                    request.Name ?? "NULL", request.Country ?? "NULL");
 
                 if (string.IsNullOrWhiteSpace(request.Name) ||
-                    string.IsNullOrWhiteSpace(request.City) ||
                     string.IsNullOrWhiteSpace(request.Country))
                 {
-                    return BadRequest(new { error = "Name, city, and country are required" });
+                    _logger.LogWarning("NOOR-DEBUG-REG: Validation failed - Name: '{Name}', Country: '{Country}'", 
+                        request.Name ?? "NULL", request.Country ?? "NULL");
+                    return BadRequest(new { error = "Name and country are required" });
                 }
 
                 if (!Guid.TryParse(request.SessionGuid, out Guid sessionGuid))
@@ -225,6 +228,16 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { error = "Session is no longer available" });
                 }
 
+                // Get the UserToken for this session to use in the waiting room URL
+                var secureToken = await _context.SecureTokens
+                    .FirstOrDefaultAsync(st => st.SessionId == session.SessionId && st.IsActive);
+
+                if (secureToken == null)
+                {
+                    _logger.LogError("NOOR-ERROR: No active secure token found for session {SessionId}", session.SessionId);
+                    return NotFound(new { error = "Session token not found" });
+                }
+
                 // Create or find user
                 Guid userId = string.IsNullOrEmpty(request.UserId) ? Guid.NewGuid() : Guid.Parse(request.UserId);
 
@@ -235,7 +248,6 @@ namespace NoorCanvas.Controllers
                     {
                         UserId = userId,
                         Name = request.Name.Trim(),
-                        City = request.City.Trim(),
                         Country = request.Country.Trim(),
                         FirstJoinedAt = DateTime.UtcNow,
                         LastJoinedAt = DateTime.UtcNow
@@ -246,7 +258,6 @@ namespace NoorCanvas.Controllers
                 {
                     // Update user info
                     existingUser.Name = request.Name.Trim();
-                    existingUser.City = request.City.Trim();
                     existingUser.Country = request.Country.Trim();
                     existingUser.LastJoinedAt = DateTime.UtcNow;
                 }
@@ -262,15 +273,22 @@ namespace NoorCanvas.Controllers
                 _context.Registrations.Add(registration);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Participant registered: {Name} (ID: {UserId})",
-                    request.Name, userId);
+                // Debug logging for registration
+                _logger.LogInformation("NOOR-DEBUG-REGISTRATION: User registered successfully");
+                _logger.LogInformation("NOOR-DEBUG-REGISTRATION: Name: {Name}, UserId: {UserId}", request.Name, userId);
+                _logger.LogInformation("NOOR-DEBUG-REGISTRATION: SessionId: {SessionId}, UserToken: {UserToken}", session.SessionId, secureToken.UserToken);
+                _logger.LogInformation("NOOR-DEBUG-REGISTRATION: RegistrationId: {RegistrationId}, JoinTime: {JoinTime}", registration.RegistrationId, registration.JoinTime);
+                _logger.LogInformation("NOOR-DEBUG-REGISTRATION: WaitingRoomUrl: /session/waiting/{UserToken}", secureToken.UserToken);
+
+                _logger.LogInformation("NOOR-SUCCESS: Participant registered: {Name} (ID: {UserId}) for session token: {UserToken}",
+                    request.Name, userId, secureToken.UserToken);
 
                 return Ok(new ParticipantRegistrationResponse
                 {
                     Success = true,
                     UserId = userId.ToString(),
                     RegistrationId = registration.RegistrationId,
-                    WaitingRoomUrl = $"/session/{sessionGuid}/waiting",
+                    WaitingRoomUrl = $"/session/waiting/{secureToken.UserToken}",
                     JoinTime = registration.JoinTime
                 });
             }
@@ -296,57 +314,40 @@ namespace NoorCanvas.Controllers
             {
                 if (string.IsNullOrWhiteSpace(token))
                 {
+                    _logger.LogError("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Token is null or empty", requestId);
                     return BadRequest(new { error = "Invalid token format", message = "Token is required", requestId });
                 }
 
-                // Handle mock tokens for testing/demo purposes
-                if (token.Equals("MOCK", StringComparison.OrdinalIgnoreCase) ||
-                    token.Equals("DEMO", StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogInformation("NOOR-PARTICIPANT: [{RequestId}] Returning mock participants for token: {Token}",
-                        requestId, token);
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Token received: '{Token}', Length: {Length}", 
+                    requestId, token, token.Length);
 
-                    var mockParticipants = new[]
-                    {
-                        new { userId = "1", displayName = "Dr. Fatima Al-Zahra", joinedAt = DateTime.UtcNow.AddMinutes(-15), role = "participant", city = "Cairo", country = "Egypt" },
-                        new { userId = "2", displayName = "Ali Ibn Rashid", joinedAt = DateTime.UtcNow.AddMinutes(-12), role = "participant", city = "Dubai", country = "UAE" },
-                        new { userId = "3", displayName = "Zainab Qureshi", joinedAt = DateTime.UtcNow.AddMinutes(-10), role = "participant", city = "Karachi", country = "Pakistan" },
-                        new { userId = "4", displayName = "Omar Hassan", joinedAt = DateTime.UtcNow.AddMinutes(-8), role = "participant", city = "Tunis", country = "Tunisia" },
-                        new { userId = "5", displayName = "Aisha Rahman", joinedAt = DateTime.UtcNow.AddMinutes(-6), role = "participant", city = "Dhaka", country = "Bangladesh" },
-                        new { userId = "6", displayName = "Yusuf Al-Maghribi", joinedAt = DateTime.UtcNow.AddMinutes(-5), role = "participant", city = "Casablanca", country = "Morocco" },
-                        new { userId = "7", displayName = "Mariam Khoury", joinedAt = DateTime.UtcNow.AddMinutes(-4), role = "participant", city = "Beirut", country = "Lebanon" },
-                        new { userId = "8", displayName = "Ahmed El-Sayed", joinedAt = DateTime.UtcNow.AddMinutes(-3), role = "participant", city = "Alexandria", country = "Egypt" },
-                        new { userId = "9", displayName = "Hafsa Nasir", joinedAt = DateTime.UtcNow.AddMinutes(-2), role = "participant", city = "Lahore", country = "Pakistan" },
-                        new { userId = "10", displayName = "Ibrahim Maliki", joinedAt = DateTime.UtcNow.AddMinutes(-1), role = "participant", city = "Rabat", country = "Morocco" },
-                        new { userId = "11", displayName = "Khadija Touré", joinedAt = DateTime.UtcNow.AddMinutes(-1), role = "participant", city = "Dakar", country = "Senegal" },
-                        new { userId = "12", displayName = "Bilal Osman", joinedAt = DateTime.UtcNow, role = "participant", city = "Istanbul", country = "Turkey" }
-                    };
-
-                    return Ok(new
-                    {
-                        sessionId = "mock-session-123",
-                        token,
-                        participantCount = mockParticipants.Length,
-                        participants = mockParticipants,
-                        requestId
-                    });
-                }
+                // Only handle real tokens - no mock/demo data
 
                 if (token.Length != 8)
                 {
+                    _logger.LogError("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Invalid token length: {Length}, Expected: 8", 
+                        requestId, token.Length);
                     return BadRequest(new { error = "Invalid token format", message = "Token must be 8 characters", requestId });
                 }
 
                 // Validate the token first
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Validating token with TokenService...", requestId);
                 var secureToken = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
+                
                 if (secureToken?.Session == null)
                 {
+                    _logger.LogError("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Token validation failed - no session found", requestId);
                     return NotFound(new { error = "Session not found or token invalid", requestId });
                 }
 
                 var sessionId = secureToken.Session.SessionId;
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Token validation successful - SessionId: {SessionId}", 
+                    requestId, sessionId);
 
                 // Get participants from SessionParticipants table (active participants)
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Querying SessionParticipants for SessionId: {SessionId}", 
+                    requestId, sessionId);
+                
                 var participants = await _context.SessionParticipants
                     .Where(sp => sp.SessionId == sessionId && sp.JoinedAt != null && sp.LeftAt == null)
                     .Select(sp => new
@@ -355,12 +356,17 @@ namespace NoorCanvas.Controllers
                         displayName = sp.DisplayName ?? "Anonymous",
                         joinedAt = sp.JoinedAt ?? DateTime.UtcNow,
                         role = "participant",
-                        city = (string?)null,
                         country = (string?)null
                     })
                     .ToListAsync();
 
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Found {Count} active participants in SessionParticipants", 
+                    requestId, participants.Count);
+
                 // Also get registered participants from Registrations table
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Querying Registrations for SessionId: {SessionId}", 
+                    requestId, sessionId);
+                
                 var registrations = await _context.Registrations
                     .Include(r => r.User)
                     .Where(r => r.SessionId == sessionId)
@@ -370,10 +376,19 @@ namespace NoorCanvas.Controllers
                         displayName = (r.User != null ? r.User.Name : null) ?? "Unknown User", // Ensure non-null
                         joinedAt = r.JoinTime,
                         role = "registered",
-                        city = r.User != null ? r.User.City : null,
                         country = r.User != null ? r.User.Country : null
                     })
                     .ToListAsync();
+
+                _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Found {Count} registered participants in Registrations", 
+                    requestId, registrations.Count);
+
+                // Log each registration for debugging
+                foreach (var reg in registrations)
+                {
+                    _logger.LogInformation("NOOR-DEBUG-PARTICIPANTS: [{RequestId}] Registration - UserId: {UserId}, Name: {Name}, Country: {Country}, JoinTime: {JoinTime}", 
+                        requestId, reg.userId, reg.displayName, reg.country, reg.joinedAt);
+                }
 
                 // Combine and deduplicate participants
                 var allParticipants = participants
@@ -463,7 +478,6 @@ namespace NoorCanvas.Controllers
         public string SessionGuid { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? Fingerprint { get; set; }
     }

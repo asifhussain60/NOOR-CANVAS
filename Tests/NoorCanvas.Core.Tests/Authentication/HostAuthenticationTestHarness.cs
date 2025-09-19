@@ -39,7 +39,7 @@ namespace NoorCanvas.Core.Tests.Authentication
         {
             // Arrange
             _output.WriteLine($"Testing host authentication with Session 215 GUID: {TestHostGuid}");
-            
+
             var request = new
             {
                 hostGuid = TestHostGuid
@@ -48,17 +48,17 @@ namespace NoorCanvas.Core.Tests.Authentication
             // Act
             var response = await _client.PostAsJsonAsync("/api/host/authenticate", request);
             var content = await response.Content.ReadAsStringAsync();
-            
+
             _output.WriteLine($"Response Status: {response.StatusCode}");
             _output.WriteLine($"Response Content: {content}");
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode, 
+            Assert.True(response.IsSuccessStatusCode,
                 $"Expected successful response, got {response.StatusCode}. Content: {content}");
 
-            var authResponse = JsonSerializer.Deserialize<HostAuthResponse>(content, new JsonSerializerOptions 
-            { 
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+            var authResponse = JsonSerializer.Deserialize<HostAuthResponse>(content, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
             Assert.NotNull(authResponse);
@@ -66,7 +66,7 @@ namespace NoorCanvas.Core.Tests.Authentication
             Assert.NotEmpty(authResponse.SessionToken);
             Assert.NotEmpty(authResponse.HostGuid);
             Assert.True(authResponse.ExpiresAt > DateTime.UtcNow, "Session should not be expired");
-            
+
             _output.WriteLine($"✅ Authentication successful - Token: {authResponse.SessionToken[..10]}...");
         }
 
@@ -75,7 +75,7 @@ namespace NoorCanvas.Core.Tests.Authentication
         {
             // Arrange
             _output.WriteLine($"Testing host authentication with standard GUID: {AlternateHostGuid}");
-            
+
             var request = new
             {
                 hostGuid = AlternateHostGuid
@@ -84,18 +84,18 @@ namespace NoorCanvas.Core.Tests.Authentication
             // Act
             var response = await _client.PostAsJsonAsync("/api/host/authenticate", request);
             var content = await response.Content.ReadAsStringAsync();
-            
+
             _output.WriteLine($"Response Status: {response.StatusCode}");
             _output.WriteLine($"Response Content: {content}");
 
             // Assert - May succeed or fail depending on database content, but should not throw SSL errors
             if (response.IsSuccessStatusCode)
             {
-                var authResponse = JsonSerializer.Deserialize<HostAuthResponse>(content, new JsonSerializerOptions 
-                { 
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
+                var authResponse = JsonSerializer.Deserialize<HostAuthResponse>(content, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
-                
+
                 Assert.NotNull(authResponse);
                 _output.WriteLine($"✅ Standard GUID authentication successful");
             }
@@ -105,7 +105,7 @@ namespace NoorCanvas.Core.Tests.Authentication
                 Assert.DoesNotContain("certificate", content, StringComparison.OrdinalIgnoreCase);
                 Assert.DoesNotContain("SSL", content, StringComparison.OrdinalIgnoreCase);
                 Assert.DoesNotContain("trust", content, StringComparison.OrdinalIgnoreCase);
-                
+
                 _output.WriteLine($"✅ Clean authentication failure (no SSL errors): {content}");
             }
         }
@@ -119,7 +119,7 @@ namespace NoorCanvas.Core.Tests.Authentication
             // Act
             var response = await _client.PostAsJsonAsync("/api/host/authenticate", request);
             var jsonContent = await response.Content.ReadAsStringAsync();
-            
+
             _output.WriteLine($"Raw JSON Response: {jsonContent}");
 
             // Assert - Check for camelCase properties in response
@@ -130,13 +130,13 @@ namespace NoorCanvas.Core.Tests.Authentication
                 Assert.Contains("\"sessionToken\":", jsonContent, StringComparison.Ordinal);
                 Assert.Contains("\"hostGuid\":", jsonContent, StringComparison.Ordinal);
                 Assert.Contains("\"expiresAt\":", jsonContent, StringComparison.Ordinal);
-                
+
                 // Should NOT contain PascalCase properties
                 Assert.DoesNotContain("\"Success\":", jsonContent, StringComparison.Ordinal);
                 Assert.DoesNotContain("\"SessionToken\":", jsonContent, StringComparison.Ordinal);
                 Assert.DoesNotContain("\"HostGuid\":", jsonContent, StringComparison.Ordinal);
                 Assert.DoesNotContain("\"ExpiresAt\":", jsonContent, StringComparison.Ordinal);
-                
+
                 _output.WriteLine("✅ JSON response uses camelCase property names correctly");
             }
             else
@@ -150,7 +150,7 @@ namespace NoorCanvas.Core.Tests.Authentication
         {
             // Arrange
             _output.WriteLine("Testing database connectivity during authentication process");
-            
+
             var request = new { hostGuid = TestHostGuid };
 
             // Act
@@ -162,7 +162,7 @@ namespace NoorCanvas.Core.Tests.Authentication
             Assert.DoesNotContain("SSL Provider", content);
             Assert.DoesNotContain("TrustServerCertificate", content);
             Assert.DoesNotContain("certificate", content, StringComparison.OrdinalIgnoreCase);
-            
+
             _output.WriteLine("✅ No SSL certificate errors detected in authentication response");
             _output.WriteLine($"Response content: {content}");
         }
@@ -177,13 +177,13 @@ namespace NoorCanvas.Core.Tests.Authentication
             // Act
             var response = await _client.PostAsJsonAsync("/api/host/authenticate", request);
             stopwatch.Stop();
-            
+
             var content = await response.Content.ReadAsStringAsync();
-            
+
             // Assert - Should complete within reasonable time (SSL issues would cause timeouts)
-            Assert.True(stopwatch.ElapsedMilliseconds < 5000, 
+            Assert.True(stopwatch.ElapsedMilliseconds < 5000,
                 $"Authentication took too long: {stopwatch.ElapsedMilliseconds}ms. May indicate SSL certificate issues.");
-            
+
             _output.WriteLine($"✅ Authentication completed in {stopwatch.ElapsedMilliseconds}ms");
             _output.WriteLine($"Response: {response.StatusCode} - {content}");
         }
@@ -207,10 +207,10 @@ namespace NoorCanvas.Core.Tests.Authentication
             for (int i = 0; i < responses.Length; i++)
             {
                 var content = await responses[i].Content.ReadAsStringAsync();
-                
+
                 Assert.DoesNotContain("certificate", content, StringComparison.OrdinalIgnoreCase);
                 Assert.DoesNotContain("SSL", content, StringComparison.OrdinalIgnoreCase);
-                
+
                 _output.WriteLine($"✅ Concurrent request {i + 1}: {responses[i].StatusCode} - No SSL errors");
             }
         }
@@ -232,11 +232,11 @@ namespace NoorCanvas.Core.Tests.Authentication
 
             // Assert - Should fail gracefully, not with SSL errors
             Assert.False(response.IsSuccessStatusCode, "Invalid GUID should not authenticate successfully");
-            
+
             // Should not contain SSL-related error messages
             Assert.DoesNotContain("certificate", content, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("SSL Provider", content);
-            
+
             _output.WriteLine($"✅ Invalid GUID rejected cleanly: {response.StatusCode}");
         }
 
@@ -257,7 +257,7 @@ namespace NoorCanvas.Core.Tests.Authentication
                 // Test specific Session 215 if it exists
                 var session215 = await context.Sessions
                     .FirstOrDefaultAsync(s => s.SessionId == 215);
-                    
+
                 if (session215 != null)
                 {
                     _output.WriteLine($"✅ Session 215 found in database: {session215.GroupId}");
@@ -273,7 +273,7 @@ namespace NoorCanvas.Core.Tests.Authentication
                 {
                     Assert.Fail($"SSL certificate error accessing canvas schema: {ex.Message}");
                 }
-                
+
                 _output.WriteLine($"Database access error (non-SSL): {ex.Message}");
                 throw;
             }

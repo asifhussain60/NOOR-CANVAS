@@ -23,7 +23,6 @@
  */
 
 import { expect, test, type Page, type Request, type Response } from '@playwright/test';
-import { generateTestToken, type TokenData } from './test-utils';
 
 // Base URL for the application
 const BASE_URL = 'https://localhost:9091';

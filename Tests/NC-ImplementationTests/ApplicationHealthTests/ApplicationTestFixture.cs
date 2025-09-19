@@ -29,10 +29,10 @@ namespace NoorCanvas.Tests.Infrastructure
         {
             var services = new ServiceCollection();
             services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Information));
-            
+
             ServiceProvider = services.BuildServiceProvider();
             Logger = ServiceProvider.GetRequiredService<ILogger<ApplicationTestFixture>>();
-            
+
             Logger.LogInformation("ApplicationTestFixture initialized for Issue-26 testing");
         }
 

@@ -47,7 +47,7 @@ namespace NC_ImplementationTests.Integration
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             var registrationData = new
             {
                 sessionGuid = Guid.NewGuid().ToString(),
@@ -64,7 +64,7 @@ namespace NC_ImplementationTests.Integration
             var response = await client.PostAsync("/api/participant/register", content);
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.StatusCode == System.Net.HttpStatusCode.BadRequest ||
                        response.StatusCode == System.Net.HttpStatusCode.NotFound,
                 "Participant registration should handle valid data appropriately");
@@ -92,7 +92,7 @@ namespace NC_ImplementationTests.Integration
             {
                 var content = await response.Content.ReadAsStringAsync();
                 Assert.NotEmpty(content);
-                
+
                 // Should return session validation response
                 var json = JsonDocument.Parse(content);
                 Assert.True(json.RootElement.ValueKind == JsonValueKind.Object);
@@ -109,7 +109,7 @@ namespace NC_ImplementationTests.Integration
         {
             // Arrange
             var client = _factory.CreateClient();
-            
+
             var registrationData = new
             {
                 sessionGuid = Guid.NewGuid().ToString(),

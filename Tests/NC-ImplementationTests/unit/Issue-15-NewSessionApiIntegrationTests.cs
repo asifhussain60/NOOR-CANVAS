@@ -49,7 +49,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.GetAsync("/api/host/sessions");
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
                        response.StatusCode == System.Net.HttpStatusCode.Forbidden,
                 "Session management API should exist and require authentication, not return 404");
@@ -83,7 +83,7 @@ namespace NC_ImplementationTests.Unit
             var response = await client.GetAsync($"/api/participant/session/{testGuid}/validate");
 
             // Assert
-            Assert.True(response.IsSuccessStatusCode || 
+            Assert.True(response.IsSuccessStatusCode ||
                        response.StatusCode == System.Net.HttpStatusCode.BadRequest ||
                        response.StatusCode == System.Net.HttpStatusCode.NotFound,
                 "Session validation should handle GUID validation properly");
@@ -106,7 +106,7 @@ namespace NC_ImplementationTests.Unit
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                
+
                 // Should not contain mock data indicators
                 Assert.DoesNotContain("mock", content.ToLowerInvariant());
                 Assert.DoesNotContain("placeholder", content.ToLowerInvariant());
