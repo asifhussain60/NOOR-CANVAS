@@ -1044,6 +1044,74 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        /// <summary>
+        /// Get all assets for a session from the SessionAssets lookup table
+        /// Used by HostControlPanel transform function to inject share buttons
+        /// </summary>
+        [HttpGet("sessions/{sessionId}/assets")]
+        public async Task<IActionResult> GetSessionAssets(long sessionId, [FromQuery] string? type = null, [FromQuery] bool sharedOnly = false)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-ASSETS-API: Loading assets for session {SessionId}, type filter: {Type}, shared only: {SharedOnly}", 
+                    sessionId, type ?? "all", sharedOnly);
+
+                if (sessionId <= 0)
+                {
+                    return BadRequest(new { error = "Valid session ID is required" });
+                }
+
+                // Build query with optional filters
+                var query = _context.SessionAssets
+                    .Where(a => a.SessionId == sessionId && a.IsActive);
+
+                // Apply type filter if specified
+                if (!string.IsNullOrEmpty(type))
+                {
+                    query = query.Where(a => a.AssetType == type);
+                }
+
+                // Apply shared filter if requested
+                if (sharedOnly)
+                {
+                    query = query.Where(a => a.SharedAt != null);
+                }
+
+                // Execute query and order by position
+                var assets = await query
+                    .OrderBy(a => a.Position ?? int.MaxValue) // NULLs last
+                    .ThenBy(a => a.DetectedAt) // Fallback ordering
+                    .ToListAsync();
+
+                _logger.LogInformation("NOOR-ASSETS-API: Found {Count} assets for session {SessionId}", assets.Count, sessionId);
+
+                // Convert to DTOs
+                var assetDtos = assets.Select(NoorCanvas.Models.Simplified.SessionAssetDto.FromEntity).ToList();
+
+                // Generate summary statistics
+                var response = new NoorCanvas.Models.Simplified.SessionAssetsResponse
+                {
+                    SessionId = sessionId,
+                    TotalAssets = assetDtos.Count,
+                    SharedAssets = assetDtos.Count(a => a.IsShared),
+                    AssetsByType = assetDtos.GroupBy(a => a.AssetType).ToDictionary(g => g.Key, g => g.Count()),
+                    Assets = assetDtos,
+                    RequestId = HttpContext.TraceIdentifier
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ASSETS-API-ERROR: Failed to get assets for session {SessionId}", sessionId);
+                return StatusCode(500, new { 
+                    error = "Failed to load session assets",
+                    sessionId = sessionId,
+                    requestId = HttpContext.TraceIdentifier
+                });
+            }
+        }
+
         [HttpPost("share-asset")]
         public async Task<IActionResult> ShareAsset([FromBody] ShareAssetRequest request)
         {

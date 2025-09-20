@@ -123,7 +123,8 @@ builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug servic
 // Schema Migration Services - Simplified schema only
 builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service
 
-builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service
+builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
+builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 
 var app = builder.Build();
 

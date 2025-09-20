@@ -150,5 +150,28 @@ namespace NoorCanvas.Models.KSESSIONS
 
         [ForeignKey("CategoryId")]
         public virtual KSessionsCategory Category { get; set; } = null!;
+        
+        [ForeignKey("SpeakerId")]
+        public virtual KSessionsSpeaker? Speaker { get; set; }
+    }
+
+    /// <summary>
+    /// Speakers from KSESSIONS database - Session instructors/presenters
+    /// Maps to KSESSIONS.dbo.Speakers table
+    /// </summary>
+    [Table("Speakers", Schema = "dbo")]
+    public class KSessionsSpeaker
+    {
+        [Key]
+        [Column("SpeakerID")]
+        public int SpeakerId { get; set; }
+
+        [Column("SpeakerName")]
+        [StringLength(150)]
+        public string SpeakerName { get; set; } = string.Empty;
+
+        // Navigation properties
+        public virtual ICollection<KSessionsSession> Sessions { get; set; } = new List<KSessionsSession>();
+        public virtual ICollection<KSessionsGroup> Groups { get; set; } = new List<KSessionsGroup>();
     }
 }

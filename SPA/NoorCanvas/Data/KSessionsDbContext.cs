@@ -19,6 +19,7 @@ namespace NoorCanvas.Data
         public DbSet<KSessionsSession> Sessions { get; set; }
         public DbSet<KSessionsSessionTranscript> SessionTranscripts { get; set; }
         public DbSet<KSessionsCountry> Countries { get; set; }
+        public DbSet<KSessionsSpeaker> Speakers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -111,6 +112,24 @@ namespace NoorCanvas.Data
                 // Add index for performance
                 entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_Countries_IsActive");
                 entity.HasIndex(e => e.CountryName).HasDatabaseName("IX_Countries_CountryName");
+            });
+
+            // Configure Speakers entity
+            modelBuilder.Entity<KSessionsSpeaker>(entity =>
+            {
+                entity.HasKey(e => e.SpeakerId);
+                entity.ToTable("Speakers", "dbo");
+
+                // Configure relationships
+                entity.HasMany(sp => sp.Sessions)
+                      .WithOne(s => s.Speaker)
+                      .HasForeignKey(s => s.SpeakerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(sp => sp.Groups)
+                      .WithOne()
+                      .HasForeignKey(g => g.SpeakerId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
 

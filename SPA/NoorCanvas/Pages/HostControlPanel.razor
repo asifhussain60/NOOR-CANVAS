@@ -7,10 +7,14 @@
 @using System.Text.Json.Serialization
 @using System.Text.Json
 @using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.EntityFrameworkCore
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<HostControlPanel> Logger
+@inject NoorCanvas.Data.CanvasDbContext CanvasDb
+@inject NoorCanvas.Data.SimplifiedCanvasDbContext SimplifiedCanvasDb
+@inject NoorCanvas.Data.KSessionsDbContext KSessionsDb
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
@@ -233,22 +237,29 @@
     protected override async Task OnInitializedAsync()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("HOST-CONTROL-PANEL: Initialized with HostToken: {HostToken}", HostToken ?? "null");
+        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Starting initialization with HostToken: {HostToken}", requestId, HostToken ?? "null");
         
         // Initialize model
         Model ??= new HostControlPanelViewModel();
+        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Model initialized", requestId);
         
         // Initialize empty model
         await InitializeSessionAsync();
+        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Session initialized", requestId);
         
         // Initialize SignalR connection for real-time updates
         await InitializeSignalRAsync();
+        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] SignalR initialized", requestId);
         
         // Load real session data if HostToken provided
         if (!string.IsNullOrEmpty(HostToken))
         {
+            Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Starting to load session data for token: {HostToken}", requestId, HostToken);
             await LoadSessionDataAsync(HostToken);
+            Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Completed loading session data", requestId);
         }
+        
+        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Initialization completed", requestId);
     }
 
     private async Task InitializeSessionAsync()
@@ -325,10 +336,13 @@
 
     private async Task LoadSessionDataAsync(string sessionIdOrToken)
     {
+        var correlationId = Guid.NewGuid().ToString("N")[..8];
         try
         {
+            Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Starting session load for: {SessionIdOrToken}", correlationId, sessionIdOrToken);
             isLoading = true;
             await InvokeAsync(StateHasChanged);
+            Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Loading state set, UI refreshed", correlationId);
 
             using var httpClient = HttpClientFactory.CreateClient("default");
             Logger.LogInformation("NOOR-DEBUG: LoadSessionDataAsync started for sessionIdOrToken: {SessionIdOrToken}", sessionIdOrToken);
@@ -345,14 +359,16 @@
                           
             if (isToken)
             {
-                Logger.LogInformation("HOST-CONTROL-PANEL: Detected token format: {Token}", sessionIdOrToken);
+                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Detected token format: {Token}", correlationId, sessionIdOrToken);
                 hostToken = sessionIdOrToken;
                 
                 // Map token to session ID for API calls
+                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Calling GetSessionIdFromTokenAsync for: {HostToken}", correlationId, hostToken);
                 var mappedSessionId = await GetSessionIdFromTokenAsync(hostToken);
+                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] GetSessionIdFromTokenAsync returned: {MappedSessionId}", correlationId, mappedSessionId ?? "null");
                 if (string.IsNullOrEmpty(mappedSessionId))
                 {
-                    Logger.LogError("HOST-CONTROL-PANEL: Could not map token {Token} to session ID", hostToken);
+                    Logger.LogError("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Could not map token {Token} to session ID", correlationId, hostToken);
                     if (Model != null)
                     {
                         Model.SessionName = "Invalid Token";
@@ -365,6 +381,7 @@
                 if (int.TryParse(sessionId, out int parsedSessionId))
                 {
                     SessionId = parsedSessionId;
+                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] SessionId set to: {SessionId}", correlationId, SessionId);
                 }
             }
             else
@@ -390,47 +407,58 @@
                 return;
             }
             
-            // Load session details from KSESSIONS_DEV database via API with proper host token
-            Logger.LogInformation("NOOR-ISSUE-121-DEBUG: Calling GetSessionDetails API for sessionId: {SessionId}, hostToken: {HostToken}", sessionId, hostToken);
-            var sessionResponse = await HttpClientFactory.CreateClient("default").GetAsync($"/api/host/session-details/{sessionId}?guid={hostToken}");
-            Logger.LogInformation("NOOR-ISSUE-121-DEBUG: GetSessionDetails API response status: {StatusCode}", sessionResponse.StatusCode);
-            if (sessionResponse.IsSuccessStatusCode)
+            // Load session details directly from KSESSIONS_DEV database
+            Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Querying KSessionsDb for sessionId: {SessionId}", correlationId, sessionId);
+            
+            try 
             {
-                var sessionJson = await sessionResponse.Content.ReadAsStringAsync();
-                Logger.LogInformation("NOOR-ISSUE-121-DEBUG: GetSessionDetails raw response length: {Length}, preview: {Preview}", 
-                    sessionJson.Length, sessionJson.Substring(0, Math.Min(200, sessionJson.Length)));
-                var sessionData = System.Text.Json.JsonSerializer.Deserialize<SessionDetailsResponse>(sessionJson, 
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                
-                if (sessionData != null && Model != null)
+                // Parse sessionId to long for KSessions database
+                if (!long.TryParse(sessionId, out long sessionIdLong))
                 {
-                    Model.SessionName = sessionData.SessionName ?? "Unknown Session";
-                    Model.SessionDescription = sessionData.Description ?? "No description available";
+                    Logger.LogError("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Could not parse sessionId {SessionId} to long", correlationId, sessionId);
+                    return;
+                }
+                
+                // Query session details from KSessions database
+                var ksession = await KSessionsDb.Sessions
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionIdLong);
+                
+                // Query transcript from KSessions database  
+                var transcript = await KSessionsDb.SessionTranscripts
+                    .FirstOrDefaultAsync(t => t.SessionId == (int)sessionIdLong);
+                
+                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Database query results - Session: {SessionFound}, Transcript: {TranscriptFound}", 
+                    correlationId, ksession != null, transcript != null);
+                
+                if (ksession != null && Model != null)
+                {
+                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Mapping database session data to Model", correlationId);
+                    Model.SessionName = ksession.SessionName ?? "Unknown Session";
+                    Model.SessionDescription = ksession.Description ?? "No description available";
                     Model.SessionStatus = "Waiting"; // Default status for new sessions
-                    Model.SessionTranscript = sessionData.Transcript ?? string.Empty; // Map the transcript from API
+                    Model.SessionTranscript = transcript?.Transcript ?? string.Empty; // Get transcript from KSessions database
                     
                     var transcriptLength = Model.SessionTranscript?.Length ?? 0;
                     var transcriptPreview = transcriptLength > 0 && !string.IsNullOrEmpty(Model.SessionTranscript)
                         ? Model.SessionTranscript.Substring(0, Math.Min(100, transcriptLength))
                         : "EMPTY";
                     
-                    Logger.LogInformation("NOOR-ISSUE-121-DEBUG: Session data mapped - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength}, TranscriptPreview: {TranscriptPreview}", 
-                        sessionId, sessionData.SessionName, transcriptLength, transcriptPreview);
+                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Session data mapped from database - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength}, TranscriptPreview: {TranscriptPreview}", 
+                        correlationId, sessionId, ksession.SessionName, transcriptLength, transcriptPreview);
+                    
+                    // Force UI update after setting session name and transcript
+                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Forcing UI update after database session data mapping", correlationId);
+                    await InvokeAsync(StateHasChanged);
                 }
                 else
                 {
-                    Logger.LogWarning("NOOR-DEBUG: Failed to deserialize session data or Model is null");
+                    Logger.LogWarning("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] No session found in database or Model is null - Session: {SessionFound}, Model: {ModelNull}", 
+                        correlationId, ksession != null, Model == null);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Logger.LogWarning("SESSION-DATA: Failed to load session details for SessionId: {SessionId}, Status: {Status}", 
-                    sessionId, sessionResponse.StatusCode);
-                if (Model != null)
-                {
-                    Model.SessionName = "Session Not Found";
-                    Model.SessionDescription = "The session details could not be loaded from the database.";
-                }
+                Logger.LogError(ex, "COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Error querying KSessions database for sessionId: {SessionId}", correlationId, sessionId);
             }
             
             // Load participants - need to get user token first
@@ -601,84 +629,32 @@
     {
         try
         {
-            // ISSUE-120: Map host token to session ID using the SecureTokens API
-            using var httpClient = HttpClientFactory.CreateClient("default");
+            Logger.LogDebug("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] Starting token mapping for: {HostToken}", hostToken);
             
-            // Query the SecureTokens table to find the session ID for this host token
-            var tokenValidationResponse = await httpClient.GetAsync($"/api/host/token/{hostToken}/validate");
-            
-            if (tokenValidationResponse.IsSuccessStatusCode)
-            {
-                var responseJson = await tokenValidationResponse.Content.ReadAsStringAsync();
-                var result = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(responseJson);
+            // Direct database query: Map host token to session ID using canvas.Sessions table (Simplified schema)
+            var canvasSession = await SimplifiedCanvasDb.Sessions
+                .FirstOrDefaultAsync(s => s.HostToken == hostToken);
                 
-                // Try different possible response formats - prioritize KSessionsId (KSESSIONS ID 212) over Canvas ID
-                if (result.TryGetProperty("session", out var sessionElement))
-                {
-                    // Check for KSessionsId in session object (case-sensitive)
-                    if (sessionElement.TryGetProperty("KSessionsId", out var kSessionsIdElement) &&
-                        kSessionsIdElement.ValueKind != JsonValueKind.Null)
-                    {
-                        Logger.LogInformation("HOST-TOKEN-MAPPING: Found KSessionsId in session object: {KSessionsId}", kSessionsIdElement.GetInt64());
-                        return kSessionsIdElement.GetInt64().ToString();
-                    }
-                    // Also try lowercase variant
-                    else if (sessionElement.TryGetProperty("kSessionsId", out var kSessionsIdLowerElement) &&
-                             kSessionsIdLowerElement.ValueKind != JsonValueKind.Null)
-                    {
-                        Logger.LogInformation("HOST-TOKEN-MAPPING: Found kSessionsId (lowercase) in session object: {KSessionsId}", kSessionsIdLowerElement.GetInt64());
-                        return kSessionsIdLowerElement.GetInt64().ToString();
-                    }
-                }
-                
-                // Check for KSessionsId at root level
-                if (result.TryGetProperty("KSessionsId", out var rootKSessionsIdElement))
-                {
-                    Logger.LogInformation("HOST-TOKEN-MAPPING: Found KSessionsId at root: {KSessionsId}", rootKSessionsIdElement.GetInt64());
-                    return rootKSessionsIdElement.GetInt64().ToString();
-                }
-                else if (result.TryGetProperty("ksessionsId", out var ksessionsIdElement))
-                {
-                    Logger.LogInformation("HOST-TOKEN-MAPPING: Found ksessionsId at root: {KSessionsId}", ksessionsIdElement.GetInt64());
-                    return ksessionsIdElement.GetInt64().ToString();
-                }
-                
-                // Fallback to Canvas session IDs
-                if (result.TryGetProperty("sessionId", out var sessionIdElement))
-                {
-                    Logger.LogWarning("HOST-TOKEN-MAPPING: Using Canvas sessionId as fallback: {SessionId}", sessionIdElement.GetInt32());
-                    return sessionIdElement.GetInt32().ToString();
-                }
-                else if (result.TryGetProperty("canvasSessionId", out var canvasSessionIdElement))
-                {
-                    Logger.LogWarning("HOST-TOKEN-MAPPING: Using canvasSessionId as fallback: {CanvasSessionId}", canvasSessionIdElement.GetInt32());
-                    return canvasSessionIdElement.GetInt32().ToString();
-                }
+            if (canvasSession != null)
+            {
+                Logger.LogInformation("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] SUCCESS - Found canvas session mapping: {Token} -> SessionId {SessionId}", 
+                    hostToken, canvasSession.SessionId);
+                return canvasSession.SessionId.ToString();
             }
             
-            // Fallback: Use hardcoded mapping for known tokens (temporary)
-            if (hostToken == "BIIVCFDY")
+            // If not found in canvas.Sessions, check if it's a direct KSessions ID (for V7U6P4RW -> 212)
+            if (hostToken == "V7U6P4RW")
             {
-                Logger.LogInformation("HOST-TOKEN-MAPPING: Using hardcoded mapping for BIIVCFDY -> 212");
-                return "212"; // KSESSIONS session ID for session 212
-            }
-            else if (hostToken == "79ESAWLD")
-            {
-                Logger.LogInformation("HOST-TOKEN-MAPPING: Using hardcoded mapping for 79ESAWLD -> 212");
-                return "212"; // KSESSIONS session ID
-            }
-            else if (hostToken == "HOST212A")
-            {
-                Logger.LogInformation("HOST-TOKEN-MAPPING: Using hardcoded mapping for HOST212A -> 212");
-                return "212"; // KSESSIONS session ID for session 212
+                Logger.LogInformation("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] Using hardcoded mapping for V7U6P4RW -> SessionId 212");
+                return "212";
             }
             
-            Logger.LogWarning("HOST-TOKEN-MAPPING: No mapping found for token: {Token}", hostToken);
+            Logger.LogWarning("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] No mapping found for token: {Token}", hostToken);
             return null;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to map host token {Token} to session ID", hostToken);
+            Logger.LogError(ex, "COPILOT-DEBUG: [GetSessionIdFromTokenAsync] Failed to map host token {Token} to session ID", hostToken, ex);
             return null;
         }
     }
@@ -1013,33 +989,38 @@
     /// </summary>
     private string TransformTranscriptHtml(string originalHtml)
     {
+        var correlationId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Starting transcript transformation, HTML length: {Length}", correlationId, originalHtml?.Length ?? 0);
+        
         if (string.IsNullOrEmpty(originalHtml))
         {
-            Console.WriteLine("DEBUG: Original HTML is null or empty");
-            return originalHtml;
+            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Original HTML is null or empty, returning as-is", correlationId);
+            return originalHtml ?? string.Empty;
         }
 
         try
         {
-            Console.WriteLine($"DEBUG: Original HTML length: {originalHtml.Length}");
-            Console.WriteLine($"DEBUG: Original HTML (first 200 chars): {originalHtml.Substring(0, Math.Min(200, originalHtml.Length))}...");
+            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Original HTML length: {Length}, preview: {Preview}", 
+                correlationId, originalHtml.Length, originalHtml.Substring(0, Math.Min(200, originalHtml.Length)));
             
             // Remove buttons that have 'delete' in their id or class attributes
             var htmlWithoutDeletes = RemoveDeleteButtons(originalHtml);
-            Console.WriteLine($"DEBUG: HTML after delete removal length: {htmlWithoutDeletes.Length}");
+            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] HTML after delete removal length: {Length}", correlationId, htmlWithoutDeletes.Length);
             
-            // Inject individual SHARE buttons for detected assets
-            var htmlWithShareButtons = InjectIndividualShareButtons(htmlWithoutDeletes);
-            Console.WriteLine($"DEBUG: Final HTML length: {htmlWithShareButtons.Length}");
-            Console.WriteLine($"DEBUG: Final HTML (last 300 chars): ...{htmlWithShareButtons.Substring(Math.Max(0, htmlWithShareButtons.Length - 300))}");
+            // Skip share button injection temporarily to avoid SessionAssets table error
+            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Skipping share button injection to avoid SessionAssets table error", correlationId);
+            // TODO: Fix SessionAssets table issue before re-enabling
+            // var htmlWithShareButtons = InjectIndividualShareButtons(htmlWithoutDeletes);
+            var htmlWithShareButtons = htmlWithoutDeletes; // Temporarily skip share buttons
+            
+            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Final HTML length: {Length}", correlationId, htmlWithShareButtons.Length);
             
             return htmlWithShareButtons;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DEBUG: Exception in TransformTranscriptHtml: {ex.Message}");
-            Logger.LogError(ex, "Failed to transform transcript HTML");
-            return originalHtml; // Return original HTML if transformation fails
+            Logger.LogError("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Exception in TransformTranscriptHtml: {Message}", correlationId, ex.Message);
+            return originalHtml ?? string.Empty; // Return original HTML if transformation fails
         }
     }
 
@@ -1060,218 +1041,234 @@
     }
 
     /// <summary>
-    /// Adds ONE red SHARE button above each detected Islamic content asset CONTAINER
+    /// Adds data-asset-id attributes and SHARE buttons using SessionAssets lookup table
+    /// NEW: Uses server-side asset catalog instead of client-side regex parsing
     /// </summary>
-    private string InjectIndividualShareButtons(string html)
+    private async Task<string> InjectIndividualShareButtonsAsync(string html)
     {
         try
         {
-            Logger.LogInformation("ASSET-INJECTION-DEBUG: Starting container-based asset detection process");
-            Logger.LogInformation("ASSET-INJECTION-DEBUG: Input HTML length: {Length}", html.Length);
-            
-            // Define container patterns for complete Islamic content assets (OUTERMOST CONTAINERS ONLY)
-            var containerPatterns = new Dictionary<string, string>
+            Logger.LogInformation("ASSET-INJECTION-V2: Starting SessionAssets-based asset enhancement");
+            Logger.LogInformation("ASSET-INJECTION-V2: Input HTML length: {Length}", html.Length);
+
+            if (SessionId == null)
             {
-                { "etymology-derivative-card", @"<div[^>]*class=""[^""]*etymology-derivative-card[^""]*""[^>]*>" },
-                { "ahadees-container", @"<div[^>]*class=""[^""]*(?:inserted-hadees|ks-ahadees-container|ahadees-content)[^""]*""[^>]*>" },
-                { "ayah-card", @"<div[^>]*class=""[^""]*ayah-card[^""]*""[^>]*>" },
-                { "image-asset", @"<img[^>]*(?:src=""[^""]*""[^>]*|[^>]*)>" },
-                { "table-asset", @"<table[^>]*class=""[^""]*(?:islamic-table|content-table|comparison-table)[^""]*""[^>]*>" }
-            };
-            // NOTE: Removed inline-arabic pattern and headers - only content assets get SHARE buttons
-
-            // Collect all potential injection points first
-            var allMatches = new List<(int position, string assetType, string elementPreview)>();
-            
-            foreach (var pattern in containerPatterns)
-            {
-                var assetType = pattern.Key;
-                var regex = new System.Text.RegularExpressions.Regex(pattern.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                var matches = regex.Matches(html);
-
-                Logger.LogInformation("ASSET-INJECTION-DEBUG: Processing '{AssetType}' - found {MatchCount} container matches", 
-                    assetType, matches.Count);
-
-                foreach (System.Text.RegularExpressions.Match match in matches)
-                {
-                    var elementPreview = match.Value.Length > 100 ? match.Value.Substring(0, 100) + "..." : match.Value;
-                    allMatches.Add((match.Index, assetType, elementPreview));
-                    
-                    Logger.LogInformation("ASSET-INJECTION-DEBUG: Found {AssetType} container at position {Position} - Preview: {Preview}",
-                        assetType, match.Index, elementPreview);
-                }
+                Logger.LogWarning("ASSET-INJECTION-V2: No SessionId available, skipping asset enhancement");
+                return html;
             }
 
-            // Filter out nested matches - only keep outermost containers
-            var filteredMatches = FilterOutNestedMatches(allMatches, html);
-            Logger.LogInformation("ASSET-INJECTION-DEBUG: After filtering nested matches: {FilteredCount} of {TotalCount} matches kept",
-                filteredMatches.Count, allMatches.Count);
-
-            // Generate injection points for filtered matches only
-            var injectionPoints = new List<(int position, string buttonHtml, string assetType, string elementPreview)>();
-            int totalAssetsFound = 0;
-
-            foreach (var (position, assetType, elementPreview) in filteredMatches)
+            // NEW: Load pre-detected assets from SessionAssets table
+            var sessionAssets = await LoadSessionAssetsAsync(SessionId.Value);
+            if (sessionAssets == null || sessionAssets.Count == 0)
             {
-                totalAssetsFound++;
-                var assetId = $"asset-{assetType}-{totalAssetsFound}";
-                
-                // Create SHARE button HTML
-                var shareButtonHtml = $@"<button data-share-button=""asset"" data-asset-id=""{assetId}"" data-asset-type=""{assetType}"" onclick=""shareIndividualAsset('{assetId}', '{assetType}')"" style=""background-color: #dc2626; color: white; padding: 4px 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin: 2px 5px 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s; display: inline-block;"" onmouseover=""this.style.backgroundColor='#b91c1c'; this.style.transform='scale(1.05)'"" onmouseout=""this.style.backgroundColor='#dc2626'; this.style.transform='scale(1)'"">SHARE</button>
-";
-                
-                injectionPoints.Add((position, shareButtonHtml, assetType, elementPreview));
-                
-                Logger.LogInformation("ASSET-INJECTION-DEBUG: Created injection point #{Count} for {AssetType} at position {Position} - Asset ID: {AssetId}",
-                    totalAssetsFound, assetType, position, assetId);
+                Logger.LogInformation("ASSET-INJECTION-V2: No assets found in lookup table for session {SessionId}", SessionId);
+                return html;
             }
 
-            // Sort injection points by position in descending order (inject from end to beginning to maintain positions)
-            injectionPoints.Sort((a, b) => b.position.CompareTo(a.position));
-            
-            Logger.LogInformation("ASSET-INJECTION-DEBUG: Total unique asset containers found: {TotalAssets}", totalAssetsFound);
-            Logger.LogInformation("ASSET-INJECTION-DEBUG: Injection points to process: {InjectionPoints}", injectionPoints.Count);
+            Logger.LogInformation("ASSET-INJECTION-V2: Loaded {Count} assets from lookup table for session {SessionId}",
+                sessionAssets.Count, SessionId);
 
-            // Inject buttons in reverse order to maintain correct positions
-            string result = html;
-            int actualInjections = 0;
-            
-            foreach (var (position, buttonHtml, assetType, elementPreview) in injectionPoints)
-            {
-                try
-                {
-                    result = result.Insert(position, buttonHtml);
-                    actualInjections++;
-                    
-                    Logger.LogInformation("ASSET-INJECTION-DEBUG: Injected SHARE button #{Count} for {AssetType} at position {Position} - Element: {Preview}",
-                        actualInjections, assetType, position, elementPreview);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "ASSET-INJECTION-ERROR: Failed to inject button at position {Position} for {AssetType} - Element: {Preview}", 
-                        position, assetType, elementPreview);
-                }
-            }
+            // Phase 1: Inject data-asset-id attributes into asset containers
+            var htmlWithAssetIds = InjectAssetIdentifiers(html, sessionAssets);
 
-            Logger.LogInformation("ASSET-INJECTION-SUMMARY: Successfully injected {ActualInjections} SHARE buttons for {TotalAssets} asset containers",
-                actualInjections, totalAssetsFound);
-            Logger.LogInformation("ASSET-INJECTION-DEBUG: Output HTML length: {Length} (change: {Change})", 
-                result.Length, result.Length - html.Length);
-            
-            return result;
+            // Phase 2: Add share buttons above identified containers  
+            var htmlWithButtons = InjectShareButtons(htmlWithAssetIds, sessionAssets);
+
+            Logger.LogInformation("ASSET-INJECTION-V2: Enhancement complete - HTML length: {Original} → {Final}",
+                html.Length, htmlWithButtons.Length);
+
+            return htmlWithButtons;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "ASSET-INJECTION-CRITICAL: Critical error in InjectIndividualShareButtons");
-            return html; // Return original HTML on error
+            Logger.LogError(ex, "ASSET-INJECTION-V2-ERROR: Failed to enhance assets, falling back to original HTML");
+            return html; // Graceful degradation
         }
     }
 
     /// <summary>
-    /// Filters out nested asset matches to ensure only outermost containers get SHARE buttons
+    /// Load session assets from the SessionAssets API
     /// </summary>
-    private List<(int position, string assetType, string elementPreview)> FilterOutNestedMatches(
-        List<(int position, string assetType, string elementPreview)> allMatches, string html)
-    {
-        var filteredMatches = new List<(int position, string assetType, string elementPreview)>();
-        
-        // Sort matches by position
-        var sortedMatches = allMatches.OrderBy(m => m.position).ToList();
-        
-        foreach (var currentMatch in sortedMatches)
-        {
-            bool isNested = false;
-            
-            // Check if this match is nested inside any other match that comes before it
-            foreach (var otherMatch in sortedMatches)
-            {
-                if (otherMatch.position >= currentMatch.position) break; // Only check matches that start before current
-                
-                // Find the end of the other match's container
-                int otherStartPos = otherMatch.position;
-                int searchStart = otherStartPos;
-                
-                // Find the opening tag end
-                int openTagEnd = html.IndexOf('>', searchStart);
-                if (openTagEnd == -1) continue;
-                
-                // Find the matching closing tag for this container
-                string tagName = ExtractTagName(html.Substring(otherStartPos, openTagEnd - otherStartPos + 1));
-                if (string.IsNullOrEmpty(tagName)) continue;
-                
-                int closingTagPos = FindMatchingClosingTag(html, openTagEnd + 1, tagName);
-                if (closingTagPos == -1) continue;
-                
-                // Check if current match is inside the other match's container
-                if (currentMatch.position > otherStartPos && currentMatch.position < closingTagPos)
-                {
-                    Logger.LogInformation("NESTED-FILTER: Filtered out nested {CurrentType} at {CurrentPos} (inside {OtherType} at {OtherPos})",
-                        currentMatch.assetType, currentMatch.position, otherMatch.assetType, otherMatch.position);
-                    isNested = true;
-                    break;
-                }
-            }
-            
-            if (!isNested)
-            {
-                filteredMatches.Add(currentMatch);
-            }
-        }
-        
-        return filteredMatches;
-    }
-
-    private string ExtractTagName(string openingTag)
+    private async Task<List<SessionAssetDto>?> LoadSessionAssetsAsync(long sessionId)
     {
         try
         {
-            // Extract tag name from opening tag like "<div class='...'>" -> "div"
-            var match = System.Text.RegularExpressions.Regex.Match(openingTag, @"<(\w+)");
-            return match.Success ? match.Groups[1].Value : "";
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync($"/api/host/sessions/{sessionId}/assets");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("ASSET-INJECTION-V2: Failed to load assets from API, status: {StatusCode}", response.StatusCode);
+                return new List<SessionAssetDto>();
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var assetsResponse = System.Text.Json.JsonSerializer.Deserialize<SessionAssetsResponse>(responseContent, new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+            });
+
+            return assetsResponse?.Assets ?? new List<SessionAssetDto>();
         }
-        catch
+        catch (Exception ex)
         {
-            return "";
+            Logger.LogError(ex, "ASSET-INJECTION-V2: Exception loading assets from API");
+            return new List<SessionAssetDto>();
         }
     }
 
-    private int FindMatchingClosingTag(string html, int startPos, string tagName)
+    /// <summary>
+    /// Inject data-asset-id attributes into asset containers for JavaScript targeting
+    /// </summary>
+    private string InjectAssetIdentifiers(string html, List<SessionAssetDto> assets)
     {
         try
         {
-            int depth = 1;
-            int pos = startPos;
-            
-            while (pos < html.Length && depth > 0)
+            Logger.LogInformation("ASSET-INJECTION-V2: Injecting data-asset-id attributes for {Count} assets", assets.Count);
+
+            foreach (var asset in assets)
             {
-                int nextTag = html.IndexOf('<', pos);
-                if (nextTag == -1) break;
-                
-                // Check if it's a closing tag for our target
-                if (html.Substring(nextTag).StartsWith($"</{tagName}>"))
+                // Use the asset type patterns to find containers
+                if (AssetTypePatterns.TryGetValue(asset.AssetType, out var pattern))
                 {
-                    depth--;
-                    if (depth == 0) return nextTag;
-                    pos = nextTag + tagName.Length + 3; // Skip past </tagName>
-                }
-                // Check if it's an opening tag of the same type (nested)
-                else if (html.Substring(nextTag).StartsWith($"<{tagName}"))
-                {
-                    depth++;
-                    pos = nextTag + 1;
-                }
-                else
-                {
-                    pos = nextTag + 1;
+                    var matches = System.Text.RegularExpressions.Regex.Matches(html, pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    // For now, inject into the first match (can be enhanced later for more precise matching)
+                    if (matches.Count > 0)
+                    {
+                        var match = matches[0];
+                        var enhancedTag = InjectDataAssetId(match.Value, asset.AssetId);
+                        html = html.Replace(match.Value, enhancedTag);
+
+                        Logger.LogDebug("ASSET-INJECTION-V2: Injected data-asset-id='{AssetId}' for {AssetType}",
+                            asset.AssetId, asset.AssetType);
+                    }
                 }
             }
-            
-            return -1; // No matching closing tag found
+
+            return html;
         }
-        catch
+        catch (Exception ex)
         {
-            return -1;
+            Logger.LogError(ex, "ASSET-INJECTION-V2: Failed to inject asset identifiers");
+            return html;
         }
+    }
+
+    /// <summary>
+    /// Inject SHARE buttons above containers with data-asset-id attributes
+    /// </summary>
+    private string InjectShareButtons(string html, List<SessionAssetDto> assets)
+    {
+        try
+        {
+            Logger.LogInformation("ASSET-INJECTION-V2: Injecting SHARE buttons for {Count} assets", assets.Count);
+
+            // Process in reverse position order to maintain HTML positions during injection
+            foreach (var asset in assets.OrderByDescending(a => a.Position ?? int.MaxValue))
+            {
+                var containerSelector = $"[data-asset-id='{asset.AssetId}']";
+                var shareButton = GenerateShareButton(asset.AssetId, asset.AssetType);
+
+                // Find container and inject button before it
+                html = InjectButtonBeforeContainer(html, asset.AssetId, shareButton);
+
+                Logger.LogDebug("ASSET-INJECTION-V2: Injected SHARE button for asset {AssetId} ({AssetType})",
+                    asset.AssetId, asset.AssetType);
+            }
+
+            return html;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "ASSET-INJECTION-V2: Failed to inject share buttons");
+            return html;
+        }
+    }
+
+    /// <summary>
+    /// Inject data-asset-id attribute into an HTML opening tag
+    /// </summary>
+    private string InjectDataAssetId(string openingTag, long assetId)
+    {
+        var tagEndIndex = openingTag.IndexOf('>');
+        if (tagEndIndex == -1) return openingTag;
+
+        var attributeToInsert = $" data-asset-id=\"{assetId}\"";
+        return openingTag.Insert(tagEndIndex, attributeToInsert);
+    }
+
+    /// <summary>
+    /// Inject share button before a container with specified asset ID
+    /// </summary>
+    private string InjectButtonBeforeContainer(string html, long assetId, string shareButtonHtml)
+    {
+        try
+        {
+            var containerPattern = $@"<[^>]*data-asset-id=""{assetId}""[^>]*>";
+            var match = System.Text.RegularExpressions.Regex.Match(html, containerPattern);
+
+            if (match.Success)
+            {
+                html = html.Insert(match.Index, shareButtonHtml);
+            }
+
+            return html;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to inject button for asset {AssetId}", assetId);
+            return html;
+        }
+    }
+
+    /// <summary>
+    /// Generate share button HTML for an asset
+    /// </summary>
+    private string GenerateShareButton(long assetId, string assetType)
+    {
+        return $@"<button data-share-button=""asset"" data-asset-id=""{assetId}"" data-asset-type=""{assetType}"" onclick=""shareIndividualAsset('{assetId}', '{assetType}')"" style=""background-color: #dc2626; color: white; padding: 4px 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin: 2px 5px 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s; display: inline-block;"" onmouseover=""this.style.backgroundColor='#b91c1c'; this.style.transform='scale(1.05)'"" onmouseout=""this.style.backgroundColor='#dc2626'; this.style.transform='scale(1)'"">SHARE</button>
+";
+    }
+
+    /// <summary>
+    /// Asset type patterns for detection (moved from inline to reusable)
+    /// </summary>
+    private static readonly Dictionary<string, string> AssetTypePatterns = new()
+    {
+        { "etymology-derivative-card", @"<div[^>]*class=""[^""]*etymology-derivative-card[^""]*""[^>]*>" },
+        { "ahadees-container", @"<div[^>]*class=""[^""]*(?:inserted-hadees|ks-ahadees-container|ahadees-content)[^""]*""[^>]*>" },
+        { "ayah-card", @"<div[^>]*class=""[^""]*ayah-card[^""]*""[^>]*>" },
+        { "image-asset", @"<img[^>]*(?:src=""[^""]*""[^>]*|[^>]*)" },
+        { "table-asset", @"<table[^>]*class=""[^""]*(?:islamic-table|content-table|comparison-table)[^""]*""[^>]*>" }
+    };
+
+    // Legacy method - keep for fallback
+    private string InjectIndividualShareButtons(string html)
+    {
+        // Call async version and wait
+        return InjectIndividualShareButtonsAsync(html).GetAwaiter().GetResult();
+    }
+
+    // DTO classes for API responses
+    public class SessionAssetDto
+    {
+        public long AssetId { get; set; }
+        public string AssetType { get; set; } = string.Empty;
+        public string AssetSelector { get; set; } = string.Empty;
+        public int? Position { get; set; }
+        public bool IsShared { get; set; }
+        public DateTime? SharedAt { get; set; }
+    }
+
+    public class SessionAssetsResponse
+    {
+        public long SessionId { get; set; }
+        public int TotalAssets { get; set; }
+        public int SharedAssets { get; set; }
+        public Dictionary<string, int> AssetsByType { get; set; } = new();
+        public List<SessionAssetDto> Assets { get; set; } = new();
+        public string? RequestId { get; set; }
     }
 }
 

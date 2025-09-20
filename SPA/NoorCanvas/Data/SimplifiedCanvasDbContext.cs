@@ -4,7 +4,7 @@ using NoorCanvas.Models.Simplified;
 namespace NoorCanvas.Data;
 
 /// <summary>
-/// Simplified Canvas Database Context - Ultra-minimal 3-table design
+/// Simplified Canvas Database Context - Ultra-minimal 4-table design
 /// Replaces the complex 15-table architecture with elegant simplicity
 /// </summary>
 public class SimplifiedCanvasDbContext : DbContext
@@ -13,10 +13,11 @@ public class SimplifiedCanvasDbContext : DbContext
     {
     }
 
-    // Simplified Schema Tables (3 total - 80% reduction from original 15 tables)
+    // Simplified Schema Tables (4 total - 75% reduction from original 15 tables)
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Participant> Participants { get; set; }
     public DbSet<SessionData> SessionData { get; set; }
+    public DbSet<SessionAsset> SessionAssets { get; set; } // Asset lookup table for share button injection
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +70,32 @@ public class SimplifiedCanvasDbContext : DbContext
             .HasOne(sd => sd.Session)
             .WithMany(s => s.SessionData)
             .HasForeignKey(sd => sd.SessionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure SessionAssets indexes for optimal performance
+        modelBuilder.Entity<SessionAsset>()
+            .HasIndex(sa => sa.SessionId)
+            .HasDatabaseName("IX_SessionAssets_SessionId");
+
+        modelBuilder.Entity<SessionAsset>()
+            .HasIndex(sa => new { sa.SessionId, sa.AssetType })
+            .HasDatabaseName("IX_SessionAssets_Type_Session");
+
+        modelBuilder.Entity<SessionAsset>()
+            .HasIndex(sa => new { sa.IsActive, sa.SharedAt })
+            .HasDatabaseName("IX_SessionAssets_Shared")
+            .HasFilter("[SharedAt] IS NOT NULL");
+
+        modelBuilder.Entity<SessionAsset>()
+            .HasIndex(sa => new { sa.SessionId, sa.Position })
+            .HasDatabaseName("IX_SessionAssets_Position")
+            .HasFilter("[Position] IS NOT NULL");
+
+        // Configure SessionAssets relationships
+        modelBuilder.Entity<SessionAsset>()
+            .HasOne(sa => sa.Session)
+            .WithMany() // No navigation property on Session for now (keep it simple)
+            .HasForeignKey(sa => sa.SessionId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

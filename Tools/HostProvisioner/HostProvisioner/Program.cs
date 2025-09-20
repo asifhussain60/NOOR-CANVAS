@@ -437,7 +437,7 @@ class Program
                 canvasSession = new NoorCanvas.Models.Simplified.Session
                 {
                     SessionId = sessionId, // Now SessionId contains the KSESSIONS ID
-                    AlbumId = kSession.GroupId, // Set AlbumId from KSESSIONS GroupId
+                    AlbumId = Guid.NewGuid(), // Generate new GUID for AlbumId (GroupId is int, AlbumId needs Guid)
                     Title = kSession.SessionName ?? $"Islamic Session {sessionId}",
                     Status = "Created",
                     CreatedAt = DateTime.UtcNow,
