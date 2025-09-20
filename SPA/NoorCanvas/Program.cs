@@ -51,6 +51,10 @@ if (builder.Environment.EnvironmentName == "Testing")
     // Use In-Memory database for testing
     builder.Services.AddDbContext<CanvasDbContext>(options =>
         options.UseInMemoryDatabase("NoorCanvasTestDb"));
+    
+    // Add Simplified Schema for testing
+    builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
+        options.UseInMemoryDatabase("NoorCanvasSimplifiedTestDb"));
 }
 else
 {
@@ -58,6 +62,12 @@ else
     builder.Services.AddDbContext<CanvasDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
             "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
+    
+    // Add Simplified Schema Context (for migration)
+    builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("SimplifiedConnection") ?? 
+            builder.Configuration.GetConnectionString("DefaultConnection") ??
+            "Server=(localdb)\\mssqllocaldb;Database=NoorCanvasSimplified;Trusted_Connection=true;MultipleActiveResultSets=true"));
 }
 
 // Add KSESSIONS Database Context (Read-only for Groups, Categories, Sessions)
@@ -109,7 +119,12 @@ builder.Services.AddScoped<HttpClient>(provider =>
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
-builder.Services.AddScoped<SecureTokenService>(); // Secure token generation service
+
+// Schema Migration Services - Both legacy and simplified
+builder.Services.AddScoped<SecureTokenService>(); // Legacy secure token service
+builder.Services.AddScoped<SimplifiedTokenService>(); // New simplified token service  
+builder.Services.AddScoped<SchemaTransitionAdapter>(); // Migration compatibility bridge
+
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service
 
 var app = builder.Build();

@@ -78,4 +78,4 @@ description: Self-learning, context-first workspace rules for Copilot Chat. Tail
 
 ## Reference Files
 - `.github/engineering-standards.md` → coding standards, CI/CD, testing practices
-- `ncImplementationTracker.MD` → milestones, issues, TODOs, lessons learned
+- `.github/ncIssueTracker.MD` → milestones, issues, TODOs, lessons learned
