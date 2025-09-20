@@ -514,7 +514,7 @@
             // Handle both KSESSIONS session ID (212) and canvas session ID (10227) for session 212
             if (sessionId == "212" || sessionId == "10227")
             {
-                return Task.FromResult<string?>("BIIVCFDY"); // Use the new token generated for session 212
+                return Task.FromResult<string?>("HOST212A"); // Use the HOST212A token for session 212
             }
             
             // Legacy token for testing (if still needed)
@@ -666,6 +666,11 @@
             {
                 Logger.LogInformation("HOST-TOKEN-MAPPING: Using hardcoded mapping for 79ESAWLD -> 212");
                 return "212"; // KSESSIONS session ID
+            }
+            else if (hostToken == "HOST212A")
+            {
+                Logger.LogInformation("HOST-TOKEN-MAPPING: Using hardcoded mapping for HOST212A -> 212");
+                return "212"; // KSESSIONS session ID for session 212
             }
             
             Logger.LogWarning("HOST-TOKEN-MAPPING: No mapping found for token: {Token}", hostToken);
