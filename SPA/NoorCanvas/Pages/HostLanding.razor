@@ -146,13 +146,24 @@
             SessionName = null // Will be loaded if token provided
         };
 
-        // If friendly token provided via URL, load session info
+        // If friendly token provided via URL, load session info and automatically proceed to authentication
         if (!string.IsNullOrEmpty(FriendlyToken))
         {
             Logger.LogInformation("NOOR-HOST: [{RequestId}] Loading session info for friendly token: {Token}", 
                 requestId, FriendlyToken);
             
             await LoadSessionInfoAsync(FriendlyToken, requestId);
+            
+            // AUTO-VALIDATION: If token is present in URL and field, automatically proceed to authentication
+            if (!string.IsNullOrEmpty(Model.FriendlyToken))
+            {
+                Logger.LogInformation("NOOR-HOST: [{RequestId}] Auto-validation: Token present in URL and field, proceeding with automatic authentication", 
+                    requestId);
+                
+                // Brief delay for UI feedback, then auto-authenticate
+                await Task.Delay(1000); 
+                await HandleAuthentication();
+            }
         }
         else
         {

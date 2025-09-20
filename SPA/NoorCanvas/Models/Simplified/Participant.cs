@@ -10,13 +10,16 @@ public class Participant
     public int ParticipantId { get; set; }
     
     [Required]
-    public int SessionId { get; set; }
+    public long SessionId { get; set; }
     
     [MaxLength(256)]
     public string? UserGuid { get; set; }
     
     [MaxLength(100)]
     public string? Name { get; set; }
+    
+    [MaxLength(255)]
+    public string? Email { get; set; }
     
     [MaxLength(100)]
     public string? Country { get; set; }

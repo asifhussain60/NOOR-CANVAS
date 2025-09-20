@@ -40,6 +40,7 @@ description: Self-learning, context-first workspace rules for Copilot Chat. Tail
   - Playwright + TypeScript, **VSCode Test Explorer only**  
   - Issue-specific test suites (e.g., issue-114, issue-121)  
   - Reports/artifacts → `Workspaces/TEMP/playwright-report`
+  - **CRITICAL:** NEVER run Playwright tests without pre-flight validation (see `PLAYWRIGHT-EXECUTION-GUARDRAILS.md`)
 
 ## Do / Don’t Log
 **Do**
@@ -48,13 +49,24 @@ description: Self-learning, context-first workspace rules for Copilot Chat. Tail
 - Respect branding & panel alignment (50%/50%).  
 - Load countries dropdown **after** token validation.  
 - Validate transcripts via DB, not placeholders.  
+- Use the `Simplified` schema for all new features and data, fully deprecating the legacy complex canvas schema.
+- When encountering mock data, clearly inform the user in the final summary that mock data is being used and does not represent real production data.
+- Ensure the remote server is running before executing commands such as `Start-Sleep 5; Invoke-WebRequest`.
+- When data is involved, connect to the KSESSIONS_DEV database to ensure data consistency with the development environment.
+- Always validate database connections before executing queries or operations.
+- Use proper error handling and logging for all database operations.
+- Prefer reading existing data over generating mock data when troubleshooting or analyzing issues.
+- Apply changes in small, incremental steps to minimize risk.
+- When files get corrected, check git history to understand what changed and fix accordingly.
+
 
 **Don’t**
 - Don’t run multiple servers on 9090/9091.  
 - Don’t use prod DB (`KSESSIONS`) in dev.  
 - Don’t run Playwright UI tests from terminal.  
 - Don’t hardcode tokens or transcripts.  
-- Don’t auto-mark issues/TODOs resolved.  
+- Don’t auto-mark issues/TODOs resolved. 
+- Don't start plawright tests without first ensuring the application is running and accessible. Reference `PLAYWRIGHT-EXECUTION-GUARDRAILS.md` for rules.
 
 ## Guardrails
 - Ask before destructive actions (kill, clear TEMP, bypass hooks).  

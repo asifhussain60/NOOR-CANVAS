@@ -6,15 +6,22 @@ namespace NoorCanvas.Models;
 [Table("Sessions", Schema = "canvas")]
 public class Session
 {
+    /// <summary>
+    /// KSESSIONS database SessionId - now the primary key for consistent referencing
+    /// </summary>
     [Key]
     public long SessionId { get; set; }
 
     /// <summary>
-    /// Reference to the KSESSIONS database SessionId for Islamic content integration
+    /// Album/Group identifier from KSESSIONS database (formerly GroupId)
     /// </summary>
-    public long? KSessionsId { get; set; }
+    public Guid AlbumId { get; set; }
 
-    public Guid GroupId { get; set; }
+    /// <summary>
+    /// Host authentication token for secure access (formerly HostGuid)  
+    /// </summary>
+    [StringLength(100)]
+    public string HostAuthToken { get; set; } = string.Empty;
 
     [StringLength(200)]
     public string? Title { get; set; }
@@ -28,9 +35,6 @@ public class Session
     public int? ParticipantCount { get; set; } = 0;
 
     public int? MaxParticipants { get; set; }
-
-    [StringLength(100)]
-    public string HostGuid { get; set; } = string.Empty;
 
     public DateTime? StartedAt { get; set; }
 

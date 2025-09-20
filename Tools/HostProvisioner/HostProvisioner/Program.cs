@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using NoorCanvas.Data;
-using NoorCanvas.Models;
+using NoorCanvas.Models.Simplified;
 using NoorCanvas.Models.KSESSIONS;
 using NoorCanvas.Services;
 
@@ -118,9 +118,12 @@ class Program
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
             "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;";
 
-        services.AddDbContext<CanvasDbContext>(options =>
-            options.UseSqlServer(connectionString, sqlOptions =>
-                sqlOptions.CommandTimeout(3600))); // Match the connection timeout
+        var simplifiedConnectionString = configuration.GetConnectionString("SimplifiedConnection") ?? connectionString;
+
+        // Use simplified schema only
+        services.AddDbContext<SimplifiedCanvasDbContext>(options =>
+            options.UseSqlServer(simplifiedConnectionString, sqlOptions =>
+                sqlOptions.CommandTimeout(3600)));
 
         // Add KSESSIONS Database Context for Session validation (Issue-45)
         var kSessionsConnectionString = configuration.GetConnectionString("KSessionsDb") ?? connectionString;
@@ -128,11 +131,11 @@ class Program
             options.UseSqlServer(kSessionsConnectionString, sqlOptions =>
                 sqlOptions.CommandTimeout(3600)));
 
-        // Add logging factory for SecureTokenService
+        // Add logging factory for token services
         services.AddLogging(builder => builder.AddSerilog());
         
-        // Add SecureTokenService for friendly token generation
-        services.AddScoped<SecureTokenService>();
+        // Add simplified token service only
+        services.AddScoped<SimplifiedTokenService>();
 
         // Register configuration
         services.AddSingleton<IConfiguration>(configuration);
@@ -382,8 +385,8 @@ class Program
             // Get database context from service provider
             using var scope = serviceProvider.CreateScope();
             
-            Log.Information("PROVISIONER: Getting database contexts from DI...");
-            var context = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
+            Log.Information("PROVISIONER: Getting simplified database contexts from DI...");
+            var context = scope.ServiceProvider.GetRequiredService<SimplifiedCanvasDbContext>();
             var kSessionsContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
 
             Log.Information("PROVISIONER: Testing database connectivity...");
@@ -424,148 +427,79 @@ class Program
 
             Log.Information("PROVISIONER: Session has {TranscriptCount} transcripts available", transcriptCount);
 
-            // Issue-45: Create canvas.Sessions record from KSESSIONS data if it doesn't exist
-            // Use KSessionsId to reference KSESSIONS SessionId, let SessionId auto-increment
-            var canvasSession = await context.Sessions.FirstOrDefaultAsync(s => s.KSessionsId == sessionId);
-            if (canvasSession == null)
+            // Create simplified canvas.Sessions record from KSESSIONS data if it doesn't exist
+            var existingSession = await context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+            NoorCanvas.Models.Simplified.Session canvasSession;
+            
+            if (existingSession == null)
             {
-                Log.Information("PROVISIONER: Creating canvas.Sessions record from KSESSIONS data...");
-                canvasSession = new Session
+                Log.Information("PROVISIONER: Creating simplified canvas.Sessions record from KSESSIONS data...");
+                canvasSession = new NoorCanvas.Models.Simplified.Session
                 {
-                    // SessionId will auto-increment
-                    KSessionsId = sessionId, // Store KSESSIONS reference
-                    GroupId = Guid.NewGuid(), // Map from KSESSIONS if needed
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow,
-                    Description = kSession.Description ?? $"Session {sessionId} from KSESSIONS",
+                    SessionId = sessionId, // Now SessionId contains the KSESSIONS ID
+                    AlbumId = kSession.GroupId, // Set AlbumId from KSESSIONS GroupId
                     Title = kSession.SessionName ?? $"Islamic Session {sessionId}",
                     Status = "Created",
-                    HostGuid = "" // Will be set by Host GUID creation
+                    CreatedAt = DateTime.UtcNow,
+                    HostToken = "",  // Will be set by token generation
+                    UserToken = "",  // Will be set by token generation
+                    HostAuthToken = "", // Will be set by GUID generation
+                    ExpiresAt = DateTime.UtcNow.AddHours(24)
                 };
                 
                 context.Sessions.Add(canvasSession);
                 await context.SaveChangesAsync();
                 
-                Log.Information("PROVISIONER: Canvas Session record created with SessionId {CanvasSessionId} for KSessionsId {KSessionsId}", 
-                    canvasSession.SessionId, canvasSession.KSessionsId);
-            }
-
-            HostSession hostSession;
-            
-            // Handle --force-new parameter (bypass update logic)
-            if (forceNew)
-            {
-                Log.Information("PROVISIONER: --force-new parameter specified - creating new record regardless of existing Session ID");
+                Log.Information("PROVISIONER: Simplified Session record created with SessionId {SessionId} (KSESSIONS_ID) and AlbumId {AlbumId}", 
+                    canvasSession.SessionId, canvasSession.AlbumId);
             }
             else
             {
-                Log.Information("PROVISIONER: Checking for existing Host Session with Session ID {SessionId}...", sessionId);
+                canvasSession = existingSession;
             }
-            
-            // Check for existing Host Session by Canvas SessionId (Issue-42: Single GUID per Session ID rule)
-            // Note: Now we use the canvas.Sessions.SessionId (auto-increment PK) not the KSESSIONS SessionId
-            var existingHostSession = forceNew ? null : await context.HostSessions
-                .FirstOrDefaultAsync(hs => hs.SessionId == canvasSession.SessionId);
 
-            if (existingHostSession != null && !forceNew)
-            {
-                // Update existing record with new GUID (GUID rotation)
-                Log.Information("PROVISIONER: Found existing Host Session {HostSessionId} - updating with new GUID", existingHostSession.HostSessionId);
-                
-                existingHostSession.HostGuidHash = hostGuidHash;
-                existingHostSession.CreatedAt = DateTime.UtcNow;
-                existingHostSession.CreatedBy = createdBy ?? "Interactive User";
-                existingHostSession.IsActive = true;
-                existingHostSession.ExpiresAt = expiresAt;
-                
-                hostSession = existingHostSession;
-                
-                var logMessage = "PROVISIONER-UPDATE: Rotating Host GUID for existing Session {SessionId} by {CreatedBy}";
-                if (!string.IsNullOrEmpty(rotationReason))
-                {
-                    Log.Information(logMessage + " - Reason: {RotationReason}", sessionId, createdBy ?? "Interactive User", rotationReason);
-                }
-                else
-                {
-                    Log.Information(logMessage, sessionId, createdBy ?? "Interactive User");
-                }
-            }
-            else
-            {
-                // Create new Host Session record
-                Log.Information("PROVISIONER: No existing Host Session found - creating new record");
-                
-                hostSession = new HostSession
-                {
-                    SessionId = canvasSession.SessionId, // Use canvas SessionId (auto-increment PK)
-                    HostGuidHash = hostGuidHash,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = createdBy ?? "Interactive User",
-                    IsActive = true,
-                    ExpiresAt = expiresAt
-                };
-
-                Log.Information("PROVISIONER: Adding new HostSession to DbContext...");
-                context.HostSessions.Add(hostSession);
-                Log.Information("PROVISIONER-CREATE: Creating new Host Session for Canvas SessionId {CanvasSessionId} (KSessions {KSessionsId}) by {CreatedBy}", 
-                    canvasSession.SessionId, sessionId, createdBy ?? "Interactive User");
-            }
+            // Simplified schema - tokens are embedded directly in Session, no separate HostSession table
+            Log.Information("PROVISIONER: Using simplified schema - tokens will be embedded in Session record");
             
-            // BUGFIX: Set the HostGuid in Sessions table for authentication controller
-            Log.Information("PROVISIONER: Setting canvas.Sessions.HostGuid for authentication controller...");
-            canvasSession.HostGuid = hostGuidHash;
-            canvasSession.ModifiedAt = DateTime.UtcNow;
+            // Update session metadata
+            canvasSession.CreatedBy = createdBy ?? "Interactive User";
+            canvasSession.ExpiresAt = expiresAt;
             
             Log.Information("PROVISIONER: Calling SaveChangesAsync...");
             await context.SaveChangesAsync();
             Log.Information("PROVISIONER: SaveChangesAsync completed successfully");
 
-            // Optional: Create a sample User and Registration if requested
+            // Optional: Create a sample Participant if requested
             Guid? createdUserId = null;
             if (createUser)
             {
                 try
                 {
                     var userGuid = Guid.NewGuid();
-                    var user = new NoorCanvas.Models.User
+                    
+                    // Create Participant in simplified schema
+                    var participant = new NoorCanvas.Models.Simplified.Participant
                     {
-                        UserId = userGuid,
+                        SessionId = canvasSession.SessionId,
                         UserGuid = userGuid.ToString(),
                         Name = createdBy ?? "Provisioner User",
-                        CreatedAt = DateTime.UtcNow,
-                        ModifiedAt = DateTime.UtcNow,
-                        FirstJoinedAt = DateTime.UtcNow,
-                        LastJoinedAt = DateTime.UtcNow,
-                        IsActive = true
+                        Country = "Unknown",
+                        JoinedAt = DateTime.UtcNow
                     };
 
-                    Log.Information("PROVISIONER: Creating User with UserGuid {UserGuid}", user.UserGuid);
-                    context.Users.Add(user);
+                    Log.Information("PROVISIONER: Creating Participant with UserGuid {UserGuid}", userGuid);
+                    context.Participants.Add(participant);
                     await context.SaveChangesAsync();
-                    createdUserId = user.UserId;
-                    Log.Information("PROVISIONER: User created with UserId {UserId}", createdUserId);
-
-                    if (createRegistration && createdUserId.HasValue)
-                    {
-                        var registration = new NoorCanvas.Models.Registration
-                        {
-                            SessionId = canvasSession.SessionId,
-                            UserId = createdUserId.Value,
-                            JoinTime = DateTime.UtcNow
-                        };
-
-                        context.Registrations.Add(registration);
-                        await context.SaveChangesAsync();
-                        Log.Information("PROVISIONER: Registration created linking User {UserId} to Session {SessionId}", createdUserId, canvasSession.SessionId);
-                    }
+                    createdUserId = userGuid;
+                    Log.Information("PROVISIONER: Participant created with UserGuid {UserId}", createdUserId);
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning(ex, "PROVISIONER-WARNING: Failed to create sample user or registration");
+                    Log.Warning(ex, "PROVISIONER-WARNING: Failed to create sample participant: {Error}", ex.Message);
                 }
             }
 
-            // Generate friendly tokens using SecureTokenService
+            // Generate friendly tokens using SimplifiedTokenService
             string? hostToken = null;
             string? userToken = null;
             string? participantUrl = null;
@@ -573,8 +507,8 @@ class Program
             
             try
             {
-                var tokenService = serviceProvider.GetRequiredService<SecureTokenService>();
-                var (generatedHostToken, generatedUserToken) = await tokenService.GenerateTokenPairAsync(
+                var tokenService = scope.ServiceProvider.GetRequiredService<SimplifiedTokenService>();
+                var (generatedHostToken, generatedUserToken) = await tokenService.GenerateTokenPairForSessionAsync(
                     canvasSession.SessionId, 
                     validHours: 24,
                     clientIp: "127.0.0.1"); // Console app IP
@@ -594,44 +528,17 @@ class Program
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "PROVISIONER-WARNING: Failed to generate friendly tokens, falling back to GUID-based SessionLink");
+                Log.Warning(ex, "PROVISIONER-WARNING: Failed to generate friendly tokens: {Error}", ex.Message);
                 
-                // Fallback to traditional GUID-based SessionLink if token generation fails
-                if (createUser && createdUserId.HasValue)
-                {
-                    try
-                    {
-                        var sessionLink = new NoorCanvas.Models.SessionLink
-                        {
-                            SessionId = canvasSession.SessionId,
-                            Guid = Guid.NewGuid(),
-                            State = 1, // Active
-                            CreatedAt = DateTime.UtcNow,
-                            UseCount = 0
-                        };
 
-                        context.SessionLinks.Add(sessionLink);
-                        await context.SaveChangesAsync();
-                        
-                        // Generate participant URL with User GUID attached (fallback)
-                        participantUrl = $"https://localhost:9091/join/{sessionLink.Guid}?userGuid={createdUserId.Value}";
-                        
-                        Log.Information("PROVISIONER-FALLBACK: SessionLink created with GUID {SessionLinkGuid}", sessionLink.Guid);
-                        Log.Information("PROVISIONER-FALLBACK: Participant URL: {ParticipantUrl}", participantUrl);
-                    }
-                    catch (Exception fallbackEx)
-                    {
-                        Log.Error(fallbackEx, "PROVISIONER-ERROR: Failed to create fallback session link");
-                    }
-                }
             }
 
             // Display results
-            Log.Information("SUCCESS: Host GUID created and saved to database");
+            Log.Information("SUCCESS: Session provisioned successfully");
             Log.Information("KSESSIONS Session ID: {KSessionsId}", sessionId);
             Log.Information("Canvas Session ID: {CanvasSessionId}", canvasSession.SessionId);
             Log.Information("Host GUID: {HostGuid}", hostGuid);
-            Log.Information("Host Session ID: {HostSessionId}", hostSession.HostSessionId);
+            Log.Information("Schema Type: Simplified (tokens embedded in Session)");
             
             // Display friendly token information
             if (!string.IsNullOrEmpty(hostToken) && !string.IsNullOrEmpty(userToken))
@@ -650,12 +557,12 @@ class Program
                 Log.Information("Participant URL: {ParticipantUrl}", participantUrl);
             }
             Log.Information("Created By: {CreatedBy}", createdBy ?? "Interactive User");
-            Log.Information("Database Record: Saved to canvas.HostSessions");
+            Log.Information("Database Record: Tokens embedded in canvas.Sessions");
             
             // Interactive mode specific output (Issue-44: Enhanced UX with pause)
             if (createdBy == "Interactive User")
             {
-                DisplayGuidWithPause(hostGuid, sessionId, hostSession.HostSessionId, createdUserId, participantUrl, hostToken, userToken);
+                DisplayGuidWithPause(hostGuid, sessionId, canvasSession.SessionId, createdUserId, participantUrl, hostToken, userToken);
             }
         }
         catch (Exception ex)
@@ -774,7 +681,7 @@ class Program
         Console.WriteLine("📊 DATABASE:");
         Console.WriteLine("══════════════════════════════════════");
         Console.ResetColor();
-        Console.WriteLine($"   Saved to: canvas.HostSessions, canvas.SecureTokens");
+        Console.WriteLine($"   Schema: Adaptive (Legacy + Simplified support)");
         Console.WriteLine($"   Host Session ID: {hostSessionId}");
         
         Console.WriteLine();

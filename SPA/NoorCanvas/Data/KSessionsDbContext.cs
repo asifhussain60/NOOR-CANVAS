@@ -18,6 +18,7 @@ namespace NoorCanvas.Data
         public DbSet<KSessionsCategory> Categories { get; set; }
         public DbSet<KSessionsSession> Sessions { get; set; }
         public DbSet<KSessionsSessionTranscript> SessionTranscripts { get; set; }
+        public DbSet<KSessionsCountry> Countries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,6 +100,17 @@ namespace NoorCanvas.Data
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasIndex(e => e.SessionId).HasDatabaseName("IX_SessionTranscripts_SessionID");
+            });
+
+            // Configure Countries entity
+            modelBuilder.Entity<KSessionsCountry>(entity =>
+            {
+                entity.HasKey(e => e.CountryId);
+                entity.ToTable("Countries", "dbo");
+
+                // Add index for performance
+                entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_Countries_IsActive");
+                entity.HasIndex(e => e.CountryName).HasDatabaseName("IX_Countries_CountryName");
             });
         }
 

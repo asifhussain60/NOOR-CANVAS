@@ -1,9 +1,0 @@
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_NoorCanvas.Core.Tests
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\bin\Debug\net9.0\CoverletSourceRootsMapping_NoorCanvas.Core.Tests
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\NoorCanvas.Core.Tests.csproj.AssemblyReference.cache
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\MvcTestingAppManifest.json
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\NoorCanvas.Core.Tests.GeneratedMSBuildEditorConfig.editorconfig
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\NoorCanvas.Core.Tests.AssemblyInfoInputs.cache
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\NoorCanvas.Core.Tests.AssemblyInfo.cs
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\NoorCanvas.Core.Tests.csproj.CoreCompileInputs.cache
-D:\PROJECTS\NOOR CANVAS\Tests\NoorCanvas.Core.Tests\obj\Debug\net9.0\NoorCanvas.Core.Tests.sourcelink.json

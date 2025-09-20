@@ -98,7 +98,7 @@ namespace NoorCanvas.Controllers
                         EndedAt = s.EndedAt,
                         ExpiresAt = s.ExpiresAt ?? DateTime.UtcNow.AddHours(3),
                         HostName = s.HostSessions.Any() ? s.HostSessions.First().CreatedBy ?? "Host" : "Unknown Host",
-                        HostGuid = s.HostGuid
+                        HostGuid = s.HostAuthToken
                     })
                     .ToListAsync();
 

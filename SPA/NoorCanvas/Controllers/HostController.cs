@@ -7,6 +7,7 @@ using NoorCanvas.Models;
 using NoorCanvas.Models.KSESSIONS;
 using NoorCanvas.Services;
 using System.Text.Json;
+using SimplifiedSession = NoorCanvas.Models.Simplified.Session;
 
 namespace NoorCanvas.Controllers
 {
@@ -14,19 +15,19 @@ namespace NoorCanvas.Controllers
     [ApiController]
     public class HostController : ControllerBase
     {
-        private readonly CanvasDbContext _context;
+        private readonly SimplifiedCanvasDbContext _context;
         private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<HostController> _logger;
         private readonly IHubContext<SessionHub> _sessionHub;
-        private readonly SecureTokenService _secureTokenService;
+        private readonly SimplifiedTokenService _simplifiedTokenService;
 
-        public HostController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SecureTokenService secureTokenService)
+        public HostController(SimplifiedCanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SimplifiedTokenService simplifiedTokenService)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
             _sessionHub = sessionHub;
-            _secureTokenService = secureTokenService;
+            _simplifiedTokenService = simplifiedTokenService;
         }
 
         [HttpPost("authenticate")]
@@ -57,7 +58,7 @@ namespace NoorCanvas.Controllers
                 if (isBase64Hash)
                 {
                     _logger.LogInformation("NOOR-INFO: Authenticating with base64 hash from database");
-                    var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostGuid == request.HostGuid);
+                    var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostAuthToken == request.HostGuid);
                     if (session == null)
                     {
                         _logger.LogWarning("NOOR-WARNING: Host GUID hash not found in database");
@@ -77,7 +78,7 @@ namespace NoorCanvas.Controllers
                         Session = new HostSessionInfo
                         {
                             SessionId = (int)session.SessionId,
-                            KSessionsId = session.KSessionsId,
+                            KSessionsId = session.SessionId, // Now SessionId contains the KSESSIONS ID (212)
                             Title = session.Title,
                             Description = session.Description,
                             Status = session.Status,
@@ -125,9 +126,9 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Always check database for exact match - token must exist in database to be valid
-                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Looking up session for HostGuid: {HostGuid}", requestId, hostGuid);
+                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Looking up session for HostAuthToken: {HostAuthToken}", requestId, hostGuid);
 
-                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostGuid == hostGuid);
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostAuthToken == hostGuid);
                 if (session != null)
                 {
                     _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
@@ -141,7 +142,7 @@ namespace NoorCanvas.Controllers
                         Session = new HostSessionInfo
                         {
                             SessionId = (int)session.SessionId,
-                            KSessionsId = session.KSessionsId,
+                            KSessionsId = session.SessionId, // Now SessionId contains the KSESSIONS ID (212)
                             Title = session.Title,
                             Description = session.Description,
                             Status = session.Status,
@@ -210,24 +211,21 @@ namespace NoorCanvas.Controllers
                     });
                 }
 
-                // Look up friendly token in SecureTokens table
+                // Look up friendly token in simplified Sessions table
                 _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Looking up friendly token in database", requestId);
 
-                var secureToken = await _context.SecureTokens
-                    .Include(st => st.Session)
-                    .Where(st => st.HostToken == friendlyToken && st.IsActive && st.ExpiresAt > DateTime.UtcNow)
-                    .FirstOrDefaultAsync();
+                var session = await _simplifiedTokenService.ValidateTokenAsync(friendlyToken, isHostToken: true);
 
-                if (secureToken != null)
+                if (session != null)
                 {
                     // Fetch fresh session info (title and description) from KSESSIONS database instead of using stale stored data
-                    string sessionTitle = secureToken.Session.Title ?? "Session " + secureToken.Session.SessionId;
-                    string sessionDescription = secureToken.Session.Description ?? "Session description not available";
+                    string sessionTitle = session.Title ?? "Session " + session.SessionId;
+                    string sessionDescription = session.Description ?? "Session description not available";
 
-                    if (secureToken.Session.KSessionsId.HasValue)
+                    if (session.SessionId > 0) // SessionId now contains the KSESSIONS ID
                     {
                         var ksessionInfo = await _kSessionsContext.Sessions
-                            .Where(s => s.SessionId == secureToken.Session.KSessionsId.Value)
+                            .Where(s => s.SessionId == session.SessionId) // Use SessionId directly
                             .Select(s => new { s.SessionName, s.Description })
                             .FirstOrDefaultAsync();
 
@@ -244,29 +242,29 @@ namespace NoorCanvas.Controllers
                             }
 
                             _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Updated session info from KSESSIONS: Title='{Title}', Description='{Description}' for session {SessionId}",
-                                requestId, sessionTitle, sessionDescription, secureToken.Session.SessionId);
+                                requestId, sessionTitle, sessionDescription, session.SessionId);
                         }
                     }
 
                     _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
-                        requestId, secureToken.Session.SessionId, sessionTitle);
+                        requestId, session.SessionId, sessionTitle);
 
                     return Ok(new HostSessionValidationResponse
                     {
                         Valid = true,
-                        SessionId = (int)secureToken.SessionId,
+                        SessionId = (int)session.SessionId,
                         HostGuid = friendlyToken, // Return the friendly token
                         Session = new HostSessionInfo
                         {
-                            SessionId = (int)secureToken.Session.SessionId,
-                            KSessionsId = secureToken.Session.KSessionsId,  // NEW: Include for session tracing
+                            SessionId = (int)session.SessionId,
+                            KSessionsId = session.SessionId,  // SessionId now contains the KSESSIONS ID
                             Title = sessionTitle, // Use fresh title from KSESSIONS
                             Description = sessionDescription,
-                            Status = secureToken.Session.Status,
-                            ParticipantCount = secureToken.Session.ParticipantCount ?? 0,
-                            MaxParticipants = secureToken.Session.MaxParticipants,
-                            StartedAt = secureToken.Session.StartedAt,
-                            CreatedAt = secureToken.Session.CreatedAt
+                            Status = session.Status,
+                            ParticipantCount = session.ParticipantCount ?? 0,
+                            MaxParticipants = session.MaxParticipants,
+                            StartedAt = session.StartedAt,
+                            CreatedAt = session.CreatedAt
                         },
                         RequestId = requestId
                     });
@@ -322,10 +320,11 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Create session in Canvas database
-                var session = new Session
+                var session = new NoorCanvas.Models.Simplified.Session
                 {
-                    GroupId = Guid.NewGuid(),
-                    HostGuid = request.HostGuid,
+                    Title = "New Session",
+                    Description = "Session created by host",
+                    Status = "Active",
                     CreatedAt = DateTime.UtcNow,
                     ExpiresAt = DateTime.UtcNow.AddHours(3),
                     MaxParticipants = request.MaxParticipants
@@ -334,19 +333,10 @@ namespace NoorCanvas.Controllers
                 _context.Sessions.Add(session);
                 await _context.SaveChangesAsync();
 
-                // Create session link for participants to join
-                var sessionLink = new SessionLink
-                {
-                    SessionId = session.SessionId,
-                    Guid = Guid.NewGuid(),
-                    State = 1, // Active
-                    CreatedAt = DateTime.UtcNow
-                };
+                // Generate tokens for the session
+                var (hostToken, userToken) = await _simplifiedTokenService.GenerateTokenPairForSessionAsync(session.SessionId);
 
-                _context.SessionLinks.Add(sessionLink);
-                await _context.SaveChangesAsync();
-
-                var joinLink = $"https://localhost:9091/session/{sessionLink.Guid}";
+                var joinLink = $"https://localhost:9091/user/landing/{userToken}";
 
                 _logger.LogInformation("NOOR-SUCCESS: Session created with ID: {SessionId}, Join Link: {JoinLink}",
                     session.SessionId, joinLink);
@@ -356,7 +346,7 @@ namespace NoorCanvas.Controllers
                     SessionId = session.SessionId,
                     Status = "Success",
                     JoinLink = joinLink,
-                    SessionGuid = sessionLink.Guid.ToString()
+                    SessionGuid = hostToken
                 });
             }
             catch (Exception ex)
@@ -377,15 +367,14 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-HOST-OPENER: Creating session for host token: {Token}", token);
 
                 // Validate the host token
-                var secureToken = await _secureTokenService.ValidateTokenAsync(token, isHostToken: true);
-                if (secureToken?.Session == null)
+                var session = await _simplifiedTokenService.ValidateTokenAsync(token, isHostToken: true);
+                if (session == null)
                 {
                     _logger.LogWarning("NOOR-HOST-OPENER: Invalid host token: {Token}", token);
                     return BadRequest(new { error = "Invalid host token" });
                 }
 
-                var sessionId = secureToken.SessionId;
-                var session = secureToken.Session;
+                var sessionId = session.SessionId;
 
                 // Extract session data from the JsonElement payload with proper error handling
                 _logger.LogInformation("NOOR-HOST-OPENER: Attempting to parse session data from payload");
@@ -552,7 +541,7 @@ namespace NoorCanvas.Controllers
                 await _context.SaveChangesAsync();
 
                 // Generate a new user token for participants
-                var (hostToken, userToken) = await _secureTokenService.GenerateTokenPairAsync(
+                var (hostToken, userToken) = await _simplifiedTokenService.GenerateTokenPairForSessionAsync(
                     sessionId,
                     validHours: 24,
                     clientIp: HttpContext.Connection.RemoteIpAddress?.ToString()
@@ -600,7 +589,7 @@ namespace NoorCanvas.Controllers
                 var sessionData = new
                 {
                     sessionId = session.SessionId,
-                    groupId = session.GroupId,
+                    groupId = session.AlbumId, // Renamed from GroupId to AlbumId
                     startedAt = session.StartedAt,
                     expiresAt = session.ExpiresAt,
                     maxParticipants = session.MaxParticipants
@@ -757,30 +746,57 @@ namespace NoorCanvas.Controllers
         [HttpGet("countries")]
         public async Task<IActionResult> GetCountries([FromQuery] string guid)
         {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            var userAgent = Request.Headers["User-Agent"].FirstOrDefault() ?? "unknown";
+            
             try
             {
-                _logger.LogInformation("NOOR-INFO: Loading countries from KSESSIONS database for host token: {Token}", guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Countries request started", requestId);
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Token: {Token}, ClientIP: {ClientIp}, UserAgent: {UserAgent}", 
+                    requestId, guid, clientIp, userAgent);
 
                 if (string.IsNullOrWhiteSpace(guid))
                 {
-                    return BadRequest(new { error = "Host token is required" });
+                    _logger.LogWarning("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Missing guid parameter", requestId);
+                    return BadRequest(new { error = "Host token is required", requestId });
                 }
 
-                // KSESSIONS data is read-only and publicly accessible - no GUID validation required
-                // Countries are reference data available to all authenticated hosts
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Querying Countries from KSESSIONS DbSet", requestId);
+                
+                // Query all countries from KSESSIONS database using DbSet
+                var countriesQuery = _kSessionsContext.Countries
+                    .OrderBy(c => c.CountryName)
+                    .AsNoTracking();
 
-                // Query all countries from KSESSIONS database (removed IsActive filter to show full country list)
-                var countries = await _kSessionsContext.Database
-                    .SqlQuery<CountryData>($"SELECT CountryID, CountryName, ISO2, ISO3, CAST(ISNULL(IsActive, 0) AS BIT) AS IsActive FROM dbo.Countries ORDER BY CountryName")
+                var countries = await countriesQuery
+                    .Select(c => new CountryData 
+                    { 
+                        CountryID = c.CountryId,
+                        CountryName = c.CountryName,
+                        ISO2 = c.ISO2 ?? string.Empty,
+                        ISO3 = c.ISO3 ?? string.Empty,
+                        IsActive = c.IsActive
+                    })
                     .ToListAsync();
 
-                _logger.LogInformation("NOOR-SUCCESS: Loaded {CountryCount} countries from KSESSIONS database", countries.Count);
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Countries query completed successfully", requestId);
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Loaded {CountryCount} countries from KSESSIONS database", requestId, countries.Count);
+                
+                if (countries.Count > 0)
+                {
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Sample countries: {Sample}", 
+                        requestId, string.Join(", ", countries.Take(3).Select(c => $"{c.CountryName} ({c.ISO2})")));
+                }
+                
                 return Ok(countries);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ERROR: Failed to load countries from KSESSIONS database");
-                return StatusCode(500, new { error = "Failed to load countries" });
+                _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] EXCEPTION during countries loading", requestId);
+                _logger.LogError("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Exception Type: {ExceptionType}, Message: {Message}", 
+                    requestId, ex.GetType().Name, ex.Message);
+                return StatusCode(500, new { error = "Failed to load countries", requestId });
             }
         }
 
@@ -831,14 +847,16 @@ namespace NoorCanvas.Controllers
 
                 // Find existing session or create a placeholder for the KSESSIONS sessionId
                 var session = await _context.Sessions
-                    .FirstOrDefaultAsync(s => s.HostGuid == guid && s.EndedAt == null)
-                    ?? new Session
+                    .FirstOrDefaultAsync(s => s.HostToken == guid && s.ExpiresAt > DateTime.UtcNow)
+                    ?? new NoorCanvas.Models.Simplified.Session
                     {
-                        GroupId = Guid.NewGuid(),
-                        HostGuid = guid,
+                        Title = "Session " + guid,
+                        Description = "Auto-created session",
+                        Status = "Active",
                         CreatedAt = DateTime.UtcNow,
                         StartedAt = DateTime.UtcNow,
-                        ExpiresAt = DateTime.UtcNow.AddHours(3)
+                        ExpiresAt = DateTime.UtcNow.AddHours(3),
+                        HostToken = guid
                     };
 
                 if (session.SessionId == 0)
@@ -857,7 +875,7 @@ namespace NoorCanvas.Controllers
                 {
                     sessionId = session.SessionId,
                     ksessionId = sessionId, // KSESSIONS database session ID
-                    groupId = session.GroupId,
+                    groupId = session.AlbumId, // Renamed from GroupId to AlbumId
                     startedAt = session.StartedAt,
                     expiresAt = session.ExpiresAt,
                     hostGuid = guid
@@ -906,7 +924,7 @@ namespace NoorCanvas.Controllers
                                            select new 
                                            {
                                                SessionId = session.SessionId,
-                                               GroupId = session.GroupId,      // This is the Album ID
+                                               GroupId = session.GroupId,      // This is the Album ID (from KSESSIONS table)
                                                CategoryId = session.CategoryId,
                                                SessionName = session.SessionName,
                                                Description = session.Description,
@@ -1051,35 +1069,30 @@ namespace NoorCanvas.Controllers
 
                 // TODO: Add host token validation if needed
                 
-                // Store asset in SharedAssets table
-                var sharedAsset = new Models.SharedAsset
+                // Store asset in SessionData table (simplified schema)
+                var assetData = new
                 {
-                    SessionId = request.SessionId,
                     AssetType = request.AssetPayload.Type,
-                    AssetData = System.Text.Json.JsonSerializer.Serialize(new
-                    {
-                        selector = request.AssetPayload.Selector,
-                        metadata = request.AssetPayload.Metadata
-                    }),
+                    Selector = request.AssetPayload.Selector,
+                    Metadata = request.AssetPayload.Metadata,
                     SharedAt = DateTime.UtcNow
                 };
 
-                _context.SharedAssets.Add(sharedAsset);
-                await _context.SaveChangesAsync();
+                var dataId = await _simplifiedTokenService.StoreAnnotationAsync(request.SessionId, assetData);
 
-                _logger.LogInformation("NOOR-SHARE-ASSET: Asset stored with ID {AssetId} for session {SessionId}", 
-                    sharedAsset.AssetId, request.SessionId);
+                _logger.LogInformation("NOOR-SHARE-ASSET: Asset stored with DataId {DataId} for session {SessionId}", 
+                    dataId, request.SessionId);
 
                 // Broadcast to session participants via SessionHub (UC-L1 workflow)
                 var sessionGroupName = $"Session_{request.SessionId}";
                 await _sessionHub.Clients.Group(sessionGroupName).SendAsync("AssetShared", new
                 {
-                    assetId = sharedAsset.AssetId,
+                    assetId = dataId,
                     sessionId = request.SessionId,
-                    assetType = sharedAsset.AssetType,
+                    assetType = request.AssetPayload.Type,
                     selector = request.AssetPayload.Selector,
                     metadata = request.AssetPayload.Metadata,
-                    sharedAt = sharedAsset.SharedAt
+                    sharedAt = assetData.SharedAt
                 });
 
                 _logger.LogInformation("NOOR-SHARE-ASSET: Asset broadcast completed for session group {SessionGroup}", sessionGroupName);
@@ -1087,7 +1100,7 @@ namespace NoorCanvas.Controllers
                 return Ok(new
                 {
                     success = true,
-                    assetId = sharedAsset.AssetId,
+                    assetId = dataId,
                     message = "Asset shared successfully"
                 });
             }

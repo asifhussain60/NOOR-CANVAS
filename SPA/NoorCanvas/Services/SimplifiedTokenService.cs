@@ -42,10 +42,7 @@ public class SimplifiedTokenService
         // Embed tokens directly in Session
         session.HostToken = hostToken;
         session.UserToken = userToken;
-        session.TokenExpiresAt = DateTime.UtcNow.AddHours(validHours);
-        session.TokenAccessCount = 0;
-        session.TokenCreatedByIp = clientIp;
-        session.TokenLastAccessedAt = DateTime.UtcNow;
+        session.ExpiresAt = DateTime.UtcNow.AddHours(validHours);
 
         await _context.SaveChangesAsync();
 
@@ -66,25 +63,44 @@ public class SimplifiedTokenService
 
         try
         {
+            // First, check if any sessions exist at all
+            var totalSessions = await _context.Sessions.CountAsync();
+            _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Total sessions in database: {Count}",
+                validationId, totalSessions);
+
+            // Check for sessions with this specific token (without filters)
+            var allMatchingTokenSessions = await _context.Sessions
+                .Where(s => isHostToken ? s.HostToken == token : s.UserToken == token)
+                .ToListAsync();
+            _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Sessions matching token '{Token}': {Count}",
+                validationId, token, allMatchingTokenSessions.Count);
+
+            // Log details of matching sessions
+            foreach (var ms in allMatchingTokenSessions)
+            {
+                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Matching session - ID: {SessionId} (KSESSIONS_ID), Status: {Status}, ExpiresAt: {ExpiresAt}, HostToken: {HostToken}, UserToken: {UserToken}",
+                    validationId, ms.SessionId, ms.Status, ms.ExpiresAt?.ToString() ?? "NULL", ms.HostToken, ms.UserToken);
+            }
+
+            // Apply the original filters and see what happens
             var session = await _context.Sessions
-                .Where(s => s.TokenExpiresAt > DateTime.UtcNow && s.Status != "Expired")
+                .Where(s => (s.ExpiresAt == null || s.ExpiresAt > DateTime.UtcNow) && s.Status != "Expired")
                 .Where(s => isHostToken ? s.HostToken == token : s.UserToken == token)
                 .FirstOrDefaultAsync();
 
             if (session != null)
             {
-                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Token validation successful - Session {SessionId}, Access #{AccessCount}",
-                    validationId, session.SessionId, session.TokenAccessCount + 1);
-
-                // Update access tracking
-                session.TokenAccessCount++;
-                session.TokenLastAccessedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
+                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Token validation successful - Session {SessionId}",
+                    validationId, session.SessionId);
             }
             else
             {
                 _logger.LogWarning("NOOR-SIMPLIFIED: [{ValidationId}] Token validation failed - {TokenType} token not found or expired: {Token}",
                     validationId, isHostToken ? "HOST" : "USER", token);
+                
+                // Debug: Check what the current UTC time is
+                _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Current UTC time: {UtcNow}",
+                    validationId, DateTime.UtcNow);
             }
 
             return session;
@@ -93,6 +109,8 @@ public class SimplifiedTokenService
         {
             _logger.LogError("NOOR-SIMPLIFIED: [{ValidationId}] Exception during token validation: {Error}",
                 validationId, ex.Message);
+            _logger.LogError("NOOR-SIMPLIFIED: [{ValidationId}] Stack trace: {StackTrace}",
+                validationId, ex.StackTrace);
             throw;
         }
     }
@@ -103,7 +121,7 @@ public class SimplifiedTokenService
     public async Task<Session?> GetSessionByTokenAsync(string token)
     {
         return await _context.Sessions
-            .Where(s => s.TokenExpiresAt > DateTime.UtcNow && s.Status != "Expired")
+            .Where(s => s.ExpiresAt > DateTime.UtcNow && s.Status != "Expired")
             .Where(s => s.HostToken == token || s.UserToken == token)
             .FirstOrDefaultAsync();
     }
@@ -114,7 +132,7 @@ public class SimplifiedTokenService
     public async Task<(string? hostToken, string? userToken)?> GetTokensBySessionIdAsync(long sessionId)
     {
         var session = await _context.Sessions
-            .Where(s => s.SessionId == sessionId && s.TokenExpiresAt > DateTime.UtcNow)
+            .Where(s => s.SessionId == sessionId && s.ExpiresAt > DateTime.UtcNow)
             .Select(s => new { s.HostToken, s.UserToken })
             .FirstOrDefaultAsync();
 
@@ -130,7 +148,7 @@ public class SimplifiedTokenService
         var session = await _context.Sessions.FindAsync(sessionId);
         if (session == null) return false;
 
-        session.TokenExpiresAt = DateTime.UtcNow.AddMinutes(-1); // Expire immediately
+        session.ExpiresAt = DateTime.UtcNow.AddMinutes(-1); // Expire immediately
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("NOOR-SIMPLIFIED: Expired tokens for Session {SessionId}", sessionId);
@@ -144,10 +162,10 @@ public class SimplifiedTokenService
     {
         var sessionData = new SessionData
         {
-            SessionId = sessionId,
+            SessionId = (int)sessionId,
             DataType = "Annotation",
-            JsonContent = JsonSerializer.Serialize(annotationData),
-            CreatedByUserGuid = userGuid,
+            Content = JsonSerializer.Serialize(annotationData),
+            CreatedBy = userGuid?.ToString(),
             IsDeleted = false
         };
 
@@ -167,10 +185,10 @@ public class SimplifiedTokenService
     {
         var sessionData = new SessionData
         {
-            SessionId = sessionId,
+            SessionId = (int)sessionId,
             DataType = "Question",
-            JsonContent = JsonSerializer.Serialize(questionData),
-            CreatedByUserGuid = userGuid,
+            Content = JsonSerializer.Serialize(questionData),
+            CreatedBy = userGuid?.ToString(),
             IsDeleted = false
         };
 
@@ -198,7 +216,7 @@ public class SimplifiedTokenService
         {
             try
             {
-                var deserializedData = JsonSerializer.Deserialize<T>(data.JsonContent);
+                var deserializedData = JsonSerializer.Deserialize<T>(data.Content ?? "{}");
                 if (deserializedData != null)
                     results.Add(deserializedData);
             }

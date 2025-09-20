@@ -10,7 +10,7 @@ public class SessionData
     public int DataId { get; set; }
     
     [Required]
-    public int SessionId { get; set; }
+    public long SessionId { get; set; }
     
     [Required, MaxLength(20)]
     public string DataType { get; set; } = string.Empty; // 'SharedAsset', 'Annotation', 'Question', 'QuestionAnswer'
@@ -23,6 +23,21 @@ public class SessionData
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsDeleted { get; set; } = false;
+    
+    // Aliases for compatibility with existing code
+    [NotMapped]
+    public string? JsonContent 
+    { 
+        get => Content; 
+        set => Content = value; 
+    }
+    
+    [NotMapped]
+    public string? CreatedByUserGuid 
+    { 
+        get => CreatedBy; 
+        set => CreatedBy = value; 
+    }
     
     // Navigation properties
     [ForeignKey(nameof(SessionId))]

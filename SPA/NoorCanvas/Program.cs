@@ -120,10 +120,8 @@ builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
 
-// Schema Migration Services - Both legacy and simplified
-builder.Services.AddScoped<SecureTokenService>(); // Legacy secure token service
-builder.Services.AddScoped<SimplifiedTokenService>(); // New simplified token service  
-builder.Services.AddScoped<SchemaTransitionAdapter>(); // Migration compatibility bridge
+// Schema Migration Services - Simplified schema only
+builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service
 
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service
 

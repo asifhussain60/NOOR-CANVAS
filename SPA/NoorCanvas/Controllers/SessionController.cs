@@ -74,7 +74,7 @@ namespace NoorCanvas.Controllers
                 var sessionState = new
                 {
                     sessionId = session.SessionId,
-                    groupId = session.GroupId,
+                    groupId = session.AlbumId,
                     status = "Active",
                     startedAt = session.StartedAt,
                     expiresAt = session.ExpiresAt,

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NoorCanvas.Core.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b623ca313e9feb828a0338009b979ae1b6ca23b9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4499447f57d5a6609225145d322a7543590c32f9")]
 [assembly: System.Reflection.AssemblyProductAttribute("NoorCanvas.Core.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NoorCanvas.Core.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
