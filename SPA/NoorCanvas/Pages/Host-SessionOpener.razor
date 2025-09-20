@@ -806,6 +806,20 @@
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - User Token: {UserToken}", result.UserToken);
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session URL updated to proper format: {SessionUrl}", SessionUrl);
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] URL format changed from '/session/{token}' to '/user/landing/{token}' for proper authentication flow");
+                        
+                        // TOKEN-CONSISTENCY FIX: Update host token from API response to maintain consistency
+                        if (!string.IsNullOrEmpty(result.HostToken))
+                        {
+                            var originalHostToken = Model.HostFriendlyToken;
+                            Model.HostFriendlyToken = result.HostToken;
+                            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Host token updated from API response - Original: {OriginalToken}, New: {NewToken}", 
+                                originalHostToken, result.HostToken);
+                            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] This ensures LoadControlPanel() uses the same token that validates in HostControlPanel");
+                        }
+                        else
+                        {
+                            Logger.LogWarning("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-WARNING] API response missing HostToken - keeping original: {OriginalToken}", Model.HostFriendlyToken);
+                        }
                     }
                     else
                     {
@@ -880,11 +894,16 @@
     {
         try
         {
-            Logger.LogInformation("NOOR-HOST-OPENER: Loading control panel for token: {Token}", Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Loading control panel for token: {Token}", Model.HostFriendlyToken);
             
-            // Navigate to host control panel with host token
+            // Navigate to host control panel with host token (now using updated token from API response)
             var hostToken = Model.HostFriendlyToken ?? "demo-session";
-            Navigation.NavigateTo($"/host/control-panel/{hostToken}");
+            var controlPanelUrl = $"/host/control-panel/{hostToken}";
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Navigating to: {Url}", controlPanelUrl);
+            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] This token should now match what HostControlPanel expects for validation");
+            
+            Navigation.NavigateTo(controlPanelUrl);
         }
         catch (Exception ex)
         {
