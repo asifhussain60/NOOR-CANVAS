@@ -1052,6 +1052,14 @@
             if (response.IsSuccessStatusCode)
             {
                 Model.SessionStatus = "Active";
+                
+                // Re-transform transcript to inject share buttons now that session is active
+                if (!string.IsNullOrEmpty(Model.SessionTranscript))
+                {
+                    Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:StartSession] Session now active - re-transforming transcript to inject share buttons");
+                    Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
+                }
+                
                 await ShowMessageAsync("Session started successfully! All participants are being moved to the canvas.");
                 
                 Logger.LogInformation("COPILOT-SESSION-START: Session {SessionId} started successfully - SignalR notifications sent to all waiting users", SessionId);
@@ -1312,6 +1320,7 @@
 
     /// <summary>
     /// Transforms the transcript HTML by removing delete buttons and adding SHARE buttons for each asset
+    /// Share buttons are only injected when session status is "Active"
     /// </summary>
     private async Task<string> TransformTranscriptHtml(string originalHtml)
     {
@@ -1322,18 +1331,30 @@
 
         try
         {
-            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Starting simplified HTML transformation for SessionId {SessionId}", SessionId);
+            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Starting HTML transformation for SessionId {SessionId}, SessionStatus: {SessionStatus}", 
+                SessionId, Model?.SessionStatus);
             
             // Remove buttons that have 'delete' in their id or class attributes
             var htmlWithoutDeletes = RemoveDeleteButtons(originalHtml);
             
-            // NEW: Use simplified database-driven asset detection
-            var htmlWithShareButtons = await InjectAssetShareButtonsFromDatabase(htmlWithoutDeletes);
+            // Only inject share buttons if session is active
+            string finalHtml;
+            if (Model?.SessionStatus == "Active")
+            {
+                Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session is Active - injecting share buttons for SessionId {SessionId}", SessionId);
+                finalHtml = await InjectAssetShareButtonsFromDatabase(htmlWithoutDeletes);
+            }
+            else
+            {
+                Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session status '{SessionStatus}' - skipping share button injection for SessionId {SessionId}", 
+                    Model?.SessionStatus, SessionId);
+                finalHtml = htmlWithoutDeletes;
+            }
             
-            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Simplified transformation completed. Original: {OriginalLength}, Final: {FinalLength}", 
-                originalHtml.Length, htmlWithShareButtons.Length);
+            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Transformation completed. Original: {OriginalLength}, Final: {FinalLength}, ShareButtons: {ShareButtonsInjected}", 
+                originalHtml.Length, finalHtml.Length, Model?.SessionStatus == "Active");
                 
-            return htmlWithShareButtons;
+            return finalHtml;
         }
         catch (Exception ex)
         {
