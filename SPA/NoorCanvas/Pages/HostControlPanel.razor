@@ -22,6 +22,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Amiri:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Cairo:wght@400;700&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/nc-session-transcript.css?v=@DateTime.Now.Ticks" />
 </HeadContent>
 
 <!-- Root container with NOOR Canvas background -->
@@ -57,32 +59,16 @@
                         <i class="fa-solid fa-sliders" style="color:#006400;"></i>
                         <span>SESSION CONTROLS</span>
                     </h3>
-                    <div style="width:100%;display:flex;justify-content:space-between;gap:1rem;">
+                    <div style="width:100%;display:flex;justify-content:center;">
                         <button @onclick="StartSession" 
                                 disabled="@(isLoading || Model?.SessionStatus == "Active")"
-                                style="flex:1;padding:0.75rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;background-color:#006400;border:none;cursor:@(isLoading || Model?.SessionStatus == "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus == "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                                style="width:80%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;cursor:@(isLoading || Model?.SessionStatus == "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus == "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;" 
                                 onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
                                 onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
-                            <i class="fa-solid fa-play"></i>
+                            <i class="fa-solid fa-play" style="font-size:1.25rem;"></i>
                             <span>Start Session</span>
                         </button>
-                        <button @onclick="EndSession" 
-                                disabled="@(isLoading || Model?.SessionStatus != "Active")"
-                                style="flex:1;padding:0.75rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(239,68,68,0.4);color:white;font-weight:700;background-color:#EF4444;border:none;cursor:@(isLoading || Model?.SessionStatus != "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus != "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                                onmouseover="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.backgroundColor='#EF4444'; this.style.transform='scale(1)'">
-                            <i class="fa-solid fa-stop"></i>
-                            <span>End Session</span>
-                        </button>
                     </div>
-                    <button @onclick="PauseSession" 
-                            disabled="@(isLoading || Model?.SessionStatus != "Active")"
-                            style="width:100%;padding:0.75rem 1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(107,114,128,0.4);color:#374151;font-weight:700;background-color:#D1D5DB;border:none;cursor:@(isLoading || Model?.SessionStatus != "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus != "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                            onmouseover="this.style.backgroundColor='#9CA3AF'; this.style.transform='scale(1.05)'"
-                            onmouseout="this.style.backgroundColor='#D1D5DB'; this.style.transform='scale(1)'">
-                        <i class="fa-solid fa-pause"></i>
-                        <span>Pause</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -94,9 +80,11 @@
                 <span>Session Transcript</span>
             </h3>
             <div style="width:100%;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;">
-                @if (!string.IsNullOrEmpty(Model?.SessionTranscript))
+                @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
                 {
-                    @((MarkupString)TransformTranscriptHtml(Model.SessionTranscript))
+                    <div class="session-transcript-content">
+                        @((MarkupString)Model.TransformedTranscript)
+                    </div>
                 }
                 else
                 {
@@ -236,30 +224,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Starting initialization with HostToken: {HostToken}", requestId, HostToken ?? "null");
-        
         // Initialize model
         Model ??= new HostControlPanelViewModel();
-        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Model initialized", requestId);
         
         // Initialize empty model
         await InitializeSessionAsync();
-        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Session initialized", requestId);
         
         // Initialize SignalR connection for real-time updates
         await InitializeSignalRAsync();
-        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] SignalR initialized", requestId);
         
         // Load real session data if HostToken provided
         if (!string.IsNullOrEmpty(HostToken))
         {
-            Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Starting to load session data for token: {HostToken}", requestId, HostToken);
             await LoadSessionDataAsync(HostToken);
-            Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Completed loading session data", requestId);
         }
-        
-        Logger.LogDebug("COPILOT-DEBUG: [OnInitializedAsync:{RequestId}] Initialization completed", requestId);
     }
 
     private async Task InitializeSessionAsync()
@@ -278,6 +256,12 @@
             Questions = new List<QuestionItem>(), // Empty - no questions initially
             Participants = new List<ParticipantItem>() // Empty - no participants initially
         };
+        
+        // Transform the initial transcript
+        if (!string.IsNullOrEmpty(Model.SessionTranscript))
+        {
+            Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
+        }
         
         await InvokeAsync(StateHasChanged);
     }
@@ -316,6 +300,7 @@
                 if (Model != null)
                 {
                     Model.SessionTranscript = transcript;
+                    Model.TransformedTranscript = await TransformTranscriptHtml(transcript);
                     await InvokeAsync(StateHasChanged);
                 }
             });
@@ -336,16 +321,20 @@
 
     private async Task LoadSessionDataAsync(string sessionIdOrToken)
     {
-        var correlationId = Guid.NewGuid().ToString("N")[..8];
         try
         {
-            Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Starting session load for: {SessionIdOrToken}", correlationId, sessionIdOrToken);
+            var requestId = Guid.NewGuid().ToString("N")[..8];
             isLoading = true;
             await InvokeAsync(StateHasChanged);
-            Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Loading state set, UI refreshed", correlationId);
 
             using var httpClient = HttpClientFactory.CreateClient("default");
-            Logger.LogInformation("NOOR-DEBUG: LoadSessionDataAsync started for sessionIdOrToken: {SessionIdOrToken}", sessionIdOrToken);
+            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ===== SESSION LOADING STARTED =====", requestId);
+            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Input parameter: {SessionIdOrToken}", requestId, sessionIdOrToken);
+            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Parameter type: {ParameterType}", requestId, 
+                string.IsNullOrEmpty(sessionIdOrToken) ? "NULL/EMPTY" : 
+                sessionIdOrToken.All(c => char.IsDigit(c)) ? "NUMERIC_SESSION_ID" : 
+                sessionIdOrToken.Length == 8 && sessionIdOrToken.All(c => char.IsLetterOrDigit(c)) ? "8_CHAR_TOKEN" : 
+                "OTHER_FORMAT");
             
             // ISSUE-120 FIX: Detect if parameter is a token or session ID
             string sessionId = sessionIdOrToken;
@@ -357,38 +346,58 @@
                           sessionIdOrToken.All(c => char.IsLetterOrDigit(c)) &&
                           !sessionIdOrToken.All(c => char.IsDigit(c));
                           
+            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token detection result: IsToken={IsToken}", requestId, isToken);
+                          
             if (isToken)
             {
-                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Detected token format: {Token}", correlationId, sessionIdOrToken);
                 hostToken = sessionIdOrToken;
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Processing as HOST TOKEN: {HostToken}", requestId, hostToken);
+                
+                // First, check if this token exists in the current database
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Checking if token exists in database...", requestId);
+                var allTokens = await SimplifiedCanvasDb.Sessions
+                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.Status, s.ExpiresAt })
+                    .ToListAsync();
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Found {TokenCount} total sessions in database", requestId, allTokens.Count);
+                
+                foreach (var tokenRecord in allTokens)
+                {
+                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] DB Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
+                        requestId, tokenRecord.SessionId, tokenRecord.HostToken ?? "NULL", tokenRecord.UserToken ?? "NULL", 
+                        tokenRecord.Status ?? "NULL", tokenRecord.ExpiresAt?.ToString() ?? "NULL");
+                }
+                
+                var tokenExists = allTokens.Any(t => t.HostToken == hostToken);
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token '{HostToken}' exists in database: {TokenExists}", requestId, hostToken, tokenExists);
                 
                 // Map token to session ID for API calls
-                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Calling GetSessionIdFromTokenAsync for: {HostToken}", correlationId, hostToken);
                 var mappedSessionId = await GetSessionIdFromTokenAsync(hostToken);
-                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] GetSessionIdFromTokenAsync returned: {MappedSessionId}", correlationId, mappedSessionId ?? "null");
                 if (string.IsNullOrEmpty(mappedSessionId))
                 {
-                    Logger.LogError("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Could not map token {Token} to session ID", correlationId, hostToken);
+                    Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ CRITICAL: Could not map token '{Token}' to session ID", requestId, hostToken);
+                    Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] 💡 LIKELY CAUSE: Host Provisioner regenerated tokens, invalidating this URL", requestId);
+                    Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] 🔧 SOLUTION: Run Host Provisioner again to get new tokens", requestId);
                     if (Model != null)
                     {
-                        Model.SessionName = "Invalid Token";
-                        Model.SessionDescription = "The provided host token could not be validated.";
+                        Model.SessionName = "Token Expired or Regenerated";
+                        Model.SessionDescription = $"The token '{hostToken}' is no longer valid. This happens when Host Provisioner generates new tokens. Please contact the session administrator for the current valid token.";
                     }
                     return;
                 }
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ Successfully mapped token '{HostToken}' → Session ID '{SessionId}'", requestId, hostToken, mappedSessionId);
                 sessionId = mappedSessionId;
                 // Store session ID for use by other methods
                 if (int.TryParse(sessionId, out int parsedSessionId))
                 {
                     SessionId = parsedSessionId;
-                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] SessionId set to: {SessionId}", correlationId, SessionId);
                 }
             }
             else
             {
-                Logger.LogInformation("HOST-CONTROL-PANEL: Detected session ID format: {SessionId}", sessionIdOrToken);
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Processing as SESSION ID: {SessionId}", requestId, sessionIdOrToken);
                 // Get the host token for this session ID
                 hostToken = await GetHostTokenForSessionAsync(sessionId);
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Retrieved host token for Session ID '{SessionId}': {HostToken}", requestId, sessionId, hostToken ?? "NULL");
                 // Store session ID for use by other methods
                 if (int.TryParse(sessionId, out int parsedSessionId))
                 {
@@ -398,24 +407,28 @@
             
             if (string.IsNullOrEmpty(hostToken))
             {
-                Logger.LogError("HOST-CONTROL-PANEL: No host token available for SessionId: {SessionId}", sessionId);
+                Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ CRITICAL: No host token available for SessionId: {SessionId}", requestId, sessionId);
+                Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] 💡 POSSIBLE CAUSES:", requestId);
+                Logger.LogError("NOOR-HOST-PANEL: [{RequestId}]   1. Session {SessionId} not found in database", requestId, sessionId);
+                Logger.LogError("NOOR-HOST-PANEL: [{RequestId}]   2. Host Provisioner not run for this session", requestId);
+                Logger.LogError("NOOR-HOST-PANEL: [{RequestId}]   3. Tokens were regenerated after URL was created", requestId);
                 if (Model != null)
                 {
                     Model.SessionName = "Authentication Required";
-                    Model.SessionDescription = "Please authenticate as host first.";
+                    Model.SessionDescription = $"Session {sessionId} has no host token. Please run Host Provisioner to generate authentication tokens.";
                 }
                 return;
             }
             
-            // Load session details directly from KSESSIONS_DEV database
-            Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Querying KSessionsDb for sessionId: {SessionId}", correlationId, sessionId);
+            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ Host token validation successful: {HostToken}", requestId, hostToken);
             
+            // Load session details directly from KSESSIONS_DEV database
             try 
             {
                 // Parse sessionId to long for KSessions database
                 if (!long.TryParse(sessionId, out long sessionIdLong))
                 {
-                    Logger.LogError("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Could not parse sessionId {SessionId} to long", correlationId, sessionId);
+                    Logger.LogError("Could not parse sessionId {SessionId} to long", sessionId);
                     return;
                 }
                 
@@ -427,38 +440,34 @@
                 var transcript = await KSessionsDb.SessionTranscripts
                     .FirstOrDefaultAsync(t => t.SessionId == (int)sessionIdLong);
                 
-                Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Database query results - Session: {SessionFound}, Transcript: {TranscriptFound}", 
-                    correlationId, ksession != null, transcript != null);
-                
                 if (ksession != null && Model != null)
                 {
-                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Mapping database session data to Model", correlationId);
                     Model.SessionName = ksession.SessionName ?? "Unknown Session";
                     Model.SessionDescription = ksession.Description ?? "No description available";
                     Model.SessionStatus = "Waiting"; // Default status for new sessions
                     Model.SessionTranscript = transcript?.Transcript ?? string.Empty; // Get transcript from KSessions database
                     
-                    var transcriptLength = Model.SessionTranscript?.Length ?? 0;
-                    var transcriptPreview = transcriptLength > 0 && !string.IsNullOrEmpty(Model.SessionTranscript)
-                        ? Model.SessionTranscript.Substring(0, Math.Min(100, transcriptLength))
-                        : "EMPTY";
+                    // Transform transcript with asset detection and share buttons
+                    if (!string.IsNullOrEmpty(Model.SessionTranscript))
+                    {
+                        Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
+                    }
                     
-                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Session data mapped from database - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength}, TranscriptPreview: {TranscriptPreview}", 
-                        correlationId, sessionId, ksession.SessionName, transcriptLength, transcriptPreview);
+                    Logger.LogInformation("Session data loaded from database - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength}", 
+                        sessionId, ksession.SessionName, Model.SessionTranscript?.Length ?? 0);
                     
                     // Force UI update after setting session name and transcript
-                    Logger.LogDebug("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Forcing UI update after database session data mapping", correlationId);
                     await InvokeAsync(StateHasChanged);
                 }
                 else
                 {
-                    Logger.LogWarning("COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] No session found in database or Model is null - Session: {SessionFound}, Model: {ModelNull}", 
-                        correlationId, ksession != null, Model == null);
+                    Logger.LogWarning("No session found in database or Model is null - Session: {SessionFound}, Model: {ModelNull}", 
+                        ksession != null, Model == null);
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "COPILOT-DEBUG: [LoadSessionDataAsync:{CorrelationId}] Error querying KSessions database for sessionId: {SessionId}", correlationId, sessionId);
+                Logger.LogError(ex, "Error querying KSessions database for sessionId: {SessionId}", sessionId);
             }
             
             // Load participants - need to get user token first
@@ -565,10 +574,21 @@
     {
         try
         {
-            // Handle both KSESSIONS session ID (212) and canvas session ID (10227) for session 212
-            if (sessionId == "212" || sessionId == "10227")
+            // Look up the current UserToken from the database for this session
+            if (int.TryParse(sessionId, out var parsedSessionId))
             {
-                return "Q27PTUSP"; // Use the generated user token for session 212
+                var session = await SimplifiedCanvasDb.Sessions
+                    .FirstOrDefaultAsync(s => s.SessionId == parsedSessionId);
+                
+                if (session != null && !string.IsNullOrEmpty(session.UserToken))
+                {
+                    Logger.LogInformation("GET-USER-TOKEN: Found UserToken '{UserToken}' for SessionId {SessionId}", session.UserToken, sessionId);
+                    return session.UserToken;
+                }
+                else
+                {
+                    Logger.LogWarning("GET-USER-TOKEN: No UserToken found for SessionId {SessionId}", sessionId);
+                }
             }
             
             // For other sessions, try to register a temporary admin user to get a user token
@@ -629,32 +649,30 @@
     {
         try
         {
-            Logger.LogDebug("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] Starting token mapping for: {HostToken}", hostToken);
-            
             // Direct database query: Map host token to session ID using canvas.Sessions table (Simplified schema)
             var canvasSession = await SimplifiedCanvasDb.Sessions
                 .FirstOrDefaultAsync(s => s.HostToken == hostToken);
                 
             if (canvasSession != null)
             {
-                Logger.LogInformation("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] SUCCESS - Found canvas session mapping: {Token} -> SessionId {SessionId}", 
+                Logger.LogInformation("Found session mapping for token {Token} -> SessionId {SessionId}", 
                     hostToken, canvasSession.SessionId);
                 return canvasSession.SessionId.ToString();
             }
             
-            Logger.LogWarning("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] No mapping found for token: {Token}", hostToken);
+            Logger.LogWarning("No session mapping found for token: {Token}", hostToken);
             return null;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "COPILOT-DEBUG: [GetSessionIdFromTokenAsync] Failed to map host token {Token} to session ID", hostToken, ex);
+            Logger.LogError(ex, "Failed to map host token {Token} to session ID", hostToken);
             return null;
         }
     }
 
     private async Task StartSession()
     {
-        if (Model == null) return;
+        if (Model == null || SessionId == null) return;
         
         try
         {
@@ -663,32 +681,33 @@
             await InvokeAsync(StateHasChanged);
 
             using var httpClient = HttpClientFactory.CreateClient("default");
-            Logger.LogInformation("NOOR-DEBUG: Starting session {SessionId}", SessionId);
-            var response = await httpClient.PostAsync($"/api/sessions/{SessionId}/start", null);
-            Logger.LogInformation("NOOR-DEBUG: Start session response status: {StatusCode}", response.StatusCode);
+            Logger.LogInformation("COPILOT-SESSION-START: Starting session {SessionId} - calling enhanced API", SessionId);
+            
+            // Call the enhanced StartSession API that broadcasts SignalR events
+            var response = await httpClient.PostAsync($"/api/host/session/{SessionId}/start", null);
+            Logger.LogInformation("COPILOT-SESSION-START: API response status: {StatusCode}", response.StatusCode);
             
             if (response.IsSuccessStatusCode)
             {
                 Model.SessionStatus = "Active";
-                await ShowMessageAsync("Session started successfully!");
+                await ShowMessageAsync("Session started successfully! All participants are being moved to the canvas.");
                 
-                // Notify via SignalR
-                if (hubConnection?.State == HubConnectionState.Connected)
-                {
-                    await hubConnection.InvokeAsync("NotifySessionStarted", SessionId);
-                }
+                Logger.LogInformation("COPILOT-SESSION-START: Session {SessionId} started successfully - SignalR notifications sent to all waiting users", SessionId);
             }
             else
             {
                 Model.SessionStatus = "Waiting";
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("COPILOT-SESSION-START: Failed to start session {SessionId} - {StatusCode}: {Error}", 
+                    SessionId, response.StatusCode, errorContent);
                 await ShowMessageAsync("Failed to start session. Please try again.");
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to start session");
+            Logger.LogError(ex, "COPILOT-SESSION-START: Exception starting session {SessionId}", SessionId);
             Model.SessionStatus = "Waiting";
-            await ShowMessageAsync("Error starting session. Please check your connection.");
+            await ShowMessageAsync("Error starting session. Please check your connection and try again.");
         }
         finally
         {
@@ -697,56 +716,7 @@
         }
     }
 
-    private async Task EndSession()
-    {
-        if (Model == null) return;
-        
-        try
-        {
-            isLoading = true;
-            Model.SessionStatus = "Ending";
-            await InvokeAsync(StateHasChanged);
 
-            using var httpClient = HttpClientFactory.CreateClient("default");
-            Logger.LogInformation("NOOR-DEBUG: Ending session {SessionId}", SessionId);
-            var response = await httpClient.PostAsync($"/api/sessions/{SessionId}/end", null);
-            Logger.LogInformation("NOOR-DEBUG: End session response status: {StatusCode}", response.StatusCode);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                Model.SessionStatus = "Ended";
-                await ShowMessageAsync("Session ended successfully!");
-                
-                // Notify via SignalR
-                if (hubConnection?.State == HubConnectionState.Connected)
-                {
-                    await hubConnection.InvokeAsync("NotifySessionEnded", SessionId);
-                }
-            }
-            else
-            {
-                Model.SessionStatus = "Active";
-                await ShowMessageAsync("Failed to end session. Please try again.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to end session");
-            Model.SessionStatus = "Active";
-            await ShowMessageAsync("Error ending session. Please check your connection.");
-        }
-        finally
-        {
-            isLoading = false;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private async Task PauseSession()
-    {
-        await ShowMessageAsync("Session paused");
-        // Implement pause functionality
-    }
 
     private async Task MarkQuestionAnswered(Guid questionId)
     {
@@ -855,6 +825,7 @@
         public string? SessionDescription { get; set; }
         public string? SessionStatus { get; set; }
         public string? SessionTranscript { get; set; }
+        public string? TransformedTranscript { get; set; }
         public List<QuestionItem>? Questions { get; set; }
         public List<ParticipantItem>? Participants { get; set; }
     }
@@ -978,43 +949,158 @@
     }
 
     /// <summary>
-    /// Transforms the transcript HTML by removing delete buttons and adding a SHARE button
+    /// Transforms the transcript HTML by removing delete buttons and adding SHARE buttons for each asset
     /// </summary>
-    private string TransformTranscriptHtml(string originalHtml)
+    private async Task<string> TransformTranscriptHtml(string originalHtml)
     {
-        var correlationId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Starting transcript transformation, HTML length: {Length}", correlationId, originalHtml?.Length ?? 0);
-        
         if (string.IsNullOrEmpty(originalHtml))
         {
-            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Original HTML is null or empty, returning as-is", correlationId);
             return originalHtml ?? string.Empty;
         }
 
         try
         {
-            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Original HTML length: {Length}, preview: {Preview}", 
-                correlationId, originalHtml.Length, originalHtml.Substring(0, Math.Min(200, originalHtml.Length)));
+            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Starting simplified HTML transformation for SessionId {SessionId}", SessionId);
             
             // Remove buttons that have 'delete' in their id or class attributes
             var htmlWithoutDeletes = RemoveDeleteButtons(originalHtml);
-            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] HTML after delete removal length: {Length}", correlationId, htmlWithoutDeletes.Length);
             
-            // Skip share button injection temporarily to avoid SessionAssets table error
-            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Skipping share button injection to avoid SessionAssets table error", correlationId);
-            // TODO: Fix SessionAssets table issue before re-enabling
-            // var htmlWithShareButtons = InjectIndividualShareButtons(htmlWithoutDeletes);
-            var htmlWithShareButtons = htmlWithoutDeletes; // Temporarily skip share buttons
+            // NEW: Use simplified database-driven asset detection
+            var htmlWithShareButtons = await InjectAssetShareButtonsFromDatabase(htmlWithoutDeletes);
             
-            Logger.LogDebug("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Final HTML length: {Length}", correlationId, htmlWithShareButtons.Length);
-            
+            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Simplified transformation completed. Original: {OriginalLength}, Final: {FinalLength}", 
+                originalHtml.Length, htmlWithShareButtons.Length);
+                
             return htmlWithShareButtons;
         }
         catch (Exception ex)
         {
-            Logger.LogError("COPILOT-DEBUG: [TransformTranscriptHtml:{CorrelationId}] Exception in TransformTranscriptHtml: {Message}", correlationId, ex.Message);
+            Logger.LogError(ex, "COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Exception: {Message}", ex.Message);
             return originalHtml ?? string.Empty; // Return original HTML if transformation fails
         }
+    }
+
+    /// <summary>
+    /// NEW SIMPLIFIED APPROACH: Inject share buttons using AssetLookup database table
+    /// Replaces complex DetectAndTrackAssetsAsync + InjectAssetShareButtonsAsync approach
+    /// </summary>
+    private async Task<string> InjectAssetShareButtonsFromDatabase(string html)
+    {
+        try
+        {
+            Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Loading asset definitions from database");
+            
+            // Load all active asset definitions from AssetLookup table
+            var assetDefinitions = await SimplifiedCanvasDb.AssetLookup
+                .Where(a => a.IsActive)
+                .ToListAsync();
+                
+            Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Found {Count} active asset definitions", assetDefinitions.Count);
+            
+            if (assetDefinitions.Count == 0)
+            {
+                Logger.LogWarning("SIMPLIFIED-ASSET-INJECTION: No active asset definitions found, skipping injection");
+                return html;
+            }
+
+            var modifiedHtml = html;
+            var totalMatches = 0;
+
+            // Process each asset type from the database
+            foreach (var assetDef in assetDefinitions)
+            {
+                if (string.IsNullOrEmpty(assetDef.CssSelector))
+                {
+                    Logger.LogDebug("SIMPLIFIED-ASSET-INJECTION: Skipping {AssetType} - no CSS selector defined", assetDef.AssetType);
+                    continue;
+                }
+
+                // Convert CSS selector to regex pattern for matching
+                var regexPattern = ConvertCssSelectorToRegex(assetDef.CssSelector);
+                
+                var matches = System.Text.RegularExpressions.Regex.Matches(modifiedHtml, regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                
+                if (matches.Count > 0)
+                {
+                    Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Found {Count} instances of {AssetType}", matches.Count, assetDef.AssetType);
+                    
+                    // Inject share buttons for each match (in reverse order to preserve positions)
+                    for (int i = matches.Count - 1; i >= 0; i--)
+                    {
+                        var match = matches[i];
+                        var shareId = GenerateShareId();
+                        var shareButton = CreateShareButtonHtml(assetDef.AssetType, assetDef.DisplayName ?? assetDef.AssetType, shareId, i + 1);
+                        
+                        // Insert share button before the matched element
+                        modifiedHtml = modifiedHtml.Insert(match.Index, shareButton);
+                        totalMatches++;
+                    }
+                }
+                else
+                {
+                    Logger.LogDebug("SIMPLIFIED-ASSET-INJECTION: No matches found for {AssetType} with selector '{CssSelector}'", 
+                        assetDef.AssetType, assetDef.CssSelector);
+                }
+            }
+            
+            Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Successfully injected {TotalMatches} share buttons", totalMatches);
+            return modifiedHtml;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "SIMPLIFIED-ASSET-INJECTION: Failed to inject share buttons, returning original HTML");
+            return html;
+        }
+    }
+
+    /// <summary>
+    /// Convert CSS selector to regex pattern for HTML matching
+    /// </summary>
+    private string ConvertCssSelectorToRegex(string cssSelector)
+    {
+        if (cssSelector.StartsWith("table[") && cssSelector.Contains("style="))
+        {
+            // Handle table[style="width: 100%;"] selector
+            return @"<table[^>]*style=""[^""]*width:\s*100%[^""]*""[^>]*>";
+        }
+        else if (cssSelector.StartsWith("."))
+        {
+            // Handle class selectors like .ayah-card
+            var className = cssSelector.Substring(1); // Remove the dot
+            return $@"<[^>]*class=""[^""]*{System.Text.RegularExpressions.Regex.Escape(className)}[^""]*""[^>]*>";
+        }
+        else
+        {
+            // Default pattern - treat as element name
+            return $@"<{System.Text.RegularExpressions.Regex.Escape(cssSelector)}[^>]*>";
+        }
+    }
+
+    /// <summary>
+    /// Create HTML for a share button
+    /// </summary>
+    private string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    {
+        return $@"
+<div style=""width: 100%; text-align: center; margin: 10px 0; padding: 5px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;"">
+    <button data-share-button=""asset"" 
+            data-share-id=""{shareId}"" 
+            data-asset-type=""{assetType}"" 
+            onclick=""shareAssetViaSignalR('{shareId}', '{assetType}', 1, '{shareId}')"" 
+            style=""background-color: #dc2626; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s;"" 
+            onmouseover=""this.style.backgroundColor='#b91c1c'; this.style.transform='scale(1.05)'"" 
+            onmouseout=""this.style.backgroundColor='#dc2626'; this.style.transform='scale(1)'"">
+        📤 SHARE {displayName.ToUpper()} #{instanceNumber}
+    </button>
+</div>";
+    }
+
+    /// <summary>
+    /// Generate a unique share ID for asset sharing
+    /// </summary>
+    private string GenerateShareId()
+    {
+        return Guid.NewGuid().ToString("N")[..8].ToUpper();
     }
 
     /// <summary>
@@ -1024,12 +1110,6 @@
     {
         // Use regex to find and remove buttons with 'delete' in id or class
         var deleteButtonPattern = @"<button[^>]*(?:id[^=]*=[^""\s]*""[^""]*delete[^""]*""|class[^=]*=[^""\s]*""[^""]*delete[^""]*"")[^>]*>.*?</button>";
-        var matches = System.Text.RegularExpressions.Regex.Matches(html, deleteButtonPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        Console.WriteLine($"DEBUG: Found {matches.Count} delete buttons to remove");
-        foreach (System.Text.RegularExpressions.Match match in matches)
-        {
-            Console.WriteLine($"DEBUG: Removing delete button: {match.Value.Substring(0, Math.Min(100, match.Value.Length))}...");
-        }
         return System.Text.RegularExpressions.Regex.Replace(html, deleteButtonPattern, "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
     }
 
@@ -1224,6 +1304,16 @@
 ";
     }
 
+    // REMOVED: DetectAndTrackAssetsAsync - replaced by simplified database-driven approach
+
+    // REMOVED: InjectAssetShareButtonsAsync - replaced by simplified database-driven approach
+
+    // REMOVED: InjectShareButtonForAsset - replaced by simplified database-driven approach
+
+    // REMOVED: DetectedAsset class - no longer needed with simplified database-driven approach
+
+    // REMOVED: SaveAssetsToDatabase - no longer needed with simplified database-driven approach
+
     /// <summary>
     /// Asset type patterns for detection (moved from inline to reusable)
     /// </summary>
@@ -1357,5 +1447,49 @@
         }
     };
 
-    console.log('NOOR-ASSET-SHARE: Individual asset sharing system ready');
+    // SignalR Asset Sharing Function (called by injected share buttons) - updated for individual assets
+    window.shareAssetViaSignalR = async function(shareId, assetType, instanceCount, uniqueAssetId) {
+        try {
+            console.log('NOOR-ASSET-SIGNALR: Sharing individual asset via SignalR', { 
+                shareId, assetType, instanceCount, uniqueAssetId 
+            });
+            
+            if (window.signalRConnection && window.signalRConnection.state === 'Connected') {
+                // Send individual asset share via SignalR hub with unique identifier
+                const assetData = {
+                    shareId: shareId,
+                    assetType: assetType,
+                    uniqueAssetId: uniqueAssetId,
+                    instanceCount: 1 // Always 1 for individual assets
+                };
+                
+                await window.signalRConnection.invoke('ShareAsset', assetData);
+                console.log('NOOR-ASSET-SIGNALR: Individual asset shared successfully via SignalR hub');
+                
+                // Show success feedback
+                const button = document.querySelector(`[data-share-id="${shareId}"]`);
+                if (button) {
+                    const originalText = button.textContent;
+                    button.textContent = '✅ SHARED VIA SIGNALR!';
+                    button.style.backgroundColor = '#16a34a';
+                    button.disabled = true;
+                    
+                    // Restore button after 3 seconds
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = '#dc2626';
+                        button.disabled = false;
+                    }, 3000);
+                }
+            } else {
+                console.error('NOOR-ASSET-SIGNALR: SignalR connection not available or not connected');
+                alert('SignalR connection is not available. Please refresh the page and try again.');
+            }
+        } catch (error) {
+            console.error('NOOR-ASSET-SIGNALR: Error sharing individual asset via SignalR:', error);
+            alert('Failed to share individual asset via SignalR: ' + error.message);
+        }
+    };
+
+    console.log('NOOR-ASSET-SHARE: Individual asset sharing system ready with SignalR support');
 </script>

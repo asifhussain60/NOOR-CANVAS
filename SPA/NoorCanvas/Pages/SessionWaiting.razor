@@ -179,6 +179,17 @@
                     </div>
                     <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">@(Model?.StatusMessage ?? "Waiting for host to begin the session.")</p>
                 }
+
+                <!-- Start Session Button (Demo/Testing Purpose) -->
+                <div style="margin-top:1.5rem;">
+                    <button @onclick="StartSession" 
+                            data-testid="start-session-btn"
+                            style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:white;background-color:#10B981;padding:0.75rem 2rem;border-radius:0.5rem;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#059669;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                        <i class="fa-solid fa-play" style="margin-right:0.5rem;"></i>
+                        Start Session
+                    </button>
+                    <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#9CA3AF;margin:0.5rem 0 0 0;">Click to enter the session canvas</p>
+                </div>
             </div>
 
             <!-- Participants Panel -->
@@ -212,6 +223,8 @@
                     }
                 </div>
             </div>
+
+
 
             <!-- Connection Status -->
             @if (Model?.CurrentState == SessionWaitingState.ConnectionIssue)
@@ -250,6 +263,8 @@
     private int _retryAttempts = 0;
     private const int MaxRetryAttempts = 3;
     private long? _sessionId;
+    
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -542,6 +557,31 @@
                 });
             });
 
+            // Listen for session start events to automatically navigate to canvas
+            _hubConnection.On<object>("SessionBegan", async (sessionData) =>
+            {
+                var logRequestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] SessionBegan event received - navigating to canvas: {SessionData}", 
+                    logRequestId, System.Text.Json.JsonSerializer.Serialize(sessionData));
+                
+                // Navigate all waiting users to session canvas
+                await InvokeAsync(() =>
+                {
+                    if (!string.IsNullOrEmpty(SessionToken))
+                    {
+                        Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Navigating to session canvas with token: {Token}", 
+                            logRequestId, SessionToken);
+                        Navigation.NavigateTo($"/session/canvas/{SessionToken}");
+                    }
+                    else
+                    {
+                        Logger.LogWarning("NOOR-SIGNALR: [{RequestId}] Cannot navigate to canvas - SessionToken is null", logRequestId);
+                    }
+                });
+            });
+
+
+
             // Start the connection
             await _hubConnection.StartAsync();
             Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] SignalR connection started successfully", requestId);
@@ -648,9 +688,27 @@
         await UpdateParticipants();
     }
 
+
+
     private void NavigateHome()
     {
         Navigation.NavigateTo("/");
+    }
+
+    private void StartSession()
+    {
+Logger.LogInformation("StartSession clicked for token: {SessionToken}", SessionToken);
+        
+        if (!string.IsNullOrEmpty(SessionToken))
+        {
+            // Navigate to SessionCanvas with the same session token
+            Navigation.NavigateTo($"/session/canvas/{SessionToken}");
+        }
+        else
+        {
+Logger.LogWarning("StartSession clicked but no SessionToken available");
+            Navigation.NavigateTo("/");
+        }
     }
 
     private void SortByName()
@@ -661,6 +719,8 @@
             StateHasChanged();
         }
     }
+    
+
 
     private void SortByCountry()
     {
@@ -831,4 +891,6 @@
         public string? Country { get; set; }
         public string? CountryFlag { get; set; } // Database-driven flag code
     }
+    
+
 }
