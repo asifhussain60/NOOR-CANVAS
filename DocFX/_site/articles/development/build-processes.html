@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Build Processes </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Build Processes ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="build-processes">Build Processes</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR Canvas uses a sophisticated build system that integrates automatic testing, smart caching, and comprehensive validation. This document covers all build-related processes and procedures.</p>
+<h2 id="standard-build-process">Standard Build Process</h2>
+<h3 id="basic-build-command">Basic Build Command</h3>
+<pre><code class="lang-powershell"># Build the application
+cd &quot;D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas&quot;
+dotnet build
+</code></pre>
+<h3 id="build-with-automatic-testing">Build with Automatic Testing</h3>
+<p>When you run <code>dotnet build</code>, the system automatically:</p>
+<ol>
+<li>Compiles all C# source code</li>
+<li>Restores NuGet packages if needed</li>
+<li>Checks build artifact changes</li>
+<li>Runs tests if build output changed</li>
+<li>Updates build cache</li>
+</ol>
+<h3 id="build-configurations">Build Configurations</h3>
+<h4 id="debug-configuration-development">Debug Configuration (Development)</h4>
+<pre><code class="lang-powershell">dotnet build --configuration Debug
+</code></pre>
+<ul>
+<li>Includes debugging symbols</li>
+<li>Optimized for development speed</li>
+<li>Verbose logging enabled</li>
+<li>Source maps included</li>
+</ul>
+<h4 id="release-configuration-production">Release Configuration (Production)</h4>
+<pre><code class="lang-powershell">dotnet build --configuration Release
+</code></pre>
+<ul>
+<li>Optimized for performance</li>
+<li>Debugging symbols removed</li>
+<li>Minimal logging</li>
+<li>Compressed output</li>
+</ul>
+<h2 id="advanced-build-options">Advanced Build Options</h2>
+<h3 id="clean-build">Clean Build</h3>
+<pre><code class="lang-powershell"># Remove all build artifacts and rebuild
+dotnet clean
+dotnet build
+</code></pre>
+<h3 id="no-restore-build">No-Restore Build</h3>
+<pre><code class="lang-powershell"># Build without restoring packages (faster)
+dotnet build --no-restore
+</code></pre>
+<h3 id="verbose-build-output">Verbose Build Output</h3>
+<pre><code class="lang-powershell"># Detailed build information
+dotnet build --verbosity detailed
+</code></pre>
+<h2 id="build-integration-with-testing">Build Integration with Testing</h2>
+<h3 id="automatic-test-execution">Automatic Test Execution</h3>
+<p>The build process includes automatic test execution through the post-build hook system:</p>
+<ol>
+<li><strong>Build Completion</strong>: <code>dotnet build</code> completes successfully</li>
+<li><strong>Hash Calculation</strong>: System calculates hash of build artifacts</li>
+<li><strong>Cache Check</strong>: Compares with previous build hash</li>
+<li><strong>Test Execution</strong>: If artifacts changed, runs comprehensive test suite</li>
+<li><strong>Result Caching</strong>: Stores test results for future builds</li>
+</ol>
+<h3 id="manual-test-control">Manual Test Control</h3>
+<pre><code class="lang-powershell"># Build with verbose test output
+dotnet build; .hooks\post-build.ps1 -Verbose
+
+# Build without automatic tests
+dotnet build; .hooks\post-build.ps1 -SkipTests
+
+# Force tests regardless of cache
+dotnet build; .hooks\post-build.ps1 -Force
+</code></pre>
+<h2 id="build-performance-optimization">Build Performance Optimization</h2>
+<h3 id="smart-caching">Smart Caching</h3>
+<p>The build system uses intelligent caching to improve performance:</p>
+<ul>
+<li><strong>Artifact Hashing</strong>: Only runs tests when build output actually changes</li>
+<li><strong>Incremental Compilation</strong>: Recompiles only changed files</li>
+<li><strong>Package Caching</strong>: Reuses downloaded NuGet packages</li>
+</ul>
+<h3 id="parallel-builds">Parallel Builds</h3>
+<pre><code class="lang-powershell"># Use multiple CPU cores for building
+dotnet build --configuration Release -m
+</code></pre>
+<h3 id="build-performance-metrics">Build Performance Metrics</h3>
+<p>The system tracks build performance:</p>
+<ul>
+<li>Compilation time</li>
+<li>Package restore time</li>
+<li>Test execution time</li>
+<li>Cache hit rates</li>
+</ul>
+<h2 id="build-validation">Build Validation</h2>
+<h3 id="pre-build-validation">Pre-Build Validation</h3>
+<p>Before building, the system validates:</p>
+<ul>
+<li>Source code syntax</li>
+<li>Project file integrity</li>
+<li>Package reference consistency</li>
+<li>Configuration file validity</li>
+</ul>
+<h3 id="post-build-validation">Post-Build Validation</h3>
+<p>After building, the system verifies:</p>
+<ul>
+<li>All assemblies created successfully</li>
+<li>No compilation warnings (in Release mode)</li>
+<li>All tests pass (if enabled)</li>
+<li>Output file integrity</li>
+</ul>
+<h2 id="build-environments">Build Environments</h2>
+<h3 id="development-environment">Development Environment</h3>
+<ul>
+<li><strong>Database</strong>: KSESSIONS_DEV</li>
+<li><strong>Ports</strong>: 9090 (HTTP), 9091 (HTTPS)</li>
+<li><strong>Logging</strong>: Verbose, structured logging</li>
+<li><strong>Testing</strong>: Automatic test execution enabled</li>
+</ul>
+<h3 id="cicd-environment">CI/CD Environment</h3>
+<ul>
+<li><strong>Clean Build</strong>: Always starts from clean state</li>
+<li><strong>All Tests</strong>: Runs complete test suite</li>
+<li><strong>Artifact Generation</strong>: Creates deployment packages</li>
+<li><strong>Quality Gates</strong>: Enforces code quality standards</li>
+</ul>
+<h3 id="production-environment">Production Environment</h3>
+<ul>
+<li><strong>Optimized Build</strong>: Release configuration only</li>
+<li><strong>Security</strong>: All debugging features disabled</li>
+<li><strong>Performance</strong>: Optimized for runtime speed</li>
+<li><strong>Validation</strong>: Extensive pre-deployment checks</li>
+</ul>
+<h2 id="build-tools-integration">Build Tools Integration</h2>
+<h3 id="visual-studio-code">Visual Studio Code</h3>
+<pre><code class="lang-json">// .vscode/tasks.json build task
+{
+    &quot;label&quot;: &quot;build&quot;,
+    &quot;command&quot;: &quot;dotnet&quot;,
+    &quot;type&quot;: &quot;process&quot;,
+    &quot;args&quot;: [&quot;build&quot;, &quot;${workspaceFolder}/SPA/NoorCanvas/NoorCanvas.csproj&quot;],
+    &quot;group&quot;: {
+        &quot;kind&quot;: &quot;build&quot;,
+        &quot;isDefault&quot;: true
+    }
+}
+</code></pre>
+<h3 id="command-line-interface">Command Line Interface</h3>
+<pre><code class="lang-powershell"># Global NC command includes build
+nc  # Builds automatically before starting server
+
+# Manual build commands
+dotnet build
+dotnet publish
+dotnet pack
+</code></pre>
+<h3 id="msbuild-integration">MSBuild Integration</h3>
+<p>The build process integrates with MSBuild for:</p>
+<ul>
+<li>Custom build targets</li>
+<li>Pre/post-build events</li>
+<li>Conditional compilation</li>
+<li>Resource generation</li>
+</ul>
+<h2 id="troubleshooting-build-issues">Troubleshooting Build Issues</h2>
+<h3 id="common-build-errors">Common Build Errors</h3>
+<h4 id="compilation-errors">Compilation Errors</h4>
+<pre><code>Error CS0103: The name 'variable' does not exist in the current context
+</code></pre>
+<p><strong>Solution</strong>: Check variable declarations and scope</p>
+<h4 id="package-restore-errors">Package Restore Errors</h4>
+<pre><code>Error NU1101: Unable to find package 'PackageName'
+</code></pre>
+<p><strong>Solution</strong>: Verify package source and connectivity</p>
+<pre><code class="lang-powershell">dotnet nuget list source
+dotnet restore --force
+</code></pre>
+<h4 id="file-lock-errors">File Lock Errors</h4>
+<pre><code>Error MSB3027: Could not copy file - file is locked
+</code></pre>
+<p><strong>Solution</strong>: Stop running processes</p>
+<pre><code class="lang-powershell">iiskill
+dotnet build
+</code></pre>
+<h3 id="build-performance-issues">Build Performance Issues</h3>
+<h4 id="slow-builds">Slow Builds</h4>
+<ol>
+<li><strong>Check Antivirus</strong>: Exclude project directories from real-time scanning</li>
+<li><strong>Clean Temp Files</strong>: Remove obj/ and bin/ directories</li>
+<li><strong>Package Cache</strong>: Clear NuGet cache if corrupted</li>
+</ol>
+<pre><code class="lang-powershell">dotnet nuget locals all --clear
+</code></pre>
+<h4 id="memory-issues">Memory Issues</h4>
+<ol>
+<li><strong>Close Applications</strong>: Free up system memory</li>
+<li><strong>Build Configuration</strong>: Use Release mode for large projects</li>
+<li><strong>Parallel Limits</strong>: Reduce parallel build processes</li>
+</ol>
+<h3 id="build-environment-issues">Build Environment Issues</h3>
+<h4 id="path-problems">Path Problems</h4>
+<p>Ensure correct working directory:</p>
+<pre><code class="lang-powershell"># Always build from project directory
+cd &quot;D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas&quot;
+dotnet build
+</code></pre>
+<h4 id="environment-variables">Environment Variables</h4>
+<p>Verify required environment variables:</p>
+<pre><code class="lang-powershell">$env:DOTNET_ROOT
+$env:PATH
+$env:ASPNETCORE_ENVIRONMENT
+</code></pre>
+<h2 id="build-monitoring-and-metrics">Build Monitoring and Metrics</h2>
+<h3 id="build-success-tracking">Build Success Tracking</h3>
+<p>The system tracks build metrics:</p>
+<ul>
+<li>Build success/failure rates</li>
+<li>Average build times</li>
+<li>Cache effectiveness</li>
+<li>Test execution results</li>
+</ul>
+<h3 id="performance-analysis">Performance Analysis</h3>
+<pre><code class="lang-powershell"># Build with timing information
+dotnet build --verbosity normal | Tee-Object -FilePath build-log.txt
+
+# Analyze build performance
+Measure-Command { dotnet build }
+</code></pre>
+<h3 id="quality-metrics">Quality Metrics</h3>
+<ul>
+<li>Code coverage percentages</li>
+<li>Test pass rates</li>
+<li>Static analysis results</li>
+<li>Security scan results</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="daily-development">Daily Development</h3>
+<ol>
+<li><strong>Clean Builds</strong>: Start each day with a clean build</li>
+<li><strong>Incremental Work</strong>: Make small, testable changes</li>
+<li><strong>Regular Testing</strong>: Let automatic tests catch issues early</li>
+<li><strong>Cache Maintenance</strong>: Clear caches when experiencing issues</li>
+</ol>
+<h3 id="team-collaboration">Team Collaboration</h3>
+<ol>
+<li><strong>Consistent Environment</strong>: Use same .NET version across team</li>
+<li><strong>Build Documentation</strong>: Keep build procedures documented</li>
+<li><strong>Shared Configuration</strong>: Use consistent build settings</li>
+<li><strong>Issue Reporting</strong>: Report build issues promptly</li>
+</ol>
+<h3 id="performance-optimization">Performance Optimization</h3>
+<ol>
+<li><strong>Selective Building</strong>: Build only changed projects when possible</li>
+<li><strong>Cache Utilization</strong>: Leverage build and test caching</li>
+<li><strong>Resource Management</strong>: Monitor system resources during builds</li>
+<li><strong>Tool Updates</strong>: Keep build tools current</li>
+</ol>
+<p>For more detailed technical implementation, see the <a href="../technical/build-system-technical-reference.html">Build System Technical Reference</a>.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/development/build-processes.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

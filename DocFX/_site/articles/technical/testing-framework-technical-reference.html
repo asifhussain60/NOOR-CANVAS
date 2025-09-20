@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Testing Framework Technical Reference </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Testing Framework Technical Reference ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="testing-framework-technical-reference">Testing Framework Technical Reference</h1>
+
+<p>Comprehensive technical documentation for NOOR Canvas automated testing system.</p>
+<h2 id="testing-architecture">Testing Architecture</h2>
+<h3 id="1-test-framework-stack">1. Test Framework Stack</h3>
+<pre><code>┌─────────────────────────────────────────┐
+│           User Interface                │
+├─────────────────────────────────────────┤
+│     VS Code Tasks &amp; Git Hooks          │
+├─────────────────────────────────────────┤
+│    PowerShell Test Orchestration       │
+├─────────────────────────────────────────┤
+│        Smart Caching Layer             │
+├─────────────────────────────────────────┤
+│         MSTest &amp; xUnit                  │
+├─────────────────────────────────────────┤
+│      .NET Test Host Runtime            │
+└─────────────────────────────────────────┘
+</code></pre>
+<h3 id="2-smart-caching-implementation">2. Smart Caching Implementation</h3>
+<h4 id="hash-calculation-algorithm">Hash Calculation Algorithm</h4>
+<pre><code class="lang-csharp">public class SourceCodeHasher
+{
+    public static string CalculateHash(string[] sourcePaths)
+    {
+        var files = sourcePaths
+            .SelectMany(path =&gt; Directory.GetFiles(path, &quot;*.cs&quot;, SearchOption.AllDirectories))
+            .Concat(sourcePaths.SelectMany(path =&gt; Directory.GetFiles(path, &quot;*.cshtml&quot;, SearchOption.AllDirectories)))
+            .Concat(sourcePaths.SelectMany(path =&gt; Directory.GetFiles(path, &quot;*.razor&quot;, SearchOption.AllDirectories)))
+            .OrderBy(f =&gt; f)
+            .ToArray();
+            
+        using var sha256 = SHA256.Create();
+        var combinedContent = string.Join(&quot;&quot;, files.Select(File.ReadAllText));
+        return Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(combinedContent)));
+    }
+}
+</code></pre>
+<h4 id="cache-management">Cache Management</h4>
+<ul>
+<li><strong>Location</strong>: <code>.test-cache/</code> and <code>.build-cache/</code> directories</li>
+<li><strong>Persistence</strong>: File-based cache storage</li>
+<li><strong>Invalidation</strong>: Automatic on source file modifications</li>
+<li><strong>Cleanup</strong>: Manual cache clearing options</li>
+</ul>
+<h3 id="3-test-execution-modes">3. Test Execution Modes</h3>
+<h4 id="post-build-testing-hookspost-buildps1">Post-Build Testing (<code>.hooks/post-build.ps1</code>)</h4>
+<pre><code class="lang-powershell"># Execution pattern
+if (Test-BuildArtifactChanged) {
+    Invoke-TestSuite -Configuration $Configuration
+    Update-BuildCache
+} else {
+    Write-Host &quot;Build artifacts unchanged - skipping tests&quot;
+}
+</code></pre>
+<h4 id="pre-commit-testing-hookspre-commit-testps1">Pre-Commit Testing (<code>.hooks/pre-commit-test.ps1</code>)</h4>
+<pre><code class="lang-powershell"># Validation pattern
+$sourceHash = Get-SourceCodeHash
+$lastHash = Get-CachedHash
+if ($sourceHash -ne $lastHash -or $Force) {
+    $result = Invoke-TestSuite
+    if ($result.Failed) { exit 1 }
+    Set-CachedHash $sourceHash
+}
+</code></pre>
+<h2 id="test-categories">Test Categories</h2>
+<h3 id="1-unit-tests-testsnoorcanvascoretests">1. Unit Tests (<code>Tests/NoorCanvas.Core.Tests/</code>)</h3>
+<ul>
+<li><strong>Controllers</strong>: API endpoint testing</li>
+<li><strong>Services</strong>: Business logic validation</li>
+<li><strong>Models</strong>: Data model validation</li>
+<li><strong>Utilities</strong>: Helper function testing</li>
+</ul>
+<h3 id="2-integration-tests-testsnc-implementationtests">2. Integration Tests (<code>Tests/NC-ImplementationTests/</code>)</h3>
+<ul>
+<li><strong>Database</strong>: Entity Framework integration</li>
+<li><strong>SignalR</strong>: Real-time communication testing</li>
+<li><strong>Authentication</strong>: Session validation</li>
+<li><strong>Cross-component</strong>: End-to-end workflows</li>
+</ul>
+<h3 id="3-implementation-tests-testsapplication-health-harness-guidemd">3. Implementation Tests (<code>Tests/APPLICATION-HEALTH-HARNESS-GUIDE.md</code>)</h3>
+<ul>
+<li><strong>Phase validation</strong>: Implementation milestone testing</li>
+<li><strong>System health</strong>: Application health checks</li>
+<li><strong>Performance</strong>: Load and stress testing</li>
+<li><strong>Compatibility</strong>: Browser and platform testing</li>
+</ul>
+<h2 id="configuration-management">Configuration Management</h2>
+<h3 id="test-configuration-files">Test Configuration Files</h3>
+<pre><code class="lang-json">// Tests/NoorCanvas.Core.Tests/appsettings.Test.json
+{
+  &quot;ConnectionStrings&quot;: {
+    &quot;DefaultConnection&quot;: &quot;Server=AHHOME;Database=KSESSIONS_DEV;...&quot;,
+    &quot;KSessionsDb&quot;: &quot;Server=AHHOME;Database=KSESSIONS_DEV;...&quot;
+  },
+  &quot;Logging&quot;: {
+    &quot;LogLevel&quot;: {
+      &quot;Default&quot;: &quot;Information&quot;,
+      &quot;Microsoft.AspNetCore&quot;: &quot;Warning&quot;
+    }
+  }
+}
+</code></pre>
+<h3 id="powershell-configuration">PowerShell Configuration</h3>
+<pre><code class="lang-powershell"># .hooks/test-config.ps1
+$TestConfig = @{
+    CacheDir = &quot;.test-cache&quot;
+    BuildCacheDir = &quot;.build-cache&quot;
+    TestTimeout = 300 # 5 minutes
+    RetryAttempts = 3
+    ParallelExecution = $true
+}
+</code></pre>
+<h2 id="performance-metrics">Performance Metrics</h2>
+<h3 id="execution-times-average">Execution Times (Average)</h3>
+<ul>
+<li><strong>Unit Tests</strong>: 2-5 seconds</li>
+<li><strong>Integration Tests</strong>: 5-15 seconds</li>
+<li><strong>Full Test Suite</strong>: 10-30 seconds</li>
+<li><strong>Cache Hit</strong>: &lt;0.1 seconds</li>
+</ul>
+<h3 id="success-rates-target">Success Rates (Target)</h3>
+<ul>
+<li><strong>Build Success</strong>: &gt;95%</li>
+<li><strong>Test Pass Rate</strong>: &gt;98%</li>
+<li><strong>Cache Hit Rate</strong>: &gt;80%</li>
+<li><strong>CI/CD Success</strong>: &gt;90%</li>
+</ul>
+<h2 id="integration-points">Integration Points</h2>
+<h3 id="github-actions-integration">GitHub Actions Integration</h3>
+<pre><code class="lang-yaml"># .github/workflows/build-and-test.yml
+name: Build and Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+      - name: Run Tests
+        run: .hooks/run-comprehensive-tests.ps1
+</code></pre>
+<h3 id="visual-studio-code-integration">Visual Studio Code Integration</h3>
+<pre><code class="lang-json">// .vscode/tasks.json
+{
+  &quot;label&quot;: &quot;run-tests&quot;,
+  &quot;type&quot;: &quot;shell&quot;,
+  &quot;command&quot;: &quot;powershell.exe&quot;,
+  &quot;args&quot;: [&quot;.hooks/post-build.ps1&quot;, &quot;-Verbose&quot;],
+  &quot;group&quot;: &quot;test&quot;
+}
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<ol>
+<li><strong>Test Failures</strong>: Detailed logging and error reporting</li>
+<li><strong>Cache Corruption</strong>: Automatic cache validation and cleanup</li>
+<li><strong>Environment Issues</strong>: Configuration validation and setup</li>
+<li><strong>Performance Problems</strong>: Parallel execution and optimization</li>
+</ol>
+<h3 id="debugging-commands">Debugging Commands</h3>
+<pre><code class="lang-powershell"># Manual test execution
+.hooks/pre-commit-test.ps1 -Force -Verbose
+
+# Cache management
+Remove-Item .test-cache -Recurse -Force
+Remove-Item .build-cache -Recurse -Force
+
+# Test suite validation
+dotnet test --logger &quot;console;verbosity=detailed&quot;
+</code></pre>
+<h2 id="extension-points">Extension Points</h2>
+<h3 id="custom-test-runners">Custom Test Runners</h3>
+<ul>
+<li><strong>API Testing</strong>: REST client integration</li>
+<li><strong>UI Testing</strong>: Selenium WebDriver integration</li>
+<li><strong>Performance Testing</strong>: Load testing framework integration</li>
+<li><strong>Security Testing</strong>: Security scan integration</li>
+</ul>
+<h3 id="reporting-integration">Reporting Integration</h3>
+<ul>
+<li><strong>Test Results</strong>: XML and JSON output formats</li>
+<li><strong>Coverage Reports</strong>: Code coverage analysis</li>
+<li><strong>Performance Reports</strong>: Execution time tracking</li>
+<li><strong>Quality Gates</strong>: Pass/fail criteria configuration</li>
+</ul>
+<p><em>This technical reference is automatically updated as testing framework enhancements are implemented.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/testing-framework-technical-reference.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

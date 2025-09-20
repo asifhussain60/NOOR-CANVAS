@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Automated Testing System User Guide </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Automated Testing System User Guide ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="automated-testing-system-user-guide">Automated Testing System User Guide</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR Canvas includes a comprehensive automated testing system that runs tests automatically during development without requiring manual intervention. This ensures code quality and catches issues early in the development process.</p>
+<h2 id="how-automated-testing-works">How Automated Testing Works</h2>
+<h3 id="automatic-test-execution">Automatic Test Execution</h3>
+<p>Tests run automatically in two scenarios:</p>
+<ol>
+<li><strong>After Every Build</strong>: When you build the project, tests run automatically if the build output has changed</li>
+<li><strong>Before Every Commit</strong>: When you commit code to Git, tests run to ensure you're not committing broken code</li>
+</ol>
+<h3 id="smart-caching-system">Smart Caching System</h3>
+<p>The testing system is intelligent and won't run unnecessary tests:</p>
+<ul>
+<li>If you build the same code twice, tests only run the first time</li>
+<li>If you haven't changed any source code since the last test, tests are skipped</li>
+<li>This saves time while ensuring thorough testing</li>
+</ul>
+<h2 id="what-tests-are-included">What Tests Are Included</h2>
+<h3 id="build-verification-tests">Build Verification Tests</h3>
+<ul>
+<li><strong>Project Compilation</strong>: Ensures all C# code compiles correctly</li>
+<li><strong>Dependency Resolution</strong>: Verifies all NuGet packages are available</li>
+<li><strong>Configuration Validation</strong>: Checks app settings and connection strings</li>
+</ul>
+<h3 id="functional-tests">Functional Tests</h3>
+<ul>
+<li><strong>API Endpoints</strong>: Tests all REST API endpoints respond correctly</li>
+<li><strong>Database Connectivity</strong>: Verifies database connections work</li>
+<li><strong>SignalR Hubs</strong>: Tests real-time communication components</li>
+</ul>
+<h3 id="integration-tests">Integration Tests</h3>
+<ul>
+<li><strong>Host Token Generation</strong>: Tests the token creation process</li>
+<li><strong>Session Management</strong>: Verifies session creation and management</li>
+<li><strong>Cross-Database Access</strong>: Tests KSESSIONS and KQUR database integration</li>
+</ul>
+<h2 id="using-the-automated-testing-system">Using the Automated Testing System</h2>
+<h3 id="normal-development-workflow">Normal Development Workflow</h3>
+<p>You don't need to do anything special - testing happens automatically:</p>
+<ol>
+<li><strong>Write Code</strong>: Make your changes as usual</li>
+<li><strong>Build Project</strong>: Run <code>dotnet build</code> or use VS Code build (Ctrl+Shift+B)</li>
+<li><strong>Tests Run Automatically</strong>: If anything changed, tests execute and show results</li>
+<li><strong>Commit Changes</strong>: Use <code>git commit</code> - tests run again to ensure commit safety</li>
+</ol>
+<h3 id="manual-testing-commands">Manual Testing Commands</h3>
+<p>If you want to run tests manually:</p>
+<pre><code class="lang-powershell"># Run tests after build (manual)
+.hooks\post-build.ps1
+
+# Run tests with detailed output  
+.hooks\post-build.ps1 -Verbose
+
+# Skip automatic tests during build
+.hooks\post-build.ps1 -SkipTests
+</code></pre>
+<h3 id="force-test-execution">Force Test Execution</h3>
+<p>Sometimes you want to run tests even if nothing changed:</p>
+<pre><code class="lang-powershell"># Force tests regardless of cache
+.hooks\pre-commit-test.ps1 -Force
+
+# Force with detailed output
+.hooks\pre-commit-test.ps1 -Force -Verbose
+</code></pre>
+<h2 id="understanding-test-results">Understanding Test Results</h2>
+<h3 id="successful-tests">Successful Tests</h3>
+<p>When all tests pass, you'll see:</p>
+<pre><code>✅ All tests passed (X tests, Y assertions)
+🚀 Build and tests completed successfully
+</code></pre>
+<h3 id="failed-tests">Failed Tests</h3>
+<p>When tests fail, you'll see:</p>
+<pre><code>❌ Tests failed (X passed, Y failed)
+🔍 See test output above for details
+</code></pre>
+<h3 id="test-skipping">Test Skipping</h3>
+<p>When tests are skipped due to no changes:</p>
+<pre><code>⚡ Tests skipped - no changes since last run
+💾 Using cached test results: PASSED
+</code></pre>
+<h2 id="test-categories">Test Categories</h2>
+<h3 id="critical-tests-must-pass">Critical Tests (Must Pass)</h3>
+<ul>
+<li>Database connection and schema validation</li>
+<li>API endpoint availability and response format</li>
+<li>Core application startup and configuration</li>
+</ul>
+<h3 id="warning-tests-should-pass">Warning Tests (Should Pass)</h3>
+<ul>
+<li>Code style and formatting</li>
+<li>Performance benchmarks</li>
+<li>Documentation completeness</li>
+</ul>
+<h3 id="information-tests-nice-to-have">Information Tests (Nice to Have)</h3>
+<ul>
+<li>Code coverage metrics</li>
+<li>Dependency security scans</li>
+<li>Build performance timing</li>
+</ul>
+<h2 id="troubleshooting-test-issues">Troubleshooting Test Issues</h2>
+<h3 id="tests-keep-running-when-nothing-changed">Tests Keep Running When Nothing Changed</h3>
+<p>This usually means cached test results aren't working:</p>
+<pre><code class="lang-powershell"># Clear test cache
+Remove-Item .test-cache -Recurse -Force
+Remove-Item .build-cache -Recurse -Force
+</code></pre>
+<h3 id="tests-fail-after-working-previously">Tests Fail After Working Previously</h3>
+<ol>
+<li><strong>Check Recent Changes</strong>: What code did you modify?</li>
+<li><strong>Database Issues</strong>: Ensure KSESSIONS_DEV database is running</li>
+<li><strong>Port Conflicts</strong>: Run <code>iiskill</code> to stop conflicting processes</li>
+<li><strong>Clean Build</strong>: Try <code>dotnet clean</code> followed by <code>dotnet build</code></li>
+</ol>
+<h3 id="need-to-commit-despite-test-failures-emergency">Need to Commit Despite Test Failures (Emergency)</h3>
+<p>In rare emergencies, you can bypass tests:</p>
+<pre><code class="lang-bash"># Skip pre-commit tests (use sparingly!)
+git commit --no-verify -m &quot;emergency: bypass tests for critical fix&quot;
+</code></pre>
+<h3 id="tests-take-too-long">Tests Take Too Long</h3>
+<p>The smart caching should make tests fast, but if they're still slow:</p>
+<ol>
+<li><strong>Check for Database Issues</strong>: Slow database connections cause delays</li>
+<li><strong>Review Test Scope</strong>: Some tests may be running unnecessarily</li>
+<li><strong>Consider Parallel Execution</strong>: Tests can be configured to run in parallel</li>
+</ol>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="writing-test-friendly-code">Writing Test-Friendly Code</h3>
+<ul>
+<li><strong>Small Functions</strong>: Easier to test individual pieces</li>
+<li><strong>Clear Dependencies</strong>: Use dependency injection for testable code</li>
+<li><strong>Error Handling</strong>: Proper exception handling makes tests more reliable</li>
+</ul>
+<h3 id="responding-to-test-failures">Responding to Test Failures</h3>
+<ol>
+<li><strong>Don't Ignore Failures</strong>: Always investigate why tests failed</li>
+<li><strong>Fix Root Causes</strong>: Don't just make tests pass, fix the underlying issue</li>
+<li><strong>Update Tests</strong>: If requirements changed, update tests to match</li>
+</ol>
+<h3 id="using-test-results-for-quality">Using Test Results for Quality</h3>
+<ul>
+<li><strong>Green Builds</strong>: Aim to keep all tests passing all the time</li>
+<li><strong>Quick Feedback</strong>: Pay attention to test results immediately after changes</li>
+<li><strong>Team Communication</strong>: Share test failures with your team promptly</li>
+</ul>
+<h2 id="advanced-features">Advanced Features</h2>
+<h3 id="custom-test-configuration">Custom Test Configuration</h3>
+<p>You can customize testing behavior by modifying test configuration files:</p>
+<ul>
+<li><code>.hooks/post-build.ps1</code>: Controls after-build testing</li>
+<li><code>.hooks/pre-commit-test.ps1</code>: Controls pre-commit testing</li>
+<li><code>Tests/</code>: Contains actual test implementations</li>
+</ul>
+<h3 id="cicd-integration">CI/CD Integration</h3>
+<p>The automated testing system integrates with:</p>
+<ul>
+<li><strong>GitHub Actions</strong>: Runs full test suite on every push</li>
+<li><strong>VS Code</strong>: Tests integrated into build tasks</li>
+<li><strong>Command Line</strong>: Works with all standard Git and dotnet workflows</li>
+</ul>
+<h3 id="test-reporting">Test Reporting</h3>
+<p>Test results are available in multiple formats:</p>
+<ul>
+<li><strong>Console Output</strong>: Real-time feedback during development</li>
+<li><strong>Test Cache Files</strong>: Stored results for caching decisions</li>
+<li><strong>CI/CD Artifacts</strong>: Downloadable reports from automated builds</li>
+</ul>
+<p>For technical implementation details, see the <a href="../technical/automated-testing-technical-reference.html">Automated Testing Technical Reference</a>.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/user-guides/automated-testing-user-guide.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

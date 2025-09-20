@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Development Workflow User Guide </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Development Workflow User Guide ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="development-workflow-user-guide">Development Workflow User Guide</h1>
+
+<p>A user-friendly guide for NOOR Canvas development workflows.</p>
+<h2 id="getting-started">Getting Started</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Visual Studio Code with C# DevKit extension</li>
+<li>.NET 8.0 SDK installed</li>
+<li>Git for version control</li>
+<li>PowerShell 5.1 or later</li>
+</ul>
+<h3 id="initial-setup">Initial Setup</h3>
+<ol>
+<li><p><strong>Clone the repository</strong></p>
+<pre><code class="lang-bash">git clone https://github.com/asifhussain60/NOOR-CANVAS.git
+cd NOOR-CANVAS
+</code></pre>
+</li>
+<li><p><strong>Open in VS Code</strong></p>
+<pre><code class="lang-bash">code .
+</code></pre>
+</li>
+<li><p><strong>Install dependencies</strong></p>
+<pre><code class="lang-bash">dotnet restore
+</code></pre>
+</li>
+</ol>
+<h2 id="daily-development-workflow">Daily Development Workflow</h2>
+<h3 id="1-starting-development">1. Starting Development</h3>
+<p>Use the global <code>nc</code> command to start the development server:</p>
+<pre><code class="lang-powershell">nc
+</code></pre>
+<p>This will:</p>
+<ul>
+<li>Generate a host token (if needed)</li>
+<li>Build the project</li>
+<li>Start IIS Express x64 on https://localhost:9091</li>
+<li>No browser will open automatically</li>
+</ul>
+<h3 id="2-making-code-changes">2. Making Code Changes</h3>
+<ul>
+<li>Edit your code in VS Code</li>
+<li>Save files (Ctrl+S)</li>
+<li>The system automatically detects changes</li>
+</ul>
+<h3 id="3-building-and-testing">3. Building and Testing</h3>
+<p>The system automatically runs tests after builds:</p>
+<ul>
+<li><strong>Build</strong>: <code>Ctrl+Shift+B</code> in VS Code</li>
+<li><strong>Tests run automatically</strong> if source code changed</li>
+<li><strong>Skip tests</strong>: Tests are skipped if no changes detected</li>
+</ul>
+<h3 id="4-committing-changes">4. Committing Changes</h3>
+<pre><code class="lang-bash">git add .
+git commit -m &quot;Your commit message&quot;
+</code></pre>
+<p>Tests run automatically before commit:</p>
+<ul>
+<li><strong>Pass</strong>: Commit proceeds normally</li>
+<li><strong>Fail</strong>: Commit is blocked until tests pass</li>
+</ul>
+<h2 id="available-commands">Available Commands</h2>
+<h3 id="global-commands-available-anywhere">Global Commands (Available Anywhere)</h3>
+<ul>
+<li><code>nc</code> - Start the development server</li>
+<li><code>nct</code> - Generate host token</li>
+<li><code>ncdoc</code> - View documentation</li>
+<li><code>iiskill</code> - Stop all IIS Express processes</li>
+</ul>
+<h3 id="command-examples">Command Examples</h3>
+<pre><code class="lang-powershell"># Start development server
+nc
+
+# Start without token generation
+nc -SkipTokenGeneration
+
+# Get help
+nc -Help
+
+# View documentation
+ncdoc
+
+# Stop all servers
+iiskill
+</code></pre>
+<h2 id="understanding-the-development-environment">Understanding the Development Environment</h2>
+<h3 id="ports-and-urls">Ports and URLs</h3>
+<ul>
+<li><strong>HTTPS</strong>: https://localhost:9091 (primary)</li>
+<li><strong>HTTP</strong>: http://localhost:9090 (fallback)</li>
+<li><strong>Documentation</strong>: Served by <code>ncdoc</code> command</li>
+</ul>
+<h3 id="project-structure">Project Structure</h3>
+<pre><code>NOOR CANVAS/
+├── SPA/NoorCanvas/          # Main application
+├── Tests/                   # Test projects
+├── DocFX/                   # Documentation
+├── Workspaces/Global/       # Global commands
+└── .hooks/                  # Automated scripts
+</code></pre>
+<h2 id="working-with-tests">Working with Tests</h2>
+<h3 id="automatic-testing">Automatic Testing</h3>
+<p>Tests run automatically when:</p>
+<ul>
+<li>Building the project (if code changed)</li>
+<li>Committing code (if source changed)</li>
+<li>Running CI/CD pipelines</li>
+</ul>
+<h3 id="manual-testing">Manual Testing</h3>
+<pre><code class="lang-powershell"># Run all tests
+dotnet test
+
+# Run specific test project
+dotnet test Tests/NoorCanvas.Core.Tests/
+
+# Run with detailed output
+dotnet test --logger &quot;console;verbosity=detailed&quot;
+</code></pre>
+<h3 id="understanding-test-results">Understanding Test Results</h3>
+<ul>
+<li><strong>Green/Passed</strong>: All tests successful</li>
+<li><strong>Red/Failed</strong>: Some tests failed, check output</li>
+<li><strong>Skipped</strong>: Tests skipped due to no code changes</li>
+</ul>
+<h2 id="common-scenarios">Common Scenarios</h2>
+<h3 id="first-time-setup">First Time Setup</h3>
+<ol>
+<li>Run <code>nc</code> to start development server</li>
+<li>Navigate to https://localhost:9091</li>
+<li>You should see the NOOR Canvas application</li>
+</ol>
+<h3 id="adding-new-features">Adding New Features</h3>
+<ol>
+<li>Create your code changes</li>
+<li>Build with <code>Ctrl+Shift+B</code></li>
+<li>Tests run automatically</li>
+<li>Commit when tests pass</li>
+</ol>
+<h3 id="fixing-issues">Fixing Issues</h3>
+<ol>
+<li>Use <code>iiskill</code> to stop stuck processes</li>
+<li>Rebuild with <code>dotnet clean</code> and <code>dotnet build</code></li>
+<li>Check logs in the terminal</li>
+<li>Refer to troubleshooting guides</li>
+</ol>
+<h3 id="switching-branches">Switching Branches</h3>
+<ol>
+<li>Stop development server with <code>iiskill</code></li>
+<li>Switch branch: <code>git checkout branch-name</code></li>
+<li>Restore packages: <code>dotnet restore</code></li>
+<li>Start server: <code>nc</code></li>
+</ol>
+<h2 id="troubleshooting-common-issues">Troubleshooting Common Issues</h2>
+<h3 id="port-already-in-use">&quot;Port already in use&quot;</h3>
+<pre><code class="lang-powershell">iiskill
+nc
+</code></pre>
+<h3 id="build-failed">&quot;Build failed&quot;</h3>
+<ol>
+<li>Check the terminal output for errors</li>
+<li>Fix compilation errors</li>
+<li>Try <code>dotnet clean</code> and rebuild</li>
+</ol>
+<h3 id="tests-failing">&quot;Tests failing&quot;</h3>
+<ol>
+<li>Check test output for specific failures</li>
+<li>Fix the failing tests</li>
+<li>Use <code>dotnet test --logger &quot;console;verbosity=detailed&quot;</code> for details</li>
+</ol>
+<h3 id="cant-commit">&quot;Can't commit&quot;</h3>
+<p>Tests are probably failing. Fix tests first:</p>
+<pre><code class="lang-powershell"># Run tests manually to see failures
+dotnet test
+
+# Fix issues, then try committing again
+git commit -m &quot;Your message&quot;
+</code></pre>
+<h2 id="getting-help">Getting Help</h2>
+<h3 id="documentation-resources">Documentation Resources</h3>
+<ul>
+<li><strong>User Guides</strong>: <code>ncdoc</code> → User Guides</li>
+<li><strong>Technical Reference</strong>: <code>ncdoc</code> → Technical</li>
+<li><strong>Issue Tracker</strong>: <code>IssueTracker/</code> folder</li>
+<li><strong>Implementation Guide</strong>: <code>Workspaces/IMPLEMENTATION-TRACKER.MD</code></li>
+</ul>
+<h3 id="commands-for-help">Commands for Help</h3>
+<pre><code class="lang-powershell">nc -Help           # Get nc command help
+ncdoc             # View full documentation
+</code></pre>
+<h3 id="support-channels">Support Channels</h3>
+<ul>
+<li>Check existing issues in <code>IssueTracker/</code></li>
+<li>Review implementation tracker for current status</li>
+<li>Consult technical documentation for advanced scenarios</li>
+</ul>
+<p><em>This user guide is automatically updated as new features and workflows are added to NOOR Canvas.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/user-guides/development-workflow-user-guide.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

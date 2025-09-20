@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Canvas Schema Stored Procedures </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Canvas Schema Stored Procedures ">
+    
+    
+      <link rel="shortcut icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../styles/docfx.css">
+      <link rel="stylesheet" href="../styles/main.css">
+      <meta property="docfx:navrel" content="../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="canvas-schema-stored-procedures">Canvas Schema Stored Procedures</h1>
+
+<h2 id="canvasstartfresh-">canvas.StartFresh 🔄</h2>
+<p><strong>Purpose</strong>: Comprehensive database cleanup procedure for development environment reset</p>
+<h3 id="overview">Overview</h3>
+<p>The <code>StartFresh</code> stored procedure provides a safe, controlled method to completely reset the canvas schema to an empty state while preserving all Islamic content in the <code>dbo</code> schema. This procedure is essential for development workflows and testing scenarios.</p>
+<h3 id="procedure-signature">Procedure Signature</h3>
+<pre><code class="lang-sql">CREATE PROCEDURE [canvas].[StartFresh]
+    @ConfirmationToken NVARCHAR(50) = NULL,
+    @DryRun BIT = 1
+AS
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ConfirmationToken</code></td>
+<td><code>NVARCHAR(50)</code></td>
+<td><code>NULL</code></td>
+<td>Required safety token for live execution</td>
+</tr>
+<tr>
+<td><code>@DryRun</code></td>
+<td><code>BIT</code></td>
+<td><code>1</code></td>
+<td>Safety mode: 1 = preview only, 0 = actual execution</td>
+</tr>
+</tbody>
+</table>
+<h3 id="safety-features">Safety Features</h3>
+<h4 id="-database-validation">🔒 Database Validation</h4>
+<ul>
+<li><strong>Enforced Environment</strong>: Only executes in <code>KSESSIONS_DEV</code> database</li>
+<li><strong>Production Protection</strong>: Fails immediately if run against <code>KSESSIONS</code> (production)</li>
+<li><strong>Database Name Check</strong>: <code>DB_NAME()</code> validation with detailed error reporting</li>
+</ul>
+<h4 id="-confirmation-mechanism">🛡️ Confirmation Mechanism</h4>
+<ul>
+<li><strong>Required Token</strong>: Live execution requires <code>@ConfirmationToken = 'NOOR_CANVAS_START_FRESH'</code></li>
+<li><strong>Default Dry Run</strong>: Safe preview mode by default (<code>@DryRun = 1</code>)</li>
+<li><strong>Double Confirmation</strong>: Both token AND <code>@DryRun = 0</code> required for data deletion</li>
+</ul>
+<h4 id="-comprehensive-reporting">📊 Comprehensive Reporting</h4>
+<ul>
+<li><strong>Pre-execution Analysis</strong>: Shows all tables and current row counts</li>
+<li><strong>Impact Assessment</strong>: Displays total tables and rows to be affected</li>
+<li><strong>Progress Tracking</strong>: Real-time feedback during execution</li>
+<li><strong>Final Summary</strong>: Completion status and cleanup results</li>
+</ul>
+<h3 id="execution-modes">Execution Modes</h3>
+<h4 id="dry-run-mode-default">Dry Run Mode (Default)</h4>
+<pre><code class="lang-sql">-- Safe preview - shows what WOULD be deleted
+EXEC canvas.StartFresh
+-- OR explicitly
+EXEC canvas.StartFresh @DryRun = 1
+</code></pre>
+<p><strong>Output Example</strong>:</p>
+<pre><code>NOOR-CANVAS-STARTFRESH: DRY RUN MODE - No data will be deleted
+NOOR-CANVAS-STARTFRESH: Tables to be truncated:
+  - canvas.AdminSessions (0 rows)
+  - canvas.Annotations (0 rows)
+  - canvas.AuditLog (0 rows)
+  [... additional tables ...]
+NOOR-CANVAS-STARTFRESH: Total tables: 15, Total rows: 0
+</code></pre>
+<h4 id="live-execution-mode">Live Execution Mode</h4>
+<pre><code class="lang-sql">-- DANGER: Permanently deletes all canvas schema data
+EXEC canvas.StartFresh 
+    @ConfirmationToken = 'NOOR_CANVAS_START_FRESH', 
+    @DryRun = 0
+</code></pre>
+<h3 id="technical-implementation">Technical Implementation</h3>
+<h4 id="foreign-key-constraint-handling">Foreign Key Constraint Handling</h4>
+<p>The procedure handles complex foreign key relationships through:</p>
+<ul>
+<li><strong>Dependency Analysis</strong>: Identifies table truncation order</li>
+<li><strong>Constraint Disabling</strong>: Temporarily disables FK constraints where needed</li>
+<li><strong>Ordered Execution</strong>: Truncates child tables before parent tables</li>
+<li><strong>Fallback Strategy</strong>: Uses DELETE operations when TRUNCATE fails</li>
+</ul>
+<h4 id="truncation-hierarchy">Truncation Hierarchy</h4>
+<pre><code>Level 3: QuestionAnswers, QuestionVotes (depend on Questions)
+Level 2: Questions, Annotations, SharedAssets (depend on Sessions/Users)
+Level 1: Registrations, SessionParticipants (session associations)
+Level 0: Sessions, Users, SecureTokens (core entities)
+</code></pre>
+<h4 id="identity-seed-reset">Identity Seed Reset</h4>
+<ul>
+<li><strong>DBCC CHECKIDENT</strong>: Resets identity seeds to 0</li>
+<li><strong>Clean Slate</strong>: Ensures predictable ID sequences for testing</li>
+<li><strong>Consistency</strong>: Maintains uniform starting state</li>
+</ul>
+<h3 id="error-handling">Error Handling</h3>
+<h4 id="security-violations">Security Violations</h4>
+<pre><code class="lang-sql">-- Example error output
+SECURITY VIOLATION: StartFresh can only be executed in KSESSIONS_DEV database. Current database: KSESSIONS
+</code></pre>
+<h4 id="safety-check-failures">Safety Check Failures</h4>
+<pre><code class="lang-sql">-- Example safety error
+SAFETY CHECK: To execute StartFresh, provide @ConfirmationToken = 'NOOR_CANVAS_START_FRESH' and @DryRun = 0
+</code></pre>
+<h4 id="transaction-protection">Transaction Protection</h4>
+<ul>
+<li><strong>BEGIN TRANSACTION</strong>: Wraps all operations</li>
+<li><strong>ROLLBACK on Error</strong>: Automatic rollback on any failure</li>
+<li><strong>Atomic Operation</strong>: All-or-nothing execution guarantee</li>
+</ul>
+<h3 id="integration-with-development-workflow">Integration with Development Workflow</h3>
+<h4 id="pre-development-setup">Pre-Development Setup</h4>
+<pre><code class="lang-powershell"># Complete development environment reset
+iiskill                    # Stop IIS processes
+nc-reset-db               # Execute StartFresh procedure  
+nc 215                    # Launch with fresh session
+</code></pre>
+<h4 id="testing-scenarios">Testing Scenarios</h4>
+<ul>
+<li><strong>Unit Test Setup</strong>: Clean environment for each test suite</li>
+<li><strong>Integration Testing</strong>: Known state for component testing</li>
+<li><strong>Performance Testing</strong>: Baseline measurements from empty state</li>
+<li><strong>Demo Preparation</strong>: Clean slate for demonstrations</li>
+</ul>
+<h3 id="monitoring-and-audit">Monitoring and Audit</h3>
+<h4 id="execution-logging">Execution Logging</h4>
+<p>All StartFresh executions are logged with:</p>
+<ul>
+<li><strong>Timestamp</strong>: Execution start and completion times</li>
+<li><strong>User Context</strong>: Who executed the procedure</li>
+<li><strong>Parameters</strong>: Dry run mode and confirmation token usage</li>
+<li><strong>Results</strong>: Tables affected and rows deleted</li>
+</ul>
+<h4 id="schema-preservation-verification">Schema Preservation Verification</h4>
+<p>The procedure includes built-in verification that:</p>
+<ul>
+<li><strong>DBO Schema Intact</strong>: No Islamic content is affected</li>
+<li><strong>Canvas Schema Only</strong>: Only application tables are truncated</li>
+<li><strong>Relationship Integrity</strong>: Foreign key constraints are properly restored</li>
+</ul>
+<h3 id="security-considerations">Security Considerations</h3>
+<h4 id="access-control">Access Control</h4>
+<ul>
+<li><strong>Restricted Execution</strong>: Requires appropriate database permissions</li>
+<li><strong>Environment Isolation</strong>: Development database only</li>
+<li><strong>Audit Trail</strong>: All executions logged for security review</li>
+</ul>
+<h4 id="best-practices">Best Practices</h4>
+<ul>
+<li><strong>Always Dry Run First</strong>: Preview changes before live execution</li>
+<li><strong>Backup Before Reset</strong>: Ensure recent backup before major cleanups</li>
+<li><strong>Coordinate with Team</strong>: Communicate reset activities with other developers</li>
+<li><strong>Verify Environment</strong>: Double-check database name before execution</li>
+</ul>
+<hr>
+<h3 id="usage-examples">Usage Examples</h3>
+<h4 id="development-environment-reset">Development Environment Reset</h4>
+<pre><code class="lang-sql">-- 1. Preview the cleanup (safe)
+EXEC canvas.StartFresh
+
+-- 2. Review the output and confirm scope
+
+-- 3. Execute the actual cleanup
+EXEC canvas.StartFresh 
+    @ConfirmationToken = 'NOOR_CANVAS_START_FRESH', 
+    @DryRun = 0
+</code></pre>
+<h4 id="automated-testing-integration">Automated Testing Integration</h4>
+<pre><code class="lang-sql">-- Test setup procedure
+IF EXISTS (SELECT 1 FROM canvas.Sessions)
+BEGIN
+    EXEC canvas.StartFresh 
+        @ConfirmationToken = 'NOOR_CANVAS_START_FRESH', 
+        @DryRun = 0
+    PRINT 'Test environment reset completed'
+END
+</code></pre>
+<h4 id="scheduled-maintenance">Scheduled Maintenance</h4>
+<pre><code class="lang-sql">-- Weekly development environment cleanup
+-- (Typically run via scheduled job or CI/CD pipeline)
+EXEC canvas.StartFresh 
+    @ConfirmationToken = 'NOOR_CANVAS_START_FRESH', 
+    @DryRun = 0
+</code></pre>
+<hr>
+<p><strong>⚠️ CRITICAL SAFETY REMINDER</strong>: This procedure <strong>PERMANENTLY DELETES</strong> all data in the canvas schema. The Islamic content in the <code>dbo</code> schema is preserved, but all application sessions, users, questions, annotations, and related data will be <strong>IRREVERSIBLY REMOVED</strong>. Always run in dry-run mode first and ensure you have proper backups before live execution.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/canvas-schema-procedures.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Canvas Schema Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Canvas Schema Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../styles/docfx.css">
+      <link rel="stylesheet" href="../styles/main.css">
+      <meta property="docfx:navrel" content="../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="canvas-schema-documentation">Canvas Schema Documentation</h1>
+
+<h2 id="overview">Overview</h2>
+<p>The <code>canvas</code> schema serves as the core application database for the <strong>NOOR Canvas</strong> real-time Islamic content sharing and learning platform. It contains all application-specific tables, relationships, and stored procedures needed to support the interactive learning experience.</p>
+<h2 id="schema-purpose">Schema Purpose</h2>
+<p>The canvas schema is designed to:</p>
+<ul>
+<li><strong>Isolate Application Data</strong>: Separate NOOR Canvas application data from the existing Islamic content in the <code>dbo</code> schema</li>
+<li><strong>Support Real-time Features</strong>: Enable live sessions, annotations, Q&amp;A, and participant management through SignalR hubs</li>
+<li><strong>Ensure Data Integrity</strong>: Maintain referential integrity between sessions, users, and learning activities</li>
+<li><strong>Enable Session Management</strong>: Provide comprehensive session lifecycle management with secure token-based access</li>
+<li><strong>Track Learning Analytics</strong>: Capture detailed audit logs and participation metrics for continuous improvement</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<p>The canvas schema follows a <strong>hub-and-spoke</strong> pattern centered around the <code>Sessions</code> table, which connects to:</p>
+<ul>
+<li><strong>User Management</strong>: User registration and profile management</li>
+<li><strong>Security Layer</strong>: Token-based authentication and session access control</li>
+<li><strong>Learning Activities</strong>: Questions, annotations, and shared content</li>
+<li><strong>Operational Data</strong>: Audit logs, issue tracking, and participant analytics</li>
+</ul>
+<h2 id="database-integration">Database Integration</h2>
+<h3 id="dual-schema-design">Dual Schema Design</h3>
+<ul>
+<li><strong><code>canvas.*</code></strong>: Application-specific tables (sessions, users, tokens, activities)</li>
+<li><strong><code>dbo.*</code></strong>: Islamic content repository (read-only in application context)</li>
+</ul>
+<h3 id="cross-schema-relationships">Cross-Schema Relationships</h3>
+<p>The canvas schema maintains foreign key relationships to <code>dbo.Sessions</code> for integration with historical Islamic content while keeping application data isolated for independent management.</p>
+<h2 id="key-features">Key Features</h2>
+<h3 id="-security--access-control">🔐 Security &amp; Access Control</h3>
+<ul>
+<li>8-character friendly token system (<code>SecureTokens</code>)</li>
+<li>Host and user role separation</li>
+<li>Session-based access control with expiration</li>
+<li>IP tracking and usage analytics</li>
+</ul>
+<h3 id="-real-time-learning">🎯 Real-time Learning</h3>
+<ul>
+<li>Live Q&amp;A system with voting (<code>Questions</code>, <code>QuestionVotes</code>)</li>
+<li>Real-time annotations and highlights (<code>Annotations</code>)</li>
+<li>Shared asset management (<code>SharedAssets</code>)</li>
+<li>Participant tracking and analytics (<code>SessionParticipants</code>)</li>
+</ul>
+<h3 id="-analytics--monitoring">📊 Analytics &amp; Monitoring</h3>
+<ul>
+<li>Comprehensive audit logging (<code>AuditLog</code>)</li>
+<li>Issue tracking and reporting (<code>Issues</code>)</li>
+<li>Session analytics and participation metrics</li>
+<li>Usage patterns and access tracking</li>
+</ul>
+<h3 id="-session-lifecycle">🔄 Session Lifecycle</h3>
+<ul>
+<li>Pre-session setup and configuration</li>
+<li>Live session management with participant limits</li>
+<li>Post-session data retention and analysis</li>
+<li>Session expiration and cleanup processes</li>
+</ul>
+<hr>
+<p><em>This schema supports the NOOR Canvas mission of making Islamic learning more interactive, accessible, and engaging through modern web technologies.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/canvas-schema-overview.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

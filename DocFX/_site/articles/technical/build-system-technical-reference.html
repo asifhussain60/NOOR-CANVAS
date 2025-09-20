@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Build System Technical Reference </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Build System Technical Reference ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="build-system-technical-reference">Build System Technical Reference</h1>
+
+<p>This document provides technical implementation details for the NOOR Canvas build system.</p>
+<h2 id="architecture">Architecture</h2>
+<p>The build system uses:</p>
+<ul>
+<li><strong>MSBuild</strong>: Primary build orchestration</li>
+<li><strong>dotnet CLI</strong>: Cross-platform build execution</li>
+<li><strong>PowerShell Scripts</strong>: Automated testing integration</li>
+<li><strong>Git Hooks</strong>: Pre-commit validation</li>
+</ul>
+<h2 id="build-pipeline">Build Pipeline</h2>
+<h3 id="1-pre-build-phase">1. Pre-Build Phase</h3>
+<ul>
+<li>Dependency restoration</li>
+<li>Configuration validation</li>
+<li>Environment setup</li>
+</ul>
+<h3 id="2-compilation-phase">2. Compilation Phase</h3>
+<ul>
+<li>C# source compilation</li>
+<li>Blazor component processing</li>
+<li>Asset bundling</li>
+</ul>
+<h3 id="3-post-build-phase">3. Post-Build Phase</h3>
+<ul>
+<li>Automated test execution</li>
+<li>Build artifact validation</li>
+<li>Success/failure reporting</li>
+</ul>
+<h2 id="integration-points">Integration Points</h2>
+<ul>
+<li><strong>Visual Studio Code Tasks</strong>: <code>.vscode/tasks.json</code> integration</li>
+<li><strong>GitHub Actions</strong>: CI/CD pipeline automation</li>
+<li><strong>Git Hooks</strong>: <code>.hooks/</code> directory PowerShell scripts</li>
+</ul>
+<h2 id="configuration-files">Configuration Files</h2>
+<ul>
+<li><code>SPA/NoorCanvas/NoorCanvas.csproj</code>: Project configuration</li>
+<li><code>.vscode/tasks.json</code>: IDE task definitions</li>
+<li><code>.hooks/post-build.ps1</code>: Automated test execution</li>
+<li><code>.github/workflows/</code>: CI/CD definitions</li>
+</ul>
+<h2 id="performance-optimization">Performance Optimization</h2>
+<ul>
+<li>Incremental builds using build artifact caching</li>
+<li>Smart test execution based on source code changes</li>
+<li>Parallel build execution where possible</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>Common build issues and resolutions:</p>
+<ul>
+<li>File locking problems with running processes</li>
+<li>Dependency resolution failures</li>
+<li>Path resolution issues in PowerShell scripts</li>
+</ul>
+<p><em>This documentation is automatically maintained as build system changes are implemented.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/build-system-technical-reference.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

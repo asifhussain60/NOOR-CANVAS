@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Canvas Schema Complete Reference </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Canvas Schema Complete Reference ">
+    
+    
+      <link rel="shortcut icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../styles/docfx.css">
+      <link rel="stylesheet" href="../styles/main.css">
+      <meta property="docfx:navrel" content="../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="canvas-schema-complete-reference">Canvas Schema Complete Reference</h1>
+
+<p><strong>Comprehensive documentation for the NOOR Canvas application database schema</strong></p>
+<h2 id="-documentation-sections">📚 Documentation Sections</h2>
+<h3 id="schema-overview"><a href="canvas-schema-overview.html">Schema Overview</a></h3>
+<p><strong>Purpose, architecture, and design principles</strong></p>
+<ul>
+<li>Canvas schema mission and objectives</li>
+<li>Dual-schema integration strategy (canvas + dbo)</li>
+<li>Security and real-time learning features</li>
+<li>Key architectural patterns and integration points</li>
+</ul>
+<h3 id="tables-reference"><a href="canvas-schema-tables.html">Tables Reference</a></h3>
+<p><strong>Complete field-by-field documentation of all tables</strong></p>
+<ul>
+<li><strong>Core Tables</strong>: Sessions, Users, SecureTokens</li>
+<li><strong>Learning Activities</strong>: Questions, Annotations, SharedAssets</li>
+<li><strong>Tracking &amp; Analytics</strong>: SessionParticipants, AuditLog, Issues</li>
+<li><strong>Administrative</strong>: HostSessions, AdminSessions, SessionLinks</li>
+<li><strong>Relationship diagrams and foreign key mappings</strong></li>
+</ul>
+<h3 id="stored-procedures"><a href="canvas-schema-procedures.html">Stored Procedures</a></h3>
+<p><strong>Detailed documentation of database procedures</strong></p>
+<ul>
+<li><strong>canvas.StartFresh</strong>: Complete database cleanup procedure</li>
+<li>Safety features and confirmation mechanisms</li>
+<li>Usage examples and integration patterns</li>
+<li>Error handling and security considerations</li>
+</ul>
+<h3 id="performance--indexes"><a href="canvas-schema-performance.html">Performance &amp; Indexes</a></h3>
+<p><strong>Optimization strategies and index documentation</strong></p>
+<ul>
+<li>Index strategy for real-time performance</li>
+<li>SignalR hub optimization</li>
+<li>Query performance analysis and benchmarks</li>
+<li>Maintenance procedures and monitoring queries</li>
+</ul>
+<h3 id="data-flows--integration"><a href="canvas-schema-integration.html">Data Flows &amp; Integration</a></h3>
+<p><strong>System integration and data flow patterns</strong></p>
+<ul>
+<li>Session lifecycle and user registration flows</li>
+<li>Cross-schema integration with Islamic content</li>
+<li>SignalR hub data patterns</li>
+<li>Entity Framework integration strategies</li>
+</ul>
+<hr>
+<h2 id="-quick-reference">🎯 Quick Reference</h2>
+<h3 id="key-statistics">Key Statistics</h3>
+<ul>
+<li><strong>15 Tables</strong>: Comprehensive application data model</li>
+<li><strong>1 Stored Procedure</strong>: Safe database reset functionality</li>
+<li><strong>Multiple Indexes</strong>: Optimized for real-time performance</li>
+<li><strong>Cross-Schema FKs</strong>: Integration with Islamic content repository</li>
+</ul>
+<h3 id="essential-tables">Essential Tables</h3>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Purpose</th>
+<th>Key Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Sessions</code></td>
+<td>Session management</td>
+<td>Real-time status, participant limits</td>
+</tr>
+<tr>
+<td><code>SecureTokens</code></td>
+<td>Access control</td>
+<td>8-char friendly tokens, expiration</td>
+</tr>
+<tr>
+<td><code>Questions</code></td>
+<td>Q&amp;A system</td>
+<td>Community voting, prioritization</td>
+</tr>
+<tr>
+<td><code>SharedAssets</code></td>
+<td>Content sharing</td>
+<td><strong>Selector-based detection</strong> (~90% storage reduction)</td>
+</tr>
+<tr>
+<td><code>SessionParticipants</code></td>
+<td>Real-time tracking</td>
+<td>SignalR integration, join/leave events</td>
+</tr>
+</tbody>
+</table>
+<h3 id="performance-highlights">Performance Highlights</h3>
+<ul>
+<li><strong>&lt;1ms Token Validation</strong>: Critical path optimization</li>
+<li><strong>&lt;3s Participant Updates</strong>: Real-time SignalR performance</li>
+<li><strong>90% Storage Reduction</strong>: SharedAssets selector-based architecture</li>
+<li><strong>100+ Concurrent Sessions</strong>: Proven scaling capability</li>
+</ul>
+<hr>
+<h2 id="-getting-started">🚀 Getting Started</h2>
+<h3 id="for-developers">For Developers</h3>
+<ol>
+<li><strong>Read <a href="canvas-schema-overview.html">Schema Overview</a></strong> - Understand the architecture</li>
+<li><strong>Review <a href="canvas-schema-tables.html">Tables Reference</a></strong> - Learn the data model</li>
+<li><strong>Study <a href="canvas-schema-integration.html">Data Flows</a></strong> - Understand integration patterns</li>
+</ol>
+<h3 id="for-database-administrators">For Database Administrators</h3>
+<ol>
+<li><strong>Review <a href="canvas-schema-performance.html">Performance Guide</a></strong> - Index strategies</li>
+<li><strong>Study <a href="canvas-schema-procedures.html">Stored Procedures</a></strong> - Maintenance operations</li>
+<li><strong>Monitor using provided queries</strong> - Performance tracking scripts</li>
+</ol>
+<h3 id="for-system-architects">For System Architects</h3>
+<ol>
+<li><strong>Analyze <a href="canvas-schema-integration.html">Integration Patterns</a></strong> - Cross-schema design</li>
+<li><strong>Review <a href="canvas-schema-overview.html">Security Model</a></strong> - Token-based access control</li>
+<li><strong>Study <a href="canvas-schema-performance.html">Performance Benchmarks</a></strong> - Scaling considerations</li>
+</ol>
+<hr>
+<h2 id="-schema-at-a-glance">🔍 Schema at a Glance</h2>
+<h3 id="core-entity-relationships">Core Entity Relationships</h3>
+<pre><code>Sessions (1) ←→ (1) SecureTokens
+Sessions (1) ←→ (M) Questions  
+Sessions (1) ←→ (M) Annotations
+Sessions (1) ←→ (M) SharedAssets
+Sessions (1) ←→ (M) SessionParticipants
+
+Users (1) ←→ (M) Questions
+Users (1) ←→ (M) Registrations
+Questions (1) ←→ (M) QuestionAnswers
+Questions (1) ←→ (M) QuestionVotes
+</code></pre>
+<h3 id="cross-schema-integration">Cross-Schema Integration</h3>
+<pre><code>canvas.Sessions ←→ dbo.Sessions (SessionId)
+canvas.SecureTokens → dbo.Sessions (Content Access)
+canvas.Annotations → dbo.Sessions (Content Highlighting)
+</code></pre>
+<h3 id="security-architecture">Security Architecture</h3>
+<ul>
+<li><strong>8-Character Tokens</strong>: USER123A, HOST456B format</li>
+<li><strong>Role Separation</strong>: Host control vs User participation</li>
+<li><strong>Session Isolation</strong>: Token-based access control</li>
+<li><strong>Audit Trail</strong>: Comprehensive activity logging</li>
+</ul>
+<hr>
+<h2 id="-maintenance-operations">🛠️ Maintenance Operations</h2>
+<h3 id="database-reset-development">Database Reset (Development)</h3>
+<pre><code class="lang-sql">-- Safe preview
+EXEC canvas.StartFresh
+
+-- Live execution (DESTRUCTIVE)
+EXEC canvas.StartFresh 
+    @ConfirmationToken = 'NOOR_CANVAS_START_FRESH', 
+    @DryRun = 0
+</code></pre>
+<h3 id="performance-monitoring">Performance Monitoring</h3>
+<pre><code class="lang-sql">-- Active sessions overview
+SELECT SessionId, Title, Status, ParticipantCount
+FROM canvas.Sessions 
+WHERE Status = 'Active'
+ORDER BY CreatedAt DESC
+</code></pre>
+<h3 id="index-maintenance">Index Maintenance</h3>
+<pre><code class="lang-sql">-- Check fragmentation
+SELECT 
+    i.name, 
+    ps.avg_fragmentation_in_percent
+FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'DETAILED') ps
+JOIN sys.indexes i ON ps.object_id = i.object_id
+WHERE ps.avg_fragmentation_in_percent &gt; 10
+</code></pre>
+<hr>
+<p><strong>Documentation Version</strong>: v3.0 (September 2025)<br>
+<strong>Schema Status</strong>: Production Ready<br>
+<strong>Last Updated</strong>: Post-StartFresh implementation and selector-based SharedAssets optimization</p>
+<p><em>This documentation reflects the complete canvas schema as implemented in NOOR Canvas v3.0, including all production optimizations and the revolutionary SharedAssets selector-based architecture.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/canvas-schema-reference.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>NOOR Canvas Host Token Generation and Validation System </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="NOOR Canvas Host Token Generation and Validation System ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="noor-canvas-host-token-generation-and-validation-system">NOOR Canvas Host Token Generation and Validation System</h1>
+
+<h2 id="overview">Overview</h2>
+<p>The NOOR Canvas Host Token System provides secure authentication for session hosts using GUID-based tokens with HMAC-SHA256 validation. The system consists of two main components: <strong>Token Generation</strong> and <strong>Token Authentication</strong>, designed for both development flexibility and production security.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#system-architecture">System Architecture</a></li>
+<li><a href="#token-generation-process">Token Generation Process</a></li>
+<li><a href="#token-validation-process">Token Validation Process</a></li>
+<li><a href="#security-model">Security Model</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+<li><a href="#implementation-phases">Implementation Phases</a></li>
+<li><a href="#usage-examples">Usage Examples</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+<h2 id="system-architecture">System Architecture</h2>
+<h3 id="component-overview">Component Overview</h3>
+<pre><code class="lang-mermaid">graph LR
+    A[Host Request] --&gt; B[HostProvisionerController]
+    B --&gt; C[GUID Generation]
+    C --&gt; D[HMAC-SHA256 Hash]
+    D --&gt; E[Token Response]
+    
+    F[Authentication Request] --&gt; G[HostController]
+    G --&gt; H[GUID Validation]
+    H --&gt; I[Session Token]
+</code></pre>
+<h3 id="core-components">Core Components</h3>
+<ul>
+<li><strong>HostProvisionerController</strong>: Generates new host tokens (database-independent)</li>
+<li><strong>HostController</strong>: Validates host tokens and creates session tokens</li>
+<li><strong>HMAC-SHA256</strong>: Cryptographic hash function for token integrity</li>
+<li><strong>Session Management</strong>: Links host tokens to active sessions</li>
+</ul>
+<h2 id="token-generation-process">Token Generation Process</h2>
+<h3 id="step-1-token-request">Step 1: Token Request</h3>
+<p>The token generation process begins when a host requests a new authentication token.</p>
+<p><strong>API Endpoint</strong>: <code>POST /api/hostprovisioner/generate</code></p>
+<p><strong>Request Structure</strong>:</p>
+<pre><code class="lang-json">{
+  &quot;sessionId&quot;: 100,
+  &quot;createdBy&quot;: &quot;Host Name&quot;
+}
+</code></pre>
+<h3 id="step-2-guid-generation">Step 2: GUID Generation</h3>
+<p>A new UUID (Version 4) is generated using .NET's <code>Guid.NewGuid()</code> method:</p>
+<pre><code class="lang-csharp">var hostGuid = Guid.NewGuid();
+// Example: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;
+</code></pre>
+<p><strong>GUID Format</strong>:</p>
+<ul>
+<li><strong>Length</strong>: 36 characters (32 hex digits + 4 hyphens)</li>
+<li><strong>Standard</strong>: RFC 4122 compliant UUID Version 4</li>
+<li><strong>Entropy</strong>: 122 bits of randomness</li>
+<li><strong>Collision Probability</strong>: ~5.3 x 10^-37</li>
+</ul>
+<h3 id="step-3-hash-generation">Step 3: Hash Generation</h3>
+<p>Each GUID is cryptographically signed using HMAC-SHA256:</p>
+<pre><code class="lang-csharp">private static string ComputeHash(string input)
+{
+    using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(AppSecret));
+    var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(input));
+    return Convert.ToBase64String(hashBytes);
+}
+</code></pre>
+<p><strong>Security Properties</strong>:</p>
+<ul>
+<li><strong>Algorithm</strong>: HMAC-SHA256</li>
+<li><strong>Secret Key</strong>: <code>&quot;NOOR-CANVAS-HOST-SECRET-2025&quot;</code></li>
+<li><strong>Output</strong>: Base64-encoded hash (44 characters)</li>
+<li><strong>Integrity</strong>: Tampering detection capability</li>
+</ul>
+<h3 id="step-4-response-generation">Step 4: Response Generation</h3>
+<p>The system returns a comprehensive token response:</p>
+<pre><code class="lang-json">{
+  &quot;hostGuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;,
+  &quot;sessionId&quot;: 100,
+  &quot;createdBy&quot;: &quot;Host Name&quot;,
+  &quot;createdAt&quot;: &quot;2025-09-13T15:30:00Z&quot;,
+  &quot;hash&quot;: &quot;A1B2C3D4E5F6G7H8...&quot;
+}
+</code></pre>
+<h2 id="token-validation-process">Token Validation Process</h2>
+<h3 id="phase-2-implementation-current">Phase 2 Implementation (Current)</h3>
+<p>The current validation system is designed for development and testing:</p>
+<pre><code class="lang-csharp">[HttpPost(&quot;authenticate&quot;)]
+public async Task&lt;IActionResult&gt; AuthenticateHost([FromBody] HostAuthRequest request)
+{
+    // 1. GUID Format Validation
+    if (!Guid.TryParse(request.HostGuid, out Guid hostGuid))
+    {
+        return BadRequest(new { error = &quot;Invalid GUID format&quot; });
+    }
+
+    // 2. Session Token Generation (Phase 2: Accept any valid GUID)
+    var sessionToken = Guid.NewGuid().ToString();
+    
+    // 3. Authentication Response
+    return Ok(new HostAuthResponse
+    {
+        Success = true,
+        SessionToken = sessionToken,
+        ExpiresAt = DateTime.UtcNow.AddHours(8),
+        HostGuid = hostGuid.ToString()
+    });
+}
+</code></pre>
+<h3 id="validation-steps">Validation Steps</h3>
+<ol>
+<li><strong>Format Validation</strong>: Ensures GUID follows RFC 4122 standard</li>
+<li><strong>Session Token Creation</strong>: Generates new session-specific token</li>
+<li><strong>Response Generation</strong>: Returns authentication credentials</li>
+</ol>
+<h3 id="future-enhancement-phase-3">Future Enhancement (Phase 3+)</h3>
+<p>Planned database integration for production validation:</p>
+<pre><code class="lang-csharp">// Future implementation will include:
+var storedToken = await _context.HostTokens
+    .FirstOrDefaultAsync(t =&gt; t.HostGuid == hostGuid &amp;&amp; t.IsActive);
+
+if (storedToken == null || !ValidateHash(storedToken))
+{
+    return Unauthorized(&quot;Invalid or expired token&quot;);
+}
+</code></pre>
+<h2 id="security-model">Security Model</h2>
+<h3 id="cryptographic-security">Cryptographic Security</h3>
+<p><strong>HMAC-SHA256 Properties</strong>:</p>
+<ul>
+<li><strong>Key Size</strong>: 256 bits</li>
+<li><strong>Hash Output</strong>: 256 bits (32 bytes)</li>
+<li><strong>Resistance</strong>: Preimage, second preimage, and collision resistant</li>
+<li><strong>Performance</strong>: ~10,000 operations per second typical throughput</li>
+</ul>
+<p><strong>Security Guarantees</strong>:</p>
+<ul>
+<li><strong>Integrity</strong>: Hash verification prevents token tampering</li>
+<li><strong>Authenticity</strong>: HMAC proves token was generated by authorized system</li>
+<li><strong>Non-repudiation</strong>: Cryptographic proof of token origin</li>
+</ul>
+<h3 id="token-lifecycle">Token Lifecycle</h3>
+<pre><code class="lang-mermaid">stateDiagram-v2
+    [*] --&gt; Generated: Host requests token
+    Generated --&gt; Authenticated: Valid GUID provided
+    Generated --&gt; Expired: Timeout (future)
+    Authenticated --&gt; SessionActive: Session token created
+    SessionActive --&gt; SessionExpired: 8 hours timeout
+    SessionExpired --&gt; [*]
+    Expired --&gt; [*]
+</code></pre>
+<p><strong>Lifecycle Stages</strong>:</p>
+<ol>
+<li><strong>Generated</strong>: Token created and returned to host</li>
+<li><strong>Authenticated</strong>: Token used for successful authentication</li>
+<li><strong>Session Active</strong>: Host has valid session (8-hour lifespan)</li>
+<li><strong>Session Expired</strong>: Session timeout, re-authentication required</li>
+</ol>
+<h3 id="phase-2-vs-production-security">Phase 2 vs Production Security</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Phase 2 (Current)</th>
+<th>Production (Future)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Validation</strong></td>
+<td>Format only</td>
+<td>Database + Hash verification</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>None</td>
+<td>Encrypted database storage</td>
+</tr>
+<tr>
+<td><strong>Expiration</strong></td>
+<td>Session-based only</td>
+<td>Token + Session expiration</td>
+</tr>
+<tr>
+<td><strong>Revocation</strong></td>
+<td>Not implemented</td>
+<td>Administrative revocation</td>
+</tr>
+<tr>
+<td><strong>Audit Trail</strong></td>
+<td>Basic logging</td>
+<td>Comprehensive audit logs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-reference">API Reference</h2>
+<h3 id="generate-host-token">Generate Host Token</h3>
+<p><strong>Endpoint</strong>: <code>POST /api/hostprovisioner/generate</code></p>
+<p><strong>Request Headers</strong>:</p>
+<pre><code class="lang-http">Content-Type: application/json
+</code></pre>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="lang-json">{
+  &quot;sessionId&quot;: integer,     // Required: Session identifier
+  &quot;createdBy&quot;: &quot;string&quot;     // Optional: Host identifier
+}
+</code></pre>
+<p><strong>Response (200 OK)</strong>:</p>
+<pre><code class="lang-json">{
+  &quot;hostGuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;,
+  &quot;sessionId&quot;: 100,
+  &quot;createdBy&quot;: &quot;Host Name&quot;,
+  &quot;createdAt&quot;: &quot;2025-09-13T15:30:00Z&quot;,
+  &quot;hash&quot;: &quot;A1B2C3D4E5F6G7H8I9J0K1L2M3N4...&quot;
+}
+</code></pre>
+<p><strong>Error Responses</strong>:</p>
+<ul>
+<li><code>500 Internal Server Error</code>: Token generation failed</li>
+</ul>
+<h3 id="authenticate-host-token">Authenticate Host Token</h3>
+<p><strong>Endpoint</strong>: <code>POST /api/host/authenticate</code></p>
+<p><strong>Request Headers</strong>:</p>
+<pre><code class="lang-http">Content-Type: application/json
+</code></pre>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="lang-json">{
+  &quot;hostGuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;
+}
+</code></pre>
+<p><strong>Response (200 OK)</strong>:</p>
+<pre><code class="lang-json">{
+  &quot;success&quot;: true,
+  &quot;sessionToken&quot;: &quot;a8b9c0d1-e2f3-4567-8901-234567890123&quot;,
+  &quot;expiresAt&quot;: &quot;2025-09-13T23:30:00Z&quot;,
+  &quot;hostGuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;
+}
+</code></pre>
+<p><strong>Error Responses</strong>:</p>
+<ul>
+<li><code>400 Bad Request</code>: Invalid GUID format</li>
+<li><code>401 Unauthorized</code>: Invalid token (future implementation)</li>
+<li><code>500 Internal Server Error</code>: Authentication system error</li>
+</ul>
+<h2 id="implementation-phases">Implementation Phases</h2>
+<h3 id="phase-1-foundation-">Phase 1: Foundation ✅</h3>
+<ul>
+<li>Basic GUID generation</li>
+<li>HMAC-SHA256 implementation</li>
+<li>API endpoint structure</li>
+</ul>
+<h3 id="phase-2-development-system--current">Phase 2: Development System ✅ (Current)</h3>
+<ul>
+<li>Format validation only</li>
+<li>Session token generation</li>
+<li>Basic authentication flow</li>
+<li>Development-friendly (accepts any valid GUID)</li>
+</ul>
+<h3 id="phase-3-database-integration-planned">Phase 3: Database Integration (Planned)</h3>
+<ul>
+<li>Token storage in database</li>
+<li>Hash validation</li>
+<li>Token expiration handling</li>
+<li>Revocation capabilities</li>
+</ul>
+<h3 id="phase-4-production-security-planned">Phase 4: Production Security (Planned)</h3>
+<ul>
+<li>Advanced validation</li>
+<li>Audit logging</li>
+<li>Performance optimization</li>
+<li>Security monitoring</li>
+</ul>
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="generating-a-host-token">Generating a Host Token</h3>
+<p><strong>Using PowerShell</strong>:</p>
+<pre><code class="lang-powershell">$request = @{
+    sessionId = 100
+    createdBy = &quot;Conference Host&quot;
+} | ConvertTo-Json
+
+$response = Invoke-RestMethod -Uri &quot;https://localhost:9091/api/hostprovisioner/generate&quot; `
+    -Method Post -Body $request -ContentType &quot;application/json&quot; `
+    -SkipCertificateCheck
+
+Write-Host &quot;Host GUID: $($response.hostGuid)&quot;
+</code></pre>
+<p><strong>Using cURL</strong>:</p>
+<pre><code class="lang-bash">curl -X POST https://localhost:9091/api/hostprovisioner/generate \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;sessionId&quot;: 100, &quot;createdBy&quot;: &quot;Conference Host&quot;}' \
+  -k
+</code></pre>
+<h3 id="authenticating-with-host-token">Authenticating with Host Token</h3>
+<p><strong>Using PowerShell</strong>:</p>
+<pre><code class="lang-powershell">$authRequest = @{
+    hostGuid = &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;
+} | ConvertTo-Json
+
+$authResponse = Invoke-RestMethod -Uri &quot;https://localhost:9091/api/host/authenticate&quot; `
+    -Method Post -Body $authRequest -ContentType &quot;application/json&quot; `
+    -SkipCertificateCheck
+
+Write-Host &quot;Session Token: $($authResponse.sessionToken)&quot;
+Write-Host &quot;Expires At: $($authResponse.expiresAt)&quot;
+</code></pre>
+<h3 id="browser-integration">Browser Integration</h3>
+<p><strong>JavaScript Example</strong>:</p>
+<pre><code class="lang-javascript">// Generate host token
+async function generateHostToken() {
+    const response = await fetch('/api/hostprovisioner/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            sessionId: 100, 
+            createdBy: 'Web Host' 
+        })
+    });
+    
+    const data = await response.json();
+    return data.hostGuid;
+}
+
+// Authenticate host token
+async function authenticateHost(hostGuid) {
+    const response = await fetch('/api/host/authenticate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hostGuid })
+    });
+    
+    const authData = await response.json();
+    if (authData.success) {
+        localStorage.setItem('sessionToken', authData.sessionToken);
+        window.location.href = '/host/session-opener'; // Phase 4 update: Dashboard removed
+    }
+}
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<h4 id="1-invalid-guid-format-error">1. Invalid GUID Format Error</h4>
+<p><strong>Problem</strong>: <code>400 Bad Request: Invalid GUID format</code></p>
+<p><strong>Causes</strong>:</p>
+<ul>
+<li>Malformed GUID string</li>
+<li>Missing hyphens in GUID</li>
+<li>Non-hexadecimal characters</li>
+</ul>
+<p><strong>Solution</strong>:</p>
+<pre><code class="lang-csharp">// Correct GUID format
+&quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;
+
+// Invalid formats
+&quot;f47ac10b58cc43720e02b2c3d479&quot;      // Missing hyphens
+&quot;g47ac10b-58cc-4372-a567-0e02b2c3d479&quot; // Invalid character 'g'
+</code></pre>
+<h4 id="2-json-serialization-issues">2. JSON Serialization Issues</h4>
+<p><strong>Problem</strong>: Authentication fails with valid GUID</p>
+<p><strong>Root Cause</strong>: Property name case mismatch between client and server</p>
+<p><strong>Solution</strong>: Configure camelCase JSON serialization:</p>
+<pre><code class="lang-csharp">builder.Services.AddControllers()
+    .AddJsonOptions(options =&gt;
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = 
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
+</code></pre>
+<h4 id="3-cors-issues">3. CORS Issues</h4>
+<p><strong>Problem</strong>: Browser requests blocked by CORS policy</p>
+<p><strong>Solution</strong>: Verify CORS configuration includes all required origins:</p>
+<pre><code class="lang-csharp">builder.Services.AddCors(options =&gt;
+{
+    options.AddDefaultPolicy(builder =&gt;
+    {
+        builder.WithOrigins(&quot;https://localhost:9091&quot;, &quot;http://localhost:9090&quot;)
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+</code></pre>
+<h3 id="debugging-tools">Debugging Tools</h3>
+<h4 id="logging-analysis">Logging Analysis</h4>
+<p>Monitor these log patterns for troubleshooting:</p>
+<pre><code class="lang-log">[INFO] NOOR-HOSTPROV: Generating host token for session 100
+[INFO] NOOR-HOSTPROV: Host token generated successfully for session 100
+[INFO] NOOR-INFO: Host authentication attempt for GUID: f47ac10b...
+[SUCCESS] NOOR-SUCCESS: Host GUID format validated
+[ERROR] NOOR-ERROR: Host authentication failed
+</code></pre>
+<h4 id="testing-endpoints">Testing Endpoints</h4>
+<p><strong>Status Check</strong>:</p>
+<pre><code class="lang-bash">curl -X GET https://localhost:9091/api/hostprovisioner/status -k
+</code></pre>
+<p><strong>Expected Response</strong>:</p>
+<pre><code class="lang-json">{
+  &quot;status&quot;: &quot;operational&quot;,
+  &quot;service&quot;: &quot;HostProvisioner API&quot;,
+  &quot;timestamp&quot;: &quot;2025-09-13T15:30:00Z&quot;
+}
+</code></pre>
+<h2 id="developer-quick-reference">Developer Quick Reference</h2>
+<h3 id="ready-to-use-test-tokens">Ready-to-Use Test Tokens</h3>
+<p>For development and testing, use these pre-validated GUIDs:</p>
+<pre><code>f47ac10b-58cc-4372-a567-0e02b2c3d479
+3cbd173a-a146-4049-9f50-e33eb9ee2f2c
+fa4a5e78-6ebd-4fad-bd9f-95e214e0c3cf
+</code></pre>
+<h3 id="quick-commands">Quick Commands</h3>
+<h4 id="generate-token-curl">Generate Token (cURL)</h4>
+<pre><code class="lang-bash">curl -X POST https://localhost:9091/api/hostprovisioner/generate \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;sessionId&quot;: 100, &quot;createdBy&quot;: &quot;Your Name&quot;}' \
+  -k
+</code></pre>
+<h4 id="authenticate-token-curl">Authenticate Token (cURL)</h4>
+<pre><code class="lang-bash">curl -X POST https://localhost:9091/api/host/authenticate \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;hostGuid&quot;: &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot;}' \
+  -k
+</code></pre>
+<h4 id="powershell-quick-commands">PowerShell Quick Commands</h4>
+<p><strong>Generate New Token</strong>:</p>
+<pre><code class="lang-powershell">$request = @{ sessionId = 100; createdBy = &quot;Test User&quot; } | ConvertTo-Json
+$response = Invoke-RestMethod -Uri &quot;https://localhost:9091/api/hostprovisioner/generate&quot; -Method Post -Body $request -ContentType &quot;application/json&quot; -SkipCertificateCheck
+Write-Host &quot;New Host GUID: $($response.hostGuid)&quot;
+</code></pre>
+<p><strong>Test Authentication</strong>:</p>
+<pre><code class="lang-powershell">$auth = @{ hostGuid = &quot;f47ac10b-58cc-4372-a567-0e02b2c3d479&quot; } | ConvertTo-Json
+$result = Invoke-RestMethod -Uri &quot;https://localhost:9091/api/host/authenticate&quot; -Method Post -Body $auth -ContentType &quot;application/json&quot; -SkipCertificateCheck
+Write-Host &quot;Success: $($result.success)&quot;
+Write-Host &quot;Session Token: $($result.sessionToken)&quot;
+</code></pre>
+<h4 id="direct-session-flow-access">Direct Session Flow Access</h4>
+<p>Navigate to: <code>https://localhost:9091/host/session-opener</code> (Dashboard removed - Phase 4 update)</p>
+<h3 id="integration-examples">Integration Examples</h3>
+<h4 id="javascript-client-integration">JavaScript Client Integration</h4>
+<pre><code class="lang-javascript">class HostTokenManager {
+    constructor(baseUrl = 'https://localhost:9091') {
+        this.baseUrl = baseUrl;
+    }
+
+    async generateToken(sessionId, createdBy) {
+        try {
+            const response = await fetch(`${this.baseUrl}/api/hostprovisioner/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, createdBy })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Token generation failed:', error);
+            throw error;
+        }
+    }
+
+    async authenticate(hostGuid) {
+        try {
+            const response = await fetch(`${this.baseUrl}/api/host/authenticate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hostGuid })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Authentication failed:', error);
+            throw error;
+        }
+    }
+}
+
+// Usage
+const tokenManager = new HostTokenManager();
+const token = await tokenManager.generateToken(100, &quot;JavaScript Host&quot;);
+const auth = await tokenManager.authenticate(token.hostGuid);
+</code></pre>
+<h4 id="c-client-integration">C# Client Integration</h4>
+<pre><code class="lang-csharp">public class HostTokenClient
+{
+    private readonly HttpClient _httpClient;
+    private readonly string _baseUrl;
+
+    public HostTokenClient(HttpClient httpClient, string baseUrl = &quot;https://localhost:9091&quot;)
+    {
+        _httpClient = httpClient;
+        _baseUrl = baseUrl;
+    }
+
+    public async Task&lt;HostTokenResponse&gt; GenerateTokenAsync(int sessionId, string createdBy)
+    {
+        var request = new { sessionId, createdBy };
+        var json = JsonSerializer.Serialize(request);
+        var content = new StringContent(json, Encoding.UTF8, &quot;application/json&quot;);
+        
+        var response = await _httpClient.PostAsync($&quot;{_baseUrl}/api/hostprovisioner/generate&quot;, content);
+        response.EnsureSuccessStatusCode();
+        
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize&lt;HostTokenResponse&gt;(responseJson);
+    }
+
+    public async Task&lt;HostAuthResponse&gt; AuthenticateAsync(string hostGuid)
+    {
+        var request = new { hostGuid };
+        var json = JsonSerializer.Serialize(request);
+        var content = new StringContent(json, Encoding.UTF8, &quot;application/json&quot;);
+        
+        var response = await _httpClient.PostAsync($&quot;{_baseUrl}/api/host/authenticate&quot;, content);
+        response.EnsureSuccessStatusCode();
+        
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize&lt;HostAuthResponse&gt;(responseJson);
+    }
+}
+</code></pre>
+<h3 id="performance-considerations">Performance Considerations</h3>
+<h4 id="token-generation-performance">Token Generation Performance</h4>
+<ul>
+<li><strong>Throughput</strong>: ~1,000 tokens/second typical</li>
+<li><strong>Memory Usage</strong>: &lt;1KB per token operation</li>
+<li><strong>CPU Impact</strong>: Minimal (cryptographic operations optimized)</li>
+</ul>
+<h4 id="database-considerations-future">Database Considerations (Future)</h4>
+<p>For Phase 3+ database integration:</p>
+<pre><code class="lang-sql">-- Recommended indexes
+CREATE INDEX IX_HostTokens_HostGuid ON HostTokens(HostGuid);
+CREATE INDEX IX_HostTokens_CreatedAt ON HostTokens(CreatedAt);
+CREATE INDEX IX_HostTokens_IsActive ON HostTokens(IsActive) WHERE IsActive = 1;
+</code></pre>
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><a href="security-model.html">NOOR Canvas Security Model</a></li>
+<li><a href="../development/authentication-guide.html">Authentication Integration Guide</a></li>
+<li><a href="database-schema.html">Database Schema Reference</a></li>
+<li><a href="../../api/index.md">API Reference Guide</a></li>
+</ul>
+<h2 id="version-history">Version History</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0.0</td>
+<td>2025-09-13</td>
+<td>Initial documentation</td>
+</tr>
+<tr>
+<td>1.1.0</td>
+<td>2025-09-13</td>
+<td>Added Phase 2 implementation details</td>
+</tr>
+<tr>
+<td>1.2.0</td>
+<td>2025-09-13</td>
+<td>Enhanced troubleshooting section</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>This documentation is part of the NOOR Canvas project. For technical support, please refer to the project issue tracker.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/host-token-system.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

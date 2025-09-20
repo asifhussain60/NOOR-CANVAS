@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Development Workflow User Guide </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Development Workflow User Guide ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="development-workflow-user-guide">Development Workflow User Guide</h1>
+
+<h2 id="overview">Overview</h2>
+<p>This guide covers the standard development workflows for NOOR Canvas, from starting development to deploying changes. Following these workflows ensures consistency and quality across the project.</p>
+<h2 id="getting-started-with-development">Getting Started with Development</h2>
+<h3 id="first-time-setup">First Time Setup</h3>
+<ol>
+<li><strong>Clone Repository</strong>: Get the latest code from GitHub</li>
+<li><strong>Install Dependencies</strong>: Run initial setup commands</li>
+<li><strong>Verify Environment</strong>: Ensure all tools are working</li>
+<li><strong>Start Development</strong>: Begin your first development session</li>
+</ol>
+<h3 id="daily-development-workflow">Daily Development Workflow</h3>
+<pre><code class="lang-powershell"># 1. Start your development session
+nc
+
+# 2. Make your code changes in VS Code or your preferred editor
+
+# 3. Build and test (automatic)
+dotnet build
+
+# 4. Commit your changes (tests run automatically)
+git add .
+git commit -m &quot;your change description&quot;
+
+# 5. Push to repository
+git push origin master
+</code></pre>
+<h2 id="core-development-commands">Core Development Commands</h2>
+<h3 id="starting-development">Starting Development</h3>
+<ul>
+<li><strong><code>nc</code></strong>: Starts the complete development environment
+<ul>
+<li>Generates required host tokens</li>
+<li>Builds the application</li>
+<li>Starts the development server at https://localhost:9091</li>
+</ul>
+</li>
+</ul>
+<h3 id="stopping-development">Stopping Development</h3>
+<ul>
+<li><strong>Ctrl+C in NC window</strong>: Gracefully stops the development server</li>
+<li><strong><code>iiskill</code></strong>: Forces all IIS Express processes to stop (emergency use)</li>
+</ul>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li><strong><code>ncdoc</code></strong>: Opens the complete project documentation</li>
+<li>All processes and features are automatically documented in DocFX</li>
+</ul>
+<h2 id="code-quality-workflows">Code Quality Workflows</h2>
+<h3 id="automatic-testing">Automatic Testing</h3>
+<p>Tests run automatically at two key points:</p>
+<ol>
+<li><strong>After Building</strong>: When you run <code>dotnet build</code>, tests execute if code changed</li>
+<li><strong>Before Committing</strong>: When you run <code>git commit</code>, tests validate your changes</li>
+</ol>
+<h3 id="manual-quality-checks">Manual Quality Checks</h3>
+<pre><code class="lang-powershell"># Run tests manually
+.hooks\post-build.ps1 -Verbose
+
+# Force test execution
+.hooks\pre-commit-test.ps1 -Force
+
+# Check code formatting
+dotnet format --verify-no-changes
+</code></pre>
+<h2 id="feature-development-workflow">Feature Development Workflow</h2>
+<h3 id="adding-new-features">Adding New Features</h3>
+<ol>
+<li><strong>Plan the Feature</strong>: Review requirements and design</li>
+<li><strong>Create User Documentation</strong>: Write user-friendly guides first</li>
+<li><strong>Create Technical Documentation</strong>: Write implementation details</li>
+<li><strong>Implement Feature</strong>: Write the actual code</li>
+<li><strong>Update Tests</strong>: Ensure comprehensive test coverage</li>
+<li><strong>Validate Documentation</strong>: Ensure DocFX builds correctly</li>
+</ol>
+<h3 id="modifying-existing-features">Modifying Existing Features</h3>
+<ol>
+<li><strong>Update Documentation</strong>: Revise both user and technical docs</li>
+<li><strong>Implement Changes</strong>: Modify the code</li>
+<li><strong>Update Tests</strong>: Adjust tests for new behavior</li>
+<li><strong>Validate Integration</strong>: Ensure changes don't break other features</li>
+</ol>
+<h2 id="database-development-workflow">Database Development Workflow</h2>
+<h3 id="schema-changes">Schema Changes</h3>
+<ol>
+<li><strong>Development Database</strong>: Always use KSESSIONS_DEV for development</li>
+<li><strong>Migration Scripts</strong>: Create Entity Framework migrations for schema changes</li>
+<li><strong>Test Data</strong>: Populate with realistic test data</li>
+<li><strong>Validation</strong>: Ensure queries work with both development and production schemas</li>
+</ol>
+<h3 id="cross-database-integration">Cross-Database Integration</h3>
+<ul>
+<li><strong>Read-Only Access</strong>: NOOR Canvas reads from KSESSIONS database tables</li>
+<li><strong>No Data Duplication</strong>: Reference existing assets, don't copy them</li>
+<li><strong>Performance Testing</strong>: Ensure queries are efficient</li>
+</ul>
+<h2 id="api-development-workflow">API Development Workflow</h2>
+<h3 id="rest-api-endpoints">REST API Endpoints</h3>
+<ol>
+<li><strong>Design API</strong>: Plan endpoints, request/response formats</li>
+<li><strong>Document API</strong>: Create technical reference documentation</li>
+<li><strong>Implement Controllers</strong>: Write C# controller code</li>
+<li><strong>Add Validation</strong>: Input validation and error handling</li>
+<li><strong>Test Endpoints</strong>: Use PowerShell or Postman for testing</li>
+</ol>
+<h3 id="signalr-hub-development">SignalR Hub Development</h3>
+<ol>
+<li><strong>Plan Real-time Features</strong>: Design hub methods and client interactions</li>
+<li><strong>Implement Hub</strong>: Write C# SignalR hub code</li>
+<li><strong>Client Integration</strong>: Connect Blazor components to hubs</li>
+<li><strong>Test Connections</strong>: Verify real-time communication works</li>
+</ol>
+<h2 id="ui-development-workflow">UI Development Workflow</h2>
+<h3 id="blazor-component-development">Blazor Component Development</h3>
+<ol>
+<li><strong>McBeatch Theme Integration</strong>: Use existing theme components</li>
+<li><strong>Responsive Design</strong>: Ensure mobile and desktop compatibility</li>
+<li><strong>RTL Support</strong>: Handle Arabic and Urdu text properly</li>
+<li><strong>Accessibility</strong>: Follow web accessibility guidelines</li>
+</ol>
+<h3 id="styling-and-theming">Styling and Theming</h3>
+<ul>
+<li><strong>Use McBeatch CSS</strong>: Leverage existing theme styling</li>
+<li><strong>Color Variants</strong>: Support multiple color schemes</li>
+<li><strong>Custom CSS</strong>: Add project-specific styles carefully</li>
+</ul>
+<h2 id="testing-workflows">Testing Workflows</h2>
+<h3 id="unit-testing">Unit Testing</h3>
+<pre><code class="lang-powershell"># Run unit tests
+dotnet test Tests/NoorCanvas.Core.Tests/
+
+# Run specific test category
+dotnet test --filter Category=Unit
+</code></pre>
+<h3 id="integration-testing">Integration Testing</h3>
+<pre><code class="lang-powershell"># Run integration tests
+dotnet test Tests/NC-ImplementationTests/
+
+# Test specific component
+dotnet test --filter FullyQualifiedName~HostController
+</code></pre>
+<h3 id="manual-testing-scenarios">Manual Testing Scenarios</h3>
+<ol>
+<li><strong>Happy Path Testing</strong>: Test normal user workflows</li>
+<li><strong>Error Scenarios</strong>: Test error handling and edge cases</li>
+<li><strong>Cross-Browser Testing</strong>: Verify compatibility</li>
+<li><strong>Mobile Testing</strong>: Test responsive behavior</li>
+</ol>
+<h2 id="debugging-workflows">Debugging Workflows</h2>
+<h3 id="application-debugging">Application Debugging</h3>
+<ol>
+<li><strong>Check Logs</strong>: Review structured logging output</li>
+<li><strong>Database Connectivity</strong>: Test connection strings</li>
+<li><strong>Port Issues</strong>: Verify nothing else uses ports 9090/9091</li>
+<li><strong>Token Issues</strong>: Regenerate tokens with <code>nct</code></li>
+</ol>
+<h3 id="common-debug-commands">Common Debug Commands</h3>
+<pre><code class="lang-powershell"># Check running processes
+netstat -ano | findstr &quot;:9091&quot;
+Get-Process | Where-Object {$_.ProcessName -like &quot;*iisexpress*&quot;}
+
+# Test database connection
+# (Use connection test utilities)
+
+# Clear caches
+Remove-Item .test-cache -Recurse -Force
+Remove-Item .build-cache -Recurse -Force
+</code></pre>
+<h2 id="deployment-workflows">Deployment Workflows</h2>
+<h3 id="pre-deployment-checklist">Pre-Deployment Checklist</h3>
+<ul>
+<li>[ ] All tests passing</li>
+<li>[ ] Documentation updated</li>
+<li>[ ] Configuration reviewed</li>
+<li>[ ] Database migrations prepared</li>
+<li>[ ] Performance tested</li>
+</ul>
+<h3 id="production-deployment">Production Deployment</h3>
+<ol>
+<li><strong>Build Release Version</strong>: <code>dotnet publish -c Release</code></li>
+<li><strong>Database Migration</strong>: Apply schema changes to production</li>
+<li><strong>IIS Configuration</strong>: Update production IIS settings</li>
+<li><strong>Verification</strong>: Test production deployment</li>
+</ol>
+<h2 id="collaboration-workflows">Collaboration Workflows</h2>
+<h3 id="working-with-team-members">Working with Team Members</h3>
+<ol>
+<li><strong>Pull Latest Changes</strong>: <code>git pull origin master</code></li>
+<li><strong>Create Feature Branches</strong>: For larger features</li>
+<li><strong>Regular Commits</strong>: Small, focused commits with good messages</li>
+<li><strong>Code Reviews</strong>: Review team member changes</li>
+</ol>
+<h3 id="communication-practices">Communication Practices</h3>
+<ul>
+<li><strong>Clear Commit Messages</strong>: Describe what changed and why</li>
+<li><strong>Documentation Updates</strong>: Keep docs current with code changes</li>
+<li><strong>Issue Tracking</strong>: Use the issue tracker for bugs and enhancements</li>
+<li><strong>Knowledge Sharing</strong>: Document discoveries and solutions</li>
+</ul>
+<h2 id="performance-workflows">Performance Workflows</h2>
+<h3 id="development-performance">Development Performance</h3>
+<ul>
+<li><strong>Smart Caching</strong>: Leverage test caching to speed up development</li>
+<li><strong>Incremental Builds</strong>: Use <code>--no-restore</code> when appropriate</li>
+<li><strong>Parallel Operations</strong>: Take advantage of parallel test execution</li>
+</ul>
+<h3 id="application-performance">Application Performance</h3>
+<ul>
+<li><strong>Database Optimization</strong>: Efficient queries and proper indexing</li>
+<li><strong>SignalR Optimization</strong>: Minimize message size and frequency</li>
+<li><strong>Asset Optimization</strong>: Efficient loading of CSS, JS, and images</li>
+</ul>
+<h2 id="troubleshooting-common-issues">Troubleshooting Common Issues</h2>
+<h3 id="build-issues">Build Issues</h3>
+<ul>
+<li><strong>Clean and Rebuild</strong>: <code>dotnet clean</code> followed by <code>dotnet build</code></li>
+<li><strong>Package Restore</strong>: <code>dotnet restore</code></li>
+<li><strong>Clear Caches</strong>: Remove obj/ and bin/ directories</li>
+</ul>
+<h3 id="development-server-issues">Development Server Issues</h3>
+<ul>
+<li><strong>Port Conflicts</strong>: Use <code>iiskill</code> to stop conflicting processes</li>
+<li><strong>Certificate Issues</strong>: Check HTTPS certificate configuration</li>
+<li><strong>Database Connection</strong>: Verify connection strings and server status</li>
+</ul>
+<h3 id="test-issues">Test Issues</h3>
+<ul>
+<li><strong>Cache Problems</strong>: Clear test caches and retry</li>
+<li><strong>Environment Issues</strong>: Check database and service availability</li>
+<li><strong>Timing Issues</strong>: Some tests may need longer timeouts</li>
+</ul>
+<h2 id="best-practices-summary">Best Practices Summary</h2>
+<h3 id="code-quality">Code Quality</h3>
+<ul>
+<li><strong>Write Tests First</strong>: Consider test-driven development</li>
+<li><strong>Document Everything</strong>: Both user guides and technical references</li>
+<li><strong>Small Commits</strong>: Focused, atomic changes</li>
+<li><strong>Meaningful Names</strong>: Clear, descriptive naming for all code elements</li>
+</ul>
+<h3 id="workflow-efficiency">Workflow Efficiency</h3>
+<ul>
+<li><strong>Use Automation</strong>: Leverage automatic testing and builds</li>
+<li><strong>Follow Conventions</strong>: Consistent naming and structure</li>
+<li><strong>Regular Integration</strong>: Commit and push changes frequently</li>
+<li><strong>Continuous Learning</strong>: Stay updated on tools and techniques</li>
+</ul>
+<p>For detailed technical implementation information, see the <a href="../technical/development-workflow-technical-reference.html">Development Workflow Technical Reference</a>.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/development/development-workflow-user-guide.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

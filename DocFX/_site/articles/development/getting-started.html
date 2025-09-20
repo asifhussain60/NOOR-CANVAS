@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Getting Started with NOOR CANVAS Development </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Getting Started with NOOR CANVAS Development ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="getting-started-with-noor-canvas-development">Getting Started with NOOR CANVAS Development</h1>
+
+<h2 id="prerequisites">Prerequisites</h2>
+<h3 id="required-software">Required Software</h3>
+<ul>
+<li>Visual Studio 2022 or VS Code</li>
+<li>.NET 8.0 SDK</li>
+<li>SQL Server (Express or Developer Edition)</li>
+<li>Git for version control</li>
+<li>PowerShell 5.1+ for automation scripts</li>
+</ul>
+<h3 id="development-database-setup">Development Database Setup</h3>
+<pre><code class="lang-sql">-- Development Environment
+USE KSESSIONS_DEV;  
+-- Production Environment  
+USE KSESSIONS;
+
+-- Canvas schema objects
+SELECT * FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_SCHEMA = 'canvas';
+</code></pre>
+<h2 id="project-setup">Project Setup</h2>
+<h3 id="1-clone-repository">1. Clone Repository</h3>
+<pre><code class="lang-bash">git clone https://github.com/asifhussain60/NOOR-CANVAS.git
+cd NOOR-CANVAS
+</code></pre>
+<h3 id="2-database-configuration">2. Database Configuration</h3>
+<p>Update connection strings in <code>appsettings.json</code>:</p>
+<pre><code class="lang-json">{
+  &quot;ConnectionStrings&quot;: {
+    &quot;DefaultConnection&quot;: &quot;Server=.;Database=KSESSIONS_DEV;Trusted_Connection=true;MultipleActiveResultSets=true;Timeout=3600&quot;
+  }
+}
+</code></pre>
+<h3 id="3-build-and-run">3. Build and Run</h3>
+<p><strong>Using NC Command (Recommended)</strong></p>
+<pre><code class="lang-powershell"># Navigate to workspace root
+cd &quot;D:\PROJECTS\NOOR CANVAS&quot;
+
+# Generate host token (optional)
+nct
+
+# Build and run application
+nc
+</code></pre>
+<p><strong>Manual Build Process</strong></p>
+<pre><code class="lang-powershell"># Navigate to project directory
+cd &quot;D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas&quot;
+
+# Restore packages
+dotnet restore
+
+# Build project
+dotnet build --no-restore
+
+# Run application
+dotnet run --urls &quot;https://localhost:9091&quot;
+</code></pre>
+<h2 id="development-workflow">Development Workflow</h2>
+<h3 id="1-application-startup">1. Application Startup</h3>
+<ul>
+<li>Application runs on IIS Express x64</li>
+<li>Primary URL: https://localhost:9091 (HTTPS)</li>
+<li>Fallback URL: http://localhost:9090 (HTTP)</li>
+<li>Blazor Server with SignalR enabled</li>
+</ul>
+<h3 id="2-development-tools">2. Development Tools</h3>
+<p><strong>NC Command Suite</strong></p>
+<pre><code class="lang-powershell">nc                    # Full application startup
+nc -SkipTokenGeneration  # Skip host token step
+nc -Help             # Command reference
+</code></pre>
+<p><strong>Health Checks</strong></p>
+<pre><code class="lang-powershell"># Verify application health
+Invoke-WebRequest -Uri &quot;https://localhost:9091/healthz&quot; -SkipCertificateCheck
+
+# Check SignalR connectivity
+Invoke-WebRequest -Uri &quot;https://localhost:9091/hub/session&quot; -SkipCertificateCheck
+</code></pre>
+<h3 id="3-testing-framework">3. Testing Framework</h3>
+<p><strong>Automated Testing</strong></p>
+<pre><code class="lang-powershell"># Run all tests
+dotnet test
+
+# Run specific test project
+dotnet test Tests/NoorCanvas.Core.Tests/
+
+# Run with coverage
+dotnet test --collect:&quot;XPlat Code Coverage&quot;
+</code></pre>
+<p><strong>Manual Testing</strong></p>
+<ul>
+<li>Browser: Navigate to https://localhost:9091</li>
+<li>Developer Tools: Check console for errors</li>
+<li>Network Tab: Verify SignalR connections</li>
+<li>Application Tab: Check local storage</li>
+</ul>
+<h2 id="development-environment-verification">Development Environment Verification</h2>
+<h3 id="1-port-verification">1. Port Verification</h3>
+<pre><code class="lang-powershell"># Check if ports are in use
+netstat -ano | findstr &quot;:9091&quot;  # HTTPS
+netstat -ano | findstr &quot;:9090&quot;  # HTTP
+</code></pre>
+<h3 id="2-process-verification">2. Process Verification</h3>
+<pre><code class="lang-powershell"># Check IIS Express processes
+Get-Process | Where-Object {$_.ProcessName -like &quot;*iisexpress*&quot;}
+
+# Check .NET processes
+Get-Process | Where-Object {$_.ProcessName -like &quot;*dotnet*&quot;}
+</code></pre>
+<h3 id="3-database-connectivity">3. Database Connectivity</h3>
+<pre><code class="lang-sql">-- Test canvas schema access
+USE KSESSIONS_DEV;
+SELECT COUNT(*) FROM canvas.Sessions;
+
+-- Test cross-schema access
+USE KQUR_DEV;
+SELECT COUNT(*) FROM dbo.Users;
+</code></pre>
+<h2 id="common-development-issues">Common Development Issues</h2>
+<h3 id="build-errors">Build Errors</h3>
+<ul>
+<li><strong>Issue</strong>: Restore failures</li>
+<li><strong>Solution</strong>: Clear NuGet cache: <code>dotnet nuget locals all --clear</code></li>
+</ul>
+<h3 id="port-conflicts">Port Conflicts</h3>
+<ul>
+<li><strong>Issue</strong>: Port 9091 already in use</li>
+<li><strong>Solution</strong>: Kill existing processes: <code>Stop-Process -Name &quot;dotnet&quot; -Force</code></li>
+</ul>
+<h3 id="database-connection">Database Connection</h3>
+<ul>
+<li><strong>Issue</strong>: Connection timeout</li>
+<li><strong>Solution</strong>: Verify SQL Server service and connection string</li>
+</ul>
+<h3 id="signalr-issues">SignalR Issues</h3>
+<ul>
+<li><strong>Issue</strong>: WebSocket failures</li>
+<li><strong>Solution</strong>: Check browser developer tools for connection errors</li>
+</ul>
+<h2 id="project-structure">Project Structure</h2>
+<pre><code>SPA/NoorCanvas/           # Main application
+├── Controllers/          # Web API controllers
+├── Hubs/                # SignalR hubs
+├── Models/              # Data models
+├── Services/            # Business logic
+├── Components/          # Blazor components
+├── wwwroot/            # Static files
+└── Views/              # Razor views
+
+Tests/                   # Test projects
+├── NoorCanvas.Core.Tests/   # Unit tests
+└── NC-ImplementationTests/  # Integration tests
+
+Tools/                   # Console applications
+└── HostProvisioner/    # Host token generator
+
+Workspaces/             # Documentation and tools
+├── Documentation/      # Project documentation
+├── Global/            # Global scripts (nc, nct)
+└── TEMP/             # Temporary development files
+</code></pre>
+<h2 id="next-steps">Next Steps</h2>
+<ol>
+<li><strong>Explore Components</strong>: Review Blazor components in <code>Components/</code></li>
+<li><strong>Understand SignalR</strong>: Examine hubs in <code>Hubs/</code></li>
+<li><strong>Database Integration</strong>: Study models and DbContext</li>
+<li><strong>Testing</strong>: Run test suite to verify setup</li>
+<li><strong>Phase 4 Development</strong>: Begin mock template conversion</li>
+</ol>
+<hr>
+<p><em>For deployment instructions, see the <a href="../deployment/production-setup.html">Deployment Guide</a></em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/development/getting-started.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

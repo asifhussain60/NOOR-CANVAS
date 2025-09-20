@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Production Deployment </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Production Deployment ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="production-deployment">Production Deployment</h1>
+
+<h2 id="overview">Overview</h2>
+<p>This guide covers the complete production deployment process for NOOR Canvas, including server preparation, application deployment, database migration, and post-deployment verification. The deployment follows a staged approach to minimize downtime and ensure system reliability.</p>
+<h2 id="deployment-architecture">Deployment Architecture</h2>
+<h3 id="production-environment-requirements">Production Environment Requirements</h3>
+<ul>
+<li><strong>Web Server</strong>: Windows Server 2019/2022 with IIS 10.0+</li>
+<li><strong>Application Framework</strong>: ASP.NET Core 8.0 Runtime + Hosting Bundle</li>
+<li><strong>Database Server</strong>: SQL Server 2019+ (Standard or Enterprise Edition)</li>
+<li><strong>Load Balancer</strong>: Optional (for high availability scenarios)</li>
+<li><strong>SSL Certificate</strong>: Valid CA-issued certificate for HTTPS</li>
+</ul>
+<h3 id="network-architecture">Network Architecture</h3>
+<pre><code>Internet → Load Balancer (Optional) → IIS Web Server → SQL Server Database
+                                   ↓
+                            Application Files + Logs
+</code></pre>
+<h3 id="server-specifications">Server Specifications</h3>
+<h4 id="minimum-requirements-small-scale-100-concurrent-users">Minimum Requirements (Small Scale: &lt;100 concurrent users)</h4>
+<ul>
+<li><strong>CPU</strong>: 4 cores @ 2.4 GHz</li>
+<li><strong>RAM</strong>: 8 GB</li>
+<li><strong>Storage</strong>: 100 GB SSD (OS + Application + Logs)</li>
+<li><strong>Network</strong>: 100 Mbps</li>
+</ul>
+<h4 id="recommended-requirements-medium-scale-100-500-concurrent-users">Recommended Requirements (Medium Scale: 100-500 concurrent users)</h4>
+<ul>
+<li><strong>CPU</strong>: 8 cores @ 3.0 GHz</li>
+<li><strong>RAM</strong>: 16 GB</li>
+<li><strong>Storage</strong>: 500 GB SSD (OS + Application + Logs)</li>
+<li><strong>Network</strong>: 1 Gbps</li>
+</ul>
+<h4 id="high-availability-requirements-large-scale-500-concurrent-users">High Availability Requirements (Large Scale: 500+ concurrent users)</h4>
+<ul>
+<li><strong>CPU</strong>: 16+ cores @ 3.2 GHz</li>
+<li><strong>RAM</strong>: 32+ GB</li>
+<li><strong>Storage</strong>: 1 TB SSD (OS), 500 GB SSD (Application), 1 TB SSD (Logs)</li>
+<li><strong>Network</strong>: 10 Gbps</li>
+<li><strong>Redundancy</strong>: Multiple web servers behind load balancer</li>
+</ul>
+<h2 id="pre-deployment-checklist">Pre-Deployment Checklist</h2>
+<h3 id="infrastructure-preparation">Infrastructure Preparation</h3>
+<ul>
+<li>[ ] Windows Server 2019/2022 installed and updated</li>
+<li>[ ] IIS role installed with required features</li>
+<li>[ ] .NET 8.0 Runtime and ASP.NET Core Hosting Bundle installed</li>
+<li>[ ] SQL Server 2019+ installed and configured</li>
+<li>[ ] SSL certificate obtained and verified</li>
+<li>[ ] Firewall rules configured (ports 80, 443, 1433)</li>
+<li>[ ] DNS records configured</li>
+<li>[ ] Backup strategy implemented</li>
+</ul>
+<h3 id="application-preparation">Application Preparation</h3>
+<ul>
+<li>[ ] Code repository tagged with release version</li>
+<li>[ ] Build artifacts generated and tested</li>
+<li>[ ] Database scripts validated</li>
+<li>[ ] Configuration files prepared for production</li>
+<li>[ ] Deployment scripts tested in staging environment</li>
+<li>[ ] Performance baseline established</li>
+<li>[ ] Security scan completed</li>
+<li>[ ] Documentation updated</li>
+</ul>
+<h2 id="deployment-process">Deployment Process</h2>
+<h3 id="phase-1-database-deployment">Phase 1: Database Deployment</h3>
+<h4 id="1-create-production-databases">1. Create Production Databases</h4>
+<pre><code class="lang-powershell"># Connect to production SQL Server as sysadmin
+# Execute database creation scripts
+Invoke-Sqlcmd -ServerInstance &quot;PROD-SQL-01&quot; -Query @&quot;
+CREATE DATABASE [KSESSIONS]
+ON 
+( NAME = N'KSESSIONS', 
+  FILENAME = N'E:\Data\KSESSIONS.mdf',
+  SIZE = 500MB, 
+  MAXSIZE = 10GB, 
+  FILEGROWTH = 50MB )
+LOG ON 
+( NAME = N'KSESSIONS_Log', 
+  FILENAME = N'F:\Logs\KSESSIONS_Log.ldf',
+  SIZE = 50MB, 
+  MAXSIZE = 1GB, 
+  FILEGROWTH = 10MB );
+
+CREATE DATABASE [KQUR]
+ON 
+( NAME = N'KQUR', 
+  FILENAME = N'E:\Data\KQUR.mdf',
+  SIZE = 1GB, 
+  MAXSIZE = 20GB, 
+  FILEGROWTH = 100MB )
+LOG ON 
+( NAME = N'KQUR_Log', 
+  FILENAME = N'F:\Logs\KQUR_Log.ldf',
+  SIZE = 100MB, 
+  MAXSIZE = 2GB, 
+  FILEGROWTH = 20MB );
+&quot;@
+</code></pre>
+<h4 id="2-create-service-accounts">2. Create Service Accounts</h4>
+<pre><code class="lang-powershell"># Create dedicated Windows service account
+New-LocalUser -Name &quot;noor-canvas-svc&quot; -Description &quot;NOOR Canvas Application Service Account&quot; -NoPassword
+Add-LocalGroupMember -Group &quot;IIS_IUSRS&quot; -Member &quot;noor-canvas-svc&quot;
+
+# Create SQL Server login and permissions
+Invoke-Sqlcmd -ServerInstance &quot;PROD-SQL-01&quot; -Query @&quot;
+CREATE LOGIN [SERVER\noor-canvas-svc] FROM WINDOWS;
+
+USE [KSESSIONS];
+CREATE USER [SERVER\noor-canvas-svc] FOR LOGIN [SERVER\noor-canvas-svc];
+ALTER ROLE [db_owner] ADD MEMBER [SERVER\noor-canvas-svc];
+
+USE [KQUR];
+CREATE USER [SERVER\noor-canvas-svc] FOR LOGIN [SERVER\noor-canvas-svc];
+ALTER ROLE [db_datareader] ADD MEMBER [SERVER\noor-canvas-svc];
+&quot;@
+</code></pre>
+<h4 id="3-deploy-database-schema">3. Deploy Database Schema</h4>
+<pre><code class="lang-powershell"># Deploy Entity Framework migrations to production
+cd &quot;C:\Deployment\NoorCanvas&quot;
+dotnet ef database update --context CanvasDbContext --connection &quot;Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;&quot;
+</code></pre>
+<h3 id="phase-2-application-server-preparation">Phase 2: Application Server Preparation</h3>
+<h4 id="1-configure-iis-application-pool">1. Configure IIS Application Pool</h4>
+<pre><code class="lang-powershell"># Import IIS module
+Import-Module WebAdministration
+
+# Create dedicated application pool
+New-WebAppPool -Name &quot;NoorCanvasPool&quot;
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name processModel.identityType -Value SpecificUser
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name processModel.userName -Value &quot;SERVER\noor-canvas-svc&quot;
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name processModel.password -Value &quot;SERVICE-ACCOUNT-PASSWORD&quot;
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name managedRuntimeVersion -Value &quot;&quot;
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name enable32BitAppOnWin64 -Value $false
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name processModel.idleTimeout -Value &quot;00:00:00&quot;
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name recycling.periodicRestart.time -Value &quot;00:00:00&quot;
+</code></pre>
+<h4 id="2-create-iis-website">2. Create IIS Website</h4>
+<pre><code class="lang-powershell"># Remove default website if exists
+Remove-Website -Name &quot;Default Web Site&quot; -ErrorAction SilentlyContinue
+
+# Create application directory
+$appPath = &quot;C:\inetpub\wwwroot\NoorCanvas&quot;
+New-Item -ItemType Directory -Path $appPath -Force
+New-Item -ItemType Directory -Path &quot;$appPath\logs&quot; -Force
+
+# Set permissions
+$acl = Get-Acl $appPath
+$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule(&quot;SERVER\noor-canvas-svc&quot;, &quot;FullControl&quot;, &quot;ContainerInherit,ObjectInherit&quot;, &quot;None&quot;, &quot;Allow&quot;)
+$acl.SetAccessRule($accessRule)
+Set-Acl -Path $appPath -AclObject $acl
+
+# Create website
+New-Website -Name &quot;NoorCanvas&quot; -Port 80 -PhysicalPath $appPath -ApplicationPool &quot;NoorCanvasPool&quot;
+</code></pre>
+<h4 id="3-configure-ssl-certificate">3. Configure SSL Certificate</h4>
+<pre><code class="lang-powershell"># Import production SSL certificate
+$certPath = &quot;C:\Certificates\noorcanvas-prod.pfx&quot;
+$certPassword = ConvertTo-SecureString &quot;CERTIFICATE-PASSWORD&quot; -AsPlainText -Force
+$cert = Import-PfxCertificate -FilePath $certPath -CertStoreLocation &quot;cert:\LocalMachine\My&quot; -Password $certPassword
+
+# Create HTTPS binding
+New-WebBinding -Name &quot;NoorCanvas&quot; -Protocol https -Port 443 -SslFlags 1
+$binding = Get-WebBinding -Name &quot;NoorCanvas&quot; -Protocol https
+$binding.AddSslCertificate($cert.Thumbprint, &quot;my&quot;)
+
+# Configure HTTP to HTTPS redirection
+# (This will be handled by web.config in the application)
+</code></pre>
+<h3 id="phase-3-application-deployment">Phase 3: Application Deployment</h3>
+<h4 id="1-stop-application-pool">1. Stop Application Pool</h4>
+<pre><code class="lang-powershell"># Gracefully stop application pool
+Stop-WebAppPool -Name &quot;NoorCanvasPool&quot;
+Start-Sleep -Seconds 30  # Allow existing connections to complete
+</code></pre>
+<h4 id="2-deploy-application-files">2. Deploy Application Files</h4>
+<pre><code class="lang-powershell"># Backup existing application (if updating)
+$backupPath = &quot;C:\Backups\NoorCanvas-$(Get-Date -Format 'yyyyMMdd-HHmm')&quot;
+if (Test-Path &quot;C:\inetpub\wwwroot\NoorCanvas&quot;) {
+    Copy-Item &quot;C:\inetpub\wwwroot\NoorCanvas&quot; $backupPath -Recurse
+}
+
+# Deploy new application files
+$sourcePath = &quot;C:\Deployment\NoorCanvas\publish&quot;
+$targetPath = &quot;C:\inetpub\wwwroot\NoorCanvas&quot;
+
+# Clear existing files (preserve logs directory)
+Get-ChildItem $targetPath -Exclude &quot;logs&quot; | Remove-Item -Recurse -Force
+
+# Copy new files
+Copy-Item &quot;$sourcePath\*&quot; $targetPath -Recurse -Force
+</code></pre>
+<h4 id="3-configure-production-settings">3. Configure Production Settings</h4>
+<pre><code class="lang-powershell"># Create production configuration
+$prodConfig = @{
+    &quot;ConnectionStrings&quot; = @{
+        &quot;DefaultConnection&quot; = &quot;Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=True;&quot;
+        &quot;KSessionsDb&quot; = &quot;Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=True;&quot;
+    }
+    &quot;Serilog&quot; = @{
+        &quot;MinimumLevel&quot; = &quot;Information&quot;
+        &quot;WriteTo&quot; = @(
+            @{
+                &quot;Name&quot; = &quot;File&quot;
+                &quot;Args&quot; = @{
+                    &quot;path&quot; = &quot;C:\inetpub\wwwroot\NoorCanvas\logs\noor-canvas-.txt&quot;
+                    &quot;rollingInterval&quot; = &quot;Day&quot;
+                    &quot;retainedFileCountLimit&quot; = 30
+                }
+            }
+            @{
+                &quot;Name&quot; = &quot;EventLog&quot;
+                &quot;Args&quot; = @{
+                    &quot;source&quot; = &quot;NOOR Canvas&quot;
+                    &quot;logName&quot; = &quot;Application&quot;
+                }
+            }
+        )
+    }
+    &quot;AllowedHosts&quot; = &quot;noorcanvas.yourdomain.com&quot;
+}
+
+$prodConfigJson = $prodConfig | ConvertTo-Json -Depth 10
+Set-Content -Path &quot;C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json&quot; -Value $prodConfigJson
+</code></pre>
+<h4 id="4-configure-webconfig">4. Configure Web.config</h4>
+<pre><code class="lang-xml">&lt;!-- Create optimized web.config for production --&gt;
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;configuration&gt;
+  &lt;location path=&quot;.&quot; inheritInChildApplications=&quot;false&quot;&gt;
+    &lt;system.webServer&gt;
+      &lt;handlers&gt;
+        &lt;add name=&quot;aspNetCore&quot; path=&quot;*&quot; verb=&quot;*&quot; modules=&quot;AspNetCoreModuleV2&quot; resourceType=&quot;Unspecified&quot; /&gt;
+      &lt;/handlers&gt;
+      &lt;aspNetCore processPath=&quot;dotnet&quot; 
+                  arguments=&quot;.\NoorCanvas.dll&quot; 
+                  stdoutLogEnabled=&quot;false&quot; 
+                  stdoutLogFile=&quot;.\logs\stdout&quot; 
+                  hostingModel=&quot;inprocess&quot;&gt;
+        &lt;environmentVariables&gt;
+          &lt;environmentVariable name=&quot;ASPNETCORE_ENVIRONMENT&quot; value=&quot;Production&quot; /&gt;
+        &lt;/environmentVariables&gt;
+      &lt;/aspNetCore&gt;
+      
+      &lt;!-- Security Headers --&gt;
+      &lt;httpProtocol&gt;
+        &lt;customHeaders&gt;
+          &lt;add name=&quot;X-Content-Type-Options&quot; value=&quot;nosniff&quot; /&gt;
+          &lt;add name=&quot;X-Frame-Options&quot; value=&quot;DENY&quot; /&gt;
+          &lt;add name=&quot;X-XSS-Protection&quot; value=&quot;1; mode=block&quot; /&gt;
+          &lt;add name=&quot;Strict-Transport-Security&quot; value=&quot;max-age=31536000; includeSubDomains&quot; /&gt;
+          &lt;remove name=&quot;Server&quot; /&gt;
+        &lt;/customHeaders&gt;
+      &lt;/httpProtocol&gt;
+      
+      &lt;!-- HTTP to HTTPS Redirection --&gt;
+      &lt;rewrite&gt;
+        &lt;rules&gt;
+          &lt;rule name=&quot;Redirect HTTP to HTTPS&quot; stopProcessing=&quot;true&quot;&gt;
+            &lt;match url=&quot;(.*)&quot; /&gt;
+            &lt;conditions&gt;
+              &lt;add input=&quot;{HTTPS}&quot; pattern=&quot;off&quot; ignoreCase=&quot;true&quot; /&gt;
+            &lt;/conditions&gt;
+            &lt;action type=&quot;Redirect&quot; url=&quot;https://{HTTP_HOST}/{R:1}&quot; redirectType=&quot;Permanent&quot; /&gt;
+          &lt;/rule&gt;
+        &lt;/rules&gt;
+      &lt;/rewrite&gt;
+      
+      &lt;!-- Response Compression --&gt;
+      &lt;urlCompression doStaticCompression=&quot;true&quot; doDynamicCompression=&quot;true&quot; /&gt;
+      &lt;httpCompression&gt;
+        &lt;scheme name=&quot;gzip&quot; dll=&quot;%Windir%\system32\inetsrv\gzip.dll&quot; /&gt;
+        &lt;dynamicTypes&gt;
+          &lt;add mimeType=&quot;application/json&quot; enabled=&quot;true&quot; /&gt;
+          &lt;add mimeType=&quot;application/javascript&quot; enabled=&quot;true&quot; /&gt;
+        &lt;/dynamicTypes&gt;
+      &lt;/httpCompression&gt;
+      
+      &lt;!-- Static Content Caching --&gt;
+      &lt;staticContent&gt;
+        &lt;clientCache cacheControlMode=&quot;UseMaxAge&quot; cacheControlMaxAge=&quot;30.00:00:00&quot; /&gt;
+      &lt;/staticContent&gt;
+      
+      &lt;!-- WebSocket Support for SignalR --&gt;
+      &lt;webSocket enabled=&quot;true&quot; /&gt;
+      
+      &lt;!-- Application Initialization --&gt;
+      &lt;applicationInitialization doAppInitAfterRestart=&quot;true&quot;&gt;
+        &lt;add initializationPage=&quot;/health&quot; /&gt;
+      &lt;/applicationInitialization&gt;
+    &lt;/system.webServer&gt;
+  &lt;/location&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="phase-4-service-startup-and-validation">Phase 4: Service Startup and Validation</h3>
+<h4 id="1-start-application-pool">1. Start Application Pool</h4>
+<pre><code class="lang-powershell"># Start application pool
+Start-WebAppPool -Name &quot;NoorCanvasPool&quot;
+
+# Wait for startup
+Start-Sleep -Seconds 60
+
+# Verify application pool status
+$poolStatus = Get-WebAppPoolState -Name &quot;NoorCanvasPool&quot;
+Write-Host &quot;Application Pool Status: $($poolStatus.Value)&quot;
+</code></pre>
+<h4 id="2-health-check-validation">2. Health Check Validation</h4>
+<pre><code class="lang-powershell"># Test HTTP health endpoint (should redirect to HTTPS)
+try {
+    $httpResponse = Invoke-WebRequest -Uri &quot;http://noorcanvas.yourdomain.com/health&quot; -MaximumRedirection 0 -ErrorAction SilentlyContinue
+    Write-Host &quot;HTTP Redirect Status: $($httpResponse.StatusCode)&quot; # Should be 301/302
+} catch {
+    Write-Host &quot;HTTP redirect working (expected redirect error)&quot;
+}
+
+# Test HTTPS health endpoint
+$httpsResponse = Invoke-WebRequest -Uri &quot;https://noorcanvas.yourdomain.com/health&quot;
+Write-Host &quot;HTTPS Health Check Status: $($httpsResponse.StatusCode)&quot; # Should be 200
+Write-Host &quot;Health Check Response: $($httpsResponse.Content)&quot;
+</code></pre>
+<h4 id="3-database-connectivity-test">3. Database Connectivity Test</h4>
+<pre><code class="lang-powershell"># Test database connections using application context
+$testScript = @&quot;
+using System;
+using System.Data.SqlClient;
+
+string connectionString = &quot;Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;&quot;;
+
+try 
+{
+    using (var connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+        using (var command = new SqlCommand(&quot;SELECT COUNT(*) FROM canvas.Sessions&quot;, connection))
+        {
+            var result = command.ExecuteScalar();
+            Console.WriteLine($&quot;Database connectivity successful. Sessions count: {result}&quot;);
+        }
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($&quot;Database connectivity failed: {ex.Message}&quot;);
+    Environment.Exit(1);
+}
+&quot;@
+
+# Execute database test
+dotnet-script eval &quot;$testScript&quot;
+</code></pre>
+<h3 id="phase-5-performance-and-load-testing">Phase 5: Performance and Load Testing</h3>
+<h4 id="1-performance-baseline">1. Performance Baseline</h4>
+<pre><code class="lang-powershell"># Use Apache Bench for initial load testing
+# Install: choco install apache-httpd (if not available, use alternatives)
+
+# Test static content performance
+ab -n 1000 -c 10 https://noorcanvas.yourdomain.com/
+
+# Test health endpoint performance
+ab -n 1000 -c 10 https://noorcanvas.yourdomain.com/health
+
+# Test SignalR connection establishment (requires custom script)
+</code></pre>
+<h4 id="2-signalr-load-testing">2. SignalR Load Testing</h4>
+<pre><code class="lang-csharp">// Create SignalR load test script (simplified example)
+using Microsoft.AspNetCore.SignalR.Client;
+
+var connection = new HubConnectionBuilder()
+    .WithUrl(&quot;https://noorcanvas.yourdomain.com/hub/session&quot;)
+    .Build();
+
+await connection.StartAsync();
+Console.WriteLine(&quot;SignalR connection established successfully&quot;);
+
+// Test basic hub connectivity
+await connection.InvokeAsync(&quot;JoinSession&quot;, &quot;test-session-guid&quot;);
+Console.WriteLine(&quot;SignalR method invocation successful&quot;);
+
+await connection.DisposeAsync();
+</code></pre>
+<h2 id="post-deployment-configuration">Post-Deployment Configuration</h2>
+<h3 id="monitoring-setup">Monitoring Setup</h3>
+<h4 id="1-windows-event-log-configuration">1. Windows Event Log Configuration</h4>
+<pre><code class="lang-powershell"># Create custom event log source for NOOR Canvas
+New-EventLog -LogName Application -Source &quot;NOOR Canvas&quot;
+</code></pre>
+<h4 id="2-performance-counter-monitoring">2. Performance Counter Monitoring</h4>
+<pre><code class="lang-powershell"># Monitor key performance counters
+$counters = @(
+    &quot;\Processor(_Total)\% Processor Time&quot;,
+    &quot;\Memory\Available MBytes&quot;,
+    &quot;\Web Service(NoorCanvas)\Current Connections&quot;,
+    &quot;\ASP.NET Apps v4.0.30319(_LM_W3SVC_1_ROOT)\Requests/Sec&quot;
+)
+
+# Create baseline performance report
+Get-Counter -Counter $counters -SampleInterval 5 -MaxSamples 12 | Export-Counter -Path &quot;C:\Monitoring\baseline-performance.csv&quot;
+</code></pre>
+<h4 id="3-log-rotation-configuration">3. Log Rotation Configuration</h4>
+<pre><code class="lang-powershell"># Schedule log cleanup task
+$action = New-ScheduledTaskAction -Execute &quot;PowerShell.exe&quot; -Argument &quot;-Command &quot;&quot;Get-ChildItem 'C:\inetpub\wwwroot\NoorCanvas\logs\*.txt' | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-30)} | Remove-Item -Force&quot;&quot;&quot;
+$trigger = New-ScheduledTaskTrigger -Daily -At 2:00AM
+$principal = New-ScheduledTaskPrincipal -UserId &quot;SYSTEM&quot; -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -TaskName &quot;NoorCanvas-LogCleanup&quot; -Action $action -Trigger $trigger -Principal $principal
+</code></pre>
+<h3 id="security-hardening">Security Hardening</h3>
+<h4 id="1-firewall-configuration">1. Firewall Configuration</h4>
+<pre><code class="lang-powershell"># Configure Windows Firewall rules
+New-NetFirewallRule -DisplayName &quot;NoorCanvas HTTP&quot; -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow
+New-NetFirewallRule -DisplayName &quot;NoorCanvas HTTPS&quot; -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
+
+# Restrict SQL Server access to application server only
+New-NetFirewallRule -DisplayName &quot;SQL Server&quot; -Direction Inbound -Protocol TCP -LocalPort 1433 -RemoteAddress &quot;APP-SERVER-IP&quot; -Action Allow
+</code></pre>
+<h4 id="2-sql-server-security">2. SQL Server Security</h4>
+<pre><code class="lang-sql">-- Disable unnecessary SQL Server features
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 0;
+EXEC sp_configure 'Ole Automation Procedures', 0;
+RECONFIGURE;
+
+-- Enable SQL Server Audit (if required)
+CREATE SERVER AUDIT NoorCanvas_Audit
+TO FILE (FILEPATH = 'F:\Audit\', MAXSIZE = 100MB, MAX_FILES = 10);
+ALTER SERVER AUDIT NoorCanvas_Audit WITH (STATE = ON);
+</code></pre>
+<h2 id="backup-and-disaster-recovery">Backup and Disaster Recovery</h2>
+<h3 id="automated-backup-strategy">Automated Backup Strategy</h3>
+<pre><code class="lang-powershell"># Database backup script
+$backupScript = @&quot;
+BACKUP DATABASE [KSESSIONS] 
+TO DISK = 'F:\Backups\KSESSIONS_Full.bak'
+WITH FORMAT, INIT, COMPRESSION, 
+NAME = 'KSESSIONS Production Full Backup - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')';
+
+BACKUP LOG [KSESSIONS] 
+TO DISK = 'F:\Backups\KSESSIONS_Log.trn'
+WITH FORMAT, INIT,
+NAME = 'KSESSIONS Transaction Log Backup - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')';
+&quot;@
+
+# Schedule daily full backup
+$action = New-ScheduledTaskAction -Execute &quot;sqlcmd.exe&quot; -Argument &quot;-S PROD-SQL-01 -Q &quot;&quot;$backupScript&quot;&quot;&quot;
+$trigger = New-ScheduledTaskTrigger -Daily -At 2:00AM
+Register-ScheduledTask -TaskName &quot;NoorCanvas-DatabaseBackup&quot; -Action $action -Trigger $trigger
+</code></pre>
+<h3 id="application-file-backup">Application File Backup</h3>
+<pre><code class="lang-powershell"># Application files backup script
+$appBackupScript = {
+    $backupPath = &quot;D:\Backups\NoorCanvas-$(Get-Date -Format 'yyyyMMdd')&quot;
+    Copy-Item &quot;C:\inetpub\wwwroot\NoorCanvas&quot; $backupPath -Recurse -Exclude &quot;logs&quot;
+    
+    # Compress backup
+    Compress-Archive -Path $backupPath -DestinationPath &quot;$backupPath.zip&quot;
+    Remove-Item $backupPath -Recurse -Force
+    
+    # Clean old backups (keep 7 days)
+    Get-ChildItem &quot;D:\Backups\NoorCanvas-*.zip&quot; | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item
+}
+
+# Schedule weekly application backup
+$action = New-ScheduledTaskAction -Execute &quot;PowerShell.exe&quot; -Argument &quot;-Command &quot;&quot;&amp; {$($appBackupScript.ToString())}&quot;&quot;&quot;
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 3:00AM
+Register-ScheduledTask -TaskName &quot;NoorCanvas-AppBackup&quot; -Action $action -Trigger $trigger
+</code></pre>
+<h2 id="rollback-procedures">Rollback Procedures</h2>
+<h3 id="emergency-rollback-plan">Emergency Rollback Plan</h3>
+<pre><code class="lang-powershell"># Stop application
+Stop-WebAppPool -Name &quot;NoorCanvasPool&quot;
+
+# Restore previous version from backup
+$rollbackSource = &quot;C:\Backups\NoorCanvas-YYYYMMDD-HHMM&quot;  # Replace with actual backup
+$targetPath = &quot;C:\inetpub\wwwroot\NoorCanvas&quot;
+
+# Clear current version (preserve logs)
+Get-ChildItem $targetPath -Exclude &quot;logs&quot; | Remove-Item -Recurse -Force
+
+# Restore backup
+Copy-Item &quot;$rollbackSource\*&quot; $targetPath -Recurse -Force
+
+# Rollback database if needed (point-in-time recovery)
+# NOTE: This requires careful consideration and should be tested in staging
+
+# Start application
+Start-WebAppPool -Name &quot;NoorCanvasPool&quot;
+
+# Verify rollback
+Start-Sleep -Seconds 60
+Invoke-WebRequest -Uri &quot;https://noorcanvas.yourdomain.com/health&quot;
+</code></pre>
+<h2 id="production-maintenance">Production Maintenance</h2>
+<h3 id="regular-maintenance-tasks">Regular Maintenance Tasks</h3>
+<ol>
+<li><strong>Daily</strong>: Review application logs for errors</li>
+<li><strong>Weekly</strong>: Check performance counters and resource utilization</li>
+<li><strong>Monthly</strong>: Update SSL certificates if needed, review security logs</li>
+<li><strong>Quarterly</strong>: Update .NET runtime and security patches</li>
+<li><strong>Annually</strong>: Review and update disaster recovery procedures</li>
+</ol>
+<h3 id="health-monitoring-dashboard">Health Monitoring Dashboard</h3>
+<pre><code class="lang-powershell"># Create monitoring script for operational dashboard
+$monitoringScript = {
+    $report = @{
+        Timestamp = Get-Date
+        AppPoolStatus = (Get-WebAppPoolState -Name &quot;NoorCanvasPool&quot;).Value
+        WebsiteStatus = (Get-Website -Name &quot;NoorCanvas&quot;).State
+        DatabaseConnectivity = &quot;Unknown&quot;
+        CertificateExpiry = &quot;Unknown&quot;
+    }
+    
+    # Test database connectivity
+    try {
+        $connection = New-Object System.Data.SqlClient.SqlConnection(&quot;Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=10;&quot;)
+        $connection.Open()
+        $connection.Close()
+        $report.DatabaseConnectivity = &quot;Success&quot;
+    } catch {
+        $report.DatabaseConnectivity = &quot;Failed: $($_.Exception.Message)&quot;
+    }
+    
+    # Check SSL certificate expiry
+    try {
+        $cert = Get-ChildItem &quot;cert:\LocalMachine\My&quot; | Where-Object {$_.Subject -like &quot;*noorcanvas*&quot;}
+        $daysUntilExpiry = ($cert.NotAfter - (Get-Date)).Days
+        $report.CertificateExpiry = &quot;$daysUntilExpiry days&quot;
+    } catch {
+        $report.CertificateExpiry = &quot;Error checking certificate&quot;
+    }
+    
+    $report | ConvertTo-Json | Out-File &quot;C:\Monitoring\health-report-$(Get-Date -Format 'yyyyMMdd-HHmm').json&quot;
+}
+
+# Schedule monitoring every 15 minutes
+$action = New-ScheduledTaskAction -Execute &quot;PowerShell.exe&quot; -Argument &quot;-Command &quot;&quot;&amp; {$($monitoringScript.ToString())}&quot;&quot;&quot;
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15)
+Register-ScheduledTask -TaskName &quot;NoorCanvas-HealthMonitoring&quot; -Action $action -Trigger $trigger
+</code></pre>
+<p>For detailed IIS configuration steps, see the <a href="iis-configuration.html">IIS Configuration Guide</a>.
+For database-specific deployment procedures, see the <a href="database-setup.html">Database Setup Guide</a>.</p>
+<h2 id="support-and-troubleshooting">Support and Troubleshooting</h2>
+<p>Contact the development team for production support issues:</p>
+<ul>
+<li><strong>Email</strong>: support@noorcanvas.com</li>
+<li><strong>Documentation</strong>: See technical documentation in DocFX site</li>
+<li><strong>Issue Tracking</strong>: Use GitHub issues for non-critical problems</li>
+<li><strong>Emergency</strong>: Follow escalation procedures in operations manual</li>
+</ul>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/deployment/production-deployment.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

@@ -48,6 +48,19 @@
     href: technical/ssl-certificate-configuration.md
   - name: Global Commands Technical Reference
     href: technical/global-commands-technical-reference.md
+- name: Canvas Schema Documentation
+  href: canvas-schema-reference.md
+  items:
+  - name: Schema Overview
+    href: canvas-schema-overview.md
+  - name: Tables Reference
+    href: canvas-schema-tables.md
+  - name: Stored Procedures
+    href: canvas-schema-procedures.md
+  - name: Performance & Indexes
+    href: canvas-schema-performance.md
+  - name: Data Flows & Integration
+    href: canvas-schema-integration.md
   - name: Automated Testing Technical Reference
     href: technical/automated-testing-technical-reference.md
   - name: API Reference

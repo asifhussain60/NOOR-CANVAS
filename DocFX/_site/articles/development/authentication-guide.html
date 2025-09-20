@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Authentication Guide </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Authentication Guide ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="authentication-guide">Authentication Guide</h1>
+
+<p>User guide for NOOR Canvas authentication and session management.</p>
+<h2 id="overview">Overview</h2>
+<p>NOOR Canvas uses a GUID-based session authentication system designed for Islamic content sharing without traditional user accounts.</p>
+<h2 id="how-authentication-works">How Authentication Works</h2>
+<h3 id="session-based-authentication">Session-Based Authentication</h3>
+<p>Instead of username/password, NOOR Canvas uses:</p>
+<ul>
+<li><strong>Session GUIDs</strong>: Unique identifiers for each session</li>
+<li><strong>Host Tokens</strong>: Special tokens for session hosts</li>
+<li><strong>Participant Registration</strong>: Simple name-based registration</li>
+</ul>
+<h3 id="authentication-flow">Authentication Flow</h3>
+<pre><code>1. Host creates session with host token
+2. Participants join using session GUID
+3. System validates tokens and GUIDs
+4. Access granted to session resources
+</code></pre>
+<h2 id="for-session-hosts">For Session Hosts</h2>
+<h3 id="creating-a-session">Creating a Session</h3>
+<ol>
+<li><p><strong>Generate Host Token</strong></p>
+<pre><code class="lang-powershell">nct  # Generates new host token
+</code></pre>
+</li>
+<li><p><strong>Start Application</strong></p>
+<pre><code class="lang-powershell">nc   # Launches with token integration
+</code></pre>
+</li>
+<li><p><strong>Create Session</strong></p>
+<ul>
+<li>Navigate to host interface</li>
+<li>Select content (Album/Category/Session)</li>
+<li>System generates unique session GUID</li>
+</ul>
+</li>
+</ol>
+<h3 id="managing-sessions">Managing Sessions</h3>
+<ul>
+<li><strong>View Active Sessions</strong>: Check host dashboard</li>
+<li><strong>End Sessions</strong>: Use session management interface</li>
+<li><strong>Monitor Participants</strong>: Real-time participant list</li>
+</ul>
+<h2 id="for-participants">For Participants</h2>
+<h3 id="joining-a-session">Joining a Session</h3>
+<ol>
+<li><strong>Get Session GUID</strong>: From session host</li>
+<li><strong>Navigate to Application</strong>: https://localhost:9091 (development)</li>
+<li><strong>Enter Session Details</strong>:
+<ul>
+<li>Session GUID</li>
+<li>Your name</li>
+<li>Country/City (optional)</li>
+</ul>
+</li>
+</ol>
+<h3 id="during-sessions">During Sessions</h3>
+<ul>
+<li><strong>View Content</strong>: Islamic content shared by host</li>
+<li><strong>Add Annotations</strong>: Real-time collaborative annotations</li>
+<li><strong>Ask Questions</strong>: Submit questions to host</li>
+<li><strong>Participate</strong>: Engage with other participants</li>
+</ul>
+<h2 id="security-features">Security Features</h2>
+<h3 id="session-isolation">Session Isolation</h3>
+<ul>
+<li>Each session has unique GUID</li>
+<li>Participants can only access their joined sessions</li>
+<li>Host controls session access and content</li>
+</ul>
+<h3 id="data-protection">Data Protection</h3>
+<ul>
+<li>No permanent user accounts required</li>
+<li>Session data expires automatically</li>
+<li>Islamic content access follows proper protocols</li>
+</ul>
+<h3 id="network-security">Network Security</h3>
+<ul>
+<li>HTTPS encryption for all communications</li>
+<li>SignalR secure WebSocket connections</li>
+<li>SQL Server integrated security</li>
+</ul>
+<h2 id="authentication-tokens">Authentication Tokens</h2>
+<h3 id="host-tokens-generated-by-nct">Host Tokens (Generated by <code>nct</code>)</h3>
+<pre><code>Format: GUID (e.g., 123e4567-e89b-12d3-a456-426614174000)
+Purpose: Authorizes session creation
+Scope: Host-level permissions
+Expiration: Session-based
+</code></pre>
+<h3 id="session-guids-generated-automatically">Session GUIDs (Generated automatically)</h3>
+<pre><code>Format: GUID (e.g., 987fcdeb-51d2-43a1-b456-426614174001)
+Purpose: Session identification and access
+Scope: Participant-level permissions  
+Expiration: Configurable session timeout
+</code></pre>
+<h2 id="configuration">Configuration</h2>
+<h3 id="development-settings">Development Settings</h3>
+<pre><code class="lang-json">// appsettings.Development.json
+{
+  &quot;SessionSettings&quot;: {
+    &quot;DefaultExpirationMinutes&quot;: 120,
+    &quot;MaxParticipants&quot;: 50,
+    &quot;RequireHostAuthentication&quot;: true
+  }
+}
+</code></pre>
+<h3 id="production-settings">Production Settings</h3>
+<pre><code class="lang-json">// appsettings.json
+{
+  &quot;SessionSettings&quot;: {
+    &quot;DefaultExpirationMinutes&quot;: 60,
+    &quot;MaxParticipants&quot;: 100,
+    &quot;RequireHostAuthentication&quot;: true
+  }
+}
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-authentication-issues">Common Authentication Issues</h3>
+<h4 id="invalid-host-token">&quot;Invalid Host Token&quot;</h4>
+<p><strong>Cause</strong>: Token expired or incorrect
+<strong>Solution</strong>:</p>
+<pre><code class="lang-powershell">nct  # Generate new token
+nc   # Restart with new token
+</code></pre>
+<h4 id="session-not-found">&quot;Session Not Found&quot;</h4>
+<p><strong>Cause</strong>: Invalid GUID or session expired
+<strong>Solutions</strong>:</p>
+<ul>
+<li>Verify GUID with session host</li>
+<li>Check if session is still active</li>
+<li>Host may need to recreate session</li>
+</ul>
+<h4 id="connection-refused">&quot;Connection Refused&quot;</h4>
+<p><strong>Cause</strong>: SSL certificate or network issues
+<strong>Solutions</strong>:</p>
+<ul>
+<li>Use HTTPS URL: https://localhost:9091</li>
+<li>Check if development server is running</li>
+<li>Verify firewall settings</li>
+</ul>
+<h3 id="getting-authentication-help">Getting Authentication Help</h3>
+<h4 id="for-development">For Development</h4>
+<ol>
+<li>Check <code>nc -Help</code> for token integration</li>
+<li>Use <code>nct</code> to generate fresh tokens</li>
+<li>Monitor logs for authentication failures</li>
+</ol>
+<h4 id="for-users">For Users</h4>
+<ol>
+<li>Verify session GUID with host</li>
+<li>Check network connection</li>
+<li>Try refreshing the page</li>
+<li>Contact session host for assistance</li>
+</ol>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="for-hosts">For Hosts</h3>
+<ul>
+<li>Generate fresh tokens for each development session</li>
+<li>Share session GUIDs securely with participants</li>
+<li>Monitor participant list for unauthorized access</li>
+<li>End sessions properly when complete</li>
+</ul>
+<h3 id="for-participants-1">For Participants</h3>
+<ul>
+<li>Keep session GUID confidential</li>
+<li>Use appropriate names for Islamic content context</li>
+<li>Respect session guidelines and Islamic etiquette</li>
+<li>Log out properly when leaving session</li>
+</ul>
+<h3 id="for-developers">For Developers</h3>
+<ul>
+<li>Test authentication flows regularly</li>
+<li>Monitor token expiration handling</li>
+<li>Validate GUID formats and uniqueness</li>
+<li>Implement proper error handling for auth failures</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><a href="host-authentication-guide.md">Host Authentication Guide</a></li>
+<li><a href="ssl-configuration-user-guide.md">SSL Configuration</a></li>
+<li><a href="getting-started-guide.md">Getting Started Guide</a></li>
+<li><a href="../technical/authentication-technical-reference.md">Technical: Authentication System</a></li>
+</ul>
+<p><em>This authentication guide is updated automatically as authentication features are enhanced.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/development/authentication-guide.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

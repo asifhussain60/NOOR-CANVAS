@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Canvas Schema Tables Reference </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Canvas Schema Tables Reference ">
+    
+    
+      <link rel="shortcut icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../styles/docfx.css">
+      <link rel="stylesheet" href="../styles/main.css">
+      <meta property="docfx:navrel" content="../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="canvas-schema-tables-reference">Canvas Schema Tables Reference</h1>
+
+<h2 id="core-tables">Core Tables</h2>
+<h3 id="sessions-">Sessions 📅</h3>
+<p><strong>Purpose</strong>: Central hub for all learning sessions in NOOR Canvas</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique session identifier</td>
+</tr>
+<tr>
+<td><code>GroupId</code></td>
+<td><code>uniqueidentifier</code></td>
+<td>SignalR group identifier for real-time communication</td>
+</tr>
+<tr>
+<td><code>Title</code></td>
+<td><code>nvarchar(200)</code></td>
+<td>Session display title</td>
+</tr>
+<tr>
+<td><code>Description</code></td>
+<td><code>nvarchar(1000)</code></td>
+<td>Detailed session description</td>
+</tr>
+<tr>
+<td><code>HostGuid</code></td>
+<td><code>nvarchar(100)</code></td>
+<td>Host identifier (NOT NULL, default '')</td>
+</tr>
+<tr>
+<td><code>MaxParticipants</code></td>
+<td><code>int</code></td>
+<td>Maximum allowed participants</td>
+</tr>
+<tr>
+<td><code>ParticipantCount</code></td>
+<td><code>int</code></td>
+<td>Current participant count</td>
+</tr>
+<tr>
+<td><code>Status</code></td>
+<td><code>nvarchar(50)</code></td>
+<td>Session status (Pending, Active, Ended, etc.)</td>
+</tr>
+<tr>
+<td><code>StartedAt</code></td>
+<td><code>datetime2</code></td>
+<td>When session actually started</td>
+</tr>
+<tr>
+<td><code>EndedAt</code></td>
+<td><code>datetime2</code></td>
+<td>When session ended</td>
+</tr>
+<tr>
+<td><code>ExpiresAt</code></td>
+<td><code>datetime2</code></td>
+<td>Session expiration time</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Session creation timestamp</td>
+</tr>
+<tr>
+<td><code>ModifiedAt</code></td>
+<td><code>datetime2</code> (NOT NULL, default '0001-01-01')</td>
+<td>Last modification timestamp</td>
+</tr>
+<tr>
+<td><code>KSessionsId</code></td>
+<td><code>bigint</code></td>
+<td>Link to dbo.Sessions for Islamic content</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Relationships</strong>: Links to <code>dbo.Sessions</code> for Islamic content integration</p>
+<hr>
+<h3 id="users-">Users 👥</h3>
+<p><strong>Purpose</strong>: User profiles and registration management</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserId</code></td>
+<td><code>uniqueidentifier</code> (PK)</td>
+<td>Unique user identifier</td>
+</tr>
+<tr>
+<td><code>UserGuid</code></td>
+<td><code>nvarchar(256)</code> (NOT NULL, default '')</td>
+<td>User GUID reference</td>
+</tr>
+<tr>
+<td><code>Name</code></td>
+<td><code>nvarchar(256)</code></td>
+<td>User display name</td>
+</tr>
+<tr>
+<td><code>City</code></td>
+<td><code>nvarchar(128)</code></td>
+<td>User's city</td>
+</tr>
+<tr>
+<td><code>Country</code></td>
+<td><code>nvarchar(128)</code></td>
+<td>User's country</td>
+</tr>
+<tr>
+<td><code>FirstJoinedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>First session join timestamp</td>
+</tr>
+<tr>
+<td><code>LastJoinedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Most recent session join</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL, default '0001-01-01')</td>
+<td>User profile creation</td>
+</tr>
+<tr>
+<td><code>IsActive</code></td>
+<td><code>bit</code> (NOT NULL, default 0)</td>
+<td>Account status flag</td>
+</tr>
+<tr>
+<td><code>LastSeenAt</code></td>
+<td><code>datetime2</code></td>
+<td>Last activity timestamp</td>
+</tr>
+<tr>
+<td><code>ModifiedAt</code></td>
+<td><code>datetime2</code> (NOT NULL, default '0001-01-01')</td>
+<td>Profile modification timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Purpose</strong>: Manages user demographics and engagement tracking for learning analytics.</p>
+<hr>
+<h3 id="securetokens-">SecureTokens 🔐</h3>
+<p><strong>Purpose</strong>: 8-character friendly token system for session access control</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Id</code></td>
+<td><code>int</code> (PK)</td>
+<td>Token record identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>HostToken</code></td>
+<td><code>nvarchar(8)</code> (NOT NULL)</td>
+<td>8-char host access token</td>
+</tr>
+<tr>
+<td><code>UserToken</code></td>
+<td><code>nvarchar(8)</code> (NOT NULL)</td>
+<td>8-char user access token</td>
+</tr>
+<tr>
+<td><code>ExpiresAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Token expiration time</td>
+</tr>
+<tr>
+<td><code>IsActive</code></td>
+<td><code>bit</code> (NOT NULL, default 1)</td>
+<td>Token validity flag</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL, default GETUTCDATE())</td>
+<td>Token generation timestamp</td>
+</tr>
+<tr>
+<td><code>CreatedByIp</code></td>
+<td><code>nvarchar(45)</code></td>
+<td>IP address of token creator</td>
+</tr>
+<tr>
+<td><code>AccessCount</code></td>
+<td><code>int</code> (NOT NULL, default 0)</td>
+<td>Usage counter</td>
+</tr>
+<tr>
+<td><code>LastAccessedAt</code></td>
+<td><code>datetime2</code></td>
+<td>Most recent access timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security Features</strong>:</p>
+<ul>
+<li>8-character friendly format (e.g., <code>USER223A</code>, <code>HOST456B</code>)</li>
+<li>Automatic expiration handling</li>
+<li>IP tracking for security audit</li>
+<li>Access counting for analytics</li>
+</ul>
+<p><strong>URLs</strong>:</p>
+<ul>
+<li>Host: <code>/host/control-panel/{hostToken}</code></li>
+<li>User: <code>/user/landing/{userToken}</code></li>
+</ul>
+<hr>
+<h2 id="learning-activity-tables">Learning Activity Tables</h2>
+<h3 id="questions-">Questions ❓</h3>
+<p><strong>Purpose</strong>: Q&amp;A system for interactive learning sessions</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>QuestionId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique question identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>UserId</code></td>
+<td><code>uniqueidentifier</code> (NOT NULL, FK)</td>
+<td>Question author</td>
+</tr>
+<tr>
+<td><code>QuestionText</code></td>
+<td><code>nvarchar(280)</code> (NOT NULL)</td>
+<td>Question content (280 char limit)</td>
+</tr>
+<tr>
+<td><code>QueuedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>When question was submitted</td>
+</tr>
+<tr>
+<td><code>AnsweredAt</code></td>
+<td><code>datetime2</code></td>
+<td>When question was answered</td>
+</tr>
+<tr>
+<td><code>VoteCount</code></td>
+<td><code>int</code> (NOT NULL)</td>
+<td>Community vote score</td>
+</tr>
+<tr>
+<td><code>Status</code></td>
+<td><code>nvarchar(50)</code> (NOT NULL)</td>
+<td>Question status (Pending, Answered, Rejected)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Relationships</strong>:</p>
+<ul>
+<li><code>Sessions</code> (both canvas and dbo)</li>
+<li><code>Users</code> for question attribution</li>
+<li><code>QuestionAnswers</code> for responses</li>
+<li><code>QuestionVotes</code> for community voting</li>
+</ul>
+<hr>
+<h3 id="questionanswers-">QuestionAnswers 💬</h3>
+<p><strong>Purpose</strong>: Responses to submitted questions</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AnswerId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique answer identifier</td>
+</tr>
+<tr>
+<td><code>QuestionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Parent question</td>
+</tr>
+<tr>
+<td><code>PostedBy</code></td>
+<td><code>nvarchar(64)</code> (NOT NULL)</td>
+<td>Answer author</td>
+</tr>
+<tr>
+<td><code>PostedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Answer timestamp</td>
+</tr>
+<tr>
+<td><code>AnswerText</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>Answer content (unlimited length)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="questionvotes-">QuestionVotes 🗳️</h3>
+<p><strong>Purpose</strong>: Community voting system for question prioritization</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VoteId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique vote identifier</td>
+</tr>
+<tr>
+<td><code>QuestionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Target question</td>
+</tr>
+<tr>
+<td><code>UserId</code></td>
+<td><code>uniqueidentifier</code> (FK)</td>
+<td>Voting user</td>
+</tr>
+<tr>
+<td><code>VoteValue</code></td>
+<td><code>tinyint</code> (NOT NULL)</td>
+<td>Vote value (+1, -1)</td>
+</tr>
+<tr>
+<td><code>VotedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Vote timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Features</strong>:</p>
+<ul>
+<li>Prevents duplicate voting per user per question</li>
+<li>Aggregates to <code>Questions.VoteCount</code> for sorting</li>
+<li>Supports upvote/downvote mechanics</li>
+</ul>
+<hr>
+<h3 id="annotations-">Annotations ✏️</h3>
+<p><strong>Purpose</strong>: Real-time highlighting and note-taking system</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AnnotationId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique annotation identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Annotation timestamp</td>
+</tr>
+<tr>
+<td><code>AnnotationData</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>JSON annotation data (highlights, notes, coordinates)</td>
+</tr>
+<tr>
+<td><code>CreatedBy</code></td>
+<td><code>nvarchar(128)</code></td>
+<td>Annotation author</td>
+</tr>
+<tr>
+<td><code>IsDeleted</code></td>
+<td><code>bit</code> (NOT NULL, default 0)</td>
+<td>Soft delete flag</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data Format</strong>: JSON structure containing:</p>
+<ul>
+<li>Text selection coordinates</li>
+<li>Highlight color and style</li>
+<li>Contextual notes</li>
+<li>User interaction metadata</li>
+</ul>
+<hr>
+<h3 id="sharedassets-">SharedAssets 📤</h3>
+<p><strong>Purpose</strong>: Content sharing and asset management during sessions</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AssetId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique asset identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>SharedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Sharing timestamp</td>
+</tr>
+<tr>
+<td><code>AssetType</code></td>
+<td><code>nvarchar(50)</code></td>
+<td>Asset type (Image, Document, Link, Video)</td>
+</tr>
+<tr>
+<td><code>AssetData</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>Asset content or reference</td>
+</tr>
+<tr>
+<td><code>AssetSelector</code></td>
+<td><code>nvarchar(500)</code></td>
+<td>CSS/DOM selector for positioning</td>
+</tr>
+<tr>
+<td><code>AssetPosition</code></td>
+<td><code>int</code></td>
+<td>Display order/position</td>
+</tr>
+<tr>
+<td><code>AssetMetadata</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>JSON metadata (title, description, etc.)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Features</strong>:</p>
+<ul>
+<li><strong>Selector-based Detection</strong>: 14 SHARE container selectors replace 191 buttons</li>
+<li><strong>~90% Storage Reduction</strong> vs HTML blob storage</li>
+<li><strong>Indexed Performance</strong>: <code>IX_SharedAssets_TypeSelector</code> for fast queries</li>
+<li><strong>Rich Metadata</strong>: JSON-based extensible metadata system</li>
+</ul>
+<hr>
+<h2 id="tracking--analytics-tables">Tracking &amp; Analytics Tables</h2>
+<h3 id="sessionparticipants-">SessionParticipants 👥</h3>
+<p><strong>Purpose</strong>: Real-time participant tracking and session analytics</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Id</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique participant record</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>UserId</code></td>
+<td><code>nvarchar(128)</code> (NOT NULL)</td>
+<td>Participant identifier</td>
+</tr>
+<tr>
+<td><code>DisplayName</code></td>
+<td><code>nvarchar(255)</code></td>
+<td>Participant display name</td>
+</tr>
+<tr>
+<td><code>JoinedAt</code></td>
+<td><code>datetime2</code></td>
+<td>Join timestamp</td>
+</tr>
+<tr>
+<td><code>LeftAt</code></td>
+<td><code>datetime2</code></td>
+<td>Leave timestamp (NULL if still active)</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL, default GETUTCDATE())</td>
+<td>Record creation</td>
+</tr>
+<tr>
+<td><code>ModifiedAt</code></td>
+<td><code>datetime2</code> (NOT NULL, default GETUTCDATE())</td>
+<td>Last update</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Analytics Features</strong>:</p>
+<ul>
+<li>Real-time participant counting</li>
+<li>Session duration tracking</li>
+<li>Join/leave pattern analysis</li>
+<li>SignalR group membership management</li>
+</ul>
+<hr>
+<h3 id="registrations-">Registrations 📝</h3>
+<p><strong>Purpose</strong>: User session registration and join tracking</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RegistrationId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique registration identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Target session</td>
+</tr>
+<tr>
+<td><code>UserId</code></td>
+<td><code>uniqueidentifier</code> (NOT NULL, FK)</td>
+<td>Registering user</td>
+</tr>
+<tr>
+<td><code>JoinTime</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Registration timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Purpose</strong>: Links users to sessions for attendance tracking and capacity management.</p>
+<hr>
+<h3 id="auditlog-">AuditLog 📊</h3>
+<p><strong>Purpose</strong>: Comprehensive activity logging for security and analytics</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EventId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique event identifier</td>
+</tr>
+<tr>
+<td><code>At</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Event timestamp</td>
+</tr>
+<tr>
+<td><code>Actor</code></td>
+<td><code>nvarchar(64)</code></td>
+<td>Action performer</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (FK)</td>
+<td>Associated session (if applicable)</td>
+</tr>
+<tr>
+<td><code>UserId</code></td>
+<td><code>uniqueidentifier</code> (FK)</td>
+<td>Associated user (if applicable)</td>
+</tr>
+<tr>
+<td><code>Action</code></td>
+<td><code>nvarchar(100)</code></td>
+<td>Action type description</td>
+</tr>
+<tr>
+<td><code>Details</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>Detailed event information</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tracked Events</strong>:</p>
+<ul>
+<li>User authentication and authorization</li>
+<li>Session lifecycle events (create, start, end)</li>
+<li>Question submission and answering</li>
+<li>Asset sharing and annotations</li>
+<li>Security events and access patterns</li>
+</ul>
+<hr>
+<h2 id="administrative-tables">Administrative Tables</h2>
+<h3 id="issues-">Issues 🐛</h3>
+<p><strong>Purpose</strong>: Issue tracking and user feedback system</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IssueId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique issue identifier</td>
+</tr>
+<tr>
+<td><code>Title</code></td>
+<td><code>nvarchar(200)</code> (NOT NULL)</td>
+<td>Issue title</td>
+</tr>
+<tr>
+<td><code>Description</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>Detailed issue description</td>
+</tr>
+<tr>
+<td><code>Priority</code></td>
+<td><code>nvarchar(50)</code> (NOT NULL)</td>
+<td>Priority level (Low, Medium, High, Critical)</td>
+</tr>
+<tr>
+<td><code>Category</code></td>
+<td><code>nvarchar(50)</code> (NOT NULL)</td>
+<td>Issue category (Bug, Feature, Performance, etc.)</td>
+</tr>
+<tr>
+<td><code>Status</code></td>
+<td><code>nvarchar(50)</code> (NOT NULL)</td>
+<td>Issue status (Open, In Progress, Resolved, Closed)</td>
+</tr>
+<tr>
+<td><code>ReportedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Issue creation timestamp</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (FK)</td>
+<td>Associated session (if applicable)</td>
+</tr>
+<tr>
+<td><code>UserId</code></td>
+<td><code>uniqueidentifier</code> (FK)</td>
+<td>Reporting user</td>
+</tr>
+<tr>
+<td><code>ReportedBy</code></td>
+<td><code>nvarchar(128)</code></td>
+<td>Reporter identifier</td>
+</tr>
+<tr>
+<td><code>Context</code></td>
+<td><code>nvarchar(MAX)</code></td>
+<td>Additional context and environment info</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="sessionlinks-">SessionLinks 🔗</h3>
+<p><strong>Purpose</strong>: Session URL management and access tracking</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LinkId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique link identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>Guid</code></td>
+<td><code>uniqueidentifier</code> (NOT NULL)</td>
+<td>Link GUID</td>
+</tr>
+<tr>
+<td><code>State</code></td>
+<td><code>tinyint</code> (NOT NULL)</td>
+<td>Link state (Active, Expired, Revoked)</td>
+</tr>
+<tr>
+<td><code>LastUsedAt</code></td>
+<td><code>datetime2</code></td>
+<td>Most recent access</td>
+</tr>
+<tr>
+<td><code>UseCount</code></td>
+<td><code>int</code> (NOT NULL)</td>
+<td>Usage counter</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Link creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="hostsessions-">HostSessions 🎯</h3>
+<p><strong>Purpose</strong>: Host authentication and session control</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HostSessionId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique host session identifier</td>
+</tr>
+<tr>
+<td><code>SessionId</code></td>
+<td><code>bigint</code> (NOT NULL, FK)</td>
+<td>Associated session</td>
+</tr>
+<tr>
+<td><code>HostGuidHash</code></td>
+<td><code>nvarchar(128)</code> (NOT NULL)</td>
+<td>Hashed host identifier</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Host session creation</td>
+</tr>
+<tr>
+<td><code>ExpiresAt</code></td>
+<td><code>datetime2</code></td>
+<td>Host session expiration</td>
+</tr>
+<tr>
+<td><code>LastUsedAt</code></td>
+<td><code>datetime2</code></td>
+<td>Most recent host access</td>
+</tr>
+<tr>
+<td><code>CreatedBy</code></td>
+<td><code>nvarchar(128)</code></td>
+<td>Host session creator</td>
+</tr>
+<tr>
+<td><code>RevokedAt</code></td>
+<td><code>datetime2</code></td>
+<td>Revocation timestamp</td>
+</tr>
+<tr>
+<td><code>RevokedBy</code></td>
+<td><code>nvarchar(128)</code></td>
+<td>Who revoked the session</td>
+</tr>
+<tr>
+<td><code>IsActive</code></td>
+<td><code>bit</code> (NOT NULL)</td>
+<td>Host session status</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="adminsessions-">AdminSessions 👑</h3>
+<p><strong>Purpose</strong>: Administrative access and control panel sessions</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AdminSessionId</code></td>
+<td><code>bigint</code> (PK)</td>
+<td>Unique admin session identifier</td>
+</tr>
+<tr>
+<td><code>AdminGuid</code></td>
+<td><code>nvarchar(100)</code> (NOT NULL)</td>
+<td>Admin GUID identifier</td>
+</tr>
+<tr>
+<td><code>SessionToken</code></td>
+<td><code>nvarchar(128)</code> (NOT NULL)</td>
+<td>Admin session token</td>
+</tr>
+<tr>
+<td><code>CreatedAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Admin session creation</td>
+</tr>
+<tr>
+<td><code>ExpiresAt</code></td>
+<td><code>datetime2</code> (NOT NULL)</td>
+<td>Admin session expiration</td>
+</tr>
+<tr>
+<td><code>LastUsedAt</code></td>
+<td><code>datetime2</code></td>
+<td>Most recent admin access</td>
+</tr>
+<tr>
+<td><code>IsActive</code></td>
+<td><code>bit</code> (NOT NULL)</td>
+<td>Admin session status</td>
+</tr>
+<tr>
+<td><code>UserAgent</code></td>
+<td><code>nvarchar(255)</code></td>
+<td>Browser/client information</td>
+</tr>
+<tr>
+<td><code>IpAddress</code></td>
+<td><code>nvarchar(45)</code></td>
+<td>Admin IP address</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="key-relationships">Key Relationships</h2>
+<h3 id="primary-relationships">Primary Relationships</h3>
+<ul>
+<li><strong>Sessions</strong> ↔ <strong>SecureTokens</strong>: 1:1 token pair per session</li>
+<li><strong>Sessions</strong> ↔ <strong>Questions</strong>: 1:Many Q&amp;A per session</li>
+<li><strong>Questions</strong> ↔ <strong>QuestionAnswers</strong>: 1:Many answers per question</li>
+<li><strong>Questions</strong> ↔ <strong>QuestionVotes</strong>: Many:Many voting system</li>
+<li><strong>Sessions</strong> ↔ <strong>Annotations</strong>: 1:Many highlights per session</li>
+<li><strong>Sessions</strong> ↔ <strong>SharedAssets</strong>: 1:Many shared content per session</li>
+</ul>
+<h3 id="cross-schema-integration">Cross-Schema Integration</h3>
+<ul>
+<li><strong>canvas.Sessions</strong> ↔ <strong>dbo.Sessions</strong>: SessionId linkage for Islamic content</li>
+<li><strong>canvas.SecureTokens</strong> → <strong>dbo.Sessions</strong>: Content access control</li>
+<li><strong>canvas.Annotations</strong> → <strong>dbo.Sessions</strong>: Content annotation system</li>
+</ul>
+<h3 id="user-activity-chains">User Activity Chains</h3>
+<ul>
+<li><strong>Users</strong> → <strong>Registrations</strong> → <strong>Sessions</strong>: User enrollment flow</li>
+<li><strong>Users</strong> → <strong>Questions</strong> → <strong>QuestionAnswers</strong>: Q&amp;A participation</li>
+<li><strong>Users</strong> → <strong>QuestionVotes</strong>: Community engagement</li>
+<li><strong>SessionParticipants</strong>: Real-time presence tracking</li>
+</ul>
+<hr>
+<p><em>Each table is designed to support the real-time, collaborative nature of Islamic learning sessions while maintaining data integrity and performance at scale.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/canvas-schema-tables.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

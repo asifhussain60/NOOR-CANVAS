@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>IIS Configuration </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="IIS Configuration ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="iis-configuration">IIS Configuration</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR Canvas is designed for deployment on Internet Information Services (IIS) with ASP.NET Core hosting. This document covers the complete IIS configuration process for both development and production environments.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<h3 id="required-components">Required Components</h3>
+<ul>
+<li><strong>IIS 10.0</strong> or later (Windows Server 2016/Windows 10 or newer)</li>
+<li><strong>ASP.NET Core Runtime</strong> 8.0 or later</li>
+<li><strong>ASP.NET Core Hosting Bundle</strong> for IIS integration</li>
+<li><strong>SQL Server</strong> (or SQL Server Express) for database connectivity</li>
+</ul>
+<h3 id="iis-features-required">IIS Features Required</h3>
+<p>Enable these Windows Features:</p>
+<ul>
+<li>Internet Information Services</li>
+<li>World Wide Web Services</li>
+<li>Application Development Features
+<ul>
+<li>.NET Extensibility 4.8</li>
+<li>ASP.NET 4.8</li>
+<li>ISAPI Extensions</li>
+<li>ISAPI Filters</li>
+</ul>
+</li>
+<li>Common HTTP Features (all)</li>
+<li>HTTP Errors</li>
+<li>HTTP Logging</li>
+<li>HTTP Redirection</li>
+<li>Request Filtering</li>
+<li>Static Content</li>
+</ul>
+<pre><code class="lang-powershell"># Enable required Windows features via PowerShell
+Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole, IIS-WebServer, IIS-CommonHttpFeatures, IIS-HttpErrors, IIS-HttpLogging, IIS-RequestFiltering, IIS-StaticContent, IIS-DefaultDocument, IIS-DirectoryBrowsing, IIS-ApplicationDevelopment, IIS-NetFx45, IIS-NetFxExtensibility45, IIS-ISAPIExtensions, IIS-ISAPIFilter, IIS-ASPNET45
+</code></pre>
+<h2 id="application-pool-configuration">Application Pool Configuration</h2>
+<h3 id="create-dedicated-application-pool">Create Dedicated Application Pool</h3>
+<pre><code class="lang-powershell"># Create new application pool for NOOR Canvas
+New-WebAppPool -Name &quot;NoorCanvasPool&quot;
+
+# Configure application pool settings
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name processModel.identityType -Value ApplicationPoolIdentity
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name managedRuntimeVersion -Value &quot;&quot;  # No Managed Code for .NET Core
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name enable32BitAppOnWin64 -Value $false
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name processModel.idleTimeout -Value &quot;00:00:00&quot;  # Never idle
+Set-ItemProperty -Path &quot;IIS:\AppPools\NoorCanvasPool&quot; -Name recycling.periodicRestart.time -Value &quot;00:00:00&quot;  # Never recycle
+</code></pre>
+<h3 id="application-pool-identity-configuration">Application Pool Identity Configuration</h3>
+<pre><code class="lang-powershell"># Grant file system permissions to application pool identity
+$appPoolIdentity = &quot;IIS AppPool\NoorCanvasPool&quot;
+$sitePath = &quot;C:\inetpub\wwwroot\NoorCanvas&quot;
+
+# Grant full control to application files
+icacls $sitePath /grant &quot;${appPoolIdentity}:(OI)(CI)F&quot; /T
+</code></pre>
+<h2 id="web-site-configuration">Web Site Configuration</h2>
+<h3 id="create-iis-website">Create IIS Website</h3>
+<pre><code class="lang-powershell"># Remove default website if exists
+Remove-Website -Name &quot;Default Web Site&quot; -ErrorAction SilentlyContinue
+
+# Create NOOR Canvas website
+New-Website -Name &quot;NoorCanvas&quot; -Port 80 -PhysicalPath &quot;C:\inetpub\wwwroot\NoorCanvas&quot; -ApplicationPool &quot;NoorCanvasPool&quot;
+
+# Add HTTPS binding
+New-WebBinding -Name &quot;NoorCanvas&quot; -Protocol https -Port 443 -SslFlags 1
+</code></pre>
+<h3 id="directory-structure-setup">Directory Structure Setup</h3>
+<pre><code class="lang-powershell"># Create application directory structure
+$appRoot = &quot;C:\inetpub\wwwroot\NoorCanvas&quot;
+New-Item -ItemType Directory -Path $appRoot -Force
+New-Item -ItemType Directory -Path &quot;$appRoot\logs&quot; -Force
+New-Item -ItemType Directory -Path &quot;$appRoot\temp&quot; -Force
+
+# Set permissions
+icacls &quot;$appRoot\logs&quot; /grant &quot;${appPoolIdentity}:(OI)(CI)F&quot; /T
+icacls &quot;$appRoot\temp&quot; /grant &quot;${appPoolIdentity}:(OI)(CI)F&quot; /T
+</code></pre>
+<h2 id="ssl-certificate-configuration">SSL Certificate Configuration</h2>
+<h3 id="development-environment-self-signed">Development Environment (Self-Signed)</h3>
+<pre><code class="lang-powershell"># Create self-signed certificate for development
+$cert = New-SelfSignedCertificate -DnsName &quot;localhost&quot;, &quot;noorcanvas.local&quot; -CertStoreLocation &quot;cert:\LocalMachine\My&quot;
+
+# Bind certificate to IIS site
+New-WebBinding -Name &quot;NoorCanvas&quot; -Protocol https -Port 443
+$binding = Get-WebBinding -Name &quot;NoorCanvas&quot; -Protocol https
+$binding.AddSslCertificate($cert.GetCertHashString(), &quot;my&quot;)
+</code></pre>
+<h3 id="production-environment-ca-certificate">Production Environment (CA Certificate)</h3>
+<pre><code class="lang-powershell"># Import purchased SSL certificate
+$certPath = &quot;C:\certificates\noorcanvas.pfx&quot;
+$certPassword = ConvertTo-SecureString &quot;your-certificate-password&quot; -AsPlainText -Force
+Import-PfxCertificate -FilePath $certPath -CertStoreLocation &quot;cert:\LocalMachine\My&quot; -Password $certPassword
+
+# Bind certificate (use actual thumbprint)
+$certThumbprint = &quot;YOUR-CERTIFICATE-THUMBPRINT&quot;
+New-WebBinding -Name &quot;NoorCanvas&quot; -Protocol https -Port 443 -SslFlags 1
+netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid=&quot;{YOUR-APP-GUID}&quot;
+</code></pre>
+<h2 id="url-rewrite-configuration">URL Rewrite Configuration</h2>
+<h3 id="http-to-https-redirection">HTTP to HTTPS Redirection</h3>
+<pre><code class="lang-xml">&lt;!-- Add to web.config --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;rewrite&gt;
+      &lt;rules&gt;
+        &lt;rule name=&quot;Redirect HTTP to HTTPS&quot; stopProcessing=&quot;true&quot;&gt;
+          &lt;match url=&quot;(.*)&quot; /&gt;
+          &lt;conditions&gt;
+            &lt;add input=&quot;{HTTPS}&quot; pattern=&quot;off&quot; ignoreCase=&quot;true&quot; /&gt;
+            &lt;add input=&quot;{HTTP_HOST}&quot; pattern=&quot;localhost&quot; negate=&quot;true&quot; /&gt;
+          &lt;/conditions&gt;
+          &lt;action type=&quot;Redirect&quot; url=&quot;https://{HTTP_HOST}/{R:1}&quot; redirectType=&quot;Permanent&quot; /&gt;
+        &lt;/rule&gt;
+      &lt;/rules&gt;
+    &lt;/rewrite&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="signalr-websocket-configuration">SignalR WebSocket Configuration</h3>
+<pre><code class="lang-xml">&lt;!-- Enable WebSocket support in web.config --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;webSocket enabled=&quot;true&quot; /&gt;
+    &lt;handlers&gt;
+      &lt;add name=&quot;aspNetCore&quot; path=&quot;*&quot; verb=&quot;*&quot; modules=&quot;AspNetCoreModuleV2&quot; resourceType=&quot;Unspecified&quot; /&gt;
+    &lt;/handlers&gt;
+    &lt;aspNetCore processPath=&quot;dotnet&quot; arguments=&quot;.\NoorCanvas.dll&quot; stdoutLogEnabled=&quot;false&quot; stdoutLogFile=&quot;.\logs\stdout&quot; hostingModel=&quot;inprocess&quot;&gt;
+      &lt;environmentVariables&gt;
+        &lt;environmentVariable name=&quot;ASPNETCORE_ENVIRONMENT&quot; value=&quot;Production&quot; /&gt;
+      &lt;/environmentVariables&gt;
+    &lt;/aspNetCore&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h2 id="performance-configuration">Performance Configuration</h2>
+<h3 id="compression-settings">Compression Settings</h3>
+<pre><code class="lang-xml">&lt;!-- Enable response compression --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;urlCompression doStaticCompression=&quot;true&quot; doDynamicCompression=&quot;true&quot; /&gt;
+    &lt;httpCompression&gt;
+      &lt;scheme name=&quot;gzip&quot; dll=&quot;%Windir%\system32\inetsrv\gzip.dll&quot; /&gt;
+      &lt;dynamicTypes&gt;
+        &lt;add mimeType=&quot;application/json&quot; enabled=&quot;true&quot; /&gt;
+        &lt;add mimeType=&quot;application/javascript&quot; enabled=&quot;true&quot; /&gt;
+      &lt;/dynamicTypes&gt;
+      &lt;staticTypes&gt;
+        &lt;add mimeType=&quot;text/css&quot; enabled=&quot;true&quot; /&gt;
+        &lt;add mimeType=&quot;application/javascript&quot; enabled=&quot;true&quot; /&gt;
+      &lt;/staticTypes&gt;
+    &lt;/httpCompression&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="caching-configuration">Caching Configuration</h3>
+<pre><code class="lang-xml">&lt;!-- Static content caching --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;staticContent&gt;
+      &lt;clientCache cacheControlMode=&quot;UseMaxAge&quot; cacheControlMaxAge=&quot;30.00:00:00&quot; /&gt;
+    &lt;/staticContent&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h2 id="security-configuration">Security Configuration</h2>
+<h3 id="request-filtering">Request Filtering</h3>
+<pre><code class="lang-xml">&lt;!-- Security settings in web.config --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;security&gt;
+      &lt;requestFiltering&gt;
+        &lt;requestLimits maxAllowedContentLength=&quot;52428800&quot; /&gt; &lt;!-- 50MB max request --&gt;
+        &lt;fileExtensions&gt;
+          &lt;remove fileExtension=&quot;.config&quot; /&gt;
+          &lt;add fileExtension=&quot;.config&quot; allowed=&quot;false&quot; /&gt;
+        &lt;/fileExtensions&gt;
+      &lt;/requestFiltering&gt;
+    &lt;/security&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="custom-headers">Custom Headers</h3>
+<pre><code class="lang-xml">&lt;!-- Security headers --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;httpProtocol&gt;
+      &lt;customHeaders&gt;
+        &lt;add name=&quot;X-Content-Type-Options&quot; value=&quot;nosniff&quot; /&gt;
+        &lt;add name=&quot;X-Frame-Options&quot; value=&quot;DENY&quot; /&gt;
+        &lt;add name=&quot;X-XSS-Protection&quot; value=&quot;1; mode=block&quot; /&gt;
+        &lt;add name=&quot;Strict-Transport-Security&quot; value=&quot;max-age=31536000; includeSubDomains&quot; /&gt;
+        &lt;remove name=&quot;Server&quot; /&gt;
+      &lt;/customHeaders&gt;
+    &lt;/httpProtocol&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h2 id="database-connection-configuration">Database Connection Configuration</h2>
+<h3 id="connection-string-security">Connection String Security</h3>
+<pre><code class="lang-xml">&lt;!-- Secure connection strings in web.config --&gt;
+&lt;configuration&gt;
+  &lt;connectionStrings&gt;
+    &lt;add name=&quot;DefaultConnection&quot; 
+         connectionString=&quot;Data Source=YOUR-SQL-SERVER;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;&quot; 
+         providerName=&quot;System.Data.SqlClient&quot; /&gt;
+    &lt;add name=&quot;KSessionsDb&quot; 
+         connectionString=&quot;Data Source=YOUR-SQL-SERVER;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;&quot; 
+         providerName=&quot;System.Data.SqlClient&quot; /&gt;
+  &lt;/connectionStrings&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="sql-server-permissions">SQL Server Permissions</h3>
+<pre><code class="lang-sql">-- Create dedicated IIS application pool login
+USE [master]
+CREATE LOGIN [IIS AppPool\NoorCanvasPool] FROM WINDOWS
+GO
+
+-- Grant database access
+USE [KSESSIONS]
+CREATE USER [IIS AppPool\NoorCanvasPool] FOR LOGIN [IIS AppPool\NoorCanvasPool]
+ALTER ROLE [db_datareader] ADD MEMBER [IIS AppPool\NoorCanvasPool]
+ALTER ROLE [db_datawriter] ADD MEMBER [IIS AppPool\NoorCanvasPool]
+GO
+
+-- Grant canvas schema permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::canvas TO [IIS AppPool\NoorCanvasPool]
+GO
+</code></pre>
+<h2 id="monitoring-and-logging">Monitoring and Logging</h2>
+<h3 id="iis-logging-configuration">IIS Logging Configuration</h3>
+<pre><code class="lang-powershell"># Enable detailed IIS logging
+Set-WebConfigurationProperty -Filter &quot;system.webServer/httpLogging&quot; -Name enabled -Value $true
+Set-WebConfigurationProperty -Filter &quot;system.webServer/httpLogging&quot; -Name logExtFileFlags -Value &quot;Date,Time,ClientIP,UserName,SiteName,ComputerName,ServerIP,Method,UriStem,UriQuery,HttpStatus,Win32Status,BytesSent,BytesRecv,TimeTaken,ServerPort,UserAgent,Cookie,Referer,ProtocolVersion,Host,HttpSubStatus&quot;
+</code></pre>
+<h3 id="application-logging">Application Logging</h3>
+<pre><code class="lang-json">// Configure structured logging in appsettings.Production.json
+{
+  &quot;Serilog&quot;: {
+    &quot;Using&quot;: [&quot;Serilog.Sinks.File&quot;, &quot;Serilog.Sinks.EventLog&quot;],
+    &quot;MinimumLevel&quot;: &quot;Information&quot;,
+    &quot;WriteTo&quot;: [
+      {
+        &quot;Name&quot;: &quot;File&quot;,
+        &quot;Args&quot;: {
+          &quot;path&quot;: &quot;C:\\inetpub\\wwwroot\\NoorCanvas\\logs\\noor-canvas-.txt&quot;,
+          &quot;rollingInterval&quot;: &quot;Day&quot;,
+          &quot;retainedFileCountLimit&quot;: 30
+        }
+      },
+      {
+        &quot;Name&quot;: &quot;EventLog&quot;,
+        &quot;Args&quot;: {
+          &quot;source&quot;: &quot;NOOR Canvas&quot;,
+          &quot;logName&quot;: &quot;Application&quot;
+        }
+      }
+    ]
+  }
+}
+</code></pre>
+<h2 id="health-monitoring">Health Monitoring</h2>
+<h3 id="application-health-checks">Application Health Checks</h3>
+<pre><code class="lang-csharp">// Configure health checks in Program.cs
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck&lt;CanvasDbContext&gt;()
+    .AddDbContextCheck&lt;KSessionsDbContext&gt;()
+    .AddSignalRHub&lt;SessionHub&gt;();
+
+// Map health check endpoint
+app.MapHealthChecks(&quot;/health&quot;, new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+</code></pre>
+<h3 id="iis-application-initialization">IIS Application Initialization</h3>
+<pre><code class="lang-xml">&lt;!-- Warm up application on startup --&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;applicationInitialization doAppInitAfterRestart=&quot;true&quot;&gt;
+      &lt;add initializationPage=&quot;/health&quot; /&gt;
+    &lt;/applicationInitialization&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h2 id="troubleshooting-common-issues">Troubleshooting Common Issues</h2>
+<h3 id="application-pool-crashes">Application Pool Crashes</h3>
+<pre><code class="lang-powershell"># Check Windows Event Log
+Get-WinEvent -LogName System | Where-Object {$_.LevelDisplayName -eq &quot;Error&quot; -and $_.TimeCreated -gt (Get-Date).AddHours(-1)}
+
+# Check IIS logs
+Get-Content &quot;C:\inetpub\logs\LogFiles\W3SVC1\*.log&quot; | Select-String &quot;500&quot;
+</code></pre>
+<h3 id="performance-issues">Performance Issues</h3>
+<pre><code class="lang-powershell"># Monitor application pool performance
+Get-Counter &quot;\Process(w3wp*)\% Processor Time&quot;
+Get-Counter &quot;\Process(w3wp*)\Working Set&quot;
+Get-Counter &quot;\Process(w3wp*)\Handle Count&quot;
+</code></pre>
+<h3 id="database-connection-issues">Database Connection Issues</h3>
+<pre><code class="lang-csharp">// Test database connectivity
+using var connection = new SqlConnection(connectionString);
+try 
+{
+    await connection.OpenAsync();
+    Console.WriteLine(&quot;Database connection successful&quot;);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($&quot;Database connection failed: {ex.Message}&quot;);
+}
+</code></pre>
+<h2 id="maintenance-procedures">Maintenance Procedures</h2>
+<h3 id="regular-maintenance-tasks">Regular Maintenance Tasks</h3>
+<ol>
+<li><strong>Log Rotation</strong>: Archive and clean old log files</li>
+<li><strong>Certificate Renewal</strong>: Update SSL certificates before expiration</li>
+<li><strong>Security Updates</strong>: Apply Windows and IIS updates</li>
+<li><strong>Performance Monitoring</strong>: Review performance metrics regularly</li>
+</ol>
+<h3 id="backup-and-recovery">Backup and Recovery</h3>
+<pre><code class="lang-powershell"># Backup IIS configuration
+Backup-WebConfiguration -Name &quot;NoorCanvas-$(Get-Date -Format 'yyyyMMdd')&quot;
+
+# Backup application files
+Copy-Item &quot;C:\inetpub\wwwroot\NoorCanvas&quot; &quot;C:\Backups\NoorCanvas-$(Get-Date -Format 'yyyyMMdd')&quot; -Recurse
+</code></pre>
+<p>For database-specific deployment procedures, see the <a href="database-setup.html">Database Setup Guide</a>.
+For complete production deployment procedures, see the <a href="production-deployment.html">Production Deployment Guide</a>.</p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/deployment/iis-configuration.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Troubleshooting Common Issues </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Troubleshooting Common Issues ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="troubleshooting-common-issues">Troubleshooting Common Issues</h1>
+
+<p>Common problems and solutions for NOOR Canvas users and hosts.</p>
+<h2 id="connection-and-access-issues">Connection and Access Issues</h2>
+<h3 id="cannot-access-application">Cannot Access Application</h3>
+<h4 id="problem-this-site-cant-be-reached">Problem: &quot;This site can't be reached&quot;</h4>
+<p><strong>Symptoms</strong>: Browser shows connection error when accessing NOOR Canvas
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Check URL</strong>: Ensure you're using the correct address</p>
+<ul>
+<li>Development: <code>https://localhost:9091</code></li>
+<li>Production: Provided by your administrator</li>
+</ul>
+</li>
+<li><p><strong>Check Server Status</strong>:</p>
+<pre><code class="lang-powershell"># For development environment
+nc  # Start the development server
+</code></pre>
+</li>
+<li><p><strong>Verify Network Connection</strong>: Test internet connectivity with other websites</p>
+</li>
+<li><p><strong>Clear Browser Cache</strong>: Clear browser cache and cookies, then retry</p>
+</li>
+</ol>
+<h4 id="problem-ssl-certificate-error">Problem: &quot;SSL Certificate Error&quot;</h4>
+<p><strong>Symptoms</strong>: Browser warns about unsafe certificate
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>Development Environment</strong>: Click &quot;Advanced&quot; → &quot;Proceed to localhost (unsafe)&quot;</li>
+<li><strong>Production Environment</strong>: Contact administrator about SSL certificate issues</li>
+<li><strong>Browser Settings</strong>: Ensure browser accepts the certificate</li>
+</ol>
+<h3 id="session-access-issues">Session Access Issues</h3>
+<h4 id="problem-session-not-found">Problem: &quot;Session Not Found&quot;</h4>
+<p><strong>Symptoms</strong>: Error when entering Session GUID
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>Verify GUID</strong>: Double-check Session GUID with session host</li>
+<li><strong>Check Session Status</strong>: Confirm session is still active</li>
+<li><strong>Try Again</strong>: Session may have been temporarily unavailable</li>
+</ol>
+<h4 id="problem-session-full">Problem: &quot;Session Full&quot;</h4>
+<p><strong>Symptoms</strong>: Cannot join because session has reached participant limit
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>Contact Host</strong>: Ask host to increase participant limit if possible</li>
+<li><strong>Wait for Slot</strong>: Someone may leave, creating space</li>
+<li><strong>Alternative Session</strong>: Ask host about additional sessions</li>
+</ol>
+<h2 id="authentication-and-host-issues">Authentication and Host Issues</h2>
+<h3 id="host-authentication-problems">Host Authentication Problems</h3>
+<h4 id="problem-invalid-host-token">Problem: &quot;Invalid Host Token&quot;</h4>
+<p><strong>Symptoms</strong>: Cannot create sessions, authentication fails
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Generate New Token</strong>:</p>
+<pre><code class="lang-powershell">nct  # Generate fresh host token
+nc   # Restart with new token
+</code></pre>
+</li>
+<li><p><strong>Check Token Format</strong>: Ensure token is valid GUID format</p>
+</li>
+<li><p><strong>Restart Application</strong>: Stop and restart development server</p>
+</li>
+</ol>
+<h4 id="problem-cannot-create-session">Problem: &quot;Cannot Create Session&quot;</h4>
+<p><strong>Symptoms</strong>: Session creation fails after authentication
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>Check Database Connection</strong>: Ensure database is accessible</li>
+<li><strong>Verify Content Selection</strong>: Make sure Album/Category/Session are selected</li>
+<li><strong>Clear Application Data</strong>: Clear browser data and retry</li>
+</ol>
+<h3 id="participant-registration-issues">Participant Registration Issues</h3>
+<h4 id="problem-registration-failed">Problem: &quot;Registration Failed&quot;</h4>
+<p><strong>Symptoms</strong>: Cannot complete participant registration
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>Check Required Fields</strong>: Ensure name is provided (minimum requirement)</li>
+<li><strong>Session Capacity</strong>: Verify session isn't full</li>
+<li><strong>Browser Compatibility</strong>: Try different browser if issues persist</li>
+</ol>
+<h2 id="performance-and-technical-issues">Performance and Technical Issues</h2>
+<h3 id="application-running-slowly">Application Running Slowly</h3>
+<h4 id="problem-slow-loading-or-response">Problem: Slow Loading or Response</h4>
+<p><strong>Symptoms</strong>: Application takes long time to load or respond to actions
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Close Other Applications</strong>: Free up system memory and CPU</p>
+</li>
+<li><p><strong>Check Internet Speed</strong>: Ensure stable broadband connection</p>
+</li>
+<li><p><strong>Browser Performance</strong>:</p>
+<ul>
+<li>Close unnecessary browser tabs</li>
+<li>Disable browser extensions</li>
+<li>Clear browser cache</li>
+</ul>
+</li>
+<li><p><strong>Network Optimization</strong>:</p>
+<ul>
+<li>Use wired connection instead of Wi-Fi if possible</li>
+<li>Check for network interference or bandwidth limitations</li>
+</ul>
+</li>
+</ol>
+<h3 id="real-time-features-not-working">Real-time Features Not Working</h3>
+<h4 id="problem-annotations-not-syncing">Problem: Annotations Not Syncing</h4>
+<p><strong>Symptoms</strong>: Cannot see other participants' annotations in real-time
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>WebSocket Connection</strong>: Check if browser supports WebSockets</li>
+<li><strong>Firewall Settings</strong>: Ensure firewall allows WebSocket connections</li>
+<li><strong>Network Configuration</strong>: Check if network blocks real-time protocols</li>
+<li><strong>Browser Refresh</strong>: Refresh page to re-establish connection</li>
+</ol>
+<h4 id="problem-signalr-connection-errors">Problem: SignalR Connection Errors</h4>
+<p><strong>Symptoms</strong>: Console shows SignalR connection failures
+<strong>Solutions</strong>:</p>
+<ol>
+<li><strong>Check Network</strong>: Verify stable internet connection</li>
+<li><strong>Browser Compatibility</strong>: Ensure browser supports WebSockets</li>
+<li><strong>Proxy Settings</strong>: Check if corporate proxy blocks WebSocket connections</li>
+<li><strong>Retry Connection</strong>: Refresh page to attempt reconnection</li>
+</ol>
+<h2 id="development-environment-issues">Development Environment Issues</h2>
+<h3 id="build-and-startup-problems">Build and Startup Problems</h3>
+<h4 id="problem-build-failed">Problem: &quot;Build Failed&quot;</h4>
+<p><strong>Symptoms</strong>: dotnet build command fails with errors
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Check Error Messages</strong>: Read compiler errors carefully</p>
+</li>
+<li><p><strong>Clean Solution</strong>:</p>
+<pre><code class="lang-powershell">dotnet clean
+dotnet restore
+dotnet build
+</code></pre>
+</li>
+<li><p><strong>Dependencies</strong>: Ensure all NuGet packages are restored</p>
+</li>
+<li><p><strong>Check .NET Version</strong>: Verify .NET 8.0 SDK is installed</p>
+</li>
+</ol>
+<h4 id="problem-port-already-in-use">Problem: &quot;Port Already in Use&quot;</h4>
+<p><strong>Symptoms</strong>: Cannot start server because port 9091 is busy
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Kill Existing Processes</strong>:</p>
+<pre><code class="lang-powershell">iiskill  # Stop all IIS Express processes
+nc       # Restart server
+</code></pre>
+</li>
+<li><p><strong>Check Port Usage</strong>:</p>
+<pre><code class="lang-powershell">netstat -ano | findstr &quot;:9091&quot;
+</code></pre>
+</li>
+<li><p><strong>Process Management</strong>:</p>
+<pre><code class="lang-powershell">taskkill /F /IM &quot;NoorCanvas.exe&quot; /T
+taskkill /F /IM &quot;dotnet.exe&quot; /T
+</code></pre>
+</li>
+</ol>
+<h3 id="database-connection-issues">Database Connection Issues</h3>
+<h4 id="problem-database-connection-failed">Problem: &quot;Database Connection Failed&quot;</h4>
+<p><strong>Symptoms</strong>: Application cannot connect to KSESSIONS_DEV database
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Check Connection String</strong>: Verify database server and credentials</p>
+</li>
+<li><p><strong>Database Server</strong>: Ensure SQL Server is running on AHHOME</p>
+</li>
+<li><p><strong>Network Access</strong>: Test network connectivity to database server:</p>
+<pre><code class="lang-powershell">sqlcmd -S AHHOME -U sa -P [password] -Q &quot;SELECT 1&quot;
+</code></pre>
+</li>
+<li><p><strong>Credentials</strong>: Verify sa account password is correct</p>
+</li>
+</ol>
+<h4 id="problem-canvas-schema-not-found">Problem: &quot;Canvas Schema Not Found&quot;</h4>
+<p><strong>Symptoms</strong>: Application starts but cannot find canvas tables
+<strong>Solutions</strong>:</p>
+<ol>
+<li><p><strong>Run Migrations</strong>:</p>
+<pre><code class="lang-powershell">dotnet ef database update --context CanvasDbContext
+</code></pre>
+</li>
+<li><p><strong>Check Database</strong>: Verify KSESSIONS_DEV database exists</p>
+</li>
+<li><p><strong>Schema Creation</strong>: Ensure canvas schema exists in database</p>
+</li>
+</ol>
+<h2 id="browser-specific-issues">Browser-Specific Issues</h2>
+<h3 id="chrome-issues">Chrome Issues</h3>
+<ul>
+<li><strong>Problem</strong>: WebSocket connection failures</li>
+<li><strong>Solution</strong>: Check Chrome's WebSocket settings and disable interfering extensions</li>
+</ul>
+<h3 id="firefox-issues">Firefox Issues</h3>
+<ul>
+<li><strong>Problem</strong>: SSL certificate warnings in development</li>
+<li><strong>Solution</strong>: Add security exception for localhost development certificate</li>
+</ul>
+<h3 id="edge-issues">Edge Issues</h3>
+<ul>
+<li><strong>Problem</strong>: Authentication cookies not persisting</li>
+<li><strong>Solution</strong>: Check Edge privacy settings and allow cookies for localhost</li>
+</ul>
+<h3 id="safari-issues">Safari Issues</h3>
+<ul>
+<li><strong>Problem</strong>: Real-time features not working on mobile Safari</li>
+<li><strong>Solution</strong>: Ensure WebSocket support is enabled in Safari settings</li>
+</ul>
+<h2 id="mobile-device-issues">Mobile Device Issues</h2>
+<h3 id="touch-interface-problems">Touch Interface Problems</h3>
+<ul>
+<li><strong>Problem</strong>: Annotation tools difficult to use on mobile</li>
+<li><strong>Solutions</strong>:
+<ul>
+<li>Use landscape orientation for better screen space</li>
+<li>Zoom in on content before annotating</li>
+<li>Use mobile-optimized annotation tools when available</li>
+</ul>
+</li>
+</ul>
+<h3 id="performance-on-mobile">Performance on Mobile</h3>
+<ul>
+<li><strong>Problem</strong>: Slow performance on smartphones/tablets</li>
+<li><strong>Solutions</strong>:
+<ul>
+<li>Close other mobile applications</li>
+<li>Use Wi-Fi instead of cellular data</li>
+<li>Clear mobile browser cache</li>
+<li>Restart browser application</li>
+</ul>
+</li>
+</ul>
+<h2 id="error-messages-and-codes">Error Messages and Codes</h2>
+<h3 id="common-error-messages">Common Error Messages</h3>
+<h4 id="noor-error-authentication-failed">&quot;NOOR-ERROR: Authentication failed&quot;</h4>
+<p><strong>Cause</strong>: Invalid host token or session authentication
+<strong>Solution</strong>: Generate new host token with <code>nct</code> command</p>
+<h4 id="noor-error-database-timeout">&quot;NOOR-ERROR: Database timeout&quot;</h4>
+<p><strong>Cause</strong>: Database connection timeout (usually network-related)
+<strong>Solution</strong>: Check database server connectivity and network stability</p>
+<h4 id="signalr-connection-closed">&quot;SignalR connection closed&quot;</h4>
+<p><strong>Cause</strong>: WebSocket connection interrupted
+<strong>Solution</strong>: Refresh page to re-establish real-time connection</p>
+<h4 id="session-expired">&quot;Session expired&quot;</h4>
+<p><strong>Cause</strong>: Session exceeded its configured timeout limit
+<strong>Solution</strong>: Host needs to create new session, or extend existing session if possible</p>
+<h2 id="getting-additional-help">Getting Additional Help</h2>
+<h3 id="self-diagnosis-steps">Self-Diagnosis Steps</h3>
+<ol>
+<li><strong>Check Browser Console</strong>: Press F12 and look for error messages</li>
+<li><strong>Test Basic Connectivity</strong>: Try accessing other websites</li>
+<li><strong>Clear Browser Data</strong>: Clear cache, cookies, and local storage</li>
+<li><strong>Try Different Browser</strong>: Test with Chrome, Firefox, or Edge</li>
+<li><strong>Restart Computer</strong>: Sometimes resolves underlying system issues</li>
+</ol>
+<h3 id="information-to-collect-before-seeking-help">Information to Collect Before Seeking Help</h3>
+<ul>
+<li><strong>Error Message</strong>: Exact text of any error messages</li>
+<li><strong>Browser and Version</strong>: Which browser and version you're using</li>
+<li><strong>Operating System</strong>: Windows, macOS, Linux, etc.</li>
+<li><strong>Network Environment</strong>: Home, work, school network</li>
+<li><strong>Session GUID</strong>: If joining a specific session</li>
+<li><strong>Steps to Reproduce</strong>: What actions led to the problem</li>
+</ul>
+<h3 id="documentation-resources">Documentation Resources</h3>
+<ul>
+<li><a href="getting-started-guide.html">Getting Started Guide</a> - Basic usage instructions</li>
+<li><a href="host-authentication-guide.html">Host Authentication Guide</a> - Hosting-specific help</li>
+<li><a href="ssl-configuration-user-guide.html">SSL Configuration Guide</a> - Security setup</li>
+<li><a href="../technical/">Technical Reference</a> - Advanced technical information</li>
+</ul>
+<h3 id="contact-information">Contact Information</h3>
+<ul>
+<li><strong>Session Host</strong>: Contact your session host for session-specific issues</li>
+<li><strong>Technical Administrator</strong>: Contact your organization's technical support</li>
+<li><strong>Development Team</strong>: For bug reports and feature requests</li>
+<li><strong>Documentation Issues</strong>: Report documentation problems for improvement</li>
+</ul>
+<h2 id="prevention-tips">Prevention Tips</h2>
+<h3 id="for-regular-users">For Regular Users</h3>
+<ul>
+<li><strong>Keep Browser Updated</strong>: Use latest browser versions for best compatibility</li>
+<li><strong>Stable Connection</strong>: Use reliable internet connection for sessions</li>
+<li><strong>Test Before Sessions</strong>: Join test sessions to verify everything works</li>
+<li><strong>Bookmark URLs</strong>: Save session URLs and GUIDs securely</li>
+</ul>
+<h3 id="for-session-hosts">For Session Hosts</h3>
+<ul>
+<li><strong>Regular Testing</strong>: Test host functionality before important sessions</li>
+<li><strong>Backup Plans</strong>: Have alternative communication methods ready</li>
+<li><strong>Participant Support</strong>: Provide clear joining instructions and technical support</li>
+<li><strong>Documentation</strong>: Keep troubleshooting guides available for participants</li>
+</ul>
+<h3 id="for-developers">For Developers</h3>
+<ul>
+<li><strong>Regular Maintenance</strong>: Keep development environment updated</li>
+<li><strong>Automated Testing</strong>: Run test suite regularly to catch issues early</li>
+<li><strong>Log Monitoring</strong>: Check application logs for early warning signs</li>
+<li><strong>Backup Database</strong>: Regular backups of development database</li>
+</ul>
+<p><em>This troubleshooting guide is updated automatically as new issues are identified and solutions developed.</em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/user-guides/troubleshooting-common-issues.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

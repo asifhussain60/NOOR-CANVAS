@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>NOOR Canvas Issues &amp; TODO Tracking </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="NOOR Canvas Issues &amp; TODO Tracking ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="noor-canvas-issues--todo-tracking">NOOR Canvas Issues &amp; TODO Tracking</h1>
+
+<blockquote>
+<p><strong>Last Updated:</strong> September 15, 2025<br>
+<strong>Active Issues:</strong> 2 Critical, 1 In Progress<br>
+<strong>Completed TODOs:</strong> 2 Major Items<br>
+<strong>Overall Health:</strong> 🟡 <strong>Good</strong> - Minor blockers, strong progress</p>
+</blockquote>
+<h2 id="-critical-issues-immediate-attention-required">🚨 Critical Issues (Immediate Attention Required)</h2>
+<h3 id="-issue-53-createsession-httpclient-baseaddress-error">❌ Issue-53: CreateSession HttpClient BaseAddress Error</h3>
+<p><strong>Priority:</strong> 🔥 <strong>CRITICAL</strong> - Blocking session creation workflow<br>
+<strong>Status:</strong> ❌ <strong>Not Started</strong> - Requires immediate attention<br>
+<strong>Impact:</strong> Prevents session creation after host authentication</p>
+<h4 id="problem-summary">Problem Summary:</h4>
+<p>CreateSession.razor component fails to initialize after successful host authentication due to HttpClient BaseAddress configuration issue.</p>
+<h4 id="technical-details">Technical Details:</h4>
+<pre><code class="lang-csharp">// ❌ BROKEN PATTERN (Current Issue)
+@inject HttpClient Http
+var response = await Http.GetFromJsonAsync(&quot;api/endpoint&quot;); 
+// Fails: BaseAddress not set
+
+// ✅ REQUIRED FIX (Proven Working)
+@inject IHttpClientFactory HttpClientFactory
+using var httpClient = HttpClientFactory.CreateClient(&quot;default&quot;);
+var response = await httpClient.GetFromJsonAsync(&quot;api/endpoint&quot;);
+</code></pre>
+<h4 id="root-cause">Root Cause:</h4>
+<ul>
+<li>CreateSession component using direct HttpClient injection (anti-pattern)</li>
+<li>HttpClientFactory pattern works in Landing.razor and Host.razor</li>
+<li>Albums dropdown fails to load from KSESSIONS database</li>
+</ul>
+<h4 id="resolution-requirements">Resolution Requirements:</h4>
+<ol>
+<li><strong>Update CreateSession.razor</strong> - Replace HttpClient with HttpClientFactory pattern</li>
+<li><strong>Test Album Loading</strong> - Verify KSESSIONS database connectivity</li>
+<li><strong>Validate Session Creation</strong> - End-to-end session creation workflow</li>
+<li><strong>Update Documentation</strong> - Document HttpClientFactory as standard pattern</li>
+</ol>
+<h4 id="business-impact">Business Impact:</h4>
+<ul>
+<li><strong>Host Experience Broken</strong> - Hosts cannot create new sessions</li>
+<li><strong>Development Blocked</strong> - Phase 4 progress depends on session creation</li>
+<li><strong>User Testing Impossible</strong> - Cannot demonstrate core functionality</li>
+</ul>
+<hr>
+<h3 id="-issue-dual-url-architecture-implementation">❌ Issue: Dual URL Architecture Implementation</h3>
+<p><strong>Priority:</strong> 🔥 <strong>CRITICAL</strong> - Major architectural change required<br>
+<strong>Status:</strong> ❌ <strong>Not Started</strong> - New requirement (September 15, 2025)<br>
+<strong>Complexity:</strong> <strong>High</strong> - Database schema changes and routing overhaul</p>
+<h4 id="architectural-change-required">Architectural Change Required:</h4>
+<p><strong>Current System (Needs Replacement):</strong></p>
+<pre><code>Single landing page: https://localhost:9091/
+GUID-exposed URLs: https://localhost:9091/join/5ec82d65-2f89-...
+Dual authentication panels on same page
+</code></pre>
+<p><strong>Target System (Implementation Required):</strong></p>
+<pre><code>Host URL: https://localhost:9091/host/P7X9K2M4
+User URL: https://localhost:9091/user/H5T3R8W6
+Clean 8-character tokens, no GUID exposure
+</code></pre>
+<h4 id="implementation-requirements">Implementation Requirements:</h4>
+<ol>
+<li><p><strong>Database Schema Changes:</strong></p>
+<ul>
+<li>Create <code>SecureTokens</code> table with Host/User token pairs</li>
+<li>Token lifecycle management (creation, expiry, revocation)</li>
+<li>Audit trail for security compliance</li>
+</ul>
+</li>
+<li><p><strong>Token Generation Service:</strong></p>
+<ul>
+<li>8-character human-friendly tokens (A-Z, 2-9 character set)</li>
+<li>Exclude confusing characters (0/O, 1/I) for phone/SMS sharing</li>
+<li>Cryptographically secure randomization</li>
+<li>Collision detection and retry logic</li>
+</ul>
+</li>
+<li><p><strong>URL Routing System:</strong></p>
+<ul>
+<li><code>/host/{token}</code> endpoint with Host authentication</li>
+<li><code>/user/{token}</code> endpoint with User welcome experience</li>
+<li>Token validation middleware</li>
+<li>Proper error handling for invalid/expired tokens</li>
+</ul>
+</li>
+<li><p><strong>Landing Page Architecture:</strong></p>
+<ul>
+<li>Split current unified landing page</li>
+<li>Host-only landing page (remove User card)</li>
+<li>User Welcome page (convert from User Welcome.html mock)</li>
+<li>Maintain responsive design and animations</li>
+</ul>
+</li>
+<li><p><strong>HostProvisioner Integration:</strong></p>
+<pre><code>Enhanced Output Format:
+======================================================
+SessionID: 215
+Host URL: https://localhost:9091/host/P7X9K2M4
+User URL: https://localhost:9091/user/H5T3R8W6
+======================================================
+</code></pre>
+</li>
+</ol>
+<h4 id="security--ux-benefits">Security &amp; UX Benefits:</h4>
+<ul>
+<li><strong>No GUID Exposure</strong> - Completely opaque 8-character tokens</li>
+<li><strong>Human-Friendly</strong> - Easy to share via phone/SMS</li>
+<li><strong>Professional URLs</strong> - Clean, short format for business use</li>
+<li><strong>Enhanced Security</strong> - Expirable tokens with revocation capability</li>
+<li><strong>SMS-Friendly</strong> - Fits easily in text messages (40 characters total)</li>
+</ul>
+<h4 id="implementation-complexity">Implementation Complexity:</h4>
+<ul>
+<li><strong>Database Migration Required</strong> - Schema changes with data preservation</li>
+<li><strong>Routing Changes</strong> - Major URL structure modification</li>
+<li><strong>Component Refactoring</strong> - Landing page split and authentication flow</li>
+<li><strong>Security Implementation</strong> - Token generation and validation systems</li>
+<li><strong>Testing Requirements</strong> - Comprehensive security and UX testing</li>
+</ul>
+<hr>
+<h2 id="-issues-in-progress">⚡ Issues In Progress</h2>
+<h3 id="-phase-4-external-library-integration">⚡ Phase 4: External Library Integration</h3>
+<p><strong>Priority:</strong> 🟡 <strong>Medium</strong> - Required for CSS implementation<br>
+<strong>Status:</strong> ⚡ <strong>In Progress</strong> - Week 13 Day 3-4<br>
+<strong>Completion Target:</strong> September 18, 2025</p>
+<h4 id="current-progress">Current Progress:</h4>
+<ul>
+<li>✅ <strong>Directory Structure Planned</strong> - lib/tailwind, lib/fontawesome, lib/fonts/inter</li>
+<li>✅ <strong>Download Commands Ready</strong> - PowerShell script prepared for execution</li>
+<li>🔄 <strong>Integration In Progress</strong> - Local asset download and configuration</li>
+</ul>
+<h4 id="remaining-work">Remaining Work:</h4>
+<ul>
+<li><strong>Execute Download Script</strong> - Download 4.8MB of external libraries locally</li>
+<li><strong>Update Layout Files</strong> - Replace CDN references with local assets</li>
+<li><strong>Validation Testing</strong> - Ensure offline functionality and correct loading</li>
+<li><strong>Project Configuration</strong> - Update .csproj to exclude development files</li>
+</ul>
+<h4 id="libraries-being-integrated">Libraries Being Integrated:</h4>
+<ol>
+<li><strong>Tailwind CSS v3.4</strong> (~3.4MB) - Complete utility class library</li>
+<li><strong>Font Awesome 6.5.1</strong> (~1.2MB + WebFonts) - Icon system</li>
+<li><strong>Google Fonts Inter</strong> (~200KB) - Typography system (weights 400-700)</li>
+</ol>
+<hr>
+<h2 id="-recently-completed-todos">✅ Recently Completed TODOs</h2>
+<h3 id="-todo-1-copilot-workspace-instructionsmd-todo-handling">✅ TODO-1: COPILOT-WORKSPACE-INSTRUCTIONS.md TODO Handling</h3>
+<p><strong>Completed:</strong> September 15, 2025<br>
+<strong>Implementation Summary:</strong> Updated workspace instructions to track TODO prompts in IMPLEMENTATION-TRACKER.MD using exact same format as issues.</p>
+<h4 id="key-changes-applied">Key Changes Applied:</h4>
+<ul>
+<li><strong>Tracking Location Changed</strong> - From NC-ISSUE-TRACKER.MD → IMPLEMENTATION-TRACKER.MD</li>
+<li><strong>Documentation Format</strong> - TODOs get detailed sections with technical implementation</li>
+<li><strong>Lifecycle Management</strong> - Same status progression as issues (❌ → ⚡ → ⏳ → ✅)</li>
+<li><strong>History Preservation</strong> - Completed TODOs preserved as implementation history</li>
+</ul>
+<h4 id="technical-impact">Technical Impact:</h4>
+<ul>
+<li><strong>Unified Documentation</strong> - All implementation work in single comprehensive document</li>
+<li><strong>Enhanced Tracking</strong> - Full lifecycle management with visual status indicators</li>
+<li><strong>Single Source of Truth</strong> - IMPLEMENTATION-TRACKER.MD as canonical development reference</li>
+</ul>
+<h3 id="-todo-2-ncdoc-orphaned-windows-issue-resolution">✅ TODO-2: NCDOC Orphaned Windows Issue Resolution</h3>
+<p><strong>Completed:</strong> September 15, 2025<br>
+<strong>Implementation Summary:</strong> Complete elimination of orphaned PowerShell windows when serving DocFX documentation.</p>
+<h4 id="problem-resolved">Problem Resolved:</h4>
+<ul>
+<li><strong>Original Issue</strong> - ncdoc created persistent PowerShell windows using <code>Start-Process -NoExit</code></li>
+<li><strong>User Impact</strong> - Orphaned windows cluttered taskbar, required manual cleanup</li>
+<li><strong>Technical Debt</strong> - Complex parent-child process relationships, difficult server management</li>
+</ul>
+<h4 id="solution-implemented">Solution Implemented:</h4>
+<ul>
+<li><strong>Background Jobs</strong> - Replaced <code>Start-Process</code> with <code>Start-Job</code> for invisible execution</li>
+<li><strong>Enhanced Tracking</strong> - Job ID format instead of PID-only tracking</li>
+<li><strong>Simplified Architecture</strong> - Removed Python HTTP server, DocFX serve as primary</li>
+<li><strong>Clean Termination</strong> - Proper job lifecycle management</li>
+</ul>
+<h4 id="technical-changes">Technical Changes:</h4>
+<pre><code class="lang-powershell"># Before (Problematic)
+$proc = Start-Process -FilePath $psExe -ArgumentList $args -WindowStyle Minimized
+
+# After (Clean)  
+$job = Start-Job -ScriptBlock {
+    param($docfxPath, $port)
+    Set-Location $docfxPath
+    &amp; docfx serve _site --port $port
+} -ArgumentList $docfxRoot, $Port
+</code></pre>
+<h4 id="user-experience-impact">User Experience Impact:</h4>
+<ul>
+<li>✅ <strong>Zero Window Clutter</strong> - No orphaned PowerShell windows in taskbar</li>
+<li>✅ <strong>Clean Background Operation</strong> - Server runs invisibly without user interaction</li>
+<li>✅ <strong>Reliable Termination</strong> - <code>ncdoc -Stop</code> properly cleans up background jobs</li>
+<li>✅ <strong>Same Interface</strong> - All existing parameters and functionality preserved</li>
+</ul>
+<hr>
+<h2 id="-upcoming-todos-planned">📋 Upcoming TODOs (Planned)</h2>
+<h3 id="-todo-3-external-library-integration-week-13">🔄 TODO-3: External Library Integration (Week 13)</h3>
+<p><strong>Priority:</strong> 🟡 <strong>Medium</strong> - Prerequisite for CSS implementation<br>
+<strong>Status:</strong> 🔄 <strong>In Progress</strong> - Currently being executed<br>
+<strong>Target Completion:</strong> September 18, 2025</p>
+<h4 id="implementation-plan">Implementation Plan:</h4>
+<ol>
+<li><strong>Execute Download Script</strong> - Download Tailwind CSS, Font Awesome, Inter fonts</li>
+<li><strong>Directory Organization</strong> - Structured lib/ folder with proper asset organization</li>
+<li><strong>Layout Integration</strong> - Update _Layout.cshtml with local asset references</li>
+<li><strong>Validation Testing</strong> - Offline functionality and correct asset loading</li>
+</ol>
+<h3 id="-todo-4-css-modular-architecture-implementation-week-13-14">⏳ TODO-4: CSS Modular Architecture Implementation (Week 13-14)</h3>
+<p><strong>Priority:</strong> 🟡 <strong>Medium</strong> - Core Phase 4 deliverable<br>
+<strong>Status:</strong> ⏳ <strong>Awaiting</strong> - Depends on TODO-3 completion<br>
+<strong>Target Completion:</strong> September 25, 2025</p>
+<h4 id="planned-deliverables">Planned Deliverables:</h4>
+<ul>
+<li><strong>6 Modular CSS Files</strong> - Page-specific styling based on design mocks</li>
+<li><strong>CSS Architecture</strong> - Color variables, typography system, layout utilities</li>
+<li><strong>Component Integration</strong> - Apply styling to existing Blazor components</li>
+<li><strong>Responsive Validation</strong> - Mobile and desktop breakpoint testing</li>
+</ul>
+<h3 id="-todo-5-securetokens-database-schema-week-15">⏳ TODO-5: SecureTokens Database Schema (Week 15)</h3>
+<p><strong>Priority:</strong> 🔥 <strong>High</strong> - Critical for Dual URL Architecture<br>
+<strong>Status:</strong> ❌ <strong>Not Started</strong> - Major architectural change<br>
+<strong>Target Completion:</strong> October 2, 2025</p>
+<h4 id="implementation-requirements-1">Implementation Requirements:</h4>
+<ul>
+<li><strong>Database Table Creation</strong> - SecureTokens with Host/User token pairs</li>
+<li><strong>Migration Scripts</strong> - EF Core migration for schema changes</li>
+<li><strong>Token Service Implementation</strong> - 8-character secure token generation</li>
+<li><strong>Validation Middleware</strong> - Token authentication and expiry handling</li>
+</ul>
+<hr>
+<h2 id="-progress-dashboard">📊 Progress Dashboard</h2>
+<h3 id="issue-resolution-health">Issue Resolution Health</h3>
+<ul>
+<li><strong>Critical Issues:</strong> 2 (Need immediate attention)</li>
+<li><strong>In Progress Issues:</strong> 1 (On track)</li>
+<li><strong>Recently Resolved:</strong> 2 major TODOs completed</li>
+<li><strong>Overall Status:</strong> 🟡 <strong>Good</strong> with minor blockers</li>
+</ul>
+<h3 id="key-success-metrics">Key Success Metrics</h3>
+<ul>
+<li><strong>Phase 3 Completion:</strong> ✅ <strong>100%</strong> - All advanced features delivered</li>
+<li><strong>Phase 4 Progress:</strong> 🔄 <strong>25%</strong> - Week 13 initial deliverables complete</li>
+<li><strong>Backend Stability:</strong> ✅ <strong>95%</strong> - Core infrastructure operational</li>
+<li><strong>Frontend Progress:</strong> 🔄 <strong>70%</strong> - UI framework ready, styling in progress</li>
+<li><strong>Tool Integration:</strong> ✅ <strong>90%</strong> - Command suite enhanced and operational</li>
+</ul>
+<h3 id="technical-debt-status">Technical Debt Status</h3>
+<ul>
+<li><strong>Code Quality:</strong> 🟢 <strong>Good</strong> - Enhanced debug infrastructure implemented</li>
+<li><strong>Documentation:</strong> 🟢 <strong>Excellent</strong> - Comprehensive tracking and user guides</li>
+<li><strong>Testing Coverage:</strong> 🟡 <strong>Moderate</strong> - 120+ test cases, needs expansion for new features</li>
+<li><strong>Performance:</strong> 🟢 <strong>Good</strong> - Target metrics being achieved</li>
+</ul>
+<hr>
+<h2 id="-action-items--next-steps">🎯 Action Items &amp; Next Steps</h2>
+<h3 id="immediate-priorities-this-week">Immediate Priorities (This Week)</h3>
+<ol>
+<li><strong>Issue-53 Resolution</strong> - Fix CreateSession HttpClient pattern (🔥 <strong>CRITICAL</strong>)</li>
+<li><strong>External Library Integration</strong> - Complete TODO-3 local asset download</li>
+<li><strong>CSS Architecture Planning</strong> - Prepare for modular CSS implementation</li>
+</ol>
+<h3 id="short-term-goals-next-2-weeks">Short-term Goals (Next 2 Weeks)</h3>
+<ol>
+<li><strong>Complete Phase 4 Week 13</strong> - External libraries and initial CSS files</li>
+<li><strong>Begin Dual URL Architecture</strong> - Database schema design and planning</li>
+<li><strong>Component Styling</strong> - Apply NOOR Canvas branding to existing components</li>
+</ol>
+<h3 id="long-term-objectives-phase-4-completion">Long-term Objectives (Phase 4 Completion)</h3>
+<ol>
+<li><strong>Visual Design Implementation</strong> - Pixel-perfect mock reproduction</li>
+<li><strong>Security Enhancement</strong> - Complete token-based authentication system</li>
+<li><strong>Performance Optimization</strong> - CSS loading and animation performance</li>
+<li><strong>Documentation Completion</strong> - Final user guides and technical references</li>
+</ol>
+<hr>
+<blockquote>
+<p><strong>Summary:</strong> Strong technical foundation with 2 critical issues requiring immediate attention. Phase 4 CSS implementation progressing well with enhanced debug infrastructure and completed TODO items. Dual URL architecture represents significant scope expansion requiring careful planning and execution.</p>
+</blockquote>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/implementation/issues-todo-tracking.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Database Schema Documentation </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Database Schema Documentation ">
+    
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc.html">
+      <meta property="docfx:tocrel" content="../toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="database-schema-documentation">Database Schema Documentation</h1>
+
+<h2 id="overview">Overview</h2>
+<p>NOOR CANVAS uses a dedicated <code>canvas</code> schema within SQL Server, designed for optimal performance with real-time operations.</p>
+<h2 id="schema-structure">Schema Structure</h2>
+<h3 id="development-environment">Development Environment</h3>
+<ul>
+<li><strong>Database</strong>: <code>KSESSIONS_DEV</code></li>
+<li><strong>Schema</strong>: <code>canvas</code></li>
+<li><strong>Connection</strong>: Trusted connection with 1-hour timeout</li>
+</ul>
+<h3 id="production-environment">Production Environment</h3>
+<ul>
+<li><strong>Database</strong>: <code>KSESSIONS</code></li>
+<li><strong>Schema</strong>: <code>canvas</code></li>
+<li><strong>Connection</strong>: <code>sa</code> user with full permissions</li>
+</ul>
+<h2 id="tables">Tables</h2>
+<h3 id="canvassessions">canvas.Sessions</h3>
+<p>Primary session management table.</p>
+<pre><code class="lang-sql">CREATE TABLE canvas.Sessions (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    album_id INT NULL,
+    category_id INT NULL,
+    guid UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    host_token UNIQUEIDENTIFIER NOT NULL,
+    status NVARCHAR(50) NOT NULL DEFAULT 'Active',
+    created_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    expires_at DATETIME2 NULL,
+    
+    INDEX IX_Sessions_Guid (guid),
+    INDEX IX_Sessions_HostToken (host_token),
+    INDEX IX_Sessions_Status (status)
+);
+</code></pre>
+<h3 id="canvassessiontranscripts">canvas.SessionTranscripts</h3>
+<p>Stores session content and transcription data.</p>
+<pre><code class="lang-sql">CREATE TABLE canvas.SessionTranscripts (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    session_id INT NOT NULL,
+    html_content NVARCHAR(MAX) NULL,
+    created_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    
+    FOREIGN KEY (session_id) REFERENCES canvas.Sessions(id),
+    INDEX IX_SessionTranscripts_SessionId (session_id)
+);
+</code></pre>
+<h3 id="canvasregistrations">canvas.Registrations</h3>
+<p>Participant registration and management.</p>
+<pre><code class="lang-sql">CREATE TABLE canvas.Registrations (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    session_id INT NOT NULL,
+    name NVARCHAR(255) NOT NULL,
+    country NVARCHAR(100) NULL,
+    city NVARCHAR(100) NULL,
+    fingerprint_hash NVARCHAR(64) NOT NULL,
+    ip_hash NVARCHAR(64) NOT NULL,
+    join_time DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    
+    FOREIGN KEY (session_id) REFERENCES canvas.Sessions(id),
+    INDEX IX_Registrations_SessionId (session_id),
+    INDEX IX_Registrations_FingerprintHash (fingerprint_hash)
+);
+</code></pre>
+<h3 id="canvasquestions">canvas.Questions</h3>
+<p>Q&amp;A system data storage.</p>
+<pre><code class="lang-sql">CREATE TABLE canvas.Questions (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    session_id INT NOT NULL,
+    participant_id INT NOT NULL,
+    question_text NVARCHAR(MAX) NOT NULL,
+    answer_text NVARCHAR(MAX) NULL,
+    status NVARCHAR(50) NOT NULL DEFAULT 'Pending',
+    created_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    
+    FOREIGN KEY (session_id) REFERENCES canvas.Sessions(id),
+    FOREIGN KEY (participant_id) REFERENCES canvas.Registrations(id),
+    INDEX IX_Questions_SessionId (session_id),
+    INDEX IX_Questions_ParticipantId (participant_id),
+    INDEX IX_Questions_Status (status)
+);
+</code></pre>
+<h3 id="canvasannotations">canvas.Annotations</h3>
+<p>Real-time annotation data storage.</p>
+<pre><code class="lang-sql">CREATE TABLE canvas.Annotations (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    session_id INT NOT NULL,
+    participant_id INT NOT NULL,
+    annotation_data NVARCHAR(MAX) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    
+    FOREIGN KEY (session_id) REFERENCES canvas.Sessions(id),
+    FOREIGN KEY (participant_id) REFERENCES canvas.Registrations(id),
+    INDEX IX_Annotations_SessionId (session_id),
+    INDEX IX_Annotations_ParticipantId (participant_id),
+    INDEX IX_Annotations_CreatedAt (created_at)
+);
+</code></pre>
+<h2 id="cross-schema-integration">Cross-Schema Integration</h2>
+<h3 id="read-access-to-dbo-schema">Read Access to dbo Schema</h3>
+<p>NOOR CANVAS has read access to existing application data:</p>
+<pre><code class="lang-sql">-- Beautiful Islam integration
+USE KQUR_DEV; -- Development
+USE KQUR;     -- Production
+
+-- Available tables
+SELECT * FROM dbo.Users;
+SELECT * FROM dbo.Categories;
+SELECT * FROM dbo.Albums;
+</code></pre>
+<h3 id="asset-referencing-strategy">Asset Referencing Strategy</h3>
+<ul>
+<li><strong>No Data Duplication</strong>: Reference existing image paths</li>
+<li><strong>Shared Resources</strong>: Use existing asset directories</li>
+<li><strong>Path References</strong>: <code>D:\PROJECTS\KSESSIONS\Source Code\Sessions.Spa\Resources\IMAGES</code></li>
+</ul>
+<h2 id="performance-optimizations">Performance Optimizations</h2>
+<h3 id="indexing-strategy">Indexing Strategy</h3>
+<ul>
+<li><strong>GUID Lookups</strong>: Optimized for session token validation</li>
+<li><strong>Time-based Queries</strong>: Indexed on creation timestamps</li>
+<li><strong>Foreign Key Relationships</strong>: Proper referential integrity</li>
+<li><strong>Real-time Queries</strong>: Optimized for annotation retrieval</li>
+</ul>
+<h3 id="query-performance">Query Performance</h3>
+<ul>
+<li><strong>Connection Pooling</strong>: Efficient database connections</li>
+<li><strong>Timeout Configuration</strong>: 1-hour timeout for long operations</li>
+<li><strong>Prepared Statements</strong>: Parameterized queries for security</li>
+<li><strong>Bulk Operations</strong>: Optimized for real-time data insertion</li>
+</ul>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="data-protection">Data Protection</h3>
+<ul>
+<li><strong>Parameterized Queries</strong>: SQL injection prevention</li>
+<li><strong>Hash Storage</strong>: Fingerprint and IP address hashing</li>
+<li><strong>GUID Tokens</strong>: Cryptographically secure session tokens</li>
+<li><strong>Schema Isolation</strong>: Dedicated canvas schema separation</li>
+</ul>
+<h3 id="access-control">Access Control</h3>
+<ul>
+<li><strong>Minimal Permissions</strong>: Read-only access to dbo schema</li>
+<li><strong>Service Account</strong>: Dedicated application database user</li>
+<li><strong>Connection Security</strong>: Trusted connections in development</li>
+<li><strong>Audit Trail</strong>: Comprehensive logging for all operations</li>
+</ul>
+<hr>
+<p><em>For development setup instructions, see <a href="../development/getting-started.html">Getting Started</a></em></p>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/asifhussain60/NOOR-CANVAS/blob/master/DocFX/articles/technical/database-schema.md/#L1" class="contribution-link">Edit this page</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>

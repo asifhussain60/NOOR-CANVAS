@@ -1,0 +1,581 @@
+{
+  "source_base_path": "D:/PROJECTS/NOOR CANVAS/DocFX",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/canvas-schema-integration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/canvas-schema-integration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/canvas-schema-overview.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/canvas-schema-overview.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/canvas-schema-performance.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/canvas-schema-performance.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/canvas-schema-procedures.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/canvas-schema-procedures.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/canvas-schema-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/canvas-schema-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/canvas-schema-tables.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/canvas-schema-tables.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/database-setup.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/database-setup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/iis-configuration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/iis-configuration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/production-deployment.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/production-deployment.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/deployment/production-setup.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/production-setup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/deployment/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/deployment/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/deployment/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/authentication-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/authentication-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/build-processes.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/build-processes.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/development-workflow-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/development-workflow-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/docfx-implementation-summary.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/docfx-implementation-summary.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/getting-started.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/getting-started.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/host-token-quick-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/host-token-quick-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/implementation-phases.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/implementation-phases.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/phase-4-implementation-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/phase-4-implementation-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/development/testing-procedures.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/testing-procedures.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/development/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/development/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/development/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/issues-todo-tracking.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/issues-todo-tracking.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/phase4-current-progress.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/phase4-current-progress.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/project-status-overview.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/project-status-overview.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/implementation/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/implementation/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/implementation/user-guid-registration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/implementation/user-guid-registration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/intro.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/api-reference/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/api-reference/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/api-reference/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/architecture-diagrams/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/architecture-diagrams/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/architecture-diagrams/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/architecture.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/architecture.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/automated-testing-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/automated-testing-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/build-system-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/build-system-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/database-schema.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/database-schema.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/development-workflow-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/development-workflow-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/global-commands-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/global-commands-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/host-token-system.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/host-token-system.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/integration-examples/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/integration-examples/index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/integration-examples/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/integration-examples/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/integration-examples/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/security-model.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/security-model.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/signalr-integration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/signalr-integration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/ssl-certificate-configuration.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/ssl-certificate-configuration.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/technical/testing-framework-technical-reference.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/testing-framework-technical-reference.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/technical/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/technical/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/technical/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/automated-testing-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/automated-testing-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/development-workflow-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/development-workflow-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/getting-started-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/getting-started-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/global-commands-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/global-commands-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/host-authentication-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/host-authentication-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/ssl-configuration-user-guide.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/ssl-configuration-user-guide.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/user-guides/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/toc.html"
+        },
+        ".json": {
+          "relative_path": "articles/user-guides/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/user-guides/troubleshooting-common-issues.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/user-guides/troubleshooting-common-issues.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html"
+        },
+        ".json": {
+          "relative_path": "toc.json"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}
