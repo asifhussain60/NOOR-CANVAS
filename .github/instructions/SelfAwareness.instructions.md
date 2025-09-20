@@ -67,6 +67,7 @@ description: Self-learning, context-first workspace rules for Copilot Chat. Tail
 - Don’t hardcode tokens or transcripts.  
 - Don’t auto-mark issues/TODOs resolved. 
 - Don't start plawright tests without first ensuring the application is running and accessible. Reference `PLAYWRIGHT-EXECUTION-GUARDRAILS.md` for rules.
+- Don't use curl commands such as `curl -k https://localhost:9091/` instead use webinvoke-webrequest after ensuring the server is running.
 
 ## Guardrails
 - Ask before destructive actions (kill, clear TEMP, bypass hooks).  

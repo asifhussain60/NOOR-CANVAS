@@ -160,7 +160,7 @@
         Model = new UserLandingViewModel
         {
             LogoText = "NOOR Canvas",
-            SessionName = "[Loading Session...]", // Dynamic session name to be loaded
+            SessionName = "Enter Session Token", // Clear instruction instead of mock loading text
             ShowTokenPanel = true,
             ButtonText = "Submit",
             ButtonIconClass = "fa-solid fa-arrow-right-to-bracket",
@@ -190,9 +190,10 @@
         }
         else
         {
-            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] No session token provided, using default session name", 
+            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] No session token provided, prompting for token entry", 
                 requestId);
-            Model.SessionName = "Islamic Art & Calligraphy Session"; // Fallback for no token
+            // No fallback session name - user must enter valid token to get session data from database
+            Model.SessionName = "Enter Session Token";
         }
     }
 

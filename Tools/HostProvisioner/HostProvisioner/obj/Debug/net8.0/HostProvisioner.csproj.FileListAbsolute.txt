@@ -3,7 +3,6 @@ D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\N
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\web.config
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\web.Debug.config
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\web.Release.config
-D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\appsettings.Debug.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\appsettings.Development.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\appsettings.json
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\appsettings.Production.json
