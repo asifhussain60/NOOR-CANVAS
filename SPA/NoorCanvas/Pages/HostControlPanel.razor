@@ -642,13 +642,6 @@
                 return canvasSession.SessionId.ToString();
             }
             
-            // If not found in canvas.Sessions, check if it's a direct KSessions ID (for V7U6P4RW -> 212)
-            if (hostToken == "V7U6P4RW")
-            {
-                Logger.LogInformation("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] Using hardcoded mapping for V7U6P4RW -> SessionId 212");
-                return "212";
-            }
-            
             Logger.LogWarning("COPILOT-DEBUG: [GetSessionIdFromTokenAsync] No mapping found for token: {Token}", hostToken);
             return null;
         }

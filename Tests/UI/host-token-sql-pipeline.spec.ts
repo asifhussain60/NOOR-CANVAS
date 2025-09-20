@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Test suite for V7U6P4RW token validation and session loading
+ * Test suite for Host Control Panel token validation and session loading
  * Verifies that the database-driven token validation system works correctly
- * without hardcoded mappings
+ * without hardcoded mappings. Uses generated token 67HATXRR for session 212.
  */
-test.describe('V7U6P4RW Token Validation', () => {
+test.describe('Host Token Validation', () => {
 
-    test('should load Host Control Panel with V7U6P4RW token from database', async ({ page }) => {
-        // Navigate to HostControlPanel with V7U6P4RW token
-        await page.goto('https://localhost:9091/HostControlPanel?hostToken=V7U6P4RW');
+    test('should load Host Control Panel with database token from SQL pipeline', async ({ page }) => {
+        // Navigate to HostControlPanel with properly generated token for session 212
+        await page.goto('https://localhost:9091/host/control-panel/67HATXRR');
 
         // Wait for page to load completely
         await page.waitForLoadState('networkidle');
@@ -29,12 +29,12 @@ test.describe('V7U6P4RW Token Validation', () => {
         await expect(page.locator('text=Authentication Required')).not.toBeVisible();
         await expect(page.locator('text=Session Not Found')).not.toBeVisible();
 
-        console.log('✅ V7U6P4RW token successfully validated through database pipeline');
+        console.log('✅ Host token 67HATXRR successfully validated through database pipeline');
     });
 
     test('should display session transcript from KSessions database', async ({ page }) => {
-        // Navigate to HostControlPanel with V7U6P4RW token
-        await page.goto('https://localhost:9091/HostControlPanel?hostToken=V7U6P4RW');
+        // Navigate to HostControlPanel with properly generated token
+        await page.goto('https://localhost:9091/host/control-panel/67HATXRR');
 
         // Wait for page to load completely
         await page.waitForLoadState('networkidle');
@@ -64,14 +64,15 @@ test.describe('V7U6P4RW Token Validation', () => {
         // This test verifies that the system queries the database for token validation
         // instead of using hardcoded mappings
 
-        // Navigate to HostControlPanel with V7U6P4RW token
-        await page.goto('https://localhost:9091/HostControlPanel?hostToken=V7U6P4RW');
+        // Navigate to HostControlPanel with properly generated token
+        await page.goto('https://localhost:9091/host/control-panel/67HATXRR');
 
         // Monitor console logs to ensure no hardcoded mapping messages appear
         const hardcodedMappingLogs: string[] = [];
         page.on('console', msg => {
             const text = msg.text();
             if (text.includes('Using hardcoded mapping') ||
+                text.includes('V7U6P4RW') ||
                 text.includes('BIIVCFDY') ||
                 text.includes('79ESAWLD') ||
                 text.includes('HOST212A')) {
