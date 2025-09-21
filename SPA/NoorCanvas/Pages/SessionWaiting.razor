@@ -144,7 +144,7 @@
                         </div>
                         <div style="text-align:left;">
                             <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Duration</p>
-                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.SessionDuration ?? "1 hour")</p>
+                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.SessionDuration ?? "Loading...")</p>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:1rem;">
@@ -399,15 +399,40 @@
     {
         if (Model == null) return;
 
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+
+        // ISSUE-FIXED: Use current time + offset for waiting room timer instead of historical KSESSIONS date
+        // For waiting rooms, we want a countdown based on current time, not historical session data
+        DateTime calculatedStartTime;
+        
+        // Check if session has actually started (status check)
+        bool sessionAlreadyStarted = session.Status?.Equals("Started", StringComparison.OrdinalIgnoreCase) == true ||
+                                   session.Status?.Equals("Live", StringComparison.OrdinalIgnoreCase) == true;
+        
+        if (sessionAlreadyStarted)
+        {
+            // Session has started - show immediate start
+            calculatedStartTime = DateTime.Now;
+            Logger.LogInformation("NOOR-DEBUG-TIME: [{RequestId}] Session already started - using immediate start", requestId);
+        }
+        else
+        {
+            // Waiting room: Use current time + 5 minutes for demonstration countdown
+            calculatedStartTime = DateTime.Now.AddMinutes(5);
+            Logger.LogInformation("NOOR-DEBUG-TIME: [{RequestId}] Waiting room mode - using current time + 5 minutes: {StartTime}", requestId, calculatedStartTime);
+        }
+        
+        // Now that we have calculatedStartTime, update the model
         Model.SessionName = session.Title ?? "Unknown Session";
-        Model.SessionDate = FormatDate(session.StartTime);
-        Model.StartTime = FormatTime(session.StartTime);
+        // ISSUE-FIXED: Show current date for waiting rooms instead of historical KSESSIONS date
+        Model.SessionDate = FormatDate(DateTime.Now); // Use current date for waiting room display
+        Model.StartTime = FormatTime(calculatedStartTime); // Use calculated start time
         Model.SessionDuration = FormatDuration(session.Duration);
         Model.InstructorName = session.InstructorName ?? "Loading...";
         
-        // Set session start time for countdown
-        _sessionStartTime = session.StartTime ?? DateTime.Now.AddMinutes(5);
-        _countdownDurationMs = (int)(_sessionStartTime - DateTime.Now).TotalMilliseconds;
+        _sessionStartTime = calculatedStartTime;
+        var currentTime = DateTime.Now;
+        _countdownDurationMs = (int)(_sessionStartTime - currentTime).TotalMilliseconds;
         
         if (_countdownDurationMs <= 0)
         {
@@ -627,7 +652,11 @@
 
         try
         {
-            var timeLeft = _sessionStartTime - DateTime.Now;
+            var currentTime = DateTime.Now;
+            var timeLeft = _sessionStartTime - currentTime;
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            
+
             
             if (timeLeft.TotalMilliseconds <= 0)
             {
@@ -664,7 +693,7 @@
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error updating countdown timer");
+            Logger.LogError(ex, "NOOR-DEBUG-TIME: Error updating countdown timer");
         }
     }
 
@@ -748,7 +777,7 @@
 
     private static string FormatDuration(TimeSpan? duration)
     {
-        if (!duration.HasValue) return "1 hour";
+        if (!duration.HasValue) return "Duration not available";
         
         var hours = duration.Value.Hours;
         var minutes = duration.Value.Minutes;
@@ -857,9 +886,9 @@
         public DateTime? CreatedAt { get; set; }
         public string? InstructorName { get; set; } // Database-driven instructor name
         
-        // Computed properties for compatibility with existing UpdateSessionData method
-        public DateTime? StartTime => StartedAt;
-        public TimeSpan? Duration => TimeSpan.FromHours(1); // Default duration
+        // PHASE 2 FIX: Real API properties for KSESSIONS data
+        public DateTime? StartTime { get; set; } // Real SessionDate from KSESSIONS database
+        public TimeSpan? Duration { get; set; } // Real duration from API (not hard-coded "1 hour")
     }
 
     public class ParticipantInfo

@@ -1,48 +1,48 @@
----
+--- 
 mode: agent
----
-name: Systematic Architecture Review
-/analyze  targets:#file:UserLanding.razor, /src/Server/Controllers
-          notes: Please check whether DTOs are aligned with camelCase vs PascalCase; we had bugs before.
+name: analyze
+alias: /analyze
+description: >
+  Perform a systematic architecture review of specified Noor Canvas artifacts (views, controllers, DTOs, SQL).
+  Always align with NOOR-CANVAS-DESIGN.MD and ncImplementationTracker.MD. 
+  Extract use cases, trace end-to-end flows, validate naming consistency, and highlight risks before implementation.
 
-description: Thoroughly review views, routes, APIs, DTOs, and SQL for selected artifacts; enumerate use cases, trace end-to-end, and report findings before implementation.
 parameters:
   - name: targets
     description: >
-      A comma- or newline-separated list of artifacts to examine (files, directories, or screenshots).
-      Accepts #file: syntax, glob-like patterns, and short notes about screenshots.
-      Example:
+      List of artifacts to examine (#file: paths, globs, dirs).
+      Examples:
         #file:UserLanding.razor
-        #file:SessionWaiting.razor
-        /src/Server
+        /src/Server/Controllers
         screenshots/landing/*.png
+    required: true
   - name: notes
     description: >
-      Optional free-text notes from the user providing context, clarifications,
-      or specific concerns to emphasize during the review.
-      Example:
-        "Focus on async lifecycle methods; I suspect race conditions."
----
+      Optional free-text notes to guide focus areas (e.g., "check async lifecycle methods").
+    required: false
 
-# 🎯 Objective
-Perform a **systematic architecture review** of the following Razor components and related server artifacts:  
-- Always include: `#file:UserLanding.razor` and `#file:SessionWaiting.razor`  
-- Plus: `{{targets}}`  
+# ───────────────────────────
+# 📖 Usage Examples
+# ───────────────────────────
+# /analyze targets:"#file:UserLanding.razor, /src/Server/Controllers" notes:"check DTO casing issues"
+# /analyze targets:"/src/Database" notes:"trace FK mismatches"
+# ───────────────────────────
 
-Incorporate the following **user-provided notes** as priorities:  
-> {{notes}}
+# 🎯 Deliverables
+1. **Executive Summary** — top findings & risks.
+2. **Narrative** — plain-English analysis + recommendations.
+3. **TODO Inventory** — checklist of all distinct user flows.
+4. **Trace Table** — View → Route → API → DTO → SQL (with refs).
+5. **Validation Matrix** — camelCase vs PascalCase, typing, consistency.
+6. **Mismatches & Gaps** — missing links/inconsistencies.
+7. **Risks & Unknowns** — unresolved issues, assumptions.
+8. **Deferred Plan** — outline changes, but don’t implement.
+9. **Approval Gate** — end with: “Awaiting approval to implement.”
 
-Produce a detailed written report of findings **before** making any code changes. Create a **TODO inventory of use cases** from the views and flows you analyze.
-
-# ✅ Deliverables (in order)
-1. **Executive Summary** — 5–10 bullet points (what was reviewed, key use cases, top risks).  
-2. **Plain-English Narrative** — 2–4 paragraphs summarizing what was found, implications for the system, and clear recommendations for improvement.  
-3. **TODO: Use Case Inventory** — checklist of all distinct user flows (links/buttons/forms/conditions), each with one-line intent.  
-4. **End-to-End Trace Table** — for each use case, trace **View → Route → API → DTO → SQL**, with file+line refs.  
-5. **Validation Matrix** — confirm naming, typing, consistency rules (e.g., camelCase vs PascalCase DTOs).  
-6. **Mismatches & Gaps** — highlight missing links or inconsistencies across layers.  
-7. **Risks & Unknowns** — list unresolved issues or assumptions that need clarification.  
-8. **Implementation Plan (Deferred)** — outline but do not yet apply changes.  
-9. **Approval Gate** — end with: “**Awaiting approval to implement.**”  
-
-*(Keep the rest of your method, heuristics, and formatting unchanged.)*
+# ───────────────────────────
+# 🚦 Regression Guards
+# ───────────────────────────
+- [time] Reject hardcoded dates (use UTC from DB/server only).
+- [env] Verify environment context matches NOOR-CANVAS-DESIGN.
+- [duplication] Flag duplicate flows or DTOs.
+- [playwright] Cross-check health checks and button-binding fixes from INFRASTRUCTURE-FIXES-REPORT.md.

@@ -1,174 +1,159 @@
 ---
 mode: agent
----
 name: cleanup
+alias: /cleanup
 description: >
-  Comprehensive repo cleanup. Accepts an optional 'scope' (folder or file glob). If provided, cleanup
-  is limited to that scope (with necessary root-level updates like .gitignore). If omitted, runs on the
-  project root. Enforces standard file names, consolidates docs, removes TEMP/artefacts, optimizes .gitignore,
-  runs linters/formatters, builds, and commits. Finishes with 0 uncommitted files.
+  Perform a disciplined repo cleanup within an effective scope while preserving history,
+  enforcing naming conventions, consolidating docs, organizing Playwright assets, and
+  finishing with 0 uncommitted files. Align with NOOR-CANVAS-DESIGN, ncImplementationTracker.MD,
+  and Infrastructure-Fixes-Report for Playwright paths & ignores.
+
 parameters:
   - name: scope
-    description: Optional path or glob to limit work (e.g., 'PlayWright/', 'src/Web/**'). Defaults to repo root.
----
+    required: false
+    description: Optional path or glob to limit work (e.g., "PlayWright/", "src/Web/**").
+                 Defaults to repo root.
 
-## Operating Mode
-- **Effective scope**: set to `{{scope}}` if provided, otherwise the **repo root**.
-- All scans/moves/deletions/renames operate within the effective scope **except**:
-  - Root-level **`.gitignore` audit** (always global).
-  - Cross-scope link/rename fixes **only** when they point into/out of the effective scope.
+# ───────────────────────────
+# 📖 Usage Examples
+# ───────────────────────────
+# 1) Clean the whole repo:
+#    /cleanup
+#
+# 2) Only tidy the Playwright area:
+#    /cleanup scope:"PlayWright/"
+#
+# 3) Focus on web UI code:
+#    /cleanup scope:"src/Web/**"
+# ───────────────────────────
 
-## Goals
-- Enforce clean structure and standard filenames within effective scope.
-- Merge/normalize instructional Markdown (keep one canonical README).
-- Remove duplicates, poorly named files, TEMP clutter.
-- **Analyze & optimize `.gitignore`** so backups/caches/build outputs and Playwright artefacts are ignored, while Playwright **tests & config are committed**.
-- Run formatters/linters (for touched files).
-- Build successfully.
-- **Commit all intended changes**, purge ignored artefacts, and **end with 0 uncommitted files**.
+# 🎯 Operating Mode
+- Effective scope = {{scope}} if provided, otherwise repo root (".").
+- All scans/moves/deletions/renames operate within the effective scope except:
+  • Root-level .gitignore audit (always global)
+  • Cross-scope link/rename fixes only when references cross in/out of scope
 
-## Structure Patterns
-- **PlayWright/**
-  - `config/`, `tests/` → **tracked**
-  - `reports/`, `results/`, `artifacts/` → **ignored, not tracked**
-- **Scripts/** (plus `Scripts/Validation/`)
-- **IssueTracker/** with status folders: NOT STARTED, IN PROGRESS, AWAITING_CONFIRMATION, COMPLETED
-- **Documentation/** for deep docs; root README.md stays canonical
+# 🧭 Goals
+- Enforce clean structure + conventional filenames.
+- Consolidate instructional Markdown to a single canonical README in-scope, linking back to root README when appropriate.
+- Centralize Playwright tests/configs; ensure reports/results/artifacts are ignored (tracked vs ignored rules).
+- Remove TEMP/artefacts, orphaned files, duplicates; update references after renames.
+- Run formatters/linters on touched files; ensure build succeeds when scope touches buildable code.
+- Conclude with: 0 uncommitted files (clean working tree).
 
-## Constraints & Principles
-- Conventional names only (`README.md`, `CONTRIBUTING.md`, etc.).
-- No placeholder names (clean/final/new/tmp/junk, etc.).
-- Prefer **rename/move** over delete when preserving history.
-- **Scope discipline**: do not touch outside effective scope unless:
-  - Updating `.gitignore` patterns,
-  - Fixing broken references that cross into/out of scope,
-  - Removing tracked artefacts that should have been ignored.
+# 📁 Structure & Naming Standards (Noor Canvas)
+- PlayWright/
+  - config/, tests/ → tracked
+  - reports/, results/, artifacts/ → ignored (never tracked)
+- Scripts/ and Scripts/Validation/
+- IssueTracker/ with statuses: NOT STARTED, IN PROGRESS, AWAITING_CONFIRMATION, COMPLETED
+- Documentation/ for deep docs; root README.md remains canonical
+- Conventional names only (README.md, CONTRIBUTING.md, etc.); no "temp/new/final/fixed" style names.
 
-## High-Level Plan (Copilot Execution Order)
-0) **Resolve Effective Scope**
-   - `SCOPE = {{scope}}` if provided, else `.`
+# ⚖️ Constraints & Principles
+- Prefer rename/move over delete to preserve history.
+- Scope discipline: do not touch outside scope unless:
+  • updating .gitignore,
+  • fixing broken references across boundary,
+  • untracking artefacts that should be ignored.
+- Never change issue status or lifecycle; cleanup is non-destructive to tracker/state.
 
-1) **.gitignore Audit & Optimization (GLOBAL)**
-   - Create or update root `.gitignore` with idempotent rules:
-     - OS/editor: `.DS_Store`, `Thumbs.db`, `desktop.ini`, `.idea/`, `.vscode/` (allow explicit checked-in settings via exception rules if already tracked)
-     - Backups/temp: `*.bak`, `*.tmp`, `*.temp`, `*.old`, `*.orig`, `*.rej`, `.cache/`, `cache/`, `tmp/`, `temp/`
-     - Logs/coverage: `*.log`, `logs/`, `coverage/`, `.nyc_output/`
-     - Build outputs: `bin/`, `obj/`, `dist/`, `build/`, `out/`, `.next/`, `.turbo/`
-     - Dependencies: `node_modules/`, `.venv/`, `venv/`, `.pytest_cache/`, `.mypy_cache/`
-     - **Playwright (not tracked)**: `PlayWright/reports/`, `PlayWright/results/`, `PlayWright/artifacts/`
-     - **Playwright (tracked)**: ensure **no** rule masks `PlayWright/config/**` or `PlayWright/tests/**`
-   - Output a short diff-style preview of proposed changes.
+# 🧹 Workspace & Markdown Consolidation (NEW)
+- Recursively analyze **all files and folders** under the **Noor Canvas folder** (repo root and SPA/NoorCanvas/**).
+- Move **all `*.md`/`*.MD` Markdown files** into **Workspaces/**, preserving logical subfolders:
+  • Primary destination: `Workspaces/Documentation/`
+  • Keep a single **root `README.md`** at repo root (canonical). Do not move `.github/**` docs, license headers, or policy files that must remain in place (e.g., `LICENSE`, `SECURITY.md`, `CODE_OF_CONDUCT.md`).
+  • If a moved Markdown was referenced by relative links, update links to the new location.
+- **Cleanup Workspaces/**
+  • Deduplicate and merge overlapping docs (prefer the most recent & authoritative copy).
+  • Collapse near-duplicates into one canonical doc; leave stubs that *link* to the canonical if needed.
+  • Remove obviously obsolete files (empty scaffolds, autogenerated dumps, stale screenshots) after verifying no references.
+  • Normalize section headings and front-matter; add a table-of-contents to large docs.
+- Produce a **Docs Map** in `Workspaces/Documentation/INDEX.md` listing all consolidated docs and their purpose.
 
-2) **Inventory & Consolidate Instructional Markdown (Scoped)**
-   - Within `SCOPE`, find likely instruction files and consolidate into `README.md` (root README if SCOPE includes root, else a local README that links to root).
-   - Remove contradictions/outdated copies.
+# ➕ Additional Similar Cleanup Instructions (NEW)
+- **Screenshot & Asset hygiene:** Move unreferenced images from scattered folders into `Workspaces/Assets/` or delete if unused; update links.
+- **Code fences & formatting:** Auto-format Markdown (Prettier) and fix broken fences/indentation; ensure language tags (```ts, ```csharp, ```powershell) where applicable.
+- **Orphan detector:** Grep for references to moved files; if none, tag as orphan and remove or archive under `Workspaces/_Archive/` with date-stamped note.
+- **Naming normalization:** Enforce kebab-case for file names in PlayWright/tests and PascalCase for C#/Razor; fix mixed-case folders.
+- **README reduction:** If multiple READMEs exist in the same subtree, reduce to one canonical and convert others into section anchors or short “See: …” stubs.
+- **Sample vs. prod config:** Move sample configs to `Workspaces/Samples/` and ensure `.env*` secrets are ignored and not committed.
+- **Script garden:** Move ad-hoc helper scripts into `Scripts/` or `Scripts/Validation/`, add a one-line usage header, and mark experimental ones to `Workspaces/_Archive/` if deprecated.
 
-3) **Enforce Naming Standards (Scoped)**
-   - Normalize case, standard files.
-   - Rename outliers; update links/refs (including cross-scope if necessary).
+# 📋 High-Level Plan (Execution Order)
+0) Resolve Effective Scope
+   - SCOPE = {{scope}} if provided; else "."
 
-4) **Duplicate/Orphan Cleanup & Playwright Organization (Scoped)**
-   - Detect duplicates by hash/similarity; keep canonical.
-   - Remove unused screenshots/assets if unreferenced.
-   - Centralize Playwright tests under `PlayWright/tests/` (if they sit under SCOPE); update configs accordingly.
-   - Prune old Playwright artefact paths under SCOPE.
+1) .gitignore Audit (GLOBAL)
+   - Ensure idempotent rules for OS/editor junk, backups/caches/logs, build outputs, deps.
+   - **Playwright**: confirm *ignored* (reports/results/artifacts) and *tracked* (config/tests) split is correct.
+   - Show a short diff-style preview before applying.
 
-5) **Artefacts & Cache Cleanup (Scoped)**
-   - Remove build outputs, caches, logs, TEMP, and backup files **inside SCOPE**:
-     - `bin/`, `obj/`, `dist/`, `.cache/`, `.test-cache/`, `*.tmp`, `*.bak`, `*.log`
-   - If any such paths are **tracked**, run `git rm -r --cached` to untrack them (respecting `.gitignore`).
+2) Instructional Markdown Consolidation (Scoped)
+   - Merge/normalize scattered instructions into one README in-scope.
+   - Link to root README if scope is a sub-tree.
+   - Remove duplicates/outdated copies.
 
-6) **Lint & Format (Touched Files Only)**
-   - **ASP.NET Core**: `dotnet format --verbosity minimal` from `SPA/NoorCanvas/`
-   - **JavaScript/TypeScript**: `npx prettier --write .` (auto-fixes most issues)
-   - **Markdown**: Included in Prettier formatting
-   - Fail the run if fatal syntax/lint errors remain.
-   - **Optimization**: Prettier typically auto-fixes 4+ files in NOOR Canvas projects
+3) **Markdown Sweep to Workspaces** (NEW)
+   - Find all Markdown (`*.md`, `*.MD`) across Noor Canvas tree.
+   - Exclusions: repo root `README.md`, `.github/**`, `LICENSE`, `SECURITY.md`, `CODE_OF_CONDUCT.md`.
+   - Move to `Workspaces/Documentation/` maintaining relative sub-structure where helpful.
+   - Update links/imports; generate `Workspaces/Documentation/INDEX.md`.
 
-7) **Build & Sanity Checks (If SCOPE affects buildable code)**
-   - **NOOR Canvas**: `cd "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build`
-   - **Path correction**: Use absolute paths if relative paths fail from wrong directory
-   - **Warning tolerance**: 1-2 build warnings acceptable; 0 errors required
-   - **Quick validation**: Check if app starts on localhost:9090/9091 if time permits
+4) Naming & Link Fixes (Scoped)
+   - Normalize file/folder case and conventional names.
+   - Update internal links/imports/refs for any renames (fix cross-scope edges if necessary).
 
-8) **Zero-Diff Finisher (Always End Clean)**
-   - **Stage & commit all intended changes**:
-     - If SCOPE provided: `git add -A -- <SCOPE>` **plus** any root-level changes made by this prompt (e.g., `.gitignore`, moved references).
-     - If SCOPE not provided: `git add -A`
-   - **Untrack anything that should be ignored**:
-     - `git rm -r --cached` for any paths now covered by `.gitignore` but still tracked.
-   - **Purge ignored junk from working tree** (safe): `git clean -fdX`
-     - This removes **ignored** files/dirs (reports, results, artifacts, caches) but leaves unignored work intact.
-   - **Re-verify**: if `git status --porcelain` still shows untracked **non-ignored** junk that matches backup/temp patterns,
-     - Either add to `.gitignore` and repeat, or delete if clearly disposable under those patterns.
-   - Commit message (see template).
-   - Push to current branch’s `origin`.
-   - Final assert: **`git status --porcelain` is empty**.
+5) Duplicate/Orphan Pruning + Playwright Organization (Scoped)
+   - Detect duplicates by hash/similarity; keep canonical copy.
+   - Remove orphaned screenshots/assets not referenced.
+   - Centralize Playwright tests under PlayWright/tests/ (if within scope); update configs accordingly.
+   - Prune old artefact paths under scope.
 
-## Post-Run Validation
-- **Git cleanliness**: 0 uncommitted changes.
-- **Playwright**: tests & config tracked; reports/results/artifacts not tracked.
-- **Build**: succeeds if SCOPE includes buildable code.
-- **Docs**: single canonical README in scope; links valid.
+6) Artefacts & Cache Cleanup (Scoped)
+   - Remove build outputs, caches, logs, backups: bin/, obj/, dist/, .cache/, *.tmp, *.bak, *.log
+   - If any such paths are tracked, run `git rm -r --cached` to untrack (respecting .gitignore).
 
-## NOOR Canvas Specific Optimizations
-Based on recent successful execution, these patterns optimize cleanup for this project:
+7) Lint & Format (Touched Files Only)
+   - .NET: `dotnet format --verbosity minimal` from SPA/NoorCanvas/ when relevant
+   - JS/TS/MD: `npx prettier --write .`
+   - Fail run if fatal syntax/lint errors remain.
 
-### **Context-First Execution**
-- Always check if app is running on ports 9090/9091 before starting
-- Use `SPA/NoorCanvas/` as the build context, not repo root
-- Reference Self-Awareness instructions (`d:\PROJECTS\NOOR CANVAS\.github\instructions\SelfAwareness.instructions.md`) for project-specific rules
+8) Build & Sanity Checks (If scope affects code)
+   - For NOOR Canvas: `cd "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build`
+   - Allow 1–2 warnings; require 0 errors.
 
-### **Efficient Tool Sequencing** 
-```
-1. file_search → read_file (batch context gathering)
-2. grep_search → list_dir (verify structure before changes)
-3. run_in_terminal → get_terminal_output (immediate validation)
-4. replace_string_in_file → semantic_search (context-aware updates)
-```
+9) Zero-Diff Finisher (Always End Clean)
+   - Stage & commit intended changes: if scope set, `git add -A -- <SCOPE>` plus root-level edits (.gitignore/refs).
+   - Untrack now-ignored artefacts with `git rm -r --cached`.
+   - Purge ignored junk safely: `git clean -fdX`.
+   - Re-verify: if `git status --porcelain` shows non-ignored junk, extend .gitignore or delete if disposable.
+   - Use a conventional commit message, then push.
+   - Assert: working tree is clean (0 uncommitted files).
 
-### **Known Success Patterns**
-- **Prettier formatting**: Auto-fixes most JS/MD issues, include `--write` flag
-- **dotnet format**: Use `--verbosity minimal` to reduce noise
-- **Build verification**: Always use `SPA/NoorCanvas/NoorCanvas.csproj` as target
-- **Git operations**: Stage with `git add -A`, commit with descriptive messages referencing cleanup.prompt.md
+# ✅ Post-Run Validation
+- Git cleanliness: working tree empty.
+- Playwright layout: tests/config tracked; artefacts ignored.
+- **Docs Map present** at `Workspaces/Documentation/INDEX.md` and links verified.
+- Build passes if scope included buildable code.
+- Documentation: one canonical README in-scope; links valid.
 
-### **Project-Specific Ignore Patterns**
-Add these to standard `.gitignore` rules for NOOR Canvas:
-```
-# NOOR Canvas specific
-Workspaces/TEMP/
-playwright-report/
-test-results/
-*.temp.config.js
-*-temp.md
-SPA/NoorCanvas/bin/
-SPA/NoorCanvas/obj/
-```
+# 🛡️ Regression Guards (Baked-In)
+- [playwright] Enforce tracked/ignored split exactly; never commit reports/results/artifacts.
+- [duplication] Detect & dedupe instructions; prefer canonical README + links (avoid repeating doctrine across prompts).
+- [naming] Reject non-professional filenames; auto-normalize.
+- [docs] Keep a single canonical root README; move all other Markdown to Workspaces/Documentation with link updates.
+- [tracker] Do not alter issue statuses or infer completion.
+- [evidence] Preview .gitignore changes before applying; record the final `git status` proof.
 
-### **Critical Validations**
-- Node.js dependencies: Check for new `node_modules/` after `npm install`
-- Playwright reports: Ensure `playwright-report/` stays ignored but tests tracked
-- Database connections: Verify no hardcoded connection strings in cleaned files
-- Token validation: Ensure no 8-char tokens (e.g., USER223A, IIZVVHXI) in committed code
+# 🔗 Documentation & Alignment Hooks
+- Must align with NOOR-CANVAS-DESIGN.MD (architecture & phases).
+- Must reflect ncImplementationTracker.MD (current state & lessons).
+- Apply Playwright path/ignore rules from INFRASTRUCTURE-FIXES-REPORT.md (if present).
+- If conflicts arise, prefer DESIGN → ImplementationTracker → Infrastructure Fixes, in that order.
 
-## Commit Message Template
-```
-[SCOPE]: Comprehensive repo cleanup: [SUMMARY_OF_CHANGES] per cleanup.prompt.md
-
-- Prompt optimization: [specific prompt improvements]
-- Artefact purge: [removed temp/cache/build files]  
-- Formatting: [linter/formatter results]
-- Build verification: [build status and warnings fixed]
-- Structure: [any reorganization done]
-
-Scope: {{scope}}
-Zero-diff achieved: ✓
-```
-
-## Execution Reminders
-- **Pre-flight**: Check app status, validate context with Self-Awareness instructions
-- **Progress tracking**: Use manage_todo_list for complex cleanups with multiple phases
-- **Error handling**: Never proceed if build fails; fix issues before commit
-- **Performance**: Batch file operations, use targeted searches, avoid redundant reads
-- **Safety**: Always stage changes incrementally, verify each phase before proceeding
+# 🗒️ Summary Output (at end of run)
+- 5–10 bullets of what changed & why.
+- Table of renames/moves (old → new).
+- List of deduped/removed files with reason.
+- Final cleanliness proof: `git status` empty message.

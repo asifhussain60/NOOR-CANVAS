@@ -1,111 +1,148 @@
 ---
 mode: agent
----
 name: fixissue
-description: Track and fix issues by reviewing IS10. **Te11. **Self12. **Mandatory Playwright Test Creation Protocol:**
-    - **PREREQUISITE:** Ensure NoorCanvas application is running (see Applicati### Actions Based on Interpretation
----
+alias: /fixissue
+description: >
+  Diagnose and fix issues for Noor Canvas with strict evidence, repeatable guardrails,
+  and explicit-approval workflow. Never mark resolved without user authorization.
+  Validate app readiness, add scoped debug logging, verify with Playwright (headless),
+  and document everything. Align with NOOR-CANVAS-DESIGN, ncImplementationTracker.MD,
+  and INFRASTRUCTURE-FIXES-REPORT.
 
+parameters:
+  - name: issue
+    required: true
+    description: >
+      The issue text or existing Issue-<ID> reference. If multiple issues are provided,
+      separate with '---' to process sequentially.
+  - name: notes
+    required: false
+    description: Optional hints/context (e.g., "affects SessionWaiting; timer uses stale date").
+  - name: mode
+    required: false
+    description: Execution hints: "dry-run", "apply", or "propose-diff". Default: "propose-diff".
 
-You are tasked with addressing the following input:
+# ───────────────────────────
+# 📖 Usage Examples
+# ───────────────────────────
+# 1) New issue text (create proposal; await approval)
+#    /fixissue issue:"Clicking Continue stays disabled on UserLanding when token filled"
+#
+# 2) Existing issue (do not change status; collect evidence & fix)
+#    /fixissue issue:"116 Blazor input binding causes disabled buttons"
+#
+# 3) Multiple issues
+#    /fixissue issue:"A) Session dropdown empty after token --- B) Timer uses old KSESSIONS date"
+# ───────────────────────────
 
-**User Input:**  
-{{issue}}
+# 🧭 Input Interpretation Rules
+# - If the issue begins with an integer → treat as Issue-<ID>; NEVER change its status without explicit approval.
+# - If no ID → draft a concise Title, Repro steps, Acceptance criteria, and propose Issue-<NEXT>.
+# - If multiple blocks separated by '---', process in order with separate evidence bundles.
+# (Status discipline per Copilot Self-Learning Protocol.)  # Never mark resolved without explicit user approval
+# (See also: Approval Gate at end.)
 
----
+# 🔗 Alignment Hooks (Must Read/Sync)
+alignment:
+  - NOOR-CANVAS-DESIGN.MD  # architecture & phases
+  - ncImplementationTracker.MD  # current progress & lessons
+  - INFRASTRUCTURE-FIXES-REPORT.md  # latest Playwright framework fixes
+  - copilot_instructions.md  # global behavior & approval protocol
 
-## Input Interpretation Rules (policy; not code conditionals)
-- **Multiple issues:** If input contains '---', split and process each block sequentially.
-- **Existing issue (numeric-leading):** First integer is **Issue-<ID>**; remainder is feedback/context. Do **not** change status without explicit permission.
-- **New issue (text-leading):** Draft a proposed title + short description (minimal repro + acceptance criteria). Determine next issue number by scanning `ncIssueTracker.md` and propose entry under **NOT STARTED**. Await approval before creating files or changing status.
+# 🚦 Guardrails (Global)
+guardrails:
+  - [approval] Never mark an issue as resolved or completed without explicit user approval.  # critical rule
+  - [readiness] Validate app is running on :9090/:9091 before any UI test; do not proceed until healthy.
+  - [logging] Use scoped, structured logs with "COPILOT-DEBUG:" prefix; redact secrets; remove after fix.
+  - [playwright] Run tests headless by default; echo mode; capture verbose logs, trace/screenshots/video, HTML/JSON reports.
+  - [blazor] Use proven event-dispatch pattern for @bind-Value; verify button enablement before clicks.
+  - [time] For timers/dates, disallow hard-coded historical constants; assert single UTC source of truth.
+  - [env] Print branch/commit/env; confirm dev DB (KSESSIONS_DEV), never prod; refuse unknown environments.
+  - [duplication] Scan for duplicate code introduced by fix; refactor or record follow-up.
+  - [concurrency] Review async/await, cancellation tokens, idempotency; add duplicate-click guards where needed.
+  - [evidence] Every change must include “before vs after” logs, screenshots, and passing tests.
 
----
+# 🛠️ Fixing Protocol (Required Order)
+steps:
+  - title: Application Startup Validation (MANDATORY)
+    details: |
+      • Ping http://localhost:9090 (and/or https://localhost:9091). If down, start via repo task and wait until
+        "Now listening…" appears, then perform a lightweight health check (title/role selectors).
+      • Record outcome in evidence.
+  - title: Scoped Debug Logging
+    details: |
+      • Add structured logs at UI/API/service/data layers with "COPILOT-DEBUG:" prefix.
+      • Include timestamp, correlationId, route, key params (no PII/secrets), elapsed ms, and result status.
+      • Commit logs separately so they can be reverted after resolution.
+  - title: Diagnose → Fix → Verify (Iterative Loop)
+    details: |
+      • Reproduce → log → patch → measure → test → repeat until stable; keep a timestamped iteration log.
+  - title: Self-Testing Protocol
+    details: |
+      • Create minimal repro scaffolding under Workspaces/TEMP/; remove before completion.
+      • Record clear repro steps, expected vs actual behavior.
+  - title: Playwright Verification (MANDATORY)
+    details: |
+      • E2E tests must run headless, sequential (1 worker), verbose output, trace-on-retry, artifacts on failure.
+      • Respect configured baseURL/timeouts; do not self-boot app inside tests if config specifies webServer.
+      • Use Blazor-safe helpers: `fillBlazorInput()` (dispatch input/change + brief wait) and `expect(button).toBeEnabled()` before click.
+      • Provide report links/paths and attach HTML/JSON report excerpts in evidence.
+  - title: Pre-Build Integrity Checks
+    details: |
+      • Duplicate scan in touched scope; basic HTML/.razor validation; TypeScript: `tsc --noEmit` if relevant; ESLint on changed files.
+      • Block completion until these pass.
+  - title: Data & Environment Protocols
+    details: |
+      • Use KSESSIONS_DEV and Canvas; never prod. Respect EF vs Dapper boundaries; parameterize queries.
+      • Do not log tokens, passwords, or raw connection strings.
+  - title: Concurrency & Resilience
+    details: |
+      • Validate async flows and SignalR subscriptions; add idempotency/duplicate-submit guards.
+      • Add log markers to detect races (thread/task ids).
+  - title: Evidence Bundle
+    details: |
+      • Include: failing repro evidence, fix diff, passing test outputs, selective logs (pre/post), and screenshots/video artifacts.
 
-## Core Instructions
-- Record work concisely in `ISSUE-TRACKER` and cross-check `COMPLETED/` for prior art.
-- Do **not** mark any item as resolved without explicit approval.
-- **Numbering discipline:** Identify highest Issue/TODO numbers in `ncIssueTracker.md` before creating new entries; increment without gaps.
+# 🧪 Playwright Contracts (Enforced)
+playwright:
+  mode_default: headless
+  reporters: [html, json, line]
+  artifacts: ["trace on retry", "screenshots on failure", "video on failure"]
+  helpers:
+    - fillBlazorInput(selector, value)  # dispatch 'input' and 'change', then small wait
+    - expectEnabledBeforeClick(selector)
+  healthcheck:
+    - goto '/'
+    - expect title ~ /Noor Canvas|NOOR CANVAS/
+  notes_parsing:
+    - keys: [token, sessionId, user, email, tenant, route, env]
+    - export_env: [CANVAS_TEST_TOKEN, NOOR_SESSION_ID, CANVAS_TEST_USER, CANVAS_TENANT, CANVAS_TEST_ROUTE]
+  tokens_fallback:
+    - session212_fallback: true
+    - validation_regex: "^[A-Z0-9]{8}$"
 
----
+# 🧩 Output Shape
+output:
+  - Plan — concise steps to execute
+  - Context Evidence — files/lines/logs referenced
+  - Action — idempotent commands/patches
+  - Tests — commands + results (summarized)
+  - Risks — remaining unknowns, next steps
+  - Approval Gate — explicit prompt for user approval before changing status to RESOLVED
 
-## Fixing Protocol (follow in order)
-1) **Application Startup Validation (MANDATORY FIRST):**
-   - Verify NoorCanvas is running at `https://localhost:9091` and `http://localhost:9090`.
-   - If not, start it using the appropriate task and wait for “Now listening on …” in logs.
-   - Run a basic health check before any testing.
+# ✅ Approval Gate (Do Not Bypass)
+approval_gate:
+  message: >
+    Technical work complete and verified with evidence. Do you approve marking this issue as RESOLVED?
+    (Accepted phrases: “mark as resolved”, “approve this resolution”, “this is complete”, “close this issue”.)
+  on_approval:
+    - Update issue status from ACTIVE → RESOLVED with resolution date and links to evidence.
+  on_no_approval:
+    - Keep status unchanged; provide summary & wait for direction.
 
-2) **Comprehensive, Layered Debug Logging (UPDATED):**
-   - Add structured logs with correlation IDs across **UI (Razor/JS), API/controllers, services, data/SQL**.
-   - Use **standardized log markers**: prefix every debug entry with `COPILOT-DEBUG:`.
-     - Example: `logger.LogDebug("COPILOT-DEBUG: [UserLanding:43] Correlation {CorrelationId} User {UserId} Session {SessionId}", ...)`
-   - Include: timestamp, correlationId, user/session (if applicable), route/method, key params, payload size (not secrets), elapsed ms, result status.
-   - Redact secrets/PII; never log tokens, passwords, or raw connection strings.
-   - Prefer logger abstractions (`ILogger`, `Serilog`) with scopes; avoid `Console.WriteLine`.
-   - After each change, **capture evidence**: snippets of relevant logs demonstrating the observed behavior and the post-fix behavior.
-   - All logs added for debugging must be easily identifiable by the `COPILOT-DEBUG:` marker so they can be automatically removed later without affecting functional logs.
-
-3) **Iterative Verification Loop:**
-   - **Repeat** diagnose → fix → log/measure → test until **logs and tests** show no regressions and all acceptance criteria pass.
-   - Do not proceed to build/deploy while logs show warnings/errors related to the scope being fixed.
-   - Maintain a short “iteration log” in the issue detail file (timestamped notes + links to test artifacts).
-
-4) **Self-Testing Protocol:**
-   - Reproduce locally when possible.
-   - For each fix, add minimal self-test scaffolding (temporary) under `Workspaces/TEMP/` and remove before completion.
-   - Record repro steps and expected vs. actual behavior.
-
-5) **Playwright Test Creation (MANDATORY):**
-   - For every fix, create/update Playwright tests under `Tests/UI/` using `issue-{ID}-{slug}.spec.ts`.
-   - Include positive/negative paths, boundary cases, and references to the issue ID.
-   - Provide execution evidence (report/screenshot/video) **before** requesting resolution.
-
-6) **Pre-Build Integrity Checks (MANDATORY):**
-   - **Duplicate code scan:** Identify obvious duplication introduced or touched by the fix; refactor or note a follow-up item with pointers.
-   - **Syntax/quality gates for modified files only:**
-     - Razor/CS: compile checks; nullable warnings reviewed.
-     - **HTML validation** (for changed .razor/.html): run an HTML validator or equivalent linter.
-     - **JS/TS** touched by the fix: run `tsc --noEmit` (if TS) and ESLint on modified files.
-   - Block any build if these checks fail; report failures inline in the issue detail file with file:line pointers.
-
-7) **Data & Environment Protocols:**
-   - Use `KSESSIONS_DEV` for DB tests; never touch `KSESSIONS` (prod).
-   - If EF Core, verify entities/relationships/migrations support the scenario; if Dapper/raw SQL, validate parameterization and row-count expectations.
-   - Use environment-based connection settings; never log secrets.
-
-8) **Concurrency & Resilience Checks:**
-   - Validate async/await usage, cancellation tokens, idempotency, and duplicate-click/duplicate-submit guards.
-   - Add log markers that reveal race conditions (task id/thread id + correlationId).
-
-9) **UI Test Runner Protocol (VS Code):**
-   - Use the Playwright Test Explorer UI (not ad-hoc CLI) for execution/debug screenshots and artifacts saved to TEMP folders.
-
-10) **Debug Debris Cleanup (UPDATED):**
-   - As fixes are approved, remove all `COPILOT-DEBUG:` logs and hardcoded values.
-   - Ensure removal of these debug entries does not affect functional logging or code flow.
-   - Leave TODO markers only where explicitly requested to remain.
-
----
-
-## Multiple Issues Handling
-- Process each block in order using the protocol above.
-- Reuse a single running app instance for all UI tests in the batch.
-- Produce a **consolidated summary** plus per-issue notes and evidence.
-
----
-
-## Required Output (strict structure)
-1. **Issue Interpretation:** existing/new; IDs assigned or referenced.
-2. **Startup Validation Evidence:** brief note with timestamps/ports.
-3. **Iteration Log:** bullet list of each diagnose→fix→test loop with **log excerpts** (redacted) and test outcomes.
-4. **Changes Summary:** files touched, rationale, and risk assessment.
-5. **Pre-Build Integrity Report:** duplicate code findings + HTML/JS/TS/Razor checks (pass/fail with file:line).
-6. **Playwright Evidence:** tests added/updated, run results, and artifacts.
-7. **Next Steps / Approval Gate:** what remains or confirm ready for user approval.
-
----
-
-# 📌 Output Requirements (add-on)
-- Always prepend the content of 'fixissue-checklist.prompt.md'
-  at the top of each generated issue detail file.
-- Fill in the checklist items as progress is made.
-- Treat the checklist as a “do not skip” sequence.
+# 📎 References (authoritative)
+references:
+  - NOOR-CANVAS-DESIGN.MD
+  - ncImplementationTracker.MD
+  - INFRASTRUCTURE-FIXES-REPORT.md
+  - copilot_instructions.md

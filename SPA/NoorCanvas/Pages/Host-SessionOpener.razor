@@ -12,6 +12,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<Host_SessionOpener> Logger
+@inject IConfiguration Configuration
 
 <PageTitle>NOOR Canvas - Host Session Opener</PageTitle>
 
@@ -198,12 +199,12 @@
         public string? SelectedCategory { get; set; }
         public string? SelectedSession { get; set; }
         public DateTime SessionDate { get; set; } = DateTime.Today;
-        public string SessionTime { get; set; } = "6:00 AM"; // Default to 6:00 AM EST
+        public string SessionTime { get; set; } = DateTime.Now.ToString("h:mm tt"); // Dynamic default based on current time
         public int? SessionDuration { get; set; } = 60; // Default duration
         public string ErrorMessage { get; set; } = "";
         public bool IsFormValid { get; set; }
         public bool Copied { get; set; }
-        public string SessionUrl { get; set; } = "https://localhost:9091/user/hostlanding";
+        public string SessionUrl { get; set; } = string.Empty; // Will be set dynamically from configuration
         public bool IsLoadingAlbums { get; set; }
         public bool IsLoadingCategories { get; set; }
         public bool IsLoadingSessions { get; set; }
@@ -284,6 +285,22 @@
     private List<SessionData> Sessions { get; set; } = new();
 
     private HttpClient HttpClient { get; set; } = null!;
+    
+    // Helper method to get base URL from configuration
+    private string GetBaseUrl()
+    {
+        // Try to get HTTPS URL from Kestrel configuration, fallback to HTTPS default
+        var httpsUrl = Configuration["Kestrel:Endpoints:Https:Url"];
+        if (!string.IsNullOrEmpty(httpsUrl))
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: Using configured HTTPS URL: {HttpsUrl}", httpsUrl);
+            return httpsUrl;
+        }
+        
+        // Fallback to default HTTPS port
+        Logger.LogWarning("NOOR-HOST-OPENER: No HTTPS configuration found, using default https://localhost:9091");
+        return "https://localhost:9091";
+    }
     
     // Properties for direct binding (from mock)
     private string? SelectedAlbum
@@ -372,9 +389,11 @@
     {
         Logger.LogInformation("NOOR-HOST-OPENER: Initializing Host-SessionOpener component with Token: {Token}", Token ?? "None");
         
-        // Initialize HTTP client
+        // Initialize HTTP client with dynamic base URL
+        var baseUrl = GetBaseUrl();
         HttpClient = HttpClientFactory.CreateClient();
-        HttpClient.BaseAddress = new Uri("https://localhost:9091/");
+        HttpClient.BaseAddress = new Uri(baseUrl);
+        Logger.LogInformation("NOOR-HOST-OPENER: HttpClient BaseAddress set to: {BaseAddress}", HttpClient.BaseAddress);
         
         // CRITICAL: No token provided - redirect to authentication
         if (!string.IsNullOrEmpty(Token))
@@ -389,9 +408,9 @@
             return;
         }
         
-        // Initialize with demo data for immediate functionality
+        // Initialize with dynamic data for immediate functionality
         Model.LogoText = "NOOR Canvas - Host Session Management";
-        Model.SessionUrl = "https://localhost:9091/session/waiting/demo-session";
+        Model.SessionUrl = $"{baseUrl}/session/waiting/demo-session";
         
         // Load albums for user selection
         await LoadAlbumsAsync();
@@ -615,6 +634,13 @@
 
     private void ValidateForm()
     {
+        // ISSUE FIX: Hide session URL panel when form changes to invalidate existing URLs
+        if (ShowSessionUrlPanel)
+        {
+            ShowSessionUrlPanel = false;
+            SessionUrl = ""; // Clear the URL as well
+        }
+
         IsFormValid = !string.IsNullOrEmpty(SelectedAlbum) &&
                       !string.IsNullOrEmpty(SelectedCategory) &&
                       !string.IsNullOrEmpty(SelectedSession) &&
@@ -747,8 +773,9 @@
             Logger.LogInformation("NOOR-HOST-OPENER: Creating session and generating tokens...");
 
             Logger.LogInformation("NOOR-HOST-OPENER: Creating HTTP client...");
+            var baseUrl = GetBaseUrl();
             using var httpClient = HttpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            httpClient.BaseAddress = new Uri(baseUrl);
             Logger.LogInformation("NOOR-HOST-OPENER: HttpClient BaseAddress set to: {BaseAddress}", httpClient.BaseAddress);
             
             Logger.LogInformation("NOOR-HOST-OPENER: Preparing session data payload...");
@@ -801,8 +828,9 @@
                     
                     if (result != null && !string.IsNullOrEmpty(result.UserToken))
                     {
-                        // ISSUE-104 FIX: Update the session URL with proper user authentication URL format
-                        SessionUrl = $"https://localhost:9091/user/landing/{result.UserToken}";
+                        // ISSUE-104 FIX: Update the session URL with proper user authentication URL format using dynamic base URL
+                        var configuredBaseUrl = GetBaseUrl();
+                        SessionUrl = $"{configuredBaseUrl}/user/landing/{result.UserToken}";
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - User Token: {UserToken}", result.UserToken);
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session URL updated to proper format: {SessionUrl}", SessionUrl);
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] URL format changed from '/session/{token}' to '/user/landing/{token}' for proper authentication flow");

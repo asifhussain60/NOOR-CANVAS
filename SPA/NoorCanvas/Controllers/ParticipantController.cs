@@ -80,8 +80,9 @@ namespace NoorCanvas.Controllers
                     .Where(p => p.SessionId == session.SessionId)
                     .CountAsync();
 
-                // Get speaker information from KSESSIONS database
+                // Get speaker information and session timing from KSESSIONS database
                 string? speakerName = null;
+                DateTime? realSessionDate = null;
                 try 
                 {
                     var sessionWithSpeaker = await _kSessionsContext.Sessions
@@ -89,12 +90,14 @@ namespace NoorCanvas.Controllers
                         .FirstOrDefaultAsync(s => s.SessionId == (int)session.SessionId);
                     
                     speakerName = sessionWithSpeaker?.Speaker?.SpeakerName;
-                    _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Retrieved speaker from KSESSIONS: {SpeakerName}", 
-                        requestId, speakerName ?? "null");
+                    realSessionDate = sessionWithSpeaker?.SessionDate;
+                    
+                    _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Retrieved from KSESSIONS - Speaker: {SpeakerName}, SessionDate: {SessionDate}", 
+                        requestId, speakerName ?? "null", realSessionDate?.ToString() ?? "null");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Failed to retrieve speaker information from KSESSIONS", requestId);
+                    _logger.LogError(ex, "NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Failed to retrieve speaker/session information from KSESSIONS", requestId);
                 }
 
                 var response = new
@@ -111,12 +114,12 @@ namespace NoorCanvas.Controllers
                         Status = session.Status,
                         ParticipantCount = participantCount,
                         MaxParticipants = (int?)null, // Not stored in simplified schema
-                        StartedAt = session.CreatedAt, // Using CreatedAt as StartedAt for now
+                        StartedAt = realSessionDate ?? session.CreatedAt, // Use real KSESSIONS SessionDate or fallback to CreatedAt
                         CreatedAt = session.CreatedAt,
                         InstructorName = speakerName, // Database-driven instructor name from KSESSIONS.Speakers
-                        // Compatibility properties for SessionWaiting component
-                        StartTime = session.CreatedAt.AddMinutes(5), // Default to 5 minutes from creation
-                        Duration = TimeSpan.FromHours(1) // Default duration
+                        // Real session timing from KSESSIONS database
+                        StartTime = realSessionDate ?? session.CreatedAt.AddMinutes(5), // Use real scheduled date or fallback
+                        Duration = TimeSpan.FromHours(1) // Keep 1 hour default for now - can be enhanced later
                     },
                     Participant = new
                     {

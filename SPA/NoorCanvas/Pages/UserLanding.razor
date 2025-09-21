@@ -13,6 +13,7 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<UserLanding> Logger
+@inject IConfiguration Configuration
 
 <PageTitle>NOOR Canvas - User Authentication</PageTitle>
 
@@ -150,6 +151,22 @@
     
     private UserLandingViewModel? Model { get; set; }
     private List<CountryData> Countries { get; set; } = new();
+    
+    // Helper method to get base URL from configuration
+    private string GetBaseUrl()
+    {
+        // Try to get HTTPS URL from Kestrel configuration, fallback to HTTPS default
+        var httpsUrl = Configuration["Kestrel:Endpoints:Https:Url"];
+        if (!string.IsNullOrEmpty(httpsUrl))
+        {
+            Logger.LogInformation("NOOR-USER-LANDING: Using configured HTTPS URL: {HttpsUrl}", httpsUrl);
+            return httpsUrl;
+        }
+        
+        // Fallback to default HTTPS port
+        Logger.LogWarning("NOOR-USER-LANDING: No HTTPS configuration found, using default https://localhost:9091");
+        return "https://localhost:9091";
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -208,7 +225,8 @@
                 requestId, token);
 
             using var httpClient = HttpClientFactory.CreateClient();
-            var apiUrl = $"https://localhost:9091/api/participant/session/{token}/validate";
+            var baseUrl = GetBaseUrl();
+            var apiUrl = $"{baseUrl}/api/participant/session/{token}/validate";
             var response = await httpClient.GetAsync(apiUrl);
             
             Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation API response: {StatusCode}", 
@@ -458,8 +476,9 @@
             Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Starting participant registration for {Name}", requestId, Model.NameInput);
 
             // Call the token-based registration API
+            var baseUrl = GetBaseUrl();
             using var httpClient = HttpClientFactory.CreateClient("default");
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            httpClient.BaseAddress = new Uri(baseUrl);
 
             // Create registration request using the token directly
             var registrationRequest = new
@@ -606,6 +625,11 @@
         public string? Description { get; set; }
         public int? ParticipantCount { get; set; }
         public int? MaxParticipants { get; set; }
+        public DateTime? StartedAt { get; set; }  // Real KSESSIONS SessionDate
+        public DateTime? CreatedAt { get; set; }
+        public string? InstructorName { get; set; }  // Database-driven instructor name from KSESSIONS.Speakers
+        public DateTime? StartTime { get; set; }  // Real session timing from KSESSIONS database
+        public TimeSpan? Duration { get; set; }  // Real duration from API
     }
 
     public class ParticipantInfo
