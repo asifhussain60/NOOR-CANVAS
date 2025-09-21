@@ -25,23 +25,24 @@ parameters:
 ---
 
 # 🎯 Objective
-You are tasked with a **systematic architecture review** of the following Razor components and any related code:
-- Always include: #file:UserLanding.razor and #file:SessionWaiting.razor
-- Plus: {{targets}}
+Perform a **systematic architecture review** of the following Razor components and related server artifacts:  
+- Always include: `#file:UserLanding.razor` and `#file:SessionWaiting.razor`  
+- Plus: `{{targets}}`  
 
-Incorporate the following **user-provided notes** when prioritizing your review:
+Incorporate the following **user-provided notes** as priorities:  
 > {{notes}}
 
-Produce a written report of findings **before** making any changes. Create a **TODO inventory of use cases** you identify from the views and related flows.
+Produce a detailed written report of findings **before** making any code changes. Create a **TODO inventory of use cases** from the views and flows you analyze.
 
-# ✅ Deliverables (in this order)
-1) **Executive Summary** — 5–10 bullet points (what you reviewed, key use cases, top risks).
-2) **TODO: Use Case Inventory** — checklist of all distinct user flows inferred from the views (links/buttons/forms/conditions), with one-line intent each.
-3) **End-to-End Trace Table** — for each use case, trace **View → Route → API → DTO → SQL** with file+line refs.
-4) **Validation Matrix** …
-5) **Mismatches & Gaps** …
-6) **Risks & Unknowns** …
-7) **Implementation Plan (Deferred)** …
-8) **Approval Gate** — end with: “**Awaiting approval to implement.**”
+# ✅ Deliverables (in order)
+1. **Executive Summary** — 5–10 bullet points (what was reviewed, key use cases, top risks).  
+2. **Plain-English Narrative** — 2–4 paragraphs summarizing what was found, implications for the system, and clear recommendations for improvement.  
+3. **TODO: Use Case Inventory** — checklist of all distinct user flows (links/buttons/forms/conditions), each with one-line intent.  
+4. **End-to-End Trace Table** — for each use case, trace **View → Route → API → DTO → SQL**, with file+line refs.  
+5. **Validation Matrix** — confirm naming, typing, consistency rules (e.g., camelCase vs PascalCase DTOs).  
+6. **Mismatches & Gaps** — highlight missing links or inconsistencies across layers.  
+7. **Risks & Unknowns** — list unresolved issues or assumptions that need clarification.  
+8. **Implementation Plan (Deferred)** — outline but do not yet apply changes.  
+9. **Approval Gate** — end with: “**Awaiting approval to implement.**”  
 
-(… keep the rest of your method, guardrails, heuristics, and output format unchanged …)
+*(Keep the rest of your method, heuristics, and formatting unchanged.)*
