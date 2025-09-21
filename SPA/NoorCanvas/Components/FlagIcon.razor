@@ -1,0 +1,64 @@
+@using NoorCanvas.Services
+@inject FlagService FlagService
+
+@if (!string.IsNullOrEmpty(CountryIso2))
+{
+    <img data-testid="@DataTestId" 
+         src="@FlagService.GetFlagUrl(CountryIso2)" 
+         alt="@($"{CountryName ?? CountryIso2} Flag")" 
+         style="@Style"
+         class="@CssClass"
+         onerror="@GetErrorHandler()" />
+}
+
+@code {
+    [Parameter] public string? CountryIso2 { get; set; }
+    [Parameter] public string? CountryName { get; set; }
+    [Parameter] public string? Style { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+    [Parameter] public string? DataTestId { get; set; } = "country-flag";
+
+    private string GetErrorHandler()
+    {
+        if (string.IsNullOrEmpty(CountryIso2))
+            return string.Empty;
+            
+        var safeIso2 = CountryIso2.Replace("-", "_");
+        var fallbackUrls = FlagService.GetAllFlagUrls(CountryIso2);
+        
+        if (fallbackUrls.Count <= 1)
+            return "this.style.display='none'"; // No fallbacks available
+            
+        var jsUrls = string.Join(",", fallbackUrls.Skip(1).Select(url => $"'{url}'"));
+        
+        return $@"
+            (function(img) {{
+                if (!img.fallbackIndex) img.fallbackIndex = 0;
+                let fallbacks = [{jsUrls}];
+                img.fallbackIndex++;
+                if (img.fallbackIndex <= fallbacks.length) {{
+                    img.src = fallbacks[img.fallbackIndex - 1];
+                }} else {{
+                    img.style.display = 'none';
+                }}
+            }})(this)
+        ";
+    }
+}
+
+@* 
+    Usage Examples:
+    
+    Basic usage:
+    <FlagIcon CountryIso2="@participant.Flag" CountryName="@participant.Country" />
+    
+    With custom styling:
+    <FlagIcon CountryIso2="us" 
+              CountryName="United States" 
+              Style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;" />
+    
+    With CSS classes:
+    <FlagIcon CountryIso2="ca" 
+              CountryName="Canada" 
+              CssClass="h-4 w-auto rounded border border-gray-300" />
+*@
