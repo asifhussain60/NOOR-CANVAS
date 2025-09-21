@@ -1,0 +1,239 @@
+------
+
+mode: agentmode: agent
+
+name: pwruntestname: pwruntest
+
+description: Run existing Playwright tests for NOOR Canvas with comprehensive debug output. Includes prerequisite validation and enhanced monitoring for reliable test execution.description: Run an existing Playwright test (or suite) by name filter using the repo’s Playwright configuration. Tests must run headless, emit verbose logs, and capture trace/screenshots/video and reports for debugging.
+
+arguments:arguments:
+
+  - name: name  - name: name
+
+    description: Test name or pattern to run (used with Playwright's -g filter)    description: The test or describe title (or substring) to run (used with Playwright’s -g filter)
+
+    required: true    required: true
+
+------
+
+
+
+# 🎯 Mission: Execute NOOR Canvas Playwright Tests# Mission
+
+
+
+Run Playwright tests matching **${name}** with comprehensive debug artifacts and prerequisite validation for reliable execution.Run one or more existing Playwright tests that match **${name}**.  
+
+Execution must respect the repository’s **playwright.config.js**:
+
+## 🔍 STEP 1: Pre-Execution Validation (CRITICAL)
+
+- **Headless Chromium** enforced (do not override to headed mode).  
+
+### **Application Health Check**- **Sequential execution** with a **single worker** for session/token safety.  
+
+```powershell- **Trace on first retry**, **screenshots on failure**, and **retain-on-failure videos**.  
+
+# MANDATORY: Verify NOOR Canvas app is running before test execution- **Multiple reporters** enabled: HTML, JSON, line, and list.  
+
+Write-Host "🔍 Checking if NOOR Canvas is running on port 9090..." -ForegroundColor Cyan- Artifact paths configured in the repo:
+
+try {  - HTML reports: `PlayWright/reports/`
+
+    $response = Invoke-WebRequest -Uri "http://localhost:9090" -TimeoutSec 5 -UseBasicParsing  - JSON results: `PlayWright/results/test-results.json`
+
+    Write-Host "✅ Application is running (Status: $($response.StatusCode))" -ForegroundColor Green  - Screenshots/videos/trace: `PlayWright/artifacts/`
+
+} catch {
+
+    Write-Host "⚠️ NOOR Canvas not running - starting with nc.ps1..." -ForegroundColor Yellow---
+
+    & ".\nc.ps1"
+
+    Write-Host "⏳ Waiting 18 seconds for ASP.NET Core startup..." -ForegroundColor Cyan# Invocation
+
+    Start-Sleep 18
+
+}To run tests with verbose Playwright logging, invoke:
+
+```
+
+**PowerShell**
+
+### **Environment Preparation**```powershell
+
+```powershell$env:DEBUG="pw:api,pw:test"; npx playwright test -g "${name}"
+
+# ENSURE: Required directories exist for test artifactsbash/zsh
+
+Write-Host "📁 Preparing artifact directories..." -ForegroundColor Cyan
+
+New-Item -ItemType Directory -Force -Path "PlayWright/reports" | Out-NullDEBUG="pw:api,pw:test" npx playwright test -g "${name}"
+
+New-Item -ItemType Directory -Force -Path "PlayWright/artifacts" | Out-Null  
+
+New-Item -ItemType Directory -Force -Path "PlayWright/results" | Out-Null
+
+```The -g flag ensures only tests whose titles contain ${name} are executed.
+
+
+
+## ⚡ STEP 2: Execute Tests with Full Debug OutputThe DEBUG environment variable enables verbose Playwright logs for debugging.
+
+
+
+### **PowerShell Command (Recommended)**Headless execution and artifacts are automatically handled by config — do not override.
+
+```powershell
+
+# COMPREHENSIVE: Full debug logging with artifact captureExpected Behavior
+
+$env:DEBUG = "pw:api,pw:test"
+
+Write-Host "🚀 Executing tests matching pattern: ${name}" -ForegroundColor GreenExecution
+
+npx playwright test -g "${name}"
+
+```Launches Chromium in headless mode.
+
+
+
+### **Alternative: Bash/Linux**Runs only the tests filtered by ${name}.
+
+```bash
+
+DEBUG="pw:api,pw:test" npx playwright test -g "${name}"Runs sequentially (single worker).
+
+```
+
+Artifacts
+
+## 📊 STEP 3: Review Results & Debug Artifacts
+
+Trace captured on first retry (viewable via npx playwright show-trace).
+
+### **Automatic Artifact Generation**
+
+- **HTML Report**: `PlayWright/reports/index.html` (comprehensive test results)Screenshots captured on failure.
+
+- **JSON Results**: `PlayWright/results/test-results.json` (structured data)
+
+- **Screenshots**: `PlayWright/artifacts/` (failure captures)Videos recorded and retained for failures.
+
+- **Videos**: `PlayWright/artifacts/` (test execution recordings)
+
+- **Traces**: `PlayWright/artifacts/` (detailed execution traces)HTML report generated at PlayWright/reports/.
+
+
+
+### **View Results Commands**JSON summary at PlayWright/results/test-results.json.
+
+```powershell
+
+# Open HTML report in browserLogs
+
+npx playwright show-report
+
+Verbose step-by-step logs from Playwright core (pw:api, pw:test).
+
+# View trace for detailed debugging (if test failed and retried)
+
+npx playwright show-trace PlayWright/artifacts/trace.zipUse these logs alongside trace/screenshots to debug failures.
+
+```
+
+Guardrails
+
+## 🛡️ Built-in Safeguards
+
+Do not set headless: false or attempt to change reporter settings inside the test.
+
+- **Headless Execution**: Enforced by config (no UI interference)
+
+- **Sequential Testing**: Single worker prevents session/token conflictsDo not alter global setup, teardown, or web server launching. These are already handled by playwright.config.js.
+
+- **Automatic Retries**: Failed tests retry with trace capture
+
+- **Session Isolation**: Each test gets clean browser contextEnsure tests can be retried without flakiness — retries will be attempted automatically per config.
+
+- **Database Fallback**: Uses permanent Session 212 tokens if database unavailable
+
+Always point users to the generated HTML report + trace viewer for detailed debugging.
+
+## ✅ Quality Checklist
+
+Example Command Usages
+
+Before running tests, verify:
+
+- [ ] Application running on localhost:9090Run a specific flow by name:
+
+- [ ] Database connection available (or fallback tokens ready)
+
+- [ ] Artifact directories existDEBUG="pw:api,pw:test" npx playwright test -g "Login Flow"
+
+- [ ] No other Playwright processes running
+
+- [ ] Test name pattern `${name}` is specific enough to avoid unintended tests
+
+Run all tests for a feature area:
+
+---
+
+DEBUG="pw:api,pw:test" npx playwright test -g "Session"
+
+# 📖 How This Test Runner Works (Plain English)
+
+
+
+## What This DoesAfter run, open the HTML report:
+
+This tool runs automated website tests for the NOOR Canvas application with comprehensive debugging support. It's like having a robot that checks if your website works correctly and gives you detailed reports when something goes wrong.
+
+npx playwright show-report
+
+## Why These Steps Matter
+
+**The Problem**: Automated tests often fail not because the website is broken, but because the testing environment isn't set up correctly.Final Checklist (for Copilot when outputting commands)
+
+
+
+**Our Solution**: This runner includes smart checks to ensure everything is ready before running tests: Filter tests with -g "${name}".
+
+
+
+1. **App Health Check**: Verifies the NOOR Canvas website is actually running and responding Ensure headless and verbose execution.
+
+2. **Automatic Startup**: If the app isn't running, it starts it automatically and waits for it to be ready
+
+3. **Environment Setup**: Creates all the folders needed to store test results and debug information Point to artifact/report paths.
+
+4. **Smart Execution**: Runs tests with maximum debugging information enabled
+
+ Provide commands for both PowerShell and bash/zsh.
+
+## How the Test Execution Works
+
+1. **Pre-Flight**: Checks that the NOOR Canvas app is running on port 9090 Mention how to view the HTML report and trace.
+
+2. **Environment Prep**: Sets up folders for storing test results, screenshots, and videos
+
+3. **Test Execution**: Runs only the tests that match your specified name patternRun the test suite so that developers can examine verbose logs, reports, screenshots, videos, and traces to diagnose and fix issues.
+4. **Result Collection**: Automatically captures screenshots when tests fail, records videos of test execution, and generates detailed reports
+5. **Easy Review**: Provides simple commands to view results in your browser
+
+## What You Get After Running
+- **HTML Report**: A beautiful web page showing all test results with pass/fail status
+- **Screenshots**: Pictures of exactly what the website looked like when tests failed
+- **Videos**: Recordings of the entire test execution so you can see what happened
+- **Traces**: Ultra-detailed logs showing every action the test took
+- **JSON Data**: Structured results that other tools can read
+
+## Why This Is Better Than Basic Testing
+- **Reliable**: Won't fail due to environment issues - it checks and fixes common problems automatically
+- **Comprehensive**: Captures everything you need to understand what went wrong
+- **Safe**: Uses isolated browser sessions so tests don't interfere with each other
+- **Smart**: Falls back to known-good test data if the database isn't available
+- **Fast**: Only runs the specific tests you want, not the entire test suite
+
+The result is reliable test execution that gives you confidence in your website's functionality and clear debugging information when issues arise.
