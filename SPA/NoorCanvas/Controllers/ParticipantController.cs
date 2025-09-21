@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
+using NoorCanvas.Hubs;
 using NoorCanvas.Services;
 using NoorCanvas.Models.Simplified;
 
@@ -14,17 +16,20 @@ namespace NoorCanvas.Controllers
         private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<ParticipantController> _logger;
         private readonly SimplifiedTokenService _tokenService;
+        private readonly IHubContext<SessionHub> _sessionHub;
 
         public ParticipantController(
             SimplifiedCanvasDbContext context, 
             KSessionsDbContext kSessionsContext,
             ILogger<ParticipantController> logger, 
-            SimplifiedTokenService tokenService)
+            SimplifiedTokenService tokenService,
+            IHubContext<SessionHub> sessionHub)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
             _tokenService = tokenService;
+            _sessionHub = sessionHub;
         }
 
         [HttpGet("session/{token}/validate")]
@@ -216,6 +221,30 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration successful for {Name}", 
                     requestId, request.Name);
+
+                // Broadcast SignalR event to notify all users in the waiting room about the new participant
+                try
+                {
+                    await _sessionHub.Clients.Group($"session_{session.SessionId}")
+                        .SendAsync("ParticipantJoined", new
+                        {
+                            sessionId = session.SessionId,
+                            participantId = existingParticipant?.UserGuid ?? request.Name, // Use UserGuid if available, fallback to name
+                            displayName = request.Name,
+                            country = request.Country,
+                            joinedAt = DateTime.UtcNow,
+                            timestamp = DateTime.UtcNow
+                        });
+
+                    _logger.LogInformation("NOOR-SIGNALR: [{RequestId}] ParticipantJoined broadcast sent for session {SessionId}, participant {Name}", 
+                        requestId, session.SessionId, request.Name);
+                }
+                catch (Exception signalREx)
+                {
+                    _logger.LogWarning(signalREx, "NOOR-SIGNALR: [{RequestId}] Failed to broadcast ParticipantJoined event for session {SessionId}", 
+                        requestId, session.SessionId);
+                    // Don't fail the registration if SignalR fails
+                }
 
                 return Ok(new 
                 { 

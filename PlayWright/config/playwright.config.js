@@ -2,7 +2,7 @@
 const { defineConfig, devices } = require('@playwright/test');
 
 /**
- * NOOR Canva    command: 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "./run-with-iiskill.ps1"', UI Test Runner Configuration (Enhanced for TypeScript + GitHub Copilot)
+ * NOOR Canvas UI Test Runner Configuration (Consolidated & Optimized)
  * 
  * This configuration provides comprehensive UI testing for NOOR Canvas workflows including:
  * - Host Authentication Flow with TypeScript typing
@@ -10,12 +10,35 @@ const { defineConfig, devices } = require('@playwright/test');
  * - Session Management and URL generation
  * - User Authentication with routing fixes (Issue-102)
  * - API Integration Testing with proper error handling
+ * - Database Integration with AHHOME SQL Server (KSESSIONS_DEV)
  * 
  * Enhanced Features:
+ * - Consolidated test directory: All tests run from PlayWright/tests/
+ * - Headless mode by default for CI/CD compatibility
+ * - Automatic application health checks and startup using nc.ps1 launcher
+ * - Enhanced monitoring with 18-second timeout and 6 retry attempts for realistic ASP.NET Core startup
+ * - Real database integration with AHHOME server (SQL Server Authentication: sa/adf4961glo)
  * - TypeScript support for better IntelliSense and Copilot suggestions
- * - Optimized test artifact storage in TEMP/ for easy cleanup
- * - GitHub Copilot-friendly test patterns and documentation
+ * - Optimized test artifact storage for easy cleanup
  * - VSCode Test Explorer integration for visual test management
+ * 
+ * Updated: September 21, 2025 - Button enablement fixes and comprehensive patterns
+ * 
+ * CRITICAL LESSONS LEARNED:
+ * 1. **Blazor Server Binding**: Playwright .fill() doesn't trigger @bind-Value updates automatically
+ *    - SOLUTION: Use dispatchEvent('input') and dispatchEvent('change') after fill()
+ *    - TIMING: Wait 2 seconds for Blazor to process binding before button interactions
+ * 
+ * 2. **Button Enablement Pattern**: Buttons disabled by Blazor binding require proper event dispatch
+ *    - PATTERN: clear() → fill() → dispatchEvent('input') → dispatchEvent('change') → waitForTimeout(2000) → expect(button).toBeEnabled()
+ * 
+ * 3. **Application Stability**: ASP.NET Core applications can shut down during test execution
+ *    - MONITORING: Enhanced health checks with nc.ps1 automatic restart capability
+ *    - TIMING: 15+ seconds realistic startup time, use 18-second timeouts with 6 attempts
+ * 
+ * 4. **Database Integration**: AHHOME server connectivity essential for real token testing
+ *    - FALLBACK: Permanent Session 212 tokens (VNBPRVII/DPH42JR5) provide reliable testing
+ *    - GRACEFUL: Tests work with or without database connectivity via fallback system
  */
 
 /**
@@ -52,9 +75,10 @@ module.exports = defineConfig({
     video: 'retain-on-failure',
     /* Accept self-signed certificates for localhost development */
     ignoreHTTPSErrors: true,
-    /* Extended timeouts for cascading dropdown testing (Issue-106) */
-    actionTimeout: 30000,
-    /* Navigation timeout accommodating session loading delays */
+
+    /* CRITICAL TIMING LESSONS: Blazor Server binding requires extended timeouts */
+    actionTimeout: 30000, // Covers 2-second Blazor binding delays + button enablement
+    /* Navigation timeout accommodating Blazor Server rendering delays */
     navigationTimeout: 60000,
     /* Enhanced context options for better Copilot suggestions */
     contextOptions: {
@@ -65,46 +89,54 @@ module.exports = defineConfig({
     }
   },
 
-  /* Browser projects optimized for TypeScript testing and Copilot development */
+  /* Browser projects - Headless by default for CI/CD compatibility */
   projects: [
     {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        // Enhanced Chrome settings for better debugging and Copilot integration
+        // Headless mode enforced for consistent CI/CD execution
         launchOptions: {
-          args: ['--disable-web-security', '--allow-running-insecure-content']
+          headless: true, // Explicitly set headless mode
+          args: [
+            '--disable-web-security',
+            '--allow-running-insecure-content',
+            '--ignore-certificate-errors',
+            '--disable-features=VizDisplayCompositor' // Improve stability in headless mode
+          ]
         }
       },
     },
     // Additional browsers for comprehensive testing (uncomment as needed)
     // {
     //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
+    //   use: { 
+    //     ...devices['Desktop Firefox'],
+    //     launchOptions: { headless: true }
+    //   },
     // },
     // {
     //   name: 'webkit', 
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-
-    // Mobile testing project for responsive design validation
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
+    //   use: { 
+    //     ...devices['Desktop Safari'],
+    //     launchOptions: { headless: true }
+    //   },
     // },
   ],
 
-  /* Automated dev server management for seamless TypeScript testing */
-  // webServer: {
-  //   command: 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "../../run-with-iiskill.ps1"',
-  //   url: 'https://localhost:9091',
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120000, // Extended timeout for IIS startup and app initialization
-  //   ignoreHTTPSErrors: true,
-  //   /* Enhanced server readiness checking for better test reliability */
-  //   stdout: 'pipe',
-  //   stderr: 'pipe'
-  // },
+  /* Application health management - Automatic startup and monitoring */
+  webServer: {
+    command: 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "../../Workspaces/Global/nc.ps1"',
+    url: 'https://localhost:9091',
+    reuseExistingServer: !process.env.CI, // Reuse in development, fresh start in CI
+    timeout: 120000, // Extended timeout for Kestrel startup and app initialization (realistic: 15+ seconds)
+    ignoreHTTPSErrors: true,
+    /* Enhanced server readiness checking for better test reliability */
+    stdout: 'pipe',
+    stderr: 'pipe'
+  },
+
+
 
   /* Global test timeout extended for cascading dropdown sequences */
   timeout: 60000, // Accommodates 6+ second cascading sequences (Issue-106)
@@ -120,7 +152,7 @@ module.exports = defineConfig({
     '**/*.spec.js'  // Fallback to JavaScript files if needed
   ],
 
-  /* Global setup for enhanced TypeScript testing */
-  globalSetup: undefined, // Can be configured for database setup if needed
-  globalTeardown: undefined, // Can be configured for cleanup operations
+  /* Enhanced global setup with smart monitoring and fast failure recovery */
+  globalSetup: require.resolve('../tests/utils/enhanced-global-setup.ts'),
+  globalTeardown: require.resolve('../tests/utils/enhanced-global-teardown.ts')
 });

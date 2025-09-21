@@ -180,16 +180,7 @@
                     <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">@(Model?.StatusMessage ?? "Waiting for host to begin the session.")</p>
                 }
 
-                <!-- Start Session Button (Demo/Testing Purpose) -->
-                <div style="margin-top:1.5rem;">
-                    <button @onclick="StartSession" 
-                            data-testid="start-session-btn"
-                            style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:white;background-color:#10B981;padding:0.75rem 2rem;border-radius:0.5rem;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#059669;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-                        <i class="fa-solid fa-play" style="margin-right:0.5rem;"></i>
-                        Start Session
-                    </button>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#9CA3AF;margin:0.5rem 0 0 0;">Click to enter the session canvas</p>
-                </div>
+                @* Start Session Button removed - Issue-129: Should not be visible in participant waiting room *@
             </div>
 
             <!-- Participants Panel -->
@@ -454,15 +445,35 @@
 
                 if (participantsResponse?.Participants != null)
                 {
-                    // Convert API participants to display participants (now with database-driven flag codes)
-                    Model!.Participants = participantsResponse.Participants.Select(p => new ParticipantData
+                    // COPILOT-DEBUG: Issue-130 Fix - Add participants instead of replacing entire list
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Before processing - Current participant count: {CurrentCount}", 
+                        requestId, Model!.Participants?.Count ?? 0);
+                    
+                    // Initialize participants list if null
+                    if (Model!.Participants == null)
+                    {
+                        Model!.Participants = new List<ParticipantData>();
+                    }
+
+                    // Convert API participants to display participants (with database-driven flag codes)
+                    var newParticipants = participantsResponse.Participants.Select(p => new ParticipantData
                     {
                         Name = p.DisplayName,
                         Country = p.Country ?? "Unknown",
                         Flag = p.CountryFlag ?? "un" // Database-driven flag code from API
                     }).ToList();
+
+                    // COPILOT-DEBUG: Add only new participants that don't already exist
+                    var existingNames = Model.Participants.Select(p => p.Name).ToHashSet();
+                    var participantsToAdd = newParticipants.Where(p => !existingNames.Contains(p.Name)).ToList();
                     
-                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loaded {Count} participants from API", 
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] API returned {ApiCount} participants, {NewCount} are new, {ExistingCount} already exist", 
+                        requestId, newParticipants.Count, participantsToAdd.Count, newParticipants.Count - participantsToAdd.Count);
+                    
+                    // Add new participants to existing list
+                    Model.Participants.AddRange(participantsToAdd);
+                    
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] After processing - Final participant count: {FinalCount}", 
                         requestId, Model.Participants.Count);
                 }
                 else
@@ -695,21 +706,7 @@
         Navigation.NavigateTo("/");
     }
 
-    private void StartSession()
-    {
-Logger.LogInformation("StartSession clicked for token: {SessionToken}", SessionToken);
-        
-        if (!string.IsNullOrEmpty(SessionToken))
-        {
-            // Navigate to SessionCanvas with the same session token
-            Navigation.NavigateTo($"/session/canvas/{SessionToken}");
-        }
-        else
-        {
-Logger.LogWarning("StartSession clicked but no SessionToken available");
-            Navigation.NavigateTo("/");
-        }
-    }
+    // COPILOT-DEBUG: Issue-129 - StartSession method removed as button should not be in participant waiting room
 
     private void SortByName()
     {

@@ -3,6 +3,10 @@
 
 import { type APIRequestContext } from '@playwright/test';
 
+// Import health check utilities and database token manager
+export { DatabaseTokenManager, type SessionTokenData } from './utils/database-token-manager';
+export { afterEachHealthCheck, AppHealthChecker, beforeEachHealthCheck, withHealthChecks } from './utils/test-health-hooks';
+
 /**
  * TypeScript interfaces for better IntelliSense and Copilot suggestions
  */

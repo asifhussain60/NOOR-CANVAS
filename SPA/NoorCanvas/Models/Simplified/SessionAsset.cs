@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace NoorCanvas.Models.Simplified;
 
 /// <summary>
-/// SessionAssets lookup table for efficient asset detection and share button injection.
-/// Replaces client-side regex parsing with server-side asset catalog.
+/// SessionAssetsLookup table for flexible asset detection and class-based tracking.
+/// Supports partial CSS class matching and consolidated instance counting.
 /// </summary>
-[Table("SessionAssets", Schema = "canvas")]
+[Table("SessionAssetsLookup", Schema = "canvas")]
 public class SessionAsset
 {
     /// <summary>
@@ -23,17 +23,18 @@ public class SessionAsset
     public long SessionId { get; set; }
     
     /// <summary>
-    /// Type of Islamic content asset (etymology-card, ahadees-container, ayah-card, image-asset, table-asset)
+    /// Primary CSS class for this asset type (e.g., 'imgResponsive', 'ayah-card', 'inserted-hadees')
+    /// Used for flexible class-based detection and targeting
     /// </summary>
-    [Required, MaxLength(50)]
-    public string AssetType { get; set; } = string.Empty;
+    [Required, MaxLength(100)]
+    public string AssetClass { get; set; } = string.Empty;
     
     /// <summary>
-    /// Unique selector for targeting this asset (e.g., 'ayah-2-255', 'hadees-bukhari-123')
-    /// Used for data-asset-id injection and JavaScript targeting
+    /// Alternate CSS classes found with this asset (comma-separated)
+    /// Supports flexible matching (e.g., 'fr-fic,fr-dib,fr-bordered')
     /// </summary>
-    [Required, MaxLength(200)]
-    public string AssetSelector { get; set; } = string.Empty;
+    [MaxLength(500)]
+    public string? AlternateClasses { get; set; }
     
     /// <summary>
     /// Position/order within the transcript for reliable button injection
@@ -47,6 +48,28 @@ public class SessionAsset
     /// </summary>
     [MaxLength(500)]
     public string? CssPattern { get; set; }
+    
+    /// <summary>
+    /// Number of instances of this asset class found in the transcript
+    /// </summary>
+    public int InstanceCount { get; set; } = 1;
+    
+    /// <summary>
+    /// Match confidence score for flexible class detection (1-5)
+    /// Higher scores indicate better class matches
+    /// </summary>
+    public int ClassScore { get; set; } = 1;
+    
+    /// <summary>
+    /// How many times this asset class has been shared by host
+    /// </summary>
+    public int SharedCount { get; set; } = 0;
+    
+    /// <summary>
+    /// Unique identifier for sharing this asset via SignalR
+    /// </summary>
+    [MaxLength(100)]
+    public string? ShareId { get; set; }
     
     /// <summary>
     /// When this asset was shared by host (NULL = detected but not shared yet)
@@ -106,34 +129,46 @@ public class SessionAsset
 /// </summary>
 public static class AssetTypes
 {
-    public const string EtymologyCard = "etymology-card";
-    public const string AhadeesContainer = "ahadees-container"; 
+    // Core Islamic content assets
     public const string AyahCard = "ayah-card";
-    public const string ImageAsset = "image-asset";
-    public const string TableAsset = "table-asset";
+    public const string InsertedHadees = "inserted-hadees";
+    public const string EtymologyCard = "etymology-card";
+    public const string EtymologyDerivativeCard = "etymology-derivative-card";
+    
+    // Layout and styling assets
+    public const string EsotericBlock = "esotericBlock";
+    public const string VerseContainer = "verse-container";
+    public const string TableAsset = "table";
+    public const string ImageResponsive = "imgResponsive";
     
     /// <summary>
-    /// All supported asset types
+    /// All supported asset types based on Session 212 analysis
     /// </summary>
     public static readonly string[] All = 
     {
-        EtymologyCard,
-        AhadeesContainer,
         AyahCard,
-        ImageAsset,
-        TableAsset
+        InsertedHadees,
+        EtymologyCard,
+        EtymologyDerivativeCard,
+        EsotericBlock,
+        VerseContainer,
+        TableAsset,
+        ImageResponsive
     };
     
     /// <summary>
-    /// CSS patterns for detecting each asset type
+    /// CSS patterns for detecting each asset type (legacy - flexible detection now handles this)
     /// </summary>
     public static readonly Dictionary<string, string> DetectionPatterns = new()
     {
-        { EtymologyCard, @"<div[^>]*class=""[^""]*etymology-derivative-card[^""]*""[^>]*>" },
-        { AhadeesContainer, @"<div[^>]*class=""[^""]*(?:inserted-hadees|ks-ahadees-container|ahadees-content)[^""]*""[^>]*>" },
         { AyahCard, @"<div[^>]*class=""[^""]*ayah-card[^""]*""[^>]*>" },
-        { ImageAsset, @"<img[^>]*(?:src=""[^""]*""[^>]*|[^>]*)\s*/?>" },
-        { TableAsset, @"<table[^>]*class=""[^""]*(?:islamic-table|content-table|comparison-table)[^""]*""[^>]*>" }
+        { InsertedHadees, @"<div[^>]*class=""[^""]*(?:inserted-hadees|ks-ahadees-container|ahadees-content)[^""]*""[^>]*>" },
+        { EtymologyCard, @"<div[^>]*class=""[^""]*etymology-card[^""]*""[^>]*>" },
+        { EtymologyDerivativeCard, @"<div[^>]*class=""[^""]*etymology-derivative-card[^""]*""[^>]*>" },
+        { EsotericBlock, @"<div[^>]*class=""[^""]*esotericBlock[^""]*""[^>]*>" },
+        { VerseContainer, @"<div[^>]*class=""[^""]*verse-container[^""]*""[^>]*>" },
+        { TableAsset, @"<table[^>]*style=""[^""]*width:\s*100%[^""]*""[^>]*>" },
+        { ImageResponsive, @"<img[^>]*class=""[^""]*imgResponsive[^""]*""[^>]*>" }
     };
 }
 
@@ -143,11 +178,14 @@ public static class AssetTypes
 public class SessionAssetDto
 {
     public long AssetId { get; set; }
-    public string AssetType { get; set; } = string.Empty;
-    public string AssetSelector { get; set; } = string.Empty;
+    public string AssetClass { get; set; } = string.Empty;
+    public string? AlternateClasses { get; set; }
+    public int InstanceCount { get; set; }
+    public int ClassScore { get; set; }
     public int? Position { get; set; }
     public bool IsShared { get; set; }
     public DateTime? SharedAt { get; set; }
+    public int SharedCount { get; set; }
     
     /// <summary>
     /// Convert from entity to DTO
@@ -157,11 +195,14 @@ public class SessionAssetDto
         return new SessionAssetDto
         {
             AssetId = asset.AssetId,
-            AssetType = asset.AssetType,
-            AssetSelector = asset.AssetSelector,
+            AssetClass = asset.AssetClass,
+            AlternateClasses = asset.AlternateClasses,
+            InstanceCount = asset.InstanceCount,
+            ClassScore = asset.ClassScore,
             Position = asset.Position,
-            IsShared = asset.IsShared,
-            SharedAt = asset.SharedAt
+            IsShared = asset.SharedAt.HasValue,
+            SharedAt = asset.SharedAt,
+            SharedCount = asset.SharedCount
         };
     }
 }

@@ -225,27 +225,27 @@
             line-height: 1.4;
         }
         
-        /* Hadees Card */
+        /* Hadees Card - New Styling */
         .inserted-hadees.ks-ahadees-container {
-            border-top: 2px solid #5D0219;
-            background-color: #fefcf9;
-            padding: 0;
-            border-radius: 0;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            margin: 1.5rem auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            background-color: #f8f9fa; /* Light gray background */
+            border: 1px solid #dee2e6; /* Light border on all sides */
+            border-top: 4px solid #007bff; /* Prominent blue top border */
+            border-radius: 8px; /* Rounded corners for the entire card */
+            padding: 0; /* Remove padding from container to control children */
+            margin: 1.5rem auto; /* Center with margin */
             max-width: 700px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            position: relative;
+            overflow: hidden; /* Ensures border-radius applies correctly */
         }
 
         .hadees-header.ks-ahadees-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            background-color: #fffbf2;
-            border-bottom: 2px solid #d4a52c;
-            border-radius: 0;
+            justify-content: flex-start; /* Align header content to the left */
+            padding: 1rem 1.5rem;
+            background-color: transparent; /* No background for header */
+            border-bottom: none; /* No border for header */
         }
 
         .hadees-header h4 {
@@ -253,40 +253,31 @@
             font-size: 1.2em;
             display: flex;
             align-items: center;
-            color: #5D0219;
+            color: #007bff; /* Blue color for header text */
             font-weight: 700;
         }
 
         .ks-ahadees-header-icon {
             margin-right: 0.5em;
-            color: #d4a52c;
-        }
-
-        .ks-ahadees-subject {
-            font-size: 0.8em;
-            color: #6b7280;
-            margin-left: 10px;
+            color: #007bff; /* Blue color for icon */
         }
 
         .hadees-arabic.ks-ahadees-arabic {
             font-family: 'Amiri', serif;
-            font-size: 1.5em;
-            text-align: right;
-            direction: rtl;
+            font-size: 1.8em;
             line-height: 1.8;
-            margin-bottom: 1em;
-            color: #5D0219;
+            direction: rtl;
+            color: #8B0000; /* Maroon color for Arabic text */
             text-align: center;
-            padding: 1rem 1.5rem 0 1.5rem;
+            padding: 1rem 1.5rem;
         }
 
         .hadees-english.ks-ahadees-english {
             font-style: italic;
-            color: #64748B;
+            color: #6c757d; /* Dark gray color for English translation */
             text-align: center;
             padding: 0 1.5rem 1.5rem 1.5rem;
         }
-
         /* Images and figures */
         .imgResponsive {
             max-width: 100%;
@@ -403,134 +394,134 @@
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Imamat: The unbroken Chain of Guidance</h1>
+<body style="font-family: 'Inter', sans-serif; background-color: #fdfdfd; color: #333; line-height: 1.6; padding: 20px;">
+    <div style="max-width: 800px; margin: 0 auto; padding: 0 15px;">
+        <h1 style="color: #0c4a6e; font-weight: 700; font-size: 2.2em; border-bottom: 2px solid #0c4a6e; padding-bottom: 0.5rem; margin-top: 2.5rem; margin-bottom: 1rem;">Imamat: The Unbroken Chain of Guidance</h1>
         <div>
-            <p>The spiritual path is built upon a continuous chain of guidance. This sacred chain begins with Maulana Ali and Maulatina Fatima and extends through the Imams from their progeny. This is not a random historical sequence; it is a core part of Allah&#39;s divine plan for humanity, which reveals itself in different cycles or periods, known as a <span class="inlineArabic">دور</span>.&nbsp;</p>
-            <div class="inserted-hadees ks-ahadees-container" data-collection="unknown" data-id="124" data-token="H|124" data-type="hadees" id="ahadees-1758382031452-126">
-                <div class="hadees-header ks-ahadees-header">
-                    <h4><i class="fa fa-comment ks-ahadees-header-icon" aria-hidden="true"></i>Ali Ibn Abu Talib</h4>
+            <p style="font-size: 1em; margin-bottom: 1em;">The spiritual path is built upon a continuous chain of guidance. This sacred chain begins with Maulana Ali and Maulatina Fatima and extends through the Imams from their progeny. This is not a random historical sequence; it is a core part of Allah&#39;s divine plan for humanity, which reveals itself in different cycles or periods, known as a <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">دور</span>.&nbsp;</p>
+            <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-top: 4px solid #007bff; border-radius: 8px; padding: 0; margin: 1.5rem auto; max-width: 700px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;" data-collection="unknown" data-id="124" data-token="H|124" data-type="hadees" id="ahadees-1758382031452-126">
+                <button style="position: absolute; top: 0.5rem; right: 0.5rem; color: #6b7280; cursor: pointer; background: none; border: none; font-size: 1.5rem;" data-ahadees-id="ahadees-1758382031452-126" title="Delete this hadees">✕</button>
+                <div style="display: flex; align-items: center; justify-content: flex-start; padding: 1rem 1.5rem; background-color: transparent; border-bottom: none;">
+                    <h4 style="margin: 0; font-size: 1.2em; display: flex; align-items: center; color: #007bff; font-weight: 700;"><i class="fa fa-comment" style="margin-right: 0.5em; color: #007bff;" aria-hidden="true"></i>Ali Ibn Abu Talib<span style="font-size: 0.8em; font-weight: 400; color: #9ca3af; margin-left: 0.5rem;">- Duniya, Akhira, Worldly Life, Hereafter</span></h4>
                 </div>
-                <div class="hadees-arabic ks-ahadees-arabic">كُلُّ شَيْءٍ مِنَ الدُّنْيَا سَمَاعُهُ أَعْظَمُ مِنْ عِيَانِهِ، وَكُلُّ شَيْءٍ مِنَ الْآخِرَةِ عِيَانُهُ أَعْظَمُ مِنْ سَمَاعِهِ</div>
-                <div class="hadees-english ks-ahadees-english">Everything in this world, no matter how great it sounds, is ultimately less impressive in reality. As for the Hereafter, no matter how glorious you imagine it to be, its reality will be far more magnificent.</div>
+                <div style="font-family: 'Amiri', serif; font-size: 1.8em; line-height: 1.8; direction: rtl; color: #8B0000; text-align: center; padding: 1rem 1.5rem;">كُلُّ شَيْءٍ مِنَ الدُّنْيَا سَمَاعُهُ أَعْظَمُ مِنْ عِيَانِهِ، وَكُلُّ شَيْءٍ مِنَ الْآخِرَةِ عِيَانُهُ أَعْظَمُ مِنْ سَمَاعِهِ</div>
+                <div style="font-style: italic; color: #6c757d; text-align: center; padding: 0 1.5rem 1.5rem 1.5rem;">Everything in this world, no matter how great it sounds, is ultimately less impressive in reality. As for the Hereafter, no matter how glorious you imagine it to be, its reality will be far more magnificent.</div>
             </div>
             <br>
             <p>Just as the world has its own distinct seasons, human history also has its own unique spiritual seasons. Each season is led by an Imam and the appointed Prophets of his time. You can also think of it as various chapters in a book. When the chapter of Prophet Nuh and his successors concluded, Allah began a new one by sending Prophet Ibrahim (AS), initiating a new era of guidance for the world, which was approximately 1000 years after Nuh (AS).&nbsp;</p>
             <br>
-            <p><img src="https://placehold.co/434x300/a2d2ff/0369a1?text=Image+1" style="width: 434px;" class="fr-fic fr-dib imgResponsive fr-bordered"></p>
-            <p>However, unlike Adam and Nuh (AS), Allah says something interesting about Ibrahim (AS). He honors him with the title of <span class="inlineArabic">خلیل</span>, which generally means "friend". While it is often translated as &#39;friend,&#39; its meaning is much more profound.&nbsp;</p>
-            <div class="container-full-width">
+            <p><img src="https://placehold.co/434x300/a2d2ff/0369a1?text=Image+1" style="width: 434px; max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #ccc;"></p>
+            <p>However, unlike Adam and Nuh (AS), Allah says something interesting about Ibrahim (AS). He honors him with the title of <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلیل</span>, which generally means &quot;friend&quot;. While it is often translated as &#39;friend,&#39; its meaning is much more profound.&nbsp;</p>
+            <div style="max-width: 800px; margin: 0 auto; padding: 0 15px;">
                 <div class="row">
                     <div class="col-md-10 col-md-offset-1">
-                        <div class="etymology-card">
-                            <div class="etymology-header">
-                                <h3 class="arabic-term"><span class="inlineArabic">خلیل</span></h3>
+                        <div style="background-color: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; margin: 1.5rem auto; text-align: center; max-width: 700px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);">
+                            <div style="text-align: center;">
+                                <h3 style="font-family: 'Amiri', serif; font-size: 2.5em; color: #0c4a6e; margin: 0; font-weight: 700;"><span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلیل</span></h3>
                             </div>
-                            <div class="etymology-details">
-                                <p>The term Khalil (<span class="inlineArabic">خليل</span>) originates from the three-letter Arabic root <span class="inlineArabic">خلل</span>, meaning a gap. From this root, the word <span class="inlineArabic">الخُلَّة&nbsp;</span>emerges, representing the highest level of love and friendship&mdash;one that deeply occupies the heart and soul, leaving no <span class="inlineArabic">خَلَل&nbsp;</span>(gap) for others. A <span class="inlineArabic">خليل&nbsp;</span>is thus someone whose love has so thoroughly penetrated their heart that it becomes an integral part of their identity. This is why Ibrahim (AS) is called <span class="inlineArabic">خليل الله&nbsp;</span>(the intimate friend of Allah), as his heart was entirely filled with Allah&#39;s love.&nbsp;</p>
+                            <div style="font-family: 'Lora', serif; color: #0369a1;">
+                                <p>The term Khalil (<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خليل</span>) originates from the three-letter Arabic root <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلل</span>, meaning a gap. From this root, the word <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">الخُلَّة&nbsp;</span>emerges, representing the highest level of love and friendship&mdash;one that deeply occupies the heart and soul, leaving no <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خَلَل&nbsp;</span>(gap) for others. A <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خليل&nbsp;</span>is thus someone whose love has so thoroughly penetrated their heart that it becomes an integral part of their identity. This is why Ibrahim (AS) is called <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خليل الله&nbsp;</span>(the intimate friend of Allah), as his heart was entirely filled with Allah&#39;s love.&nbsp;</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <p>So Ibrahim (AS) attained this spiritual station by his absolute devotion, unwavering submission, and profound love for Allah. This unique relationship is highlighted in the Quran as:</p>
-            <div class="ayah-card" id="ayah-card-4-125">
-                <div class="golden-surah-header clickable-ayah-header" data-ayats="125" data-surah="4" id="ayah-header-4-125">Women (4:125)</div>
-                <p class="ayah-arabic">&rlm; &rlm;وَمَنْ أَحْسَنُ دينًۭا مّمَّنْ أَسْلَمَ وَجْهَهُ للَّه وَهُوَ مُحْسنٌۭ وَٱتَّبَعَ ملَّةَ إبْرَهيمَ حَنيفًۭا وَٱتَّخَذَ ٱللَّهُ إبْرَهيمَ خَليلًۭا &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-125.png" alt="125">&nbsp;&lrm;</p>
-                <div class="translation-header">Translation:</div>
-                <p class="ayah-translation">And who is better in religion than one who submits himself to Allah while being a doer of good and follows the religion of Abraham, inclining toward truth? And Allah took Abraham as an intimate friend. &nbsp;</p>
+            <div style="background-color: #fffbf2; border: 2px solid #d4a52c; padding: 0.75rem; margin: 1rem auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); font-family: 'Lora', serif; text-align: center; border-radius: 8px; max-width: 700px;" id="ayah-card-4-125">
+                <div style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1em; color: #0369a1; background: #fef3c7; padding: 6px 12px; border-radius: 4px; display: inline-block; border: 1px solid #d4a52c; text-align: center; cursor: pointer;" data-ayats="125" data-surah="4" id="ayah-header-4-125">Women (4:125)</div>
+                <p style="font-family: 'Amiri', serif; font-size: 1.8em; line-height: 1.6; direction: rtl; color: #0c4a6e; padding: 0 1rem; text-align: center; margin: 0.5rem 0;">&rlm; &rlm;وَمَنْ أَحْسَنُ دينًۭا مّمَّنْ أَسْلَمَ وَجْهَهُ للَّه وَهُوَ مُحْسنٌۭ وَٱتَّبَعَ ملَّةَ إبْرَهيمَ حَنيفًۭا وَٱتَّخَذَ ٱللَّهُ إبْرَهيمَ خَليلًۭا &lrm; <img style="width: 40px; height: auto; vertical-align: middle; margin-right: 10px;" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-125.png" alt="125">&nbsp;&lrm;</p>
+                <div style="font-weight: 500; color: #0c4a6e; margin-top: 0.5em; margin-bottom: 0.25em; font-style: normal; display: flex; align-items: center; justify-content: center; position: relative;">Translation:</div>
+                <p style="font-size: 1em; font-style: italic; color: #333; line-height: 1.4; padding: 0 1rem; text-align: center;">And who is better in religion than one who submits himself to Allah while being a doer of good and follows the religion of Abraham, inclining toward truth? And Allah took Abraham as an intimate friend. &nbsp;</p>
             </div>
-            <table style="width: 100%;">
+            <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; text-align: center;">
                 <thead>
                     <tr>
-                        <th>Header</th>
-                        <th>Value</th>
+                        <th style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center; background-color: #0c4a6e; color: #fff; font-weight: 600;">Header</th>
+                        <th style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center; background-color: #0c4a6e; color: #fff; font-weight: 600;">Value</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>English</td>
-                        <td>Hello</td>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center; width: 50%;">English</td>
+                        <td style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center; width: 50%;">Hello</td>
                     </tr>
-                    <tr>
-                        <td>Arabic</td>
-                        <td><span class="inlineArabic">بسم اللہ</span></td>
+                    <tr style="background-color: #ffffff;">
+                        <td style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center; width: 50%;">Arabic</td>
+                        <td style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center; width: 50%;"><span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">بسم اللہ</span></td>
                     </tr>
-                    <tr>
-                        <td>Image</td>
-                        <td><img src="https://placehold.co/104x50/a2d2ff/0369a1?text=Image" style="width: 104px;" class="fr-fic fr-dib imgResponsive fr-bordered" data-type="image" data-image-id="2b963aab-fec7-42b2-a5ea-b47d20c5b090" data-session-id="1291" data-insertion-id="5ceaad71-1748-4be5-8040-c80b1a764725" data-content-type="image"></td>
+                    <tr style="background-color: #f9fafb;">
+                        <td style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center;">Image</td>
+                        <td style="padding: 12px 15px; border: 1px solid #e5e7eb; text-align: center;"><img src="https://placehold.co/104x50/a2d2ff/0369a1?text=Image" style="width: 104px; max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #ccc;" data-type="image" data-image-id="2b963aab-fec7-42b2-a5ea-b47d20c5b090" data-session-id="1291" data-insertion-id="5ceaad71-1748-4be5-8040-c80b1a764725" data-content-type="image"></td>
                     </tr>
                 </tbody>
             </table>
             <p>What makes this friendship truly special is that it is rooted in genuine affection, not just a gift or favoritism. Ibrahim (AS) gained his high rank through intense spiritual effort and dedication. He fulfilled every command and faced every trial Allah gave him. One of his most notable trials, demonstrating his ultimate submission, was the divine order to sacrifice his beloved son, which will be discussed later. We will see that he did not reserve any space in his heart for anyone but Allah, not even for his son whom he had received through prayer. His steadfast obedience, incredible patience, and complete trust in Allah were the keys to reaching this elevated spiritual level.</p>
-            <div class="esotericBlock">
-                <div class="esoteric-header"><i class="fa fa-eye" aria-hidden="true"></i><span class="esoteric-title">ESOTERICS</span></div>
-                <div class="esotericData">In contrast, Adam (AS) failed in his obedience, and Nuh (AS) failed in his patience because he lamented to Allah and asked Him not to leave any disbelievers in the world. However, Ibrahim (AS)&#39;s station is exceptional because, despite facing the toughest trials, he remained flawlessly submissive. This earned him the title of <span class="inlineArabic">خلیل</span>, which is why Allah said. One of his most notable trials, demonstrating his ultimate submission, was the divine order to sacrifice his beloved son, which will be discussed later. We will see that he did not reserve any space in his heart for anyone but Allah, not even for his son whom he had received through prayer. His steadfast obedience, incredible patience, and complete trust in Allah were the keys to reaching this elevated spiritual level.</div>
+            <div style="background-color: #f9fafb; border: 2px solid #d4a52c; padding: 1rem; margin: 1.5rem auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); max-width: 700px;">
+                <div style="font-size: 1.5em; font-weight: 700; color: #0c4a6e; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; background-color: #fffbf2; border-radius: 8px 8px 0 0; padding: 1rem 0; border-bottom: 1px solid #d4a52c;"><i class="fa fa-eye" style="margin-right: 10px; color: #f59e0b;" aria-hidden="true"></i><span style="font-weight: 700; color: #0c4a6e;">ESOTERICS</span></div>
+                <div style="padding: 1rem; text-align: justify;">In contrast, Adam (AS) failed in his obedience, and Nuh (AS) failed in his patience because he lamented to Allah and asked Him not to leave any disbelievers in the world. However, Ibrahim (AS)&#39;s station is exceptional because, despite facing the toughest trials, he remained flawlessly submissive. This earned him the title of <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلیل</span>, which is why Allah said. One of his most notable trials, demonstrating his ultimate submission, was the divine order to sacrifice his beloved son, which will be discussed later. We will see that he did not reserve any space in his heart for anyone but Allah, not even for his son whom he had received through prayer. His steadfast obedience, incredible patience, and complete trust in Allah were the keys to reaching this elevated spiritual level.</div>
             </div>
-            <p>In contrast, Adam (AS) failed in his obedience, and Nuh (AS) failed in his patience because he lamented to Allah and asked Him not to leave any disbelievers in the world. However, Ibrahim (AS)&#39;s station is exceptional because, despite facing the toughest trials, he remained flawlessly submissive. This earned him the title of <span class="inlineArabic">خلیل</span>, which is why Allah said:</p>
+            <p>In contrast, Adam (AS) failed in his obedience, and Nuh (AS) failed in his patience because he lamented to Allah and asked Him not to leave any disbelievers in the world. However, Ibrahim (AS)&#39;s station is exceptional because, despite facing the toughest trials, he remained flawlessly submissive. This earned him the title of <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلیل</span>, which is why Allah said:</p>
         </div>
-        <div class="ayah-card" id="ayah-card-53-37">
-            <div class="golden-surah-header clickable-ayah-header" data-ayats="37" data-original-token="Q|53:37" data-surah="53" id="ayah-header-53-37"><span>Tha Star (53:37)</span></div>
-            <p class="ayah-arabic">&rlm; &rlm;وَإبْرَهيمَ ٱلَّذى وَفَّىٰ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-37.png" alt="37">&nbsp;&lrm;</p>
-            <div class="translation-header">Translation:.</div>
-            <p class="ayah-translation">And [of] Abraham, who fulfilled [his obligations]-.</p>
+        <div style="background-color: #fffbf2; border: 2px solid #d4a52c; padding: 0.75rem; margin: 1rem auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); font-family: 'Lora', serif; text-align: center; border-radius: 8px; max-width: 700px;" id="ayah-card-53-37">
+            <div style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1em; color: #0369a1; background: #fef3c7; padding: 6px 12px; border-radius: 4px; display: inline-block; border: 1px solid #d4a52c; text-align: center; cursor: pointer;" data-ayats="37" data-original-token="Q|53:37" data-surah="53" id="ayah-header-53-37"><span>Tha Star (53:37)</span></div>
+            <p style="font-family: 'Amiri', serif; font-size: 1.8em; line-height: 1.6; direction: rtl; color: #0c4a6e; padding: 0 1rem; text-align: center; margin: 0.5rem 0;">&rlm; &rlm;وَإبْرَهيمَ ٱلَّذى وَفَّىٰ &lrm; <img style="width: 40px; height: auto; vertical-align: middle; margin-right: 10px;" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-37.png" alt="37">&nbsp;&lrm;</p>
+            <div style="font-weight: 500; color: #0c4a6e; margin-top: 0.5em; margin-bottom: 0.25em; font-style: normal; display: flex; align-items: center; justify-content: center; position: relative;">Translation:.</div>
+            <p style="font-size: 1em; font-style: italic; color: #333; line-height: 1.4; padding: 0 1rem; text-align: center;">And [of] Abraham, who fulfilled [his obligations]-.</p>
         </div>
-        <div class="content-padding">
+        <div>
             <div>
-                <p class="example">Preserving this order is crucial for accurately conveying the word&#39;s intended meaning. In esoterics, each letter in a &quot;word&quot; represents a range of concepts&mdash;such as revelations, creations, identities, or, as with Ibrahim (AS), a series of tests.</p>
+                <p style="background-color: #f0f9ff; border-left: 4px solid #38bdf8; padding: 1rem; margin: 1.5rem 0; border-radius: 4px; font-style: italic; color: #0c4a6e;">Preserving this order is crucial for accurately conveying the word&#39;s intended meaning. In esoterics, each letter in a &quot;word&quot; represents a range of concepts&mdash;such as revelations, creations, identities, or, as with Ibrahim (AS), a series of tests.</p>
                 <p>
                     <br>
                 </p>
-                <p class="anecdote">Station is exceptional because, despite facing the toughest trials, he remained flawlessly submissive. This earned him the title of <span class="inlineArabic">خلیل</span>, which is why Allah said. One of his most notable trials, demonstrating his ultimate submi</p>
+                <p style="background-color: #f0f9ff; border-left: 4px solid #38bdf8; padding: 1rem; margin: 1.5rem 0; border-radius: 4px; font-style: italic; color: #0c4a6e;">Station is exceptional because, despite facing the toughest trials, he remained flawlessly submissive. This earned him the title of <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلیل</span>, which is why Allah said. One of his most notable trials, demonstrating his ultimate submi</p>
                 <p>
                     <br>
                 </p>
-                <p class="quote"><em>This earned him the title of&nbsp;</em><span class="inlineArabic">خلیل</span>, which is why</p>
+                <p style="font-style: italic;"><em>This earned him the title of&nbsp;</em><span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">خلیل</span>, which is why</p>
                 <p>
                     <br>
                 </p>
-                <p class="verse-container">&rlm; &rlm;وَإبْرَهيمَ ٱلَّذى وَفَّىٰ</p>
-                <h1>KALIMAAT: The Divine Words</h1>
+                <p style="text-align: center; font-family: 'Amiri', serif; font-size: 1.8em; margin: 1.5rem auto; direction: rtl; background-color: #f0f9ff; border-top: 2px solid #7dd3fc; border-bottom: 2px solid #7dd3fc; padding: 1rem; color: #0c4a6e; max-width: 700px;">&rlm; &rlm;وَإبْرَهيمَ ٱلَّذى وَفَّىٰ</p>
+                <h1 style="color: #0c4a6e; font-weight: 700; font-size: 2.2em; border-bottom: 2px solid #0c4a6e; padding-bottom: 0.5rem; margin-top: 2.5rem; margin-bottom: 1rem;">KALIMAAT: The Divine Words</h1>
                 <p>Allah says in the Quran:</p>
             </div>
         </div>
-        <div class="ayah-card" id="ayah-card-2-124">
-            <div class="golden-surah-header clickable-ayah-header" data-ayats="124" data-original-token="Q|2:124" data-surah="2" id="ayah-header-2-124">The Cow (2:124)</div>
-            <p class="ayah-arabic">&rlm; &rlm; وَإذ ٱبْتَلَىٰ إبْرَهمَ رَبُّهُ بكَلمَتٍۢ فَأَتَمَّهُنَّ ۖ قَالَ إنّى جَاعلُكَ للنَّاس إمَامًۭا ۖ قَالَ وَمن ذُرّيَّتى ۖ قَالَ لَا يَنَالُ عَهْدى ٱلظَّلمينَ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-124.png" alt="124">&nbsp;&lrm;</p>
-                <div class="translation-header">Translation:</div>
-            <p class="ayah-translation">And [mention, O Muhammad], when Abraham was tried by his Lord with commands and he fulfilled them. [Allah] said, &quot;Indeed, I will make you a leader for the people.&quot; [Abraham] said, &quot;And of my descendants?&quot; [Allah] said, &quot;My covenant does not include the wrongdoers.&quot; &nbsp;</p>
+        <div style="background-color: #fffbf2; border: 2px solid #d4a52c; padding: 0.75rem; margin: 1rem auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); font-family: 'Lora', serif; text-align: center; border-radius: 8px; max-width: 700px;" id="ayah-card-2-124">
+            <div style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1em; color: #0369a1; background: #fef3c7; padding: 6px 12px; border-radius: 4px; display: inline-block; border: 1px solid #d4a52c; text-align: center; cursor: pointer;" data-ayats="124" data-original-token="Q|2:124" data-surah="2" id="ayah-header-2-124">The Cow (2:124)</div>
+            <p style="font-family: 'Amiri', serif; font-size: 1.8em; line-height: 1.6; direction: rtl; color: #0c4a6e; padding: 0 1rem; text-align: center; margin: 0.5rem 0;">&rlm; &rlm; وَإذ ٱبْتَلَىٰ إبْرَهمَ رَبُّهُ بكَلمَتٍۢ فَأَتَمَّهُنَّ ۖ قَالَ إنّى جَاعلُكَ للنَّاس إمَامًۭا ۖ قَالَ وَمن ذُرّيَّتى ۖ قَالَ لَا يَنَالُ عَهْدى ٱلظَّمينَ &lrm; <img style="width: 40px; height: auto; vertical-align: middle; margin-right: 10px;" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-124.png" alt="124">&nbsp;&lrm;</p>
+            <div style="font-weight: 500; color: #0c4a6e; margin-top: 0.5em; margin-bottom: 0.25em; font-style: normal; display: flex; align-items: center; justify-content: center; position: relative;">Translation:</div>
+            <p style="font-size: 1em; font-style: italic; color: #333; line-height: 1.4; padding: 0 1rem; text-align: center;">And [mention, O Muhammad], when Abraham was tried by his Lord with commands and he fulfilled them. [Allah] said, &quot;Indeed, I will make you a leader for the people.&quot; [Abraham] said, &quot;And of my descendants?&quot; [Allah] said, &quot;My covenant does not include the wrongdoers.&quot; &nbsp;</p>
         </div>
-        <div class="content-padding">
-            <div>The term &quot;<span class="inlineArabic">کلمات</span>&quot; appears frequently in the Quran. For example, in the story of Adam (AS), Allah says:<span class="inlineArabic">&nbsp;فَتَلَقَّىٰٓ آدَمُ مِن رَّبِّهِۦ كَلِمَتٍۢ فَتَابَ عَلَيْهِ ۚ إِنَّهُۥ هُوَ ٱلتَّوَّابُ ٱلرَّحِيمُ</span> - &quot;Then Adam received from his Lord Words,&quot; and His Lord forgave him. Certainly, He is the Forgiving, the Merciful. Understanding the meaning of this term is therefore crucial.
-                <h2>What is a word?</h2>
-                <p><img src="https://placehold.co/562x300/a2d2ff/0369a1?text=Image+2" data-id="ec9dfe26-b0e4-4872-82fa-aa69e1194122" data-name="ec9dfe26-b0e4-4872-82fa-aa69e1194122.jpg" style="width: 562px;" class="fr-fic fr-dib imgResponsive fr-bordered"></p>
-                <p>A word is made up of a sequence of letters arranged in a specific order. Preserving this order is crucial for accurately conveying the word&#39;s intended meaning. In esoterics, each letter in a &quot;word&quot; represents a range of concepts&mdash;such as revelations, creations, identities, or, as with Ibrahim (AS), a series of tests.</p>
-                <div class="etymology-derivative-card">
-                    <div class="derivative-root-reference">
-                        <div>Root: علم</div>
-                        <div>knowledge</div>
-                    </div>
-                    <div class="derivative-main-display">
-                        <h3>عالم</h3>
-                        <p>(ALIM)</p>
-                        <p>One having knowledge, scholar</p>
-                    </div>
-                    <div style="font-size: 0.8em; color: #64748B; font-style: italic;">Etymology &bull; 9/20/2025</div>
+        <div>The term &quot;<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">کلمات</span>&quot; appears frequently in the Quran. For example, in the story of Adam (AS), Allah says:<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">&nbsp;فَتَلَقَّىٰٓ آدَمُ مِن رَّبِّهِۦ كَلِمَتٍۢ فَتَابَ عَلَيْهِ ۚ إِنَّهُۥ هُوَ ٱلتَّوَّابُ ٱلرَّحِيمُ</span> - &quot;Then Adam received from his Lord Words,&quot; and His Lord forgave him. Certainly, He is the Forgiving, the Merciful. Understanding the meaning of this term is therefore crucial.
+            <h2 style="font-size: 1.8em; color: #0c4a6e; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem;">What is a word?</h2>
+            <p><img src="https://placehold.co/562x300/a2d2ff/0369a1?text=Image+2" style="width: 562px; max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #ccc;" data-id="ec9dfe26-b0e4-4872-82fa-aa69e1194122" data-name="ec9dfe26-b0e4-4872-82fa-aa69e1194122.jpg" data-type="image" data-content-type="image"></p>
+            <p>A word is made up of a sequence of letters arranged in a specific order. Preserving this order is crucial for accurately conveying the word&#39;s intended meaning. In esoterics, each letter in a &quot;word&quot; represents a range of concepts&mdash;such as revelations, creations, identities, or, as with Ibrahim (AS), a series of tests.</p>
+            <div style="background-color: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; margin: 1.5rem auto; text-align: center; max-width: 700px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);">
+                <div style="margin-bottom: 12px; padding: 8px; background: rgba(125, 211, 252, 0.2); border-radius: 8px;">
+                    <div style="font-size: 14px; color: #0284c7; font-weight: 600; margin-bottom: 4px;">Root: علم</div>
+                    <div style="font-size: 12px; color: #0369a1; font-style: italic;">knowledge</div>
                 </div>
-                <br>
-                <p>Ultimately, this process reveals deeper spiritual realities or, in the case of a word, unveils its ultimate meaning. In every case, the purpose of the words (<span class="inlineArabic">کلمات</span>) is to reveal the divine will of Allah(SWT).&nbsp;</p>
-                <p><img src="https://placehold.co/480x300/a2d2ff/0369a1?text=Image+3" style="width: 480px;" class="fr-fic fr-dib imgResponsive fr-bordered"></p>
-                <h3>A Creative Force:</h3>
-                <p>The word &#39;<span class="inlineArabic">کلمۃ</span>&#39; means a word. Its plural is <span class="inlineArabic">کلمات</span>. It is used in several places in the Quran. The most famous example is Allah&#39;s creative act described as <span class="inlineArabic">كُن فَيَكُونُ</span>.&nbsp;</p>
+                <div style="margin-bottom: 12px;">
+                    <h3 style="font-size: 2em; color: #0c4a6e; margin: 0 0 8px 0; font-family: 'Amiri', serif; font-weight: 700;">عالم</h3>
+                    <p style="font-size: 14px; color: #0369a1; margin: 0 0 4px 0; font-style: italic;">(ALIM)</p>
+                    <p style="font-size: 16px; color: #075985; margin: 0; font-family: 'Lora', serif; font-weight: 500; line-height: 1.4;">One having knowledge, scholar</p>
+                </div>
+                <div style="font-size: 0.8em; color: #64748B; font-style: italic;">Etymology &bull; 9/20/2025</div>
             </div>
+            <br>
+            <p>Ultimately, this process reveals deeper spiritual realities or, in the case of a word, unveils its ultimate meaning. In every case, the purpose of the words (<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">کلمات</span>) is to reveal the divine will of Allah(SWT).&nbsp;</p>
+            <p><img src="https://placehold.co/480x300/a2d2ff/0369a1?text=Image+3" style="width: 480px; max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 2px solid #ccc;"></p>
+            <h3 style="font-size: 1.5em; color: #0c4a6e; font-weight: 700; margin-top: 1.5rem; margin-bottom: 1rem;">A Creative Force:</h3>
+            <p>The word &#39;<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">کلمۃ</span>&#39; means a word. Its plural is <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">کلمات</span>. It is used in several places in the Quran. The most famous example is Allah&#39;s creative act described as <span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">كُن فَيَكُونُ</span>.&nbsp;</p>
         </div>
-        <div class="ayah-card" id="ayah-card-36-82">
-            <div class="golden-surah-header clickable-ayah-header" data-ayats="82" data-surah="36" id="ayah-header-36-82">Ya S&icirc;n (36:82)</div>
-            <p class="ayah-arabic">&rlm; &rlm;إنَّمَا أَمْرُهُ إذَا أَرَادَ شَيْـًٔا أَن يَقُولَ لَهُ كُن فَيَكُونُ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-82.png" alt="82">&nbsp;&lrm;</p>
-            <div class="translation-header">Translation:</div>
-            <p class="ayah-translation">His command is only when He intends a thing that He says to it, &quot;Be,&quot; and it is. &nbsp;</p>
+        <div style="background-color: #fffbf2; border: 2px solid #d4a52c; padding: 0.75rem; margin: 1rem auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); font-family: 'Lora', serif; text-align: center; border-radius: 8px; max-width: 700px;" id="ayah-card-36-82">
+            <div style="font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1em; color: #0369a1; background: #fef3c7; padding: 6px 12px; border-radius: 4px; display: inline-block; border: 1px solid #d4a52c; text-align: center; cursor: pointer;" data-ayats="82" data-surah="36" id="ayah-header-36-82">Ya S&icirc;n (36:82)</div>
+            <p style="font-family: 'Amiri', serif; font-size: 1.8em; line-height: 1.6; direction: rtl; color: #0c4a6e; padding: 0 1rem; text-align: center; margin: 0.5rem 0;">&rlm; &rlm;إنَّمَا أَمْرُهُ إذَا أَرَادَ شَيْـًٔا أَن يَقُولَ لَهُ كُن فَيَكُونُ &lrm; <img style="width: 40px; height: auto; vertical-align: middle; margin-right: 10px;" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-82.png" alt="82">&nbsp;&lrm;</p>
+            <div style="font-weight: 500; color: #0c4a6e; margin-top: 0.5em; margin-bottom: 0.25em; font-style: normal; display: flex; align-items: center; justify-content: center; position: relative;">Translation:</div>
+            <p style="font-size: 1em; font-style: italic; color: #333; line-height: 1.4; padding: 0 1rem; text-align: center;">His command is only when He intends a thing that He says to it, &quot;Be,&quot; and it is. &nbsp;</p>
         </div>
+        <p style="font-size: 1em; margin-bottom: 1em;">Here, the word &quot;<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">كُن</span>&quot; (&quot;Be&quot;) isn&rsquo;t just another command expressed with letters. It&rsquo;s the very essence of creation itself. It connects divine will with the physical world around us. So, a &quot;<span style="font-family: 'Amiri', serif; direction: rtl; font-size: 1.4em; display: inline-block;">كلمۃ</span>&quot; from Allah becomes a powerful act of divine energy, bringing realities into existence. When we see this idea in the context of spiritual truths, they aren&rsquo;t just passive concepts&mdash;they are active, fundamental principles that form the foundation of the spiritual universe.&nbsp;</p>
     </div>
 </body>
 </html>
