@@ -79,12 +79,17 @@ parameters:
    - If any such paths are **tracked**, run `git rm -r --cached` to untrack them (respecting `.gitignore`).
 
 6) **Lint & Format (Touched Files Only)**
-   - Detect stack(s) under SCOPE and run appropriate formatters/linters.
+   - **ASP.NET Core**: `dotnet format --verbosity minimal` from `SPA/NoorCanvas/`
+   - **JavaScript/TypeScript**: `npx prettier --write .` (auto-fixes most issues)
+   - **Markdown**: Included in Prettier formatting
    - Fail the run if fatal syntax/lint errors remain.
+   - **Optimization**: Prettier typically auto-fixes 4+ files in NOOR Canvas projects
 
 7) **Build & Sanity Checks (If SCOPE affects buildable code)**
-   - Build the project (or sub-projects touched by SCOPE).
-   - Optionally run quick smoke tests if available and fast.
+   - **NOOR Canvas**: `cd "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build`
+   - **Path correction**: Use absolute paths if relative paths fail from wrong directory
+   - **Warning tolerance**: 1-2 build warnings acceptable; 0 errors required
+   - **Quick validation**: Check if app starts on localhost:9090/9091 if time permits
 
 8) **Zero-Diff Finisher (Always End Clean)**
    - **Stage & commit all intended changes**:
@@ -106,4 +111,64 @@ parameters:
 - **Build**: succeeds if SCOPE includes buildable code.
 - **Docs**: single canonical README in scope; links valid.
 
+## NOOR Canvas Specific Optimizations
+Based on recent successful execution, these patterns optimize cleanup for this project:
+
+### **Context-First Execution**
+- Always check if app is running on ports 9090/9091 before starting
+- Use `SPA/NoorCanvas/` as the build context, not repo root
+- Reference Self-Awareness instructions (`d:\PROJECTS\NOOR CANVAS\.github\instructions\SelfAwareness.instructions.md`) for project-specific rules
+
+### **Efficient Tool Sequencing** 
+```
+1. file_search → read_file (batch context gathering)
+2. grep_search → list_dir (verify structure before changes)
+3. run_in_terminal → get_terminal_output (immediate validation)
+4. replace_string_in_file → semantic_search (context-aware updates)
+```
+
+### **Known Success Patterns**
+- **Prettier formatting**: Auto-fixes most JS/MD issues, include `--write` flag
+- **dotnet format**: Use `--verbosity minimal` to reduce noise
+- **Build verification**: Always use `SPA/NoorCanvas/NoorCanvas.csproj` as target
+- **Git operations**: Stage with `git add -A`, commit with descriptive messages referencing cleanup.prompt.md
+
+### **Project-Specific Ignore Patterns**
+Add these to standard `.gitignore` rules for NOOR Canvas:
+```
+# NOOR Canvas specific
+Workspaces/TEMP/
+playwright-report/
+test-results/
+*.temp.config.js
+*-temp.md
+SPA/NoorCanvas/bin/
+SPA/NoorCanvas/obj/
+```
+
+### **Critical Validations**
+- Node.js dependencies: Check for new `node_modules/` after `npm install`
+- Playwright reports: Ensure `playwright-report/` stays ignored but tests tracked
+- Database connections: Verify no hardcoded connection strings in cleaned files
+- Token validation: Ensure no 8-char tokens (e.g., USER223A, IIZVVHXI) in committed code
+
 ## Commit Message Template
+```
+[SCOPE]: Comprehensive repo cleanup: [SUMMARY_OF_CHANGES] per cleanup.prompt.md
+
+- Prompt optimization: [specific prompt improvements]
+- Artefact purge: [removed temp/cache/build files]  
+- Formatting: [linter/formatter results]
+- Build verification: [build status and warnings fixed]
+- Structure: [any reorganization done]
+
+Scope: {{scope}}
+Zero-diff achieved: ✓
+```
+
+## Execution Reminders
+- **Pre-flight**: Check app status, validate context with Self-Awareness instructions
+- **Progress tracking**: Use manage_todo_list for complex cleanups with multiple phases
+- **Error handling**: Never proceed if build fails; fix issues before commit
+- **Performance**: Batch file operations, use targeted searches, avoid redundant reads
+- **Safety**: Always stage changes incrementally, verify each phase before proceeding
