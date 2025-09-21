@@ -3,6 +3,7 @@
 ## Prerequisites
 
 ### Required Software
+
 - Visual Studio 2022 or VS Code
 - .NET 8.0 SDK
 - SQL Server (Express or Developer Edition)
@@ -10,27 +11,31 @@
 - PowerShell 5.1+ for automation scripts
 
 ### Development Database Setup
+
 ```sql
 -- Development Environment
-USE KSESSIONS_DEV;  
--- Production Environment  
+USE KSESSIONS_DEV;
+-- Production Environment
 USE KSESSIONS;
 
 -- Canvas schema objects
-SELECT * FROM INFORMATION_SCHEMA.TABLES 
+SELECT * FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA = 'canvas';
 ```
 
 ## Project Setup
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/asifhussain60/NOOR-CANVAS.git
 cd NOOR-CANVAS
 ```
 
 ### 2. Database Configuration
+
 Update connection strings in `appsettings.json`:
+
 ```json
 {
   "ConnectionStrings": {
@@ -42,6 +47,7 @@ Update connection strings in `appsettings.json`:
 ### 3. Build and Run
 
 **Using NC Command (Recommended)**
+
 ```powershell
 # Navigate to workspace root
 cd "D:\PROJECTS\NOOR CANVAS"
@@ -54,6 +60,7 @@ nc
 ```
 
 **Manual Build Process**
+
 ```powershell
 # Navigate to project directory
 cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
@@ -71,6 +78,7 @@ dotnet run --urls "https://localhost:9091"
 ## Development Workflow
 
 ### 1. Application Startup
+
 - Application runs on IIS Express x64
 - Primary URL: https://localhost:9091 (HTTPS)
 - Fallback URL: http://localhost:9090 (HTTP)
@@ -79,6 +87,7 @@ dotnet run --urls "https://localhost:9091"
 ### 2. Development Tools
 
 **NC Command Suite**
+
 ```powershell
 nc                    # Full application startup
 nc -SkipTokenGeneration  # Skip host token step
@@ -86,6 +95,7 @@ nc -Help             # Command reference
 ```
 
 **Health Checks**
+
 ```powershell
 # Verify application health
 Invoke-WebRequest -Uri "https://localhost:9091/healthz" -SkipCertificateCheck
@@ -97,6 +107,7 @@ Invoke-WebRequest -Uri "https://localhost:9091/hub/session" -SkipCertificateChec
 ### 3. Testing Framework
 
 **Automated Testing**
+
 ```powershell
 # Run all tests
 dotnet test
@@ -109,6 +120,7 @@ dotnet test --collect:"XPlat Code Coverage"
 ```
 
 **Manual Testing**
+
 - Browser: Navigate to https://localhost:9091
 - Developer Tools: Check console for errors
 - Network Tab: Verify SignalR connections
@@ -117,6 +129,7 @@ dotnet test --collect:"XPlat Code Coverage"
 ## Development Environment Verification
 
 ### 1. Port Verification
+
 ```powershell
 # Check if ports are in use
 netstat -ano | findstr ":9091"  # HTTPS
@@ -124,6 +137,7 @@ netstat -ano | findstr ":9090"  # HTTP
 ```
 
 ### 2. Process Verification
+
 ```powershell
 # Check IIS Express processes
 Get-Process | Where-Object {$_.ProcessName -like "*iisexpress*"}
@@ -133,6 +147,7 @@ Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}
 ```
 
 ### 3. Database Connectivity
+
 ```sql
 -- Test canvas schema access
 USE KSESSIONS_DEV;
@@ -146,18 +161,22 @@ SELECT COUNT(*) FROM dbo.Users;
 ## Common Development Issues
 
 ### Build Errors
+
 - **Issue**: Restore failures
 - **Solution**: Clear NuGet cache: `dotnet nuget locals all --clear`
 
-### Port Conflicts  
+### Port Conflicts
+
 - **Issue**: Port 9091 already in use
 - **Solution**: Kill existing processes: `Stop-Process -Name "dotnet" -Force`
 
 ### Database Connection
+
 - **Issue**: Connection timeout
 - **Solution**: Verify SQL Server service and connection string
 
 ### SignalR Issues
+
 - **Issue**: WebSocket failures
 - **Solution**: Check browser developer tools for connection errors
 
@@ -196,4 +215,4 @@ Workspaces/             # Documentation and tools
 
 ---
 
-*For deployment instructions, see the [Deployment Guide](../deployment/production-setup.md)*
+_For deployment instructions, see the [Deployment Guide](../deployment/production-setup.md)_

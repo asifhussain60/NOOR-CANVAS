@@ -1,6 +1,7 @@
 # Issue-87: Add Border to Host Session Button Content Area
 
 ## 📋 **Issue Details**
+
 - **Issue ID:** Issue-87
 - **Title:** Add Border to Host Session Button Content Area
 - **Type:** UI Enhancement 🎨
@@ -15,15 +16,24 @@
 Add a visual border to the Host Session button content area to improve visual definition and enhance the user interface design on the landing page.
 
 ### **Target Element:**
+
 ```html
 <div class="noor-large-button-content">
-  <i class="fa-solid fa-chalkboard-teacher noor-large-icon text-blue-600 mb-6" style="font-size: 4rem;"></i>
-  <p class="noor-large-button-text text-gray-800 font-semibold text-xl mb-4">HOST SESSION</p>
-  <p class="text-gray-600 mb-8">Manage Islamic learning sessions with interactive tools</p>
+  <i
+    class="fa-solid fa-chalkboard-teacher noor-large-icon text-blue-600 mb-6"
+    style="font-size: 4rem;"
+  ></i>
+  <p class="noor-large-button-text text-gray-800 font-semibold text-xl mb-4">
+    HOST SESSION
+  </p>
+  <p class="text-gray-600 mb-8">
+    Manage Islamic learning sessions with interactive tools
+  </p>
 </div>
 ```
 
 ### **Design Enhancement Goals:**
+
 - Improve visual hierarchy and content separation
 - Add subtle border that complements NOOR Canvas design system
 - Enhance button area definition without overwhelming the clean design
@@ -32,6 +42,7 @@ Add a visual border to the Host Session button content area to improve visual de
 ## 🎨 **Design Specifications**
 
 ### **Border Requirements:**
+
 1. **Style:** Subtle, professional border that matches NOOR Canvas theme
 2. **Color:** Should complement existing color scheme (`text-blue-600`, `text-gray-800`)
 3. **Width:** 1-2px thickness for subtle definition
@@ -39,6 +50,7 @@ Add a visual border to the Host Session button content area to improve visual de
 5. **Responsive:** Border should scale appropriately on different screen sizes
 
 ### **Suggested CSS Implementation:**
+
 ```css
 .noor-large-button-content {
   border: 1px solid #d1d5db; /* Light gray border */
@@ -55,17 +67,20 @@ Add a visual border to the Host Session button content area to improve visual de
 ## 💻 **Implementation Plan**
 
 ### **Step 1: CSS Analysis**
+
 - [ ] Examine current `.noor-large-button-content` CSS rules
 - [ ] Identify existing padding, margin, and spacing properties
 - [ ] Check for any conflicting styles or inheritance issues
 
 ### **Step 2: Border Design Implementation**
+
 - [ ] Add border property to `.noor-large-button-content` class
 - [ ] Implement rounded corners consistent with NOOR Canvas design
 - [ ] Add appropriate padding to prevent content from touching border
 - [ ] Include hover state enhancement for interactive feedback
 
 ### **Step 3: Integration Testing**
+
 - [ ] Test border appearance across different browsers
 - [ ] Verify responsive behavior on mobile devices
 - [ ] Ensure border doesn't interfere with existing animations
@@ -74,18 +89,21 @@ Add a visual border to the Host Session button content area to improve visual de
 ## 🧪 **Testing Requirements**
 
 ### **Visual Testing:**
+
 - [ ] Border appears correctly on desktop (Chrome, Firefox, Safari, Edge)
 - [ ] Responsive behavior works on mobile and tablet viewports
 - [ ] Border color complements existing design elements
 - [ ] Hover effects (if implemented) work smoothly
 
 ### **Accessibility Testing:**
+
 - [ ] Border provides sufficient visual contrast
 - [ ] Interactive elements remain keyboard accessible
 - [ ] Screen reader compatibility maintained
 - [ ] No impact on existing accessibility features
 
 ## ✅ **Acceptance Criteria**
+
 - [ ] Border added to `.noor-large-button-content` div
 - [ ] Border style matches NOOR Canvas design system
 - [ ] Responsive behavior works across all screen sizes
@@ -93,6 +111,7 @@ Add a visual border to the Host Session button content area to improve visual de
 - [ ] Visual enhancement improves overall user experience
 
 ## 🔗 **Related Files**
+
 - `Pages/Landing.razor` - Contains the target HTML element
 - `wwwroot/css/noor-canvas.css` - Main CSS file for styling updates
 - Design system documentation - For color and spacing consistency
@@ -100,16 +119,19 @@ Add a visual border to the Host Session button content area to improve visual de
 ## 🎨 **Design Considerations**
 
 ### **Color Palette Integration:**
+
 - Use existing NOOR Canvas color variables if available
 - Ensure border color works with both light and dark content
 - Consider accessibility contrast ratios (WCAG 2.1 AA compliance)
 
 ### **Spacing and Layout:**
+
 - Maintain existing internal spacing and typography
 - Ensure border doesn't create visual crowding
 - Preserve clean, minimalist landing page aesthetic
 
 ## 📊 **Future Enhancements**
+
 1. **Interactive States:** Consider adding focus and active states
 2. **Animation:** Subtle border transition effects on user interaction
 3. **Theme Support:** Ensure border adapts if dark mode is implemented

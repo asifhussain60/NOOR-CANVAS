@@ -15,31 +15,40 @@ NOOR CANVAS is a real-time Islamic content sharing platform built with ASP.NET C
 ## Documentation Sections
 
 ### [API Reference](api/)
+
 Complete API documentation for all controllers, services, models, and hubs.
 
 ### [Technical Architecture](articles/technical/architecture.md)
+
 Detailed technical architecture including:
+
 - ASP.NET Core 8.0 structure
 - SignalR real-time communication
 - Entity Framework Core data layer
 - Database schema (canvas + dbo integration)
 
 ### [Development Guide](articles/development/getting-started.md)
+
 Development environment setup and workflow:
+
 - Project setup and configuration
 - Development server (IIS Express x64)
 - Database configuration
 - Testing framework
 
 ### [Deployment Guide](articles/deployment/production-setup.md)
+
 Production deployment instructions:
+
 - IIS production configuration
 - Database migration
 - Security considerations
 - Performance optimization
 
 ### [User Guides](articles/user-guides/)
+
 End-user documentation:
+
 - Host session management
 - Participant interaction
 - Annotation tools
@@ -63,4 +72,4 @@ End-user documentation:
 
 ---
 
-*Last Updated: September 13, 2025*
+_Last Updated: September 13, 2025_

@@ -4,7 +4,7 @@
 **Type**: UX Enhancement  
 **Phase**: Phase 4 - NOOR Canvas Branding & UX  
 **Created**: September 14, 2025  
-**Status**: Not Started  
+**Status**: Not Started
 
 ## 📋 **Issue Summary**
 
@@ -13,14 +13,16 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ## 🎯 **Requirements**
 
 ### **Step 1: Initial Choice View**
+
 - **Restore Original Feature Lists**: Bring back the original feature list cards that were previously designed
-- **Two Cards Display**: 
+- **Two Cards Display**:
   - **Host Authentication Card** - with feature list showing host capabilities
   - **Join Session Card** - with feature list showing participant features
 - **Header Persistence**: NC-Logo + "A Space for Guided Learning" message always remains visible
 - **Purple Borders**: Maintain consistent NOOR Canvas branding (`border-4 border-purple-500`)
 
 ### **Step 2: Input Form View (After Button Click)**
+
 - **Header Static**: Header section never changes during transition
 - **Selected Card Transformation**:
   - Replace feature list content with appropriate input form (Host GUID or Session Link)
@@ -33,12 +35,14 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ### **🎬 Animation Specifications**
 
 #### **Modern Card Transition System**
+
 - **Expansion Animation**: 20% scale increase with smooth easing
 - **Fade Transition**: CSS opacity transitions for card hiding/showing
 - **Timing**: 0.4s duration with cubic-bezier easing for professional feel
 - **Modern Enhancement**: Implement contemporary animation patterns (scale, transform, opacity)
 
 #### **Technical Implementation**
+
 ```css
 /* CSS Animation Classes */
 .noor-card-expanded {
@@ -49,7 +53,9 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 .noor-card-hidden {
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
 }
 
 .noor-card-interactive {
@@ -58,6 +64,7 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ```
 
 #### **JavaScript Integration**
+
 - **State Management**: Track which step user is on (choice vs input)
 - **Animation Orchestration**: Coordinate card expansion and hiding animations
 - **Focus Management**: Ensure proper focus handling during transitions
@@ -65,6 +72,7 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ## 🔧 **Technical Details**
 
 ### **Component Structure**
+
 ```
 ┌─────────────────────────────────────┐
 │      HEADER (Static)               │ ← Always visible
@@ -77,13 +85,15 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ```
 
 ### **State Management**
+
 - **Initial State**: `showFeatureLists = true`
 - **Host Selected**: `selectedCard = "host"`, `showFeatureLists = false`
 - **Session Selected**: `selectedCard = "session"`, `showFeatureLists = false`
 - **Reset Capability**: Allow return to Step 1 from Step 2
 
 ### **Content Restoration**
-- **Host Feature List**: 
+
+- **Host Feature List**:
   - Session creation and management
   - Real-time participant monitoring
   - Q&A moderation capabilities
@@ -97,12 +107,14 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ## 🎨 **Design Integration**
 
 ### **Visual Consistency**
+
 - **NOOR Canvas Branding**: Purple borders, Inter font, consistent spacing
 - **Font Awesome Icons**: Large, visually appealing icons for each card
 - **Responsive Design**: Ensure animations work on all device sizes
 - **Accessibility**: Maintain focus management and screen reader compatibility
 
 ### **Animation Polish**
+
 - **Smooth Transitions**: Professional cubic-bezier easing curves
 - **Performance**: CSS transforms for optimal rendering performance
 - **Fallback**: Graceful degradation for reduced-motion preferences
@@ -110,6 +122,7 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 ## ✅ **Acceptance Criteria**
 
 ### **Functional Requirements**
+
 - [ ] Landing page shows two feature list cards initially
 - [ ] Header remains static throughout all transitions
 - [ ] Clicking card button transitions to Step 2 input form
@@ -119,6 +132,7 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 - [ ] Animation timing feels natural and professional
 
 ### **Technical Requirements**
+
 - [ ] CSS animations use transform and opacity for performance
 - [ ] JavaScript manages state transitions cleanly
 - [ ] Component works on desktop and mobile devices
@@ -126,22 +140,26 @@ Implement a modern 2-step user experience for the Landing page that provides cle
 - [ ] Focus management maintains accessibility standards
 
 ### **Quality Assurance**
+
 - [ ] No layout shifting during animations
 - [ ] Consistent purple border styling throughout
 - [ ] Proper error handling for failed animations
 - [ ] Cross-browser compatibility (Chrome, Firefox, Safari, Edge)
 
 ## 🔗 **Related Issues**
+
 - **Issue-65**: Header Redesign Logo Only Implementation (Completed)
 - **Issue-64**: Visual Design Mismatch Resolution (Completed)
 - **Issue-66**: Landing Page Interactive Card UX Enhancement (Previous iteration)
 
 ## 📅 **Implementation Timeline**
+
 - **Week 13 (Sep 14-20)**: Core 2-step UX implementation with feature list restoration
 - **Week 14 (Sep 21-27)**: Animation system polish and cross-device testing
 - **Integration**: Part of Phase 4 NOOR Canvas Branding & UX Enhancement
 
 ## 🏷️ **Labels**
+
 `UX Enhancement` `Animation` `Landing Page` `Phase 4` `High Priority`
 
 ---

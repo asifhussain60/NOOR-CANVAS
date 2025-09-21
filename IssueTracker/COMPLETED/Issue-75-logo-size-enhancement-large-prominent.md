@@ -1,6 +1,7 @@
 # Issue-75: Logo Size Enhancement - Make Logo LARGE and Prominent
 
 ## 📋 **Issue Details**
+
 - **Issue ID:** Issue-75
 - **Title:** Logo Size Enhancement - Make Logo LARGE and Prominent
 - **Type:** UX Enhancement 🔧
@@ -24,6 +25,7 @@ The current NOOR Canvas logo needs to be significantly larger and more prominent
 ## 📚 **Previous Work Reference**
 
 From Issue-65 (COMPLETED):
+
 - Logo was previously increased from 80px to 160px height
 - Current CSS class: `.noor-main-logo` with `height: 160px`
 - Logo source: `images/NoorCanvas.png` (recently updated)

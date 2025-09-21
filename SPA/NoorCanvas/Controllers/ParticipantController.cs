@@ -19,9 +19,9 @@ namespace NoorCanvas.Controllers
         private readonly IHubContext<SessionHub> _sessionHub;
 
         public ParticipantController(
-            SimplifiedCanvasDbContext context, 
+            SimplifiedCanvasDbContext context,
             KSessionsDbContext kSessionsContext,
-            ILogger<ParticipantController> logger, 
+            ILogger<ParticipantController> logger,
             SimplifiedTokenService tokenService,
             IHubContext<SessionHub> sessionHub)
         {
@@ -38,9 +38,9 @@ namespace NoorCanvas.Controllers
             var requestId = Guid.NewGuid().ToString("N")[..8];
             var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var userAgent = Request.Headers["User-Agent"].FirstOrDefault() ?? "unknown";
-            
+
             _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Session validation request started", requestId);
-            _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Token: {Token}, ClientIP: {ClientIp}, UserAgent: {UserAgent}", 
+            _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Token: {Token}, ClientIP: {ClientIp}, UserAgent: {UserAgent}",
                 requestId, token, clientIp, userAgent);
             _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Request URL: {Scheme}://{Host}{Path}{Query}",
                 requestId, Request.Scheme, Request.Host, Request.Path, Request.QueryString);
@@ -55,24 +55,24 @@ namespace NoorCanvas.Controllers
 
                 if (token.Length != 8)
                 {
-                    _logger.LogWarning("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Invalid token length: {Length}, expected 8 characters", 
+                    _logger.LogWarning("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Invalid token length: {Length}, expected 8 characters",
                         requestId, token.Length);
                     return BadRequest(new { Error = "Invalid token format - must be 8 characters", ActualLength = token.Length, RequestId = requestId });
                 }
 
                 _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Calling SimplifiedTokenService.ValidateTokenAsync for USER token", requestId);
                 var session = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
-                _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] SimplifiedTokenService returned: {Result}", 
+                _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] SimplifiedTokenService returned: {Result}",
                     requestId, session != null ? $"Session {session.SessionId}" : "null");
 
                 if (session == null)
                 {
-                    _logger.LogWarning("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Session not found for token: {Token}", 
+                    _logger.LogWarning("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Session not found for token: {Token}",
                         requestId, token);
                     return NotFound(new { Error = "Invalid or expired session token", Valid = false, RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Session found: SessionId={SessionId} (KSESSIONS_ID), Title={Title}, Status={Status}", 
+                _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Session found: SessionId={SessionId} (KSESSIONS_ID), Title={Title}, Status={Status}",
                     requestId, session.SessionId, session.Title, session.Status);
 
                 // Get participant count from simplified schema
@@ -83,16 +83,16 @@ namespace NoorCanvas.Controllers
                 // Get speaker information and session timing from KSESSIONS database
                 string? speakerName = null;
                 DateTime? realSessionDate = null;
-                try 
+                try
                 {
                     var sessionWithSpeaker = await _kSessionsContext.Sessions
                         .Include(s => s.Speaker)
                         .FirstOrDefaultAsync(s => s.SessionId == (int)session.SessionId);
-                    
+
                     speakerName = sessionWithSpeaker?.Speaker?.SpeakerName;
                     realSessionDate = sessionWithSpeaker?.SessionDate;
-                    
-                    _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Retrieved from KSESSIONS - Speaker: {SpeakerName}, SessionDate: {SessionDate}", 
+
+                    _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Retrieved from KSESSIONS - Speaker: {SpeakerName}, SessionDate: {SessionDate}",
                         requestId, speakerName ?? "null", realSessionDate?.ToString() ?? "null");
                 }
                 catch (Exception ex)
@@ -131,18 +131,18 @@ namespace NoorCanvas.Controllers
                 };
 
                 _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Validation successful! Returning response", requestId);
-                _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Response: Valid=true, SessionId={SessionId}, Title={Title}, Status={Status}, ExpiresAt={ExpiresAt}", 
+                _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Response: Valid=true, SessionId={SessionId}, Title={Title}, Status={Status}, ExpiresAt={ExpiresAt}",
                     requestId, session.SessionId, session.Title, session.Status, session.ExpiresAt);
 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-PARTICIPANT-VALIDATE: [{RequestId}] EXCEPTION during token validation for token: {Token}", 
+                _logger.LogError(ex, "NOOR-PARTICIPANT-VALIDATE: [{RequestId}] EXCEPTION during token validation for token: {Token}",
                     requestId, token);
-                _logger.LogError("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Exception Type: {ExceptionType}, Message: {Message}", 
+                _logger.LogError("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Exception Type: {ExceptionType}, Message: {Message}",
                     requestId, ex.GetType().Name, ex.Message);
-                _logger.LogError("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Stack Trace: {StackTrace}", 
+                _logger.LogError("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Stack Trace: {StackTrace}",
                     requestId, ex.StackTrace);
                 return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
             }
@@ -153,8 +153,8 @@ namespace NoorCanvas.Controllers
         public async Task<IActionResult> RegisterWithToken([FromBody] ParticipantRegistrationRequest request)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            
-            _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration request for token: {Token}, Name: {Name}", 
+
+            _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration request for token: {Token}, Name: {Name}",
                 requestId, request?.Token, request?.Name);
 
             try
@@ -164,9 +164,9 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { Error = "Invalid request body", RequestId = requestId });
                 }
 
-                if (string.IsNullOrWhiteSpace(request.Token) || 
-                    string.IsNullOrWhiteSpace(request.Name) || 
-                    string.IsNullOrWhiteSpace(request.Email) || 
+                if (string.IsNullOrWhiteSpace(request.Token) ||
+                    string.IsNullOrWhiteSpace(request.Name) ||
+                    string.IsNullOrWhiteSpace(request.Email) ||
                     string.IsNullOrWhiteSpace(request.Country))
                 {
                     _logger.LogWarning("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Missing required fields", requestId);
@@ -182,20 +182,20 @@ namespace NoorCanvas.Controllers
                 var session = await _tokenService.ValidateTokenAsync(request.Token, isHostToken: false);
                 if (session == null)
                 {
-                    _logger.LogWarning("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Invalid session token: {Token}", 
+                    _logger.LogWarning("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Invalid session token: {Token}",
                         requestId, request.Token);
                     return BadRequest(new { Error = "Invalid or expired session token", RequestId = requestId });
                 }
 
                 // Check if participant already exists
                 var existingParticipant = await _context.Participants
-                    .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && 
+                    .FirstOrDefaultAsync(p => p.SessionId == session.SessionId &&
                                             (p.Email == request.Email || p.Name == request.Name));
 
                 if (existingParticipant != null)
                 {
                     _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Participant already exists, updating info", requestId);
-                    
+
                     // Update existing participant
                     existingParticipant.Name = request.Name;
                     existingParticipant.Email = request.Email;
@@ -205,7 +205,7 @@ namespace NoorCanvas.Controllers
                 else
                 {
                     _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Creating new participant", requestId);
-                    
+
                     // Create new participant
                     var participant = new Participant
                     {
@@ -222,7 +222,7 @@ namespace NoorCanvas.Controllers
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration successful for {Name}", 
+                _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration successful for {Name}",
                     requestId, request.Name);
 
                 // Broadcast SignalR event to notify all users in the waiting room about the new participant
@@ -239,27 +239,27 @@ namespace NoorCanvas.Controllers
                             timestamp = DateTime.UtcNow
                         });
 
-                    _logger.LogInformation("NOOR-SIGNALR: [{RequestId}] ParticipantJoined broadcast sent for session {SessionId}, participant {Name}", 
+                    _logger.LogInformation("NOOR-SIGNALR: [{RequestId}] ParticipantJoined broadcast sent for session {SessionId}, participant {Name}",
                         requestId, session.SessionId, request.Name);
                 }
                 catch (Exception signalREx)
                 {
-                    _logger.LogWarning(signalREx, "NOOR-SIGNALR: [{RequestId}] Failed to broadcast ParticipantJoined event for session {SessionId}", 
+                    _logger.LogWarning(signalREx, "NOOR-SIGNALR: [{RequestId}] Failed to broadcast ParticipantJoined event for session {SessionId}",
                         requestId, session.SessionId);
                     // Don't fail the registration if SignalR fails
                 }
 
-                return Ok(new 
-                { 
+                return Ok(new
+                {
                     success = true,
                     sessionId = session.SessionId,
                     waitingRoomUrl = $"/session/waiting/{request.Token}",
-                    requestId 
+                    requestId
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration error for token {Token}", 
+                _logger.LogError(ex, "NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration error for token {Token}",
                     requestId, request?.Token);
                 return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
             }
@@ -269,8 +269,8 @@ namespace NoorCanvas.Controllers
         public async Task<IActionResult> GetSessionParticipants(string token)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            
-            _logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Participants request for token: {Token}", 
+
+            _logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Participants request for token: {Token}",
                 requestId, token);
 
             try
@@ -309,7 +309,7 @@ namespace NoorCanvas.Controllers
                     CountryFlag = countryFlags.GetValueOrDefault(p.Country ?? "", "un") // Database-driven flag code
                 }).ToList();
 
-                _logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Found {Count} participants for session {SessionId}", 
+                _logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Found {Count} participants for session {SessionId}",
                     requestId, participants.Count, session.SessionId);
 
                 var response = new
@@ -325,7 +325,7 @@ namespace NoorCanvas.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-DEBUG-UI: [{RequestId}] Error loading participants for token {Token}", 
+                _logger.LogError(ex, "NOOR-DEBUG-UI: [{RequestId}] Error loading participants for token {Token}",
                     requestId, token);
                 return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
             }

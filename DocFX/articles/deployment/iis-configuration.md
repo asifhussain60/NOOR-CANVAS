@@ -7,13 +7,16 @@ NOOR Canvas is designed for deployment on Internet Information Services (IIS) wi
 ## Prerequisites
 
 ### Required Components
+
 - **IIS 10.0** or later (Windows Server 2016/Windows 10 or newer)
 - **ASP.NET Core Runtime** 8.0 or later
 - **ASP.NET Core Hosting Bundle** for IIS integration
 - **SQL Server** (or SQL Server Express) for database connectivity
 
 ### IIS Features Required
+
 Enable these Windows Features:
+
 - Internet Information Services
 - World Wide Web Services
 - Application Development Features
@@ -36,6 +39,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole, IIS-WebSer
 ## Application Pool Configuration
 
 ### Create Dedicated Application Pool
+
 ```powershell
 # Create new application pool for NOOR Canvas
 New-WebAppPool -Name "NoorCanvasPool"
@@ -49,6 +53,7 @@ Set-ItemProperty -Path "IIS:\AppPools\NoorCanvasPool" -Name recycling.periodicRe
 ```
 
 ### Application Pool Identity Configuration
+
 ```powershell
 # Grant file system permissions to application pool identity
 $appPoolIdentity = "IIS AppPool\NoorCanvasPool"
@@ -61,6 +66,7 @@ icacls $sitePath /grant "${appPoolIdentity}:(OI)(CI)F" /T
 ## Web Site Configuration
 
 ### Create IIS Website
+
 ```powershell
 # Remove default website if exists
 Remove-Website -Name "Default Web Site" -ErrorAction SilentlyContinue
@@ -73,6 +79,7 @@ New-WebBinding -Name "NoorCanvas" -Protocol https -Port 443 -SslFlags 1
 ```
 
 ### Directory Structure Setup
+
 ```powershell
 # Create application directory structure
 $appRoot = "C:\inetpub\wwwroot\NoorCanvas"
@@ -88,6 +95,7 @@ icacls "$appRoot\temp" /grant "${appPoolIdentity}:(OI)(CI)F" /T
 ## SSL Certificate Configuration
 
 ### Development Environment (Self-Signed)
+
 ```powershell
 # Create self-signed certificate for development
 $cert = New-SelfSignedCertificate -DnsName "localhost", "noorcanvas.local" -CertStoreLocation "cert:\LocalMachine\My"
@@ -99,6 +107,7 @@ $binding.AddSslCertificate($cert.GetCertHashString(), "my")
 ```
 
 ### Production Environment (CA Certificate)
+
 ```powershell
 # Import purchased SSL certificate
 $certPath = "C:\certificates\noorcanvas.pfx"
@@ -114,6 +123,7 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ## URL Rewrite Configuration
 
 ### HTTP to HTTPS Redirection
+
 ```xml
 <!-- Add to web.config -->
 <configuration>
@@ -135,6 +145,7 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ```
 
 ### SignalR WebSocket Configuration
+
 ```xml
 <!-- Enable WebSocket support in web.config -->
 <configuration>
@@ -155,6 +166,7 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ## Performance Configuration
 
 ### Compression Settings
+
 ```xml
 <!-- Enable response compression -->
 <configuration>
@@ -176,6 +188,7 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ```
 
 ### Caching Configuration
+
 ```xml
 <!-- Static content caching -->
 <configuration>
@@ -190,6 +203,7 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ## Security Configuration
 
 ### Request Filtering
+
 ```xml
 <!-- Security settings in web.config -->
 <configuration>
@@ -208,6 +222,7 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ```
 
 ### Custom Headers
+
 ```xml
 <!-- Security headers -->
 <configuration>
@@ -228,21 +243,23 @@ netsh http add sslcert ipport=0.0.0.0:443 certhash=$certThumbprint appid="{YOUR-
 ## Database Connection Configuration
 
 ### Connection String Security
+
 ```xml
 <!-- Secure connection strings in web.config -->
 <configuration>
   <connectionStrings>
-    <add name="DefaultConnection" 
-         connectionString="Data Source=YOUR-SQL-SERVER;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;" 
+    <add name="DefaultConnection"
+         connectionString="Data Source=YOUR-SQL-SERVER;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;"
          providerName="System.Data.SqlClient" />
-    <add name="KSessionsDb" 
-         connectionString="Data Source=YOUR-SQL-SERVER;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;" 
+    <add name="KSessionsDb"
+         connectionString="Data Source=YOUR-SQL-SERVER;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;Encrypt=False;"
          providerName="System.Data.SqlClient" />
   </connectionStrings>
 </configuration>
 ```
 
 ### SQL Server Permissions
+
 ```sql
 -- Create dedicated IIS application pool login
 USE [master]
@@ -264,6 +281,7 @@ GO
 ## Monitoring and Logging
 
 ### IIS Logging Configuration
+
 ```powershell
 # Enable detailed IIS logging
 Set-WebConfigurationProperty -Filter "system.webServer/httpLogging" -Name enabled -Value $true
@@ -271,6 +289,7 @@ Set-WebConfigurationProperty -Filter "system.webServer/httpLogging" -Name logExt
 ```
 
 ### Application Logging
+
 ```json
 // Configure structured logging in appsettings.Production.json
 {
@@ -301,6 +320,7 @@ Set-WebConfigurationProperty -Filter "system.webServer/httpLogging" -Name logExt
 ## Health Monitoring
 
 ### Application Health Checks
+
 ```csharp
 // Configure health checks in Program.cs
 builder.Services.AddHealthChecks()
@@ -316,6 +336,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 ```
 
 ### IIS Application Initialization
+
 ```xml
 <!-- Warm up application on startup -->
 <configuration>
@@ -330,6 +351,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 ## Troubleshooting Common Issues
 
 ### Application Pool Crashes
+
 ```powershell
 # Check Windows Event Log
 Get-WinEvent -LogName System | Where-Object {$_.LevelDisplayName -eq "Error" -and $_.TimeCreated -gt (Get-Date).AddHours(-1)}
@@ -339,6 +361,7 @@ Get-Content "C:\inetpub\logs\LogFiles\W3SVC1\*.log" | Select-String "500"
 ```
 
 ### Performance Issues
+
 ```powershell
 # Monitor application pool performance
 Get-Counter "\Process(w3wp*)\% Processor Time"
@@ -347,10 +370,11 @@ Get-Counter "\Process(w3wp*)\Handle Count"
 ```
 
 ### Database Connection Issues
+
 ```csharp
 // Test database connectivity
 using var connection = new SqlConnection(connectionString);
-try 
+try
 {
     await connection.OpenAsync();
     Console.WriteLine("Database connection successful");
@@ -364,12 +388,14 @@ catch (Exception ex)
 ## Maintenance Procedures
 
 ### Regular Maintenance Tasks
+
 1. **Log Rotation**: Archive and clean old log files
 2. **Certificate Renewal**: Update SSL certificates before expiration
 3. **Security Updates**: Apply Windows and IIS updates
 4. **Performance Monitoring**: Review performance metrics regularly
 
 ### Backup and Recovery
+
 ```powershell
 # Backup IIS configuration
 Backup-WebConfiguration -Name "NoorCanvas-$(Get-Date -Format 'yyyyMMdd')"

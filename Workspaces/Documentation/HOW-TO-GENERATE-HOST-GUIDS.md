@@ -3,35 +3,38 @@
 ## **Method 1: API Endpoint (Recommended for Testing)**
 
 ### **Prerequisites**
+
 - NOOR Canvas application running on `https://localhost:9091`
 - Start with: `nc -NoBrowser -Https`
 
 ### **PowerShell Command**
+
 ```powershell
 # Trust self-signed certificates
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 
 # Generate Host GUID
-$request = @{ 
+$request = @{
     SessionId = 100
-    CreatedBy = "Your Name Here" 
+    CreatedBy = "Your Name Here"
 } | ConvertTo-Json
 
 $response = Invoke-RestMethod -Uri "https://localhost:9091/api/hostprovisioner/generate" -Method Post -Body $request -ContentType "application/json"
 
 # Display results
 Write-Host "✅ Host GUID Generated: $($response.hostGuid)" -ForegroundColor Green
-Write-Host "📊 Session ID: $($response.sessionId)" -ForegroundColor Yellow  
+Write-Host "📊 Session ID: $($response.sessionId)" -ForegroundColor Yellow
 Write-Host "👤 Created By: $($response.createdBy)" -ForegroundColor Yellow
 Write-Host "⏰ Created At: $($response.createdAt)" -ForegroundColor Yellow
 ```
 
 ### **Example Response**
+
 ```json
 {
   "hostGuid": "3cbd173a-a146-4049-9f50-e33eb9ee2f2c",
   "sessionId": 100,
-  "createdBy": "Your Name Here", 
+  "createdBy": "Your Name Here",
   "createdAt": "2025-09-12T19:09:00Z",
   "hash": "A1B2C3D4E5F6G7H8..."
 }
@@ -42,9 +45,11 @@ Write-Host "⏰ Created At: $($response.createdAt)" -ForegroundColor Yellow
 ## **Method 2: HostProvisioner Console Tool (Production Ready)**
 
 ### **Location**
+
 `D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\`
 
 ### **Streamlined Interactive Mode**
+
 ```bash
 # Run Host Provisioner
 dotnet run
@@ -56,23 +61,27 @@ dotnet run
 ### **Commands**
 
 #### **Dry Run (Preview Only)**
+
 ```bash
 cd "D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner"
 dotnet run -- create --session-id 200 --created-by "Admin User" --dry-run
 ```
 
 #### **Generate Host GUID (Real)**
+
 ```bash
 cd "D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner"
 dotnet run -- create --session-id 200 --created-by "Admin User"
 ```
 
 #### **With Expiration Date**
+
 ```bash
 dotnet run -- create --session-id 200 --created-by "Admin User" --expires "2025-12-31"
 ```
 
 ### **Example Output**
+
 ```
 [15:09:39 INF] PROVISIONER: Creating Host GUID for Session 200
 [15:09:39 INF] DRY-RUN: Would create Host Session:
@@ -88,12 +97,14 @@ dotnet run -- create --session-id 200 --created-by "Admin User" --expires "2025-
 ## **Method 3: Manual Generation (Development Only)**
 
 ### **Simple PowerShell**
+
 ```powershell
 $hostGuid = [System.Guid]::NewGuid()
 Write-Host "Generated Host GUID: $hostGuid"
 ```
 
 ### **With HMAC-SHA256 Hash (Matching System)**
+
 ```powershell
 $hostGuid = [System.Guid]::NewGuid()
 $secret = "NOOR-CANVAS-HOST-SECRET-2025"
@@ -109,12 +120,14 @@ Write-Host "Hash: $($hash.Substring(0, 16))..."
 ## **Recently Generated Host GUIDs (Ready to Use)**
 
 ### **From API Generation**
+
 - **GUID**: `3cbd173a-a146-4049-9f50-e33eb9ee2f2c`
 - **Session**: 100
 - **Created**: September 12, 2025
 - **Created By**: User Request
 
-### **From Console Tool**  
+### **From Console Tool**
+
 - **GUID**: `fa4a5e78-6ebd-4fad-bd9f-95e214e0c3cf`
 - **Session**: 200
 - **Created**: September 12, 2025
@@ -125,6 +138,7 @@ Write-Host "Hash: $($hash.Substring(0, 16))..."
 ## **How to Use Generated Host GUIDs**
 
 ### **1. Authentication Test**
+
 ```powershell
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 
@@ -135,10 +149,12 @@ Write-Host "Authentication Success: $($authResponse.success)"
 Write-Host "Session Token: $($authResponse.sessionToken)"
 ```
 
-### **2. Access Host Session Flow** 
+### **2. Access Host Session Flow**
+
 Navigate to: `https://localhost:9091/host/session-opener` (Dashboard removed - Phase 4 update)
 
 ### **3. Use in Application Testing**
+
 Enter the Host GUID in any host authentication form in the NOOR Canvas application.
 
 ---
@@ -156,16 +172,19 @@ Enter the Host GUID in any host authentication form in the NOOR Canvas applicati
 ## **Troubleshooting**
 
 ### **API Method Not Working**
+
 - Ensure NOOR Canvas is running: `nc -NoBrowser -Https`
 - Check port 9091 is accessible: `netstat -ano | findstr ":9091"`
 - Verify HTTPS certificate trust is disabled in PowerShell
 
 ### **Console Tool Issues**
+
 - Build the project first: `dotnet build`
 - Use correct parameter format: `--session-id 200` (not just `200`)
 - Check .NET 8 SDK is installed
 
 ### **Authentication Failures**
+
 - Verify GUID format is correct (36 characters with hyphens)
 - Ensure application is in Phase 2+ (accepts any valid GUID format)
 - Check browser developer tools for detailed error messages

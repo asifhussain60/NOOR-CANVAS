@@ -28,7 +28,7 @@ public class AssetDetectorService
             _logger.LogInformation("NOOR-ASSET-DETECTOR: Getting asset patterns for session {SessionId}", sessionId);
 
             var response = await _httpClient.GetAsync($"/api/host/asset-patterns/{sessionId}?guid={hostToken}");
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -37,7 +37,7 @@ public class AssetDetectorService
                     PropertyNameCaseInsensitive = true
                 });
 
-                _logger.LogInformation("NOOR-ASSET-DETECTOR: Retrieved {PatternCount} patterns for session {SessionId}", 
+                _logger.LogInformation("NOOR-ASSET-DETECTOR: Retrieved {PatternCount} patterns for session {SessionId}",
                     patterns?.Patterns?.Length ?? 0, sessionId);
 
                 return patterns;
@@ -63,7 +63,7 @@ public class AssetDetectorService
 
         try
         {
-            _logger.LogInformation("NOOR-ASSET-DETECTOR: Scanning content of {ContentLength} characters with {PatternCount} patterns", 
+            _logger.LogInformation("NOOR-ASSET-DETECTOR: Scanning content of {ContentLength} characters with {PatternCount} patterns",
                 transcriptContent?.Length ?? 0, patterns?.Length ?? 0);
 
             if (string.IsNullOrEmpty(transcriptContent) || patterns == null || patterns.Length == 0)
@@ -98,27 +98,27 @@ public class AssetDetectorService
         {
             // For this implementation, we'll use simple string detection
             // In a more sophisticated version, this could use HTML parsing
-            
+
             switch (pattern.Type)
             {
                 case "ayah-card":
                     assets.AddRange(DetectAyahCards(content));
                     break;
-                
+
                 case "inline-arabic":
                     assets.AddRange(DetectInlineArabic(content));
                     break;
-                
+
                 case "ahadees-content":
                     assets.AddRange(DetectAhadeesContent(content));
                     break;
-                
+
                 case "ayah-header":
                     assets.AddRange(DetectAyahHeaders(content));
                     break;
             }
 
-            _logger.LogDebug("NOOR-ASSET-DETECTOR: Pattern '{PatternType}' detected {AssetCount} assets", 
+            _logger.LogDebug("NOOR-ASSET-DETECTOR: Pattern '{PatternType}' detected {AssetCount} assets",
                 pattern.Type, assets.Count);
         }
         catch (Exception ex)
@@ -132,10 +132,10 @@ public class AssetDetectorService
     private List<AssetPayload> DetectAyahCards(string content)
     {
         var assets = new List<AssetPayload>();
-        
+
         // Look for ayah-card divs in the content
         var cardPattern = @"<div class=""ayah-card""[^>]*id=""([^""]*)"">.*?</div>";
-        var matches = System.Text.RegularExpressions.Regex.Matches(content, cardPattern, 
+        var matches = System.Text.RegularExpressions.Regex.Matches(content, cardPattern,
             System.Text.RegularExpressions.RegexOptions.Singleline);
 
         foreach (System.Text.RegularExpressions.Match match in matches)
@@ -160,7 +160,7 @@ public class AssetDetectorService
     private List<AssetPayload> DetectInlineArabic(string content)
     {
         var assets = new List<AssetPayload>();
-        
+
         // Look for inline Arabic spans
         var arabicPattern = @"<span class=""inlineArabic"">([^<]*)</span>";
         var matches = System.Text.RegularExpressions.Regex.Matches(content, arabicPattern);
@@ -187,7 +187,7 @@ public class AssetDetectorService
     private List<AssetPayload> DetectAhadeesContent(string content)
     {
         var assets = new List<AssetPayload>();
-        
+
         // Look for ahadees elements with ids
         var ahadeesPattern = @"id=""(ahadees-[^""]*)""|data-ahadees-id=""([^""]*)""";
         var matches = System.Text.RegularExpressions.Regex.Matches(content, ahadeesPattern);
@@ -216,10 +216,10 @@ public class AssetDetectorService
     private List<AssetPayload> DetectAyahHeaders(string content)
     {
         var assets = new List<AssetPayload>();
-        
+
         // Look for clickable ayah headers
         var headerPattern = @"<div class=""[^""]*clickable-ayah-header[^""]*""[^>]*id=""([^""]*)"">.*?</div>";
-        var matches = System.Text.RegularExpressions.Regex.Matches(content, headerPattern, 
+        var matches = System.Text.RegularExpressions.Regex.Matches(content, headerPattern,
             System.Text.RegularExpressions.RegexOptions.Singleline);
 
         foreach (System.Text.RegularExpressions.Match match in matches)

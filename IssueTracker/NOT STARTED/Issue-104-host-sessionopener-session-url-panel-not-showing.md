@@ -10,13 +10,14 @@
 When a host clicks the "Open Session" button in Host-SessionOpener.razor, the session URL panel should become visible and display a complete user authentication URL. Currently:
 
 1. **Panel Visibility**: The SessionURL panel remains hidden after clicking "Open Session"
-2. **URL Generation**: SessionUrl property not generating complete HTTPS URL for user authentication  
+2. **URL Generation**: SessionUrl property not generating complete HTTPS URL for user authentication
 3. **State Management**: ShowSessionUrlPanel is not being set to true after successful session opening
 4. **Debug Logging**: Missing diagnostic logging to troubleshoot session opening workflow
 
 ## Technical Analysis
 
 ### Root Cause Analysis
+
 - **Primary Issue**: OpenSession() method lacks logic to set `ShowSessionUrlPanel = true`
 - **URL Construction**: SessionUrl not being updated with proper user authentication URL format
 - **Missing Integration**: No logic to generate user token and construct proper session URL
@@ -25,13 +26,15 @@ When a host clicks the "Open Session" button in Host-SessionOpener.razor, the se
 ### Expected vs Actual Behavior
 
 **Expected Flow**:
+
 1. User clicks "Open Session" button
-2. OpenSession() method executes successfully  
+2. OpenSession() method executes successfully
 3. ShowSessionUrlPanel = true (makes panel visible)
 4. SessionUrl = "https://localhost:9091/user/landing/{userToken}"
 5. Panel displays with copy-to-clipboard functionality
 
 **Actual Behavior**:
+
 1. User clicks "Open Session" button
 2. OpenSession() method executes (unclear if successful)
 3. ShowSessionUrlPanel remains false (panel stays hidden)
@@ -41,33 +44,34 @@ When a host clicks the "Open Session" button in Host-SessionOpener.razor, the se
 ## Implementation Requirements
 
 ### 1. Fix ShowSessionUrlPanel Visibility
+
 ```csharp
 private async Task OpenSession()
 {
-    try 
+    try
     {
         Logger.LogInformation("NOOR-HOST-OPENER: [OpenSession] Starting session opening process");
-        
+
         // Validate form data
         if (!ValidateSessionForm())
         {
             Logger.LogWarning("NOOR-HOST-OPENER: [OpenSession] Form validation failed");
             return;
         }
-        
+
         // Call session creation API
         var result = await CreateSessionAsync();
-        
+
         if (result.Success)
         {
             // CRITICAL FIX: Show the session URL panel
             ShowSessionUrlPanel = true;
             Logger.LogInformation("NOOR-HOST-OPENER: [OpenSession] Session URL panel made visible");
-            
+
             // Update session URL with proper user authentication URL
             SessionUrl = result.UserAuthenticationUrl; // e.g., https://localhost:9091/user/landing/R8I6QA2D
             Logger.LogInformation("NOOR-HOST-OPENER: [OpenSession] Session URL updated: {SessionUrl}", SessionUrl);
-            
+
             StateHasChanged();
         }
         else
@@ -85,11 +89,13 @@ private async Task OpenSession()
 ```
 
 ### 2. Generate Complete Session URLs
+
 - Format: `https://localhost:9091/user/landing/{userToken}`
 - Use existing SecureTokenService to generate user tokens
 - Ensure HTTPS protocol and correct domain
 
 ### 3. Add Comprehensive Debug Logging
+
 - Log session opening start/completion
 - Log API calls and responses
 - Log UI state changes (ShowSessionUrlPanel, SessionUrl updates)
@@ -107,7 +113,7 @@ private async Task OpenSession()
 
 1. **Valid Session Creation**:
    - Fill all form fields correctly
-   - Click "Open Session" 
+   - Click "Open Session"
    - Verify panel becomes visible
    - Verify SessionUrl contains proper user authentication URL
 
@@ -125,7 +131,7 @@ private async Task OpenSession()
 
 - [ ] ShowSessionUrlPanel = true after successful session opening
 - [ ] SessionUrl contains complete HTTPS user authentication URL
-- [ ] Session URL panel displays with proper styling and functionality  
+- [ ] Session URL panel displays with proper styling and functionality
 - [ ] Copy-to-clipboard functionality works correctly
 - [ ] Comprehensive debug logging for troubleshooting
 - [ ] Error handling for all failure scenarios

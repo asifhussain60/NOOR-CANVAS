@@ -7,6 +7,7 @@ NOOR Canvas implements a comprehensive testing strategy that includes unit tests
 ## Test Categories
 
 ### Unit Tests
+
 **Location**: `Tests/NoorCanvas.Core.Tests/`
 **Purpose**: Test individual components in isolation
 **Framework**: xUnit.NET with Moq for mocking
@@ -17,6 +18,7 @@ dotnet test Tests/NoorCanvas.Core.Tests/ --filter Category=Unit
 ```
 
 ### Integration Tests
+
 **Location**: `Tests/NC-ImplementationTests/`
 **Purpose**: Test component interactions and system integration
 **Framework**: xUnit.NET with ASP.NET Core Test Host
@@ -27,6 +29,7 @@ dotnet test Tests/NC-ImplementationTests/ --filter Category=Integration
 ```
 
 ### End-to-End Tests
+
 **Location**: `Tests/NC-E2ETests/` (when implemented)
 **Purpose**: Test complete user workflows
 **Framework**: Playwright or Selenium
@@ -34,15 +37,18 @@ dotnet test Tests/NC-ImplementationTests/ --filter Category=Integration
 ## Automated Testing Workflow
 
 ### Automatic Test Execution
+
 Tests run automatically in two scenarios:
 
 #### 1. Post-Build Testing
+
 ```powershell
 # Tests run automatically after successful build
 dotnet build  # Triggers automatic test execution
 ```
 
 #### 2. Pre-Commit Testing
+
 ```bash
 # Tests run automatically before commit
 git add .
@@ -51,6 +57,7 @@ git commit -m "feature: add new functionality"
 ```
 
 ### Manual Test Execution
+
 ```powershell
 # Run all tests manually
 dotnet test
@@ -68,6 +75,7 @@ dotnet test --filter "FullyQualifiedName~SessionController"
 ## Test Organization
 
 ### Test Project Structure
+
 ```
 Tests/
 ├── NoorCanvas.Core.Tests/           # Unit tests
@@ -87,13 +95,14 @@ Tests/
 ```
 
 ### Test Naming Conventions
+
 ```csharp
 // Unit test naming: MethodName_Scenario_ExpectedBehavior
 [Fact]
 public void CreateSession_ValidInput_ReturnsSessionId()
 
 // Integration test naming: Component_Scenario_ExpectedResult
-[Fact]  
+[Fact]
 public void HostController_AuthenticateToken_ReturnsSuccess()
 
 // End-to-end test naming: UserStory_Scenario_ExpectedOutcome
@@ -106,6 +115,7 @@ public void CreateSessionWorkflow_ValidHost_SessionCreatedSuccessfully()
 ### Unit Test Best Practices
 
 #### 1. Test Structure (Arrange-Act-Assert)
+
 ```csharp
 [Fact]
 public void GenerateHostToken_ValidRequest_ReturnsGuid()
@@ -113,10 +123,10 @@ public void GenerateHostToken_ValidRequest_ReturnsGuid()
     // Arrange
     var service = new HostTokenService();
     var request = new GenerateTokenRequest { CreatedBy = "Test User" };
-    
+
     // Act
     var result = service.GenerateToken(request);
-    
+
     // Assert
     Assert.NotNull(result);
     Assert.True(Guid.TryParse(result.Token, out _));
@@ -124,6 +134,7 @@ public void GenerateHostToken_ValidRequest_ReturnsGuid()
 ```
 
 #### 2. Mocking Dependencies
+
 ```csharp
 [Fact]
 public void GetSessions_DatabaseUnavailable_ThrowsException()
@@ -132,13 +143,14 @@ public void GetSessions_DatabaseUnavailable_ThrowsException()
     var mockContext = new Mock<CanvasDbContext>();
     mockContext.Setup(x => x.Sessions).Throws(new InvalidOperationException());
     var controller = new SessionController(mockContext.Object);
-    
+
     // Act & Assert
     Assert.Throws<InvalidOperationException>(() => controller.GetSessions());
 }
 ```
 
 #### 3. Test Data Management
+
 ```csharp
 public class TestDataBuilder
 {
@@ -158,6 +170,7 @@ public class TestDataBuilder
 ### Integration Test Best Practices
 
 #### 1. Database Testing
+
 ```csharp
 [Fact]
 public async Task CreateSession_DatabaseIntegration_PersistsCorrectly()
@@ -166,10 +179,10 @@ public async Task CreateSession_DatabaseIntegration_PersistsCorrectly()
     using var context = CreateTestDbContext();
     var service = new SessionService(context);
     var request = new CreateSessionRequest { /* properties */ };
-    
+
     // Act
     var sessionId = await service.CreateSessionAsync(request);
-    
+
     // Assert
     var savedSession = await context.Sessions.FindAsync(sessionId);
     Assert.NotNull(savedSession);
@@ -178,6 +191,7 @@ public async Task CreateSession_DatabaseIntegration_PersistsCorrectly()
 ```
 
 #### 2. API Testing
+
 ```csharp
 [Fact]
 public async Task CreateSession_ApiEndpoint_ReturnsCreatedStatus()
@@ -185,10 +199,10 @@ public async Task CreateSession_ApiEndpoint_ReturnsCreatedStatus()
     // Arrange
     using var client = _factory.CreateClient();
     var request = new CreateSessionRequest { /* properties */ };
-    
+
     // Act
     var response = await client.PostAsJsonAsync("/api/sessions", request);
-    
+
     // Assert
     Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     var session = await response.Content.ReadFromJsonAsync<Session>();
@@ -197,6 +211,7 @@ public async Task CreateSession_ApiEndpoint_ReturnsCreatedStatus()
 ```
 
 #### 3. SignalR Testing
+
 ```csharp
 [Fact]
 public async Task SessionHub_SendMessage_BroadcastsToClients()
@@ -205,10 +220,10 @@ public async Task SessionHub_SendMessage_BroadcastsToClients()
     using var connection = await StartConnectionAsync();
     var receivedMessages = new List<string>();
     connection.On<string>("MessageReceived", message => receivedMessages.Add(message));
-    
+
     // Act
     await connection.InvokeAsync("SendMessage", "Test message");
-    
+
     // Assert
     await Task.Delay(100); // Allow message processing
     Assert.Contains("Test message", receivedMessages);
@@ -218,6 +233,7 @@ public async Task SessionHub_SendMessage_BroadcastsToClients()
 ## Test Data Management
 
 ### Test Database Setup
+
 ```csharp
 public class TestDbContextFactory
 {
@@ -226,10 +242,10 @@ public class TestDbContextFactory
         var options = new DbContextOptionsBuilder<CanvasDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-            
+
         return new CanvasDbContext(options);
     }
-    
+
     public static async Task SeedTestDataAsync(CanvasDbContext context)
     {
         // Add standard test data
@@ -241,6 +257,7 @@ public class TestDbContextFactory
 ```
 
 ### Test Configuration
+
 ```json
 // appsettings.Testing.json
 {
@@ -260,6 +277,7 @@ public class TestDbContextFactory
 ## Test Execution Strategies
 
 ### Parallel Test Execution
+
 ```xml
 <!-- In test project files -->
 <PropertyGroup>
@@ -269,6 +287,7 @@ public class TestDbContextFactory
 ```
 
 ### Test Categories and Filtering
+
 ```csharp
 [Fact]
 [Trait("Category", "Unit")]
@@ -283,7 +302,7 @@ public void CreateSession_ValidInput_ReturnsSuccess()
 # Run by category
 dotnet test --filter "Category=Unit"
 
-# Run by component  
+# Run by component
 dotnet test --filter "Component=SessionController"
 
 # Run by trait combination
@@ -291,16 +310,17 @@ dotnet test --filter "Category=Integration&Component=Database"
 ```
 
 ### Test Performance Monitoring
+
 ```csharp
 [Fact]
 public void DatabaseQuery_Performance_CompletesWithinTimeout()
 {
     // Arrange
     var stopwatch = Stopwatch.StartNew();
-    
+
     // Act
     var result = _service.GetSessions();
-    
+
     // Assert
     stopwatch.Stop();
     Assert.True(stopwatch.ElapsedMilliseconds < 1000, "Query took too long");
@@ -310,6 +330,7 @@ public void DatabaseQuery_Performance_CompletesWithinTimeout()
 ## Continuous Testing Integration
 
 ### Pre-Commit Hook Testing
+
 ```powershell
 # .hooks/pre-commit-test.ps1 (automatic execution)
 # Runs comprehensive test suite before allowing commits
@@ -318,6 +339,7 @@ public void DatabaseQuery_Performance_CompletesWithinTimeout()
 ```
 
 ### Build Pipeline Testing
+
 ```yaml
 # .github/workflows/build-and-test.yml
 - name: Run Tests
@@ -327,6 +349,7 @@ public void DatabaseQuery_Performance_CompletesWithinTimeout()
 ```
 
 ### Test Result Reporting
+
 ```powershell
 # Generate test coverage report
 dotnet test --collect:"XPlat Code Coverage"
@@ -338,23 +361,26 @@ reportgenerator -reports:**/coverage.cobertura.xml -targetdir:CoverageReport
 ## Test Maintenance
 
 ### Updating Tests for Code Changes
+
 1. **Refactoring**: Update tests when refactoring code
 2. **New Features**: Add tests for new functionality
 3. **Bug Fixes**: Add regression tests for fixed bugs
 4. **Deprecation**: Remove or update tests for deprecated features
 
 ### Test Code Quality
+
 ```csharp
 // Good: Clear, specific test
 [Fact]
 public void CalculateSessionDuration_OneHourSession_ReturnsCorrectDuration()
 
-// Bad: Vague, unclear test  
+// Bad: Vague, unclear test
 [Fact]
 public void TestSession()
 ```
 
 ### Test Performance Optimization
+
 1. **Fast Tests**: Keep unit tests under 100ms
 2. **Isolated Tests**: Avoid dependencies between tests
 3. **Cleanup**: Properly dispose resources in tests
@@ -365,6 +391,7 @@ public void TestSession()
 ### Common Test Failures
 
 #### Database Connection Issues
+
 ```csharp
 // Solution: Use in-memory database for unit tests
 services.AddDbContext<CanvasDbContext>(options =>
@@ -372,12 +399,14 @@ services.AddDbContext<CanvasDbContext>(options =>
 ```
 
 #### Timing Issues
+
 ```csharp
 // Solution: Use proper async/await patterns
 await Task.Delay(100); // Allow async operations to complete
 ```
 
 #### Resource Cleanup
+
 ```csharp
 // Solution: Implement proper disposal
 public void Dispose()
@@ -390,12 +419,14 @@ public void Dispose()
 ### Test Debugging
 
 #### Debug Individual Tests
+
 ```powershell
 # Run specific test in debug mode
 dotnet test --filter "FullyQualifiedName=NamespaceName.ClassName.TestMethodName" --logger console
 ```
 
 #### Test Output Debugging
+
 ```csharp
 [Fact]
 public void TestWithOutput(ITestOutputHelper output)
@@ -408,17 +439,21 @@ public void TestWithOutput(ITestOutputHelper output)
 ## Quality Metrics and Reporting
 
 ### Code Coverage
+
 - **Target**: Maintain >80% code coverage
 - **Measurement**: Use dotnet test with code coverage collection
 - **Reporting**: Generate HTML reports for detailed analysis
 
 ### Test Success Metrics
+
 - **Build Success Rate**: >95% of builds should pass tests
 - **Test Execution Time**: Keep total test time under 5 minutes
 - **Flaky Test Rate**: <2% of tests should be flaky
 
 ### Quality Gates
+
 Before merging code:
+
 - [ ] All tests must pass
 - [ ] Code coverage must not decrease
 - [ ] No new test warnings

@@ -95,16 +95,16 @@ public class AssetDetectionService
         {
             var primaryClass = classGroup.Key;
             var searchClasses = classGroup.Value;
-            
+
             // Find elements with any combination of these classes
             var elements = FindElementsWithClassIntersection(transcriptHtml, searchClasses);
-            
+
             if (elements.Count > 0)
             {
                 // Calculate class intersection score
                 var classScore = CalculateClassScore(elements[0].Classes, searchClasses);
                 var alternateClasses = string.Join(",", elements[0].Classes.Where(c => c != primaryClass).OrderBy(c => c));
-                
+
                 var asset = new SessionAsset
                 {
                     SessionId = sessionId,
@@ -120,7 +120,7 @@ public class AssetDetectionService
                 };
 
                 consolidatedAssets.Add(asset);
-                
+
                 _logger.LogDebug("ASSET-DETECTION: Found {Count} instances of {PrimaryClass} (score: {Score}, alternates: {Alternates})",
                     elements.Count, primaryClass, classScore, alternateClasses ?? "none");
             }
@@ -135,7 +135,7 @@ public class AssetDetectionService
     private List<(List<string> Classes, string Html)> FindElementsWithClassIntersection(string html, string[] targetClasses)
     {
         var elements = new List<(List<string> Classes, string Html)>();
-        
+
         // Look for any element with class attribute containing target classes
         var classPattern = @"<(\w+)[^>]*\s+class=[""']([^""']*)[""'][^>]*>";
         var regex = new Regex(classPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
@@ -145,12 +145,12 @@ public class AssetDetectionService
         {
             var classAttribute = match.Groups[2].Value;
             var elementClasses = classAttribute.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            
+
             // Check if any target class exists in this element
-            var hasIntersection = targetClasses.Any(targetClass => 
-                elementClasses.Any(elementClass => 
+            var hasIntersection = targetClasses.Any(targetClass =>
+                elementClasses.Any(elementClass =>
                     string.Equals(elementClass, targetClass, StringComparison.OrdinalIgnoreCase)));
-                    
+
             if (hasIntersection)
             {
                 elements.Add((elementClasses, match.Value));
@@ -166,10 +166,10 @@ public class AssetDetectionService
     /// </summary>
     private int CalculateClassScore(List<string> elementClasses, string[] targetClasses)
     {
-        var intersectionCount = targetClasses.Count(targetClass => 
-            elementClasses.Any(elementClass => 
+        var intersectionCount = targetClasses.Count(targetClass =>
+            elementClasses.Any(elementClass =>
                 string.Equals(elementClass, targetClass, StringComparison.OrdinalIgnoreCase)));
-                
+
         // Score: 1-5 based on class match percentage
         var matchPercentage = (double)intersectionCount / targetClasses.Length;
         return Math.Max(1, (int)Math.Ceiling(matchPercentage * 5));
@@ -389,7 +389,7 @@ public class AssetDetectionService
                         foreach (Match outerMatch in outerMatches)
                         {
                             // If current match is inside an outer match, it's nested
-                            if (match.Index > outerMatch.Index && 
+                            if (match.Index > outerMatch.Index &&
                                 match.Index < (outerMatch.Index + outerMatch.Length))
                             {
                                 isNested = true;

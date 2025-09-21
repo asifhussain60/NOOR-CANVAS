@@ -7,6 +7,7 @@ This guide covers the complete production deployment process for NOOR Canvas, in
 ## Deployment Architecture
 
 ### Production Environment Requirements
+
 - **Web Server**: Windows Server 2019/2022 with IIS 10.0+
 - **Application Framework**: ASP.NET Core 8.0 Runtime + Hosting Bundle
 - **Database Server**: SQL Server 2019+ (Standard or Enterprise Edition)
@@ -14,6 +15,7 @@ This guide covers the complete production deployment process for NOOR Canvas, in
 - **SSL Certificate**: Valid CA-issued certificate for HTTPS
 
 ### Network Architecture
+
 ```
 Internet → Load Balancer (Optional) → IIS Web Server → SQL Server Database
                                    ↓
@@ -23,18 +25,21 @@ Internet → Load Balancer (Optional) → IIS Web Server → SQL Server Database
 ### Server Specifications
 
 #### Minimum Requirements (Small Scale: <100 concurrent users)
+
 - **CPU**: 4 cores @ 2.4 GHz
 - **RAM**: 8 GB
 - **Storage**: 100 GB SSD (OS + Application + Logs)
 - **Network**: 100 Mbps
 
 #### Recommended Requirements (Medium Scale: 100-500 concurrent users)
+
 - **CPU**: 8 cores @ 3.0 GHz
 - **RAM**: 16 GB
 - **Storage**: 500 GB SSD (OS + Application + Logs)
 - **Network**: 1 Gbps
 
 #### High Availability Requirements (Large Scale: 500+ concurrent users)
+
 - **CPU**: 16+ cores @ 3.2 GHz
 - **RAM**: 32+ GB
 - **Storage**: 1 TB SSD (OS), 500 GB SSD (Application), 1 TB SSD (Logs)
@@ -44,6 +49,7 @@ Internet → Load Balancer (Optional) → IIS Web Server → SQL Server Database
 ## Pre-Deployment Checklist
 
 ### Infrastructure Preparation
+
 - [ ] Windows Server 2019/2022 installed and updated
 - [ ] IIS role installed with required features
 - [ ] .NET 8.0 Runtime and ASP.NET Core Hosting Bundle installed
@@ -54,6 +60,7 @@ Internet → Load Balancer (Optional) → IIS Web Server → SQL Server Database
 - [ ] Backup strategy implemented
 
 ### Application Preparation
+
 - [ ] Code repository tagged with release version
 - [ ] Build artifacts generated and tested
 - [ ] Database scripts validated
@@ -68,41 +75,43 @@ Internet → Load Balancer (Optional) → IIS Web Server → SQL Server Database
 ### Phase 1: Database Deployment
 
 #### 1. Create Production Databases
+
 ```powershell
 # Connect to production SQL Server as sysadmin
 # Execute database creation scripts
 Invoke-Sqlcmd -ServerInstance "PROD-SQL-01" -Query @"
 CREATE DATABASE [KSESSIONS]
-ON 
-( NAME = N'KSESSIONS', 
+ON
+( NAME = N'KSESSIONS',
   FILENAME = N'E:\Data\KSESSIONS.mdf',
-  SIZE = 500MB, 
-  MAXSIZE = 10GB, 
+  SIZE = 500MB,
+  MAXSIZE = 10GB,
   FILEGROWTH = 50MB )
-LOG ON 
-( NAME = N'KSESSIONS_Log', 
+LOG ON
+( NAME = N'KSESSIONS_Log',
   FILENAME = N'F:\Logs\KSESSIONS_Log.ldf',
-  SIZE = 50MB, 
-  MAXSIZE = 1GB, 
+  SIZE = 50MB,
+  MAXSIZE = 1GB,
   FILEGROWTH = 10MB );
 
 CREATE DATABASE [KQUR]
-ON 
-( NAME = N'KQUR', 
+ON
+( NAME = N'KQUR',
   FILENAME = N'E:\Data\KQUR.mdf',
-  SIZE = 1GB, 
-  MAXSIZE = 20GB, 
+  SIZE = 1GB,
+  MAXSIZE = 20GB,
   FILEGROWTH = 100MB )
-LOG ON 
-( NAME = N'KQUR_Log', 
+LOG ON
+( NAME = N'KQUR_Log',
   FILENAME = N'F:\Logs\KQUR_Log.ldf',
-  SIZE = 100MB, 
-  MAXSIZE = 2GB, 
+  SIZE = 100MB,
+  MAXSIZE = 2GB,
   FILEGROWTH = 20MB );
 "@
 ```
 
 #### 2. Create Service Accounts
+
 ```powershell
 # Create dedicated Windows service account
 New-LocalUser -Name "noor-canvas-svc" -Description "NOOR Canvas Application Service Account" -NoPassword
@@ -123,6 +132,7 @@ ALTER ROLE [db_datareader] ADD MEMBER [SERVER\noor-canvas-svc];
 ```
 
 #### 3. Deploy Database Schema
+
 ```powershell
 # Deploy Entity Framework migrations to production
 cd "C:\Deployment\NoorCanvas"
@@ -132,6 +142,7 @@ dotnet ef database update --context CanvasDbContext --connection "Data Source=PR
 ### Phase 2: Application Server Preparation
 
 #### 1. Configure IIS Application Pool
+
 ```powershell
 # Import IIS module
 Import-Module WebAdministration
@@ -148,6 +159,7 @@ Set-ItemProperty -Path "IIS:\AppPools\NoorCanvasPool" -Name recycling.periodicRe
 ```
 
 #### 2. Create IIS Website
+
 ```powershell
 # Remove default website if exists
 Remove-Website -Name "Default Web Site" -ErrorAction SilentlyContinue
@@ -168,6 +180,7 @@ New-Website -Name "NoorCanvas" -Port 80 -PhysicalPath $appPath -ApplicationPool 
 ```
 
 #### 3. Configure SSL Certificate
+
 ```powershell
 # Import production SSL certificate
 $certPath = "C:\Certificates\noorcanvas-prod.pfx"
@@ -186,6 +199,7 @@ $binding.AddSslCertificate($cert.Thumbprint, "my")
 ### Phase 3: Application Deployment
 
 #### 1. Stop Application Pool
+
 ```powershell
 # Gracefully stop application pool
 Stop-WebAppPool -Name "NoorCanvasPool"
@@ -193,6 +207,7 @@ Start-Sleep -Seconds 30  # Allow existing connections to complete
 ```
 
 #### 2. Deploy Application Files
+
 ```powershell
 # Backup existing application (if updating)
 $backupPath = "C:\Backups\NoorCanvas-$(Get-Date -Format 'yyyyMMdd-HHmm')"
@@ -212,6 +227,7 @@ Copy-Item "$sourcePath\*" $targetPath -Recurse -Force
 ```
 
 #### 3. Configure Production Settings
+
 ```powershell
 # Create production configuration
 $prodConfig = @{
@@ -247,6 +263,7 @@ Set-Content -Path "C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json" -V
 ```
 
 #### 4. Configure Web.config
+
 ```xml
 <!-- Create optimized web.config for production -->
 <?xml version="1.0" encoding="utf-8"?>
@@ -256,16 +273,16 @@ Set-Content -Path "C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json" -V
       <handlers>
         <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
       </handlers>
-      <aspNetCore processPath="dotnet" 
-                  arguments=".\NoorCanvas.dll" 
-                  stdoutLogEnabled="false" 
-                  stdoutLogFile=".\logs\stdout" 
+      <aspNetCore processPath="dotnet"
+                  arguments=".\NoorCanvas.dll"
+                  stdoutLogEnabled="false"
+                  stdoutLogFile=".\logs\stdout"
                   hostingModel="inprocess">
         <environmentVariables>
           <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
         </environmentVariables>
       </aspNetCore>
-      
+
       <!-- Security Headers -->
       <httpProtocol>
         <customHeaders>
@@ -276,7 +293,7 @@ Set-Content -Path "C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json" -V
           <remove name="Server" />
         </customHeaders>
       </httpProtocol>
-      
+
       <!-- HTTP to HTTPS Redirection -->
       <rewrite>
         <rules>
@@ -289,7 +306,7 @@ Set-Content -Path "C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json" -V
           </rule>
         </rules>
       </rewrite>
-      
+
       <!-- Response Compression -->
       <urlCompression doStaticCompression="true" doDynamicCompression="true" />
       <httpCompression>
@@ -299,15 +316,15 @@ Set-Content -Path "C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json" -V
           <add mimeType="application/javascript" enabled="true" />
         </dynamicTypes>
       </httpCompression>
-      
+
       <!-- Static Content Caching -->
       <staticContent>
         <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="30.00:00:00" />
       </staticContent>
-      
+
       <!-- WebSocket Support for SignalR -->
       <webSocket enabled="true" />
-      
+
       <!-- Application Initialization -->
       <applicationInitialization doAppInitAfterRestart="true">
         <add initializationPage="/health" />
@@ -320,6 +337,7 @@ Set-Content -Path "C:\inetpub\wwwroot\NoorCanvas\appsettings.Production.json" -V
 ### Phase 4: Service Startup and Validation
 
 #### 1. Start Application Pool
+
 ```powershell
 # Start application pool
 Start-WebAppPool -Name "NoorCanvasPool"
@@ -333,6 +351,7 @@ Write-Host "Application Pool Status: $($poolStatus.Value)"
 ```
 
 #### 2. Health Check Validation
+
 ```powershell
 # Test HTTP health endpoint (should redirect to HTTPS)
 try {
@@ -349,6 +368,7 @@ Write-Host "Health Check Response: $($httpsResponse.Content)"
 ```
 
 #### 3. Database Connectivity Test
+
 ```powershell
 # Test database connections using application context
 $testScript = @"
@@ -357,7 +377,7 @@ using System.Data.SqlClient;
 
 string connectionString = "Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=3600;TrustServerCertificate=True;";
 
-try 
+try
 {
     using (var connection = new SqlConnection(connectionString))
     {
@@ -383,6 +403,7 @@ dotnet-script eval "$testScript"
 ### Phase 5: Performance and Load Testing
 
 #### 1. Performance Baseline
+
 ```powershell
 # Use Apache Bench for initial load testing
 # Install: choco install apache-httpd (if not available, use alternatives)
@@ -397,6 +418,7 @@ ab -n 1000 -c 10 https://noorcanvas.yourdomain.com/health
 ```
 
 #### 2. SignalR Load Testing
+
 ```csharp
 // Create SignalR load test script (simplified example)
 using Microsoft.AspNetCore.SignalR.Client;
@@ -420,12 +442,14 @@ await connection.DisposeAsync();
 ### Monitoring Setup
 
 #### 1. Windows Event Log Configuration
+
 ```powershell
 # Create custom event log source for NOOR Canvas
 New-EventLog -LogName Application -Source "NOOR Canvas"
 ```
 
 #### 2. Performance Counter Monitoring
+
 ```powershell
 # Monitor key performance counters
 $counters = @(
@@ -440,6 +464,7 @@ Get-Counter -Counter $counters -SampleInterval 5 -MaxSamples 12 | Export-Counter
 ```
 
 #### 3. Log Rotation Configuration
+
 ```powershell
 # Schedule log cleanup task
 $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Command ""Get-ChildItem 'C:\inetpub\wwwroot\NoorCanvas\logs\*.txt' | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-30)} | Remove-Item -Force"""
@@ -451,6 +476,7 @@ Register-ScheduledTask -TaskName "NoorCanvas-LogCleanup" -Action $action -Trigge
 ### Security Hardening
 
 #### 1. Firewall Configuration
+
 ```powershell
 # Configure Windows Firewall rules
 New-NetFirewallRule -DisplayName "NoorCanvas HTTP" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow
@@ -461,6 +487,7 @@ New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -
 ```
 
 #### 2. SQL Server Security
+
 ```sql
 -- Disable unnecessary SQL Server features
 EXEC sp_configure 'show advanced options', 1;
@@ -478,15 +505,16 @@ ALTER SERVER AUDIT NoorCanvas_Audit WITH (STATE = ON);
 ## Backup and Disaster Recovery
 
 ### Automated Backup Strategy
+
 ```powershell
 # Database backup script
 $backupScript = @"
-BACKUP DATABASE [KSESSIONS] 
+BACKUP DATABASE [KSESSIONS]
 TO DISK = 'F:\Backups\KSESSIONS_Full.bak'
-WITH FORMAT, INIT, COMPRESSION, 
+WITH FORMAT, INIT, COMPRESSION,
 NAME = 'KSESSIONS Production Full Backup - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')';
 
-BACKUP LOG [KSESSIONS] 
+BACKUP LOG [KSESSIONS]
 TO DISK = 'F:\Backups\KSESSIONS_Log.trn'
 WITH FORMAT, INIT,
 NAME = 'KSESSIONS Transaction Log Backup - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')';
@@ -499,16 +527,17 @@ Register-ScheduledTask -TaskName "NoorCanvas-DatabaseBackup" -Action $action -Tr
 ```
 
 ### Application File Backup
+
 ```powershell
 # Application files backup script
 $appBackupScript = {
     $backupPath = "D:\Backups\NoorCanvas-$(Get-Date -Format 'yyyyMMdd')"
     Copy-Item "C:\inetpub\wwwroot\NoorCanvas" $backupPath -Recurse -Exclude "logs"
-    
+
     # Compress backup
     Compress-Archive -Path $backupPath -DestinationPath "$backupPath.zip"
     Remove-Item $backupPath -Recurse -Force
-    
+
     # Clean old backups (keep 7 days)
     Get-ChildItem "D:\Backups\NoorCanvas-*.zip" | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item
 }
@@ -522,6 +551,7 @@ Register-ScheduledTask -TaskName "NoorCanvas-AppBackup" -Action $action -Trigger
 ## Rollback Procedures
 
 ### Emergency Rollback Plan
+
 ```powershell
 # Stop application
 Stop-WebAppPool -Name "NoorCanvasPool"
@@ -550,6 +580,7 @@ Invoke-WebRequest -Uri "https://noorcanvas.yourdomain.com/health"
 ## Production Maintenance
 
 ### Regular Maintenance Tasks
+
 1. **Daily**: Review application logs for errors
 2. **Weekly**: Check performance counters and resource utilization
 3. **Monthly**: Update SSL certificates if needed, review security logs
@@ -557,6 +588,7 @@ Invoke-WebRequest -Uri "https://noorcanvas.yourdomain.com/health"
 5. **Annually**: Review and update disaster recovery procedures
 
 ### Health Monitoring Dashboard
+
 ```powershell
 # Create monitoring script for operational dashboard
 $monitoringScript = {
@@ -567,7 +599,7 @@ $monitoringScript = {
         DatabaseConnectivity = "Unknown"
         CertificateExpiry = "Unknown"
     }
-    
+
     # Test database connectivity
     try {
         $connection = New-Object System.Data.SqlClient.SqlConnection("Data Source=PROD-SQL-01;Initial Catalog=KSESSIONS;Integrated Security=true;Connection Timeout=10;")
@@ -577,7 +609,7 @@ $monitoringScript = {
     } catch {
         $report.DatabaseConnectivity = "Failed: $($_.Exception.Message)"
     }
-    
+
     # Check SSL certificate expiry
     try {
         $cert = Get-ChildItem "cert:\LocalMachine\My" | Where-Object {$_.Subject -like "*noorcanvas*"}
@@ -586,7 +618,7 @@ $monitoringScript = {
     } catch {
         $report.CertificateExpiry = "Error checking certificate"
     }
-    
+
     $report | ConvertTo-Json | Out-File "C:\Monitoring\health-report-$(Get-Date -Format 'yyyyMMdd-HHmm').json"
 }
 
@@ -602,6 +634,7 @@ For database-specific deployment procedures, see the [Database Setup Guide](data
 ## Support and Troubleshooting
 
 Contact the development team for production support issues:
+
 - **Email**: support@noorcanvas.com
 - **Documentation**: See technical documentation in DocFX site
 - **Issue Tracking**: Use GitHub issues for non-critical problems

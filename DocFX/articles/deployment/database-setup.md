@@ -7,6 +7,7 @@ NOOR Canvas uses a dual-database architecture with dedicated development and pro
 ## Database Architecture
 
 ### Development Environment
+
 - **Primary Database**: `KSESSIONS_DEV` (NOOR Canvas data with canvas schema)
 - **Integration Database**: `KQUR_DEV` (Quranic content for cross-application features)
 - **Server Instance**: Local SQL Server or SQL Server Express
@@ -14,6 +15,7 @@ NOOR Canvas uses a dual-database architecture with dedicated development and pro
 - **Connection Timeout**: 3600 seconds (1 hour) for long operations
 
 ### Production Environment
+
 - **Primary Database**: `KSESSIONS` (production NOOR Canvas data)
 - **Integration Database**: `KQUR` (production Quranic content)
 - **Server Instance**: Production SQL Server cluster
@@ -23,6 +25,7 @@ NOOR Canvas uses a dual-database architecture with dedicated development and pro
 ## Prerequisites
 
 ### SQL Server Requirements
+
 - **SQL Server 2019** or later (Express Edition acceptable for development)
 - **Mixed Mode Authentication** enabled for development
 - **TCP/IP Protocol** enabled
@@ -30,6 +33,7 @@ NOOR Canvas uses a dual-database architecture with dedicated development and pro
 - **Collation**: SQL_Latin1_General_CP1_CI_AS (case-insensitive)
 
 ### Required Permissions
+
 - **Development**: `sa` account with sysadmin privileges
 - **Production**: Dedicated service account with db_owner on both databases
 
@@ -38,40 +42,42 @@ NOOR Canvas uses a dual-database architecture with dedicated development and pro
 ### Development Database Setup
 
 #### 1. Create Development Databases
+
 ```sql
 -- Connect as sa user to SQL Server instance
 -- Create primary development database
 CREATE DATABASE [KSESSIONS_DEV]
-ON 
-( NAME = N'KSESSIONS_DEV', 
+ON
+( NAME = N'KSESSIONS_DEV',
   FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\KSESSIONS_DEV.mdf',
-  SIZE = 100MB, 
-  MAXSIZE = 1GB, 
+  SIZE = 100MB,
+  MAXSIZE = 1GB,
   FILEGROWTH = 10MB )
-LOG ON 
-( NAME = N'KSESSIONS_DEV_Log', 
+LOG ON
+( NAME = N'KSESSIONS_DEV_Log',
   FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\KSESSIONS_DEV_Log.ldf',
-  SIZE = 10MB, 
-  MAXSIZE = 100MB, 
+  SIZE = 10MB,
+  MAXSIZE = 100MB,
   FILEGROWTH = 5MB );
 
--- Create integration development database  
+-- Create integration development database
 CREATE DATABASE [KQUR_DEV]
-ON 
-( NAME = N'KQUR_DEV', 
+ON
+( NAME = N'KQUR_DEV',
   FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\KQUR_DEV.mdf',
-  SIZE = 100MB, 
-  MAXSIZE = 1GB, 
+  SIZE = 100MB,
+  MAXSIZE = 1GB,
   FILEGROWTH = 10MB )
-LOG ON 
-( NAME = N'KQUR_DEV_Log', 
+LOG ON
+( NAME = N'KQUR_DEV_Log',
   FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\DATA\KQUR_DEV_Log.ldf',
-  SIZE = 10MB, 
-  MAXSIZE = 100MB, 
+  SIZE = 10MB,
+  MAXSIZE = 100MB,
   FILEGROWTH = 5MB );
 ```
 
 #### 2. Enable sa Account (Development Only)
+
 ```sql
 -- Enable sa account for development
 USE [master]
@@ -83,38 +89,40 @@ GO
 ### Production Database Setup
 
 #### 1. Create Production Databases
+
 ```sql
 -- Production database creation (execute on production server)
 CREATE DATABASE [KSESSIONS]
-ON 
-( NAME = N'KSESSIONS', 
+ON
+( NAME = N'KSESSIONS',
   FILENAME = N'E:\Data\KSESSIONS.mdf',
-  SIZE = 500MB, 
-  MAXSIZE = 10GB, 
+  SIZE = 500MB,
+  MAXSIZE = 10GB,
   FILEGROWTH = 50MB )
-LOG ON 
-( NAME = N'KSESSIONS_Log', 
+LOG ON
+( NAME = N'KSESSIONS_Log',
   FILENAME = N'F:\Logs\KSESSIONS_Log.ldf',
-  SIZE = 50MB, 
-  MAXSIZE = 1GB, 
+  SIZE = 50MB,
+  MAXSIZE = 1GB,
   FILEGROWTH = 10MB );
 
 CREATE DATABASE [KQUR]
-ON 
-( NAME = N'KQUR', 
+ON
+( NAME = N'KQUR',
   FILENAME = N'E:\Data\KQUR.mdf',
-  SIZE = 1GB, 
-  MAXSIZE = 20GB, 
+  SIZE = 1GB,
+  MAXSIZE = 20GB,
   FILEGROWTH = 100MB )
-LOG ON 
-( NAME = N'KQUR_Log', 
+LOG ON
+( NAME = N'KQUR_Log',
   FILENAME = N'F:\Logs\KQUR_Log.ldf',
-  SIZE = 100MB, 
-  MAXSIZE = 2GB, 
+  SIZE = 100MB,
+  MAXSIZE = 2GB,
   FILEGROWTH = 20MB );
 ```
 
 #### 2. Create Service Account (Production)
+
 ```sql
 -- Create dedicated service account for production
 USE [master]
@@ -135,6 +143,7 @@ ALTER ROLE [db_datareader] ADD MEMBER [DOMAIN\noor-canvas-svc];
 ### Canvas Schema (NOOR Canvas Application Data)
 
 #### 1. Create Canvas Schema
+
 ```sql
 -- Execute on KSESSIONS_DEV (development) or KSESSIONS (production)
 USE [KSESSIONS_DEV]; -- Use [KSESSIONS] for production
@@ -145,13 +154,14 @@ GO
 ```
 
 #### 2. Create Canvas Tables
+
 ```sql
 -- Sessions table - Core session management
 CREATE TABLE [canvas].[Sessions] (
     [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     [Guid] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() UNIQUE,
     [AlbumId] INT NULL, -- Foreign key to KSESSIONS.dbo.Groups
-    [CategoryId] INT NULL, -- Foreign key to KSESSIONS.dbo.Categories  
+    [CategoryId] INT NULL, -- Foreign key to KSESSIONS.dbo.Categories
     [SessionId] INT NULL, -- Foreign key to KSESSIONS.dbo.Sessions
     [HostToken] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() UNIQUE,
     [Status] NVARCHAR(50) NOT NULL DEFAULT 'Pending',
@@ -172,7 +182,7 @@ CREATE TABLE [canvas].[SessionTranscripts] (
     [CreatedAt] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     [UpdatedAt] DATETIME2 NULL,
     [Version] INT NOT NULL DEFAULT 1,
-    CONSTRAINT FK_SessionTranscripts_Sessions FOREIGN KEY ([SessionId]) 
+    CONSTRAINT FK_SessionTranscripts_Sessions FOREIGN KEY ([SessionId])
         REFERENCES [canvas].[Sessions]([Id]) ON DELETE CASCADE
 );
 
@@ -188,7 +198,7 @@ CREATE TABLE [canvas].[Registrations] (
     [JoinTime] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     [IsActive] BIT NOT NULL DEFAULT 1,
     [ConnectionId] NVARCHAR(200) NULL, -- SignalR connection tracking
-    CONSTRAINT FK_Registrations_Sessions FOREIGN KEY ([SessionId]) 
+    CONSTRAINT FK_Registrations_Sessions FOREIGN KEY ([SessionId])
         REFERENCES [canvas].[Sessions]([Id]) ON DELETE CASCADE
 );
 
@@ -204,9 +214,9 @@ CREATE TABLE [canvas].[Questions] (
     [CreatedAt] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     [AnsweredAt] DATETIME2 NULL,
     [AnsweredBy] NVARCHAR(200) NULL,
-    CONSTRAINT FK_Questions_Sessions FOREIGN KEY ([SessionId]) 
+    CONSTRAINT FK_Questions_Sessions FOREIGN KEY ([SessionId])
         REFERENCES [canvas].[Sessions]([Id]) ON DELETE CASCADE,
-    CONSTRAINT FK_Questions_Participants FOREIGN KEY ([ParticipantId]) 
+    CONSTRAINT FK_Questions_Participants FOREIGN KEY ([ParticipantId])
         REFERENCES [canvas].[Registrations]([Id]) ON DELETE CASCADE
 );
 
@@ -222,14 +232,15 @@ CREATE TABLE [canvas].[Annotations] (
     [CreatedAt] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     [ExpiresAt] DATETIME2 NULL, -- For temporary annotations
     [IsVisible] BIT NOT NULL DEFAULT 1,
-    CONSTRAINT FK_Annotations_Sessions FOREIGN KEY ([SessionId]) 
+    CONSTRAINT FK_Annotations_Sessions FOREIGN KEY ([SessionId])
         REFERENCES [canvas].[Sessions]([Id]) ON DELETE CASCADE,
-    CONSTRAINT FK_Annotations_Participants FOREIGN KEY ([ParticipantId]) 
+    CONSTRAINT FK_Annotations_Participants FOREIGN KEY ([ParticipantId])
         REFERENCES [canvas].[Registrations]([Id]) ON DELETE CASCADE
 );
 ```
 
 #### 3. Create Canvas Indexes
+
 ```sql
 -- Performance indexes for canvas schema
 CREATE INDEX IX_Sessions_Guid ON [canvas].[Sessions]([Guid]);
@@ -250,6 +261,7 @@ CREATE INDEX IX_Annotations_ParticipantId ON [canvas].[Annotations]([Participant
 ### Cross-Database Integration Schema
 
 #### 1. Beautiful Islam Integration (KSESSIONS Database)
+
 ```sql
 -- Verify existing Beautiful Islam tables (read-only access)
 USE [KSESSIONS_DEV]; -- Use [KSESSIONS] for production
@@ -259,7 +271,7 @@ USE [KSESSIONS_DEV]; -- Use [KSESSIONS] for production
 -- Key Columns: GroupID (int), GroupName (varchar), IsActive (bit)
 
 -- Categories table - Subdivisions within Groups
--- Table: dbo.Categories  
+-- Table: dbo.Categories
 -- Key Columns: CategoryID (int), CategoryName (varchar), GroupID (FK), IsActive (bit)
 
 -- Sessions table - Individual Islamic learning sessions
@@ -267,27 +279,29 @@ USE [KSESSIONS_DEV]; -- Use [KSESSIONS] for production
 -- Key Columns: SessionID (int), GroupID (FK), CategoryID (FK), SessionName (varchar)
 
 -- Verify tables exist
-SELECT TABLE_NAME, TABLE_SCHEMA 
-FROM INFORMATION_SCHEMA.TABLES 
-WHERE TABLE_SCHEMA = 'dbo' 
+SELECT TABLE_NAME, TABLE_SCHEMA
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'dbo'
 AND TABLE_NAME IN ('Groups', 'Categories', 'Sessions');
 ```
 
 #### 2. Quranic Content Integration (KQUR Database)
+
 ```sql
 -- Verify Quranic content structure
 USE [KQUR_DEV]; -- Use [KQUR] for production
 
 -- Verify Users table exists
-SELECT TABLE_NAME, TABLE_SCHEMA 
-FROM INFORMATION_SCHEMA.TABLES 
-WHERE TABLE_SCHEMA = 'dbo' 
+SELECT TABLE_NAME, TABLE_SCHEMA
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'dbo'
 AND TABLE_NAME = 'Users';
 ```
 
 ## Connection String Configuration
 
 ### Development Connection Strings
+
 ```json
 // appsettings.Development.json
 {
@@ -299,6 +313,7 @@ AND TABLE_NAME = 'Users';
 ```
 
 ### Production Connection Strings
+
 ```json
 // appsettings.Production.json
 {
@@ -312,6 +327,7 @@ AND TABLE_NAME = 'Users';
 ## Entity Framework Configuration
 
 ### DbContext Setup
+
 ```csharp
 // Configure Entity Framework contexts in Program.cs
 builder.Services.AddDbContext<CanvasDbContext>(options =>
@@ -319,11 +335,12 @@ builder.Services.AddDbContext<CanvasDbContext>(options =>
 
 builder.Services.AddDbContext<KSessionsDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("KSessionsDb") 
+        builder.Configuration.GetConnectionString("KSessionsDb")
         ?? builder.Configuration.GetConnectionString("DefaultConnection")));
 ```
 
 ### Database Migration Commands
+
 ```powershell
 # Development environment migrations
 cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
@@ -341,6 +358,7 @@ dotnet ef migrations list --context CanvasDbContext
 ## Data Validation and Testing
 
 ### Database Connectivity Test
+
 ```sql
 -- Test database connections and permissions
 USE [KSESSIONS_DEV];
@@ -361,6 +379,7 @@ SELECT COUNT(*) as CategoryCount FROM [dbo].[Categories] WHERE IsActive = 1;
 ```
 
 ### Application Health Check
+
 ```csharp
 // Health check configuration for database connectivity
 builder.Services.AddHealthChecks()
@@ -375,27 +394,29 @@ builder.Services.AddHealthChecks()
 ## Backup and Recovery
 
 ### Development Backup Strategy
+
 ```sql
 -- Create development database backup
-BACKUP DATABASE [KSESSIONS_DEV] 
+BACKUP DATABASE [KSESSIONS_DEV]
 TO DISK = 'C:\Backups\KSESSIONS_DEV_Full.bak'
 WITH FORMAT, INIT, NAME = 'KSESSIONS_DEV Full Backup';
 
-BACKUP DATABASE [KQUR_DEV] 
+BACKUP DATABASE [KQUR_DEV]
 TO DISK = 'C:\Backups\KQUR_DEV_Full.bak'
 WITH FORMAT, INIT, NAME = 'KQUR_DEV Full Backup';
 ```
 
 ### Production Backup Strategy
+
 ```sql
 -- Production backup with compression
-BACKUP DATABASE [KSESSIONS] 
+BACKUP DATABASE [KSESSIONS]
 TO DISK = 'E:\Backups\KSESSIONS_Full.bak'
-WITH FORMAT, INIT, COMPRESSION, 
+WITH FORMAT, INIT, COMPRESSION,
 NAME = 'KSESSIONS Production Full Backup';
 
 -- Transaction log backup for point-in-time recovery
-BACKUP LOG [KSESSIONS] 
+BACKUP LOG [KSESSIONS]
 TO DISK = 'E:\Backups\KSESSIONS_Log.trn'
 WITH FORMAT, INIT;
 ```
@@ -403,6 +424,7 @@ WITH FORMAT, INIT;
 ## Security Configuration
 
 ### Database Security Best Practices
+
 ```sql
 -- Revoke unnecessary permissions from public role
 USE [KSESSIONS_DEV];
@@ -412,7 +434,7 @@ REVOKE ALL ON SCHEMA::canvas FROM public;
 GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::canvas TO [DOMAIN\noor-canvas-svc];
 
 -- Audit login attempts
-SELECT 
+SELECT
     login_time,
     login_name,
     client_interface_name,
@@ -423,6 +445,7 @@ ORDER BY login_time DESC;
 ```
 
 ### Connection Security
+
 - **Development**: Use sa account only in development environment
 - **Production**: Use dedicated service account with minimal privileges
 - **Encryption**: Enable SSL/TLS for production connections
@@ -431,12 +454,13 @@ ORDER BY login_time DESC;
 ## Troubleshooting Common Issues
 
 ### Connection Issues
+
 ```sql
 -- Check SQL Server configuration
-SELECT 
+SELECT
     name,
     value_in_use
-FROM sys.configurations 
+FROM sys.configurations
 WHERE name IN ('remote access', 'show advanced options');
 
 -- Verify network protocols
@@ -444,9 +468,10 @@ EXEC xp_readerrorlog 0, 1, N'Server is listening on';
 ```
 
 ### Performance Issues
+
 ```sql
 -- Check database size and growth
-SELECT 
+SELECT
     DB_NAME(database_id) AS DatabaseName,
     name AS LogicalName,
     size * 8/1024 AS SizeMB,
@@ -455,7 +480,7 @@ FROM sys.master_files
 WHERE DB_NAME(database_id) IN ('KSESSIONS_DEV', 'KQUR_DEV');
 
 -- Monitor active connections
-SELECT 
+SELECT
     DB_NAME(dbid) AS DatabaseName,
     COUNT(*) AS ConnectionCount
 FROM sys.sysprocesses
@@ -464,9 +489,10 @@ GROUP BY dbid, DB_NAME(dbid);
 ```
 
 ### Schema Issues
+
 ```sql
 -- Verify canvas schema objects
-SELECT 
+SELECT
     TABLE_SCHEMA,
     TABLE_NAME,
     TABLE_TYPE
@@ -475,7 +501,7 @@ WHERE TABLE_SCHEMA = 'canvas'
 ORDER BY TABLE_NAME;
 
 -- Check foreign key constraints
-SELECT 
+SELECT
     fk.name AS ConstraintName,
     tp.name AS ParentTable,
     cp.name AS ParentColumn,

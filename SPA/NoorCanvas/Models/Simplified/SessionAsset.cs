@@ -15,108 +15,108 @@ public class SessionAsset
     /// </summary>
     [Key]
     public long AssetId { get; set; }
-    
+
     /// <summary>
     /// Foreign key to Sessions table
     /// </summary>
     [Required]
     public long SessionId { get; set; }
-    
+
     /// <summary>
     /// Primary CSS class for this asset type (e.g., 'imgResponsive', 'ayah-card', 'inserted-hadees')
     /// Used for flexible class-based detection and targeting
     /// </summary>
     [Required, MaxLength(100)]
     public string AssetClass { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Alternate CSS classes found with this asset (comma-separated)
     /// Supports flexible matching (e.g., 'fr-fic,fr-dib,fr-bordered')
     /// </summary>
     [MaxLength(500)]
     public string? AlternateClasses { get; set; }
-    
+
     /// <summary>
     /// Position/order within the transcript for reliable button injection
     /// Lower numbers = earlier in transcript
     /// </summary>
     public int? Position { get; set; }
-    
+
     /// <summary>
     /// CSS regex pattern used to detect this asset type (for re-targeting)
     /// Stored for reliability in case HTML structure changes
     /// </summary>
     [MaxLength(500)]
     public string? CssPattern { get; set; }
-    
+
     /// <summary>
     /// Number of instances of this asset class found in the transcript
     /// </summary>
     public int InstanceCount { get; set; } = 1;
-    
+
     /// <summary>
     /// Match confidence score for flexible class detection (1-5)
     /// Higher scores indicate better class matches
     /// </summary>
     public int ClassScore { get; set; } = 1;
-    
+
     /// <summary>
     /// How many times this asset class has been shared by host
     /// </summary>
     public int SharedCount { get; set; } = 0;
-    
+
     /// <summary>
     /// Unique identifier for sharing this asset via SignalR
     /// </summary>
     [MaxLength(100)]
     public string? ShareId { get; set; }
-    
+
     /// <summary>
     /// When this asset was shared by host (NULL = detected but not shared yet)
     /// </summary>
     public DateTime? SharedAt { get; set; }
-    
+
     /// <summary>
     /// Soft delete flag - false means asset should be ignored
     /// </summary>
     public bool IsActive { get; set; } = true;
-    
+
     /// <summary>
     /// When this asset was first detected in the transcript
     /// </summary>
     public DateTime DetectedAt { get; set; } = DateTime.UtcNow;
-    
+
     /// <summary>
     /// When this record was created
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
+
     /// <summary>
     /// Who created this asset record (optional)
     /// </summary>
     [MaxLength(100)]
     public string? CreatedBy { get; set; }
-    
+
     // Navigation properties
     /// <summary>
     /// Navigation property to parent Session
     /// </summary>
     [ForeignKey(nameof(SessionId))]
     public virtual Session Session { get; set; } = null!;
-    
+
     // Helper properties
     /// <summary>
     /// Computed property - true if asset has been shared by host
     /// </summary>
     [NotMapped]
     public bool IsShared => SharedAt.HasValue;
-    
+
     /// <summary>
     /// Computed property - generates data-asset-id value for HTML injection
     /// </summary>
     [NotMapped]
     public string DataAssetId => $"asset-{AssetId}";
-    
+
     /// <summary>
     /// Computed property - generates CSS selector for JavaScript targeting
     /// </summary>
@@ -134,17 +134,17 @@ public static class AssetTypes
     public const string InsertedHadees = "inserted-hadees";
     public const string EtymologyCard = "etymology-card";
     public const string EtymologyDerivativeCard = "etymology-derivative-card";
-    
+
     // Layout and styling assets
     public const string EsotericBlock = "esotericBlock";
     public const string VerseContainer = "verse-container";
     public const string TableAsset = "table";
     public const string ImageResponsive = "imgResponsive";
-    
+
     /// <summary>
     /// All supported asset types based on Session 212 analysis
     /// </summary>
-    public static readonly string[] All = 
+    public static readonly string[] All =
     {
         AyahCard,
         InsertedHadees,
@@ -155,7 +155,7 @@ public static class AssetTypes
         TableAsset,
         ImageResponsive
     };
-    
+
     /// <summary>
     /// CSS patterns for detecting each asset type (legacy - flexible detection now handles this)
     /// </summary>
@@ -186,7 +186,7 @@ public class SessionAssetDto
     public bool IsShared { get; set; }
     public DateTime? SharedAt { get; set; }
     public int SharedCount { get; set; }
-    
+
     /// <summary>
     /// Convert from entity to DTO
     /// </summary>

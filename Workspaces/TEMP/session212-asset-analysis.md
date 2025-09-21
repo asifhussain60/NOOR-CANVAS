@@ -1,13 +1,15 @@
 ## SessionAssets Analysis for Session 212
 
-### 6. **verse-container** - Standalone verse displays 
+### 6. **verse-container** - Standalone verse displays
+
 7. **table** - Data tables with styling (1 instance)
 8. **imgResponsive fr-fic fr-dib fr-bordered** - Images (3 instances)
 9. **translation-header** - Translation section headers
 10. **golden-surah-header clickable-ayah-header** - Surah headers within ayah cardsent Problem
-The SessionAssets table is storing multiple entries for the same asset type (e.g., "ayah-card" appears 3 times) instead of using classes to identify unique asset types. Each ayah-card should be treated as the same asset type, not separate assets.
+    The SessionAssets table is storing multiple entries for the same asset type (e.g., "ayah-card" appears 3 times) instead of using classes to identify unique asset types. Each ayah-card should be treated as the same asset type, not separate assets.
 
 ### Current Database State
+
 ```
 AssetId | SessionId | AssetType                | AssetSelector       | Position
 --------|-----------|--------------------------|--------------------|---------
@@ -27,7 +29,7 @@ AssetId | SessionId | AssetType                | AssetSelector       | Position
    - IDs: ayah-card-4-125, ayah-card-53-37, ayah-card-2-124, ayah-card-36-82
    - Current DB entries: 3 separate rows (DUPLICATE PROBLEM)
 
-2. **etymology-card** - Etymology explanation cards  
+2. **etymology-card** - Etymology explanation cards
    - Instances found: 1 card
    - Contains Arabic term definitions and linguistic analysis
    - Current DB: Not tracked (MISSING)
@@ -51,14 +53,15 @@ AssetId | SessionId | AssetType                | AssetSelector       | Position
 #### Supporting Components (Not Primary Assets):
 
 6. **inlineArabic** - Inline Arabic text spans (multiple instances)
-7. **verse-container** - Standalone verse displays 
+7. **verse-container** - Standalone verse displays
 8. **imgResponsive fr-fic fr-dib fr-bordered** - Images (3 instances)
 9. **translation-header** - Translation section headers
 10. **golden-surah-header clickable-ayah-header** - Surah headers within ayah cards
 
 #### Other Content Classes:
+
 - **anecdote** - Story/example paragraphs
-- **example** - Example text blocks  
+- **example** - Example text blocks
 - **quote** - Quote blocks
 - **container** - Layout containers
 - **content-padding** - Padded content sections
@@ -70,11 +73,13 @@ AssetId | SessionId | AssetType                | AssetSelector       | Position
 ### Current Issues with SessionAssets Table:
 
 1. **DUPLICATE ENTRIES**: The `ayah-card` asset type has 3 separate database rows:
+
    ```
    AssetId=3: ayah-card -> ayah-14-34
-   AssetId=4: ayah-card -> ayah-30-7  
+   AssetId=4: ayah-card -> ayah-30-7
    AssetId=5: ayah-card -> ayah-3-83
    ```
+
    **ISSUE**: These should be treated as a single asset type, not separate assets.
 
 2. **MISSING ASSETS**: Several asset types found in HTML are not tracked:
@@ -92,25 +97,26 @@ AssetId | SessionId | AssetType                | AssetSelector       | Position
 
 Instead of tracking individual instances by ID, track by **primary CSS class**:
 
-| **Asset Type (Primary Class)** | **Count in HTML** | **Description** | **Should Track?** |
-|--------------------------------|-------------------|------------------|-------------------|
-| `ayah-card` | 4 | Quranic verse cards | ✅ YES (1 entry) |
-| `etymology-card` | 1 | Etymology explanations | ✅ YES (1 entry) |  
-| `etymology-derivative-card` | 1 | Word derivatives | ✅ YES (1 entry) |
-| `inserted-hadees` | 1 | Hadith containers | ✅ YES (1 entry) |
-| `esotericBlock` | 1 | Spiritual knowledge blocks | ✅ YES (1 entry) |
-| `imgResponsive` | 3 | Images | ⚠️ MAYBE (1 entry for image type) |
-| `inlineArabic` | Many | Inline Arabic text | ❌ NO (too granular) |
-| `verse-container` | 1 | Standalone verses | ✅ YES (1 entry) |
-| `table` | 1 | Data tables with styling | ✅ YES (1 entry) |
+| **Asset Type (Primary Class)** | **Count in HTML** | **Description**            | **Should Track?**                 |
+| ------------------------------ | ----------------- | -------------------------- | --------------------------------- |
+| `ayah-card`                    | 4                 | Quranic verse cards        | ✅ YES (1 entry)                  |
+| `etymology-card`               | 1                 | Etymology explanations     | ✅ YES (1 entry)                  |
+| `etymology-derivative-card`    | 1                 | Word derivatives           | ✅ YES (1 entry)                  |
+| `inserted-hadees`              | 1                 | Hadith containers          | ✅ YES (1 entry)                  |
+| `esotericBlock`                | 1                 | Spiritual knowledge blocks | ✅ YES (1 entry)                  |
+| `imgResponsive`                | 3                 | Images                     | ⚠️ MAYBE (1 entry for image type) |
+| `inlineArabic`                 | Many              | Inline Arabic text         | ❌ NO (too granular)              |
+| `verse-container`              | 1                 | Standalone verses          | ✅ YES (1 entry)                  |
+| `table`                        | 1                 | Data tables with styling   | ✅ YES (1 entry)                  |
 
 ### Recommended Schema Changes:
 
 1. **Change AssetSelector to AssetClass**: Store the primary CSS class instead of individual IDs
-2. **Add InstanceCount**: Track how many instances of each asset type exist  
+2. **Add InstanceCount**: Track how many instances of each asset type exist
 3. **Add ClassPattern**: Store the full class pattern for CSS matching
 
 #### Proposed New Schema:
+
 ```sql
 CREATE TABLE canvas.SessionAssets (
     AssetId bigint IDENTITY(1,1) PRIMARY KEY,
@@ -124,15 +130,16 @@ CREATE TABLE canvas.SessionAssets (
     DetectedAt datetime2(7) NOT NULL,
     CreatedAt datetime2(7) NOT NULL,
     CreatedBy nvarchar(100) NULL,
-    
+
     UNIQUE (SessionId, AssetClass)            -- Prevent duplicates per session
 )
 ```
 
 #### Proposed Data for Session 212:
+
 ```sql
 INSERT INTO canvas.SessionAssets (SessionId, AssetClass, InstanceCount, ClassPattern, Position, IsActive, DetectedAt, CreatedAt)
-VALUES 
+VALUES
 (212, 'ayah-card', 4, 'ayah-card', 1, 1, GETDATE(), GETDATE()),
 (212, 'etymology-card', 1, 'etymology-card', 2, 1, GETDATE(), GETDATE()),
 (212, 'etymology-derivative-card', 1, 'etymology-derivative-card', 3, 1, GETDATE(), GETDATE()),
@@ -156,17 +163,18 @@ VALUES
 
 **Current vs Proposed Comparison:**
 
-| Current Approach | Proposed Approach |
-|------------------|-------------------|
-| 5 rows for Session 212 | 8 rows for Session 212 |
-| 3 duplicate `ayah-card` entries | 1 `ayah-card` entry with InstanceCount=4 |
-| Missing `etymology-card`, `esotericBlock` | All asset types tracked |
-| AssetSelector = specific ID | AssetClass = CSS class name |
-| No instance counting | InstanceCount field |
+| Current Approach                          | Proposed Approach                        |
+| ----------------------------------------- | ---------------------------------------- |
+| 5 rows for Session 212                    | 8 rows for Session 212                   |
+| 3 duplicate `ayah-card` entries           | 1 `ayah-card` entry with InstanceCount=4 |
+| Missing `etymology-card`, `esotericBlock` | All asset types tracked                  |
+| AssetSelector = specific ID               | AssetClass = CSS class name              |
+| No instance counting                      | InstanceCount field                      |
 
 **Benefits of New Approach:**
+
 - ✅ Eliminates duplicate entries for same asset types
-- ✅ Complete coverage of all Islamic content components  
+- ✅ Complete coverage of all Islamic content components
 - ✅ Better CSS selector matching for frontend
 - ✅ Accurate instance counting for analytics
 - ✅ More maintainable and scalable design

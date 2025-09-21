@@ -1,6 +1,7 @@
 # Issue-76: Authentication Cards Size Reduction - 30% Smaller
 
 ## 📋 **Issue Details**
+
 - **Issue ID:** Issue-76
 - **Title:** Authentication Cards Size Reduction - 30% Smaller
 - **Type:** UX Enhancement 🔧
@@ -25,6 +26,7 @@ The HOST and ATTEND authentication cards need to be reduced by 30% to create bet
 ## 📚 **Previous Work Reference**
 
 From Issue-65 (COMPLETED):
+
 - Cards were previously made wider (30% increase in width)
 - Current container: `noor-max-w-6xl` (72rem)
 - Cards use classes like `noor-card-wide`, `noor-card-interactive`
@@ -47,6 +49,7 @@ From Issue-65 (COMPLETED):
 ## 🎨 **CSS Classes to Update**
 
 Based on previous work, likely classes include:
+
 - `.noor-card-wide`: Main card styling
 - `.noor-card-interactive`: Interactive card behaviors
 - `.noor-flex-panel-wide`: Container for cards
@@ -85,6 +88,7 @@ Based on previous work, likely classes include:
 ## 📐 **Calculation Notes**
 
 For 30% reduction:
+
 - New size = Current size × 0.7
 - Example: 400px → 280px
 - Padding and margins should also be reduced proportionally

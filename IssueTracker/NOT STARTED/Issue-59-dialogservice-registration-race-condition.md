@@ -3,7 +3,7 @@
 **Status:** Not Started  
 **Priority:** High  
 **Category:** Bug  
-**Created:** September 14, 2025  
+**Created:** September 14, 2025
 
 ## **Problem Description**
 
@@ -24,6 +24,7 @@ Race condition exists where `DialogService.ShowErrorAsync()` is called during co
 ## **Root Cause Analysis**
 
 ### **Timing Issue**
+
 - **OnInitializedAsync()**: Runs immediately during component initialization
 - **OnAfterRenderAsync()**: Runs after first render cycle completes
 - **Problem**: Error handling needs dialogs before dialogs are registered
@@ -37,7 +38,7 @@ protected override async Task OnInitializedAsync()
     try
     {
         // This can fail and call ShowErrorAsync() immediately
-        await AuthenticateHostAndLoadData(); 
+        await AuthenticateHostAndLoadData();
     }
     catch (Exception ex)
     {
@@ -76,12 +77,12 @@ public async Task ShowErrorAsync(string message, string title = "Error")
     if (_alertDialog == null)
     {
         Logger.LogWarning("NOOR-WARNING: AlertDialog not registered, using fallback error display");
-        
+
         // Fallback to JavaScript alert for early initialization errors
         await JSRuntime.InvokeVoidAsync("alert", $"{title}: {message}");
         return;
     }
-    
+
     await ShowAlertAsync(message, title, AlertDialog.AlertType.Error);
 }
 ```
@@ -96,7 +97,7 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         DialogService.RegisterAlertDialog(alertDialog);
         DialogService.RegisterConfirmDialog(confirmDialog);
-        
+
         // Move initialization after dialog registration
         await InitializeHostSessionManager();
     }
@@ -134,14 +135,14 @@ public async Task ShowErrorAsync(string message, string title = "Error")
         _pendingOperations.Enqueue(async () => await ShowAlertAsync(message, title, AlertDialog.AlertType.Error));
         return;
     }
-    
+
     await ShowAlertAsync(message, title, AlertDialog.AlertType.Error);
 }
 
 public async Task RegisterAlertDialog(AlertDialog alertDialog)
 {
     _alertDialog = alertDialog;
-    
+
     // Process queued operations
     while (_pendingOperations.Count > 0)
     {
@@ -168,7 +169,7 @@ public DialogService(ILogger<DialogService> logger)
 public async Task ShowErrorAsync(string message, string title = "Error")
 {
     _logger.LogDebug("NOOR-DEBUG: ShowErrorAsync called - AlertDialog registered: {IsRegistered}", _alertDialog != null);
-    
+
     if (_alertDialog == null)
     {
         _logger.LogWarning("NOOR-WARNING: Attempted to show error dialog before registration - Message: {Message}", message);

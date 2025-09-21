@@ -16,39 +16,39 @@ public class AssetLookup
     /// </summary>
     [Key]
     public long AssetId { get; set; }
-    
+
     /// <summary>
     /// Asset identifier matching the exact class names from detection system
     /// (e.g., 'ayah-card', 'inserted-hadees', 'etymology-card', etc.)
     /// </summary>
     [Required, MaxLength(100)]
     public string AssetIdentifier { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Asset category type (e.g., 'islamic-content', 'media', 'content')
     /// </summary>
-    [Required, MaxLength(50)] 
+    [Required, MaxLength(50)]
     public string AssetType { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// CSS selector used for detection in HTML transcripts
     /// (e.g., '.ayah-card', '.inserted-hadees.ks-ahadees-container')
     /// </summary>
     [MaxLength(200)]
     public string? CssSelector { get; set; }
-    
+
     /// <summary>
     /// Human-readable display name for SHARE buttons
     /// (e.g., 'Ayah Card', 'Inserted Hadees', 'Table')
     /// </summary>
     [MaxLength(100)]
     public string? DisplayName { get; set; }
-    
+
     /// <summary>
     /// Active flag - allows disabling asset types without deletion
     /// </summary>
     public bool IsActive { get; set; } = true;
-    
+
     /// <summary>
     /// When this asset definition was created
     /// </summary>

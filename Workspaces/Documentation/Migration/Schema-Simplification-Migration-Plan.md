@@ -3,13 +3,14 @@
 **Migration Type**: Major Schema Simplification  
 **Target**: 15-table → 3-table ultra-minimal design  
 **Data Safety**: Complete data preservation during transition  
-**Rollback**: Full rollback capability maintained  
+**Rollback**: Full rollback capability maintained
 
 ---
 
 ## 🎯 **MIGRATION OVERVIEW**
 
 ### **Current State (15 Tables)**
+
 ```
 canvas.Sessions, canvas.SessionLinks, canvas.HostSessions, canvas.AdminSessions,
 canvas.Users, canvas.Registrations, canvas.SharedAssets, canvas.Annotations,
@@ -18,11 +19,13 @@ canvas.Issues, canvas.SessionParticipants, canvas.SecureTokens
 ```
 
 ### **Target State (3 Tables)**
+
 ```
 canvas.Sessions_New, canvas.Participants_New, canvas.SessionData_New
 ```
 
 ### **Migration Benefits**
+
 - **80% table reduction** (15 → 3 tables)
 - **Simplified Entity Framework** context
 - **Faster query performance** with minimal JOINs
@@ -40,14 +43,14 @@ canvas.Sessions_New, canvas.Participants_New, canvas.SessionData_New
 CREATE TABLE [canvas].[Sessions_New] (
     SessionId       INT IDENTITY(1,1) PRIMARY KEY,
     HostToken       VARCHAR(8) UNIQUE NOT NULL,        -- e.g., IIZVVHXI
-    UserToken       VARCHAR(8) UNIQUE NOT NULL,        -- e.g., BBQQMNET  
+    UserToken       VARCHAR(8) UNIQUE NOT NULL,        -- e.g., BBQQMNET
     Title           VARCHAR(200),
     Description     VARCHAR(500),
     Status          VARCHAR(20) DEFAULT 'Active',
     CreatedAt       DATETIME2 DEFAULT GETUTCDATE(),
     ExpiresAt       DATETIME2,
     CreatedBy       VARCHAR(100),
-    
+
     -- Indexes for performance
     INDEX IX_Sessions_HostToken (HostToken),
     INDEX IX_Sessions_UserToken (UserToken),
@@ -64,7 +67,7 @@ CREATE TABLE [canvas].[Participants_New] (
     City            VARCHAR(100),
     JoinedAt        DATETIME2 DEFAULT GETUTCDATE(),
     LastSeenAt      DATETIME2,
-    
+
     -- Foreign key and indexes
     FOREIGN KEY (SessionId) REFERENCES [canvas].[Sessions_New](SessionId),
     INDEX IX_Participants_Session (SessionId),
@@ -80,7 +83,7 @@ CREATE TABLE [canvas].[SessionData_New] (
     CreatedBy       VARCHAR(100),
     CreatedAt       DATETIME2 DEFAULT GETUTCDATE(),
     IsDeleted       BIT DEFAULT 0,
-    
+
     -- Foreign key and indexes
     FOREIGN KEY (SessionId) REFERENCES [canvas].[Sessions_New](SessionId),
     INDEX IX_SessionData_Session_Type (SessionId, DataType),
@@ -98,17 +101,17 @@ CREATE TABLE [canvas].[SessionData_New] (
 ```sql
 -- Migrate Sessions with embedded token data
 INSERT INTO [canvas].[Sessions_New] (
-    HostToken, UserToken, Title, Description, Status, 
+    HostToken, UserToken, Title, Description, Status,
     CreatedAt, ExpiresAt, CreatedBy
 )
-SELECT 
+SELECT
     COALESCE(st.HostToken, SUBSTRING(CONVERT(VARCHAR(36), NEWID()), 1, 8)) AS HostToken,
     COALESCE(st.UserToken, SUBSTRING(CONVERT(VARCHAR(36), NEWID()), 1, 8)) AS UserToken,
     s.Title,
     s.Description,
-    CASE 
+    CASE
         WHEN s.Status IS NULL THEN 'Active'
-        ELSE s.Status 
+        ELSE s.Status
     END AS Status,
     s.CreatedAt,
     DATEADD(HOUR, 3, s.CreatedAt) AS ExpiresAt,  -- Default 3-hour expiry
@@ -123,10 +126,10 @@ LEFT JOIN [canvas].[HostSessions] hs ON hs.SessionId = s.SessionId;
 ```sql
 -- Migrate Users + Registrations → Participants
 INSERT INTO [canvas].[Participants_New] (
-    SessionId, UserGuid, Name, Country, City, 
+    SessionId, UserGuid, Name, Country, City,
     JoinedAt, LastSeenAt
 )
-SELECT 
+SELECT
     sn.SessionId,           -- Map to new session ID
     u.UserGuid,
     u.Name,
@@ -148,7 +151,7 @@ INNER JOIN [canvas].[Sessions_New] sn ON sn.HostToken = COALESCE(
 ```sql
 -- Migrate SharedAssets
 INSERT INTO [canvas].[SessionData_New] (SessionId, DataType, Content, CreatedBy, CreatedAt)
-SELECT 
+SELECT
     sn.SessionId,
     'SharedAsset' AS DataType,
     JSON_OBJECT(
@@ -168,7 +171,7 @@ INNER JOIN [canvas].[Sessions_New] sn ON sn.HostToken = COALESCE(
 
 -- Migrate Annotations
 INSERT INTO [canvas].[SessionData_New] (SessionId, DataType, Content, CreatedBy, CreatedAt)
-SELECT 
+SELECT
     sn.SessionId,
     'Annotation' AS DataType,
     a.AnnotationData AS Content,
@@ -184,7 +187,7 @@ WHERE a.IsDeleted = 0;
 
 -- Migrate Questions
 INSERT INTO [canvas].[SessionData_New] (SessionId, DataType, Content, CreatedBy, CreatedAt)
-SELECT 
+SELECT
     sn.SessionId,
     'Question' AS DataType,
     JSON_OBJECT(
@@ -221,28 +224,28 @@ public class Session
 {
     [Key]
     public int SessionId { get; set; }
-    
+
     [Required, MaxLength(8)]
     public string HostToken { get; set; } = string.Empty;
-    
-    [Required, MaxLength(8)] 
+
+    [Required, MaxLength(8)]
     public string UserToken { get; set; } = string.Empty;
-    
+
     [MaxLength(200)]
     public string? Title { get; set; }
-    
+
     [MaxLength(500)]
     public string? Description { get; set; }
-    
+
     [MaxLength(20)]
     public string Status { get; set; } = "Active";
-    
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ExpiresAt { get; set; }
-    
+
     [MaxLength(100)]
     public string? CreatedBy { get; set; }
-    
+
     // Navigation properties
     public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();
     public virtual ICollection<SessionData> SessionData { get; set; } = new List<SessionData>();
@@ -254,25 +257,25 @@ public class Participant
 {
     [Key]
     public int ParticipantId { get; set; }
-    
+
     [Required]
     public int SessionId { get; set; }
-    
+
     [MaxLength(256)]
     public string? UserGuid { get; set; }
-    
+
     [MaxLength(100)]
     public string? Name { get; set; }
-    
+
     [MaxLength(100)]
     public string? Country { get; set; }
-    
+
     [MaxLength(100)]
     public string? City { get; set; }
-    
+
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastSeenAt { get; set; }
-    
+
     // Navigation properties
     [ForeignKey(nameof(SessionId))]
     public virtual Session Session { get; set; } = null!;
@@ -284,22 +287,22 @@ public class SessionData
 {
     [Key]
     public int DataId { get; set; }
-    
+
     [Required]
     public int SessionId { get; set; }
-    
+
     [Required, MaxLength(20)]
     public string DataType { get; set; } = string.Empty; // 'SharedAsset', 'Annotation', 'Question'
-    
+
     [Column(TypeName = "nvarchar(max)")]
     public string? Content { get; set; }  // JSON blob
-    
+
     [MaxLength(100)]
     public string? CreatedBy { get; set; }
-    
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsDeleted { get; set; } = false;
-    
+
     // Navigation properties
     [ForeignKey(nameof(SessionId))]
     public virtual Session Session { get; set; } = null!;
@@ -367,16 +370,16 @@ public async Task<IActionResult> Authenticate([FromBody] HostAuthRequest request
     // NEW: Direct session lookup
     var session = await _simplifiedContext.Sessions
         .FirstOrDefaultAsync(s => s.HostToken == request.HostToken && s.Status == "Active");
-    
+
     if (session == null || session.ExpiresAt < DateTime.UtcNow)
     {
         return BadRequest(new HostAuthResponse { IsValid = false, ErrorMessage = "TOKEN_INVALID" });
     }
 
-    return Ok(new HostAuthResponse { 
-        IsValid = true, 
+    return Ok(new HostAuthResponse {
+        IsValid = true,
         SessionId = session.SessionId.ToString(),
-        SessionName = session.Title 
+        SessionName = session.Title
     });
 }
 ```
@@ -435,7 +438,7 @@ public class SimplifiedSessionService
 ### **Step 5.1: Parallel Operation Period**
 
 1. **Week 1-2**: Both schemas operational
-2. **Week 3**: New schema for new sessions only  
+2. **Week 3**: New schema for new sessions only
 3. **Week 4**: Migrate remaining active sessions
 4. **Week 5**: Remove old schema
 
@@ -472,15 +475,15 @@ UNION ALL
 SELECT 'Migrated Sessions' as Source, COUNT(*) as Count FROM [canvas].[Sessions_New]
 
 UNION ALL
-SELECT 'Original Users+Registrations' as Source, COUNT(*) as Count 
+SELECT 'Original Users+Registrations' as Source, COUNT(*) as Count
 FROM [canvas].[Users] u INNER JOIN [canvas].[Registrations] r ON u.UserId = r.UserId
-UNION ALL  
+UNION ALL
 SELECT 'Migrated Participants' as Source, COUNT(*) as Count FROM [canvas].[Participants_New]
 
 UNION ALL
-SELECT 'Original Content Items' as Source, 
-    (SELECT COUNT(*) FROM [canvas].[SharedAssets]) + 
-    (SELECT COUNT(*) FROM [canvas].[Annotations] WHERE IsDeleted = 0) + 
+SELECT 'Original Content Items' as Source,
+    (SELECT COUNT(*) FROM [canvas].[SharedAssets]) +
+    (SELECT COUNT(*) FROM [canvas].[Annotations] WHERE IsDeleted = 0) +
     (SELECT COUNT(*) FROM [canvas].[Questions]) as Count
 UNION ALL
 SELECT 'Migrated Content Items' as Source, COUNT(*) as Count FROM [canvas].[SessionData_New];
@@ -496,7 +499,7 @@ If issues arise during migration:
 -- 2. Switch connection string back to original schema
 -- 3. Drop new tables if needed
 DROP TABLE IF EXISTS [canvas].[SessionData_New];
-DROP TABLE IF EXISTS [canvas].[Participants_New]; 
+DROP TABLE IF EXISTS [canvas].[Participants_New];
 DROP TABLE IF EXISTS [canvas].[Sessions_New];
 
 -- 4. Restart application with original configuration
@@ -507,19 +510,22 @@ DROP TABLE IF EXISTS [canvas].[Sessions_New];
 ## 📊 **MIGRATION TIMELINE & RESOURCES**
 
 ### **Estimated Timeline**
+
 - **Phase 1-2 (Schema + Migration)**: 2 days
-- **Phase 3-4 (Code Updates)**: 3 days  
+- **Phase 3-4 (Code Updates)**: 3 days
 - **Phase 5 (Gradual Cutover)**: 1 week
 - **Phase 6 (Validation)**: 1 day
 - **Total**: ~2 weeks
 
 ### **Required Resources**
+
 - **DBA Time**: 1 day for script review
 - **Developer Time**: 4 days for code updates
 - **Testing Time**: 2 days for validation
 - **Downtime**: < 30 minutes for final cutover
 
 ### **Risk Assessment**
+
 - **Low Risk**: Data migration (well-tested scripts)
 - **Medium Risk**: Controller/Service updates (thorough testing required)
 - **Mitigation**: Parallel operation + feature flags + rollback plan
@@ -529,16 +535,18 @@ DROP TABLE IF EXISTS [canvas].[Sessions_New];
 ## ✅ **SUCCESS CRITERIA**
 
 ### **Technical Metrics**
+
 - ✅ All 15 original tables successfully consolidated into 3 tables
 - ✅ 100% data preservation during migration
 - ✅ All Controller endpoints functioning with new schema
 - ✅ SignalR hubs operational with SessionData approach
 - ✅ Performance improvement (faster queries, simplified joins)
 
-### **Business Metrics**  
+### **Business Metrics**
+
 - ✅ Zero downtime for active sessions during migration
 - ✅ All host and participant functionality preserved
-- ✅ Islamic content sharing working identically  
+- ✅ Islamic content sharing working identically
 - ✅ Authentication/authorization unchanged for end users
 - ✅ Developer productivity improved with simpler schema
 

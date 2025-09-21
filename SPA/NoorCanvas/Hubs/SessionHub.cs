@@ -110,7 +110,7 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
 
-        _logger.LogInformation("NOOR-HUB: Broadcasting ParticipantJoined for session {SessionId}, participant {ParticipantId}", 
+        _logger.LogInformation("NOOR-HUB: Broadcasting ParticipantJoined for session {SessionId}, participant {ParticipantId}",
             sessionId, participantId);
 
         await Clients.Group(groupName).SendAsync("ParticipantJoined", new
@@ -133,7 +133,7 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
 
-        _logger.LogInformation("NOOR-HUB: Broadcasting ParticipantLeft for session {SessionId}, participant {ParticipantId}", 
+        _logger.LogInformation("NOOR-HUB: Broadcasting ParticipantLeft for session {SessionId}, participant {ParticipantId}",
             sessionId, participantId);
 
         await Clients.Group(groupName).SendAsync("ParticipantLeft", new

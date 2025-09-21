@@ -3,7 +3,7 @@
 **Status:** Not Started  
 **Priority:** High  
 **Category:** Bug  
-**Created:** September 14, 2025  
+**Created:** September 14, 2025
 
 ## **Problem Description**
 
@@ -18,6 +18,7 @@ TypeError: Cannot read properties of null (reading 'focus')
 ```
 
 **Stack Trace:**
+
 - **Source**: `AlertDialog.ShowAsync()` line 96
 - **Method**: `JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{ModalId}').focus()");`
 - **Impact**: Blazor connection disconnected after error
@@ -59,7 +60,7 @@ public async Task ShowAsync()
     IsVisible = true;
     StateHasChanged();
     await Task.Delay(150); // Increased delay for DOM stability
-    
+
     // Safe focus with null checking and retry logic
     var script = $@"
         (function() {{
@@ -72,8 +73,8 @@ public async Task ShowAsync()
                 return false;
             }}
         }})()";
-    
-    try 
+
+    try
     {
         var result = await JSRuntime.InvokeAsync<bool>("eval", script);
         if (!result)

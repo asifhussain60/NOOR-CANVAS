@@ -5,24 +5,28 @@ NOOR CANVAS is an innovative Islamic content sharing platform that enables real-
 ## Key Features
 
 ### Real-time Collaboration
+
 - Live annotation and drawing capabilities
 - Synchronized participant interactions
 - Host-controlled session management
 - Q&A system with live responses
 
 ### Islamic Content Integration
+
 - Qur'anic verses with Arabic text support
 - Hadith collections and references
 - Etymology and linguistic analysis
 - Islamic poetry and literature
 
 ### Multi-language Support
+
 - Arabic (RTL) text rendering
 - English (LTR) interface
 - Urdu (RTL) support
 - Cultural sensitivity in design
 
 ### Modern Architecture
+
 - ASP.NET Core 8.0 with Blazor Server
 - SignalR for real-time communication
 - Entity Framework Core data access
@@ -31,12 +35,14 @@ NOOR CANVAS is an innovative Islamic content sharing platform that enables real-
 ## Target Audience
 
 **Host Users (Educators)**
+
 - Islamic scholars and teachers
 - Community leaders and imams
 - Educational institution instructors
 - Religious study group facilitators
 
 **Participants (Students)**
+
 - Students of Islamic studies
 - Community members
 - Online learners
@@ -45,12 +51,14 @@ NOOR CANVAS is an innovative Islamic content sharing platform that enables real-
 ## Platform Benefits
 
 ### For Hosts
+
 - Interactive teaching tools
 - Real-time feedback from participants
 - Session recording and transcription
 - Participant engagement analytics
 
-### For Participants  
+### For Participants
+
 - Active learning experience
 - Direct interaction with content
 - Question and answer capabilities
@@ -67,4 +75,4 @@ NOOR CANVAS combines modern web technologies with Islamic educational needs:
 
 ---
 
-*Continue reading: [Technical Architecture](technical/architecture.md)*
+_Continue reading: [Technical Architecture](technical/architecture.md)_

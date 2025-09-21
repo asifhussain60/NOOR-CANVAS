@@ -7,6 +7,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Cannot Access Application
 
 #### Problem: "This site can't be reached"
+
 **Symptoms**: Browser shows connection error when accessing NOOR Canvas
 **Solutions**:
 
@@ -15,6 +16,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
    - Production: Provided by your administrator
 
 2. **Check Server Status**:
+
    ```powershell
    # For development environment
    nc  # Start the development server
@@ -25,6 +27,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 4. **Clear Browser Cache**: Clear browser cache and cookies, then retry
 
 #### Problem: "SSL Certificate Error"
+
 **Symptoms**: Browser warns about unsafe certificate
 **Solutions**:
 
@@ -35,6 +38,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Session Access Issues
 
 #### Problem: "Session Not Found"
+
 **Symptoms**: Error when entering Session GUID
 **Solutions**:
 
@@ -42,7 +46,8 @@ Common problems and solutions for NOOR Canvas users and hosts.
 2. **Check Session Status**: Confirm session is still active
 3. **Try Again**: Session may have been temporarily unavailable
 
-#### Problem: "Session Full"  
+#### Problem: "Session Full"
+
 **Symptoms**: Cannot join because session has reached participant limit
 **Solutions**:
 
@@ -55,10 +60,12 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Host Authentication Problems
 
 #### Problem: "Invalid Host Token"
+
 **Symptoms**: Cannot create sessions, authentication fails
 **Solutions**:
 
 1. **Generate New Token**:
+
    ```powershell
    nct  # Generate fresh host token
    nc   # Restart with new token
@@ -68,6 +75,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 3. **Restart Application**: Stop and restart development server
 
 #### Problem: "Cannot Create Session"
+
 **Symptoms**: Session creation fails after authentication
 **Solutions**:
 
@@ -78,6 +86,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Participant Registration Issues
 
 #### Problem: "Registration Failed"
+
 **Symptoms**: Cannot complete participant registration
 **Solutions**:
 
@@ -90,6 +99,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Application Running Slowly
 
 #### Problem: Slow Loading or Response
+
 **Symptoms**: Application takes long time to load or respond to actions
 **Solutions**:
 
@@ -107,6 +117,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Real-time Features Not Working
 
 #### Problem: Annotations Not Syncing
+
 **Symptoms**: Cannot see other participants' annotations in real-time
 **Solutions**:
 
@@ -116,6 +127,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 4. **Browser Refresh**: Refresh page to re-establish connection
 
 #### Problem: SignalR Connection Errors
+
 **Symptoms**: Console shows SignalR connection failures
 **Solutions**:
 
@@ -129,11 +141,13 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Build and Startup Problems
 
 #### Problem: "Build Failed"
+
 **Symptoms**: dotnet build command fails with errors
 **Solutions**:
 
 1. **Check Error Messages**: Read compiler errors carefully
-2. **Clean Solution**: 
+2. **Clean Solution**:
+
    ```powershell
    dotnet clean
    dotnet restore
@@ -144,21 +158,24 @@ Common problems and solutions for NOOR Canvas users and hosts.
 4. **Check .NET Version**: Verify .NET 8.0 SDK is installed
 
 #### Problem: "Port Already in Use"
+
 **Symptoms**: Cannot start server because port 9091 is busy
 **Solutions**:
 
 1. **Kill Existing Processes**:
+
    ```powershell
    iiskill  # Stop all IIS Express processes
    nc       # Restart server
    ```
 
 2. **Check Port Usage**:
+
    ```powershell
    netstat -ano | findstr ":9091"
    ```
 
-3. **Process Management**: 
+3. **Process Management**:
    ```powershell
    taskkill /F /IM "NoorCanvas.exe" /T
    taskkill /F /IM "dotnet.exe" /T
@@ -167,12 +184,14 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Database Connection Issues
 
 #### Problem: "Database Connection Failed"
+
 **Symptoms**: Application cannot connect to KSESSIONS_DEV database
 **Solutions**:
 
 1. **Check Connection String**: Verify database server and credentials
 2. **Database Server**: Ensure SQL Server is running on AHHOME
 3. **Network Access**: Test network connectivity to database server:
+
    ```powershell
    sqlcmd -S AHHOME -U sa -P [password] -Q "SELECT 1"
    ```
@@ -180,10 +199,12 @@ Common problems and solutions for NOOR Canvas users and hosts.
 4. **Credentials**: Verify sa account password is correct
 
 #### Problem: "Canvas Schema Not Found"
+
 **Symptoms**: Application starts but cannot find canvas tables
 **Solutions**:
 
 1. **Run Migrations**:
+
    ```powershell
    dotnet ef database update --context CanvasDbContext
    ```
@@ -194,24 +215,29 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ## Browser-Specific Issues
 
 ### Chrome Issues
+
 - **Problem**: WebSocket connection failures
 - **Solution**: Check Chrome's WebSocket settings and disable interfering extensions
 
-### Firefox Issues  
+### Firefox Issues
+
 - **Problem**: SSL certificate warnings in development
 - **Solution**: Add security exception for localhost development certificate
 
 ### Edge Issues
+
 - **Problem**: Authentication cookies not persisting
 - **Solution**: Check Edge privacy settings and allow cookies for localhost
 
 ### Safari Issues
+
 - **Problem**: Real-time features not working on mobile Safari
 - **Solution**: Ensure WebSocket support is enabled in Safari settings
 
 ## Mobile Device Issues
 
 ### Touch Interface Problems
+
 - **Problem**: Annotation tools difficult to use on mobile
 - **Solutions**:
   - Use landscape orientation for better screen space
@@ -219,6 +245,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
   - Use mobile-optimized annotation tools when available
 
 ### Performance on Mobile
+
 - **Problem**: Slow performance on smartphones/tablets
 - **Solutions**:
   - Close other mobile applications
@@ -231,24 +258,29 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ### Common Error Messages
 
 #### "NOOR-ERROR: Authentication failed"
+
 **Cause**: Invalid host token or session authentication
 **Solution**: Generate new host token with `nct` command
 
 #### "NOOR-ERROR: Database timeout"
+
 **Cause**: Database connection timeout (usually network-related)
 **Solution**: Check database server connectivity and network stability
 
 #### "SignalR connection closed"
+
 **Cause**: WebSocket connection interrupted
 **Solution**: Refresh page to re-establish real-time connection
 
 #### "Session expired"
+
 **Cause**: Session exceeded its configured timeout limit
 **Solution**: Host needs to create new session, or extend existing session if possible
 
 ## Getting Additional Help
 
 ### Self-Diagnosis Steps
+
 1. **Check Browser Console**: Press F12 and look for error messages
 2. **Test Basic Connectivity**: Try accessing other websites
 3. **Clear Browser Data**: Clear cache, cookies, and local storage
@@ -256,6 +288,7 @@ Common problems and solutions for NOOR Canvas users and hosts.
 5. **Restart Computer**: Sometimes resolves underlying system issues
 
 ### Information to Collect Before Seeking Help
+
 - **Error Message**: Exact text of any error messages
 - **Browser and Version**: Which browser and version you're using
 - **Operating System**: Windows, macOS, Linux, etc.
@@ -264,12 +297,14 @@ Common problems and solutions for NOOR Canvas users and hosts.
 - **Steps to Reproduce**: What actions led to the problem
 
 ### Documentation Resources
+
 - [Getting Started Guide](getting-started-guide.md) - Basic usage instructions
 - [Host Authentication Guide](host-authentication-guide.md) - Hosting-specific help
 - [SSL Configuration Guide](ssl-configuration-user-guide.md) - Security setup
 - [Technical Reference](~/articles/technical/) - Advanced technical information
 
 ### Contact Information
+
 - **Session Host**: Contact your session host for session-specific issues
 - **Technical Administrator**: Contact your organization's technical support
 - **Development Team**: For bug reports and feature requests
@@ -278,21 +313,24 @@ Common problems and solutions for NOOR Canvas users and hosts.
 ## Prevention Tips
 
 ### For Regular Users
+
 - **Keep Browser Updated**: Use latest browser versions for best compatibility
 - **Stable Connection**: Use reliable internet connection for sessions
 - **Test Before Sessions**: Join test sessions to verify everything works
 - **Bookmark URLs**: Save session URLs and GUIDs securely
 
 ### For Session Hosts
+
 - **Regular Testing**: Test host functionality before important sessions
 - **Backup Plans**: Have alternative communication methods ready
 - **Participant Support**: Provide clear joining instructions and technical support
 - **Documentation**: Keep troubleshooting guides available for participants
 
 ### For Developers
+
 - **Regular Maintenance**: Keep development environment updated
 - **Automated Testing**: Run test suite regularly to catch issues early
 - **Log Monitoring**: Check application logs for early warning signs
 - **Backup Database**: Regular backups of development database
 
-*This troubleshooting guide is updated automatically as new issues are identified and solutions developed.*
+_This troubleshooting guide is updated automatically as new issues are identified and solutions developed._

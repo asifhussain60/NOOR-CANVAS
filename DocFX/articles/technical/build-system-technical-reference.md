@@ -5,24 +5,28 @@ This document provides technical implementation details for the NOOR Canvas buil
 ## Architecture
 
 The build system uses:
+
 - **MSBuild**: Primary build orchestration
-- **dotnet CLI**: Cross-platform build execution  
+- **dotnet CLI**: Cross-platform build execution
 - **PowerShell Scripts**: Automated testing integration
 - **Git Hooks**: Pre-commit validation
 
 ## Build Pipeline
 
 ### 1. Pre-Build Phase
+
 - Dependency restoration
 - Configuration validation
 - Environment setup
 
 ### 2. Compilation Phase
+
 - C# source compilation
 - Blazor component processing
 - Asset bundling
 
 ### 3. Post-Build Phase
+
 - Automated test execution
 - Build artifact validation
 - Success/failure reporting
@@ -49,8 +53,9 @@ The build system uses:
 ## Troubleshooting
 
 Common build issues and resolutions:
+
 - File locking problems with running processes
 - Dependency resolution failures
 - Path resolution issues in PowerShell scripts
 
-*This documentation is automatically maintained as build system changes are implemented.*
+_This documentation is automatically maintained as build system changes are implemented._

@@ -3,16 +3,19 @@
 ## 🚀 **MAJOR INFRASTRUCTURE UPDATE (Sept 21, 2025)**
 
 ### **✅ ALL CRITICAL ISSUES RESOLVED:**
+
 **Root cause identified and fixed: Duplicate Serilog configuration was causing ALL infrastructure instability!**
 
 #### **🔥 What Was Fixed:**
+
 - **✅ Duplicate logging:** Single clean log messages now (root cause eliminated)
 - **✅ Application stability:** No more crashes under HTTP load or concurrent users
-- **✅ E2E testing:** Validated with 2+ concurrent browsers successfully  
+- **✅ E2E testing:** Validated with 2+ concurrent browsers successfully
 - **✅ SignalR circuits:** WebSocket connections now establish properly
 - **✅ Database queries:** Multiple operations execute without issues
 
 #### **🎯 New Testing Reality:**
+
 - **BEFORE:** Tests blocked by server crashes, unreliable infrastructure
 - **AFTER:** Stable 17+ second runtime under concurrent load, clean execution
 
@@ -23,7 +26,7 @@
 This guide provides comprehensive UI testing for NOOR Canvas using Playwright with **ROCK-SOLID** infrastructure. The test suite covers:
 
 - **✅ VALIDATED: Host Authentication Flow** - Token validation, session config (STABLE)
-- **✅ VALIDATED: Multi-User Scenarios** - 2+ concurrent browsers (E2E TESTED)  
+- **✅ VALIDATED: Multi-User Scenarios** - 2+ concurrent browsers (E2E TESTED)
 - **✅ VALIDATED: SignalR Functionality** - WebSocket circuits (WORKING)
 - **✅ VALIDATED: Database Integration** - Multiple queries (RELIABLE)
 - **✅ VALIDATED: API Integration** - Token/session management (STABLE)
@@ -31,17 +34,20 @@ This guide provides comprehensive UI testing for NOOR Canvas using Playwright wi
 ## 🆕 Authentication Flow Tests (Simplified Architecture)
 
 ### New Test Files
+
 - `host-authentication-flow-e2e.spec.ts` - Complete host authentication validation
-- `session-opener-user-auth-flow.spec.ts` - Session management and user workflows  
+- `session-opener-user-auth-flow.spec.ts` - Session management and user workflows
 
 ### Key Validations
+
 - ✅ No more "Authentication service unavailable" errors
-- ✅ Host token `VIS68UW4` validates successfully  
+- ✅ Host token `VIS68UW4` validates successfully
 - ✅ Session creation with embedded tokens
 - ✅ User authentication link generation
 - ✅ Simplified 3-table architecture operational
 
 ### Quick Start
+
 ```bash
 # Run authentication tests
 npm run test:simplified-auth
@@ -49,6 +55,7 @@ npm run test:simplified-auth
 # PowerShell runner with app startup
 .\Tests\run-auth-tests.ps1 -TestType all -Headed -StartApp
 ```
+
 - **Performance & Security** - Load testing, validation, SQL injection protection
 
 ## Quick Start
@@ -56,12 +63,13 @@ npm run test:simplified-auth
 ### Prerequisites - SIMPLIFIED (Infrastructure Fixed!)
 
 - **VSCode with Playwright Extension**: Installed and active
-- **Node.js**: v16+ recommended  
+- **Node.js**: v16+ recommended
 - **✅ NoorCanvas Application**: Start manually - now STABLE!
 
 ### 🎯 **STREAMLINED APPROACH: Manual App + Stable Testing**
 
 #### **Step 1: Start NoorCanvas (Simple & Stable)**
+
 ```powershell
 # In dedicated terminal - application now stable!
 cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
@@ -69,7 +77,7 @@ dotnet run
 
 # Wait for SUCCESS indicators (infrastructure fixes):
 # "✅ NOOR-VALIDATION: Canvas database connection verified"
-# "Application started. Press Ctrl+C to shut down."  
+# "Application started. Press Ctrl+C to shut down."
 # SINGLE log messages (confirms duplicate logging fix active)
 ```
 
@@ -77,12 +85,12 @@ dotnet run
 
 ### **OPTION A: VSCode Test Explorer (Recommended)**
 
-1. **Access Test Explorer**: 
+1. **Access Test Explorer**:
    - VSCode Activity Bar → Testing (flask icon) → Playwright section
    - Tests auto-discovered in PlayWright/tests/ directory
    - All tests automatically discovered in `Tests/UI/` directory
 
-2. **Run All Tests**: 
+2. **Run All Tests**:
    - Click "Run All Tests" button in Test Explorer panel
 
 3. **Run Specific Tests**:
@@ -99,6 +107,7 @@ dotnet run
 ### DEPRECATED: Terminal Commands (DO NOT USE)
 
 ❌ **Forbidden Methods:**
+
 ```bash
 # These commands are PROHIBITED
 npm test
@@ -107,17 +116,21 @@ npm run test:headed
 ```
 
 ✅ **Exception - Report Viewing Only:**
+
 ```bash
 # Only allowed for viewing generated reports
 npx playwright show-report
 ```
 
 # Run tests with debugging
+
 npx playwright test --debug
 
 # Generate test report
+
 npx playwright show-report
-```
+
+````
 
 ## Test Suites
 
@@ -133,7 +146,7 @@ Tests complete host authentication workflow using **VSCode Test Explorer**:
 
 **Key Test Cases:**
 - ✅ Landing page branding and layout
-- ✅ Token validation and error handling  
+- ✅ Token validation and error handling
 - ✅ New token generation via API
 - ✅ Expired token handling
 - ✅ NOOR Canvas styling consistency
@@ -144,7 +157,7 @@ Tests the critical Issue-106 implementation with 2-second delays:
 
 ```bash
 **Test Explorer Usage:**
-1. Navigate to `cascading-dropdowns.spec.js` in Test Explorer  
+1. Navigate to `cascading-dropdowns.spec.js` in Test Explorer
 2. Click play button for complete Issue-106 validation
 3. Use "Debug Test" for step-through debugging of cascading logic
 4. Enable "Show Browser" to watch 2-second delay execution
@@ -185,9 +198,10 @@ npx playwright test api-integration.spec.js
 # Test specific API functions
 npx playwright test -g "should generate host token via API"
 npx playwright test -g "should load Islamic content data"
-```
+````
 
 **Key Test Cases:**
+
 - ✅ Host token generation and validation
 - ✅ Invalid token rejection (400 errors)
 - ✅ Database connectivity health checks
@@ -201,29 +215,32 @@ npx playwright test -g "should load Islamic content data"
 
 ```javascript
 module.exports = defineConfig({
-  testDir: './Tests/UI',
+  testDir: "./Tests/UI",
   webServer: {
-    command: 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "./run-with-iiskill.ps1"',
-    url: 'https://localhost:9091',
+    command:
+      'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "./run-with-iiskill.ps1"',
+    url: "https://localhost:9091",
     reuseExistingServer: !process.env.CI,
   },
   use: {
-    baseURL: 'https://localhost:9091',
+    baseURL: "https://localhost:9091",
     ignoreHTTPSErrors: true, // For localhost SSL
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-  }
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+  },
 });
 ```
 
 ### Test Reports
 
 **Automatic Report Generation:**
+
 - Test Explorer automatically generates reports after test execution
 - Reports stored in `Workspaces/TEMP/playwright-report/`
 - Artifacts (screenshots, videos) stored in `Workspaces/TEMP/test-artifacts/`
 
 **Manual Report Viewing (Only Exception to Terminal Ban):**
+
 ```bash
 # View generated HTML report (ONLY allowed terminal command)
 npx playwright show-report
@@ -234,19 +251,22 @@ npx playwright show-report
 ### VSCode Integrated Debugging
 
 **Primary Method - Test Explorer:**
+
 1. **Set Breakpoints**: Click in test file gutters to set breakpoints
-2. **Debug Test**: Right-click test in Test Explorer → "Debug Test"  
+2. **Debug Test**: Right-click test in Test Explorer → "Debug Test"
 3. **Step Through**: Use VSCode debugging controls (F10, F11, etc.)
 4. **Variable Inspection**: Hover over variables or use Debug Console
 
 ### Visual Test Execution
 
 **Test Explorer Options:**
+
 - **Show Browser**: Enable to watch test execution in real browser
 - **Slow Motion**: Available through Test Explorer configuration
 - **Real-time Logging**: Console output appears in VSCode Output panel
 
 **❌ DEPRECATED Terminal Commands (DO NOT USE):**
+
 ```bash
 # These are PROHIBITED - Use Test Explorer instead
 npx playwright test --headed
@@ -260,9 +280,9 @@ Tests include extensive console logging for debugging:
 
 ```javascript
 // Enable console logs in tests
-page.on('console', msg => {
-  if (msg.text().includes('ISSUE-106-CASCADING')) {
-    console.log('Cascading log:', msg.text());
+page.on("console", (msg) => {
+  if (msg.text().includes("ISSUE-106-CASCADING")) {
+    console.log("Cascading log:", msg.text());
   }
 });
 ```
@@ -270,6 +290,7 @@ page.on('console', msg => {
 ### Screenshots & Videos
 
 Test failures automatically capture:
+
 - Screenshots at failure point
 - Video recordings of test execution
 - Network request/response logs
@@ -283,18 +304,19 @@ Tests use dynamic token generation to avoid hardcoded values:
 
 ```javascript
 // Generate fresh tokens for each test
-const tokenResponse = await request.post('/api/host/generate-token', {
+const tokenResponse = await request.post("/api/host/generate-token", {
   data: {
     sessionId: Math.floor(Math.random() * 1000) + 200,
-    createdBy: 'Playwright Test Suite',
-    title: `Test Session ${Date.now()}`
-  }
+    createdBy: "Playwright Test Suite",
+    title: `Test Session ${Date.now()}`,
+  },
 });
 ```
 
 ### Application State
 
 Tests handle application lifecycle:
+
 - Server startup/shutdown via `run-with-iiskill.ps1`
 - Database connection verification
 - Clean test isolation between runs
@@ -314,23 +336,26 @@ npx playwright test --reporter=json --output-dir=./test-results
 ### Common Issues
 
 1. **Server Not Starting**
+
    ```bash
    # Ensure application can start manually
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "./run-with-iiskill.ps1"
-   
+
    # Check port availability
    netstat -an | findstr :9091
    ```
 
 2. **SSL Certificate Errors**
+
    ```javascript
    // Config already includes ignoreHTTPSErrors: true
    use: {
-     ignoreHTTPSErrors: true
+     ignoreHTTPSErrors: true;
    }
    ```
 
 3. **Test Timeout Issues**
+
    ```bash
    # Increase timeout for slow operations
    npx playwright test --timeout=120000
@@ -371,6 +396,7 @@ npx playwright show-trace trace.zip
 ### Updating Existing Tests
 
 When UI changes occur:
+
 1. Update selectors in test files
 2. Verify test data expectations
 3. Run tests to validate changes

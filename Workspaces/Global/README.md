@@ -5,18 +5,21 @@ This folder contains global command-line utilities for the NOOR Canvas project.
 ## Commands Available
 
 ### 🧪 **KSRUN - Advanced Testing & Development Launcher** (RECOMMENDED)
+
 **Primary Command**: `ksrun -test`
 
 Complete testing workflow with automatic host token generation and HTML testing suite integration.
 
 #### **🔥 Key Features**
+
 - **🔑 Automatic Host Token Generation**: Uses HostProvisioner to create fresh GUID
-- **📋 HTML Testing Suite**: Opens beautifully styled interactive testing interface  
+- **📋 HTML Testing Suite**: Opens beautifully styled interactive testing interface
 - **🚀 Application Launcher**: Starts NOOR Canvas with browser automation
 - **🔄 Real-time Integration**: Updates testing suite with fresh token automatically
 - **⚡ One-Command Workflow**: Everything ready for immediate manual testing
 
 #### **Quick Usage**
+
 ```powershell
 ksrun -test              # RECOMMENDED: Generate token + start app + open testing suite
 ksrun -test -Build       # Build first, then full testing workflow
@@ -25,9 +28,11 @@ ksrun -Help              # Show all available options
 ```
 
 ### 🔑 **NCT - NOOR Canvas Token Provisioner**
+
 Host token generation and management command for NOOR Canvas sessions.
 
 #### **Quick Usage**
+
 ```powershell
 nct create 123                      # Create host token for session 123
 nct create 456 -CreatedBy "Ahmad"   # Create token with creator name
@@ -38,9 +43,11 @@ nct help                           # Show detailed help
 ```
 
 ### 🏃‍♂️ **NC - Primary Application Runner**
+
 Simple application launcher without testing integration.
 
 #### **Quick Usage**
+
 ```powershell
 nc                       # Start app on localhost:9090 and open browser
 nc -NoBrowser            # Start without opening browser
@@ -51,6 +58,7 @@ nc -Help                 # Show detailed help
 ## 📋 **Command Reference**
 
 ### **KSRUN Options (Testing & Development)**
+
 ```powershell
 ksrun -test              # 🔥 RECOMMENDED: Full testing workflow with token generation
 ksrun -test -Build       # Build first, then full testing workflow
@@ -62,31 +70,35 @@ ksrun -Help              # Show all available options and examples
 ```
 
 ### **NC Options (Primary Application Launch)**
+
 ```powershell
 nc                       # Run app on localhost:9090 and open browser
 nc -NoBrowser            # Run without opening browser
-nc -Https                # Use HTTPS (port 9091)  
+nc -Https                # Use HTTPS (port 9091)
 nc -Help                 # Show help information
 ```
 
 ## 🚀 **Recommended Workflows**
 
 ### **For Manual Testing** (Most Common)
+
 ```powershell
 ksrun -test              # One command does everything:
                         # ✅ Generates fresh host token
-                        # ✅ Starts NOOR Canvas application  
+                        # ✅ Starts NOOR Canvas application
                         # ✅ Opens testing suite with new token
                         # ✅ Ready for immediate testing
 ```
 
 ### **For Development & Debugging**
+
 ```powershell
 ksrun -test -Build      # Build + full testing workflow
 nc                      # Quick start app only
 ```
 
 ### **For HTTPS/Production Testing**
+
 ```powershell
 ksrun -test -Https      # Full testing workflow on secure port 9091
 ```
@@ -102,6 +114,7 @@ ksrun -test -Https      # Full testing workflow on secure port 9091
 ## 🧪 **Testing Integration Features**
 
 **Complete Workflow Automation**:
+
 - **Fresh Host Tokens**: No manual GUID generation needed
 - **Interactive Testing Suite**: 20 test cases across 5 use cases with progress tracking
 - **Real-time Updates**: Token injection happens automatically before browser opens
@@ -109,6 +122,7 @@ ksrun -test -Https      # Full testing workflow on secure port 9091
 - **Professional Interface**: Beautifully styled HTML with responsive design
 
 **Testing Suite Details**:
+
 - **Location**: `Workspaces/TEMP/MANUAL-TESTING-SUITE.html`
 - **Test Cases**: Infrastructure, Authentication, Session Management, Admin, Browser Compatibility
 - **Progress Tracking**: Interactive checkboxes with completion percentage
@@ -118,12 +132,14 @@ ksrun -test -Https      # Full testing workflow on secure port 9091
 ## Installation
 
 ### Option 1: Run from Global folder
+
 ```powershell
 cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
 .\nc.ps1 -Help
 ```
 
 ### Option 2: Add to system PATH (Recommended)
+
 ```powershell
 # Run once to add to PATH
 cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
@@ -134,6 +150,7 @@ nc
 ```
 
 ### Option 3: Remove from PATH
+
 ```powershell
 cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
 .\setup-global-commands.ps1 -Remove
@@ -150,20 +167,24 @@ cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
 ## Troubleshooting
 
 ### Command Not Found
-- Ensure you've run `setup-global-commands.ps1` 
+
+- Ensure you've run `setup-global-commands.ps1`
 - Restart your terminal after setup
 - Check that the Global folder is in your PATH
 
 ### Port Already in Use
+
 - The script automatically attempts to kill existing dotnet processes
 - Use `-Port` parameter to try a different port
 - Manually kill processes: `Get-Process dotnet | Stop-Process`
 
 ### Build Errors
+
 - Check that you're in a valid .NET project structure
 - Verify .NET 8 SDK is installed: `dotnet --version`
 
 ### Browser Won't Open
+
 - Use `nc -NoBrowser` and manually navigate to the URL
 - Check your default browser settings
 - The URL will be displayed in the console
@@ -179,6 +200,7 @@ cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Global"
 ## Project Integration
 
 This command integrates with the NOOR Canvas project structure:
+
 - **Target**: `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas`
 - **Default Port**: 9090 (HTTP) or 9091 (HTTPS)
 - **Build System**: .NET 8 with `dotnet run`

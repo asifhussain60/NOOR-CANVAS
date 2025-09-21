@@ -1,2 +1,9 @@
-
-{"items":[{"name":"Integration Examples","href":"index.html","topicHref":"index.html"}]}
+{
+  "items": [
+    {
+      "name": "Integration Examples",
+      "href": "index.html",
+      "topicHref": "index.html"
+    }
+  ]
+}

@@ -6,15 +6,19 @@
 **Estimated Time**: 15 minutes
 
 ## Description
+
 Fix CS0414 compiler warning for unused `_isConnected` field in SessionWaiting.razor.
 
 ## Background
+
 During build of SessionWaiting.razor, received warning:
-- CS0414: The field '_isConnected' is assigned but its value is never used
+
+- CS0414: The field '\_isConnected' is assigned but its value is never used
 - Field was likely added during development but not fully implemented
 - Causes build warnings that should be eliminated
 
 ## Tasks Required
+
 1. **Review Field Usage**
    - Examine `_isConnected` field in SessionWaiting.razor
    - Determine if field should be used or removed
@@ -31,12 +35,15 @@ During build of SessionWaiting.razor, received warning:
    - Verify build completes without warnings
 
 ## Files Involved
+
 - `SPA/NoorCanvas/Pages/SessionWaiting.razor`
 
 ## Success Criteria
+
 - Build completes with zero warnings
 - Code is clean and intentional
 - No functionality is broken
 
 ## Notes
+
 Minor cleanup task to maintain code quality standards. Should be quick to resolve once SessionWaiting.razor is reviewed.

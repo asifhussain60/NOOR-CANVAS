@@ -3,7 +3,7 @@
 **Priority**: HIGH - Core Functionality - Data Display Issue  
 **Status**: NOT STARTED  
 **Report Date**: September 20, 2025  
-**Assigned**: GitHub Copilot  
+**Assigned**: GitHub Copilot
 
 ---
 
@@ -18,11 +18,13 @@ UserLanding.razor is not displaying the correct session name from API responses.
 ### Evidence from Application Logs
 
 **✅ API Layer Working Correctly:**
+
 ```
 [07:41:19 INF] NoorCanvas.Controllers.ParticipantController Session found: 1, Title: Need For Messengers
 ```
 
 **✅ API Response Structure:**
+
 ```json
 {
   "valid": true,
@@ -31,13 +33,14 @@ UserLanding.razor is not displaying the correct session name from API responses.
   "session": {
     "sessionId": 1,
     "title": "Need For Messengers",
-    "description": "Album: 14, Category: 52", 
+    "description": "Album: 14, Category: 52",
     "status": "Configured"
   }
 }
 ```
 
 **❌ UserLanding.razor Parsing Issue:**
+
 ```
 [07:41:20 INF] NoorCanvas.Pages.UserLanding Session validation successful - SessionID: 1, Title: null
 [07:41:20 INF] NoorCanvas.Pages.UserLanding Updated Model.SessionName to: Unknown Session
@@ -48,15 +51,17 @@ UserLanding.razor is not displaying the correct session name from API responses.
 The `SessionValidationResponse` class structure doesn't match the actual API response format:
 
 **Expected by C# Model:**
+
 ```csharp
 public class SessionValidationResponse
 {
     public string? Title { get; set; }      // Expects at root level
-    public string? Status { get; set; }     // Expects at root level  
+    public string? Status { get; set; }     // Expects at root level
 }
 ```
 
 **Actual API Response:**
+
 - `session.title` (nested inside session object)
 - `session.status` (nested inside session object)
 
@@ -67,6 +72,7 @@ public class SessionValidationResponse
 ### 1. Update SessionValidationResponse Class Structure
 
 **Current Structure (Incorrect):**
+
 ```csharp
 public class SessionValidationResponse
 {
@@ -80,6 +86,7 @@ public class SessionValidationResponse
 ```
 
 **Required Structure (Correct):**
+
 ```csharp
 public class SessionValidationResponse
 {
@@ -102,12 +109,14 @@ public class SessionInfo
 ### 2. Update UserLanding.razor Parsing Logic
 
 **Current Logic (Incorrect):**
+
 ```csharp
 Model.SessionName = validationResult.Title ?? "Unknown Session";
 Model.SessionDescription = $"Status: {validationResult.Status ?? "Unknown"}";
 ```
 
 **Required Logic (Correct):**
+
 ```csharp
 Model.SessionName = validationResult.Session?.Title ?? "Unknown Session";
 Model.SessionDescription = $"Status: {validationResult.Session?.Status ?? "Unknown"}";
@@ -135,16 +144,19 @@ Model.SessionDescription = $"Status: {validationResult.Session?.Status ?? "Unkno
 ## Test Scenarios
 
 ### Positive Tests
+
 1. **Valid Token**: Returns and displays correct session name and status
 2. **Complete Response**: All session fields populated correctly
 3. **UI Update**: Session information updates in real-time after token validation
 
-### Negative Tests  
+### Negative Tests
+
 1. **Invalid Token**: Shows appropriate error message (not "Unknown Session")
 2. **Missing Session Data**: Handles null session object gracefully
 3. **API Failure**: Proper error handling for network/server issues
 
 ### Boundary Tests
+
 1. **Empty Session Title**: Handles empty/null session title appropriately
 2. **Long Session Names**: UI handles lengthy session titles without breaking
 3. **Special Characters**: Supports Arabic text and special characters in session names
@@ -184,7 +196,7 @@ Model.SessionDescription = $"Status: {validationResult.Session?.Status ?? "Unkno
 ## Completion Checklist
 
 - [ ] SessionValidationResponse class updated with nested structure
-- [ ] UserLanding.razor parsing logic updated  
+- [ ] UserLanding.razor parsing logic updated
 - [ ] Error handling improved
 - [ ] Playwright test created and passing
 - [ ] Manual testing completed with valid tokens

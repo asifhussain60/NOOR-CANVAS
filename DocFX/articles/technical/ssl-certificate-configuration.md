@@ -11,15 +11,18 @@
 ## 🎯 **Problem Overview**
 
 ### **Issue Description**
+
 SSL certificate validation preventing Entity Framework database connections in development environment, causing authentication failures and application startup issues.
 
 **Error Signature:**
+
 ```
 Microsoft.Data.SqlClient.SqlException: A connection was attempted to a database that is not available. The certificate chain was issued by an authority that is not trusted.
 SSL Provider: The certificate chain was issued by an authority that is not trusted.
 ```
 
 ### **Impact Assessment**
+
 - **Authentication System:** Host authentication completely non-functional
 - **Database Operations:** All Entity Framework queries failing
 - **Application Startup:** Successful server start but runtime database failures
@@ -30,11 +33,13 @@ SSL Provider: The certificate chain was issued by an authority that is not trust
 ## 🔧 **Technical Solution**
 
 ### **SSL Certificate Bypass Configuration**
+
 **Implementation Approach:** Configure SQL Server connection strings to bypass SSL certificate validation in development environment only.
 
 ### **Configuration Files Modified**
 
 #### **1. appsettings.Development.json** (Primary Fix)
+
 ```json
 {
   "ConnectionStrings": {
@@ -46,6 +51,7 @@ SSL Provider: The certificate chain was issued by an authority that is not trust
 ```
 
 #### **2. appsettings.json** (Baseline Configuration)
+
 ```json
 {
   "ConnectionStrings": {
@@ -59,18 +65,21 @@ SSL Provider: The certificate chain was issued by an authority that is not trust
 ### **Key Parameters Explained**
 
 #### **TrustServerCertificate=true**
+
 - **Purpose:** Bypasses SSL certificate validation chain
 - **Effect:** Accepts self-signed or untrusted certificates
 - **Security Impact:** Acceptable for development environment only
 - **Production Usage:** ⚠️ **NEVER use in production without proper certificates**
 
-#### **Encrypt=false**  
+#### **Encrypt=false**
+
 - **Purpose:** Disables SQL Server connection encryption
 - **Effect:** Reduces SSL overhead and certificate requirements
 - **Performance Impact:** Slight improvement in development environment
 - **Production Usage:** ⚠️ **Should be true in production for security**
 
 #### **Integrated Security=false**
+
 - **Purpose:** Uses SQL Server authentication instead of Windows authentication
 - **Effect:** Relies on User Id/Password in connection string
 - **Compatibility:** Required for cross-platform development
@@ -81,6 +90,7 @@ SSL Provider: The certificate chain was issued by an authority that is not trust
 ## 🛠 **Implementation Steps**
 
 ### **Step 1: Update Development Configuration**
+
 ```powershell
 # Navigate to project directory
 cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
@@ -93,12 +103,13 @@ cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
 ```
 
 ### **Step 2: Verify Configuration Override**
+
 ```csharp
 // In application startup, verify configuration loading
 public static void Main(string[] args)
 {
     var builder = WebApplication.CreateBuilder(args);
-    
+
     // Development configuration should override base settings
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     Console.WriteLine($"Connection includes SSL bypass: {connectionString?.Contains("TrustServerCertificate=true")}");
@@ -106,6 +117,7 @@ public static void Main(string[] args)
 ```
 
 ### **Step 3: Test Database Connectivity**
+
 ```powershell
 # Start application in development environment
 dotnet run --urls "https://localhost:9091;http://localhost:9090" --environment Development
@@ -115,6 +127,7 @@ dotnet run --urls "https://localhost:9091;http://localhost:9090" --environment D
 ```
 
 ### **Step 4: Validate Authentication Flow**
+
 ```bash
 # Test host authentication endpoint
 curl -X POST https://localhost:9091/api/host/authenticate \
@@ -128,6 +141,7 @@ curl -X POST https://localhost:9091/api/host/authenticate \
 ## 🧪 **Testing & Validation**
 
 ### **Automated Test Suite**
+
 **Location:** `Tests/NoorCanvas.Core.Tests/Infrastructure/SslConfigurationTestHarness.cs`
 
 ```csharp
@@ -141,13 +155,15 @@ public void DefaultConnection_SslBypassConfiguration_ShouldConnectSuccessfully()
 ```
 
 ### **Manual Testing Checklist**
+
 - [ ] Application starts without SSL certificate errors in logs
-- [ ] Host authentication accepts valid GUIDs without database errors  
+- [ ] Host authentication accepts valid GUIDs without database errors
 - [ ] Entity Framework queries execute successfully
 - [ ] SignalR connections establish without certificate warnings
 - [ ] Performance remains acceptable (sub-5-second authentication)
 
 ### **Performance Benchmarks**
+
 - **Authentication Response Time:** < 500ms (target < 1000ms)
 - **Database Query Execution:** < 100ms for simple queries
 - **Application Startup Time:** < 30 seconds
@@ -158,10 +174,13 @@ public void DefaultConnection_SslBypassConfiguration_ShouldConnectSuccessfully()
 ## 🚨 **Security Considerations**
 
 ### **Development Environment Only**
+
 **⚠️ CRITICAL:** This SSL bypass configuration is **ONLY** suitable for development environments.
 
 ### **Production Requirements**
+
 For production deployment:
+
 ```json
 {
   "ConnectionStrings": {
@@ -171,6 +190,7 @@ For production deployment:
 ```
 
 ### **Certificate Management for Production**
+
 1. **Install Valid SSL Certificates** on production SQL Server
 2. **Use Encrypt=true** for data protection in transit
 3. **Set TrustServerCertificate=false** to enforce certificate validation
@@ -184,26 +204,33 @@ For production deployment:
 ### **Common SSL Certificate Errors**
 
 #### **Error 1: Certificate Chain Not Trusted**
+
 ```
 The certificate chain was issued by an authority that is not trusted
 ```
+
 **Solution:** Add `TrustServerCertificate=true` to connection string
 
 #### **Error 2: Certificate Name Mismatch**
+
 ```
 The target principal name is incorrect
 ```
+
 **Solution:** Verify server name in connection string matches SQL Server instance
 
 #### **Error 3: Encryption Not Supported**
+
 ```
 Encryption is not supported on SQL Server
 ```
+
 **Solution:** Add `Encrypt=false` to disable encryption requirement
 
 ### **Diagnostic Commands**
 
 #### **Test Raw SQL Connection**
+
 ```powershell
 # PowerShell test connection
 $connectionString = "Server=AHHOME;Database=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;TrustServerCertificate=true;Encrypt=false;"
@@ -218,16 +245,17 @@ try {
 ```
 
 #### **Check SQL Server SSL Configuration**
+
 ```sql
 -- Check SQL Server encryption settings
-SELECT 
+SELECT
     name,
     value_in_use
-FROM sys.configurations 
+FROM sys.configurations
 WHERE name LIKE '%encrypt%' OR name LIKE '%ssl%';
 
 -- Verify certificate information
-SELECT 
+SELECT
     certificate_id,
     name,
     subject,
@@ -236,6 +264,7 @@ FROM sys.certificates;
 ```
 
 ### **Configuration Validation**
+
 ```csharp
 // Validate connection string parameters
 public static bool ValidateSslBypassConfig(string connectionString)
@@ -250,6 +279,7 @@ public static bool ValidateSslBypassConfig(string connectionString)
 ## 📊 **Monitoring & Maintenance**
 
 ### **Application Health Checks**
+
 ```csharp
 // Health check for database connectivity
 public class DatabaseHealthCheck : IHealthCheck
@@ -271,6 +301,7 @@ public class DatabaseHealthCheck : IHealthCheck
 ```
 
 ### **Logging Configuration**
+
 ```csharp
 // Enhanced logging for SSL-related issues
 builder.Services.AddLogging(config =>
@@ -294,12 +325,14 @@ builder.Services.AddLogging(config =>
 ## 📝 **Change Log**
 
 ### **September 13, 2025**
+
 - **Initial Documentation:** Created comprehensive SSL configuration reference
 - **Test Suite:** Implemented automated SSL configuration validation
 - **Issue Resolution:** Completed Issue-25 with SSL bypass solution
 - **Production Notes:** Added security considerations and production requirements
 
 ### **Future Updates**
+
 - Production certificate installation procedures
 - Certificate rotation automation
 - Advanced SSL troubleshooting scenarios

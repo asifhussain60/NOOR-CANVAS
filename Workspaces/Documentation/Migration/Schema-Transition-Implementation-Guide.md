@@ -1,17 +1,20 @@
 # Schema Transition Implementation Guide
 
 ## Overview
+
 This document explains the implementation of the NOOR Canvas schema simplification from 15 tables to 3 tables, including the transition strategy and adapter pattern used for seamless migration.
 
 ## Architecture Summary
 
 ### Original Complex Schema (15 Tables)
+
 - Sessions, Users, Registrations, SecureTokens, SharedAssets
-- Annotations, Questions, SessionTranscripts, SessionParticipants  
+- Annotations, Questions, SessionTranscripts, SessionParticipants
 - HostSessions, UserSessions, SessionAssets, SessionCategories
 - CountryLookup, ActivityLogs
 
 ### Simplified Schema (3 Tables)
+
 1. **Sessions** - Core session data with embedded tokens
 2. **Participants** - Consolidated user management
 3. **SessionData** - JSON content storage for annotations, questions, etc.
@@ -19,20 +22,22 @@ This document explains the implementation of the NOOR Canvas schema simplificati
 ## Key Implementation Components
 
 ### 1. Simplified Entity Models
+
 **Location:** `Models/Simplified/`
 
 #### Session.cs
+
 ```csharp
 public class Session
 {
     public long SessionId { get; set; }
-    
+
     // Embedded token management (no separate SecureTokens table)
     public string? HostToken { get; set; }
     public string? UserToken { get; set; }
     public DateTime? TokenExpiresAt { get; set; }
     public int TokenAccessCount { get; set; }
-    
+
     // Core session properties
     public string Title { get; set; } = string.Empty;
     public string Status { get; set; } = "Draft";
@@ -41,6 +46,7 @@ public class Session
 ```
 
 #### Participant.cs
+
 ```csharp
 public class Participant
 {
@@ -54,6 +60,7 @@ public class Participant
 ```
 
 #### SessionData.cs
+
 ```csharp
 public class SessionData
 {
@@ -69,15 +76,19 @@ public class SessionData
 ### 2. Service Layer Adaptation
 
 #### SimplifiedTokenService.cs
+
 **Purpose:** Token management using embedded approach
 **Key Features:**
+
 - Tokens stored directly in Session table
 - No separate SecureTokens table
 - JSON content storage for complex data
 
 #### SchemaTransitionAdapter.cs
+
 **Purpose:** Compatibility bridge during migration
 **Key Features:**
+
 - Feature flag controlled (`Features:UseSimplifiedSchema`)
 - Unified API for both legacy and simplified schemas
 - Gradual migration support
@@ -85,8 +96,10 @@ public class SessionData
 ### 3. Database Context
 
 #### SimplifiedCanvasDbContext.cs
+
 **Purpose:** EF Core context for 3-table schema
 **Configuration:**
+
 - Optimized indexes for performance
 - Proper relationships and constraints
 - JSON content handling
@@ -94,6 +107,7 @@ public class SessionData
 ### 4. Migration Strategy
 
 #### Entity Framework Migrations
+
 **Location:** `Documentation/Migration/EF-Migrations/`
 
 1. **CreateSimplifiedSchema.cs** - Creates new 3-table structure
@@ -101,6 +115,7 @@ public class SessionData
 3. **RemoveOriginalComplexSchema.cs** - Removes legacy 15-table schema
 
 #### Data Transformation Process
+
 1. **Sessions:** Direct copy with token embedding
 2. **Participants:** Merge Users + SessionParticipants + Registrations
 3. **SessionData:** Convert Annotations/Questions to JSON records
@@ -108,6 +123,7 @@ public class SessionData
 ## Implementation Progress
 
 ### ✅ Completed
+
 - [x] Simplified entity models created
 - [x] SimplifiedCanvasDbContext configured
 - [x] SimplifiedTokenService implemented
@@ -118,12 +134,14 @@ public class SessionData
 - [x] SimplifiedTokenController demonstration
 
 ### 🔄 In Progress
+
 - [ ] Update existing controllers to use adapter
 - [ ] Execute actual database migration
 - [ ] Update service layer dependencies
 - [ ] Test suite adaptation
 
 ### 📋 Pending
+
 - [ ] Production migration planning
 - [ ] Performance validation
 - [ ] Rollback testing
@@ -132,6 +150,7 @@ public class SessionData
 ## Usage Examples
 
 ### Token Validation (Adapter Pattern)
+
 ```csharp
 // Works with both legacy and simplified schemas
 var result = await _adapter.ValidateTokenAsync(token, isHostToken);
@@ -142,6 +161,7 @@ if (result.IsValid)
 ```
 
 ### Storing Annotations (JSON Approach)
+
 ```csharp
 // Simplified schema stores as JSON in SessionData table
 var annotationData = new { text = "Sample annotation", x = 100, y = 200 };
@@ -149,10 +169,11 @@ var dataId = await _simplifiedService.StoreAnnotationAsync(sessionId, annotation
 ```
 
 ### Feature Flag Control
+
 ```json
 {
   "Features": {
-    "UseSimplifiedSchema": false  // Switch to enable simplified schema
+    "UseSimplifiedSchema": false // Switch to enable simplified schema
   }
 }
 ```
@@ -160,12 +181,14 @@ var dataId = await _simplifiedService.StoreAnnotationAsync(sessionId, annotation
 ## Performance Benefits
 
 ### Database Efficiency
+
 - **80% reduction** in table count (15 → 3)
 - **Simplified joins** - most queries touch 1-2 tables max
 - **Reduced foreign key overhead**
 - **Consolidated indexes** for better query performance
 
 ### Application Benefits
+
 - **Simpler service layer** - fewer dependencies
 - **Unified token management** - no separate SecureTokens complexity
 - **JSON flexibility** - easy to extend content types
@@ -174,11 +197,13 @@ var dataId = await _simplifiedService.StoreAnnotationAsync(sessionId, annotation
 ## Migration Safety
 
 ### Rollback Capability
+
 - Complete EF migration rollback scripts
 - Data preservation validation
 - Schema comparison tools
 
 ### Validation Process
+
 - Pre-migration data export
 - Post-migration validation scripts
 - Performance benchmarking
@@ -187,12 +212,14 @@ var dataId = await _simplifiedService.StoreAnnotationAsync(sessionId, annotation
 ## Testing Strategy
 
 ### Compatibility Testing
+
 - Adapter pattern validation
 - Feature flag switching tests
 - Data integrity verification
 - Performance regression tests
 
 ### Migration Testing
+
 - Staged migration approach
 - Data transformation validation
 - Rollback procedure testing
@@ -201,12 +228,14 @@ var dataId = await _simplifiedService.StoreAnnotationAsync(sessionId, annotation
 ## Next Steps
 
 1. **Execute Migration**
+
    ```bash
    dotnet ef migrations add CreateSimplifiedSchema --context SimplifiedCanvasDbContext
    dotnet ef database update --context SimplifiedCanvasDbContext
    ```
 
 2. **Enable Feature Flag**
+
    ```json
    "Features": { "UseSimplifiedSchema": true }
    ```
@@ -224,13 +253,15 @@ var dataId = await _simplifiedService.StoreAnnotationAsync(sessionId, annotation
 ## Benefits Realized
 
 ### Development Efficiency
+
 - **Faster feature development** - simpler data model
 - **Easier debugging** - fewer tables to trace
 - **Reduced complexity** - clear data relationships
 - **Better performance** - optimized for actual usage patterns
 
 ### Maintenance Benefits
-- **Simplified schema updates** - fewer migration dependencies  
+
+- **Simplified schema updates** - fewer migration dependencies
 - **Clearer data model** - obvious table purposes
 - **Reduced storage overhead** - eliminated redundant tables
 - **Better query performance** - optimized index strategy

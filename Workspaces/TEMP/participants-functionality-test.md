@@ -11,25 +11,29 @@ The participants functionality is **fully operational**. The city field removal 
 ## Evidence
 
 ### 1. Database Verification ✅
+
 ```sql
-SELECT u.Name, u.Country, r.SessionId, r.JoinTime 
-FROM canvas.Users u 
-INNER JOIN canvas.Registrations r ON u.UserId = r.UserId 
+SELECT u.Name, u.Country, r.SessionId, r.JoinTime
+FROM canvas.Users u
+INNER JOIN canvas.Registrations r ON u.UserId = r.UserId
 ORDER BY r.JoinTime DESC
 ```
 
 **Results**: 2 participants found:
+
 - **Syed Asif Hussain** from **United States** (registered: 2025-09-18 21:37:14)
 - **Test User 2** from **Canada** (registered: 2025-09-18 22:06:44)
 
 ### 2. API Response Verification ✅
+
 **Endpoint**: `GET /api/participant/session/TESTUSR1/participants`  
 **Status**: HTTP 200 OK  
 **Response**:
+
 ```json
 {
   "sessionId": 223,
-  "token": "TESTUSR1", 
+  "token": "TESTUSR1",
   "participantCount": 2,
   "participants": [
     {
@@ -41,7 +45,7 @@ ORDER BY r.JoinTime DESC
     },
     {
       "userId": "57FBBA99-24DD-487C-BA1D-A3188CB9607C",
-      "displayName": "Test User 2", 
+      "displayName": "Test User 2",
       "joinedAt": "2025-09-18T22:06:44.8997497",
       "role": "registered",
       "country": "Canada"
@@ -52,15 +56,18 @@ ORDER BY r.JoinTime DESC
 ```
 
 ### 3. Application Logs ✅
+
 ```
 [18:07:33] NOOR-DEBUG: Loaded 2 participants from API
-[18:07:33] NOOR-DEBUG-UI: API response status: OK  
+[18:07:33] NOOR-DEBUG-UI: API response status: OK
 [18:07:33] NOOR-PARTICIPANT: Found 2 participants for session 223
 ```
 
 ### 4. Registration Test ✅
+
 **New Registration**: Successfully registered "Test User 2" from "Canada"  
-**API Response**: 
+**API Response**:
+
 ```json
 {
   "success": true,
@@ -74,6 +81,7 @@ ORDER BY r.JoinTime DESC
 ## Conclusion
 
 **The participants functionality is working correctly.** Both:
+
 1. **Registration flow**: Users can register successfully ✅
 2. **Display flow**: API returns participant data correctly ✅
 
@@ -96,7 +104,7 @@ If the user is seeing "No participants yet" or similar, it could be:
 ## Test Environment
 
 - **Application**: Running on https://localhost:9091 ✅
-- **Database**: KSESSIONS_DEV connected ✅  
+- **Database**: KSESSIONS_DEV connected ✅
 - **Session**: ID 223 ("Lowering Ones Gaze") ✅
 - **Token**: TESTUSR1 ✅
 - **Participants**: 2 registered users ✅

@@ -4,17 +4,19 @@
 **Status**: NOT STARTED  
 **Priority**: Medium  
 **Component**: SessionWaiting.razor UI Layout  
-**Reporter**: User Feedback  
+**Reporter**: User Feedback
 
 ## Problem Description
 
 The NOOR Canvas logo in the SessionWaiting.razor (waiting room) component is positioned **outside** the main card container, which is inconsistent with the layout pattern used in HostLanding.razor where the logo is properly positioned **inside** the main card container.
 
 ### Current Issue
+
 - **SessionWaiting.razor**: Logo is outside the main white card container
 - **HostLanding.razor**: Logo is correctly inside the main white card container (reference pattern)
 
 ### Visual Impact
+
 - Inconsistent UI layout across components
 - Logo appears disconnected from the main content area
 - Does not follow the established design pattern
@@ -25,12 +27,19 @@ The logo should be positioned **inside** the main card container, following the 
 
 ```html
 <div style="main-card-container-styles...">
-    <!-- Logo INSIDE the card -->
-    <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
-        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" alt="NOOR Canvas" style="max-width:150px;height:auto;margin:0 auto;" />
-    </div>
-    
-    <!-- Rest of content -->
+  <!-- Logo INSIDE the card -->
+  <div
+    class="noor-canvas-logo"
+    style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;"
+  >
+    <img
+      src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks"
+      alt="NOOR Canvas"
+      style="max-width:150px;height:auto;margin:0 auto;"
+    />
+  </div>
+
+  <!-- Rest of content -->
 </div>
 ```
 
@@ -40,17 +49,20 @@ The logo should be positioned **inside** the main card container, following the 
 ✅ **AC2**: Logo styling matches HostLanding.razor pattern exactly  
 ✅ **AC3**: Logo positioning is consistent across all states (loading, error, loaded)  
 ✅ **AC4**: No visual regressions in other UI elements  
-✅ **AC5**: Responsive design maintained on all screen sizes  
+✅ **AC5**: Responsive design maintained on all screen sizes
 
 ## Technical Details
 
 ### Files to Modify
+
 - `SPA/NoorCanvas/Pages/SessionWaiting.razor` - Move logo positioning
 
 ### Reference Implementation
+
 - `SPA/NoorCanvas/Pages/HostLanding.razor` - Lines 28-31 (logo inside card pattern)
 
 ### Current Code Location
+
 - **SessionWaiting.razor** Lines 29-33: Logo currently outside main container
 - **HostLanding.razor** Lines 28-31: Reference pattern to follow
 
@@ -64,6 +76,7 @@ The logo should be positioned **inside** the main card container, following the 
 ## Testing Requirements
 
 ### Playwright Test Plan
+
 Create `issue-115-logo-positioning-fix.spec.ts` with:
 
 1. **Visual Verification**: Logo is inside main card container
@@ -73,6 +86,7 @@ Create `issue-115-logo-positioning-fix.spec.ts` with:
 5. **Regression Testing**: All existing functionality preserved
 
 ### Manual Testing
+
 - [ ] Navigate to waiting room with valid token
 - [ ] Verify logo is inside white card container
 - [ ] Test on desktop, tablet, mobile viewports
@@ -83,9 +97,10 @@ Create `issue-115-logo-positioning-fix.spec.ts` with:
 
 **Risk Level**: Low  
 **Impact**: Visual/UI consistency improvement  
-**Complexity**: Simple HTML structure move  
+**Complexity**: Simple HTML structure move
 
 ### Mitigation
+
 - Keep exact same logo HTML structure
 - Test all conditional rendering paths
 - Verify responsive behavior maintained
@@ -103,4 +118,4 @@ Create `issue-115-logo-positioning-fix.spec.ts` with:
 
 **Related Issues**: None  
 **Dependencies**: None  
-**Estimated Effort**: 1-2 hours  
+**Estimated Effort**: 1-2 hours

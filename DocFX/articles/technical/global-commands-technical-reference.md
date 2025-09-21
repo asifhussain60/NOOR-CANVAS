@@ -7,6 +7,7 @@ The NOOR Canvas global command system provides a unified PowerShell-based interf
 ## Implementation Details
 
 ### Command Location
+
 - **Base Directory**: `D:\PROJECTS\NOOR CANVAS\Workspaces\Global\`
 - **PowerShell Scripts**: `*.ps1` files containing primary implementation
 - **Batch Wrappers**: `*.bat` and `*.cmd` files for compatibility
@@ -202,12 +203,12 @@ foreach ($file in $lockedFiles) {
             # Wait for file unlock
             $maxAttempts = 10
             $attempt = 0
-            
+
             do {
                 Start-Sleep -Milliseconds 500
                 $attempt++
                 $fileStream = $null
-                
+
                 try {
                     $fileStream = [System.IO.File]::Open($file, 'Open', 'Write')
                     $isLocked = $false
@@ -219,7 +220,7 @@ foreach ($file in $lockedFiles) {
                     if ($fileStream) { $fileStream.Close() }
                 }
             } while ($isLocked -and $attempt -lt $maxAttempts)
-            
+
         }
         catch {
             Write-Verbose "File unlock check failed: $($_.Exception.Message)"
@@ -236,7 +237,7 @@ foreach ($file in $lockedFiles) {
 # Standardized error reporting across all commands
 function Write-NoorError {
     param([string]$Message, [string]$Component)
-    
+
     Write-Host "❌ NOOR-ERROR [$Component]: $Message" -ForegroundColor Red
     Write-EventLog -LogName Application -Source "NOOR Canvas" -EventId 1001 -EntryType Error -Message "$Component: $Message" -ErrorAction SilentlyContinue
 }
@@ -275,19 +276,19 @@ Commands are integrated into VS Code tasks for IDE usage:
 
 ```json
 {
-    "label": "NOOR Canvas: Start Application",
-    "type": "shell",
-    "command": "nc",
-    "group": {
-        "kind": "build",
-        "isDefault": true
-    },
-    "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared"
-    }
+  "label": "NOOR Canvas: Start Application",
+  "type": "shell",
+  "command": "nc",
+  "group": {
+    "kind": "build",
+    "isDefault": true
+  },
+  "presentation": {
+    "echo": true,
+    "reveal": "always",
+    "focus": false,
+    "panel": "shared"
+  }
 }
 ```
 
@@ -330,12 +331,14 @@ if ((Get-ExecutionPolicy) -eq 'Restricted') {
 ### Common Issues
 
 1. **Command Not Found**
+
    ```powershell
    # Reload PowerShell profile
    . $PROFILE
    ```
 
 2. **Permission Denied**
+
    ```powershell
    # Check execution policy
    Get-ExecutionPolicy

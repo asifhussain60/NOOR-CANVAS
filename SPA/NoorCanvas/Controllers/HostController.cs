@@ -749,11 +749,11 @@ namespace NoorCanvas.Controllers
             var requestId = Guid.NewGuid().ToString("N")[..8];
             var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var userAgent = Request.Headers["User-Agent"].FirstOrDefault() ?? "unknown";
-            
+
             try
             {
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Countries request started", requestId);
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Token: {Token}, ClientIP: {ClientIp}, UserAgent: {UserAgent}", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Token: {Token}, ClientIP: {ClientIp}, UserAgent: {UserAgent}",
                     requestId, guid, clientIp, userAgent);
 
                 if (string.IsNullOrWhiteSpace(guid))
@@ -763,15 +763,15 @@ namespace NoorCanvas.Controllers
                 }
 
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Querying Countries from KSESSIONS DbSet", requestId);
-                
+
                 // Query all countries from KSESSIONS database using DbSet
                 var countriesQuery = _kSessionsContext.Countries
                     .OrderBy(c => c.CountryName)
                     .AsNoTracking();
 
                 var countries = await countriesQuery
-                    .Select(c => new CountryData 
-                    { 
+                    .Select(c => new CountryData
+                    {
                         CountryID = c.CountryId,
                         CountryName = c.CountryName,
                         ISO2 = c.ISO2 ?? string.Empty,
@@ -782,19 +782,19 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Countries query completed successfully", requestId);
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Loaded {CountryCount} countries from KSESSIONS database", requestId, countries.Count);
-                
+
                 if (countries.Count > 0)
                 {
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Sample countries: {Sample}", 
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Sample countries: {Sample}",
                         requestId, string.Join(", ", countries.Take(3).Select(c => $"{c.CountryName} ({c.ISO2})")));
                 }
-                
+
                 return Ok(countries);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] EXCEPTION during countries loading", requestId);
-                _logger.LogError("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Exception Type: {ExceptionType}, Message: {Message}", 
+                _logger.LogError("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Exception Type: {ExceptionType}, Message: {Message}",
                     requestId, ex.GetType().Name, ex.Message);
                 return StatusCode(500, new { error = "Failed to load countries", requestId });
             }
@@ -906,7 +906,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-ISSUE-121-DEBUG: Getting session details for sessionId: {SessionId} with guid: {Guid}", 
+                _logger.LogInformation("NOOR-ISSUE-121-DEBUG: Getting session details for sessionId: {SessionId} with guid: {Guid}",
                     sessionId, guid?.Substring(0, Math.Min(8, guid.Length)) + "...");
 
                 if (string.IsNullOrWhiteSpace(guid))
@@ -917,19 +917,19 @@ namespace NoorCanvas.Controllers
                 // Query KSESSIONS database to get session details including transcript
                 // ISSUE-121 FIX: JOIN with SessionTranscripts to include transcript content
                 var sessionDetails = await (from session in _kSessionsContext.Sessions
-                                           join transcript in _kSessionsContext.SessionTranscripts
-                                           on session.SessionId equals transcript.SessionId into transcripts
-                                           from t in transcripts.DefaultIfEmpty()
-                                           where session.SessionId == sessionId
-                                           select new 
-                                           {
-                                               SessionId = session.SessionId,
-                                               GroupId = session.GroupId,      // This is the Album ID (from KSESSIONS table)
-                                               CategoryId = session.CategoryId,
-                                               SessionName = session.SessionName,
-                                               Description = session.Description,
-                                               Transcript = t.Transcript ?? string.Empty // ✅ ISSUE-121: Include transcript content
-                                           }).FirstOrDefaultAsync();
+                                            join transcript in _kSessionsContext.SessionTranscripts
+                                            on session.SessionId equals transcript.SessionId into transcripts
+                                            from t in transcripts.DefaultIfEmpty()
+                                            where session.SessionId == sessionId
+                                            select new
+                                            {
+                                                SessionId = session.SessionId,
+                                                GroupId = session.GroupId,      // This is the Album ID (from KSESSIONS table)
+                                                CategoryId = session.CategoryId,
+                                                SessionName = session.SessionName,
+                                                Description = session.Description,
+                                                Transcript = t.Transcript ?? string.Empty // ✅ ISSUE-121: Include transcript content
+                                            }).FirstOrDefaultAsync();
 
                 if (sessionDetails == null)
                 {
@@ -940,10 +940,10 @@ namespace NoorCanvas.Controllers
                 // ISSUE-121 DEBUG: Log transcript details
                 var transcriptLength = sessionDetails.Transcript?.Length ?? 0;
                 var transcriptPreview = transcriptLength > 0 && !string.IsNullOrEmpty(sessionDetails.Transcript)
-                    ? sessionDetails.Transcript.Substring(0, Math.Min(100, transcriptLength)) 
+                    ? sessionDetails.Transcript.Substring(0, Math.Min(100, transcriptLength))
                     : "NULL";
-                
-                _logger.LogInformation("NOOR-ISSUE-121-SUCCESS: Found session details - SessionId: {SessionId}, GroupId: {GroupId}, CategoryId: {CategoryId}, TranscriptLength: {TranscriptLength}, Preview: {Preview}", 
+
+                _logger.LogInformation("NOOR-ISSUE-121-SUCCESS: Found session details - SessionId: {SessionId}, GroupId: {GroupId}, CategoryId: {CategoryId}, TranscriptLength: {TranscriptLength}, Preview: {Preview}",
                     sessionDetails.SessionId, sessionDetails.GroupId, sessionDetails.CategoryId, transcriptLength, transcriptPreview);
 
                 return Ok(sessionDetails);
@@ -985,7 +985,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-ASSET-API: Getting asset patterns for SessionId: {SessionId} with guid: {Guid}", 
+                _logger.LogInformation("NOOR-ASSET-API: Getting asset patterns for SessionId: {SessionId} with guid: {Guid}",
                     sessionId, guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
                 if (string.IsNullOrWhiteSpace(guid))
@@ -995,7 +995,7 @@ namespace NoorCanvas.Controllers
 
                 // TODO: Add host token validation if needed
                 // For now, return predefined asset patterns based on the content we see in transcripts
-                
+
                 var assetPatterns = new
                 {
                     sessionId = sessionId,
@@ -1024,7 +1024,7 @@ namespace NoorCanvas.Controllers
                         },
                         new
                         {
-                            type = "ayah-header", 
+                            type = "ayah-header",
                             selector = ".clickable-ayah-header",
                             description = "Clickable Quranic verse headers",
                             priority = 3
@@ -1032,7 +1032,7 @@ namespace NoorCanvas.Controllers
                     }
                 };
 
-                _logger.LogInformation("NOOR-ASSET-API: Returning {PatternCount} asset patterns for session {SessionId}", 
+                _logger.LogInformation("NOOR-ASSET-API: Returning {PatternCount} asset patterns for session {SessionId}",
                     assetPatterns.patterns.Length, sessionId);
 
                 return Ok(assetPatterns);
@@ -1054,9 +1054,9 @@ namespace NoorCanvas.Controllers
             // LEGACY API - SessionAssets table was replaced by simplified AssetLookup approach
             // Asset detection is now handled directly in HostControlPanel.razor using AssetLookup table
             // Return empty response for backward compatibility
-            
+
             _logger.LogInformation("LEGACY-ASSETS-API: GetSessionAssets called for session {SessionId} - returning empty response (replaced by simplified approach)", sessionId);
-            
+
             var response = new NoorCanvas.Models.Simplified.SessionAssetsResponse
             {
                 SessionId = sessionId,
@@ -1075,7 +1075,7 @@ namespace NoorCanvas.Controllers
         {
             try
             {
-                _logger.LogInformation("NOOR-SHARE-ASSET: Processing asset share request for session {SessionId}, asset type: {AssetType}", 
+                _logger.LogInformation("NOOR-SHARE-ASSET: Processing asset share request for session {SessionId}, asset type: {AssetType}",
                     request.SessionId, request.AssetPayload?.Type);
 
                 if (request.SessionId <= 0)
@@ -1094,7 +1094,7 @@ namespace NoorCanvas.Controllers
                 }
 
                 // TODO: Add host token validation if needed
-                
+
                 // Store asset in SessionData table (simplified schema)
                 var assetData = new
                 {
@@ -1106,7 +1106,7 @@ namespace NoorCanvas.Controllers
 
                 var dataId = await _simplifiedTokenService.StoreAnnotationAsync(request.SessionId, assetData);
 
-                _logger.LogInformation("NOOR-SHARE-ASSET: Asset stored with DataId {DataId} for session {SessionId}", 
+                _logger.LogInformation("NOOR-SHARE-ASSET: Asset stored with DataId {DataId} for session {SessionId}",
                     dataId, request.SessionId);
 
                 // Broadcast to session participants via SessionHub (UC-L1 workflow)

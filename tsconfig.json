@@ -23,9 +23,7 @@
       "@ui/*": ["./Tests/UI/*"]
     }
   },
-  "include": [
-    "Tests/**/*"
-  ],
+  "include": ["Tests/**/*"],
   "exclude": [
     "node_modules",
     "TEMP",

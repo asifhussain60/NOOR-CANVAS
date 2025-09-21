@@ -5,7 +5,7 @@
 **Priority**: High 🔴  
 **Category**: Bug 🐛  
 **Status**: Not Started ❌  
-**Created**: September 11, 2025  
+**Created**: September 11, 2025
 
 ---
 
@@ -16,6 +16,7 @@ HostDashboard component fails to load due to missing HttpClient service registra
 ## 🐛 **Error Details**
 
 **Error Message**:
+
 ```
 System.InvalidOperationException: Cannot provide a value for property 'Http' on type 'NoorCanvas.Pages.HostDashboard'. There is no registered service of type 'System.Net.Http.HttpClient'.
 ```
@@ -40,6 +41,7 @@ System.InvalidOperationException: Cannot provide a value for property 'Http' on 
 ## 🔍 **Root Cause Analysis**
 
 The HostDashboard component has an injected HttpClient property:
+
 ```csharp
 [Inject] public HttpClient Http { get; set; } = default!;
 ```
@@ -49,6 +51,7 @@ However, HttpClient service is not registered in `Program.cs` dependency injecti
 ## 💡 **Resolution Strategy**
 
 Register HttpClient service in Program.cs:
+
 ```csharp
 builder.Services.AddHttpClient();
 ```
@@ -70,6 +73,7 @@ None
 **Fix Applied**: Added `builder.Services.AddHttpClient();` to Program.cs dependency injection configuration
 
 **Code Change Location**: `D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\Program.cs` - Line 62
+
 ```csharp
 // Add HttpClient service for dependency injection
 builder.Services.AddHttpClient();
@@ -83,6 +87,7 @@ builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 ---
 
 **Status History**:
+
 - 2025-09-11: Issue created - HttpClient dependency injection missing
 - 2025-09-11: Fix implemented - Added HttpClient service registration, moved to AWAITING_CONFIRMATION
 - 2025-09-11: **COMPLETED** - Verified HttpClient service properly registered in Program.cs line 60

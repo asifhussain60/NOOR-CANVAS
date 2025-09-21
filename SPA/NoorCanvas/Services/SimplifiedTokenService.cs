@@ -97,7 +97,7 @@ public class SimplifiedTokenService
             {
                 _logger.LogWarning("NOOR-SIMPLIFIED: [{ValidationId}] Token validation failed - {TokenType} token not found or expired: {Token}",
                     validationId, isHostToken ? "HOST" : "USER", token);
-                
+
                 // Debug: Check what the current UTC time is
                 _logger.LogInformation("NOOR-SIMPLIFIED: [{ValidationId}] Current UTC time: {UtcNow}",
                     validationId, DateTime.UtcNow);

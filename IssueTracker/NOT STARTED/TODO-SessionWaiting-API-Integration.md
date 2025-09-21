@@ -6,15 +6,19 @@
 **Estimated Time**: 1-2 hours
 
 ## Description
+
 Replace placeholder session data loading in SessionWaiting.razor with real API calls to retrieve actual session details.
 
 ## Background
+
 SessionWaiting.razor was implemented with SignalR functionality but uses placeholder data:
+
 - `_sessionStart` is hardcoded as placeholder
 - Session details loaded from placeholder `ParticipantInfo` record
 - No actual API integration for session metadata
 
 ## Tasks Required
+
 1. **API Endpoint Integration**
    - Integrate with existing `/api/session/{sessionId}` endpoint
    - Load session title, description, start time, host information
@@ -36,10 +40,12 @@ SessionWaiting.razor was implemented with SignalR functionality but uses placeho
    - Ensure SignalR functionality continues working
 
 ## Files Involved
+
 - `SPA/NoorCanvas/Pages/SessionWaiting.razor`
 - Session API controllers (if modifications needed)
 
 ## Success Criteria
+
 - Session data loads from real API calls
 - No placeholder data remains in the component
 - Error handling provides clear user feedback
@@ -47,4 +53,5 @@ SessionWaiting.razor was implemented with SignalR functionality but uses placeho
 - Build completes without warnings
 
 ## Notes
+
 This will complete the SessionWaiting.razor implementation and remove the technical debt of placeholder data.

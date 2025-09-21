@@ -4,11 +4,12 @@
 **Status:** In Progress  
 **Priority:** Medium  
 **Category:** Command Interface  
-**Created:** 2025-09-15  
+**Created:** 2025-09-15
 
 ## Problem Description
 
 When running `nc 215`, the Host GUID is displayed but the User GUID is not shown in the output, even though:
+
 1. The `--create-user` flag is being passed to HostProvisioner
 2. Users ARE being created in the database (verified in canvas.Users table)
 3. The HostProvisioner logs "Sample User ID: {UserId}" but this is not captured/displayed by nc.ps1
@@ -56,12 +57,13 @@ The issue is that the formatted emoji output (DisplayGuidWithPause) doesn't incl
 ## Solution Options
 
 1. **Option A:** Modify DisplayGuidWithPause() to include User GUID when available
-2. **Option B:** Modify nc.ps1 to parse both log output and formatted output  
+2. **Option B:** Modify nc.ps1 to parse both log output and formatted output
 3. **Option C:** Change HostProvisioner to always output User GUID in formatted display
 
 ## Database Verification
 
 Confirmed Users are being created successfully:
+
 - User `e10f5752-4e8b-445d-b516-3dc2e91d97a3` (from nc 215 run)
 - User `f4681a38-23c5-4b7a-aed1-c11128196ded` (from direct test)
 

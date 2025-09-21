@@ -47,7 +47,7 @@ if (builder.Environment.EnvironmentName == "Testing")
     // Use In-Memory database for testing
     builder.Services.AddDbContext<CanvasDbContext>(options =>
         options.UseInMemoryDatabase("NoorCanvasTestDb"));
-    
+
     // Add Simplified Schema for testing
     builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
         options.UseInMemoryDatabase("NoorCanvasSimplifiedTestDb"));
@@ -58,10 +58,10 @@ else
     builder.Services.AddDbContext<CanvasDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
             "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
-    
+
     // Add Simplified Schema Context (for migration)
     builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("SimplifiedConnection") ?? 
+        options.UseSqlServer(builder.Configuration.GetConnectionString("SimplifiedConnection") ??
             builder.Configuration.GetConnectionString("DefaultConnection") ??
             "Server=(localdb)\\mssqllocaldb;Database=NoorCanvasSimplified;Trusted_Connection=true;MultipleActiveResultSets=true"));
 }
@@ -241,7 +241,7 @@ static void ValidateStartupConfiguration(IServiceProvider services)
     try
     {
         // CRITICAL: HttpClient BaseAddress Validation (Issue-62 Prevention)
-        try 
+        try
         {
             var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
             var defaultClient = httpClientFactory.CreateClient("default");

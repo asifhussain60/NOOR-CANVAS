@@ -1,2 +1,30 @@
-
-{"items":[{"name":"Global Commands Technical Reference","href":"global-commands-technical-reference.html","topicHref":"global-commands-technical-reference.html"},{"name":"Automated Testing Technical Reference","href":"automated-testing-technical-reference.html","topicHref":"automated-testing-technical-reference.html"},{"name":"API Reference","href":"api-reference/toc.html","tocHref":"api-reference/toc.html"},{"name":"Architecture Diagrams","href":"architecture-diagrams/toc.html","tocHref":"architecture-diagrams/toc.html"},{"name":"Integration Examples","href":"integration-examples/index.html","tocHref":"integration-examples/toc.html","topicHref":"integration-examples/index.html"}]}
+{
+  "items": [
+    {
+      "name": "Global Commands Technical Reference",
+      "href": "global-commands-technical-reference.html",
+      "topicHref": "global-commands-technical-reference.html"
+    },
+    {
+      "name": "Automated Testing Technical Reference",
+      "href": "automated-testing-technical-reference.html",
+      "topicHref": "automated-testing-technical-reference.html"
+    },
+    {
+      "name": "API Reference",
+      "href": "api-reference/toc.html",
+      "tocHref": "api-reference/toc.html"
+    },
+    {
+      "name": "Architecture Diagrams",
+      "href": "architecture-diagrams/toc.html",
+      "tocHref": "architecture-diagrams/toc.html"
+    },
+    {
+      "name": "Integration Examples",
+      "href": "integration-examples/index.html",
+      "tocHref": "integration-examples/toc.html",
+      "topicHref": "integration-examples/index.html"
+    }
+  ]
+}

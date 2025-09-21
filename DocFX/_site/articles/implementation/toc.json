@@ -1,2 +1,24 @@
-
-{"items":[{"name":"Implementation Overview","href":"project-status-overview.html","topicHref":"project-status-overview.html"},{"name":"Current Phase Progress","href":"phase4-current-progress.html","topicHref":"phase4-current-progress.html"},{"name":"Issues & TODO Tracking","href":"issues-todo-tracking.html","topicHref":"issues-todo-tracking.html"},{"name":"User GUID Registration","href":"user-guid-registration.html","topicHref":"user-guid-registration.html"}]}
+{
+  "items": [
+    {
+      "name": "Implementation Overview",
+      "href": "project-status-overview.html",
+      "topicHref": "project-status-overview.html"
+    },
+    {
+      "name": "Current Phase Progress",
+      "href": "phase4-current-progress.html",
+      "topicHref": "phase4-current-progress.html"
+    },
+    {
+      "name": "Issues & TODO Tracking",
+      "href": "issues-todo-tracking.html",
+      "topicHref": "issues-todo-tracking.html"
+    },
+    {
+      "name": "User GUID Registration",
+      "href": "user-guid-registration.html",
+      "topicHref": "user-guid-registration.html"
+    }
+  ]
+}

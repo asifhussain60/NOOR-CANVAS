@@ -4,7 +4,7 @@
 **Status:** In Progress  
 **Priority:** Critical  
 **Category:** Command Interface Bug  
-**Created:** 2025-09-15  
+**Created:** 2025-09-15
 
 ## Problem Description
 
@@ -56,7 +56,8 @@ The issue appears to be that:
 ## Technical Analysis
 
 Need to investigate:
-- `nct.ps1` script implementation vs `nc.ps1`  
+
+- `nct.ps1` script implementation vs `nc.ps1`
 - How `nct` calls HostProvisioner (flags missing?)
 - Whether `nct` creates Users and SessionLinks in database
 - Output formatting differences between interactive and non-interactive modes
@@ -64,6 +65,7 @@ Need to investigate:
 ## Impact
 
 **High Impact:**
+
 - Users expect `nct` to provide complete session setup (both Host and User GUIDs)
 - Missing Participant Session Link prevents easy user onboarding
 - Inconsistent behavior between `nc` and `nct` commands
@@ -72,7 +74,7 @@ Need to investigate:
 ## Acceptance Criteria
 
 - [ ] `nct` command displays User Session GUID when creating sessions
-- [ ] `nct` command displays Participant Session Link with User GUID attached  
+- [ ] `nct` command displays Participant Session Link with User GUID attached
 - [ ] `nct` command creates User and SessionLink records in database
 - [ ] `nct` output matches `nc` output format for consistency
 - [ ] Both Host GUID and User Session GUID are functional
@@ -81,7 +83,7 @@ Need to investigate:
 ## Investigation Steps
 
 1. Compare `nct.ps1` vs `nc.ps1` implementations
-2. Check HostProvisioner call differences  
+2. Check HostProvisioner call differences
 3. Verify database record creation
 4. Add debug logging to trace execution path
 5. Test fix with actual session creation

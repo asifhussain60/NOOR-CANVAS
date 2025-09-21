@@ -1,5 +1,6 @@
 # NOOR Canvas - Razor Views Usage Analysis
-*Analysis Date: September 19, 2025*
+
+_Analysis Date: September 19, 2025_
 
 ## 📊 Executive Summary
 
@@ -10,6 +11,7 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
 ### ✅ **CORE PRODUCTION VIEWS** (Keep - Essential for application)
 
 #### **Primary User Journey Views**
+
 1. **HostLanding.razor** - `@page "/host/{friendlyToken?}"`, `@page "/"`, `@page "/host/landing"`
    - **Status**: ✅ ESSENTIAL - Main landing page and host authentication
    - **Usage**: Default route `/`, extensive navigation references
@@ -36,6 +38,7 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
    - **Test Coverage**: Registration flow tests
 
 #### **Host Management Views**
+
 6. **CreateSession.razor** - `@page "/host/session/create"`
    - **Status**: ✅ ESSENTIAL - Session creation interface
    - **Usage**: Navigation from host workflows
@@ -47,6 +50,7 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
    - **Test Coverage**: Management workflow tests
 
 #### **Layout and Infrastructure**
+
 8. **App.razor** - Root application component
    - **Status**: ✅ ESSENTIAL - Blazor application root
    - **Usage**: Application entry point
@@ -59,11 +63,12 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
     - **Status**: ✅ ESSENTIAL - Used by landing pages
     - **Usage**: Layout for HostLanding and UserLanding
 
-11. **_Imports.razor** - Global using statements
+11. **\_Imports.razor** - Global using statements
     - **Status**: ✅ ESSENTIAL - Blazor infrastructure
     - **Usage**: Global imports for all components
 
 #### **Active Components**
+
 12. **AnnotationCanvas.razor** - Canvas annotation functionality
     - **Status**: ✅ ESSENTIAL - Core feature component
     - **Usage**: Used by AnnotationDemo.razor
@@ -77,13 +82,14 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
 ### ⚠️ **LEGACY/TEMPLATE VIEWS** (Consider for removal)
 
 #### **Blazor Template Components**
+
 14. **Counter.razor** - `@page "/counter"`
     - **Status**: 🟡 LEGACY - Default Blazor template component
     - **Usage**: Referenced in NavMenu, no business logic
     - **Recommendation**: SAFE TO DELETE - Template demo only
 
 15. **FetchData.razor** - `@page "/fetchdata"`
-    - **Status**: 🟡 LEGACY - Default Blazor template component  
+    - **Status**: 🟡 LEGACY - Default Blazor template component
     - **Usage**: Referenced in NavMenu, weather demo only
     - **Recommendation**: SAFE TO DELETE - Template demo only
 
@@ -93,17 +99,19 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
     - **Recommendation**: SAFE TO DELETE - Unused template component
 
 #### **Redirect-Only Views**
+
 17. **Index.razor** - `@page "/home"`
     - **Status**: 🟡 REDIRECT ONLY - Just redirects to "/"
     - **Usage**: Simple redirect to main page
     - **Recommendation**: SAFE TO DELETE - Functionality covered by HostLanding
 
 18. **Host.razor** - `@page "/host"`
-    - **Status**: 🟡 REDIRECT ONLY - Just redirects to "/"  
+    - **Status**: 🟡 REDIRECT ONLY - Just redirects to "/"
     - **Usage**: Simple redirect to main page
     - **Recommendation**: SAFE TO DELETE - Functionality covered by HostLanding
 
 #### **Navigation Component**
+
 19. **NavMenu.razor** - Development navigation menu
     - **Status**: 🟡 DEVELOPMENT TOOL - Links to Counter/FetchData/AnnotationDemo
     - **Usage**: Only used in MainLayout for development
@@ -115,7 +123,7 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
     - **Status**: ✅ UTILITY - Reusable dialog component
     - **Usage**: Dialog functionality (usage needs verification)
 
-21. **ConfirmDialog.razor** - Confirmation dialog component  
+21. **ConfirmDialog.razor** - Confirmation dialog component
     - **Status**: ✅ UTILITY - Reusable dialog component
     - **Usage**: Dialog functionality (usage needs verification)
 
@@ -127,16 +135,18 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
 ## 📈 Navigation Flow Analysis
 
 ### **Active Navigation Paths**
+
 ```
 / (HostLanding) → /host/session-opener/{token} → /session/waiting/{token}
-/user/landing → /session/waiting/{token}  
+/user/landing → /session/waiting/{token}
 /host/session/create → /host/landing
 /participant/register → /
 ```
 
 ### **Unused Routes**
+
 - `/counter` - Template demo
-- `/fetchdata` - Template demo  
+- `/fetchdata` - Template demo
 - `/home` - Redirect only
 - `/host` - Redirect only
 - `/annotation-demo` - Demo only (keep for feature demonstration)
@@ -144,6 +154,7 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
 ## 🧪 Test Coverage Analysis
 
 ### **Well-Tested Views**
+
 - HostLanding.razor - Extensive Playwright tests
 - Host-SessionOpener.razor - Integration tests
 - SessionWaiting.razor - Dedicated test suite
@@ -151,6 +162,7 @@ This comprehensive analysis examines all 44 Razor files in the NOOR Canvas appli
 - ParticipantRegister.razor - User workflow tests
 
 ### **Untested Views**
+
 - Counter.razor - No business tests needed (template)
 - FetchData.razor - No business tests needed (template)
 - Index.razor - Simple redirect
@@ -193,6 +205,7 @@ All other views are essential for the NOOR Canvas application functionality and 
 ## 🚨 Deletion Safety Notes
 
 Before deleting any files:
+
 1. ✅ Verify no dynamic component loading
 2. ✅ Check for any reflection-based component access
 3. ✅ Ensure no admin or debugging dependencies
@@ -209,4 +222,5 @@ Before deleting any files:
 6. Clean up any related route references in documentation
 
 ---
-*This analysis provides a comprehensive view of Razor component usage in the NOOR Canvas application for optimization and maintenance purposes.*
+
+_This analysis provides a comprehensive view of Razor component usage in the NOOR Canvas application for optimization and maintenance purposes._

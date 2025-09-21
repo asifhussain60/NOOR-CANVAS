@@ -1,9 +1,10 @@
 # Issue-17: Host Dashboard to Direct Session Management UX Change
 
 ## 📋 **Issue Details**
+
 - **Issue ID:** Issue-17
 - **Title:** Host Dashboard to Direct Session Management UX Change
-- **Type:** Feature/Enhancement  
+- **Type:** Feature/Enhancement
 - **Priority:** High 🔴
 - **Status:** ✅ COMPLETED
 - **Created:** September 11, 2025
@@ -12,14 +13,18 @@
 - **Assignee:** Development Team
 
 ## 🎯 **Problem Statement**
+
 Current host authentication flow takes the host to a dashboard view that shows session statistics and management options. The user has requested a significant UX change where hosts should go directly to session creation/management instead of viewing a dashboard.
 
 ## 📝 **Detailed Description**
+
 The current flow is:
+
 1. Host enters Host GUID → Host Dashboard (statistics, session list, etc.)
 2. Host clicks "New Session" → Navigate to session creation page
 
 **New Required Flow:**
+
 1. Host enters valid Host GUID → **Direct Session Management View**
 2. Host sees:
    - Album dropdown (from KSESSIONS data)
@@ -29,39 +34,45 @@ The current flow is:
    - "Start Session" button
 
 ## 🔍 **User Requirements**
+
 1. **Direct Navigation:** No dashboard - go straight to session management
 2. **Album Selection:** Dropdown populated from existing KSESSIONS data
 3. **Category Selection:** Filtered by selected album
-4. **Session Selection:** Filtered by selected category  
+4. **Session Selection:** Filtered by selected category
 5. **Generate Token:** Creates user access link for sharing
 6. **Start Session:** Begins the live session
 
 ## 🏗️ **Technical Requirements**
 
 ### **Frontend Changes**
+
 - Replace HostDashboard.razor with new HostSessionManager.razor
 - Update routing in Landing.razor authentication flow
 - Implement cascading dropdowns (Album → Category → Session)
 - Add token generation and session start functionality
 
 ### **Backend Changes**
+
 - Create API endpoints for Album/Category/Session metadata
 - Integrate with existing KSESSIONS database for dropdown data
 - Update HostController to support new workflow
 - Ensure session token generation aligns with existing security model
 
 ### **Data Integration**
+
 - Read Album data from KSESSIONS.Albums (or equivalent)
-- Read Category data filtered by AlbumId  
+- Read Category data filtered by AlbumId
 - Read Session data filtered by CategoryId
 - Maintain existing Host GUID authentication security
 
 ## 📚 **Reference Documentation**
+
 - **Design Document:** `NOOR-CANVAS-DESIGN.MD` Section 3 (Use Cases) and Section 5 (Host Authentication Strategy)
 - **Current Implementation:** `Pages/HostDashboard.razor` and `Pages/CreateSession.razor`
 - **Authentication Flow:** `Pages/Landing.razor` SelectRole method
 
 ## 🎯 **Acceptance Criteria**
+
 - [ ] Host authentication takes user directly to session management (no dashboard)
 - [ ] Album dropdown populated from KSESSIONS data
 - [ ] Category dropdown filters based on selected album
@@ -73,6 +84,7 @@ The current flow is:
 - [ ] Integration with existing session management APIs
 
 ## 🔧 **Implementation Approach**
+
 1. **Create new HostSessionManager.razor page** with Album→Category→Session dropdowns
 2. **Update Landing.razor** to navigate to session manager instead of dashboard
 3. **Create API endpoints** for metadata retrieval from KSESSIONS
@@ -82,6 +94,7 @@ The current flow is:
 7. **Remove or repurpose existing dashboard** components
 
 ## 🧪 **Testing Requirements**
+
 - Host authentication flow redirects to session manager
 - Dropdown cascading works correctly (Album → Category → Session)
 - Token generation creates valid user access links
@@ -90,9 +103,11 @@ The current flow is:
 - Security validations remain intact
 
 ## 📋 **Implementation Notes**
+
 This represents a significant UX paradigm shift from "dashboard-first" to "action-first" host experience. The change simplifies the host workflow but requires careful integration with existing KSESSIONS data structures.
 
 **Files to Modify:**
+
 - `Pages/Landing.razor` (authentication redirect)
 - `Pages/HostDashboard.razor` (replace or repurpose)
 - `Pages/CreateSession.razor` (may need integration)
@@ -100,6 +115,7 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 - `Hubs/SessionHub.cs` (session start logic)
 
 **New Files to Create:**
+
 - `Pages/HostSessionManager.razor` (main session management interface)
 - API models for Album/Category/Session metadata
 - Service classes for KSESSIONS data integration
@@ -109,9 +125,10 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 **⚠️ BLOCKING: Implementation cannot proceed without visual design specification**
 
 **Required from User:**
+
 1. **Wireframe/Mockup** of the new Host Session Management interface showing:
    - Album dropdown placement and styling
-   - Category dropdown placement and styling  
+   - Category dropdown placement and styling
    - Session dropdown placement and styling
    - "Generate Session Token" button design and placement
    - "Start Session" button design and placement
@@ -131,12 +148,14 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
    - Form layout and spacing requirements
 
 **Requested Formats:**
+
 - Hand-drawn sketches (photographed/scanned)
 - Digital mockups (Figma, Sketch, PowerPoint, etc.)
 - Annotated screenshots of preferred layouts
 - Reference to similar UI patterns from McBeatch theme examples
 
 **Technical Questions for User:**
+
 - Should this page use single-column or multi-column layout?
 - Do you want inline dropdowns or stacked vertically?
 - Should buttons be side-by-side or stacked?
@@ -144,6 +163,7 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 - Mobile responsiveness priorities?
 
 ## 🚀 **Next Steps**
+
 1. **AWAITING USER INPUT:** UI mockups and design specifications
 2. Review NOOR-CANVAS-DESIGN.MD for detailed requirements
 3. Analyze existing KSESSIONS database schema for integration points
@@ -154,6 +174,7 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 ---
 
 **Status History:**
+
 - **2025-09-11:** Issue created, marked as Not Started ❌
 - **2025-09-12:** Updated to request UI mockups from user - Implementation blocked until design provided
 - **2025-01-XX:** ✅ COMPLETED - Implemented HostSessionManager.razor with cascading dropdowns
@@ -161,6 +182,7 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
 ## ✅ **Implementation Summary**
 
 ### **Completed Changes**
+
 1. **Created HostSessionManager.razor** (585 lines)
    - Action-first session management interface
    - Album→Category→Session cascading dropdowns
@@ -188,6 +210,7 @@ This represents a significant UX paradigm shift from "dashboard-first" to "actio
    - Implements action-first UX as requested
 
 ### **Technical Implementation**
+
 - **Frontend:** Blazor Server component with real-time updates
 - **Backend:** ASP.NET Core API controllers with mock data structure
 - **Styling:** CSS Grid and Flexbox with McBeatch theme

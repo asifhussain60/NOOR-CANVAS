@@ -150,7 +150,7 @@ namespace NoorCanvas.Models.KSESSIONS
 
         [ForeignKey("CategoryId")]
         public virtual KSessionsCategory Category { get; set; } = null!;
-        
+
         [ForeignKey("SpeakerId")]
         public virtual KSessionsSpeaker? Speaker { get; set; }
     }

@@ -5,6 +5,7 @@ Complete guide for deploying NOOR Canvas to production environment.
 ## Production Architecture
 
 ### Server Requirements
+
 - **Operating System**: Windows Server 2019/2022
 - **IIS**: Version 10.0 or later with ASP.NET Core hosting bundle
 - **Database**: SQL Server 2019/2022 (AHHOME server)
@@ -14,18 +15,20 @@ Complete guide for deploying NOOR Canvas to production environment.
 ### Database Setup
 
 #### Production Databases
+
 ```sql
 -- Primary application database
 Server: AHHOME
 Database: KSESSIONS (production)
 Schema: canvas (NOOR Canvas tables)
 
--- Cross-application integration  
+-- Cross-application integration
 Database: KQUR (production)
 Schema: dbo (Beautiful Islam integration)
 ```
 
 #### Connection Strings
+
 ```json
 // appsettings.Production.json
 {
@@ -39,10 +42,11 @@ Schema: dbo (Beautiful Islam integration)
 ## IIS Configuration
 
 ### Application Pool Setup
+
 ```xml
 <!-- Application Pool Configuration -->
 <applicationPool name="NoorCanvasPool">
-    <processModel 
+    <processModel
         identityType="ApplicationPoolIdentity"
         idleTimeout="00:00:00"
         maxProcesses="1" />
@@ -53,6 +57,7 @@ Schema: dbo (Beautiful Islam integration)
 ```
 
 ### Site Configuration
+
 ```xml
 <!-- IIS Site Configuration -->
 <site name="NOOR Canvas Production" id="1">
@@ -69,6 +74,7 @@ Schema: dbo (Beautiful Islam integration)
 ## Deployment Process
 
 ### 1. Build for Production
+
 ```powershell
 # Clean and build for production
 dotnet clean
@@ -76,18 +82,21 @@ dotnet publish -c Release -r win-x64 --self-contained false -o "./publish"
 ```
 
 ### 2. Database Migration
+
 ```powershell
 # Run Entity Framework migrations
 dotnet ef database update --context CanvasDbContext --connection "Server=AHHOME;Database=KSESSIONS;..."
 ```
 
 ### 3. File Deployment
+
 ```powershell
 # Copy files to production server
 Copy-Item "publish/*" -Destination "\\ProductionServer\C$\inetpub\wwwroot\NoorCanvas\" -Recurse -Force
 ```
 
 ### 4. IIS Setup Commands
+
 ```powershell
 # Import IIS module and configure
 Import-Module IISAdministration
@@ -103,6 +112,7 @@ New-IISSite -Name "NOOR Canvas Production" -PhysicalPath "C:\inetpub\wwwroot\Noo
 ## Security Configuration
 
 ### SSL Certificate Setup
+
 ```powershell
 # Install SSL certificate
 Import-PfxCertificate -FilePath "certificate.pfx" -CertStoreLocation Cert:\LocalMachine\My -Password $securePassword
@@ -112,6 +122,7 @@ New-IISSiteBinding -Name "NOOR Canvas Production" -Protocol https -Port 443 -Cer
 ```
 
 ### Firewall Configuration
+
 ```powershell
 # Configure Windows Firewall
 New-NetFirewallRule -DisplayName "NOOR Canvas HTTP" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow
@@ -121,6 +132,7 @@ New-NetFirewallRule -DisplayName "NOOR Canvas HTTPS" -Direction Inbound -Protoco
 ## Environment Configuration
 
 ### Production Settings
+
 ```json
 // appsettings.Production.json
 {
@@ -143,6 +155,7 @@ New-NetFirewallRule -DisplayName "NOOR Canvas HTTPS" -Direction Inbound -Protoco
 ```
 
 ### Environment Variables
+
 ```powershell
 # Set production environment
 [Environment]::SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production", "Machine")
@@ -152,6 +165,7 @@ New-NetFirewallRule -DisplayName "NOOR Canvas HTTPS" -Direction Inbound -Protoco
 ## Performance Optimization
 
 ### IIS Optimization
+
 ```xml
 <!-- web.config optimizations -->
 <system.webServer>
@@ -165,6 +179,7 @@ New-NetFirewallRule -DisplayName "NOOR Canvas HTTPS" -Direction Inbound -Protoco
 ```
 
 ### Database Optimization
+
 ```sql
 -- Create indexes for performance
 CREATE INDEX IX_Sessions_CreatedAt ON canvas.Sessions (created_at DESC);
@@ -175,6 +190,7 @@ CREATE INDEX IX_Questions_SessionId ON canvas.Questions (session_id);
 ## Monitoring and Maintenance
 
 ### Health Monitoring
+
 ```csharp
 // Health check endpoint configuration
 app.MapHealthChecks("/healthz", new HealthCheckOptions
@@ -184,6 +200,7 @@ app.MapHealthChecks("/healthz", new HealthCheckOptions
 ```
 
 ### Log Management
+
 ```json
 // Serilog configuration for production
 {
@@ -204,6 +221,7 @@ app.MapHealthChecks("/healthz", new HealthCheckOptions
 ```
 
 ### Backup Strategy
+
 ```powershell
 # Automated backup script
 $backupPath = "C:\Backups\NoorCanvas\$(Get-Date -Format 'yyyy-MM-dd')"
@@ -215,23 +233,27 @@ sqlcmd -S AHHOME -Q "BACKUP DATABASE KSESSIONS TO DISK = '$backupPath\KSESSIONS.
 ### Common Issues
 
 #### "Application won't start"
+
 1. Check Event Logs: `eventvwr.msc`
 2. Verify .NET hosting bundle installation
 3. Check application pool identity permissions
 4. Validate connection strings
 
 #### "Database connection issues"
+
 1. Test connection from server: `sqlcmd -S AHHOME -U sa`
 2. Check firewall rules for SQL Server
 3. Verify sa account password
 4. Test network connectivity
 
 #### "SSL certificate problems"
+
 1. Verify certificate installation: `Get-ChildItem Cert:\LocalMachine\My`
 2. Check certificate binding: `netsh http show sslcert`
 3. Validate certificate chain and expiration
 
 ### Performance Issues
+
 1. **High CPU**: Check application pool recycling settings
 2. **High Memory**: Monitor memory leaks and optimize garbage collection
 3. **Slow Database**: Analyze query performance and add indexes
@@ -240,6 +262,7 @@ sqlcmd -S AHHOME -Q "BACKUP DATABASE KSESSIONS TO DISK = '$backupPath\KSESSIONS.
 ## Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] Build tests pass in Release configuration
 - [ ] Database migration scripts prepared
 - [ ] SSL certificates obtained and validated
@@ -247,6 +270,7 @@ sqlcmd -S AHHOME -Q "BACKUP DATABASE KSESSIONS TO DISK = '$backupPath\KSESSIONS.
 - [ ] Backup of existing production database (if applicable)
 
 ### Deployment Steps
+
 - [ ] Stop existing application pool
 - [ ] Deploy application files
 - [ ] Run database migrations
@@ -256,6 +280,7 @@ sqlcmd -S AHHOME -Q "BACKUP DATABASE KSESSIONS TO DISK = '$backupPath\KSESSIONS.
 - [ ] Verify application health endpoint
 
 ### Post-Deployment
+
 - [ ] Functional testing on production environment
 - [ ] SSL certificate validation
 - [ ] Performance monitoring setup
@@ -266,6 +291,7 @@ sqlcmd -S AHHOME -Q "BACKUP DATABASE KSESSIONS TO DISK = '$backupPath\KSESSIONS.
 ## Rollback Procedures
 
 ### Application Rollback
+
 ```powershell
 # Stop current version
 Stop-IISSite -Name "NOOR Canvas Production"
@@ -278,6 +304,7 @@ Start-IISSite -Name "NOOR Canvas Production"
 ```
 
 ### Database Rollback
+
 ```sql
 -- Restore previous database backup
 RESTORE DATABASE KSESSIONS FROM DISK = 'C:\Backups\Previous\KSESSIONS.bak' WITH REPLACE;
@@ -286,15 +313,17 @@ RESTORE DATABASE KSESSIONS FROM DISK = 'C:\Backups\Previous\KSESSIONS.bak' WITH 
 ## Support and Maintenance
 
 ### Regular Maintenance Tasks
+
 - **Weekly**: Check application logs for errors
-- **Monthly**: Review performance metrics and optimization opportunities  
+- **Monthly**: Review performance metrics and optimization opportunities
 - **Quarterly**: Update SSL certificates and security patches
 - **Annually**: Review and update backup and disaster recovery procedures
 
 ### Emergency Contacts
+
 - **Database Admin**: [Contact information]
-- **Network Admin**: [Contact information] 
+- **Network Admin**: [Contact information]
 - **Security Team**: [Contact information]
 - **Development Team**: [Contact information]
 
-*This production setup guide is maintained as deployment procedures evolve and improve.*
+_This production setup guide is maintained as deployment procedures evolve and improve._
