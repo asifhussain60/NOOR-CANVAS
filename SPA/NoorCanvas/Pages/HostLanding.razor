@@ -80,6 +80,7 @@
                     <InputText @bind-Value="Model!.FriendlyToken" 
                                placeholder="Enter your Host GUID Token"
                                disabled="@isLoading"
+                               autocomplete="off"
                                style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;"
                                @onfocus="@(() => SetFocusStyle(true))"
                                @onblur="@(() => SetFocusStyle(false))" />
