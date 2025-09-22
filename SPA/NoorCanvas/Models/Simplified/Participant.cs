@@ -12,6 +12,11 @@ public class Participant
     [Required]
     public long SessionId { get; set; }
 
+    [Required]
+    [MaxLength(8)]
+    [Column(TypeName = "varchar(8)")]
+    public string UserToken { get; set; } = string.Empty;
+
     [MaxLength(256)]
     public string? UserGuid { get; set; }
 

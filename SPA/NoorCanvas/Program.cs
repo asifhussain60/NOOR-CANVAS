@@ -121,6 +121,7 @@ builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token servic
 
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
+builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks
 
 var app = builder.Build();
 

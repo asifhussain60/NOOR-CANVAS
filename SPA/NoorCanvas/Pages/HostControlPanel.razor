@@ -8,6 +8,7 @@
 @using System.Text.Json
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.EntityFrameworkCore
+@using NoorCanvas.Models
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -440,21 +441,20 @@
                 <i class="fa-solid fa-file-lines" style="color:#006400;"></i>
                 <span>Session Transcript</span>
             </h3>
-            <div style="width:100%;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;">
-                @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
-                {
-                    <div class="session-transcript-content">
-                        @((MarkupString)Model.TransformedTranscript)
-                    </div>
-                }
-                else
-                {
-                    <div style="color:#6B7280;text-align:center;padding:2rem;">
-                        <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
-                        <p style="margin:0;">No transcript available for this session.</p>
-                    </div>
-                }
-            </div>
+            
+            @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                <div class="html-viewer-content session-transcript-content" style="width:100%;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
+                    @((MarkupString)(Model.TransformedTranscript))
+                </div>
+            }
+            else
+            {
+                <div style="color:#6B7280;text-align:center;padding:2rem;">
+                    <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
+                    <p style="margin:0;color:#6B7280;">No transcript available for this session.</p>
+                </div>
+            }
         </div>
 
         <!-- Q&A Panel -->
@@ -582,6 +582,7 @@
     private Guid questionToDeleteId;
     private Timer? messageTimer;
     private HubConnection? hubConnection;
+    private ElementReference transcriptContainer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -1157,6 +1158,15 @@
             showMessage = false;
             await InvokeAsync(StateHasChanged);
         }, null, TimeSpan.FromSeconds(3), Timeout.InfiniteTimeSpan);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender && !string.IsNullOrEmpty(Model?.TransformedTranscript))
+        {
+            Logger.LogInformation("NOOR-HTML-VIEWER: Transcript rendered successfully ({Length} chars)", Model.TransformedTranscript.Length);
+        }
+        await Task.CompletedTask;
     }
 
     private static string GetCountryCode(string countryName) => countryName.ToLower() switch

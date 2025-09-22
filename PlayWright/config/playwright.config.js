@@ -12,6 +12,12 @@ const { defineConfig, devices } = require("@playwright/test");
  * - API Integration Testing with proper error handling
  * - Database Integration with AHHOME SQL Server (KSESSIONS_DEV)
  *
+ * Reporter Configuration:
+ * - PRIMARY: 'list' reporter for non-blocking console output (CI/CD compatible)
+ * - HTML reports generated but don't auto-serve to prevent blocking
+ * - JSON reports for programmatic analysis
+ * - All artifacts (screenshots, videos, traces) still generated for debugging
+ *
  * Enhanced Features:
  * - Consolidated test directory: All tests run from PlayWright/tests/
  * - Headless mode by default for CI/CD compatibility
@@ -48,6 +54,11 @@ const { defineConfig, devices } = require("@playwright/test");
  *
  * 5. **Database Integration**: Real connectivity with stable fallback patterns
  *    - VALIDATED: Session tokens, API endpoints, database queries all stable
+ *
+ * 6. **Non-Blocking Test Reports**: Prioritize console output for CI/CD compatibility
+ *    - PRIMARY: 'list' reporter provides immediate console feedback without blocking
+ *    - SECONDARY: HTML reports generated but don't auto-serve (use 'open: never')
+ *    - BENEFIT: Tests complete normally without manual intervention (Ctrl+C)
  */
 
 /**
@@ -55,6 +66,11 @@ const { defineConfig, devices } = require("@playwright/test");
  */
 module.exports = defineConfig({
   testDir: "./PlayWright/tests",
+  /* Ignore archived tests and workspace TEMP to keep test discovery clean */
+  testIgnore: [
+    "**/Workspaces/TEMP/**",
+    "**/PlayWright/tests/PlayWright-archived/**"
+  ],
   /* Output directory for test artifacts (centralized in PlayWright structure) */
   outputDir: "./PlayWright/artifacts",
   /* Run tests sequentially for session-based testing and better Copilot context */
@@ -67,10 +83,9 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : 1,
   /* Enhanced reporters for TypeScript debugging and Copilot integration */
   reporter: [
-    ["html", { outputFolder: "./PlayWright/reports" }],
+    ["list"], // Primary non-blocking console output for Copilot context
     ["json", { outputFile: "./PlayWright/results/test-results.json" }],
-    ["line"], // Enhanced console output for better debugging
-    ["list"], // Detailed test execution list for Copilot context
+    ["html", { outputFolder: "./PlayWright/reports", open: "never" }], // Generate HTML reports but don't auto-open server
   ],
   /* Shared settings optimized for TypeScript development and Copilot integration */
   use: {

@@ -49,7 +49,7 @@ dotnet run
 
 # 3. Run Playwright tests (connects to stable running instance)
 cd 'D:\PROJECTS\NOOR CANVAS'
-npx playwright test --config=playwright-standalone.config.js
+npx playwright test --config=playwright-standalone.config.js --reporter=list
 ```
 
 #### **🎯 Why This Now Works (Infrastructure Breakthrough):**

@@ -20,7 +20,7 @@ try {
     # Run the User Experience test
     Write-Host "🧪 Running User Experience tests..." -ForegroundColor Yellow
     
-    $testResult = & npx playwright test Tests/UI/user-experience.spec.ts --reporter=line
+    $testResult = & npx playwright test Tests/UI/user-experience.spec.ts --reporter=list
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ All User Experience tests passed!" -ForegroundColor Green

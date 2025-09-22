@@ -8,6 +8,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
+@using NoorCanvas.Components
 @using System.Timers
 @using System.Globalization
 @inject IHttpClientFactory HttpClientFactory
@@ -201,7 +202,10 @@
                         @foreach (var p in Model.Participants)
                         {
                             <div style="display:flex;align-items:center;gap:0.5rem;color:#706357;">
-                                <img data-testid="participant-flag" src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;">
+                                <FlagIcon CountryIso2="@p.Flag" 
+                                         CountryName="@p.Country" 
+                                         DataTestId="participant-flag"
+                                         Style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;" />
                                 <span style="font-family:'Inter',sans-serif;font-size:0.875rem;">@p.Name</span>
                             </div>
                         }
@@ -488,6 +492,13 @@
                         Flag = p.CountryFlag ?? "un" // Database-driven flag code from API
                     }).ToList();
 
+                    // COPILOT-DEBUG: Log detailed flag information for each participant
+                    foreach (var p in newParticipants)
+                    {
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant '{Name}' -> Country: '{Country}', Flag: '{Flag}'", 
+                            requestId, p.Name, p.Country, p.Flag);
+                    }
+
                     // COPILOT-DEBUG: Add only new participants that don't already exist
                     var existingNames = Model.Participants.Select(p => p.Name).ToHashSet();
                     var participantsToAdd = newParticipants.Where(p => !existingNames.Contains(p.Name)).ToList();
@@ -622,9 +633,16 @@
             await _hubConnection.StartAsync();
             Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] SignalR connection started successfully", requestId);
 
-            // Join the session group for real-time updates
+            // COPILOT-DEBUG: ISSUE FIX - Join token-based group instead of session-based group
+            // This ensures all users with the same UserToken see each other immediately
+            var tokenGroup = $"usertoken_{SessionToken}";
+            await _hubConnection.SendAsync("JoinGroup", tokenGroup);
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] ISSUE FIX - Joined token-based group '{TokenGroup}' for real-time participant sync", 
+                requestId, tokenGroup);
+            
+            // Also join session group for backward compatibility with other events
             await _hubConnection.SendAsync("JoinSession", _sessionId, "participant");
-            Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Joined session group {SessionId}", requestId, _sessionId);
+            Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Joined session group {SessionId} for compatibility", requestId, _sessionId);
         }
         catch (Exception ex)
         {
@@ -810,10 +828,21 @@
         {
             try
             {
-                if (_sessionId != null && _hubConnection.State == HubConnectionState.Connected)
+                if (_hubConnection.State == HubConnectionState.Connected)
                 {
-                    await _hubConnection.SendAsync("LeaveSession", _sessionId);
-                    Logger.LogInformation("NOOR-SIGNALR: Left session group {SessionId}", _sessionId);
+                    // COPILOT-DEBUG: ISSUE FIX - Leave token-based group on cleanup
+                    if (!string.IsNullOrEmpty(SessionToken))
+                    {
+                        var tokenGroup = $"usertoken_{SessionToken}";
+                        await _hubConnection.SendAsync("LeaveGroup", tokenGroup);
+                        Logger.LogInformation("COPILOT-DEBUG: Left token-based group {TokenGroup}", tokenGroup);
+                    }
+                    
+                    if (_sessionId != null)
+                    {
+                        await _hubConnection.SendAsync("LeaveSession", _sessionId);
+                        Logger.LogInformation("NOOR-SIGNALR: Left session group {SessionId}", _sessionId);
+                    }
                 }
                 await _hubConnection.DisposeAsync();
                 Logger.LogInformation("NOOR-SIGNALR: SignalR connection disposed successfully");

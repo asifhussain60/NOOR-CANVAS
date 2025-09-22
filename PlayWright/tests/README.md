@@ -325,10 +325,10 @@ Tests handle application lifecycle:
 
 ```bash
 # CI mode (no browser UI)
-CI=true npx playwright test
+CI=true npx playwright test --reporter=list
 
-# Generate reports for CI
-npx playwright test --reporter=json --output-dir=./test-results
+# Generate reports for CI (non-blocking)
+npx playwright test --reporter=list --output-dir=./test-results
 ```
 
 ## Troubleshooting

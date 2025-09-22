@@ -121,7 +121,7 @@ dotnet run
 
 # 3. Run E2E tests (infrastructure now supports this!)
 cd "D:\PROJECTS\NOOR CANVAS"
-npx playwright test --config=playwright-standalone.config.js
+npx playwright test --config=playwright-standalone.config.js --reporter=list
 ```
 
 ### **UI Testing (VSCode Test Explorer - Recommended)**

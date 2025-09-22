@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using NoorCanvas.Data;
 using System.Text.Json;
 
 namespace NoorCanvas.Hubs;
@@ -6,10 +8,12 @@ namespace NoorCanvas.Hubs;
 public class SessionHub : Hub
 {
     private readonly ILogger<SessionHub> _logger;
+    private readonly SimplifiedCanvasDbContext _context;
 
-    public SessionHub(ILogger<SessionHub> logger)
+    public SessionHub(ILogger<SessionHub> logger, SimplifiedCanvasDbContext context)
     {
         _logger = logger;
+        _context = context;
     }
 
     public async Task JoinSession(long sessionId, string role = "user")
@@ -61,6 +65,87 @@ public class SessionHub : Hub
     public async Task Ping()
     {
         await Clients.Caller.SendAsync("Pong", DateTime.UtcNow);
+    }
+
+    /// <summary>
+    /// ISSUE-1 FIX: Enhanced group join method that syncs existing participants to new connections
+    /// </summary>
+    public async Task JoinGroup(string groupName)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Connection {ConnectionId} joined group {GroupName}", 
+            requestId, Context.ConnectionId, groupName);
+
+        // COPILOT-DEBUG: SIGNALR SYNC FIX - Send existing participants to newly connected user
+        if (groupName.StartsWith("usertoken_"))
+        {
+            var userToken = groupName.Substring("usertoken_".Length);
+            _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Extracting user token '{UserToken}' from group '{GroupName}'", 
+                requestId, userToken, groupName);
+
+            try
+            {
+                // Get all existing participants for this token
+                var existingParticipants = await _context.Participants
+                    .Where(p => p.UserToken == userToken)
+                    .Select(p => new
+                    {
+                        sessionId = p.SessionId,
+                        participantId = p.UserGuid,
+                        displayName = p.Name,
+                        country = p.Country,
+                        joinedAt = p.JoinedAt,
+                        timestamp = DateTime.UtcNow,
+                        userToken = p.UserToken
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Found {Count} existing participants for token '{UserToken}'", 
+                    requestId, existingParticipants.Count, userToken);
+
+                // Send each existing participant to the newly connected client
+                foreach (var participant in existingParticipants)
+                {
+                    await Clients.Caller.SendAsync("ParticipantJoined", participant);
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Sent existing participant '{Name}' to new connection", 
+                        requestId, participant.displayName);
+                }
+                
+                if (existingParticipants.Count > 0)
+                {
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX COMPLETED - Synced {Count} existing participants to connection {ConnectionId}", 
+                        requestId, existingParticipants.Count, Context.ConnectionId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX ERROR - Failed to sync existing participants for token '{UserToken}'", 
+                    requestId, userToken);
+            }
+        }
+    }
+
+    /// <summary>
+    /// ISSUE-1 FIX: Generic group leave method for token-based participant filtering
+    /// </summary>
+    public async Task LeaveGroup(string groupName)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        _logger.LogInformation("NOOR-HUB: Connection {ConnectionId} left group {GroupName}", 
+            Context.ConnectionId, groupName);
+    }
+
+    /// <summary>
+    /// Legacy method for session-based grouping (backwards compatibility)
+    /// </summary>
+    public async Task JoinSessionGroup(string sessionId)
+    {
+        var groupName = $"session_{sessionId}";
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        _logger.LogInformation("NOOR-HUB: Connection {ConnectionId} joined session group {GroupName}", 
+            Context.ConnectionId, groupName);
     }
 
     /// <summary>

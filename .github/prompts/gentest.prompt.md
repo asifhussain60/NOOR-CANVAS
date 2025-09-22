@@ -7,7 +7,8 @@ description: >
 Generate production-ready Playwright E2E tests for NOOR Canvas using proven Blazor Server patterns:
 headless-first execution, safe helpers for @bind-Value, button enablement checks, realistic
 startup/awaits, and session/token setup with graceful fallbacks. Output must be CI-stable and align
-with NOOR-CANVAS-DESIGN and ncImplementationTracker. Incorporate Infra Fixes guidance.
+with NOOR-CANVAS-DESIGN and ncImplementationTracker. CRITICAL: Integrate PLAYWRIGHT-EXECUTION-GUARDRAILS
+infrastructure stability requirements for multi-user concurrent testing.
 
 parameters:
 
@@ -23,7 +24,8 @@ parameters:
   required: false
   description: >
   Extra constraints or scenarios: e.g., "negative-testing", "multi-user", "performance",
-  "sessionId:212", "token:VNBPRVII", "headless verbose". Parsed to seed fixtures/env.
+  "sessionId:212", "token:VNBPRVII", "headless verbose", "5-instances", "superhero-data".
+  Multi-user scenarios must validate participant synchronization across browser instances.
 
 # ──────────────────────────────
 
@@ -80,6 +82,9 @@ guardrails:
 - [artifacts] Always enable trace-on-retry, screenshots/video on failure, HTML+JSON reports.
 - [headless] Default headless unless notes explicitly say "headed".
 - [security] Never log tokens/secrets.
+- [infrastructure] Include PLAYWRIGHT-EXECUTION-GUARDRAILS pre-flight checks for application availability on https://localhost:9091.
+- [multi-user] For concurrent testing: validate SignalR WebSocket connections, database isolation, participant synchronization across browser instances.
+- [stability] Leverage infrastructure fixes: stable Serilog configuration, enhanced Kestrel server, validated 2+ concurrent browser support.
 
 # ✅ Quality Checklist
 

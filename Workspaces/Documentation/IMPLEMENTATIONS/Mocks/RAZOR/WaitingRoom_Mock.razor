@@ -2,6 +2,7 @@
 
 @using System.Timers
 @using System.Globalization
+@using NoorCanvas.Components
 
 <div class="bg-[#F8F5F1] flex flex-col items-center p-4 min-h-screen">
 
@@ -85,7 +86,9 @@
                 @foreach (var p in participants)
                 {
                     <div class="flex items-center space-x-2 text-[#706357]">
-                        <img src="@($"https://flagcdn.com/w20/{p.flag}.png")" alt="@($"{p.country} Flag")" class="h-4 w-auto rounded border border-gray-300">
+                        <FlagIcon CountryIso2="@p.flag" 
+                                 CountryName="@p.country" 
+                                 CssClass="h-4 w-auto rounded border border-gray-300" />
                         <span class="inter text-sm">@p.name</span>
                     </div>
                 }

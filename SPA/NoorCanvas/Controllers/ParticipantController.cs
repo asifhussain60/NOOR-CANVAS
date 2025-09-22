@@ -196,7 +196,8 @@ namespace NoorCanvas.Controllers
                 {
                     _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Participant already exists, updating info", requestId);
 
-                    // Update existing participant
+                    // Update existing participant with token relationship
+                    existingParticipant.UserToken = session.UserToken; // Ensure token is always current
                     existingParticipant.Name = request.Name;
                     existingParticipant.Email = request.Email;
                     existingParticipant.Country = request.Country;
@@ -206,10 +207,11 @@ namespace NoorCanvas.Controllers
                 {
                     _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Creating new participant", requestId);
 
-                    // Create new participant
+                    // Create new participant with direct UserToken relationship
                     var participant = new Participant
                     {
                         SessionId = session.SessionId,
+                        UserToken = session.UserToken, // DIRECT TOKEN GROUPING: Store the 8-char friendly token
                         UserGuid = Guid.NewGuid().ToString(),
                         Name = request.Name,
                         Email = request.Email,
@@ -225,10 +227,23 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-PARTICIPANT-REGISTRATION: [{RequestId}] Registration successful for {Name}",
                     requestId, request.Name);
 
-                // Broadcast SignalR event to notify all users in the waiting room about the new participant
+                // ISSUE-1 FIX: Use token-based SignalR groups instead of session-based groups
+                // Only users with the same user token should see each other
+                var tokenGroup = $"usertoken_{session.UserToken}";
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Broadcasting ParticipantJoined to token-specific group: '{TokenGroup}' for participant '{Name}'", 
+                    requestId, tokenGroup, request.Name);
+
+                // Get current participant count for debugging
+                var currentParticipantCount = await _context.Participants
+                    .Where(p => p.UserToken == session.UserToken)
+                    .CountAsync();
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Total participants for token '{UserToken}': {Count}", 
+                    requestId, session.UserToken, currentParticipantCount);
+
+                // Broadcast SignalR event to notify users sharing the same user token
                 try
                 {
-                    await _sessionHub.Clients.Group($"session_{session.SessionId}")
+                    await _sessionHub.Clients.Group(tokenGroup)
                         .SendAsync("ParticipantJoined", new
                         {
                             sessionId = session.SessionId,
@@ -236,11 +251,12 @@ namespace NoorCanvas.Controllers
                             displayName = request.Name,
                             country = request.Country,
                             joinedAt = DateTime.UtcNow,
-                            timestamp = DateTime.UtcNow
+                            timestamp = DateTime.UtcNow,
+                            userToken = session.UserToken // Token for validation
                         });
 
-                    _logger.LogInformation("NOOR-SIGNALR: [{RequestId}] ParticipantJoined broadcast sent for session {SessionId}, participant {Name}",
-                        requestId, session.SessionId, request.Name);
+                    _logger.LogInformation("NOOR-SIGNALR: [{RequestId}] ParticipantJoined broadcast sent to token group '{TokenGroup}', participant {Name}",
+                        requestId, tokenGroup, request.Name);
                 }
                 catch (Exception signalREx)
                 {
@@ -287,15 +303,31 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Session not found", RequestId = requestId });
                 }
 
-                // Get participants from simplified schema
+                // COPILOT-DEBUG: Issue #1 - Track token filtering
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] ISSUE-1 ANALYSIS - Token: {Token} → SessionId: {SessionId}, UserToken: {UserToken}, HostToken: {HostToken}", 
+                    requestId, token, session.SessionId, session.UserToken, session.HostToken);
+                
+                // DIRECT TOKEN GROUPING: Filter participants directly by UserToken (no complex joins needed)
                 var participantsData = await _context.Participants
-                    .Where(p => p.SessionId == session.SessionId)
+                    .Where(p => p.UserToken == session.UserToken)
                     .ToListAsync();
 
-                // Get country flags from KSESSIONS database
+                _logger.LogInformation("NOOR-PARTICIPANT-GROUPING: [{RequestId}] Direct UserToken filtering returned {Count} participants for token '{UserToken}'", 
+                    requestId, participantsData.Count, session.UserToken);
+
+                // COPILOT-DEBUG: Log participant countries for debugging
+                var participantCountries = participantsData.Select(p => p.Country).Distinct().ToList();
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant countries in database: {Countries}", 
+                    requestId, string.Join(", ", participantCountries.Select(c => $"'{c}'")));
+
+                // Get country flags from KSESSIONS database - match against ISO2 field
                 var countryFlags = await _kSessionsContext.Countries
-                    .Where(c => participantsData.Select(p => p.Country).Contains(c.CountryName))
-                    .ToDictionaryAsync(c => c.CountryName, c => (c.ISO2 ?? "UN").ToLower());
+                    .Where(c => c.ISO2 != null && participantsData.Select(p => p.Country).Contains(c.ISO2))
+                    .ToDictionaryAsync(c => c.ISO2!, c => (c.ISO2 ?? "UN").ToLower());
+
+                // COPILOT-DEBUG: Log country mapping results
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Country flag mappings found: {Mappings}", 
+                    requestId, string.Join(", ", countryFlags.Select(kv => $"'{kv.Key}' -> '{kv.Value}'")));
 
                 // Combine participant data with flag codes
                 var participants = participantsData.Select(p => new

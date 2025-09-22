@@ -1,183 +1,165 @@
 ---
-
 mode: agent
 name: cleanup
 alias: /cleanup
 description: >
-Perform a disciplined repo cleanup within an effective scope while preserving history,
-enforcing naming conventions, consolidating docs, organizing Playwright assets, and
-finishing with 0 uncommitted files. Align with NOOR-CANVAS-DESIGN, ncImplementationTracker.MD,
-and Infrastructure-Fixes-Report for Playwright paths & ignores.
+  Perform a disciplined repo cleanup within a defined scope while preserving history,
+  consolidating documentation, organizing Playwright assets, enforcing canonical structure,
+  and ensuring the working tree is clean. 
+  Always align with NOOR-CANVAS-DESIGN, ncImplementationTracker, and INFRASTRUCTURE-FIXES-REPORT.
+  Any non-canonical files should be moved into Workspaces/TEMP, which is purged at the end
+  unless files are explicitly referenced.
 
 parameters:
+  - name: scope
+    required: false
+    description: >
+      Optional path or glob to limit cleanup (e.g., "PlayWright/", "src/Web/**").
+      Defaults to repo root (".").
+  - name: dry_run
+    required: false
+    description: >
+      If true (default), only preview moves/deletes in a diff-style plan.
 
-- name: scope
-  required: false
-  description: Optional path or glob to limit work (e.g., "PlayWright/", "src/Web/\*\*").
-  Defaults to repo root.
-
-# ───────────────────────────
-
+# ─────────────────────────────────────────────
 # 📖 Usage Examples
-
-# ───────────────────────────
-
-# 1) Clean the whole repo:
-
+# ─────────────────────────────────────────────
 # /cleanup
-
-#
-
-# 2) Only tidy the Playwright area:
-
 # /cleanup scope:"PlayWright/"
+# /cleanup scope:"src/Web/**"
+# /cleanup dry_run:false
 
-#
-
-# 3) Focus on web UI code:
-
-# /cleanup scope:"src/Web/\*\*"
-
-# ───────────────────────────
-
-# 🎯 Operating Mode
-
-- Effective scope = {{scope}} if provided, otherwise repo root (".").
-- All scans/moves/deletions/renames operate within the effective scope except:
-  • Root-level .gitignore audit (always global)
-  • Cross-scope link/rename fixes only when references cross in/out of scope
-
+# ─────────────────────────────────────────────
 # 🧭 Goals
+# ─────────────────────────────────────────────
+# • Enforce clean canonical repo structure.
+# • Move stray configs, SQL, PS1, and evidence files into appropriate folders or Workspaces/TEMP.
+# • Consolidate documentation into Workspaces/Documentation with an INDEX.md.
+# • Ensure Playwright artifacts are ignored, not committed.
+# • Purge Workspaces/TEMP of all unreferenced files.
+# • End with zero uncommitted files in the working tree.
 
-- Enforce clean structure + conventional filenames.
-- Consolidate instructional Markdown to a single canonical README in-scope, linking back to root README when appropriate.
-- Centralize Playwright tests/configs; ensure reports/results/artifacts are ignored (tracked vs ignored rules).
-- Remove TEMP/artefacts, orphaned files, duplicates; update references after renames.
-- Run formatters/linters on touched files; ensure build succeeds when scope touches buildable code.
-- Conclude with: 0 uncommitted files (clean working tree).
+# ─────────────────────────────────────────────
+# 📁 Root Canonicalization
+# ─────────────────────────────────────────────
+whitelist_root:
+  - README.md
+  - LICENSE
+  - .gitignore
+  - package.json
+  - package-lock.json
+  - NoorCanvas.sln
+  - playwright.config.ts
+  - playwright.config.js
+  - tsconfig.json
+  - .editorconfig
+  - .gitattributes
+  - .github/**
 
-# 📁 Structure & Naming Standards (Noor Canvas)
+root_cleanup_rules:
+  playwright_configs:
+    canonical: ["playwright.config.ts", "playwright.config.js"]
+    move_non_canonical: "Workspaces/TEMP/playwright/"
+  sql_scripts:
+    migrations: "Database/Migrations/"
+    scripts: "Database/Scripts/"
+    temp: "Workspaces/TEMP/sql/"
+  powershell:
+    validation: "Scripts/Validation/"
+    temp: "Workspaces/TEMP/scripts/"
+  evidence:
+    docs: "Workspaces/Documentation/assets/"
+    temp: "Workspaces/TEMP/evidence/"
+  configs:
+    tsconfig: "tsconfig.json"
+    temp: "Workspaces/TEMP/config/"
 
-- PlayWright/
-  - config/, tests/ → tracked
-  - reports/, results/, artifacts/ → ignored (never tracked)
-- Scripts/ and Scripts/Validation/
-- IssueTracker/ with statuses: NOT STARTED, IN PROGRESS, AWAITING_CONFIRMATION, COMPLETED
-- Documentation/ for deep docs; root README.md remains canonical
-- Conventional names only (README.md, CONTRIBUTING.md, etc.); no "temp/new/final/fixed" style names.
+# ─────────────────────────────────────────────
+# 📂 Documentation Consolidation
+# ─────────────────────────────────────────────
+docs_consolidation:
+  - Move all *.md under Workspaces/Documentation
+  - Keep only root README.md canonical
+  - Exclude `.github/**`, LICENSE, SECURITY.md, CODE_OF_CONDUCT.md
+  - Generate Workspaces/Documentation/INDEX.md with table of contents
+  - Merge/normalize duplicates; provide stubs linking to canonical versions
 
-# ⚖️ Constraints & Principles
+# ─────────────────────────────────────────────
+# 🧹 TEMP Folder Policy
+# ─────────────────────────────────────────────
+temp_policy:
+  - TEMP is a staging area for stray files.
+  - At cleanup end, scan Workspaces/TEMP recursively:
+      - If a file is referenced elsewhere (via grep), keep and warn.
+      - Otherwise, delete permanently.
+  - Remove empty subfolders.
+  - Default outcome: TEMP is empty.
+  - Ensure .gitignore contains:
+      Workspaces/TEMP/**
 
-- Prefer rename/move over delete to preserve history.
-- Scope discipline: do not touch outside scope unless:
-  • updating .gitignore,
-  • fixing broken references across boundary,
-  • untracking artefacts that should be ignored.
-- Never change issue status or lifecycle; cleanup is non-destructive to tracker/state.
+# ─────────────────────────────────────────────
+# ⚖️ Constraints
+# ─────────────────────────────────────────────
+constraints:
+  - Prefer rename/move over delete (preserve history).
+  - Only delete if duplicate by hash or unreferenced.
+  - Never alter issue trackers or statuses.
+  - Only touch outside scope for .gitignore or link fixes.
 
-# 🧹 Workspace & Markdown Consolidation (NEW)
+# ─────────────────────────────────────────────
+# 📋 Execution Plan
+# ─────────────────────────────────────────────
+steps:
+  - title: Resolve Effective Scope
+    run: Determine scope (default ".").
+  - title: .gitignore Audit
+    run: >
+      Ensure Playwright artifacts and TEMP ignored.
+      Add rules for OS/editor junk, caches, logs, tmp/bak files.
+  - title: Docs Consolidation
+    run: >
+      Move scattered .md files into Workspaces/Documentation, update links, 
+      generate INDEX.md, merge duplicates.
+  - title: Root Canonicalization
+    run: >
+      Normalize Playwright configs, SQL scripts, PS1 helpers, evidence, and configs
+      according to rules; move non-canonicals into TEMP.
+  - title: Naming & Link Fixes
+    run: Normalize file/folder names; update references across repo.
+  - title: TEMP Sweep
+    run: >
+      Delete all unreferenced files under Workspaces/TEMP; remove empty subfolders.
+      Warn if any TEMP files remain due to references.
+  - title: Artefact & Cache Cleanup
+    run: >
+      Purge bin/, obj/, dist/, .cache/, *.tmp, *.bak, *.log. 
+      Untrack via git rm if committed accidentally.
+  - title: Lint & Format
+    run: dotnet format (C#) + prettier (JS/TS/MD).
+  - title: Build & Sanity Check
+    run: Build app; require 0 errors, ≤2 warnings.
+  - title: Zero-Diff Finisher
+    run: >
+      Stage + commit moves/deletes.
+      git clean -fdX.
+      Verify working tree is clean (git status empty).
 
-- Recursively analyze **all files and folders** under the **Noor Canvas folder** (repo root and SPA/NoorCanvas/\*\*).
-- Move **all `*.md`/`*.MD` Markdown files** into **Workspaces/**, preserving logical subfolders:
-  • Primary destination: `Workspaces/Documentation/`
-  • Keep a single **root `README.md`** at repo root (canonical). Do not move `.github/**` docs, license headers, or policy files that must remain in place (e.g., `LICENSE`, `SECURITY.md`, `CODE_OF_CONDUCT.md`).
-  • If a moved Markdown was referenced by relative links, update links to the new location.
-- **Cleanup Workspaces/**
-  • Deduplicate and merge overlapping docs (prefer the most recent & authoritative copy).
-  • Collapse near-duplicates into one canonical doc; leave stubs that _link_ to the canonical if needed.
-  • Remove obviously obsolete files (empty scaffolds, autogenerated dumps, stale screenshots) after verifying no references.
-  • Normalize section headings and front-matter; add a table-of-contents to large docs.
-- Produce a **Docs Map** in `Workspaces/Documentation/INDEX.md` listing all consolidated docs and their purpose.
+# ─────────────────────────────────────────────
+# 🛡️ Regression Guards
+# ─────────────────────────────────────────────
+guardrails:
+  - [playwright] Never commit artifacts (reports/results/artifacts).
+  - [docs] Only root README.md at root; others in Workspaces/Documentation.
+  - [temp] TEMP must be purged unless files are explicitly referenced.
+  - [naming] Enforce kebab-case for test files, PascalCase for C#/Razor.
+  - [duplication] Detect duplicates; keep canonical copy only.
+  - [tracker] Never touch issue trackers.
 
-# ➕ Additional Similar Cleanup Instructions (NEW)
-
-- **Screenshot & Asset hygiene:** Move unreferenced images from scattered folders into `Workspaces/Assets/` or delete if unused; update links.
-- **Code fences & formatting:** Auto-format Markdown (Prettier) and fix broken fences/indentation; ensure language tags (`ts, `csharp, ```powershell) where applicable.
-- **Orphan detector:** Grep for references to moved files; if none, tag as orphan and remove or archive under `Workspaces/_Archive/` with date-stamped note.
-- **Naming normalization:** Enforce kebab-case for file names in PlayWright/tests and PascalCase for C#/Razor; fix mixed-case folders.
-- **README reduction:** If multiple READMEs exist in the same subtree, reduce to one canonical and convert others into section anchors or short “See: …” stubs.
-- **Sample vs. prod config:** Move sample configs to `Workspaces/Samples/` and ensure `.env*` secrets are ignored and not committed.
-- **Script garden:** Move ad-hoc helper scripts into `Scripts/` or `Scripts/Validation/`, add a one-line usage header, and mark experimental ones to `Workspaces/_Archive/` if deprecated.
-
-# 📋 High-Level Plan (Execution Order)
-
-0. Resolve Effective Scope
-   - SCOPE = {{scope}} if provided; else "."
-
-1. .gitignore Audit (GLOBAL)
-   - Ensure idempotent rules for OS/editor junk, backups/caches/logs, build outputs, deps.
-   - **Playwright**: confirm _ignored_ (reports/results/artifacts) and _tracked_ (config/tests) split is correct.
-   - Show a short diff-style preview before applying.
-
-2. Instructional Markdown Consolidation (Scoped)
-   - Merge/normalize scattered instructions into one README in-scope.
-   - Link to root README if scope is a sub-tree.
-   - Remove duplicates/outdated copies.
-
-3. **Markdown Sweep to Workspaces** (NEW)
-   - Find all Markdown (`*.md`, `*.MD`) across Noor Canvas tree.
-   - Exclusions: repo root `README.md`, `.github/**`, `LICENSE`, `SECURITY.md`, `CODE_OF_CONDUCT.md`.
-   - Move to `Workspaces/Documentation/` maintaining relative sub-structure where helpful.
-   - Update links/imports; generate `Workspaces/Documentation/INDEX.md`.
-
-4. Naming & Link Fixes (Scoped)
-   - Normalize file/folder case and conventional names.
-   - Update internal links/imports/refs for any renames (fix cross-scope edges if necessary).
-
-5. Duplicate/Orphan Pruning + Playwright Organization (Scoped)
-   - Detect duplicates by hash/similarity; keep canonical copy.
-   - Remove orphaned screenshots/assets not referenced.
-   - Centralize Playwright tests under PlayWright/tests/ (if within scope); update configs accordingly.
-   - Prune old artefact paths under scope.
-
-6. Artefacts & Cache Cleanup (Scoped)
-   - Remove build outputs, caches, logs, backups: bin/, obj/, dist/, .cache/, _.tmp, _.bak, \*.log
-   - If any such paths are tracked, run `git rm -r --cached` to untrack (respecting .gitignore).
-
-7. Lint & Format (Touched Files Only)
-   - .NET: `dotnet format --verbosity minimal` from SPA/NoorCanvas/ when relevant
-   - JS/TS/MD: `npx prettier --write .`
-   - Fail run if fatal syntax/lint errors remain.
-
-8. Build & Sanity Checks (If scope affects code)
-   - For NOOR Canvas: `cd "d:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"; dotnet build`
-   - Allow 1–2 warnings; require 0 errors.
-
-9. Zero-Diff Finisher (Always End Clean)
-   - Stage & commit intended changes: if scope set, `git add -A -- <SCOPE>` plus root-level edits (.gitignore/refs).
-   - Untrack now-ignored artefacts with `git rm -r --cached`.
-   - Purge ignored junk safely: `git clean -fdX`.
-   - Re-verify: if `git status --porcelain` shows non-ignored junk, extend .gitignore or delete if disposable.
-   - Use a conventional commit message, then push.
-   - Assert: working tree is clean (0 uncommitted files).
-
-# ✅ Post-Run Validation
-
-- Git cleanliness: working tree empty.
-- Playwright layout: tests/config tracked; artefacts ignored.
-- **Docs Map present** at `Workspaces/Documentation/INDEX.md` and links verified.
-- Build passes if scope included buildable code.
-- Documentation: one canonical README in-scope; links valid.
-
-# 🛡️ Regression Guards (Baked-In)
-
-- [playwright] Enforce tracked/ignored split exactly; never commit reports/results/artifacts.
-- [duplication] Detect & dedupe instructions; prefer canonical README + links (avoid repeating doctrine across prompts).
-- [naming] Reject non-professional filenames; auto-normalize.
-- [docs] Keep a single canonical root README; move all other Markdown to Workspaces/Documentation with link updates.
-- [tracker] Do not alter issue statuses or infer completion.
-- [evidence] Preview .gitignore changes before applying; record the final `git status` proof.
-
-# 🔗 Documentation & Alignment Hooks
-
-- Must align with NOOR-CANVAS-DESIGN.MD (architecture & phases).
-- Must reflect ncImplementationTracker.MD (current state & lessons).
-- Apply Playwright path/ignore rules from INFRASTRUCTURE-FIXES-REPORT.md (if present).
-- If conflicts arise, prefer DESIGN → ImplementationTracker → Infrastructure Fixes, in that order.
-
-# 🗒️ Summary Output (at end of run)
-
-- 5–10 bullets of what changed & why.
-- Table of renames/moves (old → new).
-- List of deduped/removed files with reason.
-- Final cleanliness proof: `git status` empty message.
+# ─────────────────────────────────────────────
+# 📤 Output
+# ─────────────────────────────────────────────
+output:
+  - Table: PATH → ACTION (move/delete/keep) → DEST
+  - Docs INDEX summary
+  - TEMP purge report: deleted N, kept M (with reasons)
+  - git status confirmation (empty working tree)

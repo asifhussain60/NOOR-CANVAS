@@ -7,6 +7,7 @@ description: >
 Execute Playwright tests for NOOR Canvas with headless-first discipline, rich artifacts,
 robust health checks, and smart notes→env parsing. Honor project playwright.config.\*,
 run single-worker to avoid session cross-talk, and never self-boot if webServer is configured.
+CRITICAL: Integrate PLAYWRIGHT-EXECUTION-GUARDRAILS infrastructure validation for stable test execution.
 Align with NOOR-CANVAS-DESIGN, ncImplementationTracker, Infra Fixes, and Copilot protocols.
 
 parameters:
@@ -19,7 +20,8 @@ parameters:
   required: false
   description: >
   Free-form hints parsed into runtime context:
-  token:VNBPRVII, sessionId:212, user:qa@noor.app, tenant:dev, route:/host/control-panel, headless, verbose.
+  token:VNBPRVII, sessionId:212, user:qa@noor.app, tenant:dev, route:/host/control-panel, headless, verbose,
+  multi-user, 5-instances. Infrastructure stability validated for concurrent browser sessions.
 
 # ─────────────────────────
 
@@ -53,7 +55,7 @@ parameters:
 
 # ─────────────────────────
 
-# 🚦 Pre-Execution Validation (CRITICAL)
+# 🚦 Pre-Execution Validation (CRITICAL - Infrastructure Validated)
 
 # ─────────────────────────
 
@@ -64,10 +66,16 @@ precheck:
 - reporters: [html, json, line]
 - artifacts_dirs: ["PlayWright/reports","PlayWright/results","PlayWright/artifacts"]
 - healthcheck:
-  url: "http://localhost:9090"
+  urls: ["https://localhost:9091", "http://localhost:9090"]
   verify: - "title ~ /Noor Canvas|NOOR CANVAS/"
   warmup_seconds: 20
+- infrastructure_validation:
+  - application_running: "dotnet process active on ports 9090/9091"
+  - clean_startup_logs: "single log messages confirm infrastructure fixes"
+  - signalr_circuits: "WebSocket connections established for multi-user tests"
+  - database_connection: "KSESSIONS_DEV accessible via application logs"
 - respect_project_config: true # never override trace/retries/webServer if set
+- concurrent_support: true # infrastructure validated for 2+ browser instances
 
 # ─────────────────────────
 

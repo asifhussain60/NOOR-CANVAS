@@ -9,7 +9,6 @@
  * Purpose: Efficient test execution with smart failure handling
  */
 
-import { test } from "@playwright/test";
 import { exec } from "child_process";
 import { promisify } from "util";
 
@@ -211,7 +210,9 @@ export class EnhancedTestMonitor {
 
 /**
  * Enhanced beforeEach hook with smart app monitoring
+ * NOTE: Commented out to prevent global setup conflicts - use in individual test files only
  */
+/* 
 export const enhancedBeforeEach = test.beforeEach(
   async ({ page }, testInfo) => {
     const startTime = Date.now();
@@ -240,10 +241,13 @@ export const enhancedBeforeEach = test.beforeEach(
     console.log("✅ Pre-test validation complete");
   },
 );
+*/
 
 /**
  * Enhanced afterEach hook with failure analysis
+ * NOTE: Commented out to prevent global setup conflicts - use in individual test files only
  */
+/* 
 export const enhancedAfterEach = test.afterEach(async ({ page }, testInfo) => {
   const endTime = Date.now();
   EnhancedTestMonitor.testHealth.testExecutionTime = endTime - Date.now();
@@ -277,13 +281,14 @@ export const enhancedAfterEach = test.afterEach(async ({ page }, testInfo) => {
     `📊 Test completed: ${testInfo.title} - Status: ${testInfo.status} - Duration: ${EnhancedTestMonitor.testHealth.testExecutionTime}ms`,
   );
 });
+*/
 
 /**
- * Convenience function to use both enhanced hooks
+ * Convenience function to use enhanced hook (beforeEach and afterEach commented out for global setup compatibility)
  */
 export const withEnhancedMonitoring = () => {
-  enhancedBeforeEach;
-  enhancedAfterEach;
+  // enhancedBeforeEach; // Commented out to prevent global setup conflicts
+  // enhancedAfterEach; // Commented out to prevent global setup conflicts
 };
 
 /**

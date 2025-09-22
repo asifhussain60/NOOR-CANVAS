@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Models.Simplified;
+using NoorCanvas.Models;
 
 namespace NoorCanvas.Data;
 
@@ -14,7 +15,7 @@ public class SimplifiedCanvasDbContext : DbContext
     }
 
     // Simplified Schema Tables (4 total - 75% reduction from original 15 tables)
-    public DbSet<Session> Sessions { get; set; }
+    public DbSet<Models.Simplified.Session> Sessions { get; set; }
     public DbSet<Participant> Participants { get; set; }
     public DbSet<SessionData> SessionData { get; set; }
     public DbSet<AssetLookup> AssetLookup { get; set; } // Global asset definitions for share button injection
@@ -24,18 +25,18 @@ public class SimplifiedCanvasDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         // Configure unique constraints for authentication tokens
-        modelBuilder.Entity<Session>()
+        modelBuilder.Entity<Models.Simplified.Session>()
             .HasIndex(s => s.HostToken)
             .IsUnique()
             .HasDatabaseName("UQ_Sessions_HostToken");
 
-        modelBuilder.Entity<Session>()
+        modelBuilder.Entity<Models.Simplified.Session>()
             .HasIndex(s => s.UserToken)
             .IsUnique()
             .HasDatabaseName("UQ_Sessions_UserToken");
 
         // Configure performance indexes for common queries
-        modelBuilder.Entity<Session>()
+        modelBuilder.Entity<Models.Simplified.Session>()
             .HasIndex(s => new { s.Status, s.ExpiresAt })
             .HasDatabaseName("IX_Sessions_Status_Expires");
 
