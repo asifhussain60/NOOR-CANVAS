@@ -83,10 +83,10 @@ module.exports = defineConfig({
   /* Single worker for session testing to prevent token conflicts */
   workers: process.env.CI ? 1 : 1,
   /* Enhanced reporters for TypeScript debugging and Copilot integration */
-    reporter: [
+  reporter: [
     ["list"], // Primary non-blocking console output for Copilot context
-  ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
-  ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }], // Generate HTML reports but don't auto-open server
+    ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+    ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }], // Generate HTML reports but don't auto-open server
   ],
   /* Shared settings optimized for TypeScript development and Copilot integration */
   use: {
@@ -110,7 +110,7 @@ module.exports = defineConfig({
       // Enable better debugging information for TypeScript
       recordVideo: {
         // central artifacts folder next to config's parent
-  dir: "../../Workspaces/TEMP/playwright-artifacts/videos/",
+        dir: "../../Workspaces/TEMP/playwright-artifacts/videos/",
       },
     },
   },
@@ -193,3 +193,54 @@ module.exports = defineConfig({
   globalSetup: require.resolve("../tests/utils/enhanced-global-setup.ts"),
   globalTeardown: require.resolve("../tests/utils/enhanced-global-teardown.ts"),
 });
+
+/**
+ * Mode overrides
+ * Set PW_MODE=standalone to enable standalone-friendly settings (auto webServer, longer timeouts)
+ * Set PW_MODE=temp to enable the lightweight temp config behavior
+ */
+const mode = process.env.PW_MODE;
+if (mode === "standalone") {
+  module.exports = Object.assign({}, module.exports, {
+    // Merge standalone adjustments
+    testDir: "../tests",
+    timeout: 120000,
+    expect: { timeout: 10000 },
+    retries: 0,
+    workers: 1,
+    // Provide an optional webServer for standalone convenience (reuse when possible)
+    webServer: {
+      command: "dotnet run",
+      cwd: "./SPA/NoorCanvas",
+      port: 9091,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60000,
+    },
+    reporter: [
+      ["list"],
+      ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+      ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }],
+    ],
+    use: Object.assign({}, module.exports.use, {
+      headless: true,
+      viewport: { width: 1280, height: 720 },
+      trace: "retain-on-failure",
+      video: "retain-on-failure",
+    }),
+  });
+} else if (mode === "temp") {
+  module.exports = Object.assign({}, module.exports, {
+    // Lightweight temp adjustments
+    testDir: "../tests",
+    retries: 0,
+    workers: 1,
+    reporter: [
+      ["list"],
+      ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+      ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }],
+    ],
+    use: Object.assign({}, module.exports.use, {
+      headless: true,
+    }),
+  });
+}

@@ -4,8 +4,8 @@
     "rootDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/config/PlayWright/tests",
     "forbidOnly": false,
     "fullyParallel": false,
-    "globalSetup": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\Tests\\utils\\enhanced-global-setup.ts",
-    "globalTeardown": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\Tests\\utils\\enhanced-global-teardown.ts",
+    "globalSetup": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\utils\\enhanced-global-setup.ts",
+    "globalTeardown": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\utils\\enhanced-global-teardown.ts",
     "globalTimeout": 0,
     "grep": {},
     "grepInvert": null,
@@ -71,8 +71,8 @@
     }
   ],
   "stats": {
-    "startTime": "2025-09-22T09:58:39.328Z",
-    "duration": 8.454999999999927,
+    "startTime": "2025-09-22T10:02:32.954Z",
+    "duration": 7.961999999999989,
     "expected": 0,
     "skipped": 0,
     "unexpected": 0,

@@ -20,13 +20,13 @@
       [
         "json",
         {
-          "outputFile": "../results/test-results.json"
+          "outputFile": "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json"
         }
       ],
       [
         "html",
         {
-          "outputFolder": "../reports",
+          "outputFolder": "../../Workspaces/TEMP/playwright-reports",
           "open": "never"
         }
       ]
@@ -38,7 +38,7 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/artifacts",
+        "outputDir": "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {},
@@ -1126,8 +1126,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-22T10:02:56.963Z",
-    "duration": 574.6599999999999,
+    "startTime": "2025-09-22T10:06:29.212Z",
+    "duration": 100.15000000000009,
     "expected": 0,
     "skipped": 42,
     "unexpected": 0,
