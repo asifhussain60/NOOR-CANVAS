@@ -108,7 +108,7 @@ module.exports = defineConfig({
     contextOptions: {
       // Enable better debugging information for TypeScript
       recordVideo: {
-        dir: "../Tests/artifacts/videos/",
+        dir: "../tests/artifacts/videos/",
       },
     },
   },
@@ -188,6 +188,6 @@ module.exports = defineConfig({
   ],
 
   /* Enhanced global setup with smart monitoring and fast failure recovery */
-  globalSetup: require.resolve("../Tests/utils/enhanced-global-setup.ts"),
-  globalTeardown: require.resolve("../Tests/utils/enhanced-global-teardown.ts"),
+  globalSetup: require.resolve("../tests/utils/enhanced-global-setup.ts"),
+  globalTeardown: require.resolve("../tests/utils/enhanced-global-teardown.ts"),
 });
