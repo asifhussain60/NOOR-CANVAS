@@ -142,6 +142,40 @@ regression_guards:
       rules:
         - Reference concrete files/lines for each claim; include minimal snippets only when necessary.
 
+# ─────────────────────────────────────────────────────────
+# 🔄 RETROSPECTIVE INTEGRATION (Sept 22, 2025)
+# ─────────────────────────────────────────────────────────
+context_first_protocol:
+  - title: "Read Self-Awareness Instructions First"  
+    details: |
+      • ALWAYS read .github/instructions/SelfAwareness.instructions.md before analysis
+      • Review recent conversation history for architectural context and decisions
+      • Check ncImplementationTracker.MD for patterns, lessons learned, and pitfalls
+      • Maintain awareness of current technical state and active development
+
+analysis_efficiency_patterns:
+  - title: "Systematic Architecture Review"
+    details: |
+      • Analyze artifacts in logical layers: View → Route → API → DTO → SQL
+      • Use incremental validation with checkpoint reviews at each layer
+      • Apply robust pattern recognition for common architectural issues
+      • Document technical decision reasoning with clear evidence trails
+
+  - title: "Evidence-Based Assessment"
+    details: |
+      • Reference concrete files and line numbers for each architectural claim
+      • Validate consistency across layers with measurable criteria
+      • Include both positive patterns and anti-patterns discovered
+      • Provide actionable recommendations with effort estimates
+
+progressive_refinement:
+  - title: "Iterative Review Process"
+    details: |
+      • Acknowledge when initial analysis reveals complexity requiring deeper review
+      • Use progressive refinement vs. claiming comprehensive coverage upfront
+      • Maintain debugging context for architectural decisions and trade-offs
+      • Focus on high-impact findings vs. exhaustive enumeration
+
 # 🔗 Alignment Hooks (must reference in the report)
 alignment:
   - "NOOR-CANVAS-DESIGN.MD — authoritative architecture & phases"

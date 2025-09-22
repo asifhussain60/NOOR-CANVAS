@@ -145,7 +145,33 @@ steps:
       Verify working tree is clean (git status empty).
 
 # ─────────────────────────────────────────────
-# 🛡️ Regression Guards
+# � RETROSPECTIVE INTEGRATION (Sept 22, 2025)
+# ─────────────────────────────────────────────
+context_first_protocol:
+  - title: "Read Self-Awareness Instructions First"  
+    details: |
+      • ALWAYS read .github/instructions/SelfAwareness.instructions.md before starting
+      • Review recent conversation history for context and cleanup patterns
+      • Check ncImplementationTracker.MD for repository organization lessons
+      • Maintain awareness of current development state and active work
+
+efficiency_patterns:
+  - title: "Incremental Cleanup with Validation"
+    details: |
+      • Process cleanup in logical phases with validation checkpoints
+      • Validate each move/delete operation before proceeding to next
+      • Use comprehensive logging to trace cleanup operations
+      • Implement robust backup strategies before destructive operations
+
+  - title: "Infrastructure Preservation"
+    details: |
+      • Always validate that cleanup doesn't break running applications
+      • Preserve critical configuration and artifact paths
+      • Ensure .gitignore patterns protect temporary files appropriately
+      • Maintain canonical structure without disrupting active workflows
+
+# ─────────────────────────────────────────────
+# �🛡️ Regression Guards
 # ─────────────────────────────────────────────
 guardrails:
   - [playwright] Never commit artifacts (reports/results/artifacts).
