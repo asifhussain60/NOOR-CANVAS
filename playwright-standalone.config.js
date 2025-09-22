@@ -22,15 +22,15 @@ const { defineConfig, devices } = require("@playwright/test");
  */
 module.exports = defineConfig({
   testDir: "./PlayWright/tests", // Updated to centralized structure
-  outputDir: "./PlayWright/artifacts",
+  outputDir: "../../Workspaces/TEMP/playwright-artifacts",
   fullyParallel: false, // Sequential for session-based testing
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
   workers: 1, // Single worker prevents token conflicts
-  reporter: [
+    reporter: [
     ["list"],
-    ["html", { outputFolder: "./PlayWright/reports" }], // Centralized reports
-    ["json", { outputFile: "./PlayWright/results/test-results.json" }],
+  ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports" }], // Centralized reports
+  ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
   ],
   use: {
     baseURL: "https://localhost:9091", // HTTPS as validated in infrastructure tests

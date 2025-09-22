@@ -65,14 +65,15 @@ const { defineConfig, devices } = require("@playwright/test");
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
-  testDir: "./PlayWright/tests",
+  // testDir is relative to this config file (PlayWright/config), so use ../tests
+  testDir: "../tests",
   /* Ignore archived tests and workspace TEMP to keep test discovery clean */
   testIgnore: [
     "**/Workspaces/TEMP/**",
     "**/PlayWright/tests/PlayWright-archived/**"
   ],
   /* Output directory for test artifacts (centralized in PlayWright structure) */
-  outputDir: "./PlayWright/artifacts",
+  outputDir: "../../Workspaces/TEMP/playwright-artifacts",
   /* Run tests sequentially for session-based testing and better Copilot context */
   fullyParallel: false, // Sequential execution prevents race conditions in cascading tests
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -82,10 +83,10 @@ module.exports = defineConfig({
   /* Single worker for session testing to prevent token conflicts */
   workers: process.env.CI ? 1 : 1,
   /* Enhanced reporters for TypeScript debugging and Copilot integration */
-  reporter: [
+    reporter: [
     ["list"], // Primary non-blocking console output for Copilot context
-    ["json", { outputFile: "./PlayWright/results/test-results.json" }],
-    ["html", { outputFolder: "./PlayWright/reports", open: "never" }], // Generate HTML reports but don't auto-open server
+  ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+  ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }], // Generate HTML reports but don't auto-open server
   ],
   /* Shared settings optimized for TypeScript development and Copilot integration */
   use: {
@@ -108,7 +109,8 @@ module.exports = defineConfig({
     contextOptions: {
       // Enable better debugging information for TypeScript
       recordVideo: {
-        dir: "../tests/artifacts/videos/",
+        // central artifacts folder next to config's parent
+  dir: "../../Workspaces/TEMP/playwright-artifacts/videos/",
       },
     },
   },

@@ -3,14 +3,14 @@ const { defineConfig, devices } = require("@playwright/test");
 
 module.exports = defineConfig({
   testDir: "./PlayWright/tests",
-  outputDir: "./PlayWright/artifacts",
+  outputDir: "../../Workspaces/TEMP/playwright-artifacts",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : 1,
   reporter: [
-    ["html", { outputFolder: "./PlayWright/reports", open: "never" }],
-    ["json", { outputFile: "./PlayWright/results/test-results.json" }],
+  ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }],
+  ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
     ["line"],
   ],
   use: {
