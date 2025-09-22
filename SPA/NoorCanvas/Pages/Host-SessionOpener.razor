@@ -17,9 +17,7 @@
 <PageTitle>NOOR Canvas - Host Session Opener</PageTitle>
 
 <HeadContent>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    @* Fonts are centralized in Pages/_Host.cshtml; do not duplicate here. *@
 </HeadContent>
 
 <!-- Root Container with NOOR Canvas Background -->
@@ -848,6 +846,10 @@
                         {
                             Logger.LogWarning("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-WARNING] API response missing HostToken - keeping original: {OriginalToken}", Model.HostFriendlyToken);
                         }
+                        
+                        // NEW FEATURE: Clear existing participants when host opens session
+                        // This ensures a fresh start for each session by removing any previously registered participants
+                        await ClearExistingParticipants(result.UserToken);
                     }
                     else
                     {
@@ -883,6 +885,54 @@
             Logger.LogError(ex, "NOOR-HOST-OPENER: *** ERROR in CreateSessionAndGenerateTokens: {Message} ***", ex.Message);
             Logger.LogError(ex, "NOOR-HOST-OPENER: *** FULL EXCEPTION in CreateSessionAndGenerateTokens: {Exception} ***", ex);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Clear existing participants from canvas.Participants table when host opens session
+    /// This ensures a fresh start for each session by removing any previously registered participants
+    /// </summary>
+    private async Task ClearExistingParticipants(string userToken)
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Starting participant cleanup for UserToken: {UserToken}", userToken);
+            
+            if (string.IsNullOrEmpty(userToken))
+            {
+                Logger.LogWarning("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] UserToken is null or empty, skipping participant cleanup");
+                return;
+            }
+
+            var baseUrl = GetBaseUrl();
+            using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(baseUrl);
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Calling DELETE endpoint for UserToken: {UserToken}", userToken);
+            
+            // Call the DELETE API endpoint to remove all participants for this UserToken
+            var deleteResponse = await httpClient.DeleteAsync($"api/participant/session/{userToken}/participants");
+            
+            if (deleteResponse.IsSuccessStatusCode)
+            {
+                var deleteContent = await deleteResponse.Content.ReadAsStringAsync();
+                Logger.LogInformation("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Successfully cleared participants for UserToken: {UserToken}, Response: {Response}", 
+                    userToken, deleteContent);
+            }
+            else
+            {
+                var errorContent = await deleteResponse.Content.ReadAsStringAsync();
+                Logger.LogWarning("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Failed to clear participants for UserToken: {UserToken}, Status: {StatusCode}, Error: {Error}", 
+                    userToken, deleteResponse.StatusCode, errorContent);
+                
+                // Don't throw exception here - participant cleanup failure shouldn't block session creation
+                // This is a "nice to have" feature that improves user experience but isn't critical
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Error during participant cleanup for UserToken: {UserToken}", userToken);
+            // Don't throw exception here - participant cleanup failure shouldn't block session creation
         }
     }
 

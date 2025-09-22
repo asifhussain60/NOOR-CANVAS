@@ -362,5 +362,92 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
             }
         }
+
+        /// <summary>
+        /// Delete all participants for a specific UserToken when host opens session
+        /// This clears the waiting room participants for a fresh session start
+        /// </summary>
+        [HttpDelete("session/{userToken}/participants")]
+        public async Task<IActionResult> DeleteParticipantsByToken(string userToken)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            
+            _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] Delete participants request for UserToken: {UserToken}", 
+                requestId, userToken);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(userToken))
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT-DELETE: [{RequestId}] UserToken is null or empty", requestId);
+                    return BadRequest(new { Error = "UserToken cannot be empty", RequestId = requestId });
+                }
+
+                if (userToken.Length != 8)
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT-DELETE: [{RequestId}] Invalid token length: {Length}, expected 8 characters",
+                        requestId, userToken.Length);
+                    return BadRequest(new { Error = "Invalid token format - must be 8 characters", ActualLength = userToken.Length, RequestId = requestId });
+                }
+
+                // Find and delete all participants with this UserToken
+                var participantsToDelete = await _context.Participants
+                    .Where(p => p.UserToken == userToken)
+                    .ToListAsync();
+
+                if (participantsToDelete.Count == 0)
+                {
+                    _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] No participants found for UserToken: {UserToken}",
+                        requestId, userToken);
+                    return Ok(new { 
+                        Message = "No participants found for this token", 
+                        DeletedCount = 0,
+                        UserToken = userToken,
+                        RequestId = requestId 
+                    });
+                }
+
+                _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] Found {Count} participants to delete for UserToken: {UserToken}",
+                    requestId, participantsToDelete.Count, userToken);
+
+                // Log participant details for audit trail
+                foreach (var participant in participantsToDelete)
+                {
+                    _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] Deleting participant: Id={ParticipantId}, Name={Name}, UserToken={UserToken}",
+                        requestId, participant.ParticipantId, participant.Name, participant.UserToken);
+                }
+
+                // Remove participants from database
+                _context.Participants.RemoveRange(participantsToDelete);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] Successfully deleted {Count} participants for UserToken: {UserToken}",
+                    requestId, participantsToDelete.Count, userToken);
+
+                // Notify all connected clients about participants being cleared (session reset)
+                await _sessionHub.Clients.Group($"session_{userToken}").SendAsync("ParticipantListCleared", new
+                {
+                    UserToken = userToken,
+                    Message = "Host has opened the session - participants list cleared",
+                    Timestamp = DateTime.UtcNow
+                });
+
+                _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] SignalR notification sent to session group: session_{UserToken}",
+                    requestId, userToken);
+
+                return Ok(new { 
+                    Message = "Participants deleted successfully", 
+                    DeletedCount = participantsToDelete.Count,
+                    UserToken = userToken,
+                    RequestId = requestId 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-PARTICIPANT-DELETE: [{RequestId}] Error deleting participants for UserToken: {UserToken}",
+                    requestId, userToken);
+                return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
+            }
+        }
     }
 }
