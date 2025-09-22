@@ -50,6 +50,31 @@ alignment:
   - INFRASTRUCTURE-FIXES-REPORT.md
   - copilot_instructions.md
 
+# ─────────────────────────────────────────────────────────
+# 🔍 ENHANCED FALSE-FIXED DETECTION (Sept 22, 2025)
+# ─────────────────────────────────────────────────────────
+retrospective_protocols:
+  - title: "Progressive Refinement Acknowledgment"
+    details: |
+      • Use phrases like "progressive refinement" vs. binary "fixed/not fixed"
+      • Acknowledge when initial solutions need enhancement vs. claiming complete resolution
+      • Document evolution from initial approach → identified issues → final solution
+      • Maintain debugging context across multiple refinement iterations
+
+  - title: "Context-First Efficiency"
+    details: |
+      • ALWAYS read .github/instructions/SelfAwareness.instructions.md first
+      • Review conversation history for patterns and avoid repeated approaches
+      • Apply incremental development with validation checkpoints
+      • Implement robust fallback strategies for critical functionality
+
+  - title: "Evidence-Based Resolution"
+    details: |
+      • Require explicit validation evidence before claiming issue resolution
+      • Test fix effectiveness with actual execution, not just code review
+      • Generate comprehensive artifacts: screenshots, logs, test results
+      • Include negative test scenarios to confirm fix resilience
+
 # ──────────────────────────────
 # 🚦 Global Guardrails
 # ──────────────────────────────

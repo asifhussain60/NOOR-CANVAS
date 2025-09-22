@@ -1,169 +1,161 @@
 ---
-
 mode: agent
 name: runtest
 alias: /runtest
 description: >
-Execute Playwright tests for NOOR Canvas with headless-first discipline, rich artifacts,
-robust health checks, and smart notes→env parsing. Honor project playwright.config.\*,
-run single-worker to avoid session cross-talk, and never self-boot if webServer is configured.
-CRITICAL: Integrate PLAYWRIGHT-EXECUTION-GUARDRAILS infrastructure validation for stable test execution.
-Align with NOOR-CANVAS-DESIGN, ncImplementationTracker, Infra Fixes, and Copilot protocols.
+  Execute Playwright tests for Noor Canvas in strict headless mode (no UI),
+  with robust pre-flight checks, clean port management, and rich logs/artifacts.
+  Honor project playwright.config.*, but override any UI drift.
+  Run against a pre-running, healthy app instance.
 
 parameters:
-
-- name: name
-  required: true
-  description: >
-  Test or describe title (substring) to run with -g filter. Example: "Login Flow", "Session", "Smoke: Dashboard".
-- name: notes
-  required: false
-  description: >
-  Free-form hints parsed into runtime context:
-  token:VNBPRVII, sessionId:212, user:qa@noor.app, tenant:dev, route:/host/control-panel, headless, verbose,
-  multi-user, 5-instances. Infrastructure stability validated for concurrent browser sessions.
+  - name: name
+    required: true
+    description: Test or describe title substring to run with -g.
+  - name: notes
+    required: false
+    description: >
+      key:value hints parsed into ENV (token, sessionId, user/email, tenant, route, env, mode:headed/headless, verbose).
 
 # ─────────────────────────
-
 # 📖 Usage Examples
-
 # ─────────────────────────
-
 # /runtest name:"Session" notes:"sessionId:212 headless verbose"
-
 # /runtest name:"Host Control Panel" notes:"token:VNBPRVII route:/host/control-panel"
-
 # /runtest name:"Smoke" notes:"tenant:dev user:qa@noor.app"
 
 # ─────────────────────────
-
 # 🎯 Mission
-
 # ─────────────────────────
-
-# Run Playwright tests matching ${name} with:
-
-# • Headless Chromium, 1 worker, configured retries, trace-on-retry
-
-# • HTML + JSON reports, screenshots/video on failure
-
-# • App health checks on :9090 (and :9091 when applicable)
-
-# • Notes→ENV parsing for token/session/user/tenant/route, with 212 fallbacks
-
-# • Strict echo of effective config before execution
-
-# ─────────────────────────
-
-# 🚦 Pre-Execution Validation (CRITICAL - Infrastructure Validated)
-
-# ─────────────────────────
+# • Force silent, no-UI execution: headless=true, no --ui, do not allow headed unless explicitly requested.
+# • Pre-flight: verify app is running & healthy; confirm ports; confirm Playwright install; verify tokens.
+# • Smart notes→ENV mapping; echo final runtime config.
+# • Single worker; artifacts retained on failure; HTML+JSON reports.
 
 precheck:
-
-- headless_enforced: true
-- single_worker: true
-- reporters: [html, json, line]
-- artifacts_dirs: ["PlayWright/reports","PlayWright/results","PlayWright/artifacts"]
-- healthcheck:
-  urls: ["https://localhost:9091", "http://localhost:9090"]
-  verify: - "title ~ /Noor Canvas|NOOR CANVAS/"
-  warmup_seconds: 20
-- infrastructure_validation:
-  - application_running: "dotnet process active on ports 9090/9091"
-  - clean_startup_logs: "single log messages confirm infrastructure fixes"
-  - signalr_circuits: "WebSocket connections established for multi-user tests"
-  - database_connection: "KSESSIONS_DEV accessible via application logs"
-- respect_project_config: true # never override trace/retries/webServer if set
-- concurrent_support: true # infrastructure validated for 2+ browser instances
-
-# ─────────────────────────
-
-# 🧭 Notes → Runtime Context
-
-# ─────────────────────────
+  - infra_workflow: >
+      Assume app is started externally with validated infra. If not, instruct to run:
+        nc-cleanup; nc  # uses enhanced port manager & dynamic ports
+      Confirm ports 9090/9091 (or dynamic) are bound and healthy (/healthz if exposed).
+      # Based on PLAYWRIGHT-EXECUTION-GUARDRAILS + PORT-BINDING-SOLUTION
+  - headless_enforced: true          # hard requirement; fail if UI is requested implicitly
+  - forbid_ui_flag: true             # fail if --ui is detected anywhere
+  - single_worker: true
+  - reporters: [list, json]          # REGRESSION FIX: NEVER include html - causes localhost:9323 blocking
+  - artifacts_dirs: ["PlayWright/reports","PlayWright/results","PlayWright/artifacts"]
+  - retrospective_checks:            # NEW: Based on Sept 22, 2025 analysis
+      - scan_for_html_reporter: true # Abort if HTML reporter found in any config
+      - validate_ssl_method: true    # Ensure https module usage for infrastructure
+      - check_blazor_selectors: true # Warn about generic selectors in test files
+      - validate_incremental_patterns: true # Check for character-by-character input simulation
+      - verify_fallback_selectors: true     # Ensure 3+ selector strategies for critical elements
+  - healthcheck:
+      base_url_env: "BASE_URL"       # optional override; otherwise http://localhost:9090
+      default_url: "http://localhost:9090"
+      verify:
+        - "title ~ /Noor Canvas|NOOR CANVAS/"
+      warmup_seconds: 30
+  - respect_project_config: true      # do not override retries/trace/webServer if set
 
 notes_parsing:
-keys: [token, sessionId, user, email, tenant, route, env, mode]
-env_map:
-token: CANVAS_TEST_TOKEN
-sessionId: NOOR_SESSION_ID
-user: CANVAS_TEST_USER
-email: CANVAS_TEST_USER
-tenant: CANVAS_TENANT
-route: CANVAS_TEST_ROUTE
-env: ASPNETCORE_ENVIRONMENT
-fallbacks:
-sessionId: "212"
-token: "VNBPRVII" # host
-userToken: "DPH42JR5" # user when needed
-validate:
-token_regex: "^[A-Z0-9]{8}$"
-status_echo: - "NOOR_SESSION_ID" - "CANVAS_TEST_TOKEN" - "CANVAS_TEST_USER" - "CANVAS_TENANT" - "CANVAS_TEST_ROUTE"
-
-# ─────────────────────────
-
-# 🧪 Execution
-
-# ─────────────────────────
+  keys: [token, sessionId, user, email, tenant, route, env, mode, verbose]
+  env_map:
+    token: CANVAS_TEST_TOKEN
+    sessionId: NOOR_SESSION_ID
+    user: CANVAS_TEST_USER
+    email: CANVAS_TEST_USER
+    tenant: CANVAS_TENANT
+    route: CANVAS_TEST_ROUTE
+    env: ASPNETCORE_ENVIRONMENT
+  fallbacks:
+    sessionId: "212"
+    token: "VNBPRVII"     # host
+    userToken: "DPH42JR5" # user
+  validate:
+    token_regex: "^[A-Z0-9]{8}$"
+  status_echo:
+    - "NOOR_SESSION_ID"
+    - "CANVAS_TEST_TOKEN"
+    - "CANVAS_TEST_USER"
+    - "CANVAS_TENANT"
+    - "CANVAS_TEST_ROUTE"
 
 run:
-echo_config: true # print mode/headless, reporters, workers, grep filter
-command:
-base: "npx playwright test"
-args: - "--grep" "${name}" - "--project" "chromium" - "--workers" "1" # headless is enforced via config/env; do not pass --headed unless notes explicitly say 'headed'
-env:
-DEBUG: "pw:api,pw:test"
-artifacts_policy:
-trace: "on-retry"
-screenshots: "only-on-failure"
-video: "retain-on-failure"
-respect_webServer: true # if config has webServer, do not start app here
-if_no_webServer:
-autostart:
-command: "powershell -NoProfile -Command \"cd 'd:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas'; dotnet run\""
-wait_seconds: 20
-verify_url: "http://localhost:9090"
-
-# ─────────────────────────
-
-# 🛡️ Guardrails
-
-# ─────────────────────────
+  echo_config: true
+  command:
+    base: "npx playwright test"
+    args:
+      - "--grep" "${name}"
+      - "--project" "chromium"
+      - "--workers" "1"
+      # DO NOT add --ui. DO NOT add --headed.
+  env:
+    # Force headless; slam doors on UI/debug modes:
+    CI: "1"                # Playwright treats CI as headless by default
+    PWDEBUG: "0"           # disables inspector
+    PWTEST_HEADED: "0"     # internal guard against headed
+    PLAYWRIGHT_HEADLESS: "1"
+    DEBUG: "pw:api,pw:test"
+    # RETROSPECTIVE ENVIRONMENT CONTROLS (Sept 22, 2025):
+    PLAYWRIGHT_HTML_REPORT: "0"     # Prevent HTML reporter activation
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "0" # Ensure browsers available
+    NODE_TLS_REJECT_UNAUTHORIZED: "0"      # SSL bypass for self-signed certs
+  artifacts_policy:
+    trace: "on-retry"
+    screenshots: "only-on-failure"
+    video: "retain-on-failure"
+  respect_webServer: true   # if config has webServer, do not start app here
+  if_no_webServer:
+    autostart:
+      # Prefer your port manager wrapper for clean ports 9090/9091 or dynamic:
+      command: "powershell -NoProfile -Command \"nc-cleanup; nc\""
+      wait_seconds: 25
+      verify_url: "http://localhost:9090"
 
 guardrails:
-
-- [headless] Default headless; require explicit 'headed' in notes to change.
-- [single-worker] Always 1 worker to prevent token/session cross-talk.
-- [health] Perform pre-run health check; fail fast if app not reachable.
-- [artifacts] Ensure PlayWright/reports, results, artifacts exist; never commit these.
-- [tokens] Validate tokens against /^[A-Z0-9]{8}$/; use 212 fallbacks if none provided.
-- [security] Redact tokens in logs; never print secrets.
-- [config-honor] Do not override playwright.config.\* trace/retries/webServer if present.
-
-# ─────────────────────────
-
-# 📤 Output (Runner Summary)
-
-# ─────────────────────────
-
-output:
-
-- Effective config (mode, workers, reporters, grep)
-- Healthcheck result and timing
-- Resolved ENV (redacted token)
-- Paths to HTML/JSON report, trace, screenshots, video
-- Short failure synopsis if any (first failing test title + location)
-
-# ─────────────────────────
-
-# 🔗 Alignment Hooks (must reflect)
-
-# ─────────────────────────
+  - [headless] If config or env attempts to set headed/ui, override to headless and WARN+CONTINUE.
+  - [ui-flag] Abort if `--ui` is present in any computed args; print correction hint.
+  - [ports] Validate ports via nc/nc-cleanup tools; if 9091 reserved, allow dynamic ports and echo effective baseURL.
+  - [health] Must pass warmup + title check; otherwise stop and print pre-flight steps.
+  - [single-worker] Always 1 worker to avoid cross-session crosstalk.
+  - [tokens] Validate tokens or fallback; redact when logging.
+  - [artifacts] Ensure dirs exist; never commit artifacts; respect .gitignore.
+  - [config-honor] Do not override project retries/trace/webServer; only enforce UI bans and headless.
+  
+  # RETROSPECTIVE REGRESSION PREVENTION (Sept 22, 2025):
+  - [html-reporter-detection] Scan test files and config for HTML reporter; ABORT with error if found - causes localhost:9323 blocking.
+  - [ssl-validation-method] Verify infrastructure uses https module with rejectUnauthorized: false - fetch() fails with self-signed certs.
+  - [blazor-selector-validation] Pre-scan test files for generic selectors (input[type="text"], input[placeholder*="token" i]); WARN about potential failures.
+  - [source-code-alignment] If test targets specific Razor components, remind to examine component source for exact placeholders.
+  - [url-parameter-awareness] For token entry tests, ensure navigation to base URLs without token parameters.
+  - [infrastructure-fail-fast] Infrastructure validation must fail immediately if unhealthy - don't proceed with broken setup.
 
 alignment:
+  - "PLAYWRIGHT-EXECUTION-GUARDRAILS.md — pre-flight, health, validated workflow"  :contentReference[oaicite:2]{index=2}
+  - "PORT-BINDING-SOLUTION.md — nc/nc-cleanup, dynamic ports, launch settings update"  :contentReference[oaicite:3]{index=3}
+  - "NOOR-CANVAS-DESIGN.MD, ncImplementationTracker.MD, INFRASTRUCTURE-FIXES-REPORT.md, copilot_instructions.md"
+  
+retrospective_integration:
+  date: "September 22, 2025" 
+  source: "Playwright Multi-Instance Test Development Retrospective"
+  prevention_rules:
+    html_reporter_elimination: "Scan all configs for HTML reporter; ABORT if found - causes localhost:9323 blocking"
+    ssl_infrastructure_pattern: "Require https module with rejectUnauthorized: false for SSL validation"
+    blazor_selector_specificity: "Use exact InputText placeholders from component source, not generic selectors"
+    url_parameter_flow_awareness: "Navigate to base URLs for token entry testing - avoid auto-population"
+  false_fixed_patterns:
+    - "HTML reporter issue claimed fixed multiple times but repeatedly reoccurred"
+    - "Infrastructure validation with multiple failing approaches"
+    - "Element selectors with timeout failures despite 'improvements'"
+  commands_to_stop_trying:
+    - "fetch() for HTTPS localhost with self-signed certificates"
+    - "input[type='text'] or input[placeholder*='token' i] generic selectors"
+    - "HTML reporter in any configuration mode or override"
+    - "Immediate validation without Blazor state propagation time"
 
-- "NOOR-CANVAS-DESIGN.MD — architecture & phases"
-- "ncImplementationTracker.MD — latest implementation state"
-- "INFRASTRUCTURE-FIXES-REPORT.md — Playwright stability fixes"
-- "copilot_instructions.md — self-learning & approval discipline"
+output:
+  - Effective config echo (headless, workers, reporters, grep)
+  - Healthcheck result (url used, warmup ms)
+  - Resolved ENV (redacted tokens)
+  - Paths to HTML/JSON report, trace, screenshots, video
+  - Short failure synopsis if any (first failing test + location)

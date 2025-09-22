@@ -150,6 +150,47 @@ guardrails:
   - [duplication] Search for near-duplicates before adding helpers; extract shared code.
 
 # ─────────────────────────────────────────────────────────
+# 🔄 RETROSPECTIVE INTEGRATION (Sept 22, 2025)
+# ─────────────────────────────────────────────────────────
+context_first_protocol:
+  - title: "Read Self-Awareness Instructions First"  
+    details: |
+      • ALWAYS read .github/instructions/SelfAwareness.instructions.md before starting
+      • Review recent conversation history for context and avoid repeated patterns
+      • Maintain Project Ledger with current stack, ports, tokens, testing rules
+      • Check ncImplementationTracker.MD for lessons learned and historical decisions
+
+efficiency_patterns:
+  - title: "Incremental Development with Checkpoints"
+    details: |
+      • Apply changes in small, testable chunks vs. big-bang approach
+      • Validate each change before proceeding to next (build → test → validate)
+      • Use console logging for debugging trails and step-by-step verification
+      • Implement robust fallback strategies for critical functionality
+
+  - title: "Infrastructure Validation Upfront"
+    details: |
+      • Always validate app health + SSL before beginning implementation
+      • Use comprehensive readiness checks: title, key selectors, network state
+      • Prevent late-stage failures by catching environment issues early
+      • Honor PLAYWRIGHT-EXECUTION-GUARDRAILS for pre-flight validation
+
+regression_prevention:
+  - title: "Selector and Input Resilience"
+    details: |
+      • Provide 3+ fallback selectors for critical UI elements
+      • Use character-by-character input simulation for Blazor form validation
+      • Implement graceful degradation when expected elements not found
+      • Test input handling with realistic user interaction patterns
+
+  - title: "Context Evidence and Documentation"
+    details: |
+      • Document technical decision reasoning in implementation comments  
+      • Maintain clear debugging trails with breadcrumb logging
+      • Update Project Ledger with new patterns and lessons learned
+      • Reference linked documentation for details vs. inline repetition
+
+# ─────────────────────────────────────────────────────────
 # ✅ Quality Checklist (emit in output)
 # ─────────────────────────────────────────────────────────
 quality_checklist:
