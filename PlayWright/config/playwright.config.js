@@ -73,7 +73,7 @@ module.exports = defineConfig({
     "**/PlayWright/tests/PlayWright-archived/**"
   ],
   /* Output directory for test artifacts (centralized in PlayWright structure) */
-  outputDir: "../../Workspaces/TEMP/playwright-artifacts",
+  outputDir: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts",
   /* Run tests sequentially for session-based testing and better Copilot context */
   fullyParallel: false, // Sequential execution prevents race conditions in cascading tests
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -85,8 +85,8 @@ module.exports = defineConfig({
   /* Enhanced reporters for TypeScript debugging and Copilot integration */
   reporter: [
     ["list"], // Primary non-blocking console output for Copilot context
-    ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
-    ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }], // Generate HTML reports but don't auto-open server
+  ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+  ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports", open: "never" }], // Generate HTML reports but don't auto-open server
   ],
   /* Shared settings optimized for TypeScript development and Copilot integration */
   use: {
@@ -110,7 +110,7 @@ module.exports = defineConfig({
       // Enable better debugging information for TypeScript
       recordVideo: {
         // central artifacts folder next to config's parent
-        dir: "../../Workspaces/TEMP/playwright-artifacts/videos/",
+  dir: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/videos/",
       },
     },
   },
@@ -218,8 +218,8 @@ if (mode === "standalone") {
     },
     reporter: [
       ["list"],
-      ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
-      ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }],
+  ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+  ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports", open: "never" }],
     ],
     use: Object.assign({}, module.exports.use, {
       headless: true,
@@ -236,8 +236,8 @@ if (mode === "standalone") {
     workers: 1,
     reporter: [
       ["list"],
-      ["json", { outputFile: "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
-      ["html", { outputFolder: "../../Workspaces/TEMP/playwright-reports", open: "never" }],
+  ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+  ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports", open: "never" }],
     ],
     use: Object.assign({}, module.exports.use, {
       headless: true,
