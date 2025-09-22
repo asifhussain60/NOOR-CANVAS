@@ -104,7 +104,7 @@ dotnet run
 
 # 3. Run E2E tests (infrastructure validated!)
 cd 'D:\PROJECTS\NOOR CANVAS'
-npx playwright test --config=playwright-standalone.config.js --reporter=line
+npx playwright test --config=playwright-standalone.config.js --reporter=list
 ```
 
 ### **For Specific Test Suites:**
