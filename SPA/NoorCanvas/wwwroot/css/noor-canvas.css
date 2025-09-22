@@ -1,8 +1,94 @@
-/* noor-canvas.css - NoorCanvas project styles */
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+/* NOOR Canvas overrides Bootstrap defaults */
+html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f3f4f6; /* NOOR gray-100 */
+}
+
+a, .btn-link {
+    color: #0366d6;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+/* ===== Share button styles (for sanitized transcript share buttons) ===== */
+.ks-share-wrapper {
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
+    padding: 5px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.ks-share-button {
+    background-color: #dc2626;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+}
+
+.ks-share-button:hover {
+    background-color: #b91c1c;
+    transform: scale(1.05);
+}
+
+.ks-share-button:active {
+    background-color: #dc2626;
+    transform: scale(1);
+}
 .noor-canvas-logo {
     background-image: url('/images/NoorCanvas.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
+
+

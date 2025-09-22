@@ -27,3 +27,11 @@ net8.0/
 *.tmp
 *.bak
 apphost.exe
+
+# Repo-level TEMP and Playwright artifacts (canonicalized)
+Workspaces/TEMP/**
+Workspaces/TEMP/
+/TEMP/**
+/temp/**
+Workspaces/TEMP/playwright-artifacts/**
+**/playwright-artifacts/**

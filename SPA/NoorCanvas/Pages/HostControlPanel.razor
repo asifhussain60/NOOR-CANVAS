@@ -9,6 +9,8 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.EntityFrameworkCore
 @using NoorCanvas.Models
+@using AngleSharp.Dom
+@using AngleSharp.Html.Parser
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -45,336 +47,6 @@
             margin: 0 auto;
             padding: 0 15px;
         }
-
-        .inlineArabic {
-            font-family: 'Amiri', serif;
-            direction: rtl;
-            font-size: 1.4em;
-            display: inline-block;
-        }
-
-        .verse-container {
-            text-align: center;
-            font-family: 'Amiri', serif;
-            font-size: 1.8em;
-            margin: 1.5rem auto;
-            direction: rtl;
-            background-color: #f0f9ff;
-            border-top: 2px solid #7dd3fc;
-            border-bottom: 2px solid #7dd3fc;
-            padding: 1rem;
-            color: var(--primary-color);
-            max-width: 700px;
-        }
-
-        .ayah-card {
-            background-color: var(--ayah-card-bg);
-            border: 2px solid var(--ayah-card-border);
-            padding: 0.75rem;
-            margin: 1rem auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            font-family: 'Lora', serif;
-            text-align: center;
-            border-radius: 8px;
-            max-width: 700px;
-        }
-
-        .golden-surah-header {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 1em;
-            color: var(--secondary-color);
-            background: var(--golden-header-bg);
-            padding: 6px 12px;
-            border-radius: 4px;
-            display: inline-block;
-            border: 1px solid var(--ayah-card-border);
-            text-align: center;
-        }
-        .clickable-ayah-header {
-            cursor: pointer;
-        }
-
-        .ayah-arabic {
-            font-family: 'Amiri', serif;
-            font-size: 1.8em;
-            line-height: 1.6;
-            direction: rtl;
-            color: var(--primary-color);
-            padding: 0 1rem;
-            text-align: center;
-            margin: 0.5rem 0;
-        }
-        
-        .ayah-arabic img {
-            width: 40px;
-            height: auto;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        
-        .ayah-translation {
-            font-size: 1em;
-            font-style: italic;
-            color: var(--text-color);
-            line-height: 1.4;
-            padding: 0 1rem;
-            text-align: center;
-        }
-        
-        .ayah-card .translation-header {
-            font-weight: 500;
-            color: var(--primary-color);
-            margin-top: 0.5em;
-            margin-bottom: 0.25em;
-            font-style: normal;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .ayah-card .translation-header::before,
-        .ayah-card .translation-header::after {
-            content: '';
-            flex-grow: 1;
-            height: 1px;
-            background-color: var(--ayah-card-border);
-            margin: 0 1rem;
-        }
-
-        /* Etymology Card */
-        .etymology-derivative-card, .etymology-card {
-            background-color: var(--card-bg-light);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem auto;
-            text-align: center;
-            max-width: 700px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-        .etymology-header {
-            text-align: center;
-        }
-        .etymology-details {
-            font-family: 'Lora', serif;
-            color: var(--secondary-color);
-        }
-
-        .etymology-header .arabic-term {
-            font-family: 'Amiri', serif;
-            font-size: 2.5em;
-            color: var(--primary-color);
-            margin: 0;
-        }
-
-        .derivative-root-reference {
-            margin-bottom: 12px;
-            padding: 8px;
-            background: rgba(125, 211, 252, 0.2);
-            border-radius: 8px;
-        }
-
-        .derivative-root-reference div:first-child {
-            font-size: 14px;
-            color: #0284c7;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .derivative-root-reference div:last-child {
-            font-size: 12px;
-            color: #0369a1;
-            font-style: italic;
-        }
-
-        .derivative-main-display {
-            margin-bottom: 12px;
-        }
-
-        .derivative-main-display h3 {
-            font-size: 2em;
-            color: #0c4a6e;
-            margin: 0 0 8px 0;
-            font-family: 'Amiri', serif;
-            font-weight: 700;
-        }
-
-        .derivative-main-display p {
-            font-size: 14px;
-            color: #0369a1;
-            margin: 0 0 4px 0;
-            font-style: italic;
-        }
-
-        .derivative-main-display p:last-child {
-            font-size: 16px;
-            color: #075985;
-            margin: 0;
-            font-family: 'Lora', serif;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-        
-        /* Hadees Card - New Styling */
-        .inserted-hadees.ks-ahadees-container {
-            background-color: #f8f9fa; /* Light gray background */
-            border: 1px solid #dee2e6; /* Light border on all sides */
-            border-top: 4px solid #007bff; /* Prominent blue top border */
-            border-radius: 8px; /* Rounded corners for the entire card */
-            padding: 0; /* Remove padding from container to control children */
-            margin: 1.5rem auto; /* Center with margin */
-            max-width: 700px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            position: relative;
-            overflow: hidden; /* Ensures border-radius applies correctly */
-        }
-
-        .hadees-header.ks-ahadees-header {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start; /* Align header content to the left */
-            padding: 1rem 1.5rem;
-            background-color: transparent; /* No background for header */
-            border-bottom: none; /* No border for header */
-        }
-
-        .hadees-header h4 {
-            margin: 0;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            color: #007bff; /* Blue color for header text */
-            font-weight: 700;
-        }
-
-        .ks-ahadees-header-icon {
-            margin-right: 0.5em;
-            color: #007bff; /* Blue color for icon */
-        }
-
-        .hadees-arabic.ks-ahadees-arabic {
-            font-family: 'Amiri', serif;
-            font-size: 1.8em;
-            line-height: 1.8;
-            direction: rtl;
-            color: #8B0000; /* Maroon color for Arabic text */
-            text-align: center;
-            padding: 1rem 1.5rem;
-        }
-
-        .hadees-english.ks-ahadees-english {
-            font-style: italic;
-            color: #6c757d; /* Dark gray color for English translation */
-            text-align: center;
-            padding: 0 1.5rem 1.5rem 1.5rem;
-        }
-
-        /* Images and figures */
-        .imgResponsive {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 1em auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .fr-fic.fr-dib {
-            display: block;
-        }
-
-        .fr-fic.fr-dii {
-            display: inline-block;
-        }
-
-        .fr-bordered {
-            border: 2px solid #ccc;
-        }
-
-        /* Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        th {
-            background-color: var(--primary-color);
-            color: #fff;
-            font-weight: 600;
-        }
-
-        tr:nth-child(even) {
-            background-color: var(--card-bg-light);
-        }
-
-        /* Urdu Specific Style */
-        .urduNastaleeq {
-            font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
-            direction: rtl;
-            text-align: center;
-            font-size: 1.4em;
-        }
-
-        /* Esoteric Block */
-        .esotericBlock {
-            background-color: var(--card-bg-light);
-            border: 2px solid var(--ayah-card-border);
-            padding: 1rem;
-            margin: 1.5rem auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            max-width: 700px;
-        }
-        .esoteric-header {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--ayah-card-bg);
-            border-radius: 8px 8px 0 0;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--ayah-card-border);
-        }
-        .esoteric-header i {
-            margin-right: 10px;
-            color: var(--accent-color);
-        }
-        .esoteric-title {
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        .esotericData {
-            padding: 1rem;
-            text-align: justify;
-        }
-
-        /* Anecdote and Example */
-        .anecdote, .example {
-            background-color: #f0f9ff;
-            border-left: 4px solid #38bdf8;
-            padding: 1rem;
-            margin: 1.5rem 0;
-            border-radius: 4px;
-            font-style: italic;
-            color: #0c4a6e;
-        }
-
         /* Responsive adjustments */
         @@media (max-width: 600px) {
             h1 { font-size: 1.8em; }
@@ -1346,24 +1018,36 @@
             // Remove buttons that have 'delete' in their id or class attributes
             var htmlWithoutDeletes = RemoveDeleteButtons(originalHtml);
             
-            // Only inject share buttons if session is active
+            // Sanitize incoming HTML to remove dangerous elements/attributes before we touch it
+            var sanitizedInput = SanitizeHtml(htmlWithoutDeletes);
+
+            // Only inject share buttons if session is active; inject into sanitized HTML so our injection won't be stripped
             string finalHtml;
             if (Model?.SessionStatus == "Active")
             {
                 Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session is Active - injecting share buttons for SessionId {SessionId}", SessionId);
-                finalHtml = await InjectAssetShareButtonsFromDatabase(htmlWithoutDeletes);
+                finalHtml = await InjectAssetShareButtonsFromDatabase(sanitizedInput);
             }
             else
             {
                 Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session status '{SessionStatus}' - skipping share button injection for SessionId {SessionId}", 
                     Model?.SessionStatus, SessionId);
-                finalHtml = htmlWithoutDeletes;
+                finalHtml = sanitizedInput;
             }
             
             Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Transformation completed. Original: {OriginalLength}, Final: {FinalLength}, ShareButtons: {ShareButtonsInjected}", 
                 originalHtml.Length, finalHtml.Length, Model?.SessionStatus == "Active");
-                
-            return finalHtml;
+
+            // Avoid double-wrapping: if the transformed HTML already contains a top-level ks-transcript wrapper, return as-is
+            var trimmed = finalHtml.TrimStart();
+            if (trimmed.StartsWith("<div class=\"ks-transcript\"") || trimmed.StartsWith("<div class='ks-transcript'"))
+            {
+                return finalHtml;
+            }
+
+            // Wrap final HTML in a root scoping div so transcript CSS can be safely scoped
+            var wrapped = $"<div class=\"ks-transcript\">{finalHtml}</div>";
+            return wrapped;
         }
         catch (Exception ex)
         {
@@ -1473,18 +1157,88 @@
     /// </summary>
     private string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
-        return $@"
-<div style=""width: 100%; text-align: center; margin: 10px 0; padding: 5px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;"">
-    <button data-share-button=""asset"" 
-            data-share-id=""{shareId}"" 
-            data-asset-type=""{assetType}"" 
-            onclick=""shareAssetViaSignalR('{shareId}', '{assetType}', 1, '{shareId}')"" 
-            style=""background-color: #dc2626; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s;"" 
-            onmouseover=""this.style.backgroundColor='#b91c1c'; this.style.transform='scale(1.05)'"" 
-            onmouseout=""this.style.backgroundColor='#dc2626'; this.style.transform='scale(1)'"">
-        📤 SHARE {displayName.ToUpper()} #{instanceNumber}
-    </button>
-</div>";
+        // NOTE: We intentionally do not include inline event handlers or style attributes here to avoid introducing XSS-vectors.
+        // Client-side JS should attach click handlers to elements with the .ks-share-button class and data-* attributes.
+        // Styling should come from CSS (.ks-share-wrapper, .ks-share-button) rather than inline styles.
+        return $@"<div class=""ks-share-wrapper"">" +
+               $@"<button class=""ks-share-button"" data-share-button=""asset"" data-share-id=""{shareId}"" data-asset-type=""{assetType}"" data-instance-number=""{instanceNumber}"">📤 SHARE {displayName.ToUpper()} #{instanceNumber}</button></div>";
+    }
+
+    /// <summary>
+    /// Basic sanitization using AngleSharp: removes dangerous elements (script, style, iframe, object, embed)
+    /// and strips event handler attributes (on*). Also nullifies javascript: URIs in href/src attributes.
+    /// This is intentionally conservative: it keeps class/id/data-* attributes so scoped CSS and our
+    /// data-driven share buttons continue to work while reducing XSS surface area.
+    /// </summary>
+    private string SanitizeHtml(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return string.Empty;
+
+        try
+        {
+            var parser = new HtmlParser();
+            var document = parser.ParseDocument(html);
+
+            // Remove hazardous elements entirely
+            var removeSelectors = new[] { "script", "style", "iframe", "object", "embed", "link" };
+            foreach (var sel in removeSelectors)
+            {
+                var nodes = document.QuerySelectorAll(sel).ToArray();
+                foreach (var n in nodes) n.Remove();
+            }
+
+            // Sanitize attributes on all elements
+            foreach (var element in document.All)
+            {
+                // Collect attributes to remove to avoid modifying collection during enumeration
+                var toRemove = new List<string>();
+                foreach (var attr in element.Attributes)
+                {
+                    var name = attr.Name ?? string.Empty;
+                    // Remove event handlers (onclick, onerror, etc.)
+                    if (name.StartsWith("on", StringComparison.OrdinalIgnoreCase))
+                    {
+                        toRemove.Add(name);
+                        continue;
+                    }
+
+                    // Remove style attribute to avoid inline CSS attacks (we rely on classes instead)
+                    if (string.Equals(name, "style", StringComparison.OrdinalIgnoreCase))
+                    {
+                        toRemove.Add(name);
+                        continue;
+                    }
+
+                    // Ensure href/src do not use javascript: pseudo-protocol
+                    if (string.Equals(name, "href", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(name, "src", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var val = attr.Value ?? string.Empty;
+                        if (val.TrimStart().StartsWith("javascript:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            toRemove.Add(name);
+                        }
+                    }
+                }
+
+                foreach (var a in toRemove) element.RemoveAttribute(a);
+            }
+
+            // Return sanitized inner HTML (preserve child nodes of body)
+            var body = document.Body;
+            if (body != null)
+            {
+                return string.Concat(body.ChildNodes.Select(n => n is IElement el ? el.OuterHtml : n.TextContent));
+            }
+
+            // Fallback to the document element's outer HTML
+            return document.DocumentElement?.OuterHtml ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "SanitizeHtml: failing open - returning original HTML as fallback");
+            return html; // Fallback: return original if sanitizer fails (better than throwing)
+        }
     }
 
     /// <summary>

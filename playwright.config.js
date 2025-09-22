@@ -1,14 +1,63 @@
-﻿// @ts-check
-const { defineConfig } = require("@playwright/test");
+﻿const path = require('path');
 
 /**
- * NOOR Canvas Playwright Configuration (Centralized)
- *
- * This configuration file redirects to the centralized PlayWright directory structure.
- * All Playwright tests, artifacts, and configurations are now organized under PlayWright/
- *
- * Issue-119: Playwright Reorganization - Centralized test management
+ * Canonical Playwright configuration for the repository.
+ * - Uses repository-relative paths for artifacts (Workspaces/TEMP/playwright-artifacts)
+ * - Keeps PW_MODE-aware overrides for 'standalone' and 'temp'
  */
+const cfg = {
+    timeout: 30 * 1000,
+    testDir: 'PlayWright/tests',
+    retries: 0,
+    reporter: [
+        ['list'],
+        [
+            'json',
+            {
+                outputFile: path.resolve(__dirname, 'Workspaces', 'TEMP', 'playwright-report', 'report.json'),
+            },
+        ],
+    ],
+    use: {
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+        outputDir: path.resolve(__dirname, 'Workspaces', 'TEMP', 'playwright-artifacts'),
+    },
+    projects: [
+        {
+            name: 'chromium',
+            use: { browserName: 'chromium' },
+        },
+    ],
+    // Environment-mode overrides will be merged below
+};
 
-// Load the main configuration from centralized location
-module.exports = require("./PlayWright/config/playwright.config.js");
+function applyModeOverrides(base) {
+    const mode = process.env.PW_MODE || process.env.PLAYWRIGHT_MODE || '';
+    if (mode === 'standalone') {
+        return Object.assign({}, base, {
+            timeout: 120000,
+            retries: 0,
+            workers: 1,
+            webServer: {
+                command: 'dotnet run',
+                cwd: './SPA/NoorCanvas',
+                port: 9091,
+                reuseExistingServer: !process.env.CI,
+                timeout: 60000,
+            },
+            reporter: [
+                ['list'],
+                ['html', { open: 'never', outputFolder: path.resolve(__dirname, 'Workspaces', 'TEMP', 'playwright-report', 'standalone-html') }],
+            ],
+            use: Object.assign({}, base.use, { headless: false, viewport: { width: 1280, height: 720 }, trace: 'retain-on-failure', video: 'retain-on-failure' }),
+        });
+    }
+    if (mode === 'temp') {
+        return Object.assign({}, base, { retries: 0, workers: 1, use: Object.assign({}, base.use, { video: 'on', trace: 'on' }) });
+    }
+    return base;
+}
+
+module.exports = applyModeOverrides(cfg);
