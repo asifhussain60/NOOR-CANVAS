@@ -677,6 +677,8 @@
                 if (!string.IsNullOrEmpty(HostAuthToken))
                 {
                     var canvasUrl = $"/session/canvas/{HostAuthToken}";
+                    Logger.LogInformation("COPILOT-DEBUG: HostControlPanel navigating to canvas with HOST AUTH TOKEN: {Token} (length: {Length})", 
+                        HostAuthToken, HostAuthToken.Length);
                     Logger.LogInformation("COPILOT-SESSION-START: Navigating to SessionCanvas: {CanvasUrl}", canvasUrl);
                     Navigation.NavigateTo(canvasUrl);
                 }

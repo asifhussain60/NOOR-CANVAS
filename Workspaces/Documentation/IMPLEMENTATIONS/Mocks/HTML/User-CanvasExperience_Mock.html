@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
@@ -28,11 +28,7 @@
         .golden-gradient {
             background-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358);
         }
-
-        .gold-border {
-            border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
-        }
-
+        
         .shadow-golden {
             box-shadow: 0 10px 15px -3px rgba(197, 179, 88, 0.4), 0 4px 6px -2px rgba(197, 179, 88, 0.2);
         }
@@ -41,325 +37,354 @@
             box-shadow: 0 10px 15px -3px rgba(0, 100, 0, 0.4), 0 4px 6px -2px rgba(0, 100, 0, 0.2);
         }
 
-        /* Adjusted layout to match the Waiting Room view style */
-        .page-container {
-            background-color: #F8F5F1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1.5rem;
+        /* Styling for the tab buttons */
+        .tab-button.active {
+            border-color: #D4AF37;
         }
 
-        .main-card {
-            width: 100%;
-            max-width: 900px;
-            background-color: #FFFFFF;
-            border-radius: 2rem;
-            padding: 1.5rem 3rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid #e5e7eb;
-            text-align: center;
-            margin: 2rem auto;
+        /* Custom scrollbar for participants list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .live-session-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            color: #006400;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #FBF9F6;
+            border-radius: 10px;
         }
 
-        .session-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 2.25rem;
-            color: #4B3C2B;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 10px;
         }
 
-        .session-description {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            color: #706357;
-            line-height: 1.625;
-            margin-top: 0.5rem;
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #C5B358;
         }
 
-        .content-section-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 1.5rem;
-            color: #4B3C2B;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        
-        /* New Canvas Frame Style */
-        .canvas-frame {
-            border: 2px solid #D4AF37;
-            border-radius: 1.5rem;
-            background-color: #F8F5F1;
-            box-shadow: 0 0 0 10px #F5E8D8;
-            padding: 1.5rem;
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
 
-        .content-area {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #706357;
-            padding: 2rem;
-            border: 2px solid #D4AF37;
-            border-radius: 0.75rem;
-            background-color: #F8F5F1;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-            min-height: 52.5vh;
+        .animate-pulse-subtle {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        .q-and-a-panel {
-            background-color: #F8F5F1;
-            padding: 1.5rem;
-            border-radius: 1.5rem;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-            margin-top: 1.5rem;
-            width: 100%;
-            border: 2px solid #D4AF37;
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        .q-and-a-title {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 1.5rem;
-            color: #4B3C2B;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        
-        .leave-button-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 1.5rem;
-            width: 100%;
+        .animate-spin-slow {
+            animation: spin 5s linear infinite;
         }
 
-        .leave-button {
-            background-color: #8B0000;
-            color: #FFFFFF;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            box-shadow: 0 10px 15px -3px rgba(139, 0, 0, 0.4), 0 4px 6px -2px rgba(139, 0, 0, 0.2);
-            transition: transform 0.3s ease-in-out;
-            width: 100%;
-        }
-        
-        .leave-button:hover {
-            transform: scale(1.05);
-        }
-
-        .question-item {
-            background-color: #F8F5F1;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #D4AF37;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .question-text-container {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-
-        .question-icon {
-            color: #4B3C2B;
-            font-size: 1.25rem;
-            margin-right: 0.5rem;
-        }
-
-        .question-text {
-            flex: 1;
-            width: 100%;
-            padding: 0.25rem;
-            border: 1px solid #D4AF37;
-            background-color: #F8F5F1;
-            border-radius: 0.375rem;
-            resize: none;
-            overflow: hidden;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            color: #4B3C2B;
-        }
-        
-        .question-vote-container {
-            display: flex;
-            align-items: center;
-            margin-left: 0.5rem;
-            min-width: 60px;
-        }
-
-        .vote-button {
-            color: #006400;
-            transition-colors: 0.2s;
-            margin-left: 0.5rem;
-        }
-
-        .vote-button:hover {
-            color: #008000;
-        }
-
-        .vote-count {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background-color: #C5B358;
-            color: #4B3C2B;
-        }
-
-        .delete-button {
-            color: #8B0000;
-            transition-colors: 0.2s;
-            margin-left: 0.5rem;
-        }
-
-        .delete-button:hover {
-            color: #b22222;
+        .modal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-[#F8F5F1] flex flex-col items-center justify-center min-h-screen p-6">
-    <div class="main-card">
-        <!-- Logo -->
+<body class="bg-[#FBF9F6] flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
 
+    <!-- Main Grid Layout -->
+    <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Session Header -->
-        <header class="text-center mb-6">
-            <h1 class="text-3xl poppins font-bold text-[#006400] mt-4">[Session Name]</h1>
-            <p class="inter text-sm text-[#706357] leading-relaxed mt-2">This is a sample description for the session. It provides a brief overview of the topics that will be discussed and the goals of the session. It's designed to give participants a clear idea of what to expect and to set the stage for the content to be shared.</p>
-        </header>
-
-        <!-- Main Content Area -->
-        <div class="q-and-a-panel p-6">
-            <h2 class="content-section-title">
-                <i class="fa-solid fa-chalkboard-user mr-2 text-[#006400]"></i>
-                <span class="text-[#006400]">CANVAS</span>
-            </h2>
-            <div id="session-content" class="content-area canvas-frame bg-white">
-                Session Assets Shared Here
+        <!-- Left Column: Main Canvas & Metadata -->
+        <main class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col">
+            <!-- Canvas Section -->
+            <div class="flex items-center justify-center space-x-2 text-[#006400] mb-4">
+                <i class="fa-solid fa-chalkboard-user text-2xl"></i>
+                <h3 class="poppins text-2xl font-semibold">Noor Canvas</h3>
             </div>
-        </div>
 
-        <!-- Q&A Panel -->
-        <div class="q-and-a-panel">
-            <h2 class="q-and-a-title">
-                <i class="fa-solid fa-comments mr-2 text-[#006400]"></i>
-                <span class="text-[#006400]">Q&A</span>
-            </h2>
-            <div class="space-y-4">
-                <textarea class="w-full p-3 rounded-lg border-2 border-[#D4AF37] focus:outline-none focus:border-[#4B3C2B] inter text-[#4B3C2B]" placeholder="Ask a question..." rows="3"></textarea>
-                <button class="w-full py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-green bg-[#006400] flex items-center justify-center">
-                    <i class="fa-solid fa-paper-plane mr-2"></i>
-                    <span>Submit Question</span>
-                </button>
+            <!-- Collapsible Q&A Panel -->
+            <div class="bg-gradient-to-r from-[#D4AF37] to-[#C5B358] rounded-xl mb-4 transition-all duration-300 ease-in-out overflow-hidden" id="collapsible-qa">
+                <div class="flex items-center justify-center space-x-2 cursor-pointer p-4" id="qa-header">
+                    <i class="fa-solid fa-hand-raised text-[#006400] text-3xl"></i>
+                    <h4 class="poppins text-md font-semibold text-[#4B3C2B]">I have a question</h4>
+                    <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" id="chevron-icon"></i>
+                </div>
+                <div id="qa-content" class="h-0 transition-all duration-300 ease-in-out">
+                    <div class="space-y-4 px-4 pb-4">
+                        <textarea class="w-full p-4 rounded-xl border-2 border-[#4B3C2B] focus:outline-none focus:ring-2 focus:ring-[#C5B358] inter text-[#4B3C2B] placeholder:text-gray-500" placeholder="Ask a question..." rows="3"></textarea>
+                        <button id="submit-question-btn" class="w-full py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-green bg-[#006400] flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Submit Question</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="session-content" class="flex-1 min-h-[400px] border-4 border-double border-[#D4AF37] p-8 rounded-3xl bg-[#FBF9F6] flex flex-col items-center justify-center text-center text-[#706357] text-lg font-light shadow-inner transition-all hover:shadow-lg">
+                <i class="fa-solid fa-spinner text-6xl text-[#D4AF37] mb-4 animate-spin-slow"></i>
+                <p class="animate-pulse-subtle">Awaiting content from the instructor...</p>
             </div>
             
-            <!-- Question List -->
-            <div class="mt-6 space-y-2">
-                <h3 class="inter font-semibold text-md text-[#4B3C2B] text-left">Recent Questions (vote for your favorite)</h3>
-                
-                <!-- User's Questions -->
-                <div class="question-item">
-                    <div class="question-text-container">
-                        <i class="fa-regular fa-circle-question question-icon"></i>
-                        <textarea class="question-text bg-white" rows="1">Can you re-share the ayah card?</textarea>
-                    </div>
-                    <div class="question-vote-container">
-                        <button class="vote-button">
-                            <i class="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <span class="vote-count">2</span>
-                        <button class="delete-button" title="Delete your question">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
+            <!-- Leave Button -->
+            <button id="leave-session-btn" class="mt-6 bg-[#8B0000] text-white rounded-full py-2 px-6 flex items-center justify-center space-x-2 transition-all hover:scale-105 shadow-md">
+                <i class="fa-solid fa-door-open"></i>
+                <span>Leave Session</span>
+            </button>
+
+            <!-- Session Metadata -->
+            <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="p-3 bg-white rounded-xl golden-gradient shadow-md border border-[#D4AF37] hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-users text-2xl text-[#4B3C2B] mb-1"></i>
+                    <p class="text-xs inter uppercase font-medium text-[#4B3C2B]">Participants</p>
+                    <p id="participants-count" class="text-xl poppins font-bold text-[#4B3C2B]"></p>
                 </div>
-                <div class="question-item">
-                    <div class="question-text-container">
-                        <i class="fa-regular fa-circle-question question-icon"></i>
-                        <textarea class="question-text bg-white" rows="1">How can I implement what I've learned in my daily life?</textarea>
-                    </div>
-                    <div class="question-vote-container">
-                        <button class="vote-button">
-                            <i class="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <span class="vote-count">4</span>
-                        <button class="delete-button" title="Delete your question">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
+                <div class="p-3 bg-white rounded-xl golden-gradient shadow-md border border-[#D4AF37] hover:scale-105 transition-transform">
+                    <i class="fa-regular fa-clock text-2xl text-[#4B3C2B] mb-1"></i>
+                    <p class="text-xs inter uppercase font-medium text-[#4B3C2B]">Duration</p>
+                    <p id="duration-timer" class="text-xl poppins font-bold text-[#4B3C2B]"></p>
                 </div>
-                <!-- Other Participants' Questions -->
-                <div class="question-item">
-                    <div class="question-text-container">
-                        <i class="fa-regular fa-circle-question question-icon"></i>
-                        <span class="inter text-sm text-[#4B3C2B]">What is the significance of the Battle of Badr?</span>
-                    </div>
-                    <div class="question-vote-container">
-                        <button class="vote-button">
-                            <i class="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <span class="vote-count">10</span>
-                    </div>
+                <div class="p-3 bg-white rounded-xl golden-gradient shadow-md border border-[#D4AF37] hover:scale-105 transition-transform md:col-span-2">
+                    <i class="fa-solid fa-book text-2xl text-[#4B3C2B] mb-1"></i>
+                    <p class="text-xs inter uppercase font-medium text-[#4B3C2B]">Topic</p>
+                    <p id="topic" class="text-md poppins font-bold text-[#4B3C2B]"></p>
                 </div>
-                <div class="question-item">
-                    <div class="question-text-container">
-                        <i class="fa-regular fa-circle-question question-icon"></i>
-                        <span class="inter text-sm text-[#4B3C2B]">What's the meaning of "Tawhid" and its importance?</span>
-                    </div>
-                    <div class="question-vote-container">
-                        <button class="vote-button">
-                            <i class="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <span class="vote-count">6</span>
-                    </div>
-                </div>
-                <div class="question-item">
-                    <div class="question-text-container">
-                        <i class="fa-regular fa-circle-question question-icon"></i>
-                        <span class="inter text-sm text-[#4B3C2B]">What is the importance of "sabr" (patience) in Islam?</span>
-                    </div>
-                    <div class="question-vote-container">
-                        <button class="vote-button">
-                            <i class="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <span class="vote-count">18</span>
+            </div>
+        </main>
+
+        <!-- Right Column: Q&A and Participants -->
+        <aside class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col" id="right-panel">
+            <!-- Tabs -->
+            <div class="flex mb-4 border-b-2 border-gray-200">
+                <button id="qa-tab-btn" class="flex-1 py-3 px-2 text-center text-[#4B3C2B] poppins font-semibold border-b-2 border-transparent transition-all tab-button active">Q&A</button>
+                <button id="participants-tab-btn" class="flex-1 py-3 px-2 text-center text-[#4B3C2B] poppins font-semibold border-b-2 border-transparent transition-all tab-button">Participants</button>
+            </div>
+
+            <!-- Q&A Content -->
+            <div id="qa-panel" class="tab-content flex-1 overflow-y-auto custom-scrollbar">
+                <div class="mt-2 space-y-4">
+                    <h3 class="inter font-semibold text-sm text-[#4B3C2B]">Recent Questions</h3>
+                    <div id="questions-list" class="flex flex-col space-y-3">
+                        <!-- Questions will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Leave Button -->
-        <div class="leave-button-container">
-            <button class="leave-button flex items-center justify-center">
-                <i class="fa-solid fa-door-open mr-2"></i>
-                <span>Leave Session</span>
-            </button>
+            <!-- Participants Content -->
+            <div id="participants-panel" class="tab-content hidden flex-1 overflow-y-auto custom-scrollbar">
+                <h3 class="inter font-semibold text-sm text-[#4B3C2B]">All Participants</h3>
+                <ul id="participants-list" class="mt-4 space-y-2">
+                    <!-- Participants will be dynamically inserted here -->
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="leave-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 modal opacity-0 invisible">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center transform scale-95 transition-all">
+            <h4 class="text-xl poppins font-bold text-[#4B3C2B] mb-4">Confirm Leave Session</h4>
+            <p class="inter text-sm text-gray-600 mb-6">Are you sure you want to leave the live session?</p>
+            <div class="flex justify-around space-x-4">
+                <button id="confirm-leave-btn" class="flex-1 py-2 px-4 rounded-xl text-white font-semibold bg-[#8B0000] hover:bg-[#A52A2A] transition-colors">
+                    Leave
+                </button>
+                <button id="cancel-leave-btn" class="flex-1 py-2 px-4 rounded-xl text-[#4B3C2B] font-semibold bg-gray-200 hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const qaTabBtn = document.getElementById('qa-tab-btn');
+            const participantsTabBtn = document.getElementById('participants-tab-btn');
+            const qaPanel = document.getElementById('qa-panel');
+            const participantsPanel = document.getElementById('participants-panel');
+            const durationTimer = document.getElementById('duration-timer');
+            const participantsCount = document.getElementById('participants-count');
+            const topicEl = document.getElementById('topic');
+            const questionsList = document.getElementById('questions-list');
+            const participantsList = document.getElementById('participants-list');
+
+            const collapsibleQa = document.getElementById('collapsible-qa');
+            const qaHeader = document.getElementById('qa-header');
+            const qaContent = document.getElementById('qa-content');
+            const chevronIcon = document.getElementById('chevron-icon');
+            const submitQuestionBtn = document.getElementById('submit-question-btn');
+            
+            const leaveSessionBtn = document.getElementById('leave-session-btn');
+            const leaveModal = document.getElementById('leave-modal');
+            const confirmLeaveBtn = document.getElementById('confirm-leave-btn');
+            const cancelLeaveBtn = document.getElementById('cancel-leave-btn');
+
+            const leftPanel = document.querySelector('main');
+            const rightPanel = document.getElementById('right-panel');
+
+            // --- Model (Simulated Data) ---
+            const model = {
+                startTime: Date.now(),
+                duration: 0,
+                participants: [
+                    { name: 'Ahmad Khan', country: 'US' },
+                    { name: 'Fatima Ali', country: 'PK' },
+                    { name: 'Muhammad Hassan', country: 'AE' },
+                    { name: 'Sara Ahmed', country: 'CA' },
+                    { name: 'Yusuf Omar', country: 'UK' },
+                    { name: 'Amira Sayed', country: 'EG' },
+                    { name: 'Ibrahim Khan', country: 'US' },
+                    { name: 'Nurul Huda', country: 'MY' },
+                    { name: 'Zeynep Yilmaz', country: 'TR' },
+                    { name: 'Omar Farooq', country: 'SA' },
+                    { name: 'Layla Bint Ali', country: 'IQ' },
+                    { name: 'Hassan Malik', country: 'PK' },
+                    { name: 'Aisha Abdullah', country: 'AE' },
+                    { name: 'Samir Aboud', country: 'LB' },
+                    { name: 'Nadia El-Masri', country: 'EG' },
+                    { name: 'Kareem Omar', country: 'US' },
+                    { name: 'Rayan Ahmed', country: 'UK' },
+                    { name: 'Lina Al-Hassan', country: 'JO' },
+                    { name: 'Bilal Khan', country: 'CA' },
+                    { name: 'Zahra Hassan', country: 'TR' },
+                ],
+                questions: [
+                    { text: 'Can you re-share the ayah card?', votes: 2 },
+                    { text: 'How can I implement what I\'ve learned in my daily life?', votes: 4 },
+                    { text: 'What is the significance of the Battle of Badr and how can we apply its lessons today? This is a very long question to test the wrapping.', votes: 10 },
+                    { text: 'What\'s the meaning of "Tawhid" and its importance?', votes: 6 },
+                    { text: 'What is the importance of "sabr" (patience) in Islam?', votes: 18 },
+                ],
+                topic: 'Chapter 3: Foundational Concepts'
+            };
+
+            // --- Rendering Functions ---
+            const renderParticipants = () => {
+                const participantsHtml = model.participants.map(p => `
+                    <li class="flex items-center space-x-3 p-2 bg-[#FBF9F6] rounded-lg">
+                        <img src="https://placehold.co/24x16/4B3C2B/FBF9F6?text=${p.country}" class="rounded-sm">
+                        <span class="inter text-sm text-[#4B3C2B] font-medium">${p.name}</span>
+                    </li>
+                `).join('');
+                participantsList.innerHTML = participantsHtml;
+                participantsCount.textContent = model.participants.length;
+            };
+
+            const renderQuestions = () => {
+                const questionsHtml = model.questions.map(q => `
+                    <div class="flex items-start p-3 rounded-xl border border-[#D4AF37] bg-[#FBF9F6] text-[#4B3C2B] group hover:bg-[#FBF9F6] transition-colors duration-200">
+                        <div class="flex flex-col items-center space-y-1 mr-3">
+                            <button class="text-[#006400] text-lg transition-colors hover:text-[#008000]">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                            <span class="vote-count bg-[#C5B358] text-[#4B3C2B] rounded-full px-2 text-xs font-bold">${q.votes}</span>
+                        </div>
+                        <span class="inter text-sm w-full leading-snug">${q.text}</span>
+                    </div>
+                `).join('');
+                questionsList.innerHTML = questionsHtml;
+            };
+
+            const renderMetadata = () => {
+                topicEl.textContent = model.topic;
+                durationTimer.textContent = formatTime(model.duration);
+            };
+
+            const renderAll = () => {
+                renderParticipants();
+                renderQuestions();
+                renderMetadata();
+            };
+
+            // --- Utility Functions ---
+            function formatTime(milliseconds) {
+                const totalSeconds = Math.floor(milliseconds / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                const pad = (num) => num.toString().padStart(2, '0');
+                
+                return `${pad(minutes)}:${pad(seconds)}`;
+            }
+            
+            // --- Modal Functions ---
+            const showModal = () => {
+                leaveModal.classList.remove('hidden', 'invisible', 'opacity-0');
+                leaveModal.classList.add('visible', 'opacity-100');
+            };
+
+            const hideModal = () => {
+                leaveModal.classList.remove('visible', 'opacity-100');
+                leaveModal.classList.add('hidden', 'invisible', 'opacity-0');
+            };
+
+            // --- Initial Render & Timers ---
+            renderAll();
+
+            setInterval(() => {
+                model.duration = Date.now() - model.startTime;
+                renderMetadata();
+            }, 1000);
+
+            // --- Event Listeners ---
+            const switchTab = (tabToActivate, panelToShow, tabToDeactivate, panelToHide) => {
+                panelToShow.classList.remove('hidden');
+                panelToHide.classList.add('hidden');
+                tabToActivate.classList.add('active');
+                tabToDeactivate.classList.remove('active');
+            };
+
+            qaTabBtn.addEventListener('click', () => {
+                switchTab(qaTabBtn, qaPanel, participantsTabBtn, participantsPanel);
+            });
+
+            participantsTabBtn.addEventListener('click', () => {
+                switchTab(participantsTabBtn, participantsPanel, qaTabBtn, qaPanel);
+            });
+
+            qaHeader.addEventListener('click', () => {
+                if (collapsibleQa.classList.contains('expanded')) {
+                    collapsibleQa.classList.remove('expanded');
+                    qaContent.style.height = '0px';
+                    chevronIcon.classList.remove('rotate-180');
+                } else {
+                    collapsibleQa.classList.add('expanded');
+                    qaContent.style.height = qaContent.scrollHeight + 'px';
+                    chevronIcon.classList.add('rotate-180');
+                }
+            });
+
+            submitQuestionBtn.addEventListener('click', () => {
+                collapsibleQa.classList.remove('expanded');
+                qaContent.style.height = '0px';
+                chevronIcon.classList.remove('rotate-180');
+            });
+            
+            leaveSessionBtn.addEventListener('click', showModal);
+            confirmLeaveBtn.addEventListener('click', () => {
+                // Here you would add the logic to actually leave the session
+                // For this example, we'll just log to the console
+                console.log('Leaving session...');
+                hideModal();
+            });
+            cancelLeaveBtn.addEventListener('click', hideModal);
+
+            let rAF;
+            const syncHeights = () => {
+                if (rAF) return;
+                rAF = window.requestAnimationFrame(() => {
+                    const leftHeight = leftPanel.offsetHeight;
+                    rightPanel.style.height = leftHeight + 'px';
+                    rAF = null;
+                });
+            };
+
+            const resizeObserver = new ResizeObserver(syncHeights);
+            resizeObserver.observe(leftPanel);
+
+        });
+    </script>
 </body>
 </html>

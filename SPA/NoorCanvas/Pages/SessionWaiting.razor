@@ -613,8 +613,8 @@
                 {
                     if (!string.IsNullOrEmpty(SessionToken))
                     {
-                        Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Navigating to session canvas with token: {Token}", 
-                            logRequestId, SessionToken);
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionWaiting navigating to canvas with USER TOKEN: {Token} (length: {Length})", 
+                            logRequestId, SessionToken, SessionToken.Length);
                         Navigation.NavigateTo($"/session/canvas/{SessionToken}");
                     }
                     else

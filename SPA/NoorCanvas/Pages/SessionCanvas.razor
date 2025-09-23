@@ -21,7 +21,8 @@
     @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
 </HeadContent>
 
-<div style="background-color:#F8F5F1;display:flex;flex-direction:column;min-height:100vh;padding:1rem;">
+<!-- NOOR Canvas Session Canvas with Q&A -->
+<div class="min-h-screen bg-gray-50 flex flex-col" style="background-color:#F8F5F1;">
 
     @if (Model?.CurrentState == SessionCanvasState.Loading)
     {
@@ -68,124 +69,213 @@
     }
     else if (Model?.CurrentState == SessionCanvasState.Loaded)
     {
-        <!-- Session Canvas Content -->
-        <div style="width:100%;max-width:80rem;margin:0 auto;">
-            
-            <!-- Header -->
-            <div style="background-color:white;border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;">
-                <div style="display:flex;align-items:center;justify-content:between;gap:2rem;">
-                    
-                    <!-- Logo -->
-                    <div style="flex-shrink:0;">
-                        <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                             alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                             style="max-width:120px;height:auto;" />
+        <!-- User Canvas Experience with Q&A -->
+        <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6 mx-auto px-4">
+
+            <!-- Left Column: Main Canvas & Metadata -->
+            <main class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col">
+                <!-- Canvas Section -->
+                <div class="flex items-center justify-center space-x-2 text-green-700 mb-4" style="color:#006400;">
+                    <i class="fa-solid fa-chalkboard-user text-2xl"></i>
+                    <h3 class="font-semibold text-2xl" style="font-family:'Poppins',sans-serif;">Noor Canvas</h3>
+                </div>
+
+                <!-- Collapsible Q&A Panel -->
+                <div class="rounded-xl mb-4 transition-all duration-300 ease-in-out overflow-hidden @(isQaExpanded ? "expanded" : "")" 
+                     style="background: linear-gradient(to right, #D4AF37, #C5B358);">
+                    <div class="flex items-center justify-center space-x-2 cursor-pointer p-4" @onclick="ToggleQaPanel">
+                        <i class="fa-solid fa-hand-raised text-3xl" style="color:#006400;"></i>
+                        <h4 class="font-semibold text-md" style="font-family:'Poppins',sans-serif;color:#4B3C2B;">I have a question</h4>
+                        <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300 @(isQaExpanded ? "rotate-180" : "")"></i>
                     </div>
-                    
-                    <!-- Session Info -->
-                    <div style="flex:1;text-align:center;">
-                        <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#006400;margin:0 0 0.5rem 0;">@(Model?.SessionName ?? "Session Canvas")</h1>
-                        <div style="display:flex;align-items:center;justify-content:center;gap:1rem;font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;">
-                            <span><i class="fa-solid fa-calendar" style="margin-right:0.25rem;"></i>@(Model?.SessionDate ?? "Today")</span>
-                            <span><i class="fa-solid fa-clock" style="margin-right:0.25rem;"></i>@(Model?.StartTime ?? "Now")</span>
-                            <span><i class="fa-solid fa-users" style="margin-right:0.25rem;"></i>@(Model?.ParticipantCount ?? 0) participants</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div style="flex-shrink:0;display:flex;gap:0.75rem;">
-                        <button @onclick="NavigateToWaitingRoom" 
-                                style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#706357;background-color:#F8F5F1;padding:0.5rem 1rem;border-radius:0.375rem;border:1px solid #D4AF37;cursor:pointer;transition:all 0.2s;hover:background-color:#F3F4F6;">
-                            <i class="fa-solid fa-arrow-left" style="margin-right:0.5rem;"></i>
-                            Back to Waiting Room
-                        </button>
-                        <button @onclick="EndSession" 
-                                style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:white;background-color:#DC2626;padding:0.5rem 1rem;border-radius:0.375rem;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#B91C1C;">
-                            <i class="fa-solid fa-stop" style="margin-right:0.5rem;"></i>
-                            End Session
-                        </button>
+                    <div class="transition-all duration-300 ease-in-out" style="height: @(isQaExpanded ? "auto" : "0px"); overflow: hidden;">
+                        @if (isQaExpanded)
+                        {
+                            <div class="space-y-4 px-4 pb-4">
+                                <textarea @bind="newQuestionText" @bind:event="oninput" 
+                                         class="w-full p-4 rounded-xl border-2 focus:outline-none focus:ring-2 text-gray-700 placeholder-gray-500" 
+                                         style="border-color:#4B3C2B; font-family:'Inter',sans-serif; background-color:white;"
+                                         placeholder="Ask a question..." rows="3" maxlength="500"></textarea>
+                                <button @onclick="SubmitQuestion" disabled="@(isSubmittingQuestion || string.IsNullOrWhiteSpace(newQuestionText))" 
+                                        class="w-full py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style="background-color:#006400; font-family:'Inter',sans-serif;">
+                                    @if (isSubmittingQuestion)
+                                    {
+                                        <i class="fa-solid fa-spinner fa-spin"></i>
+                                        <span>Submitting...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                        <span>Submit Question</span>
+                                    }
+                                </button>
+                            </div>
+                        }
                     </div>
                 </div>
-            </div>
-            
-            <!-- Main Canvas Area -->
-            <div style="display:grid;grid-template-columns:1fr 300px;gap:1.5rem;min-height:70vh;">
+
+                <div @ref="leftPanel" class="flex-1 min-h-96 border-4 border-double p-8 rounded-3xl flex flex-col items-center justify-center text-center text-lg font-light shadow-inner transition-all hover:shadow-lg"
+                     style="border-color:#D4AF37; background-color:#FBF9F6; color:#706357; font-family:'Inter',sans-serif;">
+                    <i class="fa-solid fa-spinner text-6xl mb-4 animate-spin" style="color:#D4AF37;"></i>
+                    <p class="animate-pulse">Awaiting content from the instructor...</p>
+                </div>
                 
-                <!-- Canvas Content Area -->
-                <div style="background-color:white;border-radius:1rem;padding:2rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;">
-                    <div style="display:flex;align-items:center;justify-content:between;margin-bottom:1.5rem;">
-                        <h2 style="font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:600;color:#4B3C2B;margin:0;">Session Content</h2>
-                        <div style="display:flex;gap:0.5rem;">
-                            <button style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.75rem;border-radius:9999px;background-color:#3B82F6;color:white;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#2563EB;">
-                                <i class="fa-solid fa-share" style="margin-right:0.25rem;"></i>
-                                Share Screen
-                            </button>
-                            <button style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.75rem;border-radius:9999px;background-color:#8B5CF6;color:white;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#7C3AED;">
-                                <i class="fa-solid fa-plus" style="margin-right:0.25rem;"></i>
-                                Add Content
-                            </button>
-                        </div>
+                <!-- Leave Button -->
+                <button @onclick="ShowLeaveModal" 
+                        class="mt-6 text-white rounded-full py-2 px-6 flex items-center justify-center space-x-2 transition-all hover:scale-105 shadow-md"
+                        style="background-color:#8B0000; font-family:'Inter',sans-serif;">
+                    <i class="fa-solid fa-door-open"></i>
+                    <span>Leave Session</span>
+                </button>
+
+                <!-- Session Metadata -->
+                <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="p-3 bg-white rounded-xl shadow-md border hover:scale-105 transition-transform" 
+                         style="border-color:#D4AF37; background: linear-gradient(135deg, #D4AF37, #F4E4BC);">
+                        <i class="fa-solid fa-users text-2xl mb-1" style="color:#4B3C2B;"></i>
+                        <p class="text-xs uppercase font-medium" style="color:#4B3C2B; font-family:'Inter',sans-serif;">Participants</p>
+                        <p class="text-xl font-bold" style="color:#4B3C2B; font-family:'Poppins',sans-serif;">@(Model?.ParticipantCount ?? 0)</p>
                     </div>
-                    
-                    <!-- Canvas Placeholder -->
-                    <div style="border:2px dashed #D1D5DB;border-radius:0.5rem;padding:3rem;text-align:center;background-color:#F9FAFB;">
-                        <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
-                            <i class="fa-solid fa-chalkboard-user" style="font-size:4rem;color:#9CA3AF;"></i>
-                            <div>
-                                <h3 style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#6B7280;margin:0 0 0.5rem 0;">Welcome to Session Canvas</h3>
-                                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#9CA3AF;margin:0;">This is where the interactive session content will be displayed.</p>
-                                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#9CA3AF;margin:0.25rem 0 0 0;">Shared assets from the host will appear here in real-time.</p>
+                    <div class="p-3 bg-white rounded-xl shadow-md border hover:scale-105 transition-transform" 
+                         style="border-color:#D4AF37; background: linear-gradient(135deg, #D4AF37, #F4E4BC);">
+                        <i class="fa-regular fa-clock text-2xl mb-1" style="color:#4B3C2B;"></i>
+                        <p class="text-xs uppercase font-medium" style="color:#4B3C2B; font-family:'Inter',sans-serif;">Duration</p>
+                        <p class="text-xl font-bold" style="color:#4B3C2B; font-family:'Poppins',sans-serif;">@FormatDuration(sessionDuration)</p>
+                    </div>
+                    <div class="p-3 bg-white rounded-xl shadow-md border hover:scale-105 transition-transform md:col-span-2" 
+                         style="border-color:#D4AF37; background: linear-gradient(135deg, #D4AF37, #F4E4BC);">
+                        <i class="fa-solid fa-book text-2xl mb-1" style="color:#4B3C2B;"></i>
+                        <p class="text-xs uppercase font-medium" style="color:#4B3C2B; font-family:'Inter',sans-serif;">Topic</p>
+                        <p class="text-md font-bold" style="color:#4B3C2B; font-family:'Poppins',sans-serif;">@(Model?.SessionName ?? "Loading...")</p>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Column: Q&A and Participants -->
+            <aside @ref="rightPanel" class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col">
+                <!-- Tabs -->
+                <div class="flex mb-4 border-b-2 border-gray-200">
+                    <button @onclick="() => SetActiveTab(1)" 
+                            class="flex-1 py-3 px-2 text-center font-semibold border-b-2 border-transparent transition-all @(activeTab == 1 ? "border-yellow-500 text-yellow-600" : "text-gray-600")"
+                            style="font-family:'Poppins',sans-serif; @(activeTab == 1 ? "border-color:#D4AF37; color:#4B3C2B;" : "color:#4B3C2B;")">
+                        Q&A
+                    </button>
+                    <button @onclick="() => SetActiveTab(2)" 
+                            class="flex-1 py-3 px-2 text-center font-semibold border-b-2 border-transparent transition-all @(activeTab == 2 ? "border-yellow-500 text-yellow-600" : "text-gray-600")"
+                            style="font-family:'Poppins',sans-serif; @(activeTab == 2 ? "border-color:#D4AF37; color:#4B3C2B;" : "color:#4B3C2B;")">
+                        Participants
+                    </button>
+                </div>
+
+                <!-- Q&A Content -->
+                @if (activeTab == 1)
+                {
+                    <div class="flex-1 overflow-y-auto" style="max-height: 400px;">
+                        <div class="mt-2 space-y-4">
+                            <h3 class="font-semibold text-sm" style="color:#4B3C2B; font-family:'Inter',sans-serif;">Recent Questions</h3>
+                            <div id="questions-list" class="flex flex-col space-y-3">
+                                @if (Model?.Questions?.Any() == true)
+                                {
+                                    @foreach (var q in Model.Questions.OrderByDescending(q => q.Votes).ThenByDescending(q => q.CreatedAt))
+                                    {
+                                        <div class="flex items-start p-3 rounded-xl border group hover:shadow-md transition-all duration-200" 
+                                             style="border-color:#D4AF37; background-color:#FBF9F6; color:#4B3C2B;">
+                                            <div class="flex flex-col items-center space-y-1 mr-3">
+                                                <button @onclick="() => VoteQuestion(q.QuestionId)" 
+                                                        disabled="@(q.HasUserVoted || isVoting)"
+                                                        class="transition-colors hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        style="color:@(q.HasUserVoted ? "#8B5CF6" : "#006400");">
+                                                    <i class="fa-solid fa-arrow-up text-lg"></i>
+                                                </button>
+                                                <span class="text-white rounded-full px-2 text-xs font-bold" 
+                                                      style="background-color:#C5B358; color:#4B3C2B;">@q.Votes</span>
+                                            </div>
+                                            <div class="w-full">
+                                                <span class="text-sm leading-snug block" style="font-family:'Inter',sans-serif;">@q.Text</span>
+                                                <div class="text-xs mt-1 opacity-75" style="font-family:'Inter',sans-serif;">
+                                                    by @q.UserName • @FormatTimeAgo(q.CreatedAt)
+                                                    @if (q.IsAnswered)
+                                                    {
+                                                        <span class="ml-2 text-green-600 font-semibold">✓ Answered</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center py-8">
+                                        <i class="fa-solid fa-comments text-4xl mb-4 opacity-30" style="color:#D4AF37;"></i>
+                                        <p class="text-gray-500" style="font-family:'Inter',sans-serif;">No questions yet. Be the first to ask!</p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Participants & Chat Sidebar -->
-                <div style="display:flex;flex-direction:column;gap:1rem;">
-                    
-                    <!-- Participants Panel -->
-                    <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #E5E7EB;flex:1;">
-                        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
-                            <h3 style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:#4B3C2B;margin:0;">Participants</h3>
-                            <span style="background-color:#D4AF37;color:white;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;padding:0.125rem 0.5rem;border-radius:9999px;">@(Model?.ParticipantCount ?? 0)</span>
-                        </div>
-                        <div style="display:flex;flex-direction:column;gap:0.5rem;max-height:200px;overflow-y:auto;">
+                }
+
+                <!-- Participants Content -->
+                @if (activeTab == 2)
+                {
+                    <div class="flex-1 overflow-y-auto" style="max-height: 400px;">
+                        <h3 class="font-semibold text-sm" style="color:#4B3C2B; font-family:'Inter',sans-serif;">All Participants</h3>
+                        <ul class="mt-4 space-y-2">
                             @if (Model?.Participants?.Any() == true)
                             {
-                                @foreach (var participant in Model.Participants)
+                                @foreach (var p in Model.Participants)
                                 {
-                                    <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background-color:#F8F9FA;border-radius:0.375rem;">
-                                        <div style="width:8px;height:8px;background-color:#10B981;border-radius:50%;"></div>
-                                        <span style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#374151;">@participant.Name</span>
-                                        @if (!string.IsNullOrEmpty(participant.Flag))
+                                    <li class="flex items-center space-x-3 p-2 rounded-lg" style="background-color:#FBF9F6;">
+                                        @if (!string.IsNullOrEmpty(p.Flag))
                                         {
-                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" style="height:12px;width:auto;border-radius:0.125rem;">
+                                            <img src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" class="rounded-sm" style="width:20px;height:auto;"/>
                                         }
-                                    </div>
+                                        else
+                                        {
+                                            <div class="w-5 h-4 rounded-sm" style="background-color:#D4AF37;"></div>
+                                        }
+                                        <span class="text-sm font-medium" style="color:#4B3C2B; font-family:'Inter',sans-serif;">@p.Name</span>
+                                    </li>
                                 }
                             }
                             else
                             {
-                                <div style="text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.75rem;padding:1rem 0;">
-                                    No participants yet
+                                <div class="text-center py-8">
+                                    <i class="fa-solid fa-users text-4xl mb-4 opacity-30" style="color:#D4AF37;"></i>
+                                    <p class="text-gray-500" style="font-family:'Inter',sans-serif;">No participants yet</p>
                                 </div>
                             }
-                        </div>
+                        </ul>
                     </div>
-                    
-                    <!-- Chat Panel -->
-                    <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #E5E7EB;flex:1;">
-                        <h3 style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:#4B3C2B;margin:0 0 0.75rem 0;">Session Chat</h3>
-                        <div style="border:1px solid #E5E7EB;border-radius:0.375rem;padding:1rem;background-color:#F9FAFB;text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.75rem;">
-                            <i class="fa-solid fa-comments" style="font-size:1.5rem;margin-bottom:0.5rem;display:block;"></i>
-                            Chat functionality coming soon
-                        </div>
-                    </div>
-                </div>
-            </div>
+                }
+            </aside>
         </div>
     }
 </div>
+
+<!-- Leave Session Confirmation Modal -->
+@if (showLeaveModal)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center mx-4">
+            <h4 class="text-xl font-bold mb-4" style="color:#4B3C2B; font-family:'Poppins',sans-serif;">Confirm Leave Session</h4>
+            <p class="text-sm mb-6" style="color:#706357; font-family:'Inter',sans-serif;">Are you sure you want to leave the live session?</p>
+            <div class="flex justify-around space-x-4">
+                <button @onclick="LeaveSession" 
+                        class="flex-1 py-2 px-4 rounded-xl text-white font-semibold transition-colors"
+                        style="background-color:#8B0000; font-family:'Inter',sans-serif;">
+                    Leave
+                </button>
+                <button @onclick="HideLeaveModal" 
+                        class="flex-1 py-2 px-4 rounded-xl font-semibold bg-gray-200 hover:bg-gray-300 transition-colors"
+                        style="color:#4B3C2B; font-family:'Inter',sans-serif;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+}
 
 @implements IAsyncDisposable
 
@@ -195,6 +285,23 @@
     private SessionCanvasViewModel? Model { get; set; }
     private HubConnection? _hubConnection;
     private long? _sessionId;
+    
+    // Q&A State Management
+    private bool isQaExpanded = false;
+    private string newQuestionText = "";
+    private bool isSubmittingQuestion = false;
+    private bool isVoting = false;
+    private int activeTab = 1; // 1 for Q&A, 2 for Participants
+    private bool showLeaveModal = false;
+    
+    // Timer for session duration
+    private System.Timers.Timer? durationTimer;
+    private DateTime? sessionStartTime;
+    private long sessionDuration = 0;
+    
+    // Element references
+    private ElementReference leftPanel;
+    private ElementReference rightPanel;
 
     protected override async Task OnInitializedAsync()
     {
@@ -214,6 +321,12 @@
         };
 
         await InitializeSessionAsync(requestId);
+    }
+
+    private void LeaveSession()
+    {
+        HideLeaveModal();
+        NavigateToWaitingRoom();
     }
 
     private async Task InitializeSessionAsync(string requestId)
@@ -243,12 +356,30 @@
 
     private async Task LoadSessionDataAsync(string token, string requestId)
     {
+        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] LoadSessionDataAsync started for token: {Token}", requestId, token);
         try
         {
-            // Validate session token and get session data
             using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
-            var apiUrl = $"api/host/session/{token}/validate";
             
+            // COPILOT-FIX: Detect token type and use appropriate validation endpoint
+            bool isHostGuid = IsHostGuidFormat(token);
+            string apiUrl;
+            
+            if (isHostGuid)
+            {
+                // Host GUID token - use host validation endpoint
+                apiUrl = $"api/host/session/{token}/validate";
+                Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Detected HOST GUID token, using host validation endpoint", requestId);
+            }
+            else
+            {
+                // User token (8-char) - use participant validation endpoint
+                apiUrl = $"api/participant/session/{token}/validate";
+                Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Detected USER token (8-char), using participant validation endpoint", requestId);
+            }
+            
+            // COPILOT-DEBUG: Trace HttpClient configuration to debug BaseAddress issue
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Created NoorCanvasApi HttpClient - BaseAddress: {BaseAddress}", requestId, httpClient.BaseAddress?.ToString() ?? "NULL");
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Validating session token via API: {ApiUrl}", requestId, apiUrl);
 
             var response = await httpClient.GetAsync(apiUrl);
@@ -265,9 +396,17 @@
                 {
                     UpdateSessionData(sessionResponse.Session);
                     _sessionId = sessionResponse.Session.SessionId;
+                    sessionStartTime = sessionResponse.Session.StartTime ?? DateTime.UtcNow;
                     
-                    // Load participants
+                    // Load participants and questions
                     await LoadParticipantsAsync(requestId);
+                    await LoadQuestionsAsync();
+                    
+                    // Initialize SignalR for real-time updates
+                    await InitializeSignalRAsync();
+                    
+                    // Start duration timer
+                    StartDurationTimer();
                     
                     Model!.CurrentState = SessionCanvasState.Loaded;
                     Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session canvas loaded successfully", requestId);
@@ -398,6 +537,9 @@
 
     public async ValueTask DisposeAsync()
     {
+        // Cleanup timer
+        durationTimer?.Dispose();
+        
         // Cleanup SignalR connection if needed
         if (_hubConnection != null)
         {
@@ -422,6 +564,7 @@
         public string? StartTime { get; set; }
         public int ParticipantCount { get; set; }
         public List<ParticipantData>? Participants { get; set; }
+        public List<QuestionData>? Questions { get; set; } = new();
         public string? ErrorMessage { get; set; }
     }
 
@@ -492,5 +635,312 @@
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? CountryFlag { get; set; }
+    }
+
+    public class QuestionData
+    {
+        public int QuestionId { get; set; }
+        public string Text { get; set; } = "";
+        public int Votes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CreatedBy { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public bool IsAnswered { get; set; }
+        public bool HasUserVoted { get; set; }
+    }
+
+    // Q&A Methods
+    private void ToggleQaPanel()
+    {
+        isQaExpanded = !isQaExpanded;
+        StateHasChanged();
+    }
+
+    private async Task SubmitQuestion()
+    {
+        if (string.IsNullOrWhiteSpace(newQuestionText) || string.IsNullOrWhiteSpace(SessionToken))
+            return;
+
+        try
+        {
+            isSubmittingQuestion = true;
+            StateHasChanged();
+
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            var request = new
+            {
+                sessionToken = SessionToken,
+                questionText = newQuestionText.Trim()
+            };
+
+            var response = await httpClient.PostAsJsonAsync("api/question/submit", request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                newQuestionText = "";
+                isQaExpanded = false;
+                await LoadQuestionsAsync();
+                Logger.LogInformation("NOOR-QA: Question submitted successfully");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("NOOR-QA: Failed to submit question: {Error}", errorContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-QA: Exception submitting question");
+        }
+        finally
+        {
+            isSubmittingQuestion = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task VoteQuestion(int questionId)
+    {
+        if (string.IsNullOrWhiteSpace(SessionToken) || isVoting)
+            return;
+
+        try
+        {
+            isVoting = true;
+            StateHasChanged();
+
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            var request = new { sessionToken = SessionToken };
+
+            var response = await httpClient.PostAsJsonAsync($"api/question/{questionId}/vote", request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadQuestionsAsync();
+                Logger.LogInformation("NOOR-QA: Vote submitted for question {QuestionId}", questionId);
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("NOOR-QA: Vote failed: {Error}", errorContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-QA: Exception voting on question");
+        }
+        finally
+        {
+            isVoting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadQuestionsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SessionToken))
+            return;
+
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            var response = await httpClient.GetAsync($"api/question/session/{SessionToken}");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var questionsResponse = JsonSerializer.Deserialize<GetQuestionsApiResponse>(content, 
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (questionsResponse?.Questions != null && Model != null)
+                {
+                    Model.Questions = questionsResponse.Questions.Select(q => new QuestionData
+                    {
+                        QuestionId = q.QuestionId,
+                        Text = q.Text,
+                        Votes = q.Votes,
+                        CreatedAt = q.CreatedAt,
+                        CreatedBy = q.CreatedBy,
+                        UserName = q.UserName,
+                        IsAnswered = q.IsAnswered,
+                        HasUserVoted = false // TODO: Track user votes
+                    }).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-QA: Failed to load questions");
+        }
+    }
+
+    private void SetActiveTab(int tab)
+    {
+        activeTab = tab;
+        StateHasChanged();
+    }
+
+    private void ShowLeaveModal()
+    {
+        showLeaveModal = true;
+        StateHasChanged();
+    }
+
+    private void HideLeaveModal()
+    {
+        showLeaveModal = false;
+        StateHasChanged();
+    }
+
+    private string FormatDuration(long milliseconds)
+    {
+        var totalSeconds = (int)(milliseconds / 1000);
+        var hours = totalSeconds / 3600;
+        var minutes = (totalSeconds % 3600) / 60;
+        var seconds = totalSeconds % 60;
+
+        if (hours > 0)
+            return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
+        else
+            return $"{minutes:D2}:{seconds:D2}";
+    }
+
+    private string FormatTimeAgo(DateTime createdAt)
+    {
+        var timeSpan = DateTime.UtcNow - createdAt;
+        
+        if (timeSpan.TotalMinutes < 1)
+            return "just now";
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes}m ago";
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours}h ago";
+        
+        return createdAt.ToString("MMM dd");
+    }
+
+    private async Task InitializeSignalRAsync()
+    {
+        try
+        {
+            if (_hubConnection != null)
+            {
+                await _hubConnection.DisposeAsync();
+            }
+
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/sessionhub"))
+                .Build();
+
+            // Register Q&A event handlers
+            _hubConnection.On<object>("QuestionReceived", async (questionData) =>
+            {
+                Logger.LogInformation("NOOR-QA: Question received via SignalR");
+                await LoadQuestionsAsync();
+                await InvokeAsync(StateHasChanged);
+            });
+
+            _hubConnection.On<object>("QuestionVoteUpdate", async (voteData) =>
+            {
+                Logger.LogInformation("NOOR-QA: Vote update received via SignalR");
+                await LoadQuestionsAsync();
+                await InvokeAsync(StateHasChanged);
+            });
+
+            _hubConnection.On<object>("QuestionAnswered", async (answerData) =>
+            {
+                Logger.LogInformation("NOOR-QA: Question answered via SignalR");
+                await LoadQuestionsAsync();
+                await InvokeAsync(StateHasChanged);
+            });
+
+            await _hubConnection.StartAsync();
+            
+            if (_sessionId.HasValue)
+            {
+                await _hubConnection.SendAsync("JoinSessionGroup", _sessionId.Value.ToString());
+                Logger.LogInformation("NOOR-QA: Joined SignalR session group {SessionId}", _sessionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-QA: Failed to initialize SignalR connection");
+        }
+    }
+
+    private void StartDurationTimer()
+    {
+        durationTimer?.Dispose();
+        
+        durationTimer = new System.Timers.Timer(1000); // Update every second
+        durationTimer.Elapsed += async (sender, e) =>
+        {
+            if (sessionStartTime.HasValue)
+            {
+                sessionDuration = (long)(DateTime.UtcNow - sessionStartTime.Value).TotalMilliseconds;
+                await InvokeAsync(StateHasChanged);
+            }
+        };
+        durationTimer.AutoReset = true;
+        durationTimer.Enabled = true;
+    }
+
+    /// <summary>
+    /// COPILOT-FIX: Helper method to detect if token is a Host GUID format vs User 8-char token
+    /// Host GUIDs are typically longer (base64 hash) or standard GUID format
+    /// User tokens are exactly 8 characters (friendly tokens)
+    /// </summary>
+    private static bool IsHostGuidFormat(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return false;
+        
+        // User tokens are exactly 8 characters
+        if (token.Length == 8) return false;
+        
+        // Try parsing as standard GUID first
+        if (Guid.TryParse(token, out _)) return true;
+        
+        // Check if it looks like a base64 hash (longer string, typical host auth token format)
+        if (token.Length > 8 && IsBase64String(token)) return true;
+        
+        // Default to host GUID if longer than 8 characters
+        return token.Length > 8;
+    }
+    
+    /// <summary>
+    /// Helper to check if string is valid base64
+    /// </summary>
+    private static bool IsBase64String(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return false;
+        
+        try
+        {
+            Convert.FromBase64String(s);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public class GetQuestionsApiResponse
+    {
+        public int SessionId { get; set; }
+        public int QuestionCount { get; set; }
+        public List<QuestionApiData> Questions { get; set; } = new();
+        public string RequestId { get; set; } = "";
+    }
+
+    public class QuestionApiData
+    {
+        public int QuestionId { get; set; }
+        public string Text { get; set; } = "";
+        public int Votes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CreatedBy { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public bool IsAnswered { get; set; }
     }
 }

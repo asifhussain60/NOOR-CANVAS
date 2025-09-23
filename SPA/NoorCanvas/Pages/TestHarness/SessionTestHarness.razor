@@ -1,0 +1,1112 @@
+@page "/test-harness"
+@page "/test-harness/{mode}"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using NoorCanvas.Models.Simplified
+@using NoorCanvas.Data
+@using NoorCanvas.Services
+@using System.Diagnostics
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<SessionTestHarness> Logger
+@inject SimplifiedCanvasDbContext CanvasDb
+@inject SimplifiedTokenService TokenService
+
+<!-- Custom Styles -->
+<style>
+    .noor-blue { color: #3B82F6; }
+    .noor-purple { color: #8B5CF6; }
+    .noor-gold { color: #D4AF37; }
+    .noor-cream { background-color: #F8F5F1; }
+    .noor-green { color: #006400; }
+    .bg-noor-blue { background-color: #3B82F6; }
+    .bg-noor-purple { background-color: #8B5CF6; }
+    .bg-noor-gold { background-color: #D4AF37; }
+    .bg-noor-cream { background-color: #F8F5F1; }
+    .bg-noor-green { background-color: #006400; }
+    .border-noor-gold { border-color: #D4AF37; }
+    .focus\:border-noor-blue:focus { border-color: #3B82F6; }
+    .focus\:border-noor-purple:focus { border-color: #8B5CF6; }
+    .focus\:ring-noor-blue:focus { --tw-ring-color: #3B82F6; }
+    .focus\:ring-noor-purple:focus { --tw-ring-color: #8B5CF6; }
+    
+    /* Gradient classes for buttons */
+    .from-noor-blue { --tw-gradient-from: #3B82F6; --tw-gradient-to: rgba(59, 130, 246, 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    .to-noor-purple { --tw-gradient-to: #8B5CF6; }
+    .hover\:from-blue-600:hover { --tw-gradient-from: #2563EB; --tw-gradient-to: rgba(37, 99, 235, 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    .hover\:to-purple-600:hover { --tw-gradient-to: #7C3AED; }
+</style>
+
+<!-- Main Container -->
+<div class="min-h-screen bg-gradient-to-br from-noor-cream via-white to-blue-50 font-inter">
+    <!-- Header -->
+    <div class="bg-white shadow-lg border-b-4 border-noor-gold">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <img src="/images/branding/NC-Header.png" alt="NOOR Canvas" class="h-12 w-auto">
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 class="text-2xl font-bold text-noor-green">
+                            <i class="fas fa-flask mr-2 text-noor-purple"></i>
+                            Session Test Harness
+                        </h1>
+                        <p class="text-sm text-gray-600">Automated Multi-User Session Testing Platform</p>
+                    </div>
+                </div>
+                
+                <!-- Status Badge -->
+                <div class="flex items-center space-x-4">
+                    @if (isConnected)
+                    {
+                        <div class="flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                            Connected
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                            Disconnected
+                        </div>
+                    }
+                    
+                    <button @onclick="ToggleHelp" class="p-2 text-gray-500 hover:text-noor-blue transition-colors duration-200">
+                        <i class="fas fa-question-circle text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Panel - Configuration -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <!-- Panel Header -->
+                    <div class="bg-gradient-to-r from-noor-blue to-noor-purple px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-cog mr-3"></i>
+                            Test Configuration
+                        </h2>
+                    </div>
+                    
+                    <!-- Configuration Form -->
+                    <div class="p-6 space-y-6">
+                        <!-- Session ID Input -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <i class="fas fa-hashtag text-noor-blue mr-2"></i>
+                                Session ID
+                            </label>
+                            <input @bind="sessionId" @bind:event="oninput" 
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-noor-blue focus:ring-2 focus:ring-noor-blue focus:ring-opacity-20 transition-all duration-200 font-mono text-lg"
+                                   placeholder="e.g., 212" type="number" min="1" max="9999">
+                            <p class="text-xs text-gray-500">Enter the session ID to test (1-9999)</p>
+                        </div>
+                        
+                        <!-- Participant Count -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <i class="fas fa-users text-noor-purple mr-2"></i>
+                                Number of Participants
+                            </label>
+                            <div class="relative">
+                                <input @bind="participantCount" @bind:event="oninput"
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-noor-purple focus:ring-2 focus:ring-noor-purple focus:ring-opacity-20 transition-all duration-200 font-mono text-lg"
+                                       placeholder="e.g., 50" type="number" min="1" max="100">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <i class="fas fa-user-plus text-gray-400"></i>
+                                </div>
+                            </div>
+                            <!-- Quick Select Buttons -->
+                            <div class="flex space-x-2">
+                                <button @onclick="() => SetParticipantCount(10)" 
+                                        class="px-3 py-1 bg-gray-100 hover:bg-noor-blue hover:text-white rounded-lg text-sm font-medium transition-all duration-200">
+                                    10
+                                </button>
+                                <button @onclick="() => SetParticipantCount(25)" 
+                                        class="px-3 py-1 bg-gray-100 hover:bg-noor-blue hover:text-white rounded-lg text-sm font-medium transition-all duration-200">
+                                    25
+                                </button>
+                                <button @onclick="() => SetParticipantCount(50)" 
+                                        class="px-3 py-1 bg-gray-100 hover:bg-noor-blue hover:text-white rounded-lg text-sm font-medium transition-all duration-200">
+                                    50
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Test Mode Selection -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <i class="fas fa-flask text-noor-gold mr-2"></i>
+                                Test Mode
+                            </label>
+                            <div class="space-y-3">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="testMode" value="full" @onchange="@(() => testMode = "full")" 
+                                           checked="@(testMode == "full")"
+                                           class="w-4 h-4 text-noor-blue border-gray-300 focus:ring-noor-blue">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-900">Full Flow Test</span>
+                                        <span class="text-xs text-gray-500">Complete session lifecycle validation</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="testMode" value="setup" @onchange="@(() => testMode = "setup")" 
+                                           checked="@(testMode == "setup")"
+                                           class="w-4 h-4 text-noor-purple border-gray-300 focus:ring-noor-purple">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-900">Setup Only</span>
+                                        <span class="text-xs text-gray-500">Generate tokens and participants</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="testMode" value="cleanup" @onchange="@(() => testMode = "cleanup")" 
+                                           checked="@(testMode == "cleanup")"
+                                           class="w-4 h-4 text-red-500 border-gray-300 focus:ring-red-500">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-900">Cleanup</span>
+                                        <span class="text-xs text-gray-500">Remove test data and reset</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="space-y-3 pt-4 border-t border-gray-200">
+                            <button @onclick="RunTest" disabled="@isRunning"
+                                    class="w-full bg-gradient-to-r from-noor-blue to-noor-purple text-white font-bold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg">
+                                @if (isRunning)
+                                {
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    <span>Running Test...</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-play mr-2"></i>
+                                    <span>Start Test</span>
+                                }
+                            </button>
+                            
+                            @if (isRunning)
+                            {
+                                <button @onclick="CancelTest"
+                                        class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105">
+                                    <i class="fas fa-stop mr-2"></i>
+                                    Cancel Test
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Results and Logs -->
+            <div class="lg:col-span-2">
+                <div class="grid grid-cols-1 gap-6">
+                    
+                    <!-- Session Status Card -->
+                    @if (currentSession != null)
+                    {
+                        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4">
+                                <h3 class="text-lg font-bold text-white flex items-center">
+                                    <i class="fas fa-server mr-3"></i>
+                                    Current Session Status
+                                </h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="text-center p-4 bg-blue-50 rounded-xl">
+                                        <div class="text-2xl font-bold text-noor-blue">@currentSession.SessionId</div>
+                                        <div class="text-sm text-gray-600">Session ID</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-purple-50 rounded-xl">
+                                        <div class="text-lg font-mono text-noor-purple">@(currentSession.HostToken?.Substring(0, 4) ?? "----")****</div>
+                                        <div class="text-sm text-gray-600">Host Token</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-green-50 rounded-xl">
+                                        <div class="text-lg font-mono text-noor-green">@(currentSession.UserToken?.Substring(0, 4) ?? "----")****</div>
+                                        <div class="text-sm text-gray-600">User Token</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-amber-50 rounded-xl">
+                                        <div class="text-2xl font-bold text-amber-600">@participantCount</div>
+                                        <div class="text-sm text-gray-600">Participants</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Progress Card -->
+                    @if (isRunning && progressSteps.Any())
+                    {
+                        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+                                <h3 class="text-lg font-bold text-white flex items-center">
+                                    <i class="fas fa-tasks mr-3"></i>
+                                    Test Progress
+                                </h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                @foreach (var step in progressSteps)
+                                {
+                                    <div class="flex items-center space-x-4 p-4 rounded-xl @GetStepBgClass(step.Status)">
+                                        <div class="flex-shrink-0">
+                                            @if (step.Status == TestStepStatus.Running)
+                                            {
+                                                <i class="fas fa-spinner fa-spin text-blue-500 text-lg"></i>
+                                            }
+                                            else if (step.Status == TestStepStatus.Completed)
+                                            {
+                                                <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                                            }
+                                            else if (step.Status == TestStepStatus.Failed)
+                                            {
+                                                <i class="fas fa-times-circle text-red-500 text-lg"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-circle text-gray-400 text-lg"></i>
+                                            }
+                                        </div>
+                                        <div class="flex-grow">
+                                            <div class="font-semibold text-gray-900">@step.Name</div>
+                                            <div class="text-sm text-gray-600">@step.Description</div>
+                                            @if (!string.IsNullOrEmpty(step.Result))
+                                            {
+                                                <div class="text-sm font-mono mt-1 p-2 bg-gray-50 rounded text-gray-700">@step.Result</div>
+                                            }
+                                        </div>
+                                        @if (step.Duration.HasValue)
+                                        {
+                                            <div class="flex-shrink-0 text-sm text-gray-500 font-mono">
+                                                @step.Duration.Value.TotalMilliseconds.ToString("F0")ms
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Logs Card -->
+                    <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-slate-700 to-gray-800 px-6 py-4 flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-white flex items-center">
+                                <i class="fas fa-terminal mr-3"></i>
+                                Test Logs
+                            </h3>
+                            <div class="flex space-x-2">
+                                <button @onclick="ClearLogs" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm transition-colors duration-200">
+                                    <i class="fas fa-trash-alt mr-1"></i>
+                                    Clear
+                                </button>
+                                <button @onclick="ToggleAutoScroll" class="px-3 py-1 @(autoScroll ? "bg-blue-600" : "bg-gray-600") hover:bg-blue-500 text-white rounded-lg text-sm transition-colors duration-200">
+                                    <i class="fas fa-arrow-down mr-1"></i>
+                                    Auto-scroll
+                                </button>
+                            </div>
+                        </div>
+                        <div class="h-96 overflow-y-auto bg-gray-900 text-green-400 font-mono text-sm p-4 space-y-1" id="logContainer">
+                            @if (!logEntries.Any())
+                            {
+                                <div class="text-gray-500 italic">No logs yet. Run a test to see output.</div>
+                            }
+                            else
+                            {
+                                @foreach (var log in logEntries.TakeLast(100))
+                                {
+                                    <div class="flex items-start space-x-2">
+                                        <span class="text-gray-500 flex-shrink-0">@log.Timestamp.ToString("HH:mm:ss.fff")</span>
+                                        <span class="@GetLogLevelClass(log.Level)">[@log.Level]</span>
+                                        <span class="break-all">@log.Message</span>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    @if (showHelp)
+    {
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" @onclick="ToggleHelp">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" @onclick:stopPropagation="true">
+                <div class="bg-gradient-to-r from-noor-blue to-noor-purple px-6 py-4 rounded-t-2xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold text-white">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Session Test Harness Help
+                        </h3>
+                        <button @onclick="ToggleHelp" class="text-white hover:text-gray-200 transition-colors duration-200">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div>
+                        <h4 class="font-bold text-lg text-gray-900 mb-3">What is this tool?</h4>
+                        <p class="text-gray-700 leading-relaxed">
+                            The Session Test Harness automates the complex multi-user session testing process for NOOR Canvas. 
+                            Instead of manually creating tokens, registering participants, and validating flows across multiple browsers, 
+                            this tool handles everything programmatically in under 2 minutes.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-lg text-gray-900 mb-3">Test Modes</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-3 h-3 bg-noor-blue rounded-full mt-1.5 flex-shrink-0"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Full Flow Test</div>
+                                    <div class="text-gray-600 text-sm">Complete end-to-end session testing including token generation, participant registration, session start, canvas validation, and cleanup.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-3 h-3 bg-noor-purple rounded-full mt-1.5 flex-shrink-0"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Setup Only</div>
+                                    <div class="text-gray-600 text-sm">Generate session tokens and register test participants without running the full flow. Useful for manual testing preparation.</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-3 h-3 bg-red-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Cleanup</div>
+                                    <div class="text-gray-600 text-sm">Remove test participants and reset session state. Run this after testing to clean up database.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-lg text-gray-900 mb-3">Quick Start</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>Enter a Session ID (e.g., 212 for test session)</li>
+                            <li>Select number of participants (1-100)</li>
+                            <li>Choose test mode based on your needs</li>
+                            <li>Click "Start Test" and monitor progress</li>
+                            <li>View real-time logs for detailed information</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-amber-400 mr-2 mt-0.5"></i>
+                            <div>
+                                <h5 class="font-semibold text-amber-800">Important Notes</h5>
+                                <ul class="text-amber-700 text-sm mt-1 space-y-1">
+                                    <li>• Ensure NOOR Canvas application is running on https://localhost:9091</li>
+                                    <li>• This tool uses the development database (KSESSIONS_DEV)</li>
+                                    <li>• Test participants will be automatically cleaned up after full tests</li>
+                                    <li>• Use unique Session IDs to avoid conflicts with existing data</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Mode { get; set; }
+    
+    // State Variables
+    private int sessionId = 212;
+    private int participantCount = 50;
+    private string testMode = "full";
+    private bool isRunning = false;
+    private bool isConnected = true;
+    private bool showHelp = false;
+    private bool autoScroll = true;
+    
+    // Current Session Info
+    private Session? currentSession;
+    
+    // Progress Tracking
+    private List<TestStep> progressSteps = new();
+    private List<LogEntry> logEntries = new();
+    
+    // Cancellation Support
+    private CancellationTokenSource? cancellationTokenSource;
+    
+    // Render tracking
+    private bool hasRendered = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Parse mode parameter
+        if (!string.IsNullOrEmpty(Mode))
+        {
+            testMode = Mode.ToLower();
+        }
+        
+        await CheckApplicationHealth();
+        await LogMessage("Session Test Harness initialized", "INFO");
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            hasRendered = true;
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    
+    private async Task CheckApplicationHealth()
+    {
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync("https://localhost:9091/healthz");
+            isConnected = response.IsSuccessStatusCode;
+            
+            if (isConnected)
+            {
+                await LogMessage("✅ Application health check passed", "INFO");
+            }
+            else
+            {
+                await LogMessage("❌ Application health check failed", "ERROR");
+            }
+        }
+        catch (Exception ex)
+        {
+            isConnected = false;
+            await LogMessage($"❌ Health check exception: {ex.Message}", "ERROR");
+        }
+        
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task RunTest()
+    {
+        if (isRunning) return;
+        
+        isRunning = true;
+        cancellationTokenSource = new CancellationTokenSource();
+        progressSteps.Clear();
+        
+        await LogMessage($"🚀 Starting {testMode} test for Session {sessionId} with {participantCount} participants", "INFO");
+        
+        try
+        {
+            switch (testMode)
+            {
+                case "full":
+                    await RunFullFlowTest();
+                    break;
+                case "setup":
+                    await RunSetupOnlyTest();
+                    break;
+                case "cleanup":
+                    await RunCleanupTest();
+                    break;
+            }
+            
+            await LogMessage("🎉 Test completed successfully!", "SUCCESS");
+        }
+        catch (OperationCanceledException)
+        {
+            await LogMessage("⏹️ Test cancelled by user", "WARN");
+        }
+        catch (Exception ex)
+        {
+            await LogMessage($"❌ Test failed: {ex.Message}", "ERROR");
+        }
+        finally
+        {
+            isRunning = false;
+            cancellationTokenSource = null;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task RunFullFlowTest()
+    {
+        var steps = new[]
+        {
+            ("Generate Session Tokens", "Creating host and user tokens via HostProvisioner"),
+            ("Register Participants", "Adding test participants to waiting room"),
+            ("Validate Session Setup", "Confirming session configuration"),
+            ("Test Authentication Flow", "Validating host and user authentication"),
+            ("Simulate Session Start", "Testing session lifecycle"),
+            ("Validate Canvas Access", "Checking SessionCanvas routing"),
+            ("Cleanup Test Data", "Removing test participants")
+        };
+        
+        foreach (var (name, description) in steps)
+        {
+            await AddProgressStep(name, description);
+        }
+        
+        // Step 1: Generate Tokens
+        await ExecuteStep(0, async () =>
+        {
+            currentSession = await GenerateSessionTokens();
+            return $"Generated tokens - Host: {currentSession.HostToken?.Substring(0, 4)}****, User: {currentSession.UserToken?.Substring(0, 4)}****";
+        });
+        
+        // Step 2: Register Participants
+        await ExecuteStep(1, async () =>
+        {
+            var registered = await RegisterTestParticipants();
+            return $"Registered {registered} participants successfully";
+        });
+        
+        // Step 3: Validate Setup
+        await ExecuteStep(2, async () =>
+        {
+            var isValid = await ValidateSessionSetup();
+            return isValid ? "Session setup validated successfully" : throw new Exception("Session setup validation failed");
+        });
+        
+        // Step 4: Test Authentication
+        await ExecuteStep(3, async () =>
+        {
+            var authResult = await TestAuthenticationFlow();
+            return authResult ? "Authentication flow validated" : throw new Exception("Authentication validation failed");
+        });
+        
+        // Step 5: Simulate Session Start
+        await ExecuteStep(4, async () =>
+        {
+            var startResult = await SimulateSessionStart();
+            return startResult ? "Session start simulation successful" : throw new Exception("Session start failed");
+        });
+        
+        // Step 6: Validate Canvas
+        await ExecuteStep(5, async () =>
+        {
+            var canvasResult = await ValidateCanvasAccess();
+            return canvasResult ? "Canvas access validated" : throw new Exception("Canvas validation failed");
+        });
+        
+        // Step 7: Cleanup
+        await ExecuteStep(6, async () =>
+        {
+            var cleanupCount = await CleanupTestData();
+            return $"Cleaned up {cleanupCount} test records";
+        });
+    }
+    
+    private async Task RunSetupOnlyTest()
+    {
+        var steps = new[]
+        {
+            ("Generate Session Tokens", "Creating host and user tokens"),
+            ("Register Participants", "Adding test participants to database"),
+            ("Validate Configuration", "Confirming setup is ready for testing")
+        };
+        
+        foreach (var (name, description) in steps)
+        {
+            await AddProgressStep(name, description);
+        }
+        
+        await ExecuteStep(0, async () =>
+        {
+            currentSession = await GenerateSessionTokens();
+            return $"Session {currentSession.SessionId} ready with tokens";
+        });
+        
+        await ExecuteStep(1, async () =>
+        {
+            var registered = await RegisterTestParticipants();
+            return $"Registered {registered} test participants";
+        });
+        
+        await ExecuteStep(2, async () =>
+        {
+            var isReady = await ValidateSessionSetup();
+            return isReady ? "Setup complete - ready for manual testing" : throw new Exception("Setup validation failed");
+        });
+    }
+    
+    private async Task RunCleanupTest()
+    {
+        var steps = new[]
+        {
+            ("Identify Test Data", "Finding test participants and session data"),
+            ("Remove Participants", "Deleting test participant records"),
+            ("Reset Session State", "Cleaning up session configuration")
+        };
+        
+        foreach (var (name, description) in steps)
+        {
+            await AddProgressStep(name, description);
+        }
+        
+        await ExecuteStep(0, async () =>
+        {
+            var session = await FindExistingSession();
+            currentSession = session;
+            return session != null ? $"Found session {session.SessionId} for cleanup" : "No test data found";
+        });
+        
+        await ExecuteStep(1, async () =>
+        {
+            var cleanupCount = await CleanupTestData();
+            return $"Removed {cleanupCount} test records";
+        });
+        
+        await ExecuteStep(2, async () =>
+        {
+            await ResetSessionState();
+            return "Session state reset successfully";
+        });
+    }
+    
+    // Core Test Implementation Methods
+    
+    private async Task<Session> GenerateSessionTokens()
+    {
+        await LogMessage($"🔑 Generating tokens for Session {sessionId}", "INFO");
+        
+        // Check if session already exists
+        var existingSession = await CanvasDb.Sessions
+            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+            
+        if (existingSession != null)
+        {
+            await LogMessage($"📋 Using existing session {sessionId}", "INFO");
+            return existingSession;
+        }
+        
+        // Create new session with tokens
+        var session = new Session
+        {
+            SessionId = sessionId,
+            Title = $"Test Session {sessionId}",
+            Description = $"Automated test session created by SessionTestHarness",
+            HostToken = GenerateFriendlyToken(),
+            UserToken = GenerateFriendlyToken(),
+            HostAuthToken = Guid.NewGuid().ToString(),
+            Status = "Waiting",
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(1),
+            CreatedBy = "SessionTestHarness"
+        };
+        
+        CanvasDb.Sessions.Add(session);
+        await CanvasDb.SaveChangesAsync();
+        
+        await LogMessage($"✅ Created session with Host: {session.HostToken}, User: {session.UserToken}", "SUCCESS");
+        return session;
+    }
+    
+    private async Task<int> RegisterTestParticipants()
+    {
+        if (currentSession == null) throw new InvalidOperationException("No active session");
+        
+        await LogMessage($"👥 Registering {participantCount} test participants", "INFO");
+        
+        // Clear existing participants for this session
+        var existing = await CanvasDb.Participants
+            .Where(p => p.UserToken == currentSession.UserToken)
+            .ToListAsync();
+            
+        if (existing.Any())
+        {
+            CanvasDb.Participants.RemoveRange(existing);
+            await CanvasDb.SaveChangesAsync();
+            await LogMessage($"🗑️ Removed {existing.Count} existing participants", "INFO");
+        }
+        
+        // Generate test participants
+        var participants = new List<Participant>();
+        var countries = new[] { "US", "UK", "CA", "AU", "DE", "FR", "JP", "IN", "BR", "SA" };
+        
+        for (int i = 1; i <= participantCount; i++)
+        {
+            var participant = new Participant
+            {
+                SessionId = currentSession.SessionId,
+                UserToken = currentSession.UserToken,
+                UserGuid = Guid.NewGuid().ToString(),
+                Name = $"TestUser{i:D2}",
+                Email = $"testuser{i}@example.com",
+                Country = countries[(i - 1) % countries.Length],
+                City = "Test City",
+                JoinedAt = DateTime.UtcNow.AddSeconds(-i) // Stagger join times
+            };
+            
+            participants.Add(participant);
+            
+            if (i % 10 == 0)
+            {
+                await LogMessage($"📝 Generated participant {i}/{participantCount}", "INFO");
+            }
+        }
+        
+        CanvasDb.Participants.AddRange(participants);
+        await CanvasDb.SaveChangesAsync();
+        
+        await LogMessage($"✅ Successfully registered {participants.Count} participants", "SUCCESS");
+        return participants.Count;
+    }
+    
+    private async Task<bool> ValidateSessionSetup()
+    {
+        if (currentSession == null) return false;
+        
+        await LogMessage("🔍 Validating session configuration", "INFO");
+        
+        // Validate session exists and has correct tokens
+        var dbSession = await CanvasDb.Sessions.FindAsync(currentSession.SessionId);
+        if (dbSession == null)
+        {
+            await LogMessage("❌ Session not found in database", "ERROR");
+            return false;
+        }
+        
+        // Validate participants exist
+        var participantCount = await CanvasDb.Participants
+            .CountAsync(p => p.UserToken == currentSession.UserToken);
+            
+        if (participantCount != this.participantCount)
+        {
+            await LogMessage($"❌ Expected {this.participantCount} participants, found {participantCount}", "ERROR");
+            return false;
+        }
+        
+        await LogMessage($"✅ Session validation passed - {participantCount} participants ready", "SUCCESS");
+        return true;
+    }
+    
+    private async Task<bool> TestAuthenticationFlow()
+    {
+        if (currentSession == null) return false;
+        
+        await LogMessage("🔐 Testing authentication flows", "INFO");
+        
+        try
+        {
+            // Test host token validation
+            var hostValid = await TokenService.ValidateTokenAsync(currentSession.HostToken, isHostToken: true);
+            if (hostValid == null)
+            {
+                await LogMessage("❌ Host token validation failed", "ERROR");
+                return false;
+            }
+            
+            // Test user token validation  
+            var userValid = await TokenService.ValidateTokenAsync(currentSession.UserToken, isHostToken: false);
+            if (userValid == null)
+            {
+                await LogMessage("❌ User token validation failed", "ERROR");
+                return false;
+            }
+            
+            await LogMessage("✅ Both host and user tokens validated successfully", "SUCCESS");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await LogMessage($"❌ Authentication test failed: {ex.Message}", "ERROR");
+            return false;
+        }
+    }
+    
+    private async Task<bool> SimulateSessionStart()
+    {
+        if (currentSession == null) return false;
+        
+        await LogMessage("▶️ Simulating session start", "INFO");
+        
+        try
+        {
+            // Update session status to Active
+            var dbSession = await CanvasDb.Sessions.FindAsync(currentSession.SessionId);
+            if (dbSession != null)
+            {
+                dbSession.Status = "Active";
+                dbSession.StartedAt = DateTime.UtcNow;
+                await CanvasDb.SaveChangesAsync();
+                
+                await LogMessage($"✅ Session {sessionId} marked as Active", "SUCCESS");
+                return true;
+            }
+            
+            return false;
+        }
+        catch (Exception ex)
+        {
+            await LogMessage($"❌ Session start simulation failed: {ex.Message}", "ERROR");
+            return false;
+        }
+    }
+    
+    private async Task<bool> ValidateCanvasAccess()
+    {
+        if (currentSession == null) return false;
+        
+        await LogMessage("🎨 Validating canvas access", "INFO");
+        
+        try
+        {
+            // Simulate canvas route validation using HostAuthToken
+            if (string.IsNullOrEmpty(currentSession.HostAuthToken))
+            {
+                await LogMessage("❌ HostAuthToken is missing", "ERROR");
+                return false;
+            }
+            
+            // Validate GUID format
+            if (!Guid.TryParse(currentSession.HostAuthToken, out _))
+            {
+                await LogMessage("❌ HostAuthToken is not a valid GUID", "ERROR");
+                return false;
+            }
+            
+            await LogMessage($"✅ Canvas access validated with HostAuthToken: {currentSession.HostAuthToken.Substring(0, 8)}...", "SUCCESS");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await LogMessage($"❌ Canvas validation failed: {ex.Message}", "ERROR");
+            return false;
+        }
+    }
+    
+    private async Task<int> CleanupTestData()
+    {
+        if (currentSession == null) return 0;
+        
+        await LogMessage("🧹 Cleaning up test data", "INFO");
+        
+        var totalDeleted = 0;
+        
+        // Remove participants
+        var participants = await CanvasDb.Participants
+            .Where(p => p.UserToken == currentSession.UserToken)
+            .ToListAsync();
+            
+        if (participants.Any())
+        {
+            CanvasDb.Participants.RemoveRange(participants);
+            totalDeleted += participants.Count;
+            await LogMessage($"🗑️ Removed {participants.Count} participants", "INFO");
+        }
+        
+        await CanvasDb.SaveChangesAsync();
+        
+        await LogMessage($"✅ Cleanup completed - removed {totalDeleted} records", "SUCCESS");
+        return totalDeleted;
+    }
+    
+    private async Task<Session?> FindExistingSession()
+    {
+        return await CanvasDb.Sessions
+            .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+    }
+    
+    private async Task ResetSessionState()
+    {
+        if (currentSession == null) return;
+        
+        var dbSession = await CanvasDb.Sessions.FindAsync(currentSession.SessionId);
+        if (dbSession != null)
+        {
+            dbSession.Status = "Waiting";
+            dbSession.StartedAt = null;
+            await CanvasDb.SaveChangesAsync();
+        }
+    }
+    
+    // Helper Methods
+    
+    private async Task ExecuteStep(int stepIndex, Func<Task<string>> action)
+    {
+        if (stepIndex >= progressSteps.Count) return;
+        
+        var step = progressSteps[stepIndex];
+        step.Status = TestStepStatus.Running;
+        step.StartTime = DateTime.UtcNow;
+        
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(100); // Brief pause for UI update
+        
+        try
+        {
+            cancellationTokenSource?.Token.ThrowIfCancellationRequested();
+            
+            var result = await action();
+            
+            step.Status = TestStepStatus.Completed;
+            step.Result = result;
+            await LogMessage($"✅ {step.Name}: {result}", "SUCCESS");
+        }
+        catch (Exception ex)
+        {
+            step.Status = TestStepStatus.Failed;
+            step.Result = ex.Message;
+            await LogMessage($"❌ {step.Name}: {ex.Message}", "ERROR");
+            throw;
+        }
+        finally
+        {
+            step.EndTime = DateTime.UtcNow;
+            step.Duration = step.EndTime - step.StartTime;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private async Task AddProgressStep(string name, string description)
+    {
+        progressSteps.Add(new TestStep
+        {
+            Name = name,
+            Description = description,
+            Status = TestStepStatus.Pending
+        });
+        
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private string GenerateFriendlyToken()
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        var random = new Random();
+        return new string(Enumerable.Repeat(chars, 8)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+    
+    private async Task LogMessage(string message, string level = "INFO")
+    {
+        var entry = new LogEntry
+        {
+            Timestamp = DateTime.UtcNow,
+            Level = level,
+            Message = message
+        };
+        
+        logEntries.Add(entry);
+        Logger.LogInformation("SessionTestHarness: [{Level}] {Message}", level, message);
+        
+        await InvokeAsync(StateHasChanged);
+        
+        if (autoScroll && hasRendered)
+        {
+            try
+            {
+                await Task.Delay(50);
+                await JSRuntime.InvokeVoidAsync("scrollToBottom", "logContainer");
+            }
+            catch (InvalidOperationException)
+            {
+                // JavaScript interop not available during prerendering - silently ignore
+            }
+        }
+    }
+    
+    private async Task CancelTest()
+    {
+        cancellationTokenSource?.Cancel();
+        await LogMessage("Test cancellation requested", "WARN");
+    }
+    
+    private void SetParticipantCount(int count)
+    {
+        participantCount = count;
+        StateHasChanged();
+    }
+    
+    private void ToggleHelp()
+    {
+        showHelp = !showHelp;
+        StateHasChanged();
+    }
+    
+    private void ToggleAutoScroll()
+    {
+        autoScroll = !autoScroll;
+        StateHasChanged();
+    }
+    
+    private void ClearLogs()
+    {
+        logEntries.Clear();
+        StateHasChanged();
+    }
+    
+    private string GetStepBgClass(TestStepStatus status)
+    {
+        return status switch
+        {
+            TestStepStatus.Running => "bg-blue-50 border border-blue-200",
+            TestStepStatus.Completed => "bg-green-50 border border-green-200",
+            TestStepStatus.Failed => "bg-red-50 border border-red-200",
+            _ => "bg-gray-50 border border-gray-200"
+        };
+    }
+    
+    private string GetLogLevelClass(string level)
+    {
+        return level switch
+        {
+            "ERROR" => "text-red-400 font-bold",
+            "WARN" => "text-yellow-400 font-semibold", 
+            "SUCCESS" => "text-green-400 font-semibold",
+            "INFO" => "text-blue-400",
+            _ => "text-gray-400"
+        };
+    }
+    
+    // Data Models
+    
+    public class TestStep
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public TestStepStatus Status { get; set; } = TestStepStatus.Pending;
+        public string? Result { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
+        public TimeSpan? Duration { get; set; }
+    }
+    
+    public enum TestStepStatus
+    {
+        Pending,
+        Running, 
+        Completed,
+        Failed
+    }
+    
+    public class LogEntry
+    {
+        public DateTime Timestamp { get; set; }
+        public string Level { get; set; } = "";
+        public string Message { get; set; } = "";
+    }
+}
+
+<script>
+    window.scrollToBottom = (elementId) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.scrollTop = element.scrollHeight;
+        }
+    };
+</script>

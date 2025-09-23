@@ -58,323 +58,296 @@
   },
   "suites": [
     {
-      "title": "host-control-panel-end-session.spec.ts",
-      "file": "host-control-panel-end-session.spec.ts",
+      "title": "user-registration-multi-instance.spec.ts",
+      "file": "user-registration-multi-instance.spec.ts",
       "column": 0,
       "line": 0,
-      "specs": [
+      "specs": [],
+      "suites": [
         {
-          "title": "should successfully end session from host control panel",
-          "ok": false,
-          "tags": [],
-          "tests": [
+          "title": "User Registration Multi-Instance Synchronization",
+          "file": "user-registration-multi-instance.spec.ts",
+          "line": 312,
+          "column": 6,
+          "specs": [
             {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
+              "title": "should register 10 users concurrently and sync participants across all instances",
+              "ok": false,
+              "tags": [],
+              "tests": [
                 {
-                  "workerIndex": 6,
-                  "parallelIndex": 0,
-                  "status": "failed",
-                  "duration": 13557,
-                  "error": {
-                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 2\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 HOST CONTROL PANEL\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    14 × locator resolved to <h1>…</h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m                HOST CONTROL PANEL\"\u001b[22m\n",
-                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 2\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 HOST CONTROL PANEL\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    14 × locator resolved to <h1>…</h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m                HOST CONTROL PANEL\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:206:38",
-                    "location": {
-                      "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
-                      "column": 38,
-                      "line": 206
-                    },
-                    "snippet": "\u001b[0m \u001b[90m 204 |\u001b[39m     \n \u001b[90m 205 |\u001b[39m     \u001b[90m// Verify we're on the correct page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 206 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 207 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Host Control Panel loaded successfully'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 208 |\u001b[39m     \n \u001b[90m 209 |\u001b[39m     \u001b[90m// Verify session information loads\u001b[39m\u001b[0m"
-                  },
-                  "errors": [
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
                     {
-                      "location": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
-                        "column": 38,
-                        "line": 206
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17133,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Join Waiting Room\")') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Join Waiting Room\")') to be visible\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\user-registration-multi-instance.spec.ts:390:28",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\user-registration-multi-instance.spec.ts",
+                          "column": 28,
+                          "line": 390
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 388 |\u001b[39m                 \u001b[90m// This happens when ShowTokenPanel becomes false and registration form appears\u001b[39m\n \u001b[90m 389 |\u001b[39m                 \u001b[90m// Look for the \"Join Waiting Room\" button which appears after successful token validation\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 390 |\u001b[39m                 \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'button:has-text(\"Join Waiting Room\")'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 391 |\u001b[39m                 console\u001b[33m.\u001b[39mlog(\u001b[32m`✅ Instance ${i + 1} token validated - registration form appeared`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 392 |\u001b[39m             }\n \u001b[90m 393 |\u001b[39m\u001b[0m"
                       },
-                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 2\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 HOST CONTROL PANEL\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    14 × locator resolved to <h1>…</h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m                HOST CONTROL PANEL\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 204 |\u001b[39m     \n \u001b[90m 205 |\u001b[39m     \u001b[90m// Verify we're on the correct page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 206 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 207 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Host Control Panel loaded successfully'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 208 |\u001b[39m     \n \u001b[90m 209 |\u001b[39m     \u001b[90m// Verify session information loads\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:206:38\u001b[22m"
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\user-registration-multi-instance.spec.ts",
+                            "column": 28,
+                            "line": 390
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Join Waiting Room\")') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 388 |\u001b[39m                 \u001b[90m// This happens when ShowTokenPanel becomes false and registration form appears\u001b[39m\n \u001b[90m 389 |\u001b[39m                 \u001b[90m// Look for the \"Join Waiting Room\" button which appears after successful token validation\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 390 |\u001b[39m                 \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'button:has-text(\"Join Waiting Room\")'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 391 |\u001b[39m                 console\u001b[33m.\u001b[39mlog(\u001b[32m`✅ Instance ${i + 1} token validated - registration form appeared`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 392 |\u001b[39m             }\n \u001b[90m 393 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\user-registration-multi-instance.spec.ts:390:28\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔍 Validating infrastructure stability...\n"
+                        },
+                        {
+                          "text": "✅ Application running on https://localhost:9091\n"
+                        },
+                        {
+                          "text": "🚀 Setting up 10 concurrent browser contexts...\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 6 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 7 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 8 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 9 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 10 context created\n"
+                        },
+                        {
+                          "text": "🎯 Starting multi-user registration test with 10 superhero instances using token: KDVD****\n"
+                        },
+                        {
+                          "text": "📍 Phase 1: Navigating all instances to UserLanding and validating token...\n"
+                        },
+                        {
+                          "text": "Instance 1 page heading: \"User Authentication\"\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 on authentication page - entering token\n"
+                        },
+                        {
+                          "text": "🔄 Instance 1 validating token...\n"
+                        },
+                        {
+                          "text": "🧹 Cleaning up browser contexts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-23T16:50:32.626Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-5.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-6.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-3.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-4.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-8.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-10.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-9.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\test-failed-7.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\user-registration-multi-in-ff5ac-ipants-across-all-instances-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\user-registration-multi-instance.spec.ts",
+                        "column": 28,
+                        "line": 390
+                      }
                     }
                   ],
-                  "stdout": [
-                    {
-                      "text": "🚀 Setting up test environment...\n"
-                    },
-                    {
-                      "text": "🔍 Validating infrastructure with SSL support...\n"
-                    },
-                    {
-                      "text": "✅ Application running on https://localhost:9091\n"
-                    },
-                    {
-                      "text": "🔑 Using host token: ********, user token: ********\n"
-                    },
-                    {
-                      "text": "🏥 Performing application health check...\n"
-                    },
-                    {
-                      "text": "✅ Application health check passed\n"
-                    },
-                    {
-                      "text": "📊 Test configuration:\n"
-                    },
-                    {
-                      "text": "  - Headless: true\n"
-                    },
-                    {
-                      "text": "  - Workers: 1\n"
-                    },
-                    {
-                      "text": "  - Base URL: https://localhost:9091\n"
-                    },
-                    {
-                      "text": "  - Reporters: list + json (NO HTML)\n"
-                    },
-                    {
-                      "text": "🎯 Testing: Host Control Panel End Session functionality\n"
-                    },
-                    {
-                      "text": "📍 Navigating to Host Control Panel...\n"
-                    }
-                  ],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2025-09-22T23:40:37.294Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "screenshot",
-                      "contentType": "image/png",
-                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-119e0-ion-from-host-control-panel-chromium\\test-failed-1.png"
-                    },
-                    {
-                      "name": "video",
-                      "contentType": "video/webm",
-                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-119e0-ion-from-host-control-panel-chromium\\video.webm"
-                    },
-                    {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-119e0-ion-from-host-control-panel-chromium\\error-context.md"
-                    }
-                  ],
-                  "errorLocation": {
-                    "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
-                    "column": 38,
-                    "line": 206
-                  }
+                  "status": "unexpected"
                 }
               ],
-              "status": "unexpected"
-            }
-          ],
-          "id": "34b189350466ffeda3d6-5478eccd11a4715288c4",
-          "file": "host-control-panel-end-session.spec.ts",
-          "line": 197,
-          "column": 5
-        },
-        {
-          "title": "should handle invalid host token gracefully",
-          "ok": true,
-          "tags": [],
-          "tests": [
+              "id": "5eca1ca6ef240afc07f1-70b9f6325a1c8fc8fe69",
+              "file": "user-registration-multi-instance.spec.ts",
+              "line": 346,
+              "column": 9
+            },
             {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
+              "title": "should validate SignalR WebSocket connections are established",
+              "ok": true,
+              "tags": [],
+              "tests": [
                 {
-                  "workerIndex": 7,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 3051,
-                  "errors": [],
-                  "stdout": [
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
                     {
-                      "text": "🚀 Setting up test environment...\n"
-                    },
-                    {
-                      "text": "🔍 Validating infrastructure with SSL support...\n"
-                    },
-                    {
-                      "text": "✅ Application running on https://localhost:9091\n"
-                    },
-                    {
-                      "text": "🔑 Using host token: ********, user token: ********\n"
-                    },
-                    {
-                      "text": "🏥 Performing application health check...\n"
-                    },
-                    {
-                      "text": "✅ Application health check passed\n"
-                    },
-                    {
-                      "text": "📊 Test configuration:\n"
-                    },
-                    {
-                      "text": "  - Headless: true\n"
-                    },
-                    {
-                      "text": "  - Workers: 1\n"
-                    },
-                    {
-                      "text": "  - Base URL: https://localhost:9091\n"
-                    },
-                    {
-                      "text": "  - Reporters: list + json (NO HTML)\n"
-                    },
-                    {
-                      "text": "🎯 Testing: Invalid host token handling\n"
-                    },
-                    {
-                      "text": "📍 Navigating with invalid token: ********\n"
-                    },
-                    {
-                      "text": "✅ Invalid token correctly rejected with error message\n"
-                    },
-                    {
-                      "text": "✅ Invalid token test completed\n"
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19230,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔍 Validating infrastructure stability...\n"
+                        },
+                        {
+                          "text": "✅ Application running on https://localhost:9091\n"
+                        },
+                        {
+                          "text": "🚀 Setting up 10 concurrent browser contexts...\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 6 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 7 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 8 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 9 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 10 context created\n"
+                        },
+                        {
+                          "text": "🔌 Validating SignalR WebSocket connections...\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "🧹 Cleaning up browser contexts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-23T16:50:53.295Z",
+                      "annotations": [],
+                      "attachments": []
                     }
                   ],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2025-09-22T23:40:52.499Z",
-                  "annotations": [],
-                  "attachments": []
+                  "status": "expected"
                 }
               ],
-              "status": "expected"
+              "id": "5eca1ca6ef240afc07f1-7abefcdb0d00cf16f3f0",
+              "file": "user-registration-multi-instance.spec.ts",
+              "line": 519,
+              "column": 9
             }
-          ],
-          "id": "34b189350466ffeda3d6-2e47ef83714b050a04f0",
-          "file": "host-control-panel-end-session.spec.ts",
-          "line": 282,
-          "column": 5
-        },
-        {
-          "title": "should handle network errors gracefully during end session",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
-                {
-                  "workerIndex": 7,
-                  "parallelIndex": 0,
-                  "status": "interrupted",
-                  "duration": 8563,
-                  "error": {
-                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('button:has-text(\"End Session\")')\nExpected: visible\nReceived: <element(s) not found>\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"End Session\")')\u001b[22m\n",
-                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('button:has-text(\"End Session\")')\nExpected: visible\nReceived: <element(s) not found>\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"End Session\")')\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:329:66",
-                    "location": {
-                      "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
-                      "column": 66,
-                      "line": 329
-                    },
-                    "snippet": "\u001b[0m \u001b[90m 327 |\u001b[39m     \n \u001b[90m 328 |\u001b[39m     \u001b[90m// Verify End Session button is available\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 329 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"End Session\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 330 |\u001b[39m     \n \u001b[90m 331 |\u001b[39m     \u001b[90m// Intercept the token expiration API to simulate network error\u001b[39m\n \u001b[90m 332 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mroute(\u001b[32m'**/api/token/expire/**'\u001b[39m\u001b[33m,\u001b[39m (route) \u001b[33m=>\u001b[39m {\u001b[0m"
-                  },
-                  "errors": [
-                    {
-                      "location": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
-                        "column": 66,
-                        "line": 329
-                      },
-                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('button:has-text(\"End Session\")')\nExpected: visible\nReceived: <element(s) not found>\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"End Session\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 327 |\u001b[39m     \n \u001b[90m 328 |\u001b[39m     \u001b[90m// Verify End Session button is available\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 329 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"End Session\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 330 |\u001b[39m     \n \u001b[90m 331 |\u001b[39m     \u001b[90m// Intercept the token expiration API to simulate network error\u001b[39m\n \u001b[90m 332 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mroute(\u001b[32m'**/api/token/expire/**'\u001b[39m\u001b[33m,\u001b[39m (route) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:329:66\u001b[22m"
-                    }
-                  ],
-                  "stdout": [
-                    {
-                      "text": "🚀 Setting up test environment...\n"
-                    },
-                    {
-                      "text": "🔍 Validating infrastructure with SSL support...\n"
-                    },
-                    {
-                      "text": "✅ Application running on https://localhost:9091\n"
-                    },
-                    {
-                      "text": "🔑 Using host token: ********, user token: ********\n"
-                    },
-                    {
-                      "text": "🏥 Performing application health check...\n"
-                    },
-                    {
-                      "text": "✅ Application health check passed\n"
-                    },
-                    {
-                      "text": "📊 Test configuration:\n"
-                    },
-                    {
-                      "text": "  - Headless: true\n"
-                    },
-                    {
-                      "text": "  - Workers: 1\n"
-                    },
-                    {
-                      "text": "  - Base URL: https://localhost:9091\n"
-                    },
-                    {
-                      "text": "  - Reporters: list + json (NO HTML)\n"
-                    },
-                    {
-                      "text": "🎯 Testing: Network error handling during End Session\n"
-                    },
-                    {
-                      "text": "🟢 Starting session for error test...\n"
-                    }
-                  ],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2025-09-22T23:40:55.708Z",
-                  "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "screenshot",
-                      "contentType": "image/png",
-                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-ab858-acefully-during-end-session-chromium\\test-failed-1.png"
-                    },
-                    {
-                      "name": "video",
-                      "contentType": "video/webm",
-                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-ab858-acefully-during-end-session-chromium\\video.webm"
-                    }
-                  ],
-                  "errorLocation": {
-                    "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
-                    "column": 66,
-                    "line": 329
-                  }
-                }
-              ],
-              "status": "skipped"
-            }
-          ],
-          "id": "34b189350466ffeda3d6-d7e44de8710c3af0b6a5",
-          "file": "host-control-panel-end-session.spec.ts",
-          "line": 316,
-          "column": 5
+          ]
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-22T23:40:34.933Z",
-    "duration": 29460.00799999945,
+    "startTime": "2025-09-23T16:50:28.608Z",
+    "duration": 45842.10099999979,
     "expected": 1,
-    "skipped": 1,
+    "skipped": 0,
     "unexpected": 1,
     "flaky": 0
   }

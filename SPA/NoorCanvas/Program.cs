@@ -105,6 +105,17 @@ builder.Services.AddHttpClient("default", client =>
     client.BaseAddress = new Uri(baseAddress);
     client.DefaultRequestHeaders.Add("User-Agent", "NoorCanvas-BlazorServer");
 });
+
+// COPILOT-FIX: Add missing NoorCanvasApi HttpClient configuration to resolve SessionCanvas BaseAddress error
+builder.Services.AddHttpClient("NoorCanvasApi", client =>
+{
+    var baseAddress = builder.Environment.IsDevelopment()
+        ? "https://localhost:9091"
+        : "https://localhost:9091"; // Update this for production
+    client.BaseAddress = new Uri(baseAddress);
+    client.DefaultRequestHeaders.Add("User-Agent", "NoorCanvas-SessionCanvas");
+});
+
 builder.Services.AddScoped<HttpClient>(provider =>
 {
     var factory = provider.GetRequiredService<IHttpClientFactory>();

@@ -68,6 +68,72 @@ public class SessionHub : Hub
     }
 
     /// <summary>
+    /// Q&A: Join host group for receiving question notifications
+    /// </summary>
+    public async Task JoinHostGroup(string sessionId)
+    {
+        var hostGroupName = $"Host_{sessionId}";
+        await Groups.AddToGroupAsync(Context.ConnectionId, hostGroupName);
+        
+        _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} joined host group for session {SessionId}", 
+            Context.ConnectionId, sessionId);
+    }
+
+    /// <summary>
+    /// Q&A: Leave host group
+    /// </summary>
+    public async Task LeaveHostGroup(string sessionId)
+    {
+        var hostGroupName = $"Host_{sessionId}";
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, hostGroupName);
+        
+        _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} left host group for session {SessionId}", 
+            Context.ConnectionId, sessionId);
+    }
+
+    /// <summary>
+    /// Q&A: Broadcast question submission to session participants
+    /// </summary>
+    public async Task BroadcastQuestion(string sessionId, object questionData)
+    {
+        var sessionGroupName = $"Session_{sessionId}";
+        var hostGroupName = $"Host_{sessionId}";
+        
+        _logger.LogInformation("NOOR-QA-HUB: Broadcasting question to session {SessionId}", sessionId);
+
+        // Send to all session participants
+        await Clients.Group(sessionGroupName).SendAsync("QuestionReceived", questionData);
+        
+        // Send special notification to hosts with toast trigger
+        await Clients.Group(hostGroupName).SendAsync("HostQuestionAlert", questionData);
+    }
+
+    /// <summary>
+    /// Q&A: Broadcast vote update to session participants
+    /// </summary>
+    public async Task BroadcastVoteUpdate(string sessionId, object voteData)
+    {
+        var sessionGroupName = $"Session_{sessionId}";
+        
+        _logger.LogInformation("NOOR-QA-HUB: Broadcasting vote update to session {SessionId}", sessionId);
+        
+        await Clients.Group(sessionGroupName).SendAsync("QuestionVoteUpdate", voteData);
+    }
+
+    /// <summary>
+    /// Q&A: Mark question as answered (host action)
+    /// </summary>
+    public async Task MarkQuestionAnswered(string sessionId, int questionId)
+    {
+        var sessionGroupName = $"Session_{sessionId}";
+        
+        _logger.LogInformation("NOOR-QA-HUB: Question {QuestionId} marked as answered in session {SessionId}", 
+            questionId, sessionId);
+        
+        await Clients.Group(sessionGroupName).SendAsync("QuestionAnswered", new { questionId, sessionId });
+    }
+
+    /// <summary>
     /// ISSUE-1 FIX: Enhanced group join method that syncs existing participants to new connections
     /// </summary>
     public async Task JoinGroup(string groupName)
