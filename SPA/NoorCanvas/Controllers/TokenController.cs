@@ -183,4 +183,72 @@ public class TokenController : ControllerBase
             return StatusCode(500, new { error = "Internal server error", message = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Expire a specific user token (for ending sessions)
+    /// </summary>
+    [HttpPost("expire/{userToken}")]
+    public async Task<IActionResult> ExpireUserToken(string userToken)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        _logger.LogInformation("NOOR-TOKEN-EXPIRE: [{RequestId}] Token expiration request started", requestId);
+        _logger.LogInformation("NOOR-TOKEN-EXPIRE: [{RequestId}] UserToken: {UserToken}, ClientIP: {ClientIp}",
+            requestId, userToken, clientIp);
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(userToken))
+            {
+                _logger.LogWarning("NOOR-TOKEN-EXPIRE: [{RequestId}] Token is null or empty", requestId);
+                return BadRequest(new { error = "Invalid token format", message = "Token cannot be empty", requestId });
+            }
+
+            if (userToken.Length != 8)
+            {
+                _logger.LogWarning("NOOR-TOKEN-EXPIRE: [{RequestId}] Invalid token length: {Length}, expected 8 characters",
+                    requestId, userToken.Length);
+                return BadRequest(new { 
+                    error = "Invalid token format", 
+                    message = "Token must be 8 characters", 
+                    requestId 
+                });
+            }
+
+            var success = await _tokenService.ExpireUserTokenAsync(userToken);
+            
+            if (!success)
+            {
+                _logger.LogWarning("NOOR-TOKEN-EXPIRE: [{RequestId}] Token not found or already expired: {UserToken}",
+                    requestId, userToken);
+                return NotFound(new { 
+                    error = "Token not found or already expired", 
+                    userToken,
+                    requestId 
+                });
+            }
+
+            _logger.LogInformation("NOOR-TOKEN-EXPIRE: [{RequestId}] Successfully expired user token: {UserToken}",
+                requestId, userToken);
+
+            return Ok(new
+            {
+                message = "User token expired successfully",
+                userToken,
+                expiredAt = DateTime.UtcNow,
+                requestId
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "NOOR-TOKEN-EXPIRE: [{RequestId}] Error expiring user token: {UserToken}", 
+                requestId, userToken);
+            return StatusCode(500, new { 
+                error = "Internal server error", 
+                message = "Failed to expire token", 
+                requestId 
+            });
+        }
+    }
 }

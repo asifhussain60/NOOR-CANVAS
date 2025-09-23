@@ -93,6 +93,34 @@
                         <i class="fa-solid fa-sliders" style="color:#006400;"></i>
                         <span>SESSION CONTROLS</span>
                     </h3>
+                    
+                    <!-- User Landing Link -->
+                    @* Debug: Show user link unconditionally temporarily *@
+                    @if (true || !string.IsNullOrEmpty(UserToken))
+                    {
+                        <div style="width:100%;background-color:white;border-radius:1rem;border:1px solid #3B82F6;padding:1rem;margin-bottom:1rem;">
+                            <h4 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:600;font-size:1rem;color:#3B82F6;margin-bottom:0.5rem;text-align:center;">
+                                <i class="fa-solid fa-link" style="color:#3B82F6;"></i>
+                                <span>User Registration Link</span>
+                            </h4>
+                            <div style="background-color:#F8FAFC;border-radius:0.5rem;padding:0.75rem;border:1px solid #E2E8F0;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                                    <input type="text" 
+                                           value="https://localhost:9091/user/landing/@(UserToken ?? "DEBUG-MISSING-TOKEN")" 
+                                           readonly
+                                           style="flex:1;background:transparent;border:none;color:#374151;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;"
+                                           id="userLinkInput" />
+                                    <button onclick="copyUserLink()" 
+                                            style="padding:0.375rem 0.75rem;background-color:#3B82F6;color:white;border:none;border-radius:0.375rem;font-size:0.75rem;cursor:pointer;transition:all 0.2s;"
+                                            onmouseover="this.style.backgroundColor='#2563EB'"
+                                            onmouseout="this.style.backgroundColor='#3B82F6'">
+                                        <i class="fa-solid fa-copy"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
                     <div style="width:100%;display:flex;justify-content:center;">
                         <button @onclick="StartSession" 
                                 disabled="@(isLoading || Model?.SessionStatus == "Active")"
@@ -125,6 +153,28 @@
                 <div style="color:#6B7280;text-align:center;padding:2rem;">
                     <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
                     <p style="margin:0;color:#6B7280;">No transcript available for this session.</p>
+                </div>
+            }
+            
+            <!-- End Session Button -->
+            @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
+            {
+                <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
+                    <button @onclick="EndSession" 
+                            disabled="@isLoading"
+                            style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(220,38,38,0.4);color:white;font-weight:600;font-size:1rem;background-color:#DC2626;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                            onmouseover="this.style.backgroundColor='#B91C1C'; this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1)'">
+                        @if (isLoading)
+                        {
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-stop" style="font-size:1rem;"></i>
+                        }
+                        <span>End Session</span>
+                    </button>
                 </div>
             }
         </div>
@@ -246,6 +296,9 @@
     
     // Internal session ID derived from host token
     private int? SessionId { get; set; }
+    
+    // User token for generating user landing URL
+    private string? UserToken { get; set; }
     
     private bool isLoading = false;
     private bool showDeleteModal = false;
@@ -506,6 +559,8 @@
             
             // Load participants - need to get user token first
             string? userToken = await GetUserTokenForSessionAsync(sessionId);
+            UserToken = userToken; // Store for UI display
+            Logger.LogInformation("DEBUG-USER-LINK: UserToken set to '{UserToken}' for session {SessionId}", UserToken, sessionId);
             
             if (!string.IsNullOrEmpty(userToken))
             {
@@ -758,7 +813,73 @@
         }
     }
 
+    private async Task EndSession()
+    {
+        if (Model == null || SessionId == null || string.IsNullOrEmpty(HostToken)) return;
+        
+        try
+        {
+            isLoading = true;
+            Model.SessionStatus = "Ending";
+            await InvokeAsync(StateHasChanged);
 
+            // First, get the user token for this session
+            var userToken = await GetUserTokenForSessionAsync(SessionId.Value.ToString());
+            if (string.IsNullOrEmpty(userToken))
+            {
+                Logger.LogWarning("COPILOT-SESSION-END: No user token found for Session {SessionId}", SessionId);
+                await ShowMessageAsync("Warning: Could not find user token to expire. Session status will be updated.");
+            }
+            else
+            {
+                // Call the token expiration API
+                using var httpClient = HttpClientFactory.CreateClient("default");
+                Logger.LogInformation("COPILOT-SESSION-END: Expiring user token {UserToken} for session {SessionId}", 
+                    userToken, SessionId);
+                
+                var response = await httpClient.PostAsync($"/api/token/expire/{userToken}", null);
+                Logger.LogInformation("COPILOT-SESSION-END: Token expiration API response status: {StatusCode}", 
+                    response.StatusCode);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Logger.LogError("COPILOT-SESSION-END: Failed to expire token {UserToken} - {StatusCode}: {Error}", 
+                        userToken, response.StatusCode, errorContent);
+                    await ShowMessageAsync("Warning: Failed to expire user token. Please check server logs.");
+                }
+                else
+                {
+                    Logger.LogInformation("COPILOT-SESSION-END: Successfully expired user token {UserToken}", userToken);
+                }
+            }
+
+            // Update session status to "Ended"
+            Model.SessionStatus = "Ended";
+            
+            // Notify via SignalR that session has ended
+            if (hubConnection?.State == HubConnectionState.Connected)
+            {
+                Logger.LogInformation("COPILOT-SESSION-END: Broadcasting session end notification via SignalR");
+                await hubConnection.InvokeAsync("BroadcastSessionEnded", SessionId, "Host ended session via control panel");
+            }
+
+            await ShowMessageAsync("Session ended successfully. User token has been expired and participants have been notified.");
+            
+            Logger.LogInformation("COPILOT-SESSION-END: Session {SessionId} ended successfully", SessionId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "COPILOT-SESSION-END: Exception ending session {SessionId}", SessionId);
+            Model.SessionStatus = "Active"; // Revert to previous status
+            await ShowMessageAsync("Error ending session. Please check your connection and try again.");
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
 
     private async Task MarkQuestionAnswered(Guid questionId)
     {
@@ -1502,6 +1623,46 @@
 }
 
 <script>
+    // Copy User Landing Link Function
+    window.copyUserLink = function() {
+        const input = document.getElementById('userLinkInput');
+        if (input) {
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+            
+            // Try using modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    console.log('NOOR-HOST-PANEL: User link copied to clipboard');
+                    showCopyFeedback();
+                }).catch(err => {
+                    console.error('NOOR-HOST-PANEL: Failed to copy with clipboard API:', err);
+                    // Fallback to execCommand
+                    document.execCommand('copy');
+                    showCopyFeedback();
+                });
+            } else {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                showCopyFeedback();
+            }
+        }
+    };
+    
+    // Show copy feedback
+    function showCopyFeedback() {
+        const button = event.target.closest('button');
+        if (button) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            button.style.backgroundColor = '#10B981';
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.backgroundColor = '#3B82F6';
+            }, 2000);
+        }
+    }
+
     // Individual Asset Sharing Function (called by auto-injected SHARE buttons)
     window.shareIndividualAsset = async function(assetId, assetType) {
         console.log('NOOR-ASSET-SHARE: Sharing individual asset:', assetId, 'Type:', assetType);

@@ -162,6 +162,32 @@ public class SecureTokenService
         return tokens.Count > 0;
     }
 
+    /// <summary>
+    /// Expire a specific user token by setting IsActive to false and ExpiresAt to current time
+    /// </summary>
+    public async Task<bool> ExpireUserTokenAsync(string userToken)
+    {
+        var token = await _context.SecureTokens
+            .Where(st => st.UserToken == userToken && st.IsActive)
+            .FirstOrDefaultAsync();
+
+        if (token == null)
+        {
+            _logger.LogWarning("NOOR-SECURITY: User token {UserToken} not found or already expired", userToken);
+            return false;
+        }
+
+        token.IsActive = false;
+        token.ExpiresAt = DateTime.UtcNow;
+        
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("NOOR-SECURITY: Expired user token {UserToken} for Session {SessionId}",
+            userToken, token.SessionId);
+
+        return true;
+    }
+
     private async Task<string> GenerateUniqueTokenAsync()
     {
         string token;
