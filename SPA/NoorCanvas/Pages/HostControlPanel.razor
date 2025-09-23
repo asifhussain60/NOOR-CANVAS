@@ -32,6 +32,35 @@
         .loading-spinner {
             display: inline-block;
         }
+        
+        /* Responsive Design for Host Control Panel */
+        @@media (max-width: 1024px) {
+            .host-main-container {
+                flex-direction: column !important;
+                gap: 1rem !important;
+            }
+            .host-transcript-panel {
+                flex: none !important;
+                width: 100% !important;
+                min-height: 400px !important;
+            }
+            .host-qa-panel {
+                flex: none !important;
+                width: 100% !important;
+                min-height: 300px !important;
+            }
+        }
+        
+        @@media (max-width: 768px) {
+            .host-main-container {
+                gap: 0.75rem !important;
+            }
+            .host-transcript-panel,
+            .host-qa-panel {
+                padding: 1rem !important;
+                border-radius: 1rem !important;
+            }
+        }
     </style>
 </HeadContent>
 
@@ -98,118 +127,147 @@
                         </div>
                     }
                     
-                    <div style="width:100%;display:flex;justify-content:center;">
+                    <div style="width:100%;display:flex;justify-content:center;gap:1rem;flex-direction:column;">
                         <button @onclick="StartSession" 
                                 disabled="@(isLoading || Model?.SessionStatus == "Active")"
-                                style="width:80%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;cursor:@(isLoading || Model?.SessionStatus == "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus == "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;" 
+                                style="width:100%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;cursor:@(isLoading || Model?.SessionStatus == "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus == "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;" 
                                 onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
                                 onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
                             <i class="fa-solid fa-play" style="font-size:1.25rem;"></i>
                             <span>Start Session</span>
                         </button>
+                        
+                        @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
+                        {
+                            <button @onclick="TestShareAsset" 
+                                    disabled="@isLoading"
+                                    style="width:100%;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(59,130,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#3B82F6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                                    onmouseover="this.style.backgroundColor='#2563EB'; this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.backgroundColor='#3B82F6'; this.style.transform='scale(1)'">
+                                <i class="fa-solid fa-share" style="font-size:1rem;"></i>
+                                <span>Test Share Asset</span>
+                            </button>
+                        }
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Session Transcript Panel -->
-        <div style="width:100%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
-            <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
-                <i class="fa-solid fa-file-lines" style="color:#006400;"></i>
-                <span>Session Transcript</span>
-                @if (isLoading)
-                {
-                    <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem;color:#D4AF37;font-size:0.875rem;font-weight:400;">
-                        <div class="loading-spinner" style="width:16px;height:16px;border:2px solid #f3f3f3;border-top:2px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite;"></div>
-                        <span>Loading...</span>
-                    </div>
-                }
-            </h3>
+        <!-- 70/30 Horizontal Layout: Session Transcript (70%) + Q&A Panel (30%) -->
+        <div class="host-main-container" style="display:flex;gap:1.5rem;width:100%;min-height:600px;align-items:stretch;">
             
-            @if (isLoading)
-            {
-                <div style="color:#6B7280;text-align:center;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
-                    <div class="loading-spinner" style="width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite;"></div>
-                    <p style="margin:0;color:#6B7280;font-size:1.125rem;font-weight:500;">Loading session transcript...</p>
-                    <p style="margin:0;color:#9CA3AF;font-size:0.875rem;">Please wait while we retrieve the session content.</p>
-                </div>
-            }
-            else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
-            {
-                <div class="html-viewer-content session-transcript-content" data-islamic-content style="width:100%;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
-                    @((MarkupString)(Model.TransformedTranscript))
-                </div>
-            }
-            else
-            {
-                <div style="color:#6B7280;text-align:center;padding:2rem;">
-                    <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
-                    <p style="margin:0;color:#6B7280;">No transcript available for this session.</p>
-                </div>
-            }
-            
-            <!-- End Session Button -->
-            @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
-            {
-                <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
-                    <button @onclick="EndSession" 
-                            disabled="@isLoading"
-                            style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(220,38,38,0.4);color:white;font-weight:600;font-size:1rem;background-color:#DC2626;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                            onmouseover="this.style.backgroundColor='#B91C1C'; this.style.transform='scale(1.05)'"
-                            onmouseout="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1)'">
-                        @if (isLoading)
-                        {
-                            <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
-                        }
-                        else
-                        {
-                            <i class="fa-solid fa-stop" style="font-size:1rem;"></i>
-                        }
-                        <span>End Session</span>
-                    </button>
-                </div>
-            }
-        </div>
-
-        <!-- Q&A Panel Container -->
-        <div style="width:100%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
-            <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
-                <i class="fa-solid fa-clipboard-question" style="color:#006400;"></i>
-                <span>Questions & Answers</span>
-            </h3>
-            
-            <div style="width:100%;min-height:400px;overflow-y:auto;padding-right:0.5rem;">
-                @if (Model?.Questions != null && Model.Questions.Any())
-                {
-                    @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered))
+            <!-- Left Panel: Session Transcript (70%) -->
+            <div class="host-transcript-panel" style="flex:0 0 70%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+                <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
+                    <i class="fa-solid fa-file-lines" style="color:#006400;"></i>
+                    <span>Session Transcript</span>
+                    @if (isLoading)
                     {
-                        <div style="@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "")padding:0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;@(question.IsAnswered ? "" : "background-color:#FFFFFF;")">
-                            <div style="display:flex;align-items:center;gap:0.5rem;flex:1;">
-                                <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");"></i>
-                                <span style="font-size:0.875rem;">@question.Text</span>
-                            </div>
-                            <div style="display:flex;gap:0.25rem;">
-                                @if (!question.IsAnswered)
-                                {
-                                    <button @onclick="() => MarkQuestionAnswered(question.Id)" 
-                                            style="color:#10B981;background:none;border:none;cursor:pointer;padding:0.25rem;">
-                                        <i class="fa-solid fa-check"></i>
-                                    </button>
-                                }
-                                <button @onclick="() => ShowDeleteModal(question.Id)" 
-                                        style="color:#EF4444;background:none;border:none;cursor:pointer;padding:0.25rem;">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
+                        <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem;color:#D4AF37;font-size:0.875rem;font-weight:400;">
+                            <div class="loading-spinner" style="width:16px;height:16px;border:2px solid #f3f3f3;border-top:2px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite;"></div>
+                            <span>Loading...</span>
+                        </div>
+                    }
+                </h3>
+                
+                <!-- Transcript Content Area with Independent Scrolling -->
+                <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+                    @if (isLoading)
+                    {
+                        <div style="color:#6B7280;text-align:center;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+                            <div class="loading-spinner" style="width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #D4AF37;border-radius:50%;animation:spin 1s linear infinite;"></div>
+                            <p style="margin:0;color:#6B7280;font-size:1.125rem;font-weight:500;">Loading session transcript...</p>
+                            <p style="margin:0;color:#9CA3AF;font-size:0.875rem;">Please wait while we retrieve the session content.</p>
+                        </div>
+                    }
+                    else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
+                    {
+                        <div style="flex:1;overflow-y:auto;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
+                            <div class="html-viewer-content session-transcript-content" data-islamic-content>
+                                @((MarkupString)(Model.TransformedTranscript))
                             </div>
                         </div>
                     }
-                }
-                else
+                    else
+                    {
+                        <div style="flex:1;color:#6B7280;text-align:center;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
+                            <p style="margin:0;color:#6B7280;">No transcript available for this session.</p>
+                        </div>
+                    }
+                </div>
+                
+                <!-- End Session Button (moved to transcript panel) -->
+                @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
                 {
-                    <div style="text-align:center;color:#6B7280;padding:2rem;">
-                        <p>No questions submitted yet. Questions will appear here during the session.</p>
+                    <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
+                        <button @onclick="EndSession" 
+                                disabled="@isLoading"
+                                style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(220,38,38,0.4);color:white;font-weight:600;font-size:1rem;background-color:#DC2626;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                                onmouseover="this.style.backgroundColor='#B91C1C'; this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1)'">
+                            @if (isLoading)
+                            {
+                                <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-stop" style="font-size:1rem;"></i>
+                            }
+                            <span>End Session</span>
+                        </button>
                     </div>
                 }
+            </div>
+
+            <!-- Right Panel: Q&A Sidebar (30%) -->
+            <div class="host-qa-panel" style="flex:0 0 30%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+                <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.25rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
+                    <i class="fa-solid fa-clipboard-question" style="color:#006400;"></i>
+                    <span>Questions & Answers</span>
+                </h3>
+                
+                <!-- Questions List with Independent Scrolling -->
+                <div style="flex:1;overflow-y:auto;padding-right:0.5rem;">
+                    @if (Model?.Questions != null && Model.Questions.Any())
+                    {
+                        @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered))
+                        {
+                            <div style="@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "")padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;@(question.IsAnswered ? "" : "background-color:#FFFFFF;");margin-bottom:0.5rem;border-radius:0.5rem;">
+                                <div style="display:flex;align-items:flex-start;gap:0.5rem;">
+                                    <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");margin-top:0.25rem;flex-shrink:0;"></i>
+                                    <span style="font-size:0.875rem;line-height:1.4;flex:1;">@question.Text</span>
+                                </div>
+                                <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.25rem;">
+                                    @if (!question.IsAnswered)
+                                    {
+                                        <button @onclick="() => MarkQuestionAnswered(question.Id)" 
+                                                style="color:#10B981;background:none;border:none;cursor:pointer;padding:0.375rem;border-radius:0.25rem;transition:all 0.2s;"
+                                                onmouseover="this.style.backgroundColor='rgba(16, 185, 129, 0.1)'"
+                                                onmouseout="this.style.backgroundColor='transparent'"
+                                                title="Mark as answered">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                    }
+                                    <button @onclick="() => ShowDeleteModal(question.Id)" 
+                                            style="color:#EF4444;background:none;border:none;cursor:pointer;padding:0.375rem;border-radius:0.25rem;transition:all 0.2s;"
+                                            onmouseover="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'"
+                                            onmouseout="this.style.backgroundColor='transparent'"
+                                            title="Delete question">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="text-align:center;color:#6B7280;padding:2rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <i class="fa-solid fa-clipboard-question" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
+                            <p style="margin:0;font-size:0.875rem;line-height:1.4;">No questions submitted yet. Questions will appear here during the session.</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -280,6 +338,9 @@
         if (!string.IsNullOrEmpty(HostToken))
         {
             await LoadSessionDataAsync(HostToken);
+            
+            // Join SignalR groups AFTER SessionId is loaded
+            await JoinSignalRGroupsAsync();
         }
     }
 
@@ -313,24 +374,88 @@
         try
         {
             hubConnection = new HubConnectionBuilder()
-                .WithUrl(Navigation.ToAbsoluteUri("/sessionHub"))
+                .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
                 .Build();
 
-            // Register event handlers for real-time updates
-            hubConnection.On<string>("QuestionReceived", async (questionText) =>
+            // Register event handlers for real-time updates with enhanced debug logging
+            hubConnection.On<object>("HostQuestionAlert", async (questionData) =>
             {
-                var newQuestion = new QuestionItem 
-                { 
-                    Id = Guid.NewGuid(), 
-                    Text = questionText, 
-                    IsAnswered = false 
-                };
-                Model?.Questions?.Add(newQuestion);
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] HostQuestionAlert received in HostControlPanel - ConnectionId: {ConnectionId}, SessionId: {SessionId}", 
+                    requestId, hubConnection?.ConnectionId ?? "null", SessionId);
                 
-                // Show toast notification to host about new question
-                await JSRuntime.InvokeVoidAsync("showQuestionToast", questionText);
-                
-                await InvokeAsync(StateHasChanged);
+                try
+                {
+                    // Validate question data
+                    if (questionData == null)
+                    {
+                        Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Received null questionData", requestId);
+                        return;
+                    }
+
+                    // Parse the questionData object from SignalR
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Question data received: {JsonData}", requestId, jsonString);
+                    
+                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDocument.RootElement;
+                    
+                    // Extract question text with fallback
+                    var questionText = "Question text unavailable";
+                    if (root.TryGetProperty("text", out var textProp) && textProp.ValueKind == JsonValueKind.String)
+                    {
+                        questionText = textProp.GetString() ?? "Question text unavailable";
+                    }
+                    else if (root.TryGetProperty("questionText", out var questionTextProp) && questionTextProp.ValueKind == JsonValueKind.String)
+                    {
+                        questionText = questionTextProp.GetString() ?? "Question text unavailable";
+                    }
+                    
+                    var newQuestion = new QuestionItem 
+                    { 
+                        Id = Guid.NewGuid(), // Generate new GUID for UI tracking
+                        Text = questionText,
+                        IsAnswered = false,
+                        VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0
+                    };
+                    
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Creating QuestionItem - Text: '{QuestionText}', VoteCount: {VoteCount}", 
+                        requestId, newQuestion.Text, newQuestion.VoteCount);
+                    
+                    // Ensure Questions list is initialized
+                    if (Model?.Questions == null)
+                    {
+                        Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Model.Questions is null, initializing", requestId);
+                        if (Model != null)
+                        {
+                            Model.Questions = new List<QuestionItem>();
+                        }
+                    }
+                    
+                    Model?.Questions?.Add(newQuestion);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Question added to Model.Questions. Total questions: {Count}", 
+                        requestId, Model?.Questions?.Count ?? 0);
+                    
+                    // Show toast notification to host about new question
+                    await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Toast notification triggered", requestId);
+                    
+                    await InvokeAsync(StateHasChanged);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] UI StateHasChanged invoked successfully", requestId);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Failed to process incoming question alert", requestId);
+                    // Fallback: add a generic notification
+                    try
+                    {
+                        await JSRuntime.InvokeVoidAsync("showQuestionToast", "New question received (processing error)");
+                    }
+                    catch (Exception jsEx)
+                    {
+                        Logger.LogError(jsEx, "COPILOT-DEBUG: [{RequestId}] Failed to show fallback toast", requestId);
+                    }
+                }
             });
 
             hubConnection.On<string>("TranscriptUpdated", async (transcript) =>
@@ -360,17 +485,51 @@
                 }
             });
 
+            Logger.LogInformation("COPILOT-DEBUG: Starting SignalR connection to /hub/session");
             await hubConnection.StartAsync();
+            Logger.LogInformation("COPILOT-DEBUG: SignalR connection established - ConnectionId: {ConnectionId}, State: {State}", 
+                hubConnection.ConnectionId, hubConnection.State);
             
-            // Join session group for real-time updates
-            if (SessionId.HasValue)
-            {
-                await hubConnection.InvokeAsync("JoinSessionGroup", SessionId.Value.ToString());
-            }
+            // NOTE: We DON'T join groups here because SessionId might not be loaded yet
+            // Groups will be joined in JoinSignalRGroupsAsync() after SessionId is available
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to initialize SignalR connection");
+        }
+    }
+
+    private async Task JoinSignalRGroupsAsync()
+    {
+        if (hubConnection?.State == HubConnectionState.Connected && SessionId.HasValue)
+        {
+            try
+            {
+                Logger.LogInformation("COPILOT-DEBUG: Joining SignalR groups for SessionId: {SessionId}", SessionId.Value);
+                
+                // Join general session group (for asset sharing, etc.)
+                await hubConnection.InvokeAsync("JoinSession", SessionId.Value, "host");
+                Logger.LogInformation("COPILOT-DEBUG: Joined session group session_{SessionId} as host", SessionId.Value);
+                
+                // Join host-specific group (for question notifications)
+                await hubConnection.InvokeAsync("JoinHostGroup", SessionId.Value.ToString());
+                Logger.LogInformation("COPILOT-DEBUG: Joined host group Host_{SessionId}", SessionId.Value);
+                
+                Logger.LogInformation("NOOR-SIGNALR: Host joined session {SessionId} and host group successfully", SessionId.Value);
+                
+                // Make SessionId available to JavaScript for ShareAsset calls
+                await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
+                Logger.LogInformation("COPILOT-DEBUG: Set window.currentSessionId = {SessionId} for JavaScript", SessionId.Value);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "COPILOT-DEBUG: Failed to join SignalR groups for SessionId: {SessionId}", SessionId.Value);
+            }
+        }
+        else
+        {
+            Logger.LogWarning("COPILOT-DEBUG: Cannot join SignalR groups - Connection: {ConnectionState}, SessionId: {SessionId}", 
+                hubConnection?.State.ToString() ?? "null", SessionId?.ToString() ?? "null");
         }
     }
 
@@ -669,24 +828,9 @@
                     Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
                 }
                 
-                await ShowMessageAsync("Session started successfully! Redirecting to canvas...");
+                await ShowMessageAsync("Session started successfully! Session is now active.");
                 
-                Logger.LogInformation("COPILOT-SESSION-START: Session {SessionId} started successfully - SignalR notifications sent to all waiting users", SessionId);
-                
-                // Navigate to SessionCanvas using HostAuthToken (GUID format)
-                if (!string.IsNullOrEmpty(HostAuthToken))
-                {
-                    var canvasUrl = $"/session/canvas/{HostAuthToken}";
-                    Logger.LogInformation("COPILOT-DEBUG: HostControlPanel navigating to canvas with HOST AUTH TOKEN: {Token} (length: {Length})", 
-                        HostAuthToken, HostAuthToken.Length);
-                    Logger.LogInformation("COPILOT-SESSION-START: Navigating to SessionCanvas: {CanvasUrl}", canvasUrl);
-                    Navigation.NavigateTo(canvasUrl);
-                }
-                else
-                {
-                    Logger.LogError("COPILOT-SESSION-START: Cannot navigate to SessionCanvas - HostAuthToken is null or empty");
-                    await ShowMessageAsync("Session started but cannot open canvas - missing authentication token");
-                }
+                Logger.LogInformation("COPILOT-SESSION-START: Session {SessionId} started successfully - staying on Host Control Panel", SessionId);
             }
             else
             {
@@ -746,6 +890,37 @@
         {
             isLoading = false;
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task TestShareAsset()
+    {
+        if (SessionId == null || hubConnection == null) return;
+
+        try
+        {
+            Logger.LogInformation("NOOR-TEST: Testing ShareAsset functionality for session {SessionId}", SessionId.Value);
+
+            // Create test asset data
+            var testAssetData = new
+            {
+                shareId = Guid.NewGuid().ToString("N")[..8],
+                assetType = "Test Asset",
+                uniqueAssetId = "TEST_001",
+                instanceCount = 1,
+                testContent = "This is a test shared asset from the host control panel."
+            };
+
+            // Send via SignalR
+            await hubConnection.InvokeAsync("ShareAsset", SessionId.Value, testAssetData);
+            
+            Logger.LogInformation("NOOR-TEST: ShareAsset invoked successfully for session {SessionId}", SessionId.Value);
+            await ShowMessageAsync("Test asset shared successfully!");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-TEST: Failed to test share asset for session {SessionId}", SessionId);
+            await ShowMessageAsync("Failed to share test asset");
         }
     }
 
@@ -1500,7 +1675,7 @@
                     instanceCount: 1 // Always 1 for individual assets
                 };
                 
-                await window.signalRConnection.invoke('ShareAsset', assetData);
+                await window.signalRConnection.invoke('ShareAsset', window.currentSessionId, assetData);
                 console.log('NOOR-ASSET-SIGNALR: Individual asset shared successfully via SignalR hub');
                 
                 // Show success feedback
@@ -1529,6 +1704,101 @@
     };
 
     console.log('NOOR-ASSET-SHARE: Individual asset sharing system ready with SignalR support');
+
+    // Toast Notification Functions for Q&A Alerts
+    window.showQuestionToast = function(questionText) {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-question-circle" style="color: #3B82F6; font-size: 1.2rem;"></i>
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">New Question Received!</div>
+                    <div style="font-size: 0.875rem; opacity: 0.9; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${questionText}
+                    </div>
+                </div>
+            </div>
+        `;
+        toast.style.cssText = `
+            position: fixed; 
+            top: 1rem; 
+            right: 1rem; 
+            background-color: #3B82F6; 
+            color: white; 
+            padding: 1rem 1.5rem; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4); 
+            z-index: 9999; 
+            opacity: 0; 
+            transform: translateX(100%); 
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            max-width: 400px;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Hide toast after 4 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 4000);
+    };
+
+    window.showVoteUpdateToast = function(questionText, voteCount) {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-thumbs-up" style="color: #10B981; font-size: 1.2rem;"></i>
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Question Voted! (${voteCount} votes)</div>
+                    <div style="font-size: 0.875rem; opacity: 0.9; max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${questionText}
+                    </div>
+                </div>
+            </div>
+        `;
+        toast.style.cssText = `
+            position: fixed; 
+            top: 1rem; 
+            right: 1rem; 
+            background-color: #10B981; 
+            color: white; 
+            padding: 1rem 1.5rem; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); 
+            z-index: 9999; 
+            opacity: 0; 
+            transform: translateX(100%); 
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            max-width: 400px;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
+    };
 
     // User Registration Link Copy Function
     async function copyUserLink() {

@@ -117,8 +117,35 @@
 
                 <div @ref="leftPanel" class="flex-1 min-h-96 border-4 border-double p-8 rounded-3xl flex flex-col items-center justify-center text-center text-lg font-light shadow-inner transition-all hover:shadow-lg"
                      style="border-color:#D4AF37; background-color:#FBF9F6; color:#706357; font-family:'Inter',sans-serif;">
-                    <i class="fa-solid fa-spinner text-6xl mb-4 animate-spin" style="color:#D4AF37;"></i>
-                    <p class="animate-pulse">Awaiting content from the instructor...</p>
+                    
+                    @if (!string.IsNullOrEmpty(sharedAssetContent))
+                    {
+                        <!-- Display Shared Asset Content -->
+                        <div class="w-full h-full flex flex-col">
+                            <div class="flex items-center justify-between mb-4 p-3 rounded-xl" style="background-color:#E3F2FD; border: 1px solid #3B82F6;">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-share text-lg" style="color:#3B82F6;"></i>
+                                    <span class="font-semibold text-sm" style="color:#1976D2; font-family:'Inter',sans-serif;">
+                                        Shared by Host: @sharedAssetType
+                                    </span>
+                                </div>
+                                <button @onclick="ClearSharedContent" class="text-xs px-3 py-1 rounded-full hover:bg-red-100 transition-colors" style="color:#DC2626; border: 1px solid #DC2626;">
+                                    <i class="fa-solid fa-times"></i> Clear
+                                </button>
+                            </div>
+                            <div class="flex-1 overflow-auto p-4 rounded-xl border-2 border-dashed" style="border-color:#3B82F6; background-color:white;">
+                                <div class="text-left" style="color:#374151; font-family:'Inter',sans-serif;">
+                                    @((MarkupString)sharedAssetContent)
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Default Waiting State -->
+                        <i class="fa-solid fa-spinner text-6xl mb-4 animate-spin" style="color:#D4AF37;"></i>
+                        <p class="animate-pulse">Awaiting content from the instructor...</p>
+                    }
                 </div>
                 
                 <!-- Leave Button -->
@@ -285,6 +312,7 @@
     private SessionCanvasViewModel? Model { get; set; }
     private HubConnection? _hubConnection;
     private long? _sessionId;
+    private string? _userGuid; // Store UserGuid for Q&A submissions
     
     // Q&A State Management
     private bool isQaExpanded = false;
@@ -293,6 +321,10 @@
     private bool isVoting = false;
     private int activeTab = 1; // 1 for Q&A, 2 for Participants
     private bool showLeaveModal = false;
+    
+    // Shared Asset Content State
+    private string? sharedAssetContent = null;
+    private string? sharedAssetType = null;
     
     // Timer for session duration
     private System.Timers.Timer? durationTimer;
@@ -398,6 +430,9 @@
                     _sessionId = sessionResponse.Session.SessionId;
                     sessionStartTime = sessionResponse.Session.StartTime ?? DateTime.UtcNow;
                     
+                    // Get UserGuid for Q&A submissions
+                    await LoadUserGuidAsync(requestId);
+                    
                     // Load participants and questions
                     await LoadParticipantsAsync(requestId);
                     await LoadQuestionsAsync();
@@ -489,6 +524,48 @@
         }
         
         await InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task LoadUserGuidAsync(string requestId)
+    {
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            var apiUrl = $"api/participant/session/{SessionToken}/user-guid";
+            
+            var response = await httpClient.GetAsync(apiUrl);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var userGuidResponse = System.Text.Json.JsonSerializer.Deserialize<UserGuidResponse>(content, 
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (userGuidResponse?.UserGuid != null)
+                {
+                    _userGuid = userGuidResponse.UserGuid;
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] UserGuid loaded for Q&A: {UserGuid}", 
+                        requestId, _userGuid);
+                }
+                else
+                {
+                    Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] No UserGuid returned from API", requestId);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Failed to load UserGuid: {StatusCode}", 
+                    requestId, response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Error loading UserGuid", requestId);
+            // Generate a temporary GUID for question submission if API fails
+            _userGuid = Guid.NewGuid().ToString();
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Generated temporary UserGuid: {UserGuid}", 
+                requestId, _userGuid);
+        }
     }
 
     private void NavigateHome()
@@ -658,25 +735,45 @@
 
     private async Task SubmitQuestion()
     {
-        if (string.IsNullOrWhiteSpace(newQuestionText) || string.IsNullOrWhiteSpace(SessionToken))
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] SubmitQuestion called", requestId);
+        
+        if (string.IsNullOrWhiteSpace(newQuestionText) || string.IsNullOrWhiteSpace(SessionToken) || string.IsNullOrWhiteSpace(_userGuid))
+        {
+            Logger.LogWarning("COPILOT-DEBUG: [REQ:{RequestId}] Cannot submit question - missing required fields (Question: {HasQuestion}, Token: {HasToken}, UserGuid: {HasUserGuid})", 
+                requestId, !string.IsNullOrWhiteSpace(newQuestionText), !string.IsNullOrWhiteSpace(SessionToken), !string.IsNullOrWhiteSpace(_userGuid));
             return;
+        }
 
         try
         {
             isSubmittingQuestion = true;
             StateHasChanged();
 
+            Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Creating HTTP client for question submission", requestId);
             using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            
             var request = new
             {
                 sessionToken = SessionToken,
-                questionText = newQuestionText.Trim()
+                questionText = newQuestionText.Trim(),
+                userGuid = _userGuid
             };
+
+            Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Submitting question - SessionToken: {SessionToken}, QuestionLength: {QuestionLength}, UserGuid: {UserGuid}", 
+                requestId, SessionToken, newQuestionText.Trim().Length, _userGuid);
 
             var response = await httpClient.PostAsJsonAsync("api/question/submit", request);
             
+            Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] API response received - StatusCode: {StatusCode}, IsSuccess: {IsSuccess}", 
+                requestId, response.StatusCode, response.IsSuccessStatusCode);
+            
             if (response.IsSuccessStatusCode)
             {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Question submitted successfully - Response: {Response}", 
+                    requestId, responseContent);
+                
                 newQuestionText = "";
                 isQaExpanded = false;
                 await LoadQuestionsAsync();
@@ -685,12 +782,13 @@
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("NOOR-QA: Failed to submit question: {Error}", errorContent);
+                Logger.LogError("COPILOT-DEBUG: [REQ:{RequestId}] Failed to submit question - StatusCode: {StatusCode}, Error: {Error}", 
+                    requestId, response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-QA: Exception submitting question");
+            Logger.LogError(ex, "COPILOT-DEBUG: [REQ:{RequestId}] Exception submitting question", requestId);
         }
         finally
         {
@@ -791,6 +889,13 @@
         showLeaveModal = false;
         StateHasChanged();
     }
+    
+    private void ClearSharedContent()
+    {
+        sharedAssetContent = null;
+        sharedAssetType = null;
+        StateHasChanged();
+    }
 
     private string FormatDuration(long milliseconds)
     {
@@ -829,7 +934,7 @@
             }
 
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(Navigation.ToAbsoluteUri("/sessionhub"))
+                .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
                 .Build();
 
             // Register Q&A event handlers
@@ -854,11 +959,72 @@
                 await InvokeAsync(StateHasChanged);
             });
 
+            _hubConnection.On<object>("AssetShared", async (assetData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("NOOR-ASSET: Asset shared via SignalR");
+                    
+                    // Parse the asset data and display content in main panel
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(assetData);
+                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDocument.RootElement;
+                    
+                    var assetType = root.TryGetProperty("asset", out var assetProp) && 
+                                   assetProp.TryGetProperty("assetType", out var typeProp) ? 
+                                   typeProp.GetString() ?? "Unknown" : "Unknown";
+                    var shareId = root.TryGetProperty("asset", out var asset2Prop) && 
+                                 asset2Prop.TryGetProperty("shareId", out var idProp) ? 
+                                 idProp.GetString() ?? "N/A" : "N/A";
+                    
+                    // Update shared content state to display in main panel
+                    sharedAssetType = assetType;
+                    sharedAssetContent = $@"
+                        <div style='text-align: center; padding: 2rem;'>
+                            <div style='background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;'>
+                                <i class='fa-solid fa-share' style='font-size: 2rem; margin-bottom: 0.5rem;'></i>
+                                <h3 style='margin: 0; font-size: 1.25rem; font-weight: 600;'>Asset Shared by Host</h3>
+                                <p style='margin: 0.5rem 0 0 0; opacity: 0.9;'>Asset Type: {assetType}</p>
+                                <p style='margin: 0.25rem 0 0 0; opacity: 0.8; font-size: 0.875rem;'>Share ID: {shareId}</p>
+                            </div>
+                            <div style='background-color: #F8FAFC; border: 2px dashed #3B82F6; border-radius: 8px; padding: 2rem; color: #374151;'>
+                                <i class='fa-solid fa-file-text' style='font-size: 3rem; color: #3B82F6; margin-bottom: 1rem;'></i>
+                                <p style='font-size: 1.125rem; margin: 0;'>
+                                    This is a test shared asset from the host. The content would normally contain 
+                                    the actual Islamic learning material, Quranic verses, or educational resources.
+                                </p>
+                                <p style='margin-top: 1rem; font-size: 0.875rem; color: #6B7280;'>
+                                    Received at: {DateTime.Now:HH:mm:ss}
+                                </p>
+                            </div>
+                        </div>";
+                    
+                    // Only display content in main panel - no toast notifications
+                    
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "NOOR-ASSET: Failed to process shared asset");
+                    
+                    // Fallback content
+                    sharedAssetType = "Unknown Asset";
+                    sharedAssetContent = $@"
+                        <div style='text-align: center; padding: 2rem; color: #DC2626;'>
+                            <i class='fa-solid fa-exclamation-triangle' style='font-size: 2rem; margin-bottom: 1rem;'></i>
+                            <p>Error processing shared asset. Please try again.</p>
+                        </div>";
+                    
+                    // Error logged - content will show error message in main panel
+                    await InvokeAsync(StateHasChanged);
+                }
+            });
+
             await _hubConnection.StartAsync();
             
             if (_sessionId.HasValue)
             {
-                await _hubConnection.SendAsync("JoinSessionGroup", _sessionId.Value.ToString());
+                await _hubConnection.SendAsync("JoinSession", _sessionId.Value, "user");
                 Logger.LogInformation("NOOR-QA: Joined SignalR session group {SessionId}", _sessionId.Value);
             }
         }
@@ -943,4 +1109,16 @@
         public string UserName { get; set; } = "";
         public bool IsAnswered { get; set; }
     }
+
+    public class UserGuidResponse
+    {
+        public string? UserGuid { get; set; }
+        public string? RequestId { get; set; }
+    }
 }
+
+<script>
+    // Note: Toast notifications removed from SessionCanvas
+    // SessionCanvas only displays shared content in main panel
+    // Toast notifications should only appear in HostControlPanel
+</script>

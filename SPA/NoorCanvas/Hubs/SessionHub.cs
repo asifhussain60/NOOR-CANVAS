@@ -19,9 +19,13 @@ public class SessionHub : Hub
     public async Task JoinSession(long sessionId, string role = "user")
     {
         var groupName = $"session_{sessionId}";
+        
+        _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}", 
+            Context.ConnectionId, groupName);
+            
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-        _logger.LogInformation("NOOR-HUB: User {ConnectionId} joined session {SessionId} as {Role}",
+        _logger.LogInformation("NOOR-HUB-JOIN: User {ConnectionId} joined session {SessionId} as {Role}",
             Context.ConnectionId, sessionId, role);
 
         await Clients.Group(groupName).SendAsync("UserJoined", new
@@ -30,6 +34,8 @@ public class SessionHub : Hub
             role = role,
             timestamp = DateTime.UtcNow
         });
+
+        _logger.LogDebug("NOOR-HUB-JOIN: Sent UserJoined notification to group {GroupName}", groupName);
     }
 
     public async Task LeaveSession(long sessionId)
@@ -51,15 +57,31 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
 
-        _logger.LogDebug("NOOR-HUB: Asset shared in session {SessionId}", sessionId);
+        _logger.LogInformation("NOOR-HUB-SHARE: ShareAsset method called with sessionId={SessionId}, connectionId={ConnectionId}", 
+            sessionId, Context.ConnectionId);
 
-        await Clients.Group(groupName).SendAsync("AssetShared", new
+        _logger.LogDebug("NOOR-HUB-SHARE: Asset data type: {AssetType}, group name: {GroupName}", 
+            assetData?.GetType()?.Name ?? "null", groupName);
+
+        try
         {
-            sessionId = sessionId,
-            asset = assetData,
-            timestamp = DateTime.UtcNow,
-            sharedBy = Context.ConnectionId
-        });
+            await Clients.Group(groupName).SendAsync("AssetShared", new
+            {
+                sessionId = sessionId,
+                asset = assetData,
+                timestamp = DateTime.UtcNow,
+                sharedBy = Context.ConnectionId
+            });
+
+            _logger.LogInformation("NOOR-HUB-SHARE: Successfully sent AssetShared message to group {GroupName} for session {SessionId}", 
+                groupName, sessionId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "NOOR-HUB-SHARE: Failed to send AssetShared message to group {GroupName} for session {SessionId}", 
+                groupName, sessionId);
+            throw;
+        }
     }
 
     public async Task Ping()
@@ -73,10 +95,27 @@ public class SessionHub : Hub
     public async Task JoinHostGroup(string sessionId)
     {
         var hostGroupName = $"Host_{sessionId}";
-        await Groups.AddToGroupAsync(Context.ConnectionId, hostGroupName);
         
-        _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} joined host group for session {SessionId}", 
-            Context.ConnectionId, sessionId);
+        _logger.LogInformation("COPILOT-DEBUG: JoinHostGroup called - SessionId: {SessionId}, ConnectionId: {ConnectionId}", 
+            sessionId, Context.ConnectionId);
+        _logger.LogInformation("COPILOT-DEBUG: Adding host connection {ConnectionId} to group {HostGroup}", 
+            Context.ConnectionId, hostGroupName);
+
+        try
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, hostGroupName);
+            
+            _logger.LogInformation("COPILOT-DEBUG: Host connection {ConnectionId} successfully added to group {HostGroup}", 
+                Context.ConnectionId, hostGroupName);
+            _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} joined host group {HostGroup} for session {SessionId}", 
+                Context.ConnectionId, hostGroupName, sessionId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "COPILOT-DEBUG: Error adding host {ConnectionId} to group {HostGroup}", 
+                Context.ConnectionId, hostGroupName);
+            throw;
+        }
     }
 
     /// <summary>
@@ -96,16 +135,37 @@ public class SessionHub : Hub
     /// </summary>
     public async Task BroadcastQuestion(string sessionId, object questionData)
     {
-        var sessionGroupName = $"Session_{sessionId}";
+        var sessionGroupName = $"session_{sessionId}";  // Fixed: use lowercase to match JoinSession
         var hostGroupName = $"Host_{sessionId}";
         
-        _logger.LogInformation("NOOR-QA-HUB: Broadcasting question to session {SessionId}", sessionId);
-
-        // Send to all session participants
-        await Clients.Group(sessionGroupName).SendAsync("QuestionReceived", questionData);
+        _logger.LogInformation("COPILOT-DEBUG: BroadcastQuestion called - SessionId: {SessionId}, ConnectionId: {ConnectionId}", 
+            sessionId, Context.ConnectionId);
+        _logger.LogInformation("COPILOT-DEBUG: Target groups - SessionGroup: {SessionGroup}, HostGroup: {HostGroup}", 
+            sessionGroupName, hostGroupName);
         
-        // Send special notification to hosts with toast trigger
-        await Clients.Group(hostGroupName).SendAsync("HostQuestionAlert", questionData);
+        var questionJson = System.Text.Json.JsonSerializer.Serialize(questionData);
+        _logger.LogInformation("COPILOT-DEBUG: Question data to broadcast: {QuestionData}", questionJson);
+
+        try
+        {
+            // Send to all session participants
+            _logger.LogInformation("COPILOT-DEBUG: Sending QuestionReceived to group {SessionGroup}", sessionGroupName);
+            await Clients.Group(sessionGroupName).SendAsync("QuestionReceived", questionData);
+            _logger.LogInformation("COPILOT-DEBUG: QuestionReceived sent successfully to {SessionGroup}", sessionGroupName);
+            
+            // Send special notification to hosts with toast trigger
+            _logger.LogInformation("COPILOT-DEBUG: Sending HostQuestionAlert to group {HostGroup}", hostGroupName);
+            await Clients.Group(hostGroupName).SendAsync("HostQuestionAlert", questionData);
+            _logger.LogInformation("COPILOT-DEBUG: HostQuestionAlert sent successfully to {HostGroup}", hostGroupName);
+            
+            _logger.LogInformation("NOOR-QA-HUB: Broadcasting question to session {SessionId} completed successfully - groups: {SessionGroup}, {HostGroup}", 
+                sessionId, sessionGroupName, hostGroupName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "COPILOT-DEBUG: Error broadcasting question to session {SessionId}", sessionId);
+            throw;
+        }
     }
 
     /// <summary>
@@ -113,11 +173,14 @@ public class SessionHub : Hub
     /// </summary>
     public async Task BroadcastVoteUpdate(string sessionId, object voteData)
     {
-        var sessionGroupName = $"Session_{sessionId}";
+        var sessionGroupName = $"session_{sessionId}";  // Fixed: use lowercase to match JoinSession
         
-        _logger.LogInformation("NOOR-QA-HUB: Broadcasting vote update to session {SessionId}", sessionId);
+        _logger.LogInformation("NOOR-QA-HUB: Broadcasting vote update to session {SessionId} - group: {SessionGroup}", 
+            sessionId, sessionGroupName);
         
         await Clients.Group(sessionGroupName).SendAsync("QuestionVoteUpdate", voteData);
+        
+        _logger.LogDebug("NOOR-QA-HUB: Successfully sent vote update to group {SessionGroup}", sessionGroupName);
     }
 
     /// <summary>
@@ -125,12 +188,14 @@ public class SessionHub : Hub
     /// </summary>
     public async Task MarkQuestionAnswered(string sessionId, int questionId)
     {
-        var sessionGroupName = $"Session_{sessionId}";
+        var sessionGroupName = $"session_{sessionId}";  // Fixed: use lowercase to match JoinSession
         
-        _logger.LogInformation("NOOR-QA-HUB: Question {QuestionId} marked as answered in session {SessionId}", 
-            questionId, sessionId);
+        _logger.LogInformation("NOOR-QA-HUB: Question {QuestionId} marked as answered in session {SessionId} - group: {SessionGroup}", 
+            questionId, sessionId, sessionGroupName);
         
         await Clients.Group(sessionGroupName).SendAsync("QuestionAnswered", new { questionId, sessionId });
+        
+        _logger.LogDebug("NOOR-QA-HUB: Successfully sent question answered notification to group {SessionGroup}", sessionGroupName);
     }
 
     /// <summary>

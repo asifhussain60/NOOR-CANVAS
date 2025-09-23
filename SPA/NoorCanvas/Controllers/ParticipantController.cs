@@ -281,6 +281,55 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        [HttpGet("session/{token}/user-guid")]
+        public async Task<IActionResult> GetUserGuid(string token)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+
+            _logger.LogInformation("NOOR-QA-USERGUID: [{RequestId}] UserGuid request for token: {Token}",
+                requestId, token);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token) || token.Length != 8)
+                {
+                    return BadRequest(new { Error = "Invalid token format", RequestId = requestId });
+                }
+
+                // First validate the token
+                var session = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
+                if (session == null)
+                {
+                    _logger.LogWarning("NOOR-QA-USERGUID: [{RequestId}] Invalid session token: {Token}", requestId, token);
+                    return NotFound(new { Error = "Invalid or expired session token", RequestId = requestId });
+                }
+
+                // Find the participant for this session and token
+                var participant = await _context.Participants
+                    .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.UserToken == token);
+
+                if (participant == null)
+                {
+                    _logger.LogWarning("NOOR-QA-USERGUID: [{RequestId}] No participant found for token: {Token}", requestId, token);
+                    return NotFound(new { Error = "Participant not found for this session", RequestId = requestId });
+                }
+
+                _logger.LogInformation("NOOR-QA-USERGUID: [{RequestId}] UserGuid found: {UserGuid} for participant: {Name}", 
+                    requestId, participant.UserGuid, participant.Name);
+
+                return Ok(new
+                {
+                    UserGuid = participant.UserGuid,
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-QA-USERGUID: [{RequestId}] Error retrieving UserGuid for token: {Token}", requestId, token);
+                return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
+            }
+        }
+
         [HttpGet("session/{token}/participants")]
         public async Task<IActionResult> GetSessionParticipants(string token)
         {

@@ -58,9 +58,10 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { Error = "Question text cannot be empty", RequestId = requestId });
                 }
 
-                // Find session by user token
+                // Find session by user token - accept both Active and Configured sessions
                 var session = await _context.Sessions
-                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken && s.Status == "Active");
+                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken && 
+                                            (s.Status == "Active" || s.Status == "Configured"));
 
                 if (session == null)
                 {
@@ -68,6 +69,9 @@ namespace NoorCanvas.Controllers
                         requestId, request.SessionToken);
                     return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
                 }
+
+                _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}", 
+                    requestId, session.SessionId, session.Status);
 
                 // Check if user is registered for this session
                 var participant = await _context.Participants
@@ -109,14 +113,36 @@ namespace NoorCanvas.Controllers
                     requestId, sessionData.DataId);
 
                 // Broadcast via SignalR to all session participants
-                await _sessionHub.Clients.Group($"Session_{session.SessionId}")
-                    .SendAsync("QuestionReceived", questionData);
+                var sessionGroup = $"session_{session.SessionId}";
+                var hostGroup = $"Host_{session.SessionId}";
+                
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Broadcasting question to SignalR groups - SessionId: {SessionId}, SessionGroup: {SessionGroup}, HostGroup: {HostGroup}", 
+                    requestId, session.SessionId, sessionGroup, hostGroup);
+                
+                var questionJson = JsonSerializer.Serialize(questionData);
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Question data being broadcast: {QuestionData}", requestId, questionJson);
+                
+                try
+                {
+                    _logger.LogDebug("COPILOT-DEBUG: [{RequestId}] Sending QuestionReceived to group {SessionGroup}", requestId, sessionGroup);
+                    await _sessionHub.Clients.Group(sessionGroup)
+                        .SendAsync("QuestionReceived", questionData);
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] QuestionReceived sent successfully to {SessionGroup}", requestId, sessionGroup);
 
-                // Special notification for hosts
-                await _sessionHub.Clients.Group($"Host_{session.SessionId}")
-                    .SendAsync("HostQuestionAlert", questionData);
+                    // Special notification for hosts
+                    _logger.LogDebug("COPILOT-DEBUG: [{RequestId}] Sending HostQuestionAlert to group {HostGroup}", requestId, hostGroup);
+                    await _sessionHub.Clients.Group(hostGroup)
+                        .SendAsync("HostQuestionAlert", questionData);
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] HostQuestionAlert sent successfully to {HostGroup}", requestId, hostGroup);
 
-                _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] SignalR notifications sent", requestId);
+                    _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] SignalR notifications sent successfully to groups {SessionGroup} and {HostGroup}", 
+                        requestId, sessionGroup, hostGroup);
+                }
+                catch (Exception signalREx)
+                {
+                    _logger.LogError(signalREx, "COPILOT-DEBUG: [{RequestId}] Error broadcasting question via SignalR", requestId);
+                    // Continue execution - don't fail the API call if SignalR fails
+                }
 
                 var response = new SubmitQuestionResponse
                 {
@@ -159,14 +185,18 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { Error = "Vote direction must be 'up' or 'down'", RequestId = requestId });
                 }
 
-                // Find session by user token
+                // Find session by user token - accept both Active and Configured sessions
                 var session = await _context.Sessions
-                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken && s.Status == "Active");
+                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken && 
+                                            (s.Status == "Active" || s.Status == "Configured"));
 
                 if (session == null)
                 {
                     return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
                 }
+
+                _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}", 
+                    requestId, session.SessionId, session.Status);
 
                 // Check if user is registered for this session
                 var participant = await _context.Participants
