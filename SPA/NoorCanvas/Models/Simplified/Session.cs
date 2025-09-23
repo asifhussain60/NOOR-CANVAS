@@ -51,11 +51,12 @@ public class Session
     public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
     public int? MaxParticipants { get; set; }
     public int? ParticipantCount { get; set; }
-    public DateTime? TokenExpiresAt { get; set; }
-    public int TokenAccessCount { get; set; } = 0;
-    [MaxLength(45)]
-    public string? TokenCreatedByIp { get; set; }
-    public DateTime? TokenLastAccessedAt { get; set; }
+
+    // REMOVED: Token-related columns that were unused in business logic
+    // - TokenExpiresAt (separate from ExpiresAt, all null in data)
+    // - TokenAccessCount (not referenced in API logic)  
+    // - TokenCreatedByIp (not used in validation)
+    // - TokenLastAccessedAt (not actively updated)
 
     // Navigation properties
     public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();
