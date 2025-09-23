@@ -1,51 +1,102 @@
-        .ks-transcript .inlineArabic {
-            font-family: 'Amiri', serif;
-            direction: rtl;
-            font-size: 1.4em;
-            display: inline-block;
-        }
+/* Islamic Content Styling - Multi-Container Support */
+/* CSS Custom Properties for Islamic Content Theming */
+[data-islamic-content],
+.ks-transcript,
+.session-transcript-content,
+.transcript-display,
+.islamic-content {
+    --islamic-primary: #0c4a6e;
+    --islamic-secondary: #0369a1;
+    --islamic-text: #374151;
+    --islamic-ayah-bg: #fffbf2;
+    --islamic-ayah-border: #d4a52c;
+    --islamic-hadith-accent: #007bff;
+    --islamic-card-bg: #f9fafb;
+    --islamic-border: #e5e7eb;
+    --islamic-golden-header: #fef3c7;
+    --islamic-accent: #8b5cf6;
+}
 
-        .ks-transcript .verse-container {
-            text-align: center;
-            font-family: 'Amiri', serif;
-            font-size: 1.8em;
-            margin: 1.5rem auto;
-            direction: rtl;
-            background-color: #f0f9ff;
-            border-top: 2px solid #7dd3fc;
-            border-bottom: 2px solid #7dd3fc;
-            padding: 1rem;
-            color: var(--primary-color);
-            max-width: 700px;
-        }
+/* Inline Arabic Text */
+[data-islamic-content] .inlineArabic,
+.ks-transcript .inlineArabic,
+.session-transcript-content .inlineArabic,
+.transcript-display .inlineArabic,
+.islamic-content .inlineArabic {
+    font-family: 'Amiri', serif;
+    direction: rtl;
+    font-size: 1.4em;
+    display: inline-block;
+}
 
-        .ks-transcript .ayah-card {
-            background-color: var(--ayah-card-bg);
-            border: 2px solid var(--ayah-card-border);
-            padding: 0.75rem;
-            margin: 1rem auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            font-family: 'Lora', serif;
-            text-align: center;
-            border-radius: 8px;
-            max-width: 700px;
-        }
+/* Verse Containers */
+[data-islamic-content] .verse-container,
+.ks-transcript .verse-container,
+.session-transcript-content .verse-container,
+.transcript-display .verse-container,
+.islamic-content .verse-container {
+    text-align: center;
+    font-family: 'Amiri', serif;
+    font-size: 1.8em;
+    margin: 1.5rem auto;
+    direction: rtl;
+    background-color: #f0f9ff;
+    border-top: 2px solid #7dd3fc;
+    border-bottom: 2px solid #7dd3fc;
+    padding: 1rem;
+    color: var(--islamic-primary);
+    max-width: 700px;
+}
 
-        .ks-transcript .golden-surah-header {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 1em;
-            color: var(--secondary-color);
-            background: var(--golden-header-bg);
-            padding: 6px 12px;
-            border-radius: 4px;
-            display: inline-block;
-            border: 1px solid var(--ayah-card-border);
-            text-align: center;
-        }
-        .ks-transcript .clickable-ayah-header { cursor: pointer; }
+/* Ayah Cards */
+[data-islamic-content] .ayah-card,
+.ks-transcript .ayah-card,
+.session-transcript-content .ayah-card,
+.transcript-display .ayah-card,
+.islamic-content .ayah-card {
+    background-color: var(--islamic-ayah-bg);
+    border: 2px solid var(--islamic-ayah-border);
+    padding: 0.75rem;
+    margin: 1rem auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    font-family: 'Lora', serif;
+    text-align: center;
+    border-radius: 8px;
+    max-width: 700px;
+}
 
-        .ks-transcript .ayah-arabic {
+/* Golden Surah Headers */
+[data-islamic-content] .golden-surah-header,
+.ks-transcript .golden-surah-header,
+.session-transcript-content .golden-surah-header,
+.transcript-display .golden-surah-header,
+.islamic-content .golden-surah-header {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1em;
+    color: var(--islamic-secondary);
+    background: var(--islamic-golden-header);
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    border: 1px solid var(--islamic-ayah-border);
+    text-align: center;
+}
+
+[data-islamic-content] .clickable-ayah-header,
+.ks-transcript .clickable-ayah-header,
+.session-transcript-content .clickable-ayah-header,
+.transcript-display .clickable-ayah-header,
+.islamic-content .clickable-ayah-header { 
+    cursor: pointer; 
+}
+
+/* Arabic Text Styling */
+[data-islamic-content] .ayah-arabic,
+.ks-transcript .ayah-arabic,
+.session-transcript-content .ayah-arabic,
+.transcript-display .ayah-arabic,
+.islamic-content .ayah-arabic {
             font-family: 'Amiri', serif;
             font-size: 1.8em;
             line-height: 1.6;
@@ -54,25 +105,54 @@
             padding: 0 1rem;
             text-align: center;
             margin: 0.5rem 0;
-        }
-        
-        .ks-transcript .ayah-arabic img {
-            width: 40px;
-            height: auto;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        
-        .ks-transcript .ayah-translation {
+    font-family: 'Amiri', serif;
+    font-size: 1.8em;
+    line-height: 1.6;
+    direction: rtl;
+    color: var(--islamic-primary);
+    padding: 0 1rem;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+/* Arabic Text Images */
+[data-islamic-content] .ayah-arabic img,
+.ks-transcript .ayah-arabic img,
+.session-transcript-content .ayah-arabic img,
+.transcript-display .ayah-arabic img,
+.islamic-content .ayah-arabic img {
+    width: 40px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+/* Ayah Translations */
+[data-islamic-content] .ayah-translation,
+.ks-transcript .ayah-translation,
+.session-transcript-content .ayah-translation,
+.transcript-display .ayah-translation,
+.islamic-content .ayah-translation {
             font-size: 1em;
             font-style: italic;
             color: var(--text-color);
             line-height: 1.4;
             padding: 0 1rem;
             text-align: center;
-        }
-        
-        .ks-transcript .ayah-card .translation-header {
+    font-size: 1em;
+    font-style: italic;
+    color: var(--islamic-text);
+    line-height: 1.4;
+    padding: 0 1rem;
+    text-align: center;
+}
+
+/* Translation Headers */
+[data-islamic-content] .ayah-card .translation-header,
+.ks-transcript .ayah-card .translation-header,
+.session-transcript-content .ayah-card .translation-header,
+.transcript-display .ayah-card .translation-header,
+.islamic-content .ayah-card .translation-header {
             font-weight: 500;
             color: var(--primary-color);
             margin-top: 0.5em;
@@ -82,19 +162,46 @@
             align-items: center;
             justify-content: center;
             position: relative;
-        }
-        
-        .ks-transcript .ayah-card .translation-header::before,
-        .ks-transcript .ayah-card .translation-header::after {
-            content: '';
-            flex-grow: 1;
-            height: 1px;
-            background-color: var(--ayah-card-border);
-            margin: 0 1rem;
-        }
+    font-weight: 500;
+    color: var(--islamic-primary);
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
+    font-style: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
 
-        /* Etymology Card */
-        .ks-transcript .etymology-derivative-card, .ks-transcript .etymology-card {
+/* Translation Header Decorative Lines */
+[data-islamic-content] .ayah-card .translation-header::before,
+[data-islamic-content] .ayah-card .translation-header::after,
+.ks-transcript .ayah-card .translation-header::before,
+.ks-transcript .ayah-card .translation-header::after,
+.session-transcript-content .ayah-card .translation-header::before,
+.session-transcript-content .ayah-card .translation-header::after,
+.transcript-display .ayah-card .translation-header::before,
+.transcript-display .ayah-card .translation-header::after,
+.islamic-content .ayah-card .translation-header::before,
+.islamic-content .ayah-card .translation-header::after {
+    content: '';
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--islamic-ayah-border);
+    margin: 0 1rem;
+}
+
+/* Etymology Cards */
+[data-islamic-content] .etymology-derivative-card,
+[data-islamic-content] .etymology-card,
+.ks-transcript .etymology-derivative-card, 
+.ks-transcript .etymology-card,
+.session-transcript-content .etymology-derivative-card,
+.session-transcript-content .etymology-card,
+.transcript-display .etymology-derivative-card,
+.transcript-display .etymology-card,
+.islamic-content .etymology-derivative-card,
+.islamic-content .etymology-card {
             background-color: var(--card-bg-light);
             border: 2px solid var(--border-color);
             border-radius: 12px;
@@ -103,18 +210,57 @@
             text-align: center;
             max-width: 700px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-        .ks-transcript .etymology-header { text-align: center; }
-        .ks-transcript .etymology-details { font-family: 'Lora', serif; color: var(--secondary-color); }
+    background-color: var(--islamic-card-bg);
+    border: 2px solid var(--islamic-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+    text-align: center;
+    max-width: 700px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
 
-        .ks-transcript .etymology-header .arabic-term {
+/* Etymology Headers */
+[data-islamic-content] .etymology-header,
+.ks-transcript .etymology-header,
+.session-transcript-content .etymology-header,
+.transcript-display .etymology-header,
+.islamic-content .etymology-header { 
+    text-align: center; 
+}
+
+/* Etymology Details */
+[data-islamic-content] .etymology-details,
+.ks-transcript .etymology-details,
+.session-transcript-content .etymology-details,
+.transcript-display .etymology-details,
+.islamic-content .etymology-details { 
+    font-family: 'Lora', serif; 
+    color: var(--islamic-secondary); 
+}
+
+/* Arabic Terms in Etymology */
+[data-islamic-content] .etymology-header .arabic-term,
+.ks-transcript .etymology-header .arabic-term,
+.session-transcript-content .etymology-header .arabic-term,
+.transcript-display .etymology-header .arabic-term,
+.islamic-content .etymology-header .arabic-term {
             font-family: 'Amiri', serif;
             font-size: 2.5em;
             color: var(--primary-color);
             margin: 0;
-        }
+    font-family: 'Amiri', serif;
+    font-size: 2.5em;
+    color: var(--islamic-primary);
+    margin: 0;
+}
 
-        .ks-transcript .derivative-root-reference {
+/* Derivative Root References */
+[data-islamic-content] .derivative-root-reference,
+.ks-transcript .derivative-root-reference,
+.session-transcript-content .derivative-root-reference,
+.transcript-display .derivative-root-reference,
+.islamic-content .derivative-root-reference {
             margin-bottom: 12px;
             padding: 8px;
             background: rgba(125, 211, 252, 0.2);
@@ -162,8 +308,17 @@
             line-height: 1.4;
         }
         
-        /* Hadees Card - New Styling */
-        .ks-transcript .inserted-hadees.ks-ahadees-container {
+/* Hadees Cards - Islamic Tradition Styling */
+[data-islamic-content] .inserted-hadees.ks-ahadees-container,
+[data-islamic-content] .inserted-hadees,
+.ks-transcript .inserted-hadees.ks-ahadees-container,
+.ks-transcript .inserted-hadees,
+.session-transcript-content .inserted-hadees.ks-ahadees-container,
+.session-transcript-content .inserted-hadees,
+.transcript-display .inserted-hadees.ks-ahadees-container,
+.transcript-display .inserted-hadees,
+.islamic-content .inserted-hadees.ks-ahadees-container,
+.islamic-content .inserted-hadees {
             background-color: #f8f9fa; /* Light gray background */
             border: 1px solid #dee2e6; /* Light border on all sides */
             border-top: 4px solid #007bff; /* Prominent blue top border */
@@ -174,32 +329,78 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
             position: relative;
             overflow: hidden; /* Ensures border-radius applies correctly */
-        }
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-top: 4px solid var(--islamic-hadith-accent);
+    border-radius: 8px;
+    padding: 0;
+    margin: 1.5rem auto;
+    max-width: 700px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
 
-        .ks-transcript .hadees-header.ks-ahadees-header {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start; /* Align header content to the left */
-            padding: 1rem 1.5rem;
-            background-color: transparent; /* No background for header */
-            border-bottom: none; /* No border for header */
-        }
+/* Hadees Headers */
+[data-islamic-content] .hadees-header.ks-ahadees-header,
+[data-islamic-content] .hadees-header,
+.ks-transcript .hadees-header.ks-ahadees-header,
+.ks-transcript .hadees-header,
+.session-transcript-content .hadees-header.ks-ahadees-header,
+.session-transcript-content .hadees-header,
+.transcript-display .hadees-header.ks-ahadees-header,
+.transcript-display .hadees-header,
+.islamic-content .hadees-header.ks-ahadees-header,
+.islamic-content .hadees-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem 1.5rem;
+    background-color: transparent;
+    border-bottom: none;
+}
 
-        .ks-transcript .hadees-header h4 {
+/* Hadees Header Text */
+[data-islamic-content] .hadees-header h4,
+.ks-transcript .hadees-header h4,
+.session-transcript-content .hadees-header h4,
+.transcript-display .hadees-header h4,
+.islamic-content .hadees-header h4 {
             margin: 0;
             font-size: 1.2em;
             display: flex;
             align-items: center;
             color: #007bff; /* Blue color for header text */
             font-weight: 700;
-        }
+    margin: 0;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    color: var(--islamic-hadith-accent);
+    font-weight: 700;
+}
 
-        .ks-transcript .ks-ahadees-header-icon {
-            margin-right: 0.5em;
-            color: #007bff; /* Blue color for icon */
-        }
+/* Hadees Header Icons */
+[data-islamic-content] .ks-ahadees-header-icon,
+.ks-transcript .ks-ahadees-header-icon,
+.session-transcript-content .ks-ahadees-header-icon,
+.transcript-display .ks-ahadees-header-icon,
+.islamic-content .ks-ahadees-header-icon {
+    margin-right: 0.5em;
+    color: var(--islamic-hadith-accent);
+}
 
-        .ks-transcript .hadees-arabic.ks-ahadees-arabic {
+/* Hadees Arabic Text */
+[data-islamic-content] .hadees-arabic.ks-ahadees-arabic,
+[data-islamic-content] .hadees-arabic,
+.ks-transcript .hadees-arabic.ks-ahadees-arabic,
+.ks-transcript .hadees-arabic,
+.session-transcript-content .hadees-arabic.ks-ahadees-arabic,
+.session-transcript-content .hadees-arabic,
+.transcript-display .hadees-arabic.ks-ahadees-arabic,
+.transcript-display .hadees-arabic,
+.islamic-content .hadees-arabic.ks-ahadees-arabic,
+.islamic-content .hadees-arabic {
             font-family: 'Amiri', serif;
             font-size: 1.8em;
             line-height: 1.8;
@@ -207,65 +408,200 @@
             color: #8B0000; /* Maroon color for Arabic text */
             text-align: center;
             padding: 1rem 1.5rem;
-        }
+    font-family: 'Amiri', serif;
+    font-size: 1.8em;
+    line-height: 1.8;
+    direction: rtl;
+    color: #8B0000;
+    text-align: center;
+    padding: 1rem 1.5rem;
+}
 
-        .ks-transcript .hadees-english.ks-ahadees-english {
-            font-style: italic;
-            color: #6c757d; /* Dark gray color for English translation */
-            text-align: center;
-            padding: 0 1.5rem 1.5rem 1.5rem;
-        }
+/* Hadees English Translation */
+[data-islamic-content] .hadees-english.ks-ahadees-english,
+[data-islamic-content] .hadees-english,
+.ks-transcript .hadees-english.ks-ahadees-english,
+.ks-transcript .hadees-english,
+.session-transcript-content .hadees-english.ks-ahadees-english,
+.session-transcript-content .hadees-english,
+.transcript-display .hadees-english.ks-ahadees-english,
+.transcript-display .hadees-english,
+.islamic-content .hadees-english.ks-ahadees-english,
+.islamic-content .hadees-english {
+    font-style: italic;
+    color: #6c757d;
+    text-align: center;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
 
-        /* Images and figures */
-        .ks-transcript .imgResponsive {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 1em auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+/* Images and figures */
+[data-islamic-content] .imgResponsive,
+.ks-transcript .imgResponsive,
+.session-transcript-content .imgResponsive,
+.transcript-display .imgResponsive,
+.islamic-content .imgResponsive {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
 
-        .ks-transcript .fr-fic.fr-dib { display: block; }
-        .ks-transcript .fr-fic.fr-dii { display: inline-block; }
-        .ks-transcript .fr-bordered { border: 2px solid #ccc; }
+[data-islamic-content] .fr-fic.fr-dib,
+.ks-transcript .fr-fic.fr-dib,
+.session-transcript-content .fr-fic.fr-dib,
+.transcript-display .fr-fic.fr-dib,
+.islamic-content .fr-fic.fr-dib { display: block; }
 
-        /* Table Styling */
-        .ks-transcript table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-            text-align: center;
-        }
-        .ks-transcript th, .ks-transcript td { padding: 12px 15px; border: 1px solid var(--border-color); text-align: center; }
-        .ks-transcript th { background-color: var(--primary-color); color: #fff; font-weight: 600; }
-        .ks-transcript tr:nth-child(even) { background-color: var(--card-bg-light); }
+[data-islamic-content] .fr-fic.fr-dii,
+.ks-transcript .fr-fic.fr-dii,
+.session-transcript-content .fr-fic.fr-dii,
+.transcript-display .fr-fic.fr-dii,
+.islamic-content .fr-fic.fr-dii { display: inline-block; }
 
-        /* Urdu Specific Style */
-        .ks-transcript .urduNastaleeq {
-            font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
-            direction: rtl;
-            text-align: center;
-            font-size: 1.4em;
-        }
+[data-islamic-content] .fr-bordered,
+.ks-transcript .fr-bordered,
+.session-transcript-content .fr-bordered,
+.transcript-display .fr-bordered,
+.islamic-content .fr-bordered { border: 2px solid #ccc; }
 
-        /* Esoteric Block */
-        .ks-transcript .esotericBlock {
-            background-color: var(--card-bg-light);
-            border: 2px solid var(--ayah-card-border);
-            padding: 1rem;
-            margin: 1.5rem auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            max-width: 700px;
-        }
-        .ks-transcript .esoteric-header { font-size: 1.5em; font-weight: 700; color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; background-color: var(--ayah-card-bg); border-radius: 8px 8px 0 0; padding: 1rem 0; border-bottom: 1px solid var(--ayah-card-border); }
-        .ks-transcript .esoteric-header i { margin-right: 10px; color: var(--accent-color); }
-        .ks-transcript .esoteric-title { font-weight: 700; color: var(--primary-color); }
-        .ks-transcript .esotericData { padding: 1rem; text-align: justify; }
+/* Table Styling */
+[data-islamic-content] table,
+.ks-transcript table,
+.session-transcript-content table,
+.transcript-display table,
+.islamic-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
 
-        /* Anecdote and Example */
-        .ks-transcript .anecdote, .ks-transcript .example { background-color: #f0f9ff; border-left: 4px solid #38bdf8; padding: 1rem; margin: 1.5rem 0; border-radius: 4px; font-style: italic; color: #0c4a6e; }
+[data-islamic-content] th,
+[data-islamic-content] td,
+.ks-transcript th, 
+.ks-transcript td,
+.session-transcript-content th,
+.session-transcript-content td,
+.transcript-display th,
+.transcript-display td,
+.islamic-content th,
+.islamic-content td { 
+    padding: 12px 15px; 
+    border: 1px solid var(--islamic-border); 
+    text-align: center; 
+}
+
+[data-islamic-content] th,
+.ks-transcript th,
+.session-transcript-content th,
+.transcript-display th,
+.islamic-content th { 
+    background-color: var(--islamic-primary); 
+    color: #fff; 
+    font-weight: 600; 
+}
+
+[data-islamic-content] tr:nth-child(even),
+.ks-transcript tr:nth-child(even),
+.session-transcript-content tr:nth-child(even),
+.transcript-display tr:nth-child(even),
+.islamic-content tr:nth-child(even) { 
+    background-color: var(--islamic-card-bg); 
+}
+
+/* Urdu Specific Style */
+[data-islamic-content] .urduNastaleeq,
+.ks-transcript .urduNastaleeq,
+.session-transcript-content .urduNastaleeq,
+.transcript-display .urduNastaleeq,
+.islamic-content .urduNastaleeq {
+    font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
+    direction: rtl;
+    text-align: center;
+    font-size: 1.4em;
+}
+
+/* Esoteric Block */
+[data-islamic-content] .esotericBlock,
+.ks-transcript .esotericBlock,
+.session-transcript-content .esotericBlock,
+.transcript-display .esotericBlock,
+.islamic-content .esotericBlock {
+    background-color: var(--islamic-card-bg);
+    border: 2px solid var(--islamic-ayah-border);
+    padding: 1rem;
+    margin: 1.5rem auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    max-width: 700px;
+}
+
+[data-islamic-content] .esoteric-header,
+.ks-transcript .esoteric-header,
+.session-transcript-content .esoteric-header,
+.transcript-display .esoteric-header,
+.islamic-content .esoteric-header { 
+    font-size: 1.5em; 
+    font-weight: 700; 
+    color: var(--islamic-primary); 
+    margin-bottom: 1rem; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background-color: var(--islamic-ayah-bg); 
+    border-radius: 8px 8px 0 0; 
+    padding: 1rem 0; 
+    border-bottom: 1px solid var(--islamic-ayah-border); 
+}
+
+[data-islamic-content] .esoteric-header i,
+.ks-transcript .esoteric-header i,
+.session-transcript-content .esoteric-header i,
+.transcript-display .esoteric-header i,
+.islamic-content .esoteric-header i { 
+    margin-right: 10px; 
+    color: var(--islamic-accent); 
+}
+
+[data-islamic-content] .esoteric-title,
+.ks-transcript .esoteric-title,
+.session-transcript-content .esoteric-title,
+.transcript-display .esoteric-title,
+.islamic-content .esoteric-title { 
+    font-weight: 700; 
+    color: var(--islamic-primary); 
+}
+
+[data-islamic-content] .esotericData,
+.ks-transcript .esotericData,
+.session-transcript-content .esotericData,
+.transcript-display .esotericData,
+.islamic-content .esotericData { 
+    padding: 1rem; 
+    text-align: justify; 
+}
+
+/* Anecdote and Example */
+[data-islamic-content] .anecdote,
+[data-islamic-content] .example,
+.ks-transcript .anecdote, 
+.ks-transcript .example,
+.session-transcript-content .anecdote,
+.session-transcript-content .example,
+.transcript-display .anecdote,
+.transcript-display .example,
+.islamic-content .anecdote,
+.islamic-content .example { 
+    background-color: #f0f9ff; 
+    border-left: 4px solid #38bdf8; 
+    padding: 1rem; 
+    margin: 1.5rem 0; 
+    border-radius: 4px; 
+    font-style: italic; 
+    color: #0c4a6e; 
+}
