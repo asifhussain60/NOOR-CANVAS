@@ -22,42 +22,8 @@
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
 <HeadContent>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Amiri:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Cairo:wght@400;700&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary-color: #0c4a6e;
-            --secondary-color: #0369a1;
-            --accent-color: #f59e0b;
-            --text-color: #333;
-            --background-color: #fdfdfd;
-            --card-bg-light: #f9fafb;
-            --border-color: #e5e7eb;
-            --ayah-card-bg: #fffbf2;
-            --ayah-card-border: #d4a52c;
-            --golden-header-bg: #fef3c7;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-        /* Responsive adjustments */
-        @@media (max-width: 600px) {
-            h1 { font-size: 1.8em; }
-            h2 { font-size: 1.5em; }
-            h3 { font-size: 1.3em; }
-            .ayah-arabic { font-size: 1.5em; }
-            .etymology-card, .inserted-hadees, .ayah-card, .esotericBlock {
-                padding: 1rem;
-            }
-        }
-    </style>
+    @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
+    @* CSS styling for Islamic content handled by session-transcript.css *@
 </HeadContent>
 
 <!-- Root container with NOOR Canvas background -->
@@ -144,7 +110,7 @@
             
             @if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
             {
-                <div class="html-viewer-content session-transcript-content" style="width:100%;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
+                <div class="html-viewer-content session-transcript-content" data-islamic-content style="width:100%;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
                     @((MarkupString)(Model.TransformedTranscript))
                 </div>
             }
@@ -179,84 +145,88 @@
             }
         </div>
 
-        <!-- Q&A Panel -->
-        <div style="background-color:white;padding:1rem;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;">
-            <div style="display:flex;align-items:center;justify-content:flex-start;margin-bottom:0.5rem;">
-                <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
-                    <i class="fa-solid fa-clipboard-question" style="color:#006400;"></i>
-                    <span>Questions & Answers</span>
-                </h3>
-            </div>
-            <div style="width:100%;height:200px;overflow-y:auto;padding-right:0.5rem;">
-                @if (Model?.Questions != null && Model.Questions.Any())
-                {
-                    @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered))
+        <!-- Q&A and Participants Panel Container -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;min-height:300px;margin-bottom:1rem;" id="panels-container">
+            
+            <!-- Q&A Panel -->
+            <div style="background-color:white;padding:1rem;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;display:flex;flex-direction:column;">
+                <div style="display:flex;align-items:center;justify-content:flex-start;margin-bottom:0.5rem;">
+                    <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
+                        <i class="fa-solid fa-clipboard-question" style="color:#006400;"></i>
+                        <span>Questions & Answers</span>
+                    </h3>
+                </div>
+                <div style="width:100%;flex:1;overflow-y:auto;padding-right:0.5rem;">
+                    @if (Model?.Questions != null && Model.Questions.Any())
                     {
-                        <div style="@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "")padding:0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;@(question.IsAnswered ? "" : "background-color:#FFFFFF;")">
-                            <div style="display:flex;align-items:center;gap:0.5rem;flex:1;">
-                                <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");"></i>
-                                <span style="font-size:0.875rem;">@question.Text</span>
-                            </div>
-                            <div style="display:flex;gap:0.25rem;">
-                                @if (!question.IsAnswered)
-                                {
-                                    <button @onclick="() => MarkQuestionAnswered(question.Id)" 
-                                            style="color:#10B981;background:none;border:none;cursor:pointer;padding:0.25rem;">
-                                        <i class="fa-solid fa-check"></i>
+                        @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered))
+                        {
+                            <div style="@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "")padding:0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;@(question.IsAnswered ? "" : "background-color:#FFFFFF;")">
+                                <div style="display:flex;align-items:center;gap:0.5rem;flex:1;">
+                                    <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");"></i>
+                                    <span style="font-size:0.875rem;">@question.Text</span>
+                                </div>
+                                <div style="display:flex;gap:0.25rem;">
+                                    @if (!question.IsAnswered)
+                                    {
+                                        <button @onclick="() => MarkQuestionAnswered(question.Id)" 
+                                                style="color:#10B981;background:none;border:none;cursor:pointer;padding:0.25rem;">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                    }
+                                    <button @onclick="() => ShowDeleteModal(question.Id)" 
+                                            style="color:#EF4444;background:none;border:none;cursor:pointer;padding:0.25rem;">
+                                        <i class="fa-solid fa-trash-can"></i>
                                     </button>
-                                }
-                                <button @onclick="() => ShowDeleteModal(question.Id)" 
-                                        style="color:#EF4444;background:none;border:none;cursor:pointer;padding:0.25rem;">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
+                                </div>
                             </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="text-align:center;color:#6B7280;padding:2rem;">
+                            <p>No questions submitted yet. Questions from participants will appear here during the session.</p>
                         </div>
                     }
-                }
-                else
-                {
-                    <div style="text-align:center;color:#6B7280;padding:2rem;">
-                        <p>No questions submitted yet. Questions from participants will appear here during the session.</p>
-                    </div>
-                }
-            </div>
-        </div>
-        
-        <!-- Participants Panel -->
-        <div style="background-color:white;padding:1rem;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-                <h3 style="display:flex;align-items:center;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:center;">
-                    <i class="fa-solid fa-users" style="color:#006400;"></i>
-                    <span>Participants (@(Model?.Participants?.Count ?? 0))</span>
-                </h3>
-                <div style="display:flex;gap:0.5rem;">
-                    <button @onclick="() => SortParticipants(true)" 
-                            style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#E5E7EB;color:#374151;font-weight:600;border:none;cursor:pointer;"
-                            onmouseover="this.style.backgroundColor='#D1D5DB'"
-                            onmouseout="this.style.backgroundColor='#E5E7EB'">Sort by Name</button>
-                    <button @onclick="() => SortParticipants(false)" 
-                            style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#E5E7EB;color:#374151;font-weight:600;border:none;cursor:pointer;"
-                            onmouseover="this.style.backgroundColor='#D1D5DB'"
-                            onmouseout="this.style.backgroundColor='#E5E7EB'">Sort by Country</button>
                 </div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;max-height:12rem;overflow-y:auto;padding-right:0.5rem;">
-                @if (Model?.Participants != null && Model.Participants.Any())
-                {
-                    @foreach (var participant in Model.Participants)
+            
+            <!-- Participants Panel -->
+            <div style="background-color:white;padding:1rem;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;display:flex;flex-direction:column;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+                    <h3 style="display:flex;align-items:center;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:center;">
+                        <i class="fa-solid fa-users" style="color:#006400;"></i>
+                        <span>Participants (@(Model?.Participants?.Count ?? 0))</span>
+                    </h3>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button @onclick="() => SortParticipants(true)" 
+                                style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#E5E7EB;color:#374151;font-weight:600;border:none;cursor:pointer;"
+                                onmouseover="this.style.backgroundColor='#D1D5DB'"
+                                onmouseout="this.style.backgroundColor='#E5E7EB'">Sort by Name</button>
+                        <button @onclick="() => SortParticipants(false)" 
+                                style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#E5E7EB;color:#374151;font-weight:600;border:none;cursor:pointer;"
+                                onmouseover="this.style.backgroundColor='#D1D5DB'"
+                                onmouseout="this.style.backgroundColor='#E5E7EB'">Sort by Country</button>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;flex:1;overflow-y:auto;padding-right:0.5rem;">
+                    @if (Model?.Participants != null && Model.Participants.Any())
                     {
-                        <div style="display:flex;align-items:center;gap:0.5rem;color:#6B7280;">
-                            <img src="@participant.FlagUrl" alt="@participant.Country" style="width:1.25rem;height:auto;" />
-                            <span style="font-size:0.875rem;">@participant.Name</span>
+                        @foreach (var participant in Model.Participants)
+                        {
+                            <div style="display:flex;align-items:center;gap:0.5rem;color:#6B7280;">
+                                <img src="@participant.FlagUrl" alt="@participant.Country" style="width:1.25rem;height:auto;" />
+                                <span style="font-size:0.875rem;">@participant.Name</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="grid-column:1/-1;text-align:center;color:#6B7280;padding:2rem;">
+                            <p>No participants have joined yet. Participants will appear here once they join the session.</p>
                         </div>
                     }
-                }
-                else
-                {
-                    <div style="grid-column:1/-1;text-align:center;color:#6B7280;padding:2rem;">
-                        <p>No participants have joined yet. Participants will appear here once they join the session.</p>
-                    </div>
-                }
+                </div>
             </div>
         </div>
     </div>
@@ -1799,4 +1769,30 @@
     };
 
     console.log('NOOR-ASSET-SHARE: Individual asset sharing system ready with SignalR support');
+</script>
+
+<script>
+    // Ensure panels display side-by-side
+    document.addEventListener('DOMContentLoaded', function() {
+        function adjustPanelLayout() {
+            const container = document.getElementById('panels-container');
+            if (container) {
+                // Force side-by-side layout regardless of screen size
+                container.style.display = 'grid';
+                container.style.gridTemplateColumns = '1fr 1fr';
+                container.style.gap = '1rem';
+                
+                // On very small screens, allow stacking
+                if (window.innerWidth < 480) {
+                    container.style.gridTemplateColumns = '1fr';
+                } else {
+                    container.style.gridTemplateColumns = '1fr 1fr';
+                }
+            }
+        }
+        
+        // Apply layout immediately and on resize
+        adjustPanelLayout();
+        window.addEventListener('resize', adjustPanelLayout);
+    });
 </script>
