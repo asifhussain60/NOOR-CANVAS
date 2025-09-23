@@ -261,6 +261,9 @@
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
+    
+    // Host auth token (GUID) for SessionCanvas navigation
+    private string? HostAuthToken { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -323,6 +326,10 @@
                     IsAnswered = false 
                 };
                 Model?.Questions?.Add(newQuestion);
+                
+                // Show toast notification to host about new question
+                await JSRuntime.InvokeVoidAsync("showQuestionToast", questionText);
+                
                 await InvokeAsync(StateHasChanged);
             });
 
@@ -333,6 +340,23 @@
                     Model.SessionTranscript = transcript;
                     Model.TransformedTranscript = await TransformTranscriptHtml(transcript);
                     await InvokeAsync(StateHasChanged);
+                }
+            });
+
+            hubConnection.On<string, int>("VoteUpdateReceived", async (questionText, voteCount) =>
+            {
+                // Show toast notification to host about vote update
+                await JSRuntime.InvokeVoidAsync("showVoteUpdateToast", questionText, voteCount);
+                
+                // Update the question vote count in the model if needed
+                if (Model?.Questions != null)
+                {
+                    var question = Model.Questions.FirstOrDefault(q => q.Text == questionText);
+                    if (question != null)
+                    {
+                        question.VoteCount = voteCount;
+                        await InvokeAsync(StateHasChanged);
+                    }
                 }
             });
 
@@ -387,30 +411,43 @@
                 // First, check if this token exists in the current database
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Checking if token exists in database...", requestId);
                 var allTokens = await SimplifiedCanvasDb.Sessions
-                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.Status, s.ExpiresAt })
+                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.HostAuthToken, s.Status, s.ExpiresAt })
                     .ToListAsync();
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Found {TokenCount} total sessions in database", requestId, allTokens.Count);
                 
                 foreach (var tokenRecord in allTokens)
                 {
-                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] DB Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
+                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] DB Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', HostAuthToken='{HostAuthToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
                         requestId, tokenRecord.SessionId, tokenRecord.HostToken ?? "NULL", tokenRecord.UserToken ?? "NULL", 
-                        tokenRecord.Status ?? "NULL", tokenRecord.ExpiresAt?.ToString() ?? "NULL");
+                        tokenRecord.HostAuthToken ?? "NULL", tokenRecord.Status ?? "NULL", tokenRecord.ExpiresAt?.ToString() ?? "NULL");
                 }
                 
                 var tokenExists = allTokens.Any(t => t.HostToken == hostToken);
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token '{HostToken}' exists in database: {TokenExists}", requestId, hostToken, tokenExists);
                 
-                // Extract UserToken directly from database query result
+                // Extract UserToken and HostAuthToken directly from database query result
                 var matchingTokenRecord = allTokens.FirstOrDefault(t => t.HostToken == hostToken);
-                if (matchingTokenRecord != null && !string.IsNullOrEmpty(matchingTokenRecord.UserToken))
+                if (matchingTokenRecord != null)
                 {
-                    UserToken = matchingTokenRecord.UserToken;
-                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ UserToken loaded from database: {UserToken}", requestId, UserToken);
+                    if (!string.IsNullOrEmpty(matchingTokenRecord.UserToken))
+                    {
+                        UserToken = matchingTokenRecord.UserToken;
+                        Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ UserToken loaded from database: {UserToken}", requestId, UserToken);
+                    }
+                    
+                    if (!string.IsNullOrEmpty(matchingTokenRecord.HostAuthToken))
+                    {
+                        HostAuthToken = matchingTokenRecord.HostAuthToken;
+                        Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ HostAuthToken loaded from database: {HostAuthToken}", requestId, HostAuthToken);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ No HostAuthToken found for HostToken: {HostToken}", requestId, hostToken);
+                    }
                 }
                 else
                 {
-                    Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ No UserToken found for HostToken: {HostToken}", requestId, hostToken);
+                    Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ No matching session record found for HostToken: {HostToken}", requestId, hostToken);
                 }
                 
                 // Map token to session ID for API calls
@@ -632,9 +669,22 @@
                     Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
                 }
                 
-                await ShowMessageAsync("Session started successfully!");
+                await ShowMessageAsync("Session started successfully! Redirecting to canvas...");
                 
                 Logger.LogInformation("COPILOT-SESSION-START: Session {SessionId} started successfully - SignalR notifications sent to all waiting users", SessionId);
+                
+                // Navigate to SessionCanvas using HostAuthToken (GUID format)
+                if (!string.IsNullOrEmpty(HostAuthToken))
+                {
+                    var canvasUrl = $"/session/canvas/{HostAuthToken}";
+                    Logger.LogInformation("COPILOT-SESSION-START: Navigating to SessionCanvas: {CanvasUrl}", canvasUrl);
+                    Navigation.NavigateTo(canvasUrl);
+                }
+                else
+                {
+                    Logger.LogError("COPILOT-SESSION-START: Cannot navigate to SessionCanvas - HostAuthToken is null or empty");
+                    await ShowMessageAsync("Session started but cannot open canvas - missing authentication token");
+                }
             }
             else
             {
@@ -789,6 +839,7 @@
         public Guid Id { get; set; }
         public string Text { get; set; } = "";
         public bool IsAnswered { get; set; }
+        public int VoteCount { get; set; }
     }
 
     // API Response Models
