@@ -90,6 +90,35 @@
             </div>
         </div>
         
+        <!-- User Registration Link Display (shown when session has user token) -->
+        @if (!string.IsNullOrEmpty(UserToken))
+        {
+            <div style="margin-top:2rem;width:100%;background-color:#F0F9FF;border-radius:1rem;border:1px solid #3B82F6;padding:1.5rem;text-align:left;">
+                <h4 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:600;font-size:1rem;color:#3B82F6;margin-bottom:1rem;text-align:center;">
+                    <i class="fa-solid fa-link" style="color:#3B82F6;"></i>
+                    <span>User Registration Link</span>
+                </h4>
+                <div style="background-color:white;border-radius:0.5rem;padding:0.75rem;border:1px solid #E2E8F0;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                        <input type="text" 
+                               value="https://localhost:9091/user/landing/@UserToken" 
+                               readonly
+                               style="flex:1;background:transparent;border:none;color:#374151;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;"
+                               id="userLinkInput" />
+                        <button onclick="copyUserLink()" 
+                                style="padding:0.375rem 0.75rem;background-color:#3B82F6;color:white;border:none;border-radius:0.375rem;font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;font-weight:500;"
+                                onmouseover="this.style.backgroundColor='#2563EB'"
+                                onmouseout="this.style.backgroundColor='#3B82F6'">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-top:0.5rem;margin-bottom:0;text-align:center;">
+                    Share this link with session participants for easy registration
+                </p>
+            </div>
+        }
+        
         <!-- Button from mock -->
         <div style="margin-top:2rem;">
             <button @onclick="HandleAuthentication" 
@@ -127,6 +156,9 @@
     
     private bool isLoading = false;
     private string errorMessage = "";
+    
+    // User token for generating user landing URL
+    private string? UserToken { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -212,6 +244,9 @@
                         Logger.LogInformation("NOOR-HOST: [{RequestId}] Updated Model.SessionName to: {SessionName}", 
                             requestId, Model.SessionName);
                     }
+                    
+                    // Load UserToken for session - get from session mapping
+                    await LoadUserTokenAsync(validationResult.SessionId.ToString(), requestId);
                 }
                 else
                 {
@@ -355,7 +390,52 @@
         }
     }
 
+    /// <summary>
+    /// Load UserToken for the session to display user registration link
+    /// </summary>
+    private async Task LoadUserTokenAsync(string sessionId, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-HOST: [{RequestId}] Loading user token for session: {SessionId}", requestId, sessionId);
 
+            using var httpClient = HttpClientFactory.CreateClient();
+            
+            // Call API to get user token for session
+            string apiUrl = $"https://localhost:9091/api/session/{sessionId}/usertoken";
+            var response = await httpClient.GetAsync(apiUrl);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var tokenResponse = System.Text.Json.JsonSerializer.Deserialize<UserTokenResponse>(content,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.UserToken))
+                {
+                    UserToken = tokenResponse.UserToken;
+                    Logger.LogInformation("NOOR-HOST: [{RequestId}] Successfully loaded user token for session {SessionId}", 
+                        requestId, sessionId);
+                    await InvokeAsync(StateHasChanged); // Update UI to show the user link
+                }
+                else
+                {
+                    Logger.LogWarning("NOOR-HOST: [{RequestId}] No user token found in response for session {SessionId}", 
+                        requestId, sessionId);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-HOST: [{RequestId}] Failed to load user token - status: {StatusCode}", 
+                    requestId, response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST: [{RequestId}] Exception loading user token for session {SessionId}", 
+                requestId, sessionId);
+        }
+    }
 
     private void SetFocusStyle(bool focused)
     {
@@ -384,4 +464,40 @@
         public HostSessionInfo? Session { get; set; }
         public string? RequestId { get; set; }
     }
+
+    /// <summary>
+    /// Response model for user token API
+    /// </summary>
+    public class UserTokenResponse
+    {
+        public string? UserToken { get; set; }
+        public int SessionId { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+    }
 }
+
+<script>
+    async function copyUserLink() {
+        try {
+            const userLinkElement = document.getElementById('userLinkInput');
+            if (userLinkElement) {
+                await navigator.clipboard.writeText(userLinkElement.value);
+                
+                // Show success feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.backgroundColor = '#059669';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = '#3B82F6';
+                }, 2000);
+            }
+        } catch (err) {
+            console.error('Failed to copy user link:', err);
+            alert('Failed to copy link. Please copy manually.');
+        }
+    }
+</script>
