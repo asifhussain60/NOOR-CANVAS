@@ -10,7 +10,9 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 1
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -20,14 +22,7 @@
       [
         "json",
         {
-          "outputFile": "../../Workspaces/TEMP/playwright-artifacts/results/test-results.json"
-        }
-      ],
-      [
-        "html",
-        {
-          "outputFolder": "../../Workspaces/TEMP/playwright-reports",
-          "open": "never"
+          "outputFile": "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json"
         }
       ]
     ],
@@ -41,7 +36,9 @@
         "outputDir": "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts",
         "repeatEach": 1,
         "retries": 1,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 1
+        },
         "id": "chromium",
         "name": "chromium",
         "testDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
@@ -65,20 +62,20 @@
   },
   "suites": [
     {
-      "title": "UI\\issue-106-validation.spec.ts",
-      "file": "UI/issue-106-validation.spec.ts",
+      "title": "UI\\user-registration-multi-instance.spec.ts",
+      "file": "UI/user-registration-multi-instance.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Issue-106: Direct Cascading Dropdown Validation",
-          "file": "UI/issue-106-validation.spec.ts",
-          "line": 18,
+          "title": "User Registration Multi-Instance Synchronization",
+          "file": "UI/user-registration-multi-instance.spec.ts",
+          "line": 87,
           "column": 6,
           "specs": [
             {
-              "title": "should validate cascading dropdown implementation per ncIssueTracker.MD resolution",
+              "title": "should register 5 users concurrently and sync participants across all instances",
               "ok": true,
               "tags": [],
               "tests": [
@@ -88,17 +85,362 @@
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 38829,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔍 Validating infrastructure stability...\n"
+                        },
+                        {
+                          "text": "✅ Application running on https://localhost:9091\n"
+                        },
+                        {
+                          "text": "🚀 Setting up 5 concurrent browser contexts...\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 context created\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 context created\n"
+                        },
+                        {
+                          "text": "🎯 Starting multi-user registration test...\n"
+                        },
+                        {
+                          "text": "📍 Phase 1: Navigating all instances to UserLanding...\n"
+                        },
+                        {
+                          "text": "Instance 1 page heading: \"User Authentication\"\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 on authentication page - entering token\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 proceeding to registration form\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 registration form loaded - filling participant details\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 (Spider-Man) navigated successfully\n"
+                        },
+                        {
+                          "text": "Instance 2 page heading: \"User Authentication\"\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 on authentication page - entering token\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 proceeding to registration form\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 registration form loaded - filling participant details\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 (Wonder Woman) navigated successfully\n"
+                        },
+                        {
+                          "text": "Instance 3 page heading: \"User Authentication\"\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 on authentication page - entering token\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 proceeding to registration form\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 registration form loaded - filling participant details\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 (Black Panther) navigated successfully\n"
+                        },
+                        {
+                          "text": "Instance 4 page heading: \"User Authentication\"\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 on authentication page - entering token\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 proceeding to registration form\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 registration form loaded - filling participant details\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 (Captain Marvel) navigated successfully\n"
+                        },
+                        {
+                          "text": "Instance 5 page heading: \"User Authentication\"\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 on authentication page - entering token\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 proceeding to registration form\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 registration form loaded - filling participant details\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 (Green Lantern) navigated successfully\n"
+                        },
+                        {
+                          "text": "📝 Phase 2: Registering users and validating sync...\n"
+                        },
+                        {
+                          "text": "🦸 Registering Spider-Man (Instance 1)...\n"
+                        },
+                        {
+                          "text": "✅ Spider-Man registered successfully\n"
+                        },
+                        {
+                          "text": "🔄 Validating Spider-Man appears in all instances...\n"
+                        },
+                        {
+                          "text": "✅ Spider-Man visible in Instance 1\n"
+                        },
+                        {
+                          "text": "📊 Participants registered so far: 1\n"
+                        },
+                        {
+                          "text": "🦸 Registering Wonder Woman (Instance 2)...\n"
+                        },
+                        {
+                          "text": "✅ Wonder Woman registered successfully\n"
+                        },
+                        {
+                          "text": "🔄 Validating Wonder Woman appears in all instances...\n"
+                        },
+                        {
+                          "text": "✅ Wonder Woman visible in Instance 1\n"
+                        },
+                        {
+                          "text": "✅ Wonder Woman visible in Instance 2\n"
+                        },
+                        {
+                          "text": "📊 Participants registered so far: 2\n"
+                        },
+                        {
+                          "text": "🦸 Registering Black Panther (Instance 3)...\n"
+                        },
+                        {
+                          "text": "✅ Black Panther registered successfully\n"
+                        },
+                        {
+                          "text": "🔄 Validating Black Panther appears in all instances...\n"
+                        },
+                        {
+                          "text": "✅ Black Panther visible in Instance 1\n"
+                        },
+                        {
+                          "text": "✅ Black Panther visible in Instance 2\n"
+                        },
+                        {
+                          "text": "✅ Black Panther visible in Instance 3\n"
+                        },
+                        {
+                          "text": "📊 Participants registered so far: 3\n"
+                        },
+                        {
+                          "text": "🦸 Registering Captain Marvel (Instance 4)...\n"
+                        },
+                        {
+                          "text": "✅ Captain Marvel registered successfully\n"
+                        },
+                        {
+                          "text": "🔄 Validating Captain Marvel appears in all instances...\n"
+                        },
+                        {
+                          "text": "✅ Captain Marvel visible in Instance 1\n"
+                        },
+                        {
+                          "text": "✅ Captain Marvel visible in Instance 2\n"
+                        },
+                        {
+                          "text": "✅ Captain Marvel visible in Instance 3\n"
+                        },
+                        {
+                          "text": "✅ Captain Marvel visible in Instance 4\n"
+                        },
+                        {
+                          "text": "📊 Participants registered so far: 4\n"
+                        },
+                        {
+                          "text": "🦸 Registering Green Lantern (Instance 5)...\n"
+                        },
+                        {
+                          "text": "✅ Green Lantern registered successfully\n"
+                        },
+                        {
+                          "text": "🔄 Validating Green Lantern appears in all instances...\n"
+                        },
+                        {
+                          "text": "✅ Green Lantern visible in Instance 1\n"
+                        },
+                        {
+                          "text": "✅ Green Lantern visible in Instance 2\n"
+                        },
+                        {
+                          "text": "✅ Green Lantern visible in Instance 3\n"
+                        },
+                        {
+                          "text": "✅ Green Lantern visible in Instance 4\n"
+                        },
+                        {
+                          "text": "✅ Green Lantern visible in Instance 5\n"
+                        },
+                        {
+                          "text": "📊 Participants registered so far: 5\n"
+                        },
+                        {
+                          "text": "🏁 Phase 4: Final validation - checking all participants in all instances...\n"
+                        },
+                        {
+                          "text": "🔍 Validating Instance 1 sees all 5 participants...\n"
+                        },
+                        {
+                          "text": "  ✅ Spider-Man visible\n"
+                        },
+                        {
+                          "text": "  ✅ Wonder Woman visible\n"
+                        },
+                        {
+                          "text": "  ✅ Black Panther visible\n"
+                        },
+                        {
+                          "text": "  ✅ Captain Marvel visible\n"
+                        },
+                        {
+                          "text": "  ✅ Green Lantern visible\n"
+                        },
+                        {
+                          "text": "📈 Instance 1: 5/5 participants visible\n"
+                        },
+                        {
+                          "text": "🔍 Validating Instance 2 sees all 5 participants...\n"
+                        },
+                        {
+                          "text": "  ✅ Spider-Man visible\n"
+                        },
+                        {
+                          "text": "  ✅ Wonder Woman visible\n"
+                        },
+                        {
+                          "text": "  ✅ Black Panther visible\n"
+                        },
+                        {
+                          "text": "  ✅ Captain Marvel visible\n"
+                        },
+                        {
+                          "text": "  ✅ Green Lantern visible\n"
+                        },
+                        {
+                          "text": "📈 Instance 2: 5/5 participants visible\n"
+                        },
+                        {
+                          "text": "🔍 Validating Instance 3 sees all 5 participants...\n"
+                        },
+                        {
+                          "text": "  ✅ Spider-Man visible\n"
+                        },
+                        {
+                          "text": "  ✅ Wonder Woman visible\n"
+                        },
+                        {
+                          "text": "  ✅ Black Panther visible\n"
+                        },
+                        {
+                          "text": "  ✅ Captain Marvel visible\n"
+                        },
+                        {
+                          "text": "  ✅ Green Lantern visible\n"
+                        },
+                        {
+                          "text": "📈 Instance 3: 5/5 participants visible\n"
+                        },
+                        {
+                          "text": "🔍 Validating Instance 4 sees all 5 participants...\n"
+                        },
+                        {
+                          "text": "  ✅ Spider-Man visible\n"
+                        },
+                        {
+                          "text": "  ✅ Wonder Woman visible\n"
+                        },
+                        {
+                          "text": "  ✅ Black Panther visible\n"
+                        },
+                        {
+                          "text": "  ✅ Captain Marvel visible\n"
+                        },
+                        {
+                          "text": "  ✅ Green Lantern visible\n"
+                        },
+                        {
+                          "text": "📈 Instance 4: 5/5 participants visible\n"
+                        },
+                        {
+                          "text": "🔍 Validating Instance 5 sees all 5 participants...\n"
+                        },
+                        {
+                          "text": "  ✅ Spider-Man visible\n"
+                        },
+                        {
+                          "text": "  ✅ Wonder Woman visible\n"
+                        },
+                        {
+                          "text": "  ✅ Black Panther visible\n"
+                        },
+                        {
+                          "text": "  ✅ Captain Marvel visible\n"
+                        },
+                        {
+                          "text": "  ✅ Green Lantern visible\n"
+                        },
+                        {
+                          "text": "📈 Instance 5: 5/5 participants visible\n"
+                        },
+                        {
+                          "text": "🎉 Multi-user registration synchronization test completed successfully!\n"
+                        },
+                        {
+                          "text": "📊 Final results: 5 users registered across 5 instances\n"
+                        },
+                        {
+                          "text": "👥 Registered participants: Spider-Man, Wonder Woman, Black Panther, Captain Marvel, Green Lantern\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-22T11:07:34.895Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
                 }
               ],
-              "id": "fe4f5dcad003a812ca0b-be80e48fab10b46abf98",
-              "file": "UI/issue-106-validation.spec.ts",
-              "line": 19,
-              "column": 7
+              "id": "90d1bd5b33ef1853d305-bc76d7c7750f5ca27ead",
+              "file": "UI/user-registration-multi-instance.spec.ts",
+              "line": 121,
+              "column": 9
             },
             {
-              "title": "should validate 2-second cascading delays as specified in Issue-106",
+              "title": "should validate SignalR WebSocket connections are established",
               "ok": true,
               "tags": [],
               "tests": [
@@ -108,1016 +450,50 @@
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17976,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔌 Validating SignalR WebSocket connections...\n"
+                        },
+                        {
+                          "text": "✅ Instance 1 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 2 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 3 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 4 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "✅ Instance 5 SignalR connection validated\n"
+                        },
+                        {
+                          "text": "🧹 Cleaning up browser contexts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-22T11:08:14.527Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
                 }
               ],
-              "id": "fe4f5dcad003a812ca0b-b32de69a67fa312aace6",
-              "file": "UI/issue-106-validation.spec.ts",
-              "line": 53,
-              "column": 7
-            },
-            {
-              "title": "should validate Open Session URL generation per Issue-106 requirements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "fe4f5dcad003a812ca0b-8abaecf0bb026af204c0",
-              "file": "UI/issue-106-validation.spec.ts",
-              "line": 97,
-              "column": 7
-            },
-            {
-              "title": "should validate Issue-106 SessionURL panel visibility requirements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "fe4f5dcad003a812ca0b-c88c63be3531a67d6067",
-              "file": "UI/issue-106-validation.spec.ts",
-              "line": 157,
-              "column": 7
-            }
-          ]
-        },
-        {
-          "title": "Issue-106: Environment and API Validation",
-          "file": "UI/issue-106-validation.spec.ts",
-          "line": 197,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should validate Issue-106 API endpoints availability",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "fe4f5dcad003a812ca0b-07f4d5fafdac521269b4",
-              "file": "UI/issue-106-validation.spec.ts",
-              "line": 198,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-107-api-validation.spec.ts",
-      "file": "UI/issue-107-api-validation.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-107: API Validation Error - Session/Category/Album Null Parameters",
-          "file": "UI/issue-107-api-validation.spec.ts",
-          "line": 48,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should reproduce the API validation error with exact payload structure",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "74f49d308b23116ebce7-39301cc8cd2740f834e6",
-              "file": "UI/issue-107-api-validation.spec.ts",
-              "line": 54,
-              "column": 7
-            },
-            {
-              "title": "should validate property name case sensitivity in API payload",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "74f49d308b23116ebce7-4bcf09bf93b8adc9a8e5",
-              "file": "UI/issue-107-api-validation.spec.ts",
-              "line": 178,
-              "column": 7
-            },
-            {
-              "title": "should validate API parsing with debugging headers",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "74f49d308b23116ebce7-da09998aed37b2ff7425",
-              "file": "UI/issue-107-api-validation.spec.ts",
-              "line": 252,
-              "column": 7
-            }
-          ]
-        },
-        {
-          "title": "Issue-107: Database Validation for Session/Category/Album Data",
-          "file": "UI/issue-107-api-validation.spec.ts",
-          "line": 312,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should verify test data integrity in KSESSIONS_DEV database",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "74f49d308b23116ebce7-b240819372beec4370d3",
-              "file": "UI/issue-107-api-validation.spec.ts",
-              "line": 313,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-107-fix-validation.spec.ts",
-      "file": "UI/issue-107-fix-validation.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-107 Fix Validation - Simple API Test",
-          "file": "UI/issue-107-fix-validation.spec.ts",
-          "line": 6,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should validate the API fix is working with camelCase properties",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "9bab70fa36544b37e02e-5b045ac7cce0d7a8cd4c",
-              "file": "UI/issue-107-fix-validation.spec.ts",
-              "line": 9,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-108-session-name-display-fix.spec.ts",
-      "file": "UI/issue-108-session-name-display-fix.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-108: Session Name Display Fix",
-          "file": "UI/issue-108-session-name-display-fix.spec.ts",
-          "line": 16,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should display session name from KSESSIONS database instead of generic placeholder",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "c29cd1d96c3f8fecbead-af838a5f40660cf3857b",
-              "file": "UI/issue-108-session-name-display-fix.spec.ts",
-              "line": 17,
-              "column": 7
-            },
-            {
-              "title": "should show proper session name in UserLanding for Album 18, Category 55 flow",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "c29cd1d96c3f8fecbead-fe8cd828904e13efaf75",
-              "file": "UI/issue-108-session-name-display-fix.spec.ts",
-              "line": 67,
-              "column": 7
-            },
-            {
-              "title": "should handle session name lookup failure gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "c29cd1d96c3f8fecbead-3654f6934aedbe6e3ce6",
-              "file": "UI/issue-108-session-name-display-fix.spec.ts",
-              "line": 133,
-              "column": 7
-            },
-            {
-              "title": "should validate debug panel shows Album 18, Category 55 in Host-SessionOpener",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "c29cd1d96c3f8fecbead-81227aef9cb7bd2525dc",
-              "file": "UI/issue-108-session-name-display-fix.spec.ts",
-              "line": 186,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-109-111-ui-fixes-verification.spec.ts",
-      "file": "UI/issue-109-111-ui-fixes-verification.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issues 109-111 UI Fixes Verification",
-          "file": "UI/issue-109-111-ui-fixes-verification.spec.ts",
-          "line": 11,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Issue-109: Verify panel spacing between golden border panels",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "a2577cb46b498bb838fd-ebfa81f83bd88d9e251b",
-              "file": "UI/issue-109-111-ui-fixes-verification.spec.ts",
-              "line": 23,
-              "column": 7
-            },
-            {
-              "title": "Issue-110: Verify logo is positioned inside the card",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "a2577cb46b498bb838fd-295068faf23f3f3ed45c",
-              "file": "UI/issue-109-111-ui-fixes-verification.spec.ts",
-              "line": 88,
-              "column": 7
-            },
-            {
-              "title": "Issue-111: Verify debug panel is completely removed",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "a2577cb46b498bb838fd-8fd0744c85ee43cfea0d",
-              "file": "UI/issue-109-111-ui-fixes-verification.spec.ts",
-              "line": 127,
-              "column": 7
-            },
-            {
-              "title": "Comprehensive UI state verification",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "a2577cb46b498bb838fd-9cb5eef3fc056759197c",
-              "file": "UI/issue-109-111-ui-fixes-verification.spec.ts",
-              "line": 148,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-112-country-dropdown-removal-verification.spec.ts",
-      "file": "UI/issue-112-country-dropdown-removal-verification.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-112: Country Dropdown Removal Verification",
-          "file": "UI/issue-112-country-dropdown-removal-verification.spec.ts",
-          "line": 11,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should NOT display country dropdown in Host-SessionOpener view",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "44f96152f672dbe0de4b-7e0c2354fea25561e345",
-              "file": "UI/issue-112-country-dropdown-removal-verification.spec.ts",
-              "line": 12,
-              "column": 7
-            },
-            {
-              "title": "should allow form validation without country selection requirement",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "44f96152f672dbe0de4b-ff5e1c6938db09571c6e",
-              "file": "UI/issue-112-country-dropdown-removal-verification.spec.ts",
-              "line": 101,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-113-sessionwaiting-blank-page.spec.ts",
-      "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-113: SessionWaiting Blank Page Fix Verification",
-          "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-          "line": 21,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load SessionWaiting page without blank screen",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-055bea17aabe99e93948",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 34,
-              "column": 7
-            },
-            {
-              "title": "should handle session not found (404) gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-1ad5ef5832f4a12c43ec",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "should not throw HttpClient BaseAddress exceptions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-d6a3671a7b0483e8bb83",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 122,
-              "column": 7
-            },
-            {
-              "title": "should display proper loading states and transitions",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-407285e965a0e9c18e97",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 158,
-              "column": 7
-            },
-            {
-              "title": "should have responsive design elements",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-9ce54ac00c3d6d27a65b",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 185,
-              "column": 7
-            }
-          ]
-        },
-        {
-          "title": "Issue-113: Performance Impact Assessment",
-          "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-          "line": 219,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load within acceptable performance thresholds",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-fdd45cfab078acf71294",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 220,
-              "column": 7
-            }
-          ]
-        },
-        {
-          "title": "Issue-113: API Integration Verification",
-          "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-          "line": 250,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should verify HttpClient configuration is working (no exceptions in logs)",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3f04f2fd9688441bec83-e570bd8a20f159b01991",
-              "file": "UI/issue-113-sessionwaiting-blank-page.spec.ts",
-              "line": 251,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-114-countries-dropdown-after-submit.spec.ts",
-      "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-114: Countries Dropdown Loading After Submit",
-          "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-          "line": 19,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should NOT load countries dropdown during initial token entry phase",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "57f9edd7af202a6682a0-d58e53e5715bd19b5a07",
-              "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-              "line": 26,
-              "column": 7
-            },
-            {
-              "title": "should load countries dropdown ONLY after successful token submission",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "57f9edd7af202a6682a0-038715e4ce2892d6442d",
-              "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-              "line": 77,
-              "column": 7
-            },
-            {
-              "title": "should show loading indicator while countries are being fetched",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "57f9edd7af202a6682a0-be0e93fe4be67e089e29",
-              "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-              "line": 148,
-              "column": 7
-            },
-            {
-              "title": "should handle countries API failure gracefully after token validation",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "57f9edd7af202a6682a0-5d0b1896dfc6b1717b30",
-              "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-              "line": 202,
-              "column": 7
-            },
-            {
-              "title": "should maintain countries dropdown state during registration form interaction",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "57f9edd7af202a6682a0-5832116d9283c058c153",
-              "file": "UI/issue-114-countries-dropdown-after-submit.spec.ts",
-              "line": 265,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-      "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-114 Enhanced: Countries Dropdown Registration Panel Fix",
-          "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-          "line": 22,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should show token entry panel initially with NO countries dropdown visible",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3e4f198a68180f73dc03-82e1753f6bb3d359e7f8",
-              "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-              "line": 34,
-              "column": 7
-            },
-            {
-              "title": "should load countries dropdown in registration panel after valid token submission",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3e4f198a68180f73dc03-e44f4dd6275d0496969a",
-              "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-              "line": 74,
-              "column": 7
-            },
-            {
-              "title": "should show loading state while countries are being fetched",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3e4f198a68180f73dc03-d3748eafc65126742cd0",
-              "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-              "line": 170,
-              "column": 7
-            },
-            {
-              "title": "should handle countries API failure gracefully",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3e4f198a68180f73dc03-92004e3f4b1600a4ec15",
-              "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-              "line": 241,
-              "column": 7
-            },
-            {
-              "title": "should maintain dropdown state throughout registration form interaction",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3e4f198a68180f73dc03-53adac0aa09a5baf370c",
-              "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-              "line": 323,
-              "column": 7
-            },
-            {
-              "title": "should debug countries API call and response",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "3e4f198a68180f73dc03-3e509b4e3bec1c0dae7a",
-              "file": "UI/issue-114-countries-dropdown-registration-panel-fix.spec.ts",
-              "line": 416,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-114-diagnostic-countries-api.spec.ts",
-      "file": "UI/issue-114-diagnostic-countries-api.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-114 Diagnostic: Countries API Loading Debug",
-          "file": "UI/issue-114-diagnostic-countries-api.spec.ts",
-          "line": 20,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should debug countries API loading after token validation",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6fb1e1ef4c55213509b8-f665cd6755829bbd5ead",
-              "file": "UI/issue-114-diagnostic-countries-api.spec.ts",
-              "line": 23,
-              "column": 7
-            },
-            {
-              "title": "should test token validation workflow step by step",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "6fb1e1ef4c55213509b8-70d5d73945343ed47cd8",
-              "file": "UI/issue-114-diagnostic-countries-api.spec.ts",
-              "line": 265,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "UI\\issue-114-final-fix-verification.spec.ts",
-      "file": "UI/issue-114-final-fix-verification.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Issue-114 Final Fix: Countries API with GUID Parameter",
-          "file": "UI/issue-114-final-fix-verification.spec.ts",
-          "line": 14,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load countries dropdown with correct API call including guid parameter",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "d2c53ccfb58359a5375f-74fb6b24c8bcc37d3fae",
-              "file": "UI/issue-114-final-fix-verification.spec.ts",
-              "line": 17,
-              "column": 7
-            },
-            {
-              "title": "should show proper error handling if countries API fails",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [],
-                  "status": "skipped"
-                }
-              ],
-              "id": "d2c53ccfb58359a5375f-aec7a9caf19e7a6aec02",
-              "file": "UI/issue-114-final-fix-verification.spec.ts",
-              "line": 135,
-              "column": 7
+              "id": "90d1bd5b33ef1853d305-a89fcd358648c9171128",
+              "file": "UI/user-registration-multi-instance.spec.ts",
+              "line": 286,
+              "column": 9
             }
           ]
         }
@@ -1126,10 +502,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-22T10:06:29.212Z",
-    "duration": 100.15000000000009,
-    "expected": 0,
-    "skipped": 42,
+    "startTime": "2025-09-22T11:07:22.767Z",
+    "duration": 75130.63900000001,
+    "expected": 2,
+    "skipped": 0,
     "unexpected": 0,
     "flaky": 0
   }

@@ -148,9 +148,12 @@ guardrails:
   - [infra] Honor PLAYWRIGHT-EXECUTION-GUARDRAILS and PORT-BINDING-SOLUTION (nc-cleanup; nc; dynamic ports).
   - [security] No secrets in logs; use IConfiguration/IOptions.
   - [duplication] Search for near-duplicates before adding helpers; extract shared code.
+  - [success-pattern] Apply incremental validation at each step; restart app to pick up code changes.
+  - [ui-consistency] Maintain NOOR Canvas design standards (#DC2626 red, #3B82F6 blue); center important text.
+  - [modern-apis] Use modern JavaScript APIs (clipboard) with graceful fallbacks for older browsers.
 
 # ─────────────────────────────────────────────────────────
-# 🔄 RETROSPECTIVE INTEGRATION (Sept 22, 2025)
+# 🔄 RETROSPECTIVE INTEGRATION (Sept 22, 2025 + End Session Success Pattern)
 # ─────────────────────────────────────────────────────────
 context_first_protocol:
   - title: "Read Self-Awareness Instructions First"  
@@ -189,6 +192,15 @@ regression_prevention:
       • Maintain clear debugging trails with breadcrumb logging
       • Update Project Ledger with new patterns and lessons learned
       • Reference linked documentation for details vs. inline repetition
+
+  - title: "End Session Success Pattern (Sept 22, 2025 Retrospective)"
+    details: |
+      • Apply comprehensive E2E testing alongside implementation (not after)
+      • Use application restarts to properly test Blazor hot-reload limitations  
+      • Integrate SignalR notifications for real-time session state changes
+      • Implement modern clipboard API with execCommand fallback strategy
+      • Maintain visual feedback for user interactions (copy buttons, loading states)
+      • Follow center-then-commit pattern: make UI changes, verify visually, commit with descriptive messages
 
 # ─────────────────────────────────────────────────────────
 # ✅ Quality Checklist (emit in output)

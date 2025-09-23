@@ -29,8 +29,8 @@ module.exports = defineConfig({
     workers: 1, // Single worker prevents token conflicts
     reporter: [
         ["list"],
-    ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports" }], // Centralized reports
-    ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+        ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports" }], // Centralized reports
+        ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
     ],
     use: {
         baseURL: "https://localhost:9091", // HTTPS as validated in infrastructure tests

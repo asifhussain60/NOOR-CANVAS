@@ -1,0 +1,392 @@
+{
+  "config": {
+    "configFile": "D:\\PROJECTS\\NOOR CANVAS\\playwright-standalone.config.js",
+    "rootDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\playwright-report\\standalone-html"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\playwright-report\\test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/PROJECTS/NOOR CANVAS/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "3way",
+    "version": "1.55.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "host-control-panel-end-session.spec.ts",
+      "file": "host-control-panel-end-session.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "should successfully end session from host control panel",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13666,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 2\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 HOST CONTROL PANEL\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    14 × locator resolved to <h1>…</h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m                HOST CONTROL PANEL\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 2\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 HOST CONTROL PANEL\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    14 × locator resolved to <h1>…</h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m                HOST CONTROL PANEL\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:206:38",
+                    "location": {
+                      "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
+                      "column": 38,
+                      "line": 206
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 204 |\u001b[39m     \n \u001b[90m 205 |\u001b[39m     \u001b[90m// Verify we're on the correct page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 206 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 207 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Host Control Panel loaded successfully'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 208 |\u001b[39m     \n \u001b[90m 209 |\u001b[39m     \u001b[90m// Verify session information loads\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
+                        "column": 38,
+                        "line": 206
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('h1')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 2\u001b[39m\n\n\u001b[32m- NOOR Canvas\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 HOST CONTROL PANEL\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    14 × locator resolved to <h1>…</h1>\u001b[22m\n\u001b[2m       - unexpected value \"\u001b[22m\n\u001b[2m                HOST CONTROL PANEL\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 204 |\u001b[39m     \n \u001b[90m 205 |\u001b[39m     \u001b[90m// Verify we're on the correct page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 206 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'NOOR Canvas'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 207 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Host Control Panel loaded successfully'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 208 |\u001b[39m     \n \u001b[90m 209 |\u001b[39m     \u001b[90m// Verify session information loads\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:206:38\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "🚀 Setting up test environment...\n"
+                    },
+                    {
+                      "text": "🔍 Validating infrastructure with SSL support...\n"
+                    },
+                    {
+                      "text": "✅ Application running on https://localhost:9091\n"
+                    },
+                    {
+                      "text": "🔑 Using host token: ********, user token: ********\n"
+                    },
+                    {
+                      "text": "🏥 Performing application health check...\n"
+                    },
+                    {
+                      "text": "✅ Application health check passed\n"
+                    },
+                    {
+                      "text": "📊 Test configuration:\n"
+                    },
+                    {
+                      "text": "  - Headless: true\n"
+                    },
+                    {
+                      "text": "  - Workers: 1\n"
+                    },
+                    {
+                      "text": "  - Base URL: https://localhost:9091\n"
+                    },
+                    {
+                      "text": "  - Reporters: list + json (NO HTML)\n"
+                    },
+                    {
+                      "text": "🎯 Testing: Host Control Panel End Session functionality\n"
+                    },
+                    {
+                      "text": "📍 Navigating to Host Control Panel...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-09-22T23:39:11.003Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-119e0-ion-from-host-control-panel-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-119e0-ion-from-host-control-panel-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-119e0-ion-from-host-control-panel-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
+                    "column": 38,
+                    "line": 206
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "34b189350466ffeda3d6-5478eccd11a4715288c4",
+          "file": "host-control-panel-end-session.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "should handle invalid host token gracefully",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2851,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "🚀 Setting up test environment...\n"
+                    },
+                    {
+                      "text": "🔍 Validating infrastructure with SSL support...\n"
+                    },
+                    {
+                      "text": "✅ Application running on https://localhost:9091\n"
+                    },
+                    {
+                      "text": "🔑 Using host token: ********, user token: ********\n"
+                    },
+                    {
+                      "text": "🏥 Performing application health check...\n"
+                    },
+                    {
+                      "text": "✅ Application health check passed\n"
+                    },
+                    {
+                      "text": "📊 Test configuration:\n"
+                    },
+                    {
+                      "text": "  - Headless: true\n"
+                    },
+                    {
+                      "text": "  - Workers: 1\n"
+                    },
+                    {
+                      "text": "  - Base URL: https://localhost:9091\n"
+                    },
+                    {
+                      "text": "  - Reporters: list + json (NO HTML)\n"
+                    },
+                    {
+                      "text": "🎯 Testing: Invalid host token handling\n"
+                    },
+                    {
+                      "text": "📍 Navigating with invalid token: ********\n"
+                    },
+                    {
+                      "text": "✅ Invalid token correctly rejected with error message\n"
+                    },
+                    {
+                      "text": "✅ Invalid token test completed\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-09-22T23:39:26.138Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "34b189350466ffeda3d6-2e47ef83714b050a04f0",
+          "file": "host-control-panel-end-session.spec.ts",
+          "line": 282,
+          "column": 5
+        },
+        {
+          "title": "should handle network errors gracefully during end session",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 23495,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('button:has-text(\"End Session\")')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"End Session\")')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('button:has-text(\"End Session\")')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"End Session\")')\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:329:66",
+                    "location": {
+                      "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
+                      "column": 66,
+                      "line": 329
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 327 |\u001b[39m     \n \u001b[90m 328 |\u001b[39m     \u001b[90m// Verify End Session button is available\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 329 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"End Session\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 330 |\u001b[39m     \n \u001b[90m 331 |\u001b[39m     \u001b[90m// Intercept the token expiration API to simulate network error\u001b[39m\n \u001b[90m 332 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mroute(\u001b[32m'**/api/token/expire/**'\u001b[39m\u001b[33m,\u001b[39m (route) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
+                        "column": 66,
+                        "line": 329
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('button:has-text(\"End Session\")')\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"End Session\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 327 |\u001b[39m     \n \u001b[90m 328 |\u001b[39m     \u001b[90m// Verify End Session button is available\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 329 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"End Session\")'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 330 |\u001b[39m     \n \u001b[90m 331 |\u001b[39m     \u001b[90m// Intercept the token expiration API to simulate network error\u001b[39m\n \u001b[90m 332 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mroute(\u001b[32m'**/api/token/expire/**'\u001b[39m\u001b[33m,\u001b[39m (route) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts:329:66\u001b[22m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "🚀 Setting up test environment...\n"
+                    },
+                    {
+                      "text": "🔍 Validating infrastructure with SSL support...\n"
+                    },
+                    {
+                      "text": "✅ Application running on https://localhost:9091\n"
+                    },
+                    {
+                      "text": "🔑 Using host token: ********, user token: ********\n"
+                    },
+                    {
+                      "text": "🏥 Performing application health check...\n"
+                    },
+                    {
+                      "text": "✅ Application health check passed\n"
+                    },
+                    {
+                      "text": "📊 Test configuration:\n"
+                    },
+                    {
+                      "text": "  - Headless: true\n"
+                    },
+                    {
+                      "text": "  - Workers: 1\n"
+                    },
+                    {
+                      "text": "  - Base URL: https://localhost:9091\n"
+                    },
+                    {
+                      "text": "  - Reporters: list + json (NO HTML)\n"
+                    },
+                    {
+                      "text": "🎯 Testing: Network error handling during End Session\n"
+                    },
+                    {
+                      "text": "🟢 Starting session for error test...\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-09-22T23:39:29.153Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-ab858-acefully-during-end-session-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-ab858-acefully-during-end-session-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\host-control-panel-end-ses-ab858-acefully-during-end-session-chromium\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\host-control-panel-end-session.spec.ts",
+                    "column": 66,
+                    "line": 329
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "34b189350466ffeda3d6-d7e44de8710c3af0b6a5",
+          "file": "host-control-panel-end-session.spec.ts",
+          "line": 316,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-22T23:39:08.477Z",
+    "duration": 44293.71900000051,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

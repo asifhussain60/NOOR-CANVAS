@@ -9,8 +9,8 @@ module.exports = defineConfig({
     retries: process.env.CI ? 2 : 1,
     workers: process.env.CI ? 1 : 1,
     reporter: [
-    ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports", open: "never" }],
-    ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
+        ["html", { outputFolder: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-reports", open: "never" }],
+        ["json", { outputFile: "D:/PROJECTS/NOOR CANVAS/Workspaces/TEMP/playwright-artifacts/results/test-results.json" }],
         ["line"],
     ],
     use: {

@@ -93,6 +93,9 @@ guardrails:
   - [duplication] Scan for duplicate code; refactor or record follow-up.
   - [concurrency] Review async/await, cancellation tokens, and SignalR safety.
   - [evidence] Provide before/after logs, screenshots, test results.
+  - [success-validation] Never claim "fixed" without explicit user confirmation or visual evidence.
+  - [incremental-testing] Test each change immediately; restart app when needed for code updates.
+  - [ui-standards] Preserve NOOR Canvas design consistency (#DC2626, #3B82F6, Inter font, rounded corners).
 
 # ──────────────────────────────
 # 🛠️ Fix Protocol
@@ -104,6 +107,13 @@ steps:
       • Identify prior fixes attempted and whether they worked.
       • Flag contradictions (e.g., Copilot said "fixed" but issue persisted).
       • Document this review in the Evidence Bundle.
+  - title: Success Pattern Integration (Sept 22, 2025 Retrospective)
+    details: |
+      • Apply End Session success methodology: incremental validation + app restarts
+      • Use E2E testing alongside implementation (comprehensive test coverage)
+      • Implement modern web APIs (clipboard, SignalR) with proper fallbacks
+      • Follow center-validate-commit pattern for UI consistency
+      • Never declare fixes complete without explicit user visual confirmation
   - title: Startup Validation
     details: |
       Check http://localhost:9090 or https://localhost:9091.
