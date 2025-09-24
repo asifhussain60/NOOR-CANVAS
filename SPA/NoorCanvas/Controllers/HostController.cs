@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using NoorCanvas.Configuration;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
 using NoorCanvas.Models;
@@ -20,14 +22,16 @@ namespace NoorCanvas.Controllers
         private readonly ILogger<HostController> _logger;
         private readonly IHubContext<SessionHub> _sessionHub;
         private readonly SimplifiedTokenService _simplifiedTokenService;
+        private readonly CountriesOptions _countriesOptions;
 
-        public HostController(SimplifiedCanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SimplifiedTokenService simplifiedTokenService)
+        public HostController(SimplifiedCanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SimplifiedTokenService simplifiedTokenService, IOptions<CountriesOptions> countriesOptions)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
             _sessionHub = sessionHub;
             _simplifiedTokenService = simplifiedTokenService;
+            _countriesOptions = countriesOptions.Value;
         }
 
         [HttpPost("authenticate")]
@@ -763,9 +767,24 @@ namespace NoorCanvas.Controllers
                 }
 
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Querying Countries from KSESSIONS DbSet", requestId);
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] UseShortlistedCountries setting: {UseShortlisted}", requestId, _countriesOptions.UseShortlistedCountries);
 
-                // Query all countries from KSESSIONS database using DbSet
+                // Query countries from KSESSIONS database using DbSet
+                // Apply IsShortListed filter based on configuration
                 var countriesQuery = _kSessionsContext.Countries
+                    .Where(c => c.IsActive);
+
+                if (_countriesOptions.UseShortlistedCountries)
+                {
+                    countriesQuery = countriesQuery.Where(c => c.IsShortListed);
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Applying IsShortListed=1 filter", requestId);
+                }
+                else
+                {
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Returning all active countries (IsShortListed filter disabled)", requestId);
+                }
+
+                countriesQuery = countriesQuery
                     .OrderBy(c => c.CountryName)
                     .AsNoTracking();
 
@@ -776,7 +795,8 @@ namespace NoorCanvas.Controllers
                         CountryName = c.CountryName,
                         ISO2 = c.ISO2 ?? string.Empty,
                         ISO3 = c.ISO3 ?? string.Empty,
-                        IsActive = c.IsActive
+                        IsActive = c.IsActive,
+                        IsShortListed = c.IsShortListed
                     })
                     .ToListAsync();
 
@@ -1263,6 +1283,7 @@ namespace NoorCanvas.Controllers
         public string ISO2 { get; set; } = string.Empty;
         public string? ISO3 { get; set; }
         public bool IsActive { get; set; }
+        public bool IsShortListed { get; set; }
     }
 
     public class SessionStatusData

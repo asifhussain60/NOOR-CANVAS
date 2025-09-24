@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NoorCanvas.Configuration;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
 using NoorCanvas.Services;
@@ -13,6 +14,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+// Configure Countries settings
+builder.Services.Configure<CountriesOptions>(
+    builder.Configuration.GetSection(CountriesOptions.SectionName));
 
 // Configure Kestrel server for production readiness
 builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>

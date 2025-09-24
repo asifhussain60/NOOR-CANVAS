@@ -59,7 +59,8 @@
                             <div style="position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
                                 <i class="fa-solid fa-user-lock" style="color:#706357;"></i>
                             </div>
-                            <InputText @bind-Value="Model!.TokenInput" 
+                            <InputText id="token-input"
+                                      @bind-Value="Model!.TokenInput" 
                                       @onfocus="ClearError" 
                                       placeholder="Enter your Unique User Token" 
                                       style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;text-align:left;"
@@ -80,7 +81,8 @@
                             <div style="position:absolute;bottom:0;left:0;height:2.5rem;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
                                 <i class="fa-solid fa-user" style="color:#706357;"></i>
                             </div>
-                            <InputText @bind-Value="Model!.NameInput" 
+                            <InputText id="name-input"
+                                      @bind-Value="Model!.NameInput" 
                                       @onfocus="ClearError" 
                                       placeholder="Enter your name" 
                                       style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
@@ -168,7 +170,7 @@
     protected override async Task OnInitializedAsync()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] UserLanding OnInitialized - SessionToken: {SessionToken}", 
+        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] UserLanding OnInitialized START - SessionToken: {SessionToken}", 
             requestId, SessionToken ?? "null");
 
         Model = new UserLandingViewModel
@@ -181,6 +183,9 @@
             IsLoading = false
         };
 
+        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Initial Model state - ShowTokenPanel: {ShowTokenPanel}", 
+            requestId, Model.ShowTokenPanel);
+
         // NOTE: Countries will be loaded AFTER successful token validation (Issue-114 fix)
         // Do NOT load countries here to prevent loading during token entry phase
 
@@ -191,23 +196,60 @@
             var uri = new Uri(Navigation.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             token = query["token"];
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Token from query parameter: {Token}", 
+                requestId, token ?? "null");
         }
 
         // If session token provided via URL, populate it and load session info
         if (!string.IsNullOrEmpty(token))
         {
-            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading session info for token: {Token}", 
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Token found - starting validation for: {Token}", 
                 requestId, token);
             
             Model.TokenInput = token;
             await LoadSessionInfoAsync(token, requestId);
+            
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] After LoadSessionInfoAsync - ShowTokenPanel: {ShowTokenPanel}", 
+                requestId, Model.ShowTokenPanel);
         }
         else
         {
-            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] No session token provided, prompting for token entry", 
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] No session token provided, showing token entry panel", 
                 requestId);
-            // No fallback session name - user must enter valid token to get session data from database
             Model.SessionName = "Enter Session Token";
+        }
+        
+        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] UserLanding OnInitialized END - Final ShowTokenPanel: {ShowTokenPanel}", 
+            requestId, Model.ShowTokenPanel);
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Model != null)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] OnAfterRenderAsync - Setting focus based on panel state: {ShowTokenPanel}", 
+                requestId, Model.ShowTokenPanel);
+                
+            try
+            {
+                if (Model.ShowTokenPanel)
+                {
+                    // Focus on token input if showing token panel
+                    await JSRuntime.InvokeVoidAsync("setTimeout", "() => document.getElementById('token-input')?.focus()", 100);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Focus set to token-input", requestId);
+                }
+                else
+                {
+                    // Focus on name input if showing registration panel
+                    await JSRuntime.InvokeVoidAsync("setTimeout", "() => document.getElementById('name-input')?.focus()", 100);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Focus set to name-input", requestId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Error setting focus", requestId);
+            }
         }
     }
 
@@ -253,15 +295,24 @@
                             requestId, Model.SessionName, Model.SessionDescription);
 
                         // ISSUE-114 FIX: For URL-based tokens, automatically switch to registration panel and load countries
-                        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] URL token validated successfully - switching to registration panel", requestId);
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] URL token validated successfully - switching to registration panel", requestId);
                         Model.ShowTokenPanel = false;
                         Model.ButtonText = "Join Waiting Room";
                         Model.ButtonIconClass = "fa-solid fa-hourglass-start";
                         Model.ErrorMessage = string.Empty;
                         
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Panel switched - ShowTokenPanel: {ShowTokenPanel}, calling StateHasChanged", 
+                            requestId, Model.ShowTokenPanel);
+                        
+                        // CRITICAL: Force UI update after panel switch during initialization
+                        StateHasChanged();
+                        
                         // Load countries dropdown after successful URL token validation
-                        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading countries dropdown after URL token validation...", requestId);
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Loading countries dropdown after URL token validation...", requestId);
                         await LoadCountriesAsync();
+                        
+                        // Set focus to name input after successful token validation
+                        await SetFocusAfterPanelSwitch("name-input", requestId);
                     }
                 }
                 else
@@ -299,6 +350,21 @@
         if (Model != null)
         {
             Model.ErrorMessage = string.Empty;
+        }
+    }
+    
+    private async Task SetFocusAfterPanelSwitch(string elementId, string requestId)
+    {
+        try
+        {
+            // Wait for the UI to fully render after StateHasChanged
+            await Task.Delay(200);
+            await JSRuntime.InvokeVoidAsync("setTimeout", $"() => document.getElementById('{elementId}')?.focus()", 100);
+            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Focus set to {ElementId} after panel switch", requestId, elementId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Error setting focus to {ElementId}", requestId, elementId);
         }
     }
 
@@ -404,8 +470,11 @@
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Successfully switched to registration panel", requestId);
 
                     // ISSUE-114 FIX: Load countries ONLY after successful token validation
-                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading countries dropdown after token validation...", requestId);
+                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Loading countries dropdown after token validation...", requestId);
                     await LoadCountriesAsync();
+                    
+                    // Set focus to name input after successful manual token validation
+                    await SetFocusAfterPanelSwitch("name-input", requestId);
                 }
                 else
                 {

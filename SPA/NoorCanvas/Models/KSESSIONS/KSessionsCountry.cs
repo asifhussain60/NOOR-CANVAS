@@ -22,5 +22,7 @@ namespace NoorCanvas.Models.KSESSIONS
         public string? ISO3 { get; set; }
 
         public bool IsActive { get; set; } = true;
+        
+        public bool IsShortListed { get; set; } = false;
     }
 }
