@@ -73,7 +73,7 @@
         <header style="text-align:center;">
             <!-- Logo -->
             <div style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                <img src="/images/NoorCanvas.png?v=20250924" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" 
                      style="max-width:150px;height:auto;" />
             </div>
@@ -236,7 +236,13 @@
                             <div style="@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "")padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;@(question.IsAnswered ? "" : "background-color:#FFFFFF;");margin-bottom:0.5rem;border-radius:0.5rem;">
                                 <div style="display:flex;align-items:flex-start;gap:0.5rem;">
                                     <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");margin-top:0.25rem;flex-shrink:0;"></i>
-                                    <span style="font-size:0.875rem;line-height:1.4;flex:1;">@question.Text</span>
+                                    <div style="flex:1;">
+                                        <span style="font-size:0.875rem;line-height:1.4;">@question.Text</span>
+                                        <!-- Host sees username who asked the question -->
+                                        <div style="margin-top:0.25rem;font-size:0.75rem;color:#6B7280;font-style:italic;">
+                                            Asked by: @(string.IsNullOrEmpty(question.UserName) ? "Anonymous" : question.UserName)
+                                        </div>
+                                    </div>
                                 </div>
                                 <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.25rem;">
                                     @if (!question.IsAnswered)
@@ -712,11 +718,11 @@
                 Logger.LogError(ex, "Error querying KSessions database for sessionId: {SessionId}", sessionId);
             }
             
-            // Questions start empty - will be populated via SignalR as questions are asked
-            if (Model != null)
+            // Load existing questions from database
+            if (Model != null && !string.IsNullOrEmpty(UserToken))
             {
-                Model.Questions = new List<QuestionItem>();
-                Logger.LogInformation("QUESTIONS-DATA: Initialized empty questions list for SessionId: {SessionId}", sessionId);
+                await LoadQuestionsForHostAsync(UserToken);
+                Logger.LogInformation("QUESTIONS-DATA: Loaded existing questions for SessionId: {SessionId}", sessionId);
             }
             
         }
@@ -799,6 +805,54 @@
     }
 
     // REMOVED: LoadUserTokenAsync method - UserToken is now loaded directly from database query in LoadSessionDataAsync
+
+    private async Task LoadQuestionsForHostAsync(string userToken)
+    {
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync($"/api/question/session/{userToken}");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var questionsResponse = System.Text.Json.JsonSerializer.Deserialize<GetQuestionsApiResponse>(content, 
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (questionsResponse?.Questions != null && Model != null)
+                {
+                    Model.Questions = questionsResponse.Questions.Select(q => new QuestionItem
+                    {
+                        Id = Guid.NewGuid(), // Generate new GUID for UI tracking
+                        Text = q.Text ?? "",
+                        UserName = q.UserName ?? "Anonymous",
+                        CreatedBy = q.CreatedBy ?? "",
+                        CreatedAt = q.CreatedAt,
+                        IsAnswered = q.IsAnswered,
+                        VoteCount = q.Votes
+                    }).ToList();
+                    
+                    Logger.LogInformation("QUESTIONS-DATA: Loaded {Count} questions for host", Model.Questions.Count);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("QUESTIONS-DATA: Failed to load questions - API returned: {StatusCode}", response.StatusCode);
+                if (Model != null)
+                {
+                    Model.Questions = new List<QuestionItem>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "QUESTIONS-DATA: Exception loading questions for host");
+            if (Model != null)
+            {
+                Model.Questions = new List<QuestionItem>();
+            }
+        }
+    }
 
     private async Task StartSession()
     {
@@ -1017,6 +1071,9 @@
         public string Text { get; set; } = "";
         public bool IsAnswered { get; set; }
         public int VoteCount { get; set; }
+        public string UserName { get; set; } = "";
+        public string CreatedBy { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
     }
 
     // API Response Models
@@ -1061,6 +1118,30 @@
         public int SessionId { get; set; }
         public bool IsActive { get; set; }
         public DateTime? ExpiresAt { get; set; }
+    }
+
+    /// <summary>
+    /// Response model for questions API endpoint
+    /// </summary>
+    public class GetQuestionsApiResponse
+    {
+        public bool Success { get; set; }
+        public List<QuestionApiItem>? Questions { get; set; }
+        public int Count { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class QuestionApiItem
+    {
+        public string? QuestionId { get; set; }
+        public int Id { get; set; }
+        public string? Text { get; set; }
+        public string? UserName { get; set; }
+        public string? CreatedBy { get; set; }
+        public int Votes { get; set; }
+        public bool IsAnswered { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime SubmittedAt { get; set; }
     }
 
     /// <summary>

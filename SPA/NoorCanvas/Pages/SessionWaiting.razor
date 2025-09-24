@@ -8,6 +8,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
+@using NoorCanvas.Components.Development
 @using NoorCanvas.Components
 @using System.Timers
 @using System.Globalization
@@ -306,7 +307,7 @@ background-color: #effff9;
         .countdown-display {
             font-size: 3rem;
             font-weight: 700;
-            color: #b8960c
+            color: #006400;
             margin: 0.5rem 0 1rem 0;
             font-family: 'Inter', sans-serif;
         }
@@ -321,13 +322,13 @@ background-color: #effff9;
 
         .progress-bar-fill {
             height: 100%;
-            background-color: #006400
+            background-color: #006400;
             transition: width 0.5s ease-in-out;
         }
 
         .progress-bar-full {
             height: 100%;
-            background-color: #006400
+            background-color: #006400;
             width: 100%;
         }
 
@@ -396,11 +397,24 @@ background-color: #effff9;
 
         .participants-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
             max-height: 12rem;
             overflow-y: auto;
             padding-right: 0.5rem;
+        }
+
+        /* Responsive grid columns */
+        @@media (min-width: 1200px) {
+            .participants-list {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .participants-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .participant-item {
@@ -485,6 +499,26 @@ background-color: #effff9;
             box-shadow: 0 4px 6px rgba(245,158,11,0.3);
         }
 
+        .test-button {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(220,38,38,0.3);
+            font-size: 0.875rem;
+        }
+
+        .test-button:hover {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(220,38,38,0.4);
+        }
+
         @@keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -501,13 +535,6 @@ background-color: #effff9;
         {
             <!-- Loading State -->
             <div class="loading-state">
-                
-                <!-- Logo -->
-                <div class="logo-container">
-                    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                         alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                         class="logo-img" />
-                </div>
                 <div class="loading-header">
                     <i class="fa-solid fa-spinner fa-spin loading-spinner"></i>
                     <h1 class="loading-title">Loading Session...</h1>
@@ -519,14 +546,6 @@ background-color: #effff9;
         {
             <!-- Error State -->
             <div class="error-state">
-            
-            <!-- Logo -->
-            <div class="logo-container">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     class="logo-img-small" />
-            </div>
-            
             <div class="error-header">
                 <i class="fa-solid fa-exclamation-triangle error-icon"></i>
                 <h1 class="error-title">Session Error</h1>
@@ -548,14 +567,6 @@ background-color: #effff9;
         {
             <!-- Network Error State -->
             <div class="network-error-state">
-            
-            <!-- Logo -->
-            <div class="logo-container">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     class="logo-img-small" />
-            </div>
-            
             <div class="network-error-header">
                 <i class="fa-solid fa-wifi network-error-icon"></i>
                 <h1 class="network-error-title">Connection Error</h1>
@@ -575,7 +586,7 @@ background-color: #effff9;
             <!-- Logo -->
             <div class="session-header">
                 <div class="logo-container">
-                    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                    <img src="/images/NoorCanvas.png?v=20250924" 
                          alt="@(Model?.LogoText ?? "NOOR Canvas")" 
                          class="logo-img" />
                 </div>
@@ -647,8 +658,10 @@ background-color: #effff9;
                 <div class="timer-panel">
                 @if (Model?.SessionStarted == true)
                 {
-                    <p class="timer-status">Session is starting now!</p>
-                    <div class="countdown-display">00:00</div>
+                    <p class="timer-status">Waiting For Host...</p>
+                    <div class="countdown-display">
+                        <i class="fa-solid fa-clock" style="color: #006400;"></i>
+                    </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar-full"></div>
                     </div>
@@ -722,6 +735,21 @@ background-color: #effff9;
                     </div>
                 </div>
             }
+
+            <!-- Development Testing Panel -->
+            <DevPanel Title="Test Panel" 
+                      Description="Volume testing tools for UI validation with large participant counts" 
+                      IsExpandedDefault="false">
+                <div style="text-align: center;">
+                    <button @onclick="FloodParticipantList" class="test-button">
+                        <i class="fa-solid fa-users" style="margin-right:0.5rem;"></i>
+                        Add 50 Random Participants
+                    </button>
+                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;">
+                        Tests UI performance and layout with high participant volume
+                    </p>
+                </div>
+            </DevPanel>
         </div>
         }
     </div>
@@ -1237,6 +1265,50 @@ background-color: #effff9;
     private void NavigateHome()
     {
         Navigation.NavigateTo("/");
+    }
+
+    private void FloodParticipantList()
+    {
+        if (Model?.Participants == null) return;
+
+        var random = new Random();
+        var firstNames = new[] { "Mohammed", "Ahmed", "Ali", "Omar", "Khalid", "Hassan", "Ibrahim", "Yusuf", "Abdullah", "Ameer", 
+                                "Sarah", "Fatima", "Aisha", "Khadija", "Maryam", "Zeinab", "Layla", "Noor", "Amina", "Yasmin",
+                                "John", "David", "Michael", "James", "Robert", "William", "Richard", "Joseph", "Thomas", "Christopher",
+                                "Maria", "Elizabeth", "Jennifer", "Linda", "Patricia", "Susan", "Jessica", "Ashley", "Emily", "Samantha",
+                                "Chen", "Wang", "Li", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou" };
+        
+        var lastNames = new[] { "Al-Rashid", "Al-Mahmoud", "Al-Zahra", "Al-Nouri", "Al-Sabah", "Al-Hashemi", "Al-Farisi", "Al-Tamimi",
+                               "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+                               "Lee", "Kim", "Kim", "Park", "Choi", "Jung", "Kang", "Cho", "Yoon", "Jang", "Lim",
+                               "Singh", "Kumar", "Sharma", "Gupta", "Verma", "Agarwal", "Mishra", "Tiwari", "Yadav", "Jain" };
+
+        var countries = new[] { "US", "CA", "GB", "DE", "FR", "IT", "ES", "AU", "NZ", "JP", "KR", "CN", "IN", "PK", "BD", 
+                               "EG", "SA", "AE", "TR", "MA", "NG", "ZA", "BR", "MX", "AR", "RU", "SE", "NO", "DK", "NL" };
+
+        var countryFlags = new[] { "us", "ca", "gb", "de", "fr", "it", "es", "au", "nz", "jp", "kr", "cn", "in", "pk", "bd",
+                                  "eg", "sa", "ae", "tr", "ma", "ng", "za", "br", "mx", "ar", "ru", "se", "no", "dk", "nl" };
+
+        // Add 50 random participants
+        for (int i = 0; i < 50; i++)
+        {
+            var firstName = firstNames[random.Next(firstNames.Length)];
+            var lastName = lastNames[random.Next(lastNames.Length)];
+            var countryIndex = random.Next(countries.Length);
+            
+            Model.Participants.Add(new ParticipantData
+            {
+                Name = $"{firstName} {lastName}",
+                Country = countries[countryIndex],
+                Flag = countryFlags[countryIndex]
+            });
+        }
+
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("NOOR-TEST: [{RequestId}] Added 50 random participants for volume testing. Total participants: {Count}", 
+            requestId, Model.Participants.Count);
+        
+        StateHasChanged();
     }
 
     // COPILOT-DEBUG: Issue-129 - StartSession method removed as button should not be in participant waiting room

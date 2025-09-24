@@ -51,7 +51,7 @@
                 <!-- Logo and Title -->
                 <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
-                        <img src="/images/branding/NC-Header.png" alt="NOOR Canvas" class="h-12 w-auto">
+                        <img src="/images/NoorCanvas.png" alt="NOOR Canvas" class="h-12 w-auto">
                     </div>
                     <div class="flex flex-col">
                         <h1 class="text-2xl font-bold text-noor-green">
@@ -697,8 +697,8 @@
         var session = new Session
         {
             SessionId = sessionId,
-            Title = $"Test Session {sessionId}",
-            Description = $"Automated test session created by SessionTestHarness",
+            // Title removed - fetch from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId
+            // Description removed - fetch from KSESSIONS_DEV.dbo.Sessions.Description via SessionId
             HostToken = GenerateFriendlyToken(),
             UserToken = GenerateFriendlyToken(),
             HostAuthToken = Guid.NewGuid().ToString(),

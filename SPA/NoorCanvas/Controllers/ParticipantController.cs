@@ -72,17 +72,37 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Invalid or expired session token", Valid = false, RequestId = requestId });
                 }
 
+                // Fetch session title from KSESSIONS database
+                string sessionTitle = "Session " + session.SessionId; // Fallback
+                try
+                {
+                    var ksessionInfo = await _kSessionsContext.Sessions
+                        .Where(s => s.SessionId == session.SessionId)
+                        .Select(s => s.SessionName)
+                        .FirstOrDefaultAsync();
+                    
+                    if (!string.IsNullOrEmpty(ksessionInfo))
+                    {
+                        sessionTitle = ksessionInfo;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Failed to fetch session title from KSESSIONS: {Error}", requestId, ex.Message);
+                }
+
                 _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Session found: SessionId={SessionId} (KSESSIONS_ID), Title={Title}, Status={Status}",
-                    requestId, session.SessionId, session.Title, session.Status);
+                    requestId, session.SessionId, sessionTitle, session.Status);
 
                 // Get participant count from simplified schema
                 var participantCount = await _context.Participants
                     .Where(p => p.SessionId == session.SessionId)
                     .CountAsync();
 
-                // Get speaker information and session timing from KSESSIONS database
+                // Get speaker information, session timing, and description from KSESSIONS database
                 string? speakerName = null;
                 DateTime? realSessionDate = null;
+                string? sessionDescription = null;
                 try
                 {
                     var sessionWithSpeaker = await _kSessionsContext.Sessions
@@ -91,9 +111,10 @@ namespace NoorCanvas.Controllers
 
                     speakerName = sessionWithSpeaker?.Speaker?.SpeakerName;
                     realSessionDate = sessionWithSpeaker?.SessionDate;
+                    sessionDescription = sessionWithSpeaker?.Description;
 
-                    _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Retrieved from KSESSIONS - Speaker: {SpeakerName}, SessionDate: {SessionDate}",
-                        requestId, speakerName ?? "null", realSessionDate?.ToString() ?? "null");
+                    _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Retrieved from KSESSIONS - Speaker: {SpeakerName}, SessionDate: {SessionDate}, Description: {Description}",
+                        requestId, speakerName ?? "null", realSessionDate?.ToString() ?? "null", sessionDescription ?? "null");
                 }
                 catch (Exception ex)
                 {
@@ -109,8 +130,8 @@ namespace NoorCanvas.Controllers
                     Session = new
                     {
                         SessionId = session.SessionId,
-                        Title = session.Title ?? $"Session {session.SessionId}",
-                        Description = session.Description,
+                        Title = sessionTitle,
+                        Description = sessionDescription ?? "Session description not available",
                         Status = session.Status,
                         ParticipantCount = participantCount,
                         MaxParticipants = (int?)null, // Not stored in simplified schema
@@ -132,7 +153,7 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Validation successful! Returning response", requestId);
                 _logger.LogInformation("NOOR-PARTICIPANT-VALIDATE: [{RequestId}] Response: Valid=true, SessionId={SessionId}, Title={Title}, Status={Status}, ExpiresAt={ExpiresAt}",
-                    requestId, session.SessionId, session.Title, session.Status, session.ExpiresAt);
+                    requestId, session.SessionId, sessionTitle, session.Status, session.ExpiresAt);
 
                 return Ok(response);
             }

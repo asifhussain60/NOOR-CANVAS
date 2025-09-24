@@ -12,11 +12,13 @@ namespace NoorCanvas.Controllers
     public class AdminController : ControllerBase
     {
         private readonly CanvasDbContext _context;
+        private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(CanvasDbContext context, ILogger<AdminController> logger)
+        public AdminController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<AdminController> logger)
         {
             _context = context;
+            _kSessionsContext = kSessionsContext;
             _logger = logger;
         }
 
@@ -82,14 +84,26 @@ namespace NoorCanvas.Controllers
                     .OrderByDescending(s => s.CreatedAt);
 
                 var totalCount = await query.CountAsync();
-                var sessions = await query
+                var canvasSessions = await query
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
-                    .Select(s => new AdminSessionDetails
+                    .ToListAsync();
+
+                // Fetch titles and descriptions from KSESSIONS database
+                var sessionIds = canvasSessions.Select(s => (int)s.SessionId).ToList();
+                var kSessionsData = await _kSessionsContext.Sessions
+                    .Where(ks => sessionIds.Contains(ks.SessionId))
+                    .Select(ks => new { ks.SessionId, ks.SessionName, ks.Description })
+                    .ToListAsync();
+
+                var sessions = canvasSessions.Select(s => 
+                {
+                    var kSessionData = kSessionsData.FirstOrDefault(ks => ks.SessionId == (int)s.SessionId);
+                    return new AdminSessionDetails
                     {
                         SessionId = s.SessionId,
-                        Title = s.Title ?? "Untitled Session",
-                        Description = s.Description ?? string.Empty,
+                        Title = kSessionData?.SessionName ?? "Untitled Session",
+                        Description = kSessionData?.Description ?? string.Empty,
                         Status = s.Status ?? "Unknown",
                         ParticipantCount = s.ParticipantCount ?? 0,
                         MaxParticipants = s.MaxParticipants,
@@ -99,8 +113,8 @@ namespace NoorCanvas.Controllers
                         ExpiresAt = s.ExpiresAt ?? DateTime.UtcNow.AddHours(3),
                         HostName = s.HostSessions.Any() ? s.HostSessions.First().CreatedBy ?? "Host" : "Unknown Host",
                         HostGuid = s.HostAuthToken
-                    })
-                    .ToListAsync();
+                    };
+                }).ToList();
 
                 return Ok(new AdminSessionListResponse
                 {

@@ -10,11 +10,13 @@ namespace NoorCanvas.Controllers
     public class SessionController : ControllerBase
     {
         private readonly CanvasDbContext _context;
+        private readonly KSessionsDbContext _kSessionsContext;
         private readonly ILogger<SessionController> _logger;
 
-        public SessionController(CanvasDbContext context, ILogger<SessionController> logger)
+        public SessionController(CanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<SessionController> logger)
         {
             _context = context;
+            _kSessionsContext = kSessionsContext;
             _logger = logger;
         }
 
@@ -115,11 +117,30 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { error = "Session not found" });
                 }
 
+                // Fetch session title and description from KSESSIONS database
+                string sessionTitle = "HOST SESSION";
+                string sessionDescription = "Manage Islamic learning sessions with interactive tools";
+                try
+                {
+                    var kSession = await _kSessionsContext.Sessions
+                        .FirstOrDefaultAsync(ks => ks.SessionId == (int)session.SessionId);
+                    
+                    sessionTitle = kSession?.SessionName ?? "HOST SESSION";
+                    sessionDescription = kSession?.Description ?? "Manage Islamic learning sessions with interactive tools";
+                    
+                    _logger.LogInformation("COPILOT-DEBUG: Retrieved from KSESSIONS - Title: '{Title}', Description: '{Description}' for SessionId {SessionId}", 
+                        sessionTitle, sessionDescription, session.SessionId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "NOOR-SESSION-INFO: Failed to retrieve session title/description from KSESSIONS for SessionId {SessionId}", session.SessionId);
+                }
+
                 var sessionInfo = new
                 {
                     sessionId = session.SessionId,
-                    title = session.Title ?? "HOST SESSION",
-                    description = session.Description ?? "Manage Islamic learning sessions with interactive tools",
+                    title = sessionTitle,
+                    description = sessionDescription,
                     status = session.Status,
                     participantCount = session.ParticipantCount ?? 0,
                     maxParticipants = session.MaxParticipants,

@@ -69,6 +69,26 @@ namespace NoorCanvas.Controllers
                         return BadRequest(new { error = "Invalid Host GUID" });
                     }
 
+                    // Fetch session title and description from KSESSIONS database
+                    string? sessionTitle = null;
+                    string? sessionDescription = null;
+                    try
+                    {
+                        var kSession = await _kSessionsContext.Sessions
+                            .FirstOrDefaultAsync(ks => ks.SessionId == (int)session.SessionId);
+                        sessionTitle = kSession?.SessionName ?? "Session " + session.SessionId;
+                        sessionDescription = kSession?.Description ?? "Session description not available";
+                        
+                        _logger.LogInformation("COPILOT-DEBUG: Retrieved from KSESSIONS - Title: '{Title}', Description: '{Description}' for SessionId {SessionId}", 
+                            sessionTitle, sessionDescription, session.SessionId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "NOOR-HOST-AUTH: Failed to retrieve session title/description from KSESSIONS for SessionId {SessionId}", session.SessionId);
+                        sessionTitle = "Session " + session.SessionId;
+                        sessionDescription = "Session description not available";
+                    }
+
                     _logger.LogInformation("NOOR-SUCCESS: Host authenticated with hash for Session {SessionId}", session.SessionId);
                     var sessionTokenHash = Guid.NewGuid().ToString();
 
@@ -83,8 +103,8 @@ namespace NoorCanvas.Controllers
                         {
                             SessionId = (int)session.SessionId,
                             KSessionsId = session.SessionId, // Now SessionId contains the KSESSIONS ID (212)
-                            Title = session.Title,
-                            Description = session.Description,
+                            Title = sessionTitle,
+                            Description = sessionDescription,
                             Status = session.Status,
                             ParticipantCount = session.ParticipantCount ?? 0,
                             MaxParticipants = session.MaxParticipants,
@@ -135,8 +155,25 @@ namespace NoorCanvas.Controllers
                 var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostAuthToken == hostGuid);
                 if (session != null)
                 {
+                    // Fetch session title and description from KSESSIONS database
+                    string? sessionTitle = null;
+                    string? sessionDescription = null;
+                    try
+                    {
+                        var kSession = await _kSessionsContext.Sessions
+                            .FirstOrDefaultAsync(ks => ks.SessionId == (int)session.SessionId);
+                        sessionTitle = kSession?.SessionName ?? "Session " + session.SessionId;
+                        sessionDescription = kSession?.Description ?? "Session description not available";
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "NOOR-HOST-VALIDATE: [{RequestId}] Failed to retrieve session title/description from KSESSIONS for SessionId {SessionId}", requestId, session.SessionId);
+                        sessionTitle = "Session " + session.SessionId;
+                        sessionDescription = "Session description not available";
+                    }
+
                     _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
-                        requestId, session.SessionId, session.Title);
+                        requestId, session.SessionId, sessionTitle);
 
                     return Ok(new HostSessionValidationResponse
                     {
@@ -147,8 +184,8 @@ namespace NoorCanvas.Controllers
                         {
                             SessionId = (int)session.SessionId,
                             KSessionsId = session.SessionId, // Now SessionId contains the KSESSIONS ID (212)
-                            Title = session.Title,
-                            Description = session.Description,
+                            Title = sessionTitle,
+                            Description = sessionDescription,
                             Status = session.Status,
                             ParticipantCount = session.ParticipantCount ?? 0,
                             MaxParticipants = session.MaxParticipants,
@@ -223,8 +260,8 @@ namespace NoorCanvas.Controllers
                 if (session != null)
                 {
                     // Fetch fresh session info (title and description) from KSESSIONS database instead of using stale stored data
-                    string sessionTitle = session.Title ?? "Session " + session.SessionId;
-                    string sessionDescription = session.Description ?? "Session description not available";
+                    string sessionTitle = "Session " + session.SessionId; // Default fallback, will be overridden from KSESSIONS
+                    string sessionDescription = "Session description not available";
 
                     if (session.SessionId > 0) // SessionId now contains the KSESSIONS ID
                     {
@@ -326,8 +363,8 @@ namespace NoorCanvas.Controllers
                 // Create session in Canvas database
                 var session = new NoorCanvas.Models.Simplified.Session
                 {
-                    Title = "New Session",
-                    Description = "Session created by host",
+                    // Title removed - fetch from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId
+                    // Description removed - fetch from KSESSIONS_DEV.dbo.Sessions.Description via SessionId
                     Status = "Active",
                     CreatedAt = DateTime.UtcNow,
                     ExpiresAt = DateTime.UtcNow.AddHours(3),
@@ -531,8 +568,8 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Update canvas.Sessions with the selected session information
-                session.Title = sessionTitle;
-                session.Description = $"Album: {selectedAlbum}, Category: {selectedCategory}";
+                // Title removed - will be fetched from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId lookup
+                // Description removed - will be fetched from KSESSIONS_DEV.dbo.Sessions.Description via SessionId lookup
                 session.Status = "Configured";
                 session.ModifiedAt = DateTime.UtcNow;
 
@@ -587,6 +624,7 @@ namespace NoorCanvas.Controllers
                 }
 
                 session.StartedAt = DateTime.UtcNow;
+                session.Status = "Active";
                 await _context.SaveChangesAsync();
 
                 // Broadcast SessionBegan event via SignalR
@@ -870,8 +908,8 @@ namespace NoorCanvas.Controllers
                     .FirstOrDefaultAsync(s => s.HostToken == guid && s.ExpiresAt > DateTime.UtcNow)
                     ?? new NoorCanvas.Models.Simplified.Session
                     {
-                        Title = "Session " + guid,
-                        Description = "Auto-created session",
+                        // Title removed - will be fetched from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId
+                        // Description removed - will be fetched from KSESSIONS_DEV.dbo.Sessions.Description via SessionId
                         Status = "Active",
                         CreatedAt = DateTime.UtcNow,
                         StartedAt = DateTime.UtcNow,

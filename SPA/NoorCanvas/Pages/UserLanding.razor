@@ -26,7 +26,7 @@
         
         <!-- Logo -->
         <div style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
-            <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+            <img src="/images/NoorCanvas.png?v=20250924" 
                  alt="@(Model?.LogoText ?? "NOOR Canvas")" 
                  style="max-width:150px;height:auto;margin:0 auto;" />
         </div>
@@ -282,8 +282,8 @@
 
                 if (validationResult?.Valid == true)
                 {
-                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation successful - SessionID: {SessionId}, Title: {Title}", 
-                        requestId, validationResult.SessionId, validationResult.Session?.Title);
+                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation successful - SessionID: {SessionId}, Title: {Title}, Status: {Status}", 
+                        requestId, validationResult.SessionId, validationResult.Session?.Title, validationResult.Session?.Status);
 
                     if (Model != null)
                     {
@@ -294,11 +294,33 @@
                         Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated Model.SessionName to: {SessionName}, SessionDescription to: {SessionDescription}", 
                             requestId, Model.SessionName, Model.SessionDescription);
 
+                        // NEW REQUIREMENT: Check if session has already started and route directly to canvas
+                        var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
+                        if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                        {
+                            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - routing directly to SessionCanvas", 
+                                requestId, validationResult.Session?.Status);
+                            Navigation.NavigateTo($"/session/canvas/{token}");
+                            return;
+                        }
+
                         // ISSUE-114 FIX: For URL-based tokens, automatically switch to registration panel and load countries
                         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] URL token validated successfully - switching to registration panel", requestId);
                         Model.ShowTokenPanel = false;
-                        Model.ButtonText = "Join Waiting Room";
-                        Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                        
+                        // [DEBUG-WORKITEM:user:UI] Set button text based on session status
+                        if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                        {
+                            Model.ButtonText = "Join Live Canvas";
+                            Model.ButtonIconClass = "fa-solid fa-play";
+                            Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Live Canvas' for active session", requestId);
+                        }
+                        else
+                        {
+                            Model.ButtonText = "Join Waiting Room";
+                            Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                            Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for inactive session", requestId);
+                        }
                         Model.ErrorMessage = string.Empty;
                         
                         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Panel switched - ShowTokenPanel: {ShowTokenPanel}, calling StateHasChanged", 
@@ -451,8 +473,8 @@
 
                 if (validationResult?.Valid == true)
                 {
-                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Token validation successful - SessionID: {SessionId}, Title: {Title}", 
-                        requestId, validationResult.SessionId, validationResult.Session?.Title);
+                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Token validation successful - SessionID: {SessionId}, Title: {Title}, Status: {Status}", 
+                        requestId, validationResult.SessionId, validationResult.Session?.Title, validationResult.Session?.Status);
 
                     // ISSUE-124 FIX: Update session name and description with nested session data from API
                     Model.SessionName = validationResult.Session?.Title ?? "Unknown Session";
@@ -461,10 +483,32 @@
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated session name to: {SessionName}, description to: {SessionDescription}", 
                         requestId, Model.SessionName, Model.SessionDescription);
 
+                    // NEW REQUIREMENT: Check if session has already started and route directly to canvas
+                    var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
+                    if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                    {
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - routing directly to SessionCanvas", 
+                            requestId, validationResult.Session?.Status);
+                        Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                        return;
+                    }
+
                     // Switch to registration panel
                     Model.ShowTokenPanel = false;
-                    Model.ButtonText = "Join Waiting Room";
-                    Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                    
+                    // [DEBUG-WORKITEM:user:UI] Set button text based on session status
+                    if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                    {
+                        Model.ButtonText = "Join Live Canvas";
+                        Model.ButtonIconClass = "fa-solid fa-play";
+                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Live Canvas' for active session");
+                    }
+                    else
+                    {
+                        Model.ButtonText = "Join Waiting Room";
+                        Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for inactive session");
+                    }
                     Model.ErrorMessage = string.Empty;
                     
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Successfully switched to registration panel", requestId);
@@ -569,10 +613,36 @@
             }
 
             var registrationResult = await registrationResponse.Content.ReadFromJsonAsync<dynamic>();
-            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Registration successful - proceeding to waiting room", requestId);
+            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Registration successful - checking session status for routing", requestId);
 
-            // Navigate to waiting room
-            Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+            // [DEBUG-WORKITEM:user:API] Check session status after registration to determine routing
+            Logger.LogInformation("[DEBUG-WORKITEM:user:API] Re-validating session status post-registration for proper routing");
+            var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
+            
+            if (sessionValidationResponse.IsSuccessStatusCode)
+            {
+                var sessionContent = await sessionValidationResponse.Content.ReadAsStringAsync();
+                var sessionValidation = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(sessionContent, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
+                if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active, routing to SessionCanvas");
+                    Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                }
+                else
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started, routing to SessionWaiting");
+                    Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                }
+            }
+            else
+            {
+                // Fallback to waiting room if status check fails
+                Logger.LogWarning("[DEBUG-WORKITEM:user:API] Session status recheck failed, defaulting to waiting room");
+                Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+            }
         }
         catch (HttpRequestException)
         {

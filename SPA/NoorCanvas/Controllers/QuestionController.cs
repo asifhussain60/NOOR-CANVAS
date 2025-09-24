@@ -31,6 +31,37 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
+        /// Helper method to safely convert JsonElement to int
+        /// </summary>
+        private static int GetIntFromJsonElement(object jsonElement)
+        {
+            if (jsonElement is JsonElement element)
+            {
+                return element.TryGetInt32(out var value) ? value : 0;
+            }
+            return Convert.ToInt32(jsonElement);
+        }
+
+        /// <summary>
+        /// Helper method to safely convert JsonElement to bool
+        /// </summary>
+        private static bool GetBoolFromJsonElement(object jsonElement)
+        {
+            if (jsonElement is JsonElement element)
+            {
+                if (element.ValueKind == JsonValueKind.True) return true;
+                if (element.ValueKind == JsonValueKind.False) return false;
+                // Try to parse as string if it's a string representation
+                if (element.ValueKind == JsonValueKind.String)
+                {
+                    return bool.TryParse(element.GetString(), out var boolResult) ? boolResult : false;
+                }
+                return false;
+            }
+            return Convert.ToBoolean(jsonElement);
+        }
+
+        /// <summary>
         /// Submit a new question to a session using user token authorization
         /// </summary>
         [HttpPost("submit")]
@@ -324,7 +355,8 @@ namespace NoorCanvas.Controllers
                     {
                         q.DataId,
                         q.CreatedAt,
-                        q.Content
+                        q.Content,
+                        q.CreatedBy
                     })
                     .ToListAsync();
 
@@ -334,11 +366,14 @@ namespace NoorCanvas.Controllers
                     
                     return new
                     {
+                        QuestionId = data?.ContainsKey("questionId") == true ? data["questionId"]?.ToString() : "",
                         Id = q.DataId,
                         Text = data?.ContainsKey("text") == true ? data["text"]?.ToString() : "",
                         UserName = data?.ContainsKey("userName") == true ? data["userName"]?.ToString() : "Anonymous",
-                        Votes = data?.ContainsKey("votes") == true ? Convert.ToInt32(data["votes"]) : 0,
-                        IsAnswered = data?.ContainsKey("isAnswered") == true ? Convert.ToBoolean(data["isAnswered"]) : false,
+                        CreatedBy = q.CreatedBy ?? "", // Include the CreatedBy field for ownership checking
+                        Votes = data?.ContainsKey("votes") == true ? GetIntFromJsonElement(data["votes"]) : 0,
+                        IsAnswered = data?.ContainsKey("isAnswered") == true ? GetBoolFromJsonElement(data["isAnswered"]) : false,
+                        CreatedAt = q.CreatedAt,
                         SubmittedAt = q.CreatedAt
                     };
                 }).ToList();
@@ -359,6 +394,88 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { Error = "Failed to retrieve questions", RequestId = requestId });
             }
         }
+
+        /// <summary>
+        /// Delete a question (only the user who created it can delete)
+        /// </summary>
+        [HttpPost("{questionId}/delete")]
+        public async Task<IActionResult> DeleteQuestion(int questionId, [FromBody] DeleteQuestionRequest request)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+            _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question deletion started for QuestionId: {QuestionId}", 
+                requestId, questionId);
+
+            try
+            {
+                // Validate request
+                if (string.IsNullOrWhiteSpace(request.SessionToken) || request.SessionToken.Length != 8)
+                {
+                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Invalid session token format", requestId);
+                    return BadRequest(new { Error = "Invalid session token format", RequestId = requestId });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.UserGuid))
+                {
+                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] UserGuid is required for question deletion", requestId);
+                    return BadRequest(new { Error = "UserGuid is required", RequestId = requestId });
+                }
+
+                // Validate session token
+                var session = await _tokenService.ValidateTokenAsync(request.SessionToken, isHostToken: false);
+                if (session == null)
+                {
+                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Invalid session token: {Token}", requestId, request.SessionToken);
+                    return NotFound(new { Error = "Invalid session token", RequestId = requestId });
+                }
+
+                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Session validated - SessionId: {SessionId}", 
+                    requestId, session.SessionId);
+
+                // Find the question and verify ownership
+                var questionRecord = await _context.SessionData
+                    .FirstOrDefaultAsync(sd => sd.SessionId == session.SessionId &&
+                                             sd.DataType == SessionDataTypes.Question &&
+                                             sd.Content != null && 
+                                             sd.Content.Contains($"\"questionId\":\"{questionId}\"") &&
+                                             sd.CreatedBy == request.UserGuid);
+
+                if (questionRecord == null)
+                {
+                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Question not found or user not authorized - QuestionId: {QuestionId}, UserGuid: {UserGuid}", 
+                        requestId, questionId, request.UserGuid);
+                    return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
+                }
+
+                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question found and ownership verified - Content: {Content}", 
+                    requestId, questionRecord.Content);
+
+                // Delete the question
+                _context.SessionData.Remove(questionRecord);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question deleted successfully from database", requestId);
+
+                // Notify all clients in the session via SignalR
+                await _sessionHub.Clients.Group($"Session_{session.SessionId}")
+                    .SendAsync("QuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
+
+                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] SignalR notification sent to session group", requestId);
+
+                return Ok(new DeleteQuestionResponse
+                {
+                    Success = true,
+                    Message = "Question deleted successfully",
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-QA-DELETE: [{RequestId}] Exception during question deletion", requestId);
+                return StatusCode(500, new { Error = "Failed to delete question", RequestId = requestId });
+            }
+        }
     }
 
     // Request/Response Models
@@ -376,10 +493,23 @@ namespace NoorCanvas.Controllers
         public string UserGuid { get; set; } = string.Empty;
     }
 
+    public class DeleteQuestionRequest
+    {
+        public string SessionToken { get; set; } = string.Empty;
+        public string UserGuid { get; set; } = string.Empty;
+    }
+
     public class SubmitQuestionResponse
     {
         public bool Success { get; set; }
         public Guid QuestionId { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public string RequestId { get; set; } = string.Empty;
+    }
+
+    public class DeleteQuestionResponse
+    {
+        public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public string RequestId { get; set; } = string.Empty;
     }

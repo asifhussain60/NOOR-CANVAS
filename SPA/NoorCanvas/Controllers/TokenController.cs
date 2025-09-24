@@ -87,7 +87,7 @@ public class TokenController : ControllerBase
                 {
                     sessionId = secureToken.Session?.SessionId,
                     title = secureToken.Session?.Title,
-                    description = secureToken.Session?.Description,
+                    description = "Session description available via participant API", // Description removed from canvas.Sessions
                     status = secureToken.Session?.Status,
                     createdAt = secureToken.Session?.CreatedAt
                 }

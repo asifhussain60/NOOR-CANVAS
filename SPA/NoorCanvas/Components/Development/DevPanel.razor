@@ -1,0 +1,159 @@
+@*
+    Development Panel Base Component
+    
+    Purpose: Provides a reusable development-only panel that is excluded from production builds
+    Usage: Wrap development/testing UI elements with this component
+    
+    Features:
+    - Only visible in DEBUG builds (Development environment)
+    - Consistent styling across all development panels
+    - Collapsible panel with clear visual indicators
+    - Can be nested and extended by other components
+*@
+
+@using NoorCanvas.Services.Development
+@inject IDevModeService DevMode
+
+@* Only render in development environment using service check *@
+@if (DevMode.ShowDevPanels)
+{
+    <div class="dev-panel-container">
+        <div class="dev-panel-header" @onclick="TogglePanel">
+            <div class="dev-panel-title">
+                <i class="fa-solid fa-code dev-panel-icon"></i>
+                <span class="dev-panel-name">@Title</span>
+                <span class="dev-panel-badge">DEV</span>
+            </div>
+            <i class="fa-solid @(IsExpanded ? "fa-chevron-up" : "fa-chevron-down") dev-panel-toggle"></i>
+        </div>
+        
+        @if (IsExpanded)
+        {
+            <div class="dev-panel-content">
+                @if (!string.IsNullOrEmpty(Description))
+                {
+                    <div class="dev-panel-description">
+                        @Description
+                    </div>
+                }
+                <div class="dev-panel-body">
+                    @ChildContent
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    /* Development Panel Styles */
+    .dev-panel-container {
+        position: relative;
+        margin: 1rem 0;
+        border: 2px dashed #f59e0b;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .dev-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .dev-panel-header:hover {
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    .dev-panel-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dev-panel-icon {
+        color: #d97706;
+        font-size: 1rem;
+    }
+
+    .dev-panel-name {
+        font-weight: 600;
+        color: #92400e;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .dev-panel-badge {
+        background: #d97706;
+        color: white;
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.25rem;
+        font-size: 0.625rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+
+    .dev-panel-toggle {
+        color: #d97706;
+        font-size: 0.875rem;
+        transition: transform 0.2s ease;
+    }
+
+    .dev-panel-content {
+        border-top: 1px solid #f59e0b;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .dev-panel-description {
+        color: #92400e;
+        font-size: 0.8125rem;
+        margin-bottom: 0.75rem;
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    .dev-panel-body {
+        /* Child content styling is inherited */
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .dev-panel-container {
+            margin: 0.5rem 0;
+        }
+        
+        .dev-panel-header {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .dev-panel-content {
+            padding: 0.75rem;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Development Panel";
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public bool IsExpandedDefault { get; set; } = false;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool IsExpanded { get; set; }
+
+    protected override void OnInitialized()
+    {
+        IsExpanded = IsExpandedDefault;
+    }
+
+    private void TogglePanel()
+    {
+        IsExpanded = !IsExpanded;
+    }
+}

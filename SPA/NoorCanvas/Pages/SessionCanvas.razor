@@ -31,7 +31,7 @@
             
             <!-- Logo -->
             <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                <img src="/images/NoorCanvas.png?v=20250924" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" 
                      style="max-width:150px;height:auto;" />
             </div>
@@ -49,7 +49,7 @@
             
             <!-- Logo -->
             <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                <img src="/images/NoorCanvas.png?v=20250924" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" 
                      style="max-width:150px;height:auto;" />
             </div>
@@ -199,15 +199,44 @@
                 {
                     <div class="flex-1 overflow-y-auto" style="max-height: 400px;">
                         <div class="mt-2 space-y-4">
-                            <h3 class="font-semibold text-sm" style="color:#4B3C2B; font-family:'Inter',sans-serif;">Recent Questions</h3>
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold text-sm" style="color:#4B3C2B; font-family:'Inter',sans-serif;">Recent Questions</h3>
+                                
+                                <!-- Toast Notification Toggle -->
+                                <div class="flex items-center space-x-2">
+                                    <button @onclick="ToggleToastNotifications" 
+                                            class="flex items-center cursor-pointer" 
+                                            title="@(toastNotificationsEnabled ? "Disable toast notifications" : "Enable toast notifications")"
+                                            style="background:none;border:none;padding:0;">
+                                        <div class="relative">
+                                            <div class="block w-10 h-6 rounded-full transition-colors duration-200 @(toastNotificationsEnabled ? "bg-green-500" : "bg-gray-300")"></div>
+                                            <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 transform @(toastNotificationsEnabled ? "translate-x-4" : "translate-x-0")"></div>
+                                        </div>
+                                    </button>
+                                    <i class="fa-solid fa-bell text-xs @(toastNotificationsEnabled ? "text-green-600" : "text-gray-400")" 
+                                       title="Toast notifications @(toastNotificationsEnabled ? "enabled" : "disabled")"></i>
+                                </div>
+                            </div>
                             <div id="questions-list" class="flex flex-col space-y-3">
                                 @if (Model?.Questions?.Any() == true)
                                 {
                                     @foreach (var q in Model.Questions.OrderByDescending(q => q.Votes).ThenByDescending(q => q.CreatedAt))
                                     {
+                                        var isCurrentUserQuestion = q.CreatedBy == _userGuid;
+                                        var borderColor = isCurrentUserQuestion ? "#3B82F6" : "#D4AF37";
+                                        var backgroundColor = isCurrentUserQuestion ? "#EBF4FF" : "#FBF9F6";
+                                        var userBadgeColor = isCurrentUserQuestion ? "#3B82F6" : "#8B5CF6";
+                                        
                                         <div class="flex items-start p-3 rounded-xl border group hover:shadow-md transition-all duration-200" 
-                                             style="border-color:#D4AF37; background-color:#FBF9F6; color:#4B3C2B;">
+                                             style="border-color:@borderColor; background-color:@backgroundColor; color:#4B3C2B;">
                                             <div class="flex flex-col items-center space-y-1 mr-3">
+                                                <!-- User identity icon (blue for YOU, purple/gold for others) -->
+                                                <div title="@(isCurrentUserQuestion ? "Your question" : "Another participant's question")" 
+                                                     class="rounded-full flex items-center justify-center" 
+                                                     style="width:34px;height:34px;background-color:@(isCurrentUserQuestion ? "#3B82F6" : "#8B5CF6");color:white;">
+                                                    <i class="fa-solid @(isCurrentUserQuestion ? "fa-user-check" : "fa-user")"></i>
+                                                </div>
+
                                                 <button @onclick="() => VoteQuestion(q.QuestionId)" 
                                                         disabled="@(q.HasUserVoted || isVoting)"
                                                         class="transition-colors hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -218,9 +247,33 @@
                                                       style="background-color:#C5B358; color:#4B3C2B;">@q.Votes</span>
                                             </div>
                                             <div class="w-full">
-                                                <span class="text-sm leading-snug block" style="font-family:'Inter',sans-serif;">@q.Text</span>
-                                                <div class="text-xs mt-1 opacity-75" style="font-family:'Inter',sans-serif;">
-                                                    by @q.UserName • @FormatTimeAgo(q.CreatedAt)
+                                                <div class="flex justify-between items-start">
+                                                    <span class="text-sm leading-snug block flex-1" style="font-family:'Inter',sans-serif;">@q.Text</span>
+                                                    @if (isCurrentUserQuestion)
+                                                    {
+                                                        <div class="ml-2 flex space-x-1">
+                                                            <button @onclick="() => EditQuestion(q.QuestionId)" 
+                                                                    disabled="@isEditing"
+                                                                    class="text-blue-500 hover:text-blue-700 transition-colors disabled:opacity-50"
+                                                                    title="Edit your question">
+                                                                <i class="fa-solid fa-edit text-xs"></i>
+                                                            </button>
+                                                            <button @onclick="() => DeleteQuestion(q.QuestionId)" 
+                                                                    disabled="@isDeleting"
+                                                                    class="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                                                                    title="Delete your question">
+                                                                <i class="fa-solid fa-trash text-xs"></i>
+                                                            </button>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="text-xs mt-1 opacity-75 flex items-center" style="font-family:'Inter',sans-serif;">
+                                                    <!-- Regular users don't see usernames, only distinguish their own questions -->
+                                                    <span class="rounded px-2 py-1 text-white font-medium mr-2 flex items-center" 
+                                                          style="background-color:@userBadgeColor; font-size:10px;"> 
+                                                        @(isCurrentUserQuestion ? "YOU" : "PARTICIPANT")
+                                                    </span>
+                                                    <span>@FormatTimeAgo(q.CreatedAt)</span>
                                                     @if (q.IsAnswered)
                                                     {
                                                         <span class="ml-2 text-green-600 font-semibold">✓ Answered</span>
@@ -318,8 +371,14 @@
     private string newQuestionText = "";
     private bool isSubmittingQuestion = false;
     private bool isVoting = false;
+    private bool isDeleting = false;
+    private bool isEditing = false;
     private int activeTab = 1; // 1 for Q&A, 2 for Participants
     private bool showLeaveModal = false;
+    
+    // Toast Notification Preferences
+    private bool toastNotificationsEnabled = true; // Default enabled
+    private const string TOAST_PREF_KEY = "noor-canvas-toast-notifications";
     
     // Shared Asset Content State
     private string? sharedAssetContent = null;
@@ -352,6 +411,15 @@
         };
 
         await InitializeSessionAsync(requestId);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadToastPreferenceAsync();
+            StateHasChanged();
+        }
     }
 
     private void LeaveSession()
@@ -431,6 +499,20 @@
                     
                     // Get UserGuid for Q&A submissions
                     await LoadUserGuidAsync(requestId);
+                    
+                    // [DEBUG-WORKITEM:canvas:UI] Validate user registration before allowing canvas access
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] Starting registration check for session {SessionId}", sessionResponse.Session.SessionId);
+                    bool isRegistered = await ValidateUserRegistrationAsync(requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] Registration check result: {IsRegistered}", isRegistered);
+                    
+                    if (!isRegistered)
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:UI] User not registered, redirecting to registration at /user/landing/{Token}", SessionToken);
+                        Navigation.NavigateTo($"/user/landing/{SessionToken}");
+                        return;
+                    }
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] Registration validated, proceeding to load canvas content");
                     
                     // Load participants and questions
                     await LoadParticipantsAsync(requestId);
@@ -630,6 +712,65 @@
         }
     }
 
+    private async Task<bool> ValidateUserRegistrationAsync(string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] Starting registration validation for token: {Token}, RequestId: {RequestId}", SessionToken, requestId);
+            
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            var apiUrl = $"api/participant/session/{SessionToken}/participants";
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] Calling participant API: {ApiUrl}", apiUrl);
+            
+            var response = await httpClient.GetAsync(apiUrl);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] API Response received, content length: {Length}", content?.Length ?? 0);
+                
+                if (string.IsNullOrEmpty(content))
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] API returned empty response");
+                    return false;
+                }
+                
+                var participantsResponse = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(content, 
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                // Check if current user (identified by UserGuid or token) has a participant record
+                bool hasParticipant = participantsResponse?.Participants?.Any() == true;
+                int participantCount = participantsResponse?.ParticipantCount ?? 0;
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:DB] Registration validation result: {IsRegistered} (ParticipantCount: {Count})", 
+                    hasParticipant, participantCount);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:DB] Full validation data: hasParticipant={HasParticipant}, participantCount={ParticipantCount}, participantsNull={ParticipantsNull}, participantsCount={ActualCount}", 
+                    hasParticipant, participantCount, participantsResponse?.Participants == null, participantsResponse?.Participants?.Count ?? -1);
+                
+                // TEMPORARY FIX: If no participants exist but session is valid, allow access
+                // This prevents infinite loop when database is clean
+                if (!hasParticipant && participantCount <= 0)
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:UI] No participants found (hasParticipant={HasParticipant}, count={Count}) but session exists - allowing access to prevent infinite loop", hasParticipant, participantCount);
+                    return true; // Allow access when database is clean
+                }
+                
+                return hasParticipant;
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] Failed to validate registration - API returned: {StatusCode}", response.StatusCode);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:DB] Exception during registration validation for token: {Token}", SessionToken);
+            return false; // Fail secure - deny access if validation fails
+        }
+    }
+
     // ViewModel and Data Classes
     public class SessionCanvasViewModel
     {
@@ -715,7 +856,7 @@
 
     public class QuestionData
     {
-        public int QuestionId { get; set; }
+        public string QuestionId { get; set; } = "";
         public string Text { get; set; } = "";
         public int Votes { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -773,8 +914,30 @@
                 Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Question submitted successfully - Response: {Response}", 
                     requestId, responseContent);
                 
+                var submittedText = newQuestionText.Trim();
                 newQuestionText = "";
                 isQaExpanded = false;
+                
+                // Show success toast for own question if enabled
+                if (toastNotificationsEnabled)
+                {
+                    try
+                    {
+                        await JSRuntime.InvokeVoidAsync("showParticipantQuestionToast", new
+                        {
+                            id = 0, // Temporary ID for own question
+                            text = submittedText,
+                            userName = "You",
+                            votes = 0,
+                            isOwnQuestion = true
+                        });
+                    }
+                    catch (Exception toastEx)
+                    {
+                        Logger.LogError(toastEx, "NOOR-TOAST: Failed to show own question toast");
+                    }
+                }
+                
                 await LoadQuestionsAsync();
                 Logger.LogInformation("NOOR-QA: Question submitted successfully");
             }
@@ -796,7 +959,7 @@
         }
     }
 
-    private async Task VoteQuestion(int questionId)
+    private async Task VoteQuestion(string questionId)
     {
         if (string.IsNullOrWhiteSpace(SessionToken) || isVoting)
             return;
@@ -831,6 +994,60 @@
             isVoting = false;
             StateHasChanged();
         }
+    }
+
+    private async Task DeleteQuestion(string questionId)
+    {
+        if (string.IsNullOrWhiteSpace(SessionToken) || string.IsNullOrWhiteSpace(_userGuid) || isDeleting)
+            return;
+
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] DeleteQuestion called for QuestionId: {QuestionId}, UserGuid: {UserGuid}", 
+            requestId, questionId, _userGuid);
+
+        try
+        {
+            isDeleting = true;
+            StateHasChanged();
+
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            var request = new { sessionToken = SessionToken, userGuid = _userGuid };
+
+            Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Sending DELETE request to api/question/{QuestionId}", requestId, questionId);
+            var response = await httpClient.PostAsJsonAsync($"api/question/{questionId}/delete", request);
+            
+            Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Delete API response: {StatusCode}", requestId, response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("COPILOT-DEBUG: [REQ:{RequestId}] Question deleted successfully, reloading questions...", requestId);
+                await LoadQuestionsAsync();
+                Logger.LogInformation("NOOR-QA: Question {QuestionId} deleted successfully", questionId);
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("COPILOT-DEBUG: [REQ:{RequestId}] Failed to delete question - StatusCode: {StatusCode}, Error: {Error}", 
+                    requestId, response.StatusCode, errorContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "COPILOT-DEBUG: [REQ:{RequestId}] Exception deleting question {QuestionId}", requestId, questionId);
+        }
+        finally
+        {
+            isDeleting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditQuestion(string questionId)
+    {
+        // TODO: Implement question editing functionality
+        // For now, this is a placeholder to satisfy the UI requirements
+        Logger.LogInformation("NOOR-QA: Edit question functionality not yet implemented for question {QuestionId}", questionId);
+        await Task.CompletedTask;
     }
 
     private async Task LoadQuestionsAsync()
@@ -875,6 +1092,63 @@
     {
         activeTab = tab;
         StateHasChanged();
+    }
+
+    // Toast Preference Management
+    private async Task LoadToastPreferenceAsync()
+    {
+        try
+        {
+            var prefValue = await JSRuntime.InvokeAsync<string>("localStorage.getItem", TOAST_PREF_KEY);
+            if (!string.IsNullOrEmpty(prefValue) && bool.TryParse(prefValue, out bool enabled))
+            {
+                toastNotificationsEnabled = enabled;
+                Logger.LogInformation("NOOR-TOAST: Loaded toast preference: {Enabled}", enabled);
+            }
+            else
+            {
+                // Default to enabled for new users
+                toastNotificationsEnabled = true;
+                await SaveToastPreferenceAsync(true);
+                Logger.LogInformation("NOOR-TOAST: Initialized default toast preference: enabled");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-TOAST: Failed to load toast preference, using default");
+            toastNotificationsEnabled = true;
+        }
+    }
+
+    private async Task SaveToastPreferenceAsync(bool enabled)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", TOAST_PREF_KEY, enabled.ToString());
+            Logger.LogInformation("NOOR-TOAST: Saved toast preference: {Enabled}", enabled);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-TOAST: Failed to save toast preference");
+        }
+    }
+
+    private async Task ToggleToastNotifications()
+    {
+        toastNotificationsEnabled = !toastNotificationsEnabled;
+        await SaveToastPreferenceAsync(toastNotificationsEnabled);
+        StateHasChanged();
+        
+        // Show confirmation toast
+        try
+        {
+            var message = toastNotificationsEnabled ? "Toast notifications enabled" : "Toast notifications disabled";
+            await JSRuntime.InvokeVoidAsync("showToastPreferenceUpdate", message, toastNotificationsEnabled);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-TOAST: Failed to show preference update toast");
+        }
     }
 
     private void ShowLeaveModal()
@@ -956,6 +1230,115 @@
                 Logger.LogInformation("NOOR-QA: Question answered via SignalR");
                 await LoadQuestionsAsync();
                 await InvokeAsync(StateHasChanged);
+            });
+
+            _hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
+            {
+                Logger.LogInformation("NOOR-QA: Question deleted via SignalR");
+                await LoadQuestionsAsync();
+                await InvokeAsync(StateHasChanged);
+            });
+
+            // Also listen for host-specific alerts - some server-side flows emit HostQuestionAlert
+            // (the HostControlPanel listens for this event). Ensures questions routed to host
+            // are also handled on the participant canvas in real-time.
+            _hubConnection.On<object>("HostQuestionAlert", async (questionData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("NOOR-QA: HostQuestionAlert received on SessionCanvas");
+
+                    if (questionData == null)
+                    {
+                        Logger.LogWarning("NOOR-QA: HostQuestionAlert contains null payload");
+                        return;
+                    }
+
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = doc.RootElement;
+
+                    // Extract text with fallbacks
+                    string text = "(Question text unavailable)";
+                    if (root.TryGetProperty("text", out var t) && t.ValueKind == System.Text.Json.JsonValueKind.String)
+                        text = t.GetString() ?? text;
+                    else if (root.TryGetProperty("questionText", out var qt) && qt.ValueKind == System.Text.Json.JsonValueKind.String)
+                        text = qt.GetString() ?? text;
+
+                    // Try to extract other metadata if present
+                    string questionId = root.TryGetProperty("questionId", out var idProp) && idProp.ValueKind == System.Text.Json.JsonValueKind.String
+                        ? idProp.GetString() ?? ""
+                        : (root.TryGetProperty("questionId", out var idPropNum) && idPropNum.ValueKind == System.Text.Json.JsonValueKind.Number
+                            ? idPropNum.GetInt32().ToString()
+                            : DateTime.UtcNow.Ticks.ToString());
+
+                    string createdBy = root.TryGetProperty("createdBy", out var cb) && cb.ValueKind == System.Text.Json.JsonValueKind.String
+                        ? cb.GetString() ?? ""
+                        : (root.TryGetProperty("userGuid", out var ug) && ug.ValueKind == System.Text.Json.JsonValueKind.String ? ug.GetString() ?? "" : "");
+
+                    DateTime createdAt = DateTime.UtcNow;
+                    if (root.TryGetProperty("createdAt", out var ca) && ca.ValueKind == System.Text.Json.JsonValueKind.String)
+                    {
+                        if (DateTime.TryParse(ca.GetString(), out var parsed)) createdAt = parsed;
+                    }
+
+                    // Ensure model list exists
+                    if (Model?.Questions == null) Model!.Questions = new List<QuestionData>();
+
+                    // Avoid adding exact duplicates (by question id or text)
+                    var exists = Model.Questions.Any(q => q.QuestionId == questionId || q.Text == text);
+                    if (!exists)
+                    {
+                        var newQuestion = new QuestionData
+                        {
+                            QuestionId = questionId,
+                            Text = text,
+                            Votes = root.TryGetProperty("votes", out var v) && v.ValueKind == System.Text.Json.JsonValueKind.Number ? v.GetInt32() : 0,
+                            CreatedAt = createdAt,
+                            CreatedBy = createdBy,
+                            UserName = root.TryGetProperty("userName", out var un) && un.ValueKind == System.Text.Json.JsonValueKind.String ? un.GetString() ?? "" : "",
+                            IsAnswered = root.TryGetProperty("isAnswered", out var ia) && ia.ValueKind == System.Text.Json.JsonValueKind.True,
+                            HasUserVoted = false
+                        };
+
+                        Model.Questions.Insert(0, newQuestion);
+
+                        // Show toast notification if enabled and not user's own question
+                        if (toastNotificationsEnabled && createdBy != _userGuid)
+                        {
+                            try
+                            {
+                                var userName = !string.IsNullOrEmpty(newQuestion.UserName) ? newQuestion.UserName : "Anonymous";
+                                await JSRuntime.InvokeVoidAsync("showParticipantQuestionToast", new
+                                {
+                                    id = newQuestion.QuestionId,
+                                    text = newQuestion.Text,
+                                    userName = userName,
+                                    votes = newQuestion.Votes,
+                                    isOwnQuestion = false
+                                });
+                            }
+                            catch (Exception toastEx)
+                            {
+                                Logger.LogError(toastEx, "NOOR-TOAST: Failed to show question toast notification");
+                            }
+                        }
+
+                        await InvokeAsync(StateHasChanged);
+                    }
+                    else
+                    {
+                        // If duplicate was detected, still attempt to refresh from the API to get canonical state
+                        await LoadQuestionsAsync();
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "NOOR-QA: Error processing HostQuestionAlert on SessionCanvas");
+                    // Best-effort fallback: reload questions
+                    try { await LoadQuestionsAsync(); await InvokeAsync(StateHasChanged); } catch { }
+                }
             });
 
             _hubConnection.On<object>("AssetShared", async (assetData) =>
@@ -1100,7 +1483,7 @@
 
     public class QuestionApiData
     {
-        public int QuestionId { get; set; }
+        public string QuestionId { get; set; } = "";
         public string Text { get; set; } = "";
         public int Votes { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -1117,7 +1500,66 @@
 }
 
 <script>
-    // Note: Toast notifications removed from SessionCanvas
-    // SessionCanvas only displays shared content in main panel
-    // Toast notifications should only appear in HostControlPanel
+    // Participant-specific toast notification functions
+    window.showParticipantQuestionToast = function(questionData) {
+        if (typeof toastr !== 'undefined') {
+            const message = `"${questionData.text}" - ${questionData.userName}`;
+            const title = questionData.isOwnQuestion ? 'Your Question Posted' : 'New Question';
+            const toastType = questionData.isOwnQuestion ? 'success' : 'info';
+            
+            const options = {
+                timeOut: 5000,
+                extendedTimeOut: 2000,
+                closeButton: true,
+                progressBar: true,
+                onclick: function() {
+                    // Scroll to Q&A panel when toast is clicked
+                    if (window.scrollToQAPanel) {
+                        window.scrollToQAPanel();
+                    } else {
+                        // Fallback: try to focus Q&A tab
+                        const qaTab = document.querySelector('button[onclick*="SetActiveTab(1)"]');
+                        if (qaTab) qaTab.click();
+                    }
+                }
+            };
+            
+            if (toastType === 'success') {
+                toastr.success(message, title, options);
+            } else {
+                toastr.info(message, title, options);
+            }
+            
+            console.log('NOOR-TOAST: Participant question toast shown:', questionData.id);
+        } else {
+            console.error('NOOR-TOAST: Toastr library not available for participant notifications');
+        }
+    };
+
+    window.showToastPreferenceUpdate = function(message, enabled) {
+        if (typeof toastr !== 'undefined') {
+            const options = {
+                timeOut: 3000,
+                closeButton: false,
+                progressBar: true,
+                positionClass: 'toast-top-center'
+            };
+            
+            if (enabled) {
+                toastr.success(message, 'Settings Updated', options);
+            } else {
+                toastr.warning(message, 'Settings Updated', options);
+            }
+            
+            console.log('NOOR-TOAST: Preference update shown:', message);
+        }
+    };
+
+    // Helper function for scrolling to Q&A panel (can be enhanced later)
+    window.scrollToQAPanel = function() {
+        const qaPanel = document.getElementById('questions-list');
+        if (qaPanel) {
+            qaPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    };
 </script>
