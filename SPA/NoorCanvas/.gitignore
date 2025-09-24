@@ -23,7 +23,11 @@ Debug/
 Release/
 net8.0/
 
-# Temporary files
+# Logs and temporary files
+logs/
+logs/**
+*.log
+**/*noor-canvas-dev-*.txt
 *.tmp
 *.bak
 apphost.exe
