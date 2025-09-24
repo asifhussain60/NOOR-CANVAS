@@ -62,20 +62,20 @@ else
     // Use SQL Server for development and production
     builder.Services.AddDbContext<CanvasDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
-            "Server=(localdb)\\mssqllocaldb;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
+            "Server=AHHOME;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
 
     // Add Simplified Schema Context (for migration)
     builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SimplifiedConnection") ??
             builder.Configuration.GetConnectionString("DefaultConnection") ??
-            "Server=(localdb)\\mssqllocaldb;Database=NoorCanvasSimplified;Trusted_Connection=true;MultipleActiveResultSets=true"));
+            "Server=AHHOME;Database=NoorCanvasSimplified;Trusted_Connection=true;MultipleActiveResultSets=true"));
 }
 
 // Add KSESSIONS Database Context (Read-only for Groups, Categories, Sessions)
 builder.Services.AddDbContext<KSessionsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ??
         builder.Configuration.GetConnectionString("DefaultConnection") ??
-        "Server=(localdb)\\mssqllocaldb;Database=KSESSIONS_DEV;Trusted_Connection=true;MultipleActiveResultSets=true")
+        "Server=AHHOME;Database=KSESSIONS_DEV;Trusted_Connection=true;MultipleActiveResultSets=true")
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Read-only optimization
 
 // Add SignalR with JSON protocol only (avoiding BlazorPack compatibility issues)
@@ -131,6 +131,9 @@ builder.Services.AddScoped<HttpClient>(provider =>
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
+
+// Development services - Only available in development builds
+builder.Services.AddScoped<NoorCanvas.Services.Development.IDevModeService, NoorCanvas.Services.Development.DevModeService>();
 
 // Schema Migration Services - Simplified schema only
 builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service

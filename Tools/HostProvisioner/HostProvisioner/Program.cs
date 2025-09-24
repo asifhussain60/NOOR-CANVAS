@@ -438,7 +438,6 @@ class Program
                 {
                     SessionId = sessionId, // Now SessionId contains the KSESSIONS ID
                     AlbumId = Guid.NewGuid(), // Generate new GUID for AlbumId (GroupId is int, AlbumId needs Guid)
-                    Title = kSession.SessionName ?? $"Islamic Session {sessionId}",
                     Status = "Created",
                     CreatedAt = DateTime.UtcNow,
                     HostToken = "",  // Will be set by token generation
