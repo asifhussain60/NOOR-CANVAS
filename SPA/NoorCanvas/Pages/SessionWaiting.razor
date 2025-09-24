@@ -173,7 +173,6 @@
 
         .session-header {
             text-align: center;
-            margin-bottom: 5rem;
         }
 
         .session-title {
@@ -182,6 +181,35 @@
             font-size: 2.5rem;
             color: #006400;
             margin: 0 0 0.5rem 0;
+        }
+
+        .session-info-panel {
+            background-color: white;
+            border-radius: 1.5rem;
+            border: 2px solid #D4AF37;
+            padding: 2rem 3rem;
+            margin: 0rem auto 3rem auto;
+            max-width: 50rem;
+            box-shadow: 0 10px 25px -12px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .session-info-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2.25rem;
+            color: #006400;
+            margin: 0 0 1rem 0;
+            line-height: 1.2;
+        }
+
+        .session-info-description {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            color: #4B3C2B;
+            line-height: 1.6;
+            margin: 0;
+            text-align: center;
         }
 
         .panels-container {
@@ -543,15 +571,22 @@
             <!-- Main Waiting Room Content - Side by Side Layout -->
             <div class="main-content">
             
-            <!-- Logo and Session Title -->
+            <!-- Logo -->
             <div class="session-header">
                 <div class="logo-container">
                     <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
                          alt="@(Model?.LogoText ?? "NOOR Canvas")" 
                          class="logo-img" />
                 </div>
-                
-                <h1 class="session-title">@(Model?.SessionName ?? "Loading...")</h1>
+            </div>
+
+            <!-- Centered Session Info Panel -->
+            <div class="session-info-panel">
+                <h1 class="session-info-title">@(Model?.SessionName ?? "Loading...")</h1>
+                @if (!string.IsNullOrEmpty(Model?.SessionDescription))
+                {
+                    <p class="session-info-description">@Model.SessionDescription</p>
+                }
             </div>
 
             <!-- Side-by-Side Panels Container: Waiting Room & Session Timer -->
@@ -877,6 +912,7 @@
         
         // Now that we have calculatedStartTime, update the model
         Model.SessionName = session.Title ?? "Unknown Session";
+        Model.SessionDescription = session.Description ?? "";
         // ISSUE-FIXED: Show current date for waiting rooms instead of historical KSESSIONS date
         Model.SessionDate = FormatDate(DateTime.Now); // Use current date for waiting room display
         Model.StartTime = FormatTime(calculatedStartTime); // Use calculated start time
@@ -1309,6 +1345,7 @@
         public string? LogoText { get; set; }
         public SessionWaitingState CurrentState { get; set; }
         public string? SessionName { get; set; }
+        public string? SessionDescription { get; set; }
         public string? SessionDate { get; set; }
         public string? StartTime { get; set; }
         public string? SessionDuration { get; set; }

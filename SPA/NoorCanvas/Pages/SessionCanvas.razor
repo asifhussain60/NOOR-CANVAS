@@ -179,7 +179,7 @@
             </main>
 
             <!-- Right Column: Q&A and Participants -->
-            <aside @ref="rightPanel" class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col">
+            <aside @ref="rightPanel" class="lg:col-span-1 bg-white rounded-3xl p-8 shadow-xl border border-gray-100 flex flex-col">
                 <!-- Tabs -->
                 <div class="flex mb-4 border-b-2 border-gray-200">
                     <button @onclick="() => SetActiveTab(1)" 
@@ -245,23 +245,23 @@
                 <!-- Participants Content -->
                 @if (activeTab == 2)
                 {
-                    <div class="flex-1 overflow-y-auto" style="max-height: 400px;">
-                        <h3 class="font-semibold text-sm" style="color:#4B3C2B; font-family:'Inter',sans-serif;">All Participants</h3>
-                        <ul class="mt-4 space-y-2">
+                    <div class="flex-1 overflow-y-auto" style="max-height: 400px; padding: 1rem;">
+                        <h3 class="font-bold text-lg mb-4" style="color:#4B3C2B; font-family:'Poppins',sans-serif; text-align: center; border-bottom: 2px solid #D4AF37; padding-bottom: 0.5rem;">All Participants</h3>
+                        <ul class="mt-4 space-y-3">
                             @if (Model?.Participants?.Any() == true)
                             {
                                 @foreach (var p in Model.Participants)
                                 {
-                                    <li class="flex items-center space-x-3 p-2 rounded-lg" style="background-color:#FBF9F6;">
+                                    <li class="flex items-center space-x-4 p-3 rounded-lg" style="background-color:#FBF9F6; border-left: 3px solid #D4AF37;">
                                         @if (!string.IsNullOrEmpty(p.Flag))
                                         {
-                                            <img src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" class="rounded-sm" style="width:20px;height:auto;"/>
+                                            <img src="@($"https://flagcdn.com/w20/{p.Flag}.png")" alt="@($"{p.Country} Flag")" class="rounded-sm" style="width:16px;height:auto;"/>
                                         }
                                         else
                                         {
-                                            <div class="w-5 h-4 rounded-sm" style="background-color:#D4AF37;"></div>
+                                            <div class="w-4 h-3 rounded-sm" style="background-color:#D4AF37;"></div>
                                         }
-                                        <span class="text-sm font-medium" style="color:#4B3C2B; font-family:'Inter',sans-serif;">@p.Name</span>
+                                        <span class="text-base font-medium" style="color:#4B3C2B; font-family:'Georgia', 'Times New Roman', serif;">@p.Name</span>
                                     </li>
                                 }
                             }
@@ -269,7 +269,7 @@
                             {
                                 <div class="text-center py-8">
                                     <i class="fa-solid fa-users text-4xl mb-4 opacity-30" style="color:#D4AF37;"></i>
-                                    <p class="text-gray-500" style="font-family:'Inter',sans-serif;">No participants yet</p>
+                                    <p class="text-gray-500" style="font-family:'Georgia', 'Times New Roman', serif;">No participants yet</p>
                                 </div>
                             }
                         </ul>
