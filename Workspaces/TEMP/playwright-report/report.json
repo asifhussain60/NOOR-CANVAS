@@ -1,0 +1,457 @@
+{
+  "config": {
+    "configFile": "D:\\PROJECTS\\NOOR CANVAS\\playwright.config.js",
+    "rootDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\playwright-report\\report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/PROJECTS/NOOR CANVAS/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "session-waiting-timer-fix-verification.spec.ts",
+      "file": "session-waiting-timer-fix-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SessionWaiting Timer Fix Verification",
+          "file": "session-waiting-timer-fix-verification.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Countdown display should be green color",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3136,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                          "column": 20,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                            "column": 20,
+                            "line": 23
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-24T14:53:46.676Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--10ce2-splay-should-be-green-color-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--10ce2-splay-should-be-green-color-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--10ce2-splay-should-be-green-color-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                        "column": 20,
+                        "line": 23
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-dbb6f0ac5990fffc18f1",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 27,
+              "column": 9
+            },
+            {
+              "title": "Progress bar should be visible and functional",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3173,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                          "column": 20,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                            "column": 20,
+                            "line": 23
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-24T14:53:51.575Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--31238-d-be-visible-and-functional-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--31238-d-be-visible-and-functional-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--31238-d-be-visible-and-functional-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                        "column": 20,
+                        "line": 23
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-5e983a0dc6c4df059a8c",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 70,
+              "column": 9
+            },
+            {
+              "title": "Timer should update correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3175,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                          "column": 20,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                            "column": 20,
+                            "line": 23
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-24T14:53:56.461Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--53824-mer-should-update-correctly-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--53824-mer-should-update-correctly-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--53824-mer-should-update-correctly-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                        "column": 20,
+                        "line": 23
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-b428ab43d462572ab346",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 103,
+              "column": 9
+            },
+            {
+              "title": "CSS styling should be properly applied",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3219,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                          "column": 20,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                            "column": 20,
+                            "line": 23
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-24T14:54:01.484Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--2473a--should-be-properly-applied-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--2473a--should-be-properly-applied-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--2473a--should-be-properly-applied-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                        "column": 20,
+                        "line": 23
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-5eaca870c288ce9c7eb8",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 139,
+              "column": 9
+            },
+            {
+              "title": "Overall page functionality after CSS fixes",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3119,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                          "column": 20,
+                          "line": 23
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                            "column": 20,
+                            "line": 23
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/health\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/health\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 21 |\u001b[39m     test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m         \u001b[90m// Ensure the app is running\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/health'\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Healthy'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts:23:20\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-24T14:54:06.525Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--b3719-nctionality-after-CSS-fixes-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--b3719-nctionality-after-CSS-fixes-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\session-waiting-timer-fix--b3719-nctionality-after-CSS-fixes-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\session-waiting-timer-fix-verification.spec.ts",
+                        "column": 20,
+                        "line": 23
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-6e455b1941e5b1a78fc9",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 168,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-24T14:53:45.261Z",
+    "duration": 24935.996,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

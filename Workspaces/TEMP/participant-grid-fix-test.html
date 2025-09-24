@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Grid Column Fix - Demonstration</title>
+    <style>
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+            background-color: #f3f4f6;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .demo-title {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        /* OLD CSS - Too many narrow columns */
+        .participants-list-old {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.5rem;
+            max-height: 12rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            border: 2px solid #ef4444;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        
+        /* NEW CSS - Fixed column counts */
+        .participants-list-new {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            max-height: 12rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            border: 2px solid #10b981;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        /* Responsive grid columns */
+        @media (min-width: 1200px) {
+            .participants-list-new {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .participants-list-new {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .participant-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #706357;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .flag {
+            width: 20px;
+            height: 15px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .status {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .fixed {
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Participant Grid Column Fix - Before & After</h1>
+    
+    <div class="demo-section">
+        <h2 class="demo-title">❌ BEFORE: <span class="status">repeat(auto-fit, minmax(140px, 1fr))</span></h2>
+        <p>Creates too many narrow columns, causing name truncation:</p>
+        <div class="participants-list-old">
+            <div class="participant-item">
+                <div class="flag" style="background: #c53030;"></div>
+                <span>Elizabeth Al-Mahmoud</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #2563eb;"></div>
+                <span>Mohammed Kumar</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #059669;"></div>
+                <span>Patricia Al-Sabah</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #dc2626;"></div>
+                <span>Michael Davis</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #7c3aed;"></div>
+                <span>Khadija Al-Tamimi</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #ea580c;"></div>
+                <span>Richard Cho</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2 class="demo-title">✅ AFTER: <span class="fixed">repeat(3, 1fr) / repeat(4, 1fr) / repeat(2, 1fr)</span></h2>
+        <p>Fixed column counts with responsive breakpoints for better name display:</p>
+        <ul>
+            <li><strong>Desktop (≥1200px):</strong> 4 columns</li>
+            <li><strong>Standard (768px-1199px):</strong> 3 columns</li>
+            <li><strong>Mobile (≤767px):</strong> 2 columns</li>
+        </ul>
+        <div class="participants-list-new">
+            <div class="participant-item">
+                <div class="flag" style="background: #c53030;"></div>
+                <span>Elizabeth Al-Mahmoud</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #2563eb;"></div>
+                <span>Mohammed Kumar</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #059669;"></div>
+                <span>Patricia Al-Sabah</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #dc2626;"></div>
+                <span>Michael Davis</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #7c3aed;"></div>
+                <span>Khadija Al-Tamimi</span>
+            </div>
+            <div class="participant-item">
+                <div class="flag" style="background: #ea580c;"></div>
+                <span>Richard Cho</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2 class="demo-title">📋 Technical Summary</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #f3f4f6;">
+                <th style="padding: 8px; text-align: left; border: 1px solid #d1d5db;">Aspect</th>
+                <th style="padding: 8px; text-align: left; border: 1px solid #d1d5db;">Before</th>
+                <th style="padding: 8px; text-align: left; border: 1px solid #d1d5db;">After</th>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #d1d5db;"><strong>CSS Rule</strong></td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;"><code>repeat(auto-fit, minmax(140px, 1fr))</code></td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;"><code>repeat(3, 1fr)</code> with responsive breakpoints</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #d1d5db;"><strong>Column Behavior</strong></td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;">Auto-fit creates many narrow columns</td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;">Fixed counts: 2-4 columns based on screen size</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #d1d5db;"><strong>Name Display</strong></td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;">Often truncated/wrapped</td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;">Fits on one line</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #d1d5db;"><strong>Responsiveness</strong></td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;">Based on minimum width only</td>
+                <td style="padding: 8px; border: 1px solid #d1d5db;">Explicit breakpoints for different devices</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="demo-section">
+        <h2 class="demo-title">🎯 Expected Results</h2>
+        <ul>
+            <li>✅ Names like "Elizabeth Al-Mahmoud" and "Patricia Al-Sabah" display on single lines</li>
+            <li>✅ Better visual balance with 3-4 columns instead of 6+ narrow columns</li>
+            <li>✅ Responsive design works across desktop, tablet, and mobile</li>
+            <li>✅ Improved readability for international names with longer character counts</li>
+            <li>✅ Maintains scroll behavior for 50+ participants from TEST button</li>
+        </ul>
+    </div>
+</body>
+</html>
