@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NoorCanvas.Data;
 
@@ -11,9 +12,11 @@ using NoorCanvas.Data;
 namespace NoorCanvas.Migrations
 {
     [DbContext(typeof(SimplifiedCanvasDbContext))]
-    partial class SimplifiedCanvasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924142435_RemoveSessionTitleColumn")]
+    partial class RemoveSessionTitleColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

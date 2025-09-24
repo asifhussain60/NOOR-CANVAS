@@ -29,11 +29,13 @@ public class Session
     [Required, MaxLength(8)]
     public string UserToken { get; set; } = string.Empty;
 
-    [MaxLength(200)]
-    public string? Title { get; set; }
+    // Title removed - fetch from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId
+    // [MaxLength(200)]
+    // public string? Title { get; set; }
 
-    [MaxLength(500)]
-    public string? Description { get; set; }
+    // Description removed - fetch from KSESSIONS_DEV.dbo.Sessions.Description via SessionId
+    // [MaxLength(500)]
+    // public string? Description { get; set; }
 
     [MaxLength(20)]
     public string Status { get; set; } = "Active";
