@@ -51,7 +51,7 @@ namespace NoorCanvas.Services
 
             if (_alertDialog == null)
             {
-                _logger.LogWarning("NOOR-WARNING: Attempted to show alert dialog before registration - Message: {Message}", message);
+                _logger.LogWarning("[DEBUG-WORKITEM:canvas:UI] Attempted to show alert dialog before registration - Message: {Message}", message);
 
                 // Queue the operation for when dialog is registered
                 _pendingOperations.Enqueue(async () =>
@@ -59,15 +59,33 @@ namespace NoorCanvas.Services
                     await _alertDialog!.ShowAsync(title, message, type);
                 });
 
-                // Fallback to JavaScript alert for immediate display
+                // Fallback to toastr notification for immediate display
                 try
                 {
-                    await _jsRuntime.InvokeVoidAsync("alert", $"{title}: {message}");
-                    _logger.LogInformation("NOOR-INFO: Used JavaScript alert fallback for: {Title}", title);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] Using toastr fallback for dialog: {Title}", title);
+                    var toastrType = type switch
+                    {
+                        AlertDialog.AlertType.Success => "success",
+                        AlertDialog.AlertType.Warning => "warning", 
+                        AlertDialog.AlertType.Error => "error",
+                        _ => "info"
+                    };
+                    
+                    await _jsRuntime.InvokeVoidAsync("showNoorToast", message, title, toastrType);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas:API] Toastr notification displayed successfully for: {Title}", title);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "NOOR-ERROR: Failed to show JavaScript alert fallback");
+                    _logger.LogError(ex, "[DEBUG-WORKITEM:canvas:API] Failed to show toastr fallback - falling back to browser alert");
+                    // Ultimate fallback to browser alert only if toastr fails
+                    try
+                    {
+                        await _jsRuntime.InvokeVoidAsync("alert", $"{title}: {message}");
+                    }
+                    catch (Exception alertEx)
+                    {
+                        _logger.LogError(alertEx, "[DEBUG-WORKITEM:canvas:API] All notification fallbacks failed");
+                    }
                 }
                 return;
             }

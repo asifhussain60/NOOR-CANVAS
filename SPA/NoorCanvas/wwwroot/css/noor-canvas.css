@@ -91,4 +91,41 @@ a, .btn-link {
     background-position: center;
 }
 
+/* NOOR Canvas Toast Notification Styling */
+.noor-toast {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    border-left: 4px solid #3B82F6 !important; /* NOOR Blue accent */
+}
+
+.noor-toast-title {
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    color: #1f2937 !important; /* NOOR Dark Gray */
+}
+
+.noor-toast-message {
+    font-size: 13px !important;
+    color: #4b5563 !important; /* NOOR Medium Gray */
+    margin-top: 4px !important;
+}
+
+/* Type-specific border colors */
+.toast-success.noor-toast {
+    border-left-color: #10b981 !important; /* Success Green */
+}
+
+.toast-warning.noor-toast {
+    border-left-color: #f59e0b !important; /* Warning Amber */
+}
+
+.toast-error.noor-toast {
+    border-left-color: #ef4444 !important; /* Error Red */
+}
+
+.toast-info.noor-toast {
+    border-left-color: #8b5cf6 !important; /* NOOR Purple */
+}
+
 
