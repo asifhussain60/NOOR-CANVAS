@@ -262,8 +262,8 @@ public class TestDbContextFactory
 // appsettings.Testing.json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=NOOR_Canvas_Test;Trusted_Connection=true;",
-    "KSessionsDb": "Server=(localdb)\\mssqllocaldb;Database=KSESSIONS_Test;Trusted_Connection=true;"
+    "DefaultConnection": "Server=AHHOME;Database=NOOR_Canvas_Test;Trusted_Connection=true;",
+    "KSessionsDb": "Server=AHHOME;Database=KSESSIONS_Test;Trusted_Connection=true;"
   },
   "Logging": {
     "LogLevel": {
