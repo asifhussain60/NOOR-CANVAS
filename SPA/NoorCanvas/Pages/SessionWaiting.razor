@@ -18,198 +18,649 @@
 
 <PageTitle>NoorCanvas</PageTitle>
 
-<HeadContent>
-    @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
-</HeadContent>
-
-<div style="background-color:#F8F5F1;display:flex;flex-direction:column;align-items:center;padding:1rem;min-height:100vh;">
-
-    @if (Model?.CurrentState == SessionWaitingState.Loading)
-    {
-        <!-- Loading State -->
-        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
-            
-            <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="max-width:300px;height:auto;margin:0 auto;" />
-            </div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <i class="fa-solid fa-spinner fa-spin" style="font-size:2.25rem;color:#006400;"></i>
-                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#006400;margin:0;">Loading Session...</h1>
-            </div>
-            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0;">Please wait while we prepare your session.</p>
-        </div>
+@* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
+<style>
+    .session-waiting-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
     }
-    else if (Model?.CurrentState == SessionWaitingState.SessionNotFound || Model?.CurrentState == SessionWaitingState.InvalidToken)
-    {
-        <!-- Error State -->
-        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fecaca;">
+
+    .session-waiting-container {
+        width: 85%;
+        max-width: 80rem;
+        background-color: #FFFFFF;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border: 1px solid #E5E7EB;
+        text-align: center;
+    }
+
+    .loading-state, .error-state, .network-error-state {
+        width: 100%;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .error-state {
+        border: 1px solid #fecaca;
+        border-radius: 1rem;
+        background-color: #fef2f2;
+    }
+
+    .network-error-state {
+        border: 1px solid #fed7aa;
+        border-radius: 1rem;
+        background-color: #fff7ed;
+    }
+
+    .logo-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .logo-img {
+        max-width: 300px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .logo-img-small {
+        max-width: 150px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .loading-header, .error-header, .network-error-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .loading-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.875rem;
+        color: #006400;
+        margin: 0;
+    }
+
+    .error-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.875rem;
+            color: #ef4444;
+            margin: 0;
+        }
+
+        .network-error-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.875rem;
+            color: #f97316;
+            margin: 0;
+        }
+
+        .loading-spinner {
+            font-size: 2.25rem;
+            color: #006400;
+        }
+
+        .error-icon {
+            font-size: 2.25rem;
+            color: #ef4444;
+        }
+
+        .network-error-icon {
+            font-size: 2.25rem;
+            color: #f97316;
+        }
+
+        .description-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            color: #706357;
+            margin: 0;
+        }
+
+        .error-message {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            color: #706357;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .retry-button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: #006400;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .home-button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background-color: #6b7280;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .main-content {
+            width: 100%;
+        }
+
+        .session-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .session-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #006400;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .panels-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .waiting-room-panel {
+            background-color: white;
+            border-radius: 1rem;
+            border: 2px solid #D4AF37;
+            padding: 1rem 1.5rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .waiting-room-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #4B3C2B;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .session-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            background-color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            flex: 1;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-icon-container {
+            padding: 0.5rem;
+            background-color: #E5D7A9;
+            border-radius: 0.5rem;
+        }
+
+        .detail-icon {
+            color: #B8960C;
+            font-size: 1rem;
+        }
+
+        .detail-content {
+            text-align: left;
+        }
+
+        .detail-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.625rem;
+            color: #706357;
+            margin: 0;
+        }
+
+        .detail-value {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: #4B3C2B;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .timer-panel {
+            text-align: center;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border: 2px solid #D4AF37;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .timer-status {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #4B3C2B;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .countdown-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #006400;
+            margin: 0.5rem 0 1rem 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .progress-bar-container {
+            height: 0.5rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #22c55e;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .progress-bar-full {
+            height: 100%;
+            background-color: #22c55e;
+            width: 100%;
+        }
+
+        .timer-description {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            color: #706357;
+            margin: 0;
+        }
+
+        .participants-panel {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+            border: 2px solid #D4AF37;
+        }
+
+        .participants-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .participants-title-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .participants-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #4B3C2B;
+            margin: 0;
+        }
+
+        .participants-icon {
+            font-size: 1.5rem;
+            color: #706357;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .sort-button {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            background-color: #F8F5F1;
+            color: #4B3C2B;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sort-button:hover {
+            background-color: #e5e7eb;
+        }
+
+        .participants-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.5rem;
+            max-height: 12rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #706357;
+        }
+
+        .participant-flag {
+            height: 1.5rem;
+            width: auto;
+            border-radius: 0.125rem;
+            border: 1px solid #d1d5db;
+        }
+
+        .participant-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .no-participants {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #706357;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            padding: 1rem 0;
+        }
+
+        .connection-alert {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 3px solid #f59e0b;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 20px rgba(245,158,11,0.2);
+        }
+
+        .connection-alert-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .connection-alert-icon {
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 50%;
+            color: white;
+        }
+
+        .connection-alert-icon i {
+            font-size: 1.5rem;
+        }
+
+        .connection-alert-text {
+            flex: 1;
+        }
+
+        .connection-alert-message {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: #92400e;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .connection-retry-button {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(245,158,11,0.3);
+        }
+
+        @@keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+</style>
+
+<!-- Root container matching HostLanding.razor structure -->
+<div class="session-waiting-root">
+    
+    <!-- Main content container -->
+    <div class="session-waiting-container">
+
+        @if (Model?.CurrentState == SessionWaitingState.Loading)
+        {
+            <!-- Loading State -->
+            <div class="loading-state">
+                
+                <!-- Logo -->
+                <div class="logo-container">
+                    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                         alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                         class="logo-img" />
+                </div>
+                <div class="loading-header">
+                    <i class="fa-solid fa-spinner fa-spin loading-spinner"></i>
+                    <h1 class="loading-title">Loading Session...</h1>
+                </div>
+                <p class="description-text">Please wait while we prepare your session.</p>
+            </div>
+        }
+        else if (Model?.CurrentState == SessionWaitingState.SessionNotFound || Model?.CurrentState == SessionWaitingState.InvalidToken)
+        {
+            <!-- Error State -->
+            <div class="error-state">
             
             <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+            <div class="logo-container">
                 <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="max-width:150px;height:auto;margin:0 auto;" />
+                     class="logo-img-small" />
             </div>
             
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <i class="fa-solid fa-exclamation-triangle" style="font-size:2.25rem;color:#ef4444;"></i>
-                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#ef4444;margin:0;">Session Error</h1>
+            <div class="error-header">
+                <i class="fa-solid fa-exclamation-triangle error-icon"></i>
+                <h1 class="error-title">Session Error</h1>
             </div>
-            <p data-testid="error-message" style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model?.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <button @onclick="RetryLoadSession" 
-                        style="width:100%;padding:0.75rem 1.5rem;background-color:#006400;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
+            <p data-testid="error-message" class="error-message">@(Model?.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
+            <div class="button-container">
+                <button @onclick="RetryLoadSession" class="retry-button">
                     <i class="fa-solid fa-refresh" style="margin-right:0.5rem;"></i>
                     Try Again
                 </button>
-                <button @onclick="NavigateHome" 
-                        style="width:100%;padding:0.75rem 1.5rem;background-color:#6b7280;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
+                <button @onclick="NavigateHome" class="home-button">
                     <i class="fa-solid fa-home" style="margin-right:0.5rem;"></i>
                     Return Home
                 </button>
             </div>
         </div>
-    }
-    else if (Model?.CurrentState == SessionWaitingState.NetworkError)
-    {
-        <!-- Network Error State -->
-        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fed7aa;">
+        }
+        else if (Model?.CurrentState == SessionWaitingState.NetworkError)
+        {
+            <!-- Network Error State -->
+            <div class="network-error-state">
             
             <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+            <div class="logo-container">
                 <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="max-width:150px;height:auto;margin:0 auto;" />
+                     class="logo-img-small" />
             </div>
             
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <i class="fa-solid fa-wifi" style="font-size:2.25rem;color:#f97316;"></i>
-                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#f97316;margin:0;">Connection Error</h1>
+            <div class="network-error-header">
+                <i class="fa-solid fa-wifi network-error-icon"></i>
+                <h1 class="network-error-title">Connection Error</h1>
             </div>
-            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">Unable to connect to the server. Please check your internet connection.</p>
-            <button @onclick="RetryLoadSession" 
-                    style="width:100%;padding:0.75rem 1.5rem;background-color:#006400;color:white;font-weight:600;border-radius:0.75rem;border:none;cursor:pointer;transition:background-color 0.2s;">
+            <p class="error-message">Unable to connect to the server. Please check your internet connection.</p>
+            <button @onclick="RetryLoadSession" class="retry-button">
                 <i class="fa-solid fa-refresh" style="margin-right:0.5rem;"></i>
                 Retry Connection
             </button>
         </div>
-    }
-    else if (Model?.CurrentState == SessionWaitingState.Loaded)
-    {
-        <!-- Main Waiting Room Content -->
-        <div style="width:100%;max-width:56rem;background-color:white;border-radius:1.5rem;padding:1.5rem 2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;margin-bottom:2rem;">
+        }
+        else if (Model?.CurrentState == SessionWaitingState.Loaded)
+        {
+            <!-- Main Waiting Room Content - Side by Side Layout -->
+            <div class="main-content">
             
-            <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="max-width:150px;height:auto;margin:0 auto;" />
+            <!-- Logo and Session Title -->
+            <div class="session-header">
+                <div class="logo-container">
+                    <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
+                         alt="@(Model?.LogoText ?? "NOOR Canvas")" 
+                         class="logo-img" />
+                </div>
+                
+                <h1 class="session-title">@(Model?.SessionName ?? "Loading...")</h1>
             </div>
-            
-            <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.25rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:0 0 1.5rem 0;">
-                <i class="fa-solid fa-hourglass-half" style="font-size:2.5rem;color:#006400;"></i>
-                <span>Waiting Room</span>
-            </h1>
 
-            <!-- Session Details Panel -->
-            <div style="width:100%;background-color:white;border-radius:1rem;border:2px solid #D4AF37;padding:1.5rem 2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);margin-bottom:1.5rem;">
-                <h2 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#1f2937;text-align:center;margin:0 0 1.5rem 0;">@(Model?.SessionName ?? "Loading...")</h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;background-color:white;padding:1rem;border-radius:0.75rem;">
-                    <div style="display:flex;align-items:center;gap:1rem;">
-                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color:#C5B358;font-size:1.5rem;"></i>
+            <!-- Side-by-Side Panels Container: Waiting Room & Session Timer -->
+            <div class="panels-container">
+                
+                <!-- Left Panel: Waiting Room Details -->
+                <div class="waiting-room-panel">
+                    <!-- Session Details Grid -->
+                    <div class="session-details-grid">
+                        <!-- Date -->
+                        <div class="detail-item">
+                            <div class="detail-icon-container">
+                                <i class="fa-solid fa-calendar-days detail-icon"></i>
+                            </div>
+                            <div class="detail-content">
+                                <p class="detail-label">Date</p>
+                                <p class="detail-value">@(Model?.SessionDate ?? "Today")</p>
+                            </div>
                         </div>
-                        <div style="text-align:left;">
-                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Date</p>
-                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.SessionDate ?? "Today")</p>
+                        
+                        <!-- Start Time -->
+                        <div class="detail-item">
+                            <div class="detail-icon-container">
+                                <i class="fa-solid fa-clock detail-icon"></i>
+                            </div>
+                            <div class="detail-content">
+                                <p class="detail-label">Start Time</p>
+                                <p class="detail-value">@(Model?.StartTime ?? "2:00 PM EST")</p>
+                            </div>
                         </div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:1rem;">
-                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
-                            <i class="fa-solid fa-clock" style="color:#C5B358;font-size:1.5rem;"></i>
+                        
+                        <!-- Duration -->
+                        <div class="detail-item">
+                            <div class="detail-icon-container">
+                                <i class="fa-solid fa-hourglass-half detail-icon"></i>
+                            </div>
+                            <div class="detail-content">
+                                <p class="detail-label">Duration</p>
+                                <p class="detail-value">@(Model?.SessionDuration ?? "Loading...")</p>
+                            </div>
                         </div>
-                        <div style="text-align:left;">
-                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Start Time</p>
-                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.StartTime ?? "2:00 PM EST")</p>
-                        </div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:1rem;">
-                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
-                            <i class="fa-solid fa-hourglass-half" style="color:#C5B358;font-size:1.5rem;"></i>
-                        </div>
-                        <div style="text-align:left;">
-                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Duration</p>
-                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.SessionDuration ?? "Loading...")</p>
-                        </div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:1rem;">
-                        <div style="padding:0.75rem;background-color:#E5D7A9;border-radius:0.75rem;">
-                            <i class="fa-solid fa-user-tie" style="color:#C5B358;font-size:1.5rem;"></i>
-                        </div>
-                        <div style="text-align:left;">
-                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin:0;">Instructor</p>
-                            <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;font-size:1.125rem;margin:0;">@(Model?.InstructorName ?? "Loading...")</p>
+                        
+                        <!-- Instructor -->
+                        <div class="detail-item">
+                            <div class="detail-icon-container">
+                                <i class="fa-solid fa-user-tie detail-icon"></i>
+                            </div>
+                            <div class="detail-content">
+                                <p class="detail-label">Instructor</p>
+                                <p class="detail-value">@(Model?.InstructorName ?? "Loading...")</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Session Status & Timer -->
-            <div style="text-align:center;border-radius:0.75rem;padding:1.5rem;background-color:white;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;margin-bottom:1.5rem;">
+                <!-- Right Panel: Session Timer -->
+                <div class="timer-panel">
                 @if (Model?.SessionStarted == true)
                 {
-                    <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0 0 0.5rem 0;">Session is starting now!</p>
-                    <div style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">00:00</div>
-                    <div style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
-                        <div style="height:100%;background-color:#D4AF37;width:100%;"></div>
+                    <p class="timer-status">Session is starting now!</p>
+                    <div class="countdown-display">00:00</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-full"></div>
                     </div>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">Waiting for host to begin the session.</p>
+                    <p class="timer-description">Waiting for host to begin the session.</p>
                 }
                 else
                 {
-                    <p style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0 0 0.5rem 0;">Session begins in:</p>
-                    <div data-testid="countdown-display" style="font-size:3rem;font-weight:700;color:#006400;margin:0.5rem 0 1rem 0;font-family:'Inter',sans-serif;">@(Model?.FormattedTime ?? "00:00")</div>
-                    <div data-testid="progress-bar" style="height:0.5rem;background-color:#e5e7eb;border-radius:9999px;overflow:hidden;margin-bottom:0.5rem;">
-                        <div style="height:100%;background-color:#D4AF37;transition:width 0.5s ease-in-out;width:@(Model?.Progress ?? 0)%;"></div>
+                    <p class="timer-status">Session begins in:</p>
+                    <div data-testid="countdown-display" class="countdown-display">@(Model?.FormattedTime ?? "00:00")</div>
+                    <div data-testid="progress-bar" class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width:@(Model?.Progress ?? 0)%;"></div>
                     </div>
-                    <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin:0;">@(Model?.StatusMessage ?? "Waiting for host to begin the session.")</p>
+                    <p class="timer-description">@(Model?.StatusMessage ?? "Waiting for host to begin the session.")</p>
                 }
 
                 @* Start Session Button removed - Issue-129: Should not be visible in participant waiting room *@
+                </div>
             </div>
 
             <!-- Participants Panel -->
-            <div style="background-color:white;padding:1rem;border-radius:0.75rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:2px solid #D4AF37;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <h2 style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#4B3C2B;margin:0;">Participants (@(Model?.Participants?.Count ?? 0))</h2>
-                        <i class="fa-solid fa-users" style="font-size:1.5rem;color:#706357;"></i>
+            <div class="participants-panel">
+                <div class="participants-header">
+                    <div class="participants-title-container">
+                        <h2 class="participants-title">Participants (@(Model?.Participants?.Count ?? 0))</h2>
+                        <i class="fa-solid fa-users participants-icon"></i>
                     </div>
-                    <div style="display:flex;gap:0.5rem;">
-                        <button @onclick="SortByName" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#e5e7eb;">Sort by Name</button>
-                        <button @onclick="SortByCountry" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:9999px;background-color:#F8F5F1;color:#4B3C2B;font-weight:600;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#e5e7eb;">Sort by Country</button>
+                    <div class="sort-buttons">
+                        <button @onclick="SortByName" class="sort-button">Sort by Name</button>
+                        <button @onclick="SortByCountry" class="sort-button">Sort by Country</button>
                     </div>
                 </div>
-                <div data-testid="participants-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.5rem;max-height:12rem;overflow-y:auto;padding-right:0.5rem;">
+                <div data-testid="participants-list" class="participants-list">
                     @if (Model?.Participants?.Any() == true)
                     {
                         @foreach (var p in Model.Participants)
                         {
-                            <div style="display:flex;align-items:center;gap:0.5rem;color:#706357;">
+                            <div class="participant-item">
                                 <FlagIcon CountryIso2="@p.Flag" 
                                          CountryName="@p.Country" 
                                          DataTestId="participant-flag"
-                                         Style="height:1rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;" />
-                                <span style="font-family:'Inter',sans-serif;font-size:0.875rem;">@p.Name</span>
+                                         Style="height:1.5rem;width:auto;border-radius:0.125rem;border:1px solid #d1d5db;" />
+                                <span class="participant-name">@p.Name</span>
                             </div>
                         }
                     }
                     else
                     {
-                        <div style="grid-column:1 / -1;text-align:center;color:#706357;font-family:'Inter',sans-serif;font-size:0.875rem;padding:1rem 0;">
+                        <div class="no-participants">
                             No participants yet. You're the first!
                         </div>
                     }
@@ -218,28 +669,29 @@
 
 
 
-            <!-- Connection Status -->
+            <!-- Connection Status Alert -->
             @if (Model?.CurrentState == SessionWaitingState.ConnectionIssue)
             {
-                <div style="background-color:#fefce8;border:1px solid #fde047;border-radius:0.75rem;padding:1rem;">
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <i class="fa-solid fa-exclamation-triangle" style="color:#ca8a04;"></i>
-                        <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#a16207;margin:0;">Connection unstable. Updates may be delayed.</p>
-                        <button @onclick="RetryConnection" style="color:#a16207;background:none;border:none;text-decoration:underline;cursor:pointer;">Retry</button>
+                <div class="connection-alert">
+                    <div class="connection-alert-content">
+                        <div class="connection-alert-icon">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="connection-alert-text">
+                            <p class="connection-alert-message">Connection unstable. Updates may be delayed.</p>
+                        </div>
+                        <button @onclick="RetryConnection" class="connection-retry-button">
+                            <i class="fa-solid fa-refresh" style="margin-right:0.5rem;"></i>Retry
+                        </button>
                     </div>
                 </div>
             }
         </div>
-    }
+        }
+    </div>
 </div>
 
-<!-- CSS Animation for FontAwesome Spinner -->
-<style>
-    @@keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-</style>
+
 
 @implements IAsyncDisposable
 
@@ -943,6 +1395,4 @@
         public string? Country { get; set; }
         public string? CountryFlag { get; set; } // Database-driven flag code
     }
-    
-
 }
