@@ -3,23 +3,27 @@ mode: agent
 name: cleanup
 alias: /cleanup
 description: >
-  Perform a disciplined repo cleanup within a defined scope while preserving history,
-  consolidating documentation, organizing Playwright assets, enforcing canonical structure,
-  and ensuring the working tree is clean. 
+  HIGH-PERFORMANCE disciplined repo cleanup with optimized .gitignore enhancement,
+  bulk file operations, and efficient pattern matching. Focus on comprehensive
+  .gitignore patterns FIRST to prevent future accumulation of uncommitted files.
+  Prioritize speed and efficiency while preserving history and canonical structure.
   Always align with NOOR-CANVAS-DESIGN, ncImplementationTracker, and INFRASTRUCTURE-FIXES-REPORT.
-  Any non-canonical files should be moved into Workspaces/TEMP, which is purged at the end
-  unless files are explicitly referenced.
 
 parameters:
   - name: scope
     required: false
     description: >
       Optional path or glob to limit cleanup (e.g., "PlayWright/", "src/Web/**").
-      Defaults to repo root (".").
+      Defaults to repo root (".").  
   - name: dry_run
     required: false
     description: >
       If true (default), only preview moves/deletes in a diff-style plan.
+  - name: aggressive
+    required: false
+    description: >
+      If true, use bulk operations and skip individual file validation for speed.
+      Use for large cleanups (>100 files). Default: false.
 
 # ─────────────────────────────────────────────
 # 📖 Usage Examples
@@ -30,14 +34,14 @@ parameters:
 # /cleanup dry_run:false
 
 # ─────────────────────────────────────────────
-# 🧭 Goals
+# 🚀 HIGH-PERFORMANCE GOALS (Optimized Sept 24, 2025)
 # ─────────────────────────────────────────────
-# • Enforce clean canonical repo structure.
-# • Move stray configs, SQL, PS1, and evidence files into appropriate folders or Workspaces/TEMP.
-# • Consolidate documentation into Workspaces/Documentation with an INDEX.md.
-# • Ensure Playwright artifacts are ignored, not committed.
-# • Purge Workspaces/TEMP of all unreferenced files.
-# • End with zero uncommitted files in the working tree.
+# • FIRST PRIORITY: Comprehensive .gitignore enhancement to prevent future accumulation
+# • BULK OPERATIONS: Use git clean -fdx and Remove-Item -Recurse for speed
+# • COUNT-DRIVEN: Use git ls-files --others to quantify scope before action
+# • PATTERN VALIDATION: Test .gitignore patterns with git check-ignore before commit
+# • ATOMIC COMMITS: Group related changes for clean git history
+# • ZERO-DIFF TARGET: Achieve clean working tree with maximum efficiency
 
 # ─────────────────────────────────────────────
 # 📁 Root Canonicalization
@@ -107,45 +111,85 @@ constraints:
   - Only touch outside scope for .gitignore or link fixes.
 
 # ─────────────────────────────────────────────
-# 📋 Execution Plan
+# ⚡ OPTIMIZED EXECUTION PLAN (Sept 24, 2025 Lessons)
 # ─────────────────────────────────────────────
 steps:
-  - title: Resolve Effective Scope
-    run: Determine scope (default ".").
-  - title: .gitignore Audit
+  - title: "📊 SCOPE ASSESSMENT (Performance First)"
     run: >
-      Ensure Playwright artifacts and TEMP ignored.
-      Add rules for OS/editor junk, caches, logs, tmp/bak files.
-  - title: Docs Consolidation
+      • git ls-files --others --exclude-standard | Measure-Object -Line
+      • Count uncommitted files to determine strategy (>100 = aggressive mode)
+      • git status --porcelain to identify patterns quickly
+      
+  - title: "🛡️ .gitignore ENHANCEMENT (Priority #1)"
     run: >
-      Move scattered .md files into Workspaces/Documentation, update links, 
-      generate INDEX.md, merge duplicates.
-  - title: Root Canonicalization
+      • IMMEDIATE: Add comprehensive patterns for detected file types
+      • Test patterns with git check-ignore before committing
+      • Focus on: **/bin/, **/obj/, **/*.log, **/logs/, test-results/, Tests/
+      • Add both root-level and SPA-level .gitignore patterns
+      • Commit .gitignore changes FIRST before cleanup
+      
+  - title: "🚀 BULK CLEANUP (High Performance)"
     run: >
-      Normalize Playwright configs, SQL scripts, PS1 helpers, evidence, and configs
-      according to rules; move non-canonicals into TEMP.
-  - title: Naming & Link Fixes
-    run: Normalize file/folder names; update references across repo.
-  - title: TEMP Sweep
+      • Use git clean -fdx (if aggressive=true) or selective removal
+      • Remove-Item -Recurse -Force for large directories
+      • Avoid individual file operations for >50 files
+      • Handle permission errors with -ErrorAction SilentlyContinue
+      
+  - title: "🔍 PATTERN VALIDATION (Quality Gate)"
     run: >
-      Delete all unreferenced files under Workspaces/TEMP; remove empty subfolders.
-      Warn if any TEMP files remain due to references.
-  - title: Artefact & Cache Cleanup
+      • Create test files to verify .gitignore patterns work
+      • Ensure build/log regeneration doesn't show as uncommitted
+      • Fix any pattern gaps immediately
+      
+  - title: "📁 SELECTIVE CANONICALIZATION (Efficiency Focus)"
     run: >
-      Purge bin/, obj/, dist/, .cache/, *.tmp, *.bak, *.log. 
-      Untrack via git rm if committed accidentally.
-  - title: Lint & Format
-    run: dotnet format (C#) + prettier (JS/TS/MD).
-  - title: Build & Sanity Check
-    run: Build app; require 0 errors, ≤2 warnings.
-  - title: Zero-Diff Finisher
+      • Only move files that are truly misplaced (skip if already organized)
+      • Use batch operations for similar file types
+      • Skip documentation consolidation if already in Workspaces/Documentation/
+      
+  - title: "✅ ATOMIC COMMIT & VERIFICATION"
     run: >
-      Stage + commit moves/deletes.
-      git clean -fdX.
-      Verify working tree is clean (git status empty).
+      • Single commit for all cleanup changes
+      • git status verification (should be empty)
+      • No build/format steps unless explicitly requested
 
 # ─────────────────────────────────────────────
-# � RETROSPECTIVE INTEGRATION (Sept 22, 2025)
+# ⚡ PERFORMANCE COMMANDS (Sept 24, 2025 Optimization)
+# ─────────────────────────────────────────────
+high_performance_commands:
+  assessment:
+    count_uncommitted: "git ls-files --others --exclude-standard | Measure-Object -Line"
+    quick_status: "git status --porcelain"
+    test_patterns: "git check-ignore -v 'path/to/test/file'"
+    
+  bulk_operations:
+    aggressive_clean: "git clean -fdx"  # Use for >100 files
+    selective_clean: "git clean -fd"    # Use for <100 files  
+    bulk_remove: "Remove-Item 'path/**' -Recurse -Force -ErrorAction SilentlyContinue"
+    
+  gitignore_patterns:
+    essential_root: |
+      **/bin/
+      **/obj/
+      **/*.log
+      **/*.dll
+      **/*.exe
+      **/*.pdb
+      **/logs/
+      test-results/
+      /Tests/
+    essential_spa: |
+      logs/
+      logs/**
+      **/*noor-canvas-dev-*.txt
+      *.log
+      
+  verification:
+    final_check: "git status"
+    pattern_test: "git check-ignore 'SPA/NoorCanvas/logs/test.log'"
+
+# ─────────────────────────────────────────────
+# 📊 RETROSPECTIVE INTEGRATION (Sept 22-24, 2025)
 # ─────────────────────────────────────────────
 context_first_protocol:
   - title: "Read Self-Awareness Instructions First"  
@@ -156,36 +200,55 @@ context_first_protocol:
       • Maintain awareness of current development state and active work
 
 efficiency_patterns:
-  - title: "Incremental Cleanup with Validation"
+  - title: "⚡ High-Performance Operations (Sept 24 Optimizations)"
     details: |
-      • Process cleanup in logical phases with validation checkpoints
-      • Validate each move/delete operation before proceeding to next
-      • Use comprehensive logging to trace cleanup operations
-      • Implement robust backup strategies before destructive operations
+      • MEASURE FIRST: Count files with git ls-files --others | Measure-Object
+      • BULK OPERATIONS: Use git clean -fdx for >100 files, selective for <100
+      • PATTERN-FIRST: Fix .gitignore BEFORE cleanup to prevent regeneration
+      • AVOID LOOPS: Use PowerShell bulk operations instead of individual file handling
+      • TEST FAST: Use git check-ignore to validate patterns without file creation
+      • COMMIT ATOMIC: Single commit for all cleanup to maintain clean history
 
-  - title: "Infrastructure Preservation"
+  - title: "🎯 Targeted Efficiency (Lessons Learned)"
     details: |
-      • Always validate that cleanup doesn't break running applications
-      • Preserve critical configuration and artifact paths
-      • Ensure .gitignore patterns protect temporary files appropriately
-      • Maintain canonical structure without disrupting active workflows
+      • SKIP if organized: Don't move files already in correct locations
+      • DUAL .gitignore: Update both root and SPA-level .gitignore files
+      • HANDLE PERMISSIONS: Use -ErrorAction SilentlyContinue for bulk operations
+      • AVOID INTERACTIVE: Never use interactive git commands in automation
+      • COUNT VERIFY: Use Measure-Object to confirm file counts before/after
 
 # ─────────────────────────────────────────────
 # �🛡️ Regression Guards
 # ─────────────────────────────────────────────
 guardrails:
-  - [playwright] Never commit artifacts (reports/results/artifacts).
-  - [docs] Only root README.md at root; others in Workspaces/Documentation.
-  - [temp] TEMP must be purged unless files are explicitly referenced.
-  - [naming] Enforce kebab-case for test files, PascalCase for C#/Razor.
-  - [duplication] Detect duplicates; keep canonical copy only.
-  - [tracker] Never touch issue trackers.
+  - [performance] Count files first: >100 uncommitted = use aggressive bulk operations
+  - [patterns] Test .gitignore with git check-ignore before committing changes
+  - [atomicity] Single commit for cleanup, don't mix with feature changes
+  - [dual-ignore] Update both root .gitignore AND SPA/NoorCanvas/.gitignore
+  - [bulk-safety] Use -ErrorAction SilentlyContinue for permission-sensitive operations
+  - [playwright] Never commit artifacts (reports/results/artifacts)
+  - [docs] Only root README.md at root; others in Workspaces/Documentation
+  - [temp] TEMP must be purged unless files are explicitly referenced
+  - [interactive] Avoid git clean interactive prompts in automation
+  - [verification] Always end with git status verification (empty = success)
 
 # ─────────────────────────────────────────────
-# 📤 Output
+# � PERFORMANCE OUTPUT (Optimized Reporting)
 # ─────────────────────────────────────────────
 output:
-  - Table: PATH → ACTION (move/delete/keep) → DEST
-  - Docs INDEX summary
-  - TEMP purge report: deleted N, kept M (with reasons)
-  - git status confirmation (empty working tree)
+  - Performance metrics: Files processed, time saved, operations used
+  - Before/After count: "git ls-files --others | Measure-Object" comparison
+  - .gitignore enhancements: Patterns added, coverage achieved
+  - Bulk operations summary: Directories removed, files cleaned
+  - git status confirmation: "working tree clean" = SUCCESS
+  - Pattern validation: git check-ignore test results
+  
+# ─────────────────────────────────────────────
+# 🏆 SUCCESS CRITERIA (Sept 24 Standards)
+# ─────────────────────────────────────────────
+success_metrics:
+  - Zero uncommitted files: git status --porcelain returns empty
+  - Pattern coverage: .gitignore handles all detected file types
+  - Performance target: >100 files cleaned in <5 operations
+  - No regeneration: Build/run doesn't create new uncommitted files
+  - Atomic history: Single cleanup commit with comprehensive message
