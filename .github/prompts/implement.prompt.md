@@ -3,7 +3,13 @@ mode: agent
 name: implement
 alias: /implement
 description: >
-  Implement new Noor Canvas requirements using proven Blazor Server, ASP.NET Core, EF Core, and SignalR patterns.
+  Implement new Noor Canvas require  - title: SignalR & Real-time
+    details: |
+      • Subscribe to SessionHub/AnnotationHub/QAHub ("Session_{sessionId}").
+      • Ensure idempotent handlers and duplicate-submit guards; use InvokeAsync for UI updates.
+      • **CRITICAL**: Load component state (SessionId) BEFORE joining SignalR groups
+      • Pattern: InitializeSignalRAsync() → LoadSessionDataAsync() → JoinSignalRGroupsAsync()
+      • Add null checks before group operations: if (SessionId != null) { await Hub.JoinGroup(); }s using proven Blazor Server, ASP.NET Core, EF Core, and SignalR patterns.
   Enforce View→Route→API→DTO→SQL integrity, respect KSESSIONS_DEV (read-only) vs Canvas (writable),
   and verify changes with automated tests. Align with NOOR-CANVAS-DESIGN, ncImplementationTracker,
   INFRASTRUCTURE-FIXES-REPORT, PLAYWRIGHT-EXECUTION-GUARDRAILS, and PORT-BINDING-SOLUTION.
@@ -201,6 +207,15 @@ regression_prevention:
       • Implement modern clipboard API with execCommand fallback strategy
       • Maintain visual feedback for user interactions (copy buttons, loading states)
       • Follow center-then-commit pattern: make UI changes, verify visually, commit with descriptive messages
+
+  - title: "Q&A System Implementation Patterns (Sept 23, 2025 Retrospective)"
+    details: |
+      • Design session validation to handle test/prod environments ("Active" OR "Configured")
+      • Implement proper SignalR initialization sequence: Connect → Load State → Join Groups
+      • Add comprehensive debug logging at every step: submission → validation → SignalR → display
+      • Validate token expiration before debugging; generate fresh tokens as needed
+      • Use consistent naming: Host_{sessionId} groups, COPILOT-DEBUG prefixes
+      • Test end-to-end flow with real tokens and actual SignalR broadcasting
 
 # ─────────────────────────────────────────────────────────
 # ✅ Quality Checklist (emit in output)

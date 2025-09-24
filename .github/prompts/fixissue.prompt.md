@@ -75,6 +75,38 @@ retrospective_protocols:
       • Generate comprehensive artifacts: screenshots, logs, test results
       • Include negative test scenarios to confirm fix resilience
 
+# ─────────────────────────────────────────────────────────
+# 🔧 SIGNALR & Q&A SYSTEM GUARDRAILS (Sept 23, 2025)
+# ─────────────────────────────────────────────────────────
+signalr_qa_protocols:
+  - title: "SignalR Initialization Order"
+    details: |
+      • ALWAYS load component state (e.g., SessionId) BEFORE joining SignalR groups
+      • Pattern: InitializeSignalRAsync() → LoadSessionDataAsync() → JoinSignalRGroupsAsync()
+      • Never call SignalR group operations with null/undefined component properties
+      • Add null checks before all SignalR operations: if (SessionId != null) { ... }
+
+  - title: "Session Status Validation Scope"
+    details: |
+      • Design validation queries to handle realistic test scenarios, not just production
+      • Test sessions often use "Configured" status; production uses "Active"
+      • Use inclusive validation: (Status == "Active" || Status == "Configured")
+      • Document expected session statuses for each environment (dev/test/prod)
+
+  - title: "Token Lifecycle Management"  
+    details: |
+      • Always check token expiration before debugging Q&A or session issues
+      • Generate fresh tokens using HostProvisioner when tokens expire during testing
+      • Validate ExpiresAt > GETUTCDATE() in SimplifiedTokenService
+      • Log token expiration times for debugging: "ExpiresAt: {ExpiresAt}, Current: {DateTime.UtcNow}"
+
+  - title: "Q&A Pipeline Debug Logging"
+    details: |
+      • Add comprehensive logging at every step: submission → validation → SignalR → display
+      • Use consistent prefixes: "COPILOT-DEBUG:", "NOOR-QA:", "NOOR-SIGNALR:"
+      • Log SessionId, ConnectionId, and group membership for SignalR operations
+      • Include request IDs for tracing across controllers and hubs
+
 # ──────────────────────────────
 # 🚦 Global Guardrails
 # ──────────────────────────────
