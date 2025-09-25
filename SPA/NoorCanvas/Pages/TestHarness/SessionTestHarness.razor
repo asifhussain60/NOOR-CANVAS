@@ -701,7 +701,6 @@
             // Description removed - fetch from KSESSIONS_DEV.dbo.Sessions.Description via SessionId
             HostToken = GenerateFriendlyToken(),
             UserToken = GenerateFriendlyToken(),
-            HostAuthToken = Guid.NewGuid().ToString(),
             Status = "Waiting",
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(1),
@@ -865,21 +864,20 @@
         
         try
         {
-            // Simulate canvas route validation using HostAuthToken
-            if (string.IsNullOrEmpty(currentSession.HostAuthToken))
+            // Simulate canvas route validation using friendly HostToken (8-char)
+            if (string.IsNullOrEmpty(currentSession.HostToken))
             {
-                await LogMessage("❌ HostAuthToken is missing", "ERROR");
+                await LogMessage("❌ HostToken is missing", "ERROR");
                 return false;
             }
-            
-            // Validate GUID format
-            if (!Guid.TryParse(currentSession.HostAuthToken, out _))
+
+            if (currentSession.HostToken.Length != 8)
             {
-                await LogMessage("❌ HostAuthToken is not a valid GUID", "ERROR");
+                await LogMessage("❌ HostToken is not in the expected 8-character format", "ERROR");
                 return false;
             }
-            
-            await LogMessage($"✅ Canvas access validated with HostAuthToken: {currentSession.HostAuthToken.Substring(0, 8)}...", "SUCCESS");
+
+            await LogMessage($"✅ Canvas access validated with HostToken: {currentSession.HostToken}...", "SUCCESS");
             return true;
         }
         catch (Exception ex)

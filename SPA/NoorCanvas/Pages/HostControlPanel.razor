@@ -137,6 +137,18 @@
                             <span>Start Session</span>
                         </button>
                         
+                        @if (!string.IsNullOrEmpty(UserToken))
+                        {
+                            <button @onclick="NavigateToSessionCanvas" 
+                                    disabled="@isLoading"
+                                    style="width:100%;padding:0.875rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(139,92,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#8B5CF6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                                    onmouseover="this.style.backgroundColor='#7C3AED'; this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.backgroundColor='#8B5CF6'; this.style.transform='scale(1)'">
+                                <i class="fa-solid fa-palette" style="font-size:1rem;"></i>
+                                <span>View Session Canvas</span>
+                            </button>
+                        }
+                        
                         @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
                         {
                             <button @onclick="TestShareAsset" 
@@ -326,8 +338,7 @@
     // User token for generating user landing URL
     private string? UserToken { get; set; }
     
-    // Host auth token (GUID) for SessionCanvas navigation
-    private string? HostAuthToken { get; set; }
+    // Host auth token (GUID) removed - use HostToken (8-char) for host flows
 
     protected override async Task OnInitializedAsync()
     {
@@ -576,15 +587,15 @@
                 // First, check if this token exists in the current database
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Checking if token exists in database...", requestId);
                 var allTokens = await SimplifiedCanvasDb.Sessions
-                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.HostAuthToken, s.Status, s.ExpiresAt })
+                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.Status, s.ExpiresAt })
                     .ToListAsync();
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Found {TokenCount} total sessions in database", requestId, allTokens.Count);
                 
                 foreach (var tokenRecord in allTokens)
                 {
-                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] DB Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', HostAuthToken='{HostAuthToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
+                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] DB Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
                         requestId, tokenRecord.SessionId, tokenRecord.HostToken ?? "NULL", tokenRecord.UserToken ?? "NULL", 
-                        tokenRecord.HostAuthToken ?? "NULL", tokenRecord.Status ?? "NULL", tokenRecord.ExpiresAt?.ToString() ?? "NULL");
+                        tokenRecord.Status ?? "NULL", tokenRecord.ExpiresAt?.ToString() ?? "NULL");
                 }
                 
                 var tokenExists = allTokens.Any(t => t.HostToken == hostToken);
@@ -600,15 +611,7 @@
                         Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ UserToken loaded from database: {UserToken}", requestId, UserToken);
                     }
                     
-                    if (!string.IsNullOrEmpty(matchingTokenRecord.HostAuthToken))
-                    {
-                        HostAuthToken = matchingTokenRecord.HostAuthToken;
-                        Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ HostAuthToken loaded from database: {HostAuthToken}", requestId, HostAuthToken);
-                    }
-                    else
-                    {
-                        Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ No HostAuthToken found for HostToken: {HostToken}", requestId, hostToken);
-                    }
+                    // Legacy HostAuthToken column removed - rely on HostToken and HostSessions if needed
                 }
                 else
                 {
@@ -975,6 +978,20 @@
         {
             Logger.LogError(ex, "NOOR-TEST: Failed to test share asset for session {SessionId}", SessionId);
             await ShowMessageAsync("Failed to share test asset");
+        }
+    }
+
+    private void NavigateToSessionCanvas()
+    {
+        if (!string.IsNullOrEmpty(UserToken))
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] Host navigating to SessionCanvas with UserToken: {UserToken}", requestId, UserToken);
+            Navigation.NavigateTo($"/session/canvas/{UserToken}");
+        }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:UI] NavigateToSessionCanvas called but UserToken is null or empty");
         }
     }
 

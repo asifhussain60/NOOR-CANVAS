@@ -17,11 +17,7 @@ public class Session
     /// </summary>
     public Guid AlbumId { get; set; }
 
-    /// <summary>
-    /// Host authentication token for secure access (formerly HostGuid)  
-    /// </summary>
-    [StringLength(100)]
-    public string HostAuthToken { get; set; } = string.Empty;
+    // HostAuthToken removed: deprecated in favor of friendly HostToken (8-char) and GUID-based HostToken flows.
 
     [StringLength(200)]
     public string? Title { get; set; }

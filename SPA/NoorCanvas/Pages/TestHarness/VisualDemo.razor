@@ -809,7 +809,6 @@
                 Status = "Active",
                 UserToken = userToken,
                 HostToken = hostToken,
-                HostAuthToken = Guid.NewGuid().ToString(),
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddHours(2), // 2-hour expiration
                 ParticipantCount = 0,

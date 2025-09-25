@@ -35,7 +35,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("authenticate")]
-        public async Task<IActionResult> AuthenticateHost([FromBody] HostAuthRequest request)
+    public IActionResult AuthenticateHost([FromBody] HostAuthRequest request)
         {
             try
             {
@@ -58,60 +58,12 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { error = "Invalid GUID format" });
                 }
 
-                // If it's a base64 hash, look it up in the database
+                // Legacy HostAuthToken (base64 hash) flows have been removed.
+                // If a base64 hash is provided, return a deprecation response pointing callers to the friendly token endpoints.
                 if (isBase64Hash)
                 {
-                    _logger.LogInformation("NOOR-INFO: Authenticating with base64 hash from database");
-                    var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostAuthToken == request.HostGuid);
-                    if (session == null)
-                    {
-                        _logger.LogWarning("NOOR-WARNING: Host GUID hash not found in database");
-                        return BadRequest(new { error = "Invalid Host GUID" });
-                    }
-
-                    // Fetch session title and description from KSESSIONS database
-                    string? sessionTitle = null;
-                    string? sessionDescription = null;
-                    try
-                    {
-                        var kSession = await _kSessionsContext.Sessions
-                            .FirstOrDefaultAsync(ks => ks.SessionId == (int)session.SessionId);
-                        sessionTitle = kSession?.SessionName ?? "Session " + session.SessionId;
-                        sessionDescription = kSession?.Description ?? "Session description not available";
-                        
-                        _logger.LogInformation("COPILOT-DEBUG: Retrieved from KSESSIONS - Title: '{Title}', Description: '{Description}' for SessionId {SessionId}", 
-                            sessionTitle, sessionDescription, session.SessionId);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "NOOR-HOST-AUTH: Failed to retrieve session title/description from KSESSIONS for SessionId {SessionId}", session.SessionId);
-                        sessionTitle = "Session " + session.SessionId;
-                        sessionDescription = "Session description not available";
-                    }
-
-                    _logger.LogInformation("NOOR-SUCCESS: Host authenticated with hash for Session {SessionId}", session.SessionId);
-                    var sessionTokenHash = Guid.NewGuid().ToString();
-
-                    return Ok(new HostAuthResponse
-                    {
-                        Success = true,
-                        SessionToken = sessionTokenHash,
-                        ExpiresAt = DateTime.UtcNow.AddHours(8),
-                        HostGuid = request.HostGuid,
-                        SessionId = (int)session.SessionId,
-                        Session = new HostSessionInfo
-                        {
-                            SessionId = (int)session.SessionId,
-                            KSessionsId = session.SessionId, // Now SessionId contains the KSESSIONS ID (212)
-                            Title = sessionTitle,
-                            Description = sessionDescription,
-                            Status = session.Status,
-                            ParticipantCount = session.ParticipantCount ?? 0,
-                            MaxParticipants = session.MaxParticipants,
-                            StartedAt = session.StartedAt,
-                            CreatedAt = session.CreatedAt
-                        }
-                    });
+                    _logger.LogWarning("NOOR-WARNING: Legacy HostAuthToken (base64 hash) authentication attempted and is deprecated");
+                    return BadRequest(new { error = "Legacy HostAuthToken authentication is deprecated. Please use the friendly host token endpoints (POST /api/host/authenticate for GUIDs or GET /api/host/token/{friendlyToken}/validate)." });
                 }
 
                 // For Phase 2, accept any valid GUID format as proof of concept
@@ -135,7 +87,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpGet("session/{hostGuid}/validate")]
-        public async Task<IActionResult> ValidateHostSession(string hostGuid)
+    public IActionResult ValidateHostSession(string hostGuid)
         {
             try
             {
@@ -150,62 +102,15 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Always check database for exact match - token must exist in database to be valid
-                _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Looking up session for HostAuthToken: {HostAuthToken}", requestId, hostGuid);
-
-                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.HostAuthToken == hostGuid);
-                if (session != null)
+                // HostAuthToken-based DB lookup removed. Recommend using the friendly host token endpoint instead.
+                _logger.LogWarning("NOOR-HOST-VALIDATE: [{RequestId}] HostAuthToken lookup removed - received HostGuid: {HostGuid}", requestId, hostGuid);
+                return Ok(new HostSessionValidationResponse
                 {
-                    // Fetch session title and description from KSESSIONS database
-                    string? sessionTitle = null;
-                    string? sessionDescription = null;
-                    try
-                    {
-                        var kSession = await _kSessionsContext.Sessions
-                            .FirstOrDefaultAsync(ks => ks.SessionId == (int)session.SessionId);
-                        sessionTitle = kSession?.SessionName ?? "Session " + session.SessionId;
-                        sessionDescription = kSession?.Description ?? "Session description not available";
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "NOOR-HOST-VALIDATE: [{RequestId}] Failed to retrieve session title/description from KSESSIONS for SessionId {SessionId}", requestId, session.SessionId);
-                        sessionTitle = "Session " + session.SessionId;
-                        sessionDescription = "Session description not available";
-                    }
-
-                    _logger.LogInformation("NOOR-HOST-VALIDATE: [{RequestId}] Found session {SessionId} with title: {Title}",
-                        requestId, session.SessionId, sessionTitle);
-
-                    return Ok(new HostSessionValidationResponse
-                    {
-                        Valid = true,
-                        SessionId = (int)session.SessionId,
-                        HostGuid = hostGuid,
-                        Session = new HostSessionInfo
-                        {
-                            SessionId = (int)session.SessionId,
-                            KSessionsId = session.SessionId, // Now SessionId contains the KSESSIONS ID (212)
-                            Title = sessionTitle,
-                            Description = sessionDescription,
-                            Status = session.Status,
-                            ParticipantCount = session.ParticipantCount ?? 0,
-                            MaxParticipants = session.MaxParticipants,
-                            StartedAt = session.StartedAt,
-                            CreatedAt = session.CreatedAt
-                        },
-                        RequestId = requestId
-                    });
-                }
-                else
-                {
-                    _logger.LogWarning("NOOR-HOST-VALIDATE: [{RequestId}] No session found for HostGuid: {HostGuid} - treating as invalid", requestId, hostGuid);
-                    return Ok(new HostSessionValidationResponse
-                    {
-                        Valid = false,
-                        SessionId = 0,
-                        HostGuid = hostGuid,
-                        RequestId = requestId
-                    });
-                }
+                    Valid = false,
+                    SessionId = 0,
+                    HostGuid = hostGuid,
+                    RequestId = requestId
+                });
             }
             catch (Exception ex)
             {
