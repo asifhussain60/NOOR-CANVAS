@@ -1,0 +1,19 @@
+{
+    "key": "canvas",
+    "mode": "apply",
+    "test": false,
+    "notes": "Remove the non-working signalr implementation, endpoints etc.",
+    "timestamp": "2024-12-13T10:33:30Z",
+    "status": "completed",
+    "previous_run": {
+        "mode": "analyze",
+        "status": "completed",
+        "analysis_complete": true
+    },
+    "apply_results": {
+        "files_modified": 2,
+        "compiler_warnings_resolved": 1,
+        "functional_features_preserved": true,
+        "build_successful": true
+    }
+}

@@ -1,0 +1,86 @@
+{
+    "plan_version": 2,
+    "timestamp": "2024-12-13T09:52:00Z",
+    "objective": "Remove non-working SignalR implementations and consolidate to working HTTP APIs",
+    "context": "Based on previous analysis showing SignalR hubs working (96% success) vs HTTP APIs failing (0% success), but user notes indicate removing SignalR, so we need to investigate current state",
+    "steps": [
+        {
+            "id": "step_1",
+            "description": "Assess current implementation state after previous analysis",
+            "status": "pending",
+            "tasks": [
+                "Check if SignalR hubs are still functional",
+                "Verify HTTP API endpoints status",
+                "Identify which implementation to remove based on current functionality"
+            ]
+        },
+        {
+            "id": "step_2",
+            "description": "Identify non-working SignalR implementations to remove",
+            "status": "pending",
+            "tasks": [
+                "Scan for broken SignalR hub methods",
+                "Find unused SignalR endpoints",
+                "Locate redundant SignalR configurations"
+            ]
+        },
+        {
+            "id": "step_3",
+            "description": "Remove non-functional SignalR code",
+            "status": "pending",
+            "tasks": [
+                "Remove broken SignalR hub methods",
+                "Clean up unused SignalR registrations",
+                "Remove redundant SignalR client-side code"
+            ]
+        },
+        {
+            "id": "step_4",
+            "description": "Ensure HTTP API endpoints are functional",
+            "status": "pending",
+            "tasks": [
+                "Verify HTTP controller routing",
+                "Test HTTP API functionality",
+                "Fix any HTTP endpoint issues found"
+            ]
+        },
+        {
+            "id": "step_5",
+            "description": "Update client-side code to use working implementation",
+            "status": "pending",
+            "tasks": [
+                "Update frontend to use functional endpoints",
+                "Remove calls to non-working SignalR methods",
+                "Ensure consistent error handling"
+            ]
+        },
+        {
+            "id": "step_6",
+            "description": "Test and validate changes",
+            "status": "pending",
+            "tasks": [
+                "Run application to verify functionality",
+                "Test key user workflows",
+                "Ensure no broken functionality"
+            ]
+        },
+        {
+            "id": "step_7",
+            "description": "Update documentation",
+            "status": "pending",
+            "tasks": [
+                "Update Workitem-canvas.MD with implementation changes",
+                "Document architectural decisions",
+                "Update any affected technical documentation"
+            ]
+        }
+    ],
+    "risk_assessment": {
+        "level": "medium",
+        "factors": [
+            "Previous analysis showed conflicting results with user directive",
+            "Need to verify current state before removing code",
+            "Must ensure no working functionality is removed"
+        ]
+    }
+}

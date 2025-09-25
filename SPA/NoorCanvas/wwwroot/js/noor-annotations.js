@@ -251,10 +251,7 @@ window.NoorAnnotations = (function () {
         );
       }
 
-      // Broadcast via SignalR if available
-      if (window.NoorSignalR && window.NoorSignalR.broadcastAnnotation) {
-        window.NoorSignalR.broadcastAnnotation(annotationData);
-      }
+      // Note: Real-time annotation broadcasting handled by server-side SignalR hubs
     } catch (error) {
       console.error("NOOR-ANNOTATION: Error in createAnnotation:", error);
     }
