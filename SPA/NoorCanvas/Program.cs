@@ -134,6 +134,7 @@ builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug servic
 
 // Development services - Only available in development builds
 builder.Services.AddScoped<NoorCanvas.Services.Development.IDevModeService, NoorCanvas.Services.Development.DevModeService>();
+builder.Services.AddScoped<NoorCanvas.Services.Development.ITestDataService, NoorCanvas.Services.Development.TestDataService>();
 
 // Schema Migration Services - Simplified schema only
 builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service

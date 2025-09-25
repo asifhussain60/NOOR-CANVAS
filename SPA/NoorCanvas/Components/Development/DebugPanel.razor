@@ -1,0 +1,178 @@
+@using NoorCanvas.Services.Development
+@implements IDisposable
+@inject IDevModeService DevModeService
+@inject ILogger<DebugPanel> Logger
+
+@* Only render debug panel in development mode *@
+@if (DevModeService.ShowDevPanels)
+{
+    <div class="debug-panel @(_isExpanded ? "expanded" : "collapsed")" 
+         style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        
+        @* Toggle Button *@
+        <button @onclick="TogglePanel" 
+                class="debug-toggle-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 ease-in-out"
+                style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;">
+            <i class="fas @(_isExpanded ? "fa-times" : "fa-bug") text-lg"></i>
+        </button>
+        
+        @* Debug Panel Content *@
+        @if (_isExpanded)
+        {
+            <div class="debug-content bg-white border border-gray-300 rounded-lg shadow-xl mt-2 p-4"
+                 style="min-width: 300px; max-width: 400px;">
+                
+                @* Header *@
+                <div class="debug-header flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-bug text-blue-600 mr-2"></i>
+                        Debug Panel
+                    </h3>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        DEV MODE
+                    </span>
+                </div>
+                
+                @* Current Page Info *@
+                <div class="debug-info mb-3">
+                    <div class="text-xs text-gray-600 mb-1">Current View:</div>
+                    <div class="text-sm font-mono text-gray-800 bg-gray-50 px-2 py-1 rounded">
+                        @CurrentViewName
+                    </div>
+                </div>
+                
+                @* Test Data Actions *@
+                <div class="debug-actions">
+                    @if (OnEnterTestData.HasDelegate)
+                    {
+                        <button @onclick="HandleEnterTestData" 
+                                disabled="@_isProcessing"
+                                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                            @if (_isProcessing)
+                            {
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                <span>Processing...</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-database mr-2"></i>
+                                <span>Enter Test Data</span>
+                            }
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="text-xs text-gray-500 text-center py-2 bg-gray-50 rounded-lg">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            No test data actions available for this view
+                        </div>
+                    }
+                </div>
+                
+                @* Success/Error Messages *@
+                @if (!string.IsNullOrEmpty(_message))
+                {
+                    <div class="debug-message mt-3 p-2 rounded-lg text-xs @(_isSuccess ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200")">
+                        <i class="fas @(_isSuccess ? "fa-check-circle" : "fa-exclamation-triangle") mr-1"></i>
+                        @_message
+                    </div>
+                }
+                
+                @* Debug Info (collapsible) *@
+                <div class="debug-details mt-3 pt-3 border-t border-gray-200">
+                    <button @onclick="ToggleDetails" 
+                            class="w-full text-left text-xs text-gray-600 hover:text-gray-800 flex items-center justify-between">
+                        <span>System Info</span>
+                        <i class="fas @(_showDetails ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                    </button>
+                    
+                    @if (_showDetails)
+                    {
+                        <div class="mt-2 text-xs text-gray-500 space-y-1">
+                            <div>Environment: @_environment</div>
+                            <div>Timestamp: @DateTime.Now.ToString("HH:mm:ss")</div>
+                            <div>Debug Features: @(DevModeService.EnableDebugFeatures ? "Enabled" : "Disabled")</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string CurrentViewName { get; set; } = "Unknown";
+    [Parameter] public EventCallback OnEnterTestData { get; set; }
+    
+    private bool _isExpanded = false;
+    private bool _showDetails = false;
+    private bool _isProcessing = false;
+    private string _message = string.Empty;
+    private bool _isSuccess = false;
+    private string _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+    
+    protected override void OnInitialized()
+    {
+        Logger.LogDebug("NOOR-DEBUG-PANEL: Initialized debug panel for view: {ViewName}", CurrentViewName);
+    }
+    
+    private void TogglePanel()
+    {
+        _isExpanded = !_isExpanded;
+        Logger.LogDebug("NOOR-DEBUG-PANEL: Panel toggled - Expanded: {IsExpanded}", _isExpanded);
+        StateHasChanged();
+    }
+    
+    private void ToggleDetails()
+    {
+        _showDetails = !_showDetails;
+        StateHasChanged();
+    }
+    
+    private async Task HandleEnterTestData()
+    {
+        if (_isProcessing) return;
+        
+        try
+        {
+            _isProcessing = true;
+            _message = string.Empty;
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Entering test data for view: {ViewName}", CurrentViewName);
+            
+            await OnEnterTestData.InvokeAsync();
+            
+            _message = $"Test data entered successfully for {CurrentViewName}";
+            _isSuccess = true;
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Test data entry completed successfully");
+        }
+        catch (Exception ex)
+        {
+            _message = $"Error entering test data: {ex.Message}";
+            _isSuccess = false;
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error entering test data for view: {ViewName}", CurrentViewName);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+            
+            // Clear message after 3 seconds
+            _ = Task.Delay(3000).ContinueWith(_ =>
+            {
+                InvokeAsync(() =>
+                {
+                    _message = string.Empty;
+                    StateHasChanged();
+                });
+            });
+        }
+    }
+    
+    public void Dispose()
+    {
+        // Cleanup if needed
+    }
+}

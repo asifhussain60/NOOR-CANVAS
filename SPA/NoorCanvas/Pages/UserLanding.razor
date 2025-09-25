@@ -14,6 +14,7 @@
 @inject NavigationManager Navigation
 @inject ILogger<UserLanding> Logger
 @inject IConfiguration Configuration
+@inject ITestDataService TestDataService
 
 <PageTitle>NOOR Canvas - User Authentication</PageTitle>
 
@@ -33,7 +34,7 @@
         
         <!-- Main Content -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
-            <h1 style="font-size:3rem;font-family:'Poppins',sans-serif;font-weight:700;color:#006400;margin:0;">User Authentication</h1>
+            <h1 style="font-size:2.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:#006400;margin:0;">User Authentication</h1>
             <div style="display:flex;flex-direction:column;gap:0.25rem;margin-top:-0.5rem;">
                 <p data-testid="session-name" style="font-family:'Inter',sans-serif;font-size:2rem;color:#D4AF37;font-weight:600;margin:0;">@(Model?.SessionName ?? "[Session Name]")</p>
                 <p style="font-family:'Inter',sans-serif;font-size:12px;color:grey;font-weight:normal;margin:0;">@(Model?.SessionDescription ?? "[Session Desc]")</p>
@@ -144,6 +145,9 @@
         </div>
     </div>
 </div>
+
+@* Debug Panel - Development Only *@
+<DebugPanel CurrentViewName="UserLanding" OnEnterTestData="HandleEnterTestData" />
 
 @code {
     [Parameter] public string? SessionToken { get; set; }
@@ -709,6 +713,69 @@
             if (Model != null)
             {
                 Model.IsLoadingCountries = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles test data entry for debug panel - Development only
+    /// </summary>
+    private async Task HandleEnterTestData()
+    {
+        if (Model == null) return;
+
+        try
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Entering test data for UserLanding", requestId);
+
+            // Ensure countries are loaded before generating test data
+            if (!Countries.Any())
+            {
+                Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Loading countries for test data", requestId);
+                await LoadCountriesAsync();
+            }
+
+            // Wait a moment for countries to fully load
+            if (Countries.Any())
+            {
+                // Generate superhero test data (name and email only)
+                var testData = TestDataService.GenerateUserLandingNameAndEmail();
+
+                // Populate the form fields
+                Model.NameInput = testData.name;
+                Model.EmailInput = testData.email;
+
+                // Randomly select a country from available dropdown options using ISO2 codes
+                var random = new Random();
+                var randomCountry = Countries[random.Next(Countries.Count)];
+                Model.CountrySelect = randomCountry.ISO2; // Use ISO2 code for dropdown selection
+
+                // Clear any existing error messages
+                Model.ErrorMessage = string.Empty;
+
+                Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Test data populated - Name: {Name}, Email: {Email}, Country: {CountryName} (ISO2: {ISO2})", 
+                    requestId, testData.name, testData.email, randomCountry.CountryName, randomCountry.ISO2);
+
+                StateHasChanged();
+            }
+            else
+            {
+                Logger.LogWarning("NOOR-DEBUG-PANEL: [{RequestId}] No countries available for test data", requestId);
+                if (Model != null)
+                {
+                    Model.ErrorMessage = "Countries not loaded. Please wait and try again.";
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error populating test data for UserLanding");
+            if (Model != null)
+            {
+                Model.ErrorMessage = "Error generating test data.";
                 StateHasChanged();
             }
         }
