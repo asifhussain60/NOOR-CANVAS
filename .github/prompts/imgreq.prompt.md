@@ -104,6 +104,7 @@ objectives:
     - Map every annotated UI element to a numbered requirement with Given/When/Then.
     - Capture copy verbatim; include accessibility & telemetry expectations.
     - List conflicts/ambiguities as **Open Questions**.
+    - When UI annotations imply payload fields (e.g., HTML content areas), add a **Contract Requirements** subsection that names the required DTO fields verbatim (e.g., `TestContent`) to be enforced by /workitem.  
   apply:
     - All from **analyze**, then:
       • Create or update **Requirements-{key}.MD** (authoritative).

@@ -61,6 +61,14 @@ usage:
 # ─────────────────────────────────────────────────────────
 context_boot:
   - Load prior state for this key from **NOOR CANVAS\Workspaces\Copilot\{key}\** if present.
+  - context_index:
+      discover:
+        - Look for `NOOR CANVAS\Workspaces\Copilot\{key}\index\context.idx.json`.
+        - If present → load manifest and use `context.pack.jsonl` as primary planning input.
+        - If absent or stale → build or delta-build per SelfAwareness Context Indexing rules.
+      prefer_for_planning: true
+      record_delta:
+        - After run, write `context.delta.json` with added/removed/changed refs and update `context.sources.json`.
   - Consult .github/instructions/SelfAwareness.instructions.md for DB/schema restrictions and ledger.
   - Review debug logs across UI/API/SQL for reported issues.
   - Skim last 10 commits/chats relevant to this key.
@@ -74,6 +82,9 @@ context_boot:
 state_store:
   root: "NOOR CANVAS\\Workspaces\\Copilot\\{key}\\"
   files: { run_manifest: run.json, plan_manifest: plan.json, progress_log: progress.log.jsonl, checkpoint: checkpoint.json, artifacts_idx: artifacts.json }
+  includes_index:
+    path: "NOOR CANVAS\\Workspaces\\Copilot\\{key}\\index\\"
+    files: [ "context.idx.json", "context.pack.jsonl", "context.delta.json", "context.sources.json" ]
   io: { write_mode: append_minimal, compress: true, atomic_writes: true, debounce_ms: 150 }
   load_policy:
     - Resume from checkpoint if plan_hash matches; else write new plan-v{n}.json and resume.
@@ -96,7 +107,7 @@ objectives:
         • Use Tailwind CSS classes for styling.
         • Use Font Awesome icons where appropriate to enhance visual clarity and dynamics.
         • Ensure resulting view is clean, elegant, and consistent with modern practices.
-    - Always run app with .\nc.ps1 (or .\ncb.ps1 then .\nc.ps1 if build required).
+    - Always run app with .\Workspaces\Global\nc.ps1 (or .\Workspaces\Global\ncb.ps1 then .\Workspaces\Global\nc.ps1 if build required).
     - Generate/update technical .MD docs in `.github` describing the implementation.
     - Add new docs to alignment for SelfAwareness.
     - Trigger Playwright tests if test:true.
@@ -111,48 +122,49 @@ objectives:
 # ─────────────────────────────────────────────────────────
 phased_apply:
   phases:
-    - phase_0_scaffold:
-        goal: "Safe scaffolding with no behavior change."
+    - phase_0_contract_reconciliation:
+        goal: "Make producer↔consumer contracts explicit and green before code changes."
         actions:
-          - Introduce feature flags/toggles where useful (default: off).
-          - Add minimal interfaces/types, placeholder components, and route stubs.
-          - Write tiny smoke test (component render / route mounts).
+          - Identify all consumers for this key (UI .razor/.tsx, API endpoints, SignalR handlers).
+          - Extract **fields used** by consumers (AST/regex: property/JSON access, bindings, data-testid).
+          - Load DTOs from Shared/Contracts; diff **used vs provided**:
+              • missing fields (required by UI but absent in DTO/producer)
+              • extra fields (sent but unused)
+              • type/nullable mismatches
+              • version drift (consumer expects ≠ producer sends)
+          - Propose DTO patch (add fields, rename with [Obsolete]/map, set `SchemaVersion` bump).
+          - Write golden fixture(s) under `Tests/Fixtures/<DTO>/` that include all required fields.
         verify:
-          - App launches (`.\nc.ps1`), existing flows untouched.
-          - Headless smoke test passes; no regressions spotted in crucial routes.
+          - Checklist saved to `.github/Workitem-{key}.MD` (section: Contract Reconciliation).
+          - `checkpoint.json` updated with `step_id:"contract_reconciliation"` and `plan_hash`.
+          - If **missing required fields** remain → **STOP** and request approval to apply DTO patch.
 
     - phase_1_minimal_viable_change:
-        goal: "Wire the smallest functional slice end-to-end."
+        goal: "Wire the smallest producer change so the consumer-required fields exist."
         actions:
-          - Implement narrow UI path + API call + DB-visible effect (if applicable).
-          - Add Gherkin-aligned tests for that slice (pwtest).
-          - Log under canonical tag `[DEBUG-WORKITEM:{key}:ui|api|db]` if temporary diagnostics are needed.
+          - Implement DTO patch in Shared/Contracts (non-breaking when possible).
+          - Update producer(s) to populate newly required fields (e.g., `TestContent` HTML).
+          - Add server-side validation (FluentValidation/data annotations) enforcing required fields.
         verify:
-          - Run targeted Playwright spec(s) headless; collect traces/screenshots for failures.
-          - Update `.github/Workitem-{key}.MD` with results and rationale.
+          - Unit test(s) pass against golden fixture; hub/API sends contain required fields.
+          - Minimal Playwright spec proves UI receives and renders the field(s).
 
     - phase_2_expand_coverage:
-        goal: "Broaden functionality and edge cases."
+        goal: "Edge cases, validation, a11y, and consumer parity."
         actions:
-          - Add remaining UI states (empty/loading/error), validation, and accessibility bits.
-          - Extend tests to negative paths and boundary values.
+          - Update consumer(s) to read new fields; keep temporary shims/feature flags if renames occurred.
+          - Extend Playwright and integration tests (negative paths, boundary cases).
         verify:
-          - Re-run tests; review artifacts.
-          - Update docs and close Open Questions where evidence exists.
+          - Headless suite green; invalid payloads rejected with clear reason.
 
     - phase_3_full_convergence:
-        goal: "Complete scope per Requirements-{key}.MD; remove temp flags/logs."
+        goal: "Remove shims/flags; finalize contract and telemetry."
         actions:
-          - Replace flagged paths with final implementations; remove temporary logs.
-          - Optimize queries and performance hotspots identified during testing.
+          - Remove obsolete code paths and temporary logs `[DEBUG-WORKITEM:{key}:{layer}]`.
+          - Update Contracts-Registry and Requirements with final field names + version.
         verify:
-          - Full headless suite green; watchdog shows no hangs.
-          - Prepare cleanup gate (state purge via /cleanup).
+          - Full suite green; retrosync finds no contract mismatches.
 
-  rules:
-    - Never skip a phase; if a phase fails, fix forward or rollback within the same phase.
-    - Commit or checkpoint after each phase; document deltas in `.github/Workitem-{key}.MD`.
-    - Keep risk surface small: small diffs, local blast radius, feature flags if crossing module boundaries.
 
 # ─────────────────────────────────────────────────────────
 # 🐶 Watchdog — Self-Recovery
@@ -178,24 +190,24 @@ watchdog:
 alignment:
   - .github/instructions/SelfAwareness.instructions.md
   - Requirements-{key}.MD (from imgreq runs)
-  - .github/Workitem-{key}.MD
+  - D:\PROJECTS\NOOR CANVAS\.github\*.MD
   - .github/prompts/pwtest.prompt.md
-  - Cleanup-{key}.MD
+  - Cleanup-<key>.MD
 
 # ─────────────────────────────────────────────────────────
 # 🛠️ Methods
 # ─────────────────────────────────────────────────────────
 methods:
   plan:
-    - Derive steps from notes and prior state.
+    - Derive steps from notes, **context.pack.jsonl**, and prior state.
     - Output plan.json (or plan-v{n}.json) with evidence.
   apply:
     - Run ncb.ps1 if build required, else nc.ps1.
     - Execute **phased_apply** phases 0→3; checkpoint and verify after each phase.
     - Apply structured diffs to UI/API/DB.
     - Respect "restyle"/"redesign" instructions for UI (Tailwind + Font Awesome).
-    - Generate/update .MD doc in `.github` (Workitem-{key}.MD).
-    - Keep state up to date.
+    - Generate/update `.github/Workitem-{key}.MD`.
+    - Keep state and index up to date (write `context.delta.json`).
   review:
     - Summarize outcomes.
     - Capture logs and diffs.
@@ -260,11 +272,11 @@ output:
 # ─────────────────────────────────────────────────────────
 self_review:
   - Resumed from per-key state if available.
-  - Consulted SelfAwareness and Requirements-{key}.MD.
-  - Verified Tailwind + Font Awesome used for restyle/redesign.
+  - Consulted **context.pack.jsonl** and Requirements-{key}.MD.
+  - Verified Tailwind + Font Awesome used when restyling/redesigning.
   - Confirmed watchdog active.
   - Documented regression vs new-feature decisions.
-  - Updated state and artifacts.
+  - Updated state, index delta, and artifacts.
   - Wrote Workitem-{key}.MD into .github and added to alignment.
 
 # ─────────────────────────────────────────────────────────

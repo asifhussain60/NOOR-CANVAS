@@ -176,3 +176,42 @@ Agents must append ledger entries: timestamp, agent, key, actions, rationale, st
 **Guardrails:**
 - Index is not the source of truth—**Requirements-{key}.MD** wins on conflict.
 - Keep index ≤ 500 KB; evict least-salient chunks if needed.
+
+## Contract Compliance & Cross-Layer Alignment (mandatory)
+
+Purpose: eliminate “works on one side, breaks on the other” bugs by enforcing a shared, versioned contract across UI ↔ API ↔ realtime (SignalR) ↔ DB, with a checkpoint before any refactor.
+
+### Canonical Contract
+- Define DTOs under `Shared/Contracts/*` (or equivalent) used by **both** producer(s) and consumer(s).
+- Version every DTO with `SchemaVersion` (semver) and keep a light **Contract Registry**:
+  - File: `.github/Contracts-Registry.MD` (table of DTO → version → owners → consumers → invariants).
+
+### Required Workflow (all agents)
+1) **Detect & Index**
+   - On run start, load per-key Context Index and scan code for **consumer usage** (fields read/rendered) and **producer payloads** (fields sent/serialized).
+2) **Contract Reconciliation (Gate)**
+   - Derive a checklist: **missing**, **extra**, **nullable-but-used**, **type mismatches**, **version drift**.
+   - If any **required consumer field** is not producible from the DTO, **STOP** and output the checklist + proposed DTO patch.
+3) **State Checkpoint**
+   - Write `checkpoint.json` with `step_id:"contract_reconciliation"`, include the full checklist and selected fix plan.
+4) **Incremental Apply**
+   - Phase 0: add/patch DTO in `Shared/Contracts` (no behavior change).
+   - Phase 1: update producer(s) to populate required fields (e.g., `TestContent`), add runtime validation.
+   - Phase 2: update consumer(s) to read new/renamed fields; keep shims/feature flags if needed.
+   - Phase 3: remove shims/flags, delete obsolete fields.
+5) **Contract Tests (must)**
+   - Add golden fixtures in `Tests/Fixtures/<DTO>/`.
+   - Add Playwright/specs asserting DOM/API/Hub behaviors linked to numbered requirements.
+6) **Observability**
+   - Emit single-line logs on send/receive with `[DEBUG-WORKITEM:{key}:{layer}]` + `SchemaVersion`.
+   - Increment a counter for “rejected/invalid messages” with reason; surface in retro.
+
+### HostCanvas Example (pattern)
+- Consumer expects `testContent` (HTML) in asset payload.
+- Producer must populate `TestContent` (server-side DTO) and pass schema validation.
+- Acceptance: UI renders sanitized HTML; failing to include `testContent` fails tests and blocks apply.
+
+### Guardrails
+- **Requirements-{key}.MD** beats index/summaries on conflict.
+- Refactors must pass contract tests before removing shims.
+- Any change that drops or renames a **consumer-read field** requires a **minor or major** `SchemaVersion` bump and an entry in Contracts-Registry.

@@ -88,6 +88,8 @@ phased_apply:
     - Keep blast radius small; one slice at a time; feature flags if needed.
     - If a phase fails, fix forward inside the phase; otherwise resume next.
     - After each phase, checkpoint + append Worklog to `.github/Workitem-{key}.MD`.
+    - Always re-run **phase_0_contract_reconciliation** when prior run ended during producer/consumer refactor or when Logs show dropped/invalid messages.
+
 
   phases:
     - phase_0_scaffold: restore minimal wiring; confirm app launch.
@@ -101,6 +103,7 @@ phased_apply:
 methods:
   detect:
     - Rank candidate keys (evidence: thread hits, state timestamps, commands).
+    - If #terminalLastCommand or recent events include failed hub/API validations → set next step = phase_0_contract_reconciliation.
   reconcile:
     - Compare checkpoint.step_id with plan.json; write a tiny reconciliation plan (plan-v{n}.json).
   apply:

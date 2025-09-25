@@ -131,7 +131,13 @@ methods:
     - Include UI interactions, API validation, DB-visible effects.
     - Use placeholders for secrets/tokens.
     - Validate specs against Requirements-{key}.MD when available.
-    - Write/update `.github/Test-{key}.MD`.
+    - Write/update `.github/Test-{key}.MD` documenting coverage and rationale.
+    - Add **signalr.contract.spec.ts** (or **api.contract.spec.ts**) that:
+        • connects to the hub/endpoint,
+        • triggers the minimal producer path (test hook or fixture),
+        • asserts the payload includes all **consumer-required** fields (from Contract Reconciliation),
+        • asserts DOM renders content for fields like `testContent` (sanitized HTML).
+
   run:
     - Execute: `npx playwright test --reporter=line --headless`
     - Collect artifacts on failures.
