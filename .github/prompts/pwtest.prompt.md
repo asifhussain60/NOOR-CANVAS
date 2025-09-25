@@ -1,267 +1,246 @@
 ---
 mode: agent
+
+# ─────────────────────────────────────────────────────────
+# ▶️ Usage
+# ─────────────────────────────────────────────────────────
 name: pwtest
 alias: /pwtest
-alt_aliases: [/gentest, /runtest]
 description: >
-  Unified Playwright E2E test generator & runner for Noor Canvas with self-learning.
-  Modes:
-    • "test": create a production-grade, CI-stable Playwright spec, verbose by default.
-    • "run":  execute the test; if not found, auto-switch to "test", then run.
-  The agent continuously learns from successes and failures, proposing refined
-  instructions to improve future stability, speed, and signal.
+  Generate and run Playwright test suites for Noor Canvas work items.
+  Tests must run HEADLESS and cover UI, API, and DB layers where applicable.
+  Integrates with workitem and sync flows (test:true), but can also be invoked directly.
+  Includes a watchdog that detects hung generation/run steps and self-recovers.
 
 parameters:
   - name: key
     required: true
     description: >
-      Test name or identifier. In "test", becomes suite title + kebab-case filename.
-      In "run", used as grep/name. Multiple keys allowed via '---' (processed sequentially).
-      Each run binds to `pwtest-context:<KEY>`.
+      Work item key the tests belong to (same as workitem key).
 
   - name: mode
     required: true
     description: >
       Execution mode:
-        • "test" → generate the test noted by `key`
-        • "run"  → run the test named by `key` (auto-generate if missing, then run)
-
-  - name: ui_mode
-    required: false
-    default: headless
-    description: >
-      Browser UI mode:
-        • "headless" (default) → enforce headless mode with verbose logs + rich artifacts
-        • "headed"            → allow windowed browser, still verbose + artifacts
+        • "test" → Generate Playwright test spec(s) only.
+        • "run"  → Execute existing specs headlessly.
+        • "all"  → Generate + run immediately.
 
   - name: notes
     required: false
     description: >
-      Free-form scope (targets #file:/dirs/globs/screenshots, env hints, tokens/sessionId,
-      routes, negative paths, perf considerations). Multiple notes may be separated by '---';
-      each note inherits the same key and mode.
+      Additional test scope (negative paths, tokens, scenarios).
+      Multiple notes may be provided separated by '---'.
+
+usage:
+  prerequisites:
+    - Node and Playwright installed; repo ready to run.
+    - App can launch if e2e flows require it:
+      • D:\PROJECTS\NOOR CANVAS\Workspaces\Global\nc.ps1     # simple launch
+      • D:\PROJECTS\NOOR CANVAS\Workspaces\Global\ncb.ps1    # build and launch
+  run_examples:
+    - Generate specs only:
+        • /pwtest key:NC-145 mode:test notes:"cover error toast --- validate a11y roles"
+    - Run existing specs headless:
+        • /pwtest key:NC-145 mode:run
+    - Generate + run:
+        • /pwtest key:NC-145 mode:all
+  outputs:
+    - test: specs under Tests/Playwright/{key}/ and `.github/Test-{key}.MD` coverage doc.
+    - run/all: headless results + artifacts (traces/screenshots/videos) and doc updates.
 
 # ─────────────────────────────────────────────────────────
-# 📖 Usage Syntax (Cheat Sheet)
-# ─────────────────────────────────────────────────────────
-# /pwtest
-#   key:[test-name or key1 --- key2 --- key3]
-#   mode:[run | test]
-#   ui_mode:[headless | headed]
-#   notes:[note text or note1 --- note2 --- note3]
-#
-# Examples:
-# /pwtest
-#   key:"Host Experience Flow"
-#   mode:"test"
-#   ui_mode:"headless"
-#   notes:"#file:Host-SessionOpener.razor --- sessionId:212 negative-testing"
-#
-# /pwtest
-#   key:"Smoke"
-#   mode:"run"
-#   ui_mode:"headed"
-#   notes:"tenant:dev user:qa@noor.app"
-
-# ─────────────────────────────────────────────────────────
-# 🎯 Mission
-# ─────────────────────────────────────────────────────────
-mission:
-  - Default headless (`ui_mode=headless`) with verbose logs and artifact-rich reporting.
-  - If `ui_mode=headed`, still enforce verbose logs and artifacts.
-  - Blazor-safe input (dispatch 'input' + 'change'); verify enabled-before-click.
-  - Pre-flight health on :9090/:9091 or BASE_URL with warmup + title check.
-  - Token/session fallbacks (8-char tokens; Session 212), redacted in logs.
-  - Include at least one negative path per generated suite.
-  - Continuous improvement: after execution, analyze outcomes and propose prompt refinements.
-
-# ─────────────────────────────────────────────────────────
-# 🔗 Alignment Hooks
-# ─────────────────────────────────────────────────────────
-alignment:
-  - NOOR-CANVAS-DESIGN.MD
-  - ncImplementationTracker.MD
-  - .github/instructions/SelfAwareness.instructions.md
-  - .github/prompts/pwtest.prompt.md   # target for self-update (proposed patch)
-
-# ─────────────────────────────────────────────────────────
-# 🧭 Context-First Boot (MANDATORY)
+# 🧭 Context Boot
 # ─────────────────────────────────────────────────────────
 context_boot:
-  - Consult SelfAwareness.instructions.md; refresh Project Ledger (stack, ports, tokens, tests).
-  - Skim recent chat/workspace history for this key; avoid failed patterns.
-  - Determine base URL via port-binding; warmup; assert title /Noor Canvas|NOOR CANVAS/.
-  - Parse notes (split by ---) into scoped tasks and environment hints.
+  - Load prior state for this key:
+      • Read **NOOR CANVAS\Workspaces\Copilot\{key}\** (if present) for context/evidence.
+      • Use to avoid re-generating identical tests or re-running unchanged scopes.
+  - Read .github/instructions/SelfAwareness.instructions.md for DB/schema restrictions and ledger.
+  - Review debug logs for this key across UI/API/SQL to identify coverage gaps.
+  - Skim last 10 commits/chats for context relevant to this key.
+  - If Requirements-{key}.MD exists (from imgreq runs):
+      • Ingest its requirements as authoritative acceptance criteria.
+      • Ensure all numbered requirements are tested across UI/API/DB layers.
 
 # ─────────────────────────────────────────────────────────
-# 🛠️ Methods by Mode
+# 💾 Durable State & Checkpoints (kept current)
+# ─────────────────────────────────────────────────────────
+state_store:
+  root: "NOOR CANVAS\\Workspaces\\Copilot\\pwtest\\{key}\\"
+  files:
+    run_manifest:   "run.json"
+    plan_manifest:  "plan.json"
+    progress_log:   "progress.log.jsonl"
+    checkpoint:     "checkpoint.json"
+    artifacts_idx:  "artifacts.json"
+  io: { write_mode: append_minimal, compress: true, atomic_writes: true, debounce_ms: 150 }
+  load_policy:
+    - Resume from checkpoint if plan_hash matches; else write plan-v{n}.json and resume.
+  save_policy:
+    - After each step: update checkpoint + append one progress line + update artifacts index.
+  retention: { ttl_hours: 24, cleanup_on_approval: true }
+
+# ─────────────────────────────────────────────────────────
+# 🎯 Objectives
+# ─────────────────────────────────────────────────────────
+objectives:
+  test:
+    - Generate Playwright specs covering:
+        • Core flows (UI navigation, API requests, DB assertions)
+        • At least one negative path
+    - Ensure tests explicitly validate Requirements-{key}.MD when present.
+    - Save specs under: Tests/Playwright/{key}/
+    - Generate new .MD doc in `.github` describing test coverage and rationale; add to alignment.
+    - Leave pwtest state **up to date**.
+  run:
+    - Execute tests headlessly (`--headed` disallowed).
+    - Collect traces, screenshots, videos for failures.
+    - Update trackers with outcomes.
+    - Leave pwtest state **up to date**.
+  all:
+    - Do both: generate specs and run them.
+
+# ─────────────────────────────────────────────────────────
+# 🔗 Alignment
+# ─────────────────────────────────────────────────────────
+alignment:
+  - .github/instructions/SelfAwareness.instructions.md
+  - Requirements-{key}.MD (from imgreq runs)
+  - D:\PROJECTS\NOOR CANVAS\.github\*.MD
+  - Cleanup-{key}.MD (from cleanup runs, for alignment)
+
+# ─────────────────────────────────────────────────────────
+# 🛠️ Methods
 # ─────────────────────────────────────────────────────────
 methods:
   test:
-    - "Analyze Targets & Flows":
-        - Infer targets from notes: #file:, directories, globs, screenshots.
-        - Extract @page routes, input bindings, controller routes/DTOs, guards, waits.
-    - "Emit Spec":
-        - Path: PlayWright/tests/{kebab-case(key)}.spec.ts
-        - `test.use({ headless: ui_mode == "headless" })` inside file.
-        - Always enable verbose step logging and console capture.
-        - Inline helpers: fillBlazorInput(), clickEnabledButton(), redact().
-        - Fixtures:
-            - Resolve CANVAS_TEST_TOKEN / user token; validate /^[A-Z0-9]{8}$/ or fallback.
-            - Health-check base URL; echo config (ui_mode, 1 worker, reporters).
-        - Tests:
-            - Primary journey (entry → assert → success).
-            - ≥1 negative path (invalid input, 4xx, guard rails).
-        - Logging: structured breadcrumbs; secrets redacted.
-    - "Quality Gates":
-        - Prefer robust selectors from Razor source.
-        - Deterministic waits post-Blazor state changes.
-        - Reporters: list + json (HTML disabled unless explicitly required elsewhere).
-
+    - Scaffold spec files under Tests/Playwright/{key}/
+    - Include UI interactions, API validation, DB-visible effects.
+    - Use placeholders for secrets/tokens.
+    - Validate specs against Requirements-{key}.MD when available.
+    - Write/update `.github/Test-{key}.MD` documenting coverage and rationale.
   run:
-    - "Pre-flight":
-        - Echo effective config; respect ui_mode; force 1 worker; verbose logs on.
-        - Forbid `--ui` flag; only `ui_mode` governs headed/headless.
-        - Validate infra & warmup; assert title.
-    - "Find-or-Create":
-        - If spec matching `key` not found:
-            - Switch to "test" to generate spec using notes.
-            - Return to "run" and execute.
-    - "Execute":
-        - Command: `npx playwright test --grep "${key}" --project chromium --workers 1`
-        - ENV:
-            - CI=1, DEBUG="pw:api,pw:test"
-            - PLAYWRIGHT_HEADLESS=1 if ui_mode=headless, else 0
-        - Artifacts: trace on retry; screenshots only-on-failure; video retain-on-failure.
-    - "Report":
-        - Emit paths for list/json reports, trace, screenshots, videos.
-        - If failures: show first failing test + location synopsis.
+    - Execute: `npx playwright test --reporter=line --headless`
+    - Collect artifacts: { trace.zip, screenshots/, videos/ } for failed specs.
+    - Append a run summary with pass/fail + artifact paths into `.github/Test-{key}.MD`.
+  all:
+    - Do test + run in sequence.
 
 # ─────────────────────────────────────────────────────────
-# 🤖 Self-Learning & Prompt Self-Update
+# 🐶 Watchdog — Self-Recovery from Hung Tests
 # ─────────────────────────────────────────────────────────
-self_learning:
-  - "Outcome Analysis" (every run or generation):
-      - Classify steps as SUCCESS/FAILED/FLAKY with reasons (selector brittleness, timing, env).
-      - Record stability hints: selectors used, wait strategies, retries applied, network conditions.
-  - "Patterns":
-      - success_patterns:
-          - selectors that proved resilient
-          - wait heuristics that stabilized flows
-          - token/fixture practices that avoided flakes
-      - failure_patterns:
-          - selectors/waits that regularly failed
-          - recurring infra misconfig (wrong base URL, app not running)
-          - anti-patterns (implicit waits, generic locators)
-  - "Self-Update Proposal":
-      - Generate a minimal, structured diff to **.github/prompts/pwtest.prompt.md**:
-          • Tighten/relax wait rules, selector guidance, retries/timeouts
-          • Adjust fixture checks (health, tokens)
-          • Refine negative-path requirements and artifact policies
-      - Also propose updates to SelfAwareness.instructions.md when behavioral guardrails are implicated.
-  - "Safety":
-      - Never auto-apply; surface diffs via approval gate.
-      - Keep changes focused and reversible; explain rationale tied to evidence.
+watchdog:
+  idle_seconds_threshold: 120
+  graceful_stop_timeout_seconds: 10
+  max_retries: 1
+  monitored_steps:
+    - "spec_generation"    # long file writes, dependency installs, codegen
+    - "test_execution"     # `npx playwright test --headless`
+  behavior:
+    - Detect idle:
+        • If no new stdout/stderr and no file growth in {trace, screenshots, videos, junit, .playwright} for `idle_seconds_threshold`, mark as "hung".
+    - On hang:
+        • Capture last 2000 bytes of stdout/stderr (log tail) and current process list → save to artifacts.
+        • Attempt graceful stop (SIGINT/CTRL+C equivalent) and wait `graceful_stop_timeout_seconds`.
+        • If still running → force kill (SIGKILL/taskkill /F).
+        • Record watchdog event in progress_log.jsonl and artifacts_idx.
+    - Retry policy:
+        • If retries < max_retries:
+            – For test_execution: retry the entire `npx playwright test --reporter=line --headless` once.
+            – For spec_generation: re-run generation step idempotently (do not duplicate files).
+        • If still hung after retry: fail fast with explicit “watchdog_hang” status and point to artifacts for triage.
+
+# ─────────────────────────────────────────────────────────
+# 🧯 Error Handling (Git History First-Aid)
+# ─────────────────────────────────────────────────────────
+errors:
+  on_test_failure_or_error:
+    - Determine if failing behavior existed and worked before (git log/annotate/blame).
+    - If regression → diff commits, align to last-known-good behavior.
+    - If new feature → ignore history; fix forward.
+    - Document decision and evidence in `.github/Test-{key}.MD` + trackers.
+  on_watchdog_hang:
+    - Include log tails, process tree, and step metadata in `.github/Test-{key}.MD`.
+    - Suggest remedies referencing `.github/instructions/Ops-Watchdog-Troubleshooting.md`.
+    - Keep state resumable; do not discard partial artifacts.
+
+# ─────────────────────────────────────────────────────────
+# 🧪 Test Plan Contract
+# ─────────────────────────────────────────────────────────
+test_plan_contract:
+  required_fields:
+    - test_paths
+    - setup_instructions (env vars, DB state)
+    - validation_steps
+    - expected_outputs
+    - artifacts (traces, screenshots, videos)
+    - requirements_coverage (mapping to Requirements-{key}.MD when present)
 
 # ─────────────────────────────────────────────────────────
 # 🚦 Guardrails
 # ─────────────────────────────────────────────────────────
 guardrails:
-  - [ui_mode] Default headless; headed only if explicitly set; both are verbose.
-  - [verbose] Always enable detailed Playwright debug logging.
-  - [single-worker] Use 1 worker to reduce crosstalk.
-  - [health] App must be running & healthy; echo base URL actually used.
-  - [blazor] Use fillBlazorInput(); verify enabled before clicks; avoid generic selectors.
-  - [artifacts] Keep trace/screenshots/video on failure; list+json reporters ONLY by default.
-  - [security] Never log secrets; redact tokens.
-  - [diffs] For self-updates, present diffs; never blind-write.
-
-# ─────────────────────────────────────────────────────────
-# 🧪 Snippets (embed in generated specs)
-# ─────────────────────────────────────────────────────────
-snippets:
-  headless_enforce_ts: |
-    // Enforce desired UI mode from prompt:
-    test.use({ headless: process.env.PLAYWRIGHT_HEADLESS === "1" });
-  fillBlazorInput_ts: |
-    async function fillBlazorInput(page, selector, value) {
-      const input = page.locator(selector);
-      await input.clear();
-      await input.fill(value);
-      await input.dispatchEvent('input');
-      await input.dispatchEvent('change');
-      await page.waitForTimeout(2000);
-    }
-  clickEnabledButton_ts: |
-    async function clickEnabledButton(page, selector, timeout = 10000) {
-      const button = page.locator(selector);
-      await expect(button).toBeEnabled({ timeout });
-      await button.click();
-    }
-  redact_ts: |
-    function redact(v) {
-      if (!v) return v;
-      return v.replace(/[A-Z0-9]{8}/g, '********');
-    }
+  - Always run Playwright in headless mode.
+  - Specs must include at least one negative path.
+  - Secrets/tokens must be placeholders only.
+  - Requirements-{key}.MD must be validated when present.
+  - **State lives only under NOOR CANVAS\Workspaces\Copilot\pwtest\{key}\ and must be kept current; purge after approval via /cleanup.**
+  - Watchdog must be enabled for spec generation and test execution; record all events.
 
 # ─────────────────────────────────────────────────────────
 # 🧩 Output Shape
 # ─────────────────────────────────────────────────────────
 output:
-  - memory_key: pwtest-context:<KEY>
-  - mode: test | run (with auto-generate fallback in run)
-  - plan: generated or executed actions
-  - evidence:
-      - headless_enforced: true/false
-      - healthcheck: url used + result + warmup ms
-      - env_echo: redacted token/session/user/tenant/route
-      - artifacts: report/json/trace/screenshots/video paths
-  - lessons:
-      - success_patterns: [ ... ]
-      - failure_patterns: [ ... ]
-      - recommended_changes: rationale tied to evidence
-  - proposed_prompt_patch:
-      - target: .github/prompts/pwtest.prompt.md
-      - diff: |
-          # minimal unified diff (what to insert/edit/remove)
-      - also_update_self_awareness: true/false
-      - self_awareness_diff: |
-          # optional diff for SelfAwareness.instructions.md
-  - generation:
-      include_if_mode_test_or_autogen: path to emitted spec + summary
-  - execution:
-      include_if_mode_run: grep used, summary, first failing test (if any)
+  - state:
+      store: "NOOR CANVAS\\Workspaces\\Copilot\\pwtest\\{key}\\"
+      run_manifest: "run.json"
+      plan_manifest: "plan.json"
+      checkpoint:   "checkpoint.json"
+      artifacts_idx: "artifacts.json"
+  - specs: paths to generated Playwright test files
+  - run_results: outcomes of headless runs
+  - artifacts:
+      traces: [paths]
+      screenshots: [paths]
+      videos: [paths]
+      watchdog_events: [ { step, first_observed, idle_secs, action_taken, retry, tail_log_path, proc_snapshot_path } ]
+  - docs: `.github/Test-{key}.MD` created/updated (coverage, failures, artifacts)
+  - test_plan: per `test_plan_contract`
   - approval_gate:
       message: >
-        Proposed improvements to pwtest prompt (and optionally SelfAwareness) are ready.
-        Review diffs and approve to apply.
+        Playwright tests complete for {key}. Review specs, results, and artifacts (incl. watchdog events).
       on_approval:
-        - Apply diffs and record changelog entry with rationale/evidence.
+        - Mark tests approved and request /cleanup purge of state
       on_no_approval:
-        - Keep prompts unchanged; retain lessons for next run.
+        - Keep state, summarize failures/hangs, and next steps
 
 # ─────────────────────────────────────────────────────────
-# 📝 Self-Review Footer
+# 📝 Self-Review
 # ─────────────────────────────────────────────────────────
 self_review:
-  - Consulted SelfAwareness; avoided prior failed patterns for this key.
-  - Verified ui_mode handling; ensured verbose logging and artifacts.
-  - Captured concrete evidence; redacted secrets; recorded flake/root causes.
-  - Produced minimal, reversible diffs for prompt improvements; awaiting approval.
+  - Consulted per-key state; avoided duplicate generation/runs.
+  - Verified SelfAwareness consulted for DB/schema rules.
+  - Ensured Playwright ran headless only.
+  - Captured negative paths in test specs.
+  - Validated specs against Requirements-{key}.MD when available.
+  - Watchdog recorded, recovered, and documented any hangs.
+  - Documented failures as regression vs new-feature with git evidence.
+  - Kept pwtest state up to date and resumable.
 
 # ─────────────────────────────────────────────────────────
-# 📦 Final Summary (always at end)
+# 📦 Final Summary
 # ─────────────────────────────────────────────────────────
 final_summary:
-  - Restate what was requested (key, mode, ui_mode, notes).
-  - Summarize what was done (test created/ran, infra validated, artifacts collected).
-  - Lessons learned:
-      • top success patterns
-      • top failure patterns
-      • targeted improvements
-  - Compact manifest:
-      • spec files created/updated
-      • execution outcomes
-      • artifact paths
-      • proposed prompt changes (yes/no)
-  - Eloquent, concise, executive-readable.
+  - What the user asked.
+  - What Copilot implemented.
+    • Specs generated and run (paths listed).
+    • Files created/updated and added to alignment:
+      – D:\PROJECTS\NOOR CANVAS\.github\Test-{key}.MD
+      – Requirements-{key}.MD (validated)
+      – Cleanup-<key>.MD
+  - The Fix and why it should work.
+  - Detailed Test Plan for user to try out the tests.
+  - Resume Info:
+      • **State path: NOOR CANVAS\Workspaces\Copilot\pwtest\{key}\**
+      • Last completed step: {checkpoint.step_id}

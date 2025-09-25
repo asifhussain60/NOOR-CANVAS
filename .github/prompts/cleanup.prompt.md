@@ -1,254 +1,166 @@
 ---
 mode: agent
-name: workitem
-alias: /workitem
-alt_aliases: [/fixissue]
+
+# ─────────────────────────────────────────────────────────
+# ▶️ Usage
+# ─────────────────────────────────────────────────────────
+name: cleanup
+alias: /cleanup
 description: >
-  Unified agent for Noor Canvas tasks. The mode determines behavior:
-    • "analyze": architecture/issue review with evidence and an implementation-ready plan.
-    • "apply": implement/patch, add standardized debug logging across all layers,
-      verify with automated tests, and present an approval gate.
-  ALWAYS begin by consulting SelfAwareness.instructions.md and recent context to prevent repeat mistakes
-  and to update the Project Ledger (stack, ports, DBs, tokens, testing rules).
-  Never declare completion without explicit user approval and concrete evidence.
+  Remove or neutralize temporary debug logs and artifacts introduced by workitem, sync, or pwtest runs.
+  Learn from per-key state/artifacts (including watchdog outputs) to improve future efficiency.
+  Cleanup preserves functional code and updates .github/instructions with operational lessons.
+  Includes a watchdog that detects hung analysis/removal steps and self-recovers.
 
 parameters:
   - name: key
-    required: true
-    description: >
-      Work item or issue memory key (ID or slug). Multiple keys allowed, separated by '---'.
-      Each key binds to `workitem-context:<KEY>` and must be processed sequentially with separate outputs.
-
-  - name: mode
-    required: true
-    description: >
-      Execution mode (functional role):
-        • "analyze" → Perform systematic review/checklist; no code changes.
-        • "apply"   → Make changes, add standardized debug logging, run tests, collect artifacts, update trackers.
-
-  - name: notes
     required: false
     description: >
-      Free-form scope: requirements, targets (files/dirs/globs/screenshots), constraints, hypotheses, repro steps.
-      Multiple notes may be provided separated by '---'.
-      Each note is bound to the same key and mode as the first.
+      Work item key. If provided, cleanup is scoped; if omitted, cleanup applies globally.
+
+  - name: cleanlogs
+    required: false
+    default: true
+    description: >
+      When true (default), remove all debug logs tagged with the canonical format.
+      When false, retain debug logs but still remove all temporary state, artifacts, and orphaned files.
+
+usage:
+  prerequisites:
+    - Ensure no uncommitted work would be lost by deletions.
+  run_examples:
+    - Scoped purge and log removal:
+        • /cleanup key:NC-145 cleanlogs:true
+    - Global artifact purge but keep logs for forensics:
+        • /cleanup cleanlogs:false
+  outputs:
+    - Structured list of removed logs/files and instruction diffs.
+    - Cleanup report `.github/Cleanup-<key>.MD` (or Cleanup-Global.MD).
 
 # ─────────────────────────────────────────────────────────
-# 📖 Usage Syntax (Cheat Sheet)
-# ─────────────────────────────────────────────────────────
-# /workitem
-#   key:[key-name or key1 --- key2 --- key3]
-#   mode:[analyze | apply]
-#   notes:[note text or note1 --- note2 --- note3]
-
-# Examples:
-# /workitem
-#   key:"116"
-#   mode:"analyze"
-#   notes:"review SessionWaiting behavior --- check DTO casing drift in Host API"
-#
-# /workitem
-#   key:"feat-shared-assets"
-#   mode:"apply"
-#   notes:"#file:Host-SessionOpener.razor --- implement SharedAssets autodetect --- run headless E2E tests"
-
-# ─────────────────────────────────────────────────────────
-# 🧭 Context-First Boot (MANDATORY)
+# 🧭 Context Boot
 # ─────────────────────────────────────────────────────────
 context_boot:
-  - Read SelfAwareness.instructions.md and update the Project Ledger snapshot.
-  - Skim recent chat/workspace history for this key; avoid previously failed patterns.
-  - Confirm environment (ports 9090/9091), DB boundaries (Canvas writable; KSESSIONS_DEV read-only).
-  - Record context evidence (file:lines) used for decisions.
+  - Discover scope of prior work:
+      • If key provided: NOOR CANVAS\Workspaces\Copilot\{key}\
+      • Else: enumerate NOOR CANVAS\Workspaces\Copilot\* and summarize per key.
+      • Read run.json, plan.json, progress.log.jsonl, checkpoint.json, artifacts.json for each key.
+      • Use these to reconstruct what was done and to target cleanup precisely.
+  - Read .github/instructions/SelfAwareness.instructions.md for DB/schema restrictions.
+  - If key is provided, review debug logs across UI/API/SQL for that scope.
+  - Confirm canonical log tag presence: `[DEBUG-WORKITEM:{key}:{layer}]`.
+  - If Requirements-{key}.MD exists, preserve it (authoritative).
 
 # ─────────────────────────────────────────────────────────
-# 🎯 Objectives by Mode
+# 💾 State & Checkpoints (kept current until purge)
+# ─────────────────────────────────────────────────────────
+state_store:
+  root: "NOOR CANVAS\\Workspaces\\Copilot\\cleanup\\"
+  files: { run_manifest: run.json, plan_manifest: plan.json, progress_log: progress.log.jsonl, checkpoint: checkpoint.json, artifacts_idx: artifacts.json }
+  io: { write_mode: append_minimal, compress: true, atomic_writes: true, debounce_ms: 150 }
+  save_policy:
+    - Update checkpoint/progress/artifacts after each phase (analysis, instruction updates, removals).
+  retention: { ttl_hours: 24 }
+
+# ─────────────────────────────────────────────────────────
+# 🎯 Objectives
 # ─────────────────────────────────────────────────────────
 objectives:
-  analyze:
-    - Perform systematic review across View → Route → API → DTO → SQL.
-    - Enumerate use cases; build end-to-end traces; validate naming/typing/auth/status codes.
-    - Surface mismatches, risks, unknowns; include concrete file:line evidence.
-    - For multiple notes, analyze each one sequentially under the same key + mode.
-    - Produce an implementation-ready plan with effort sizing and acceptance checks.
-  apply:
-    - Translate notes into a concrete plan aligned with NOOR-CANVAS-DESIGN phases.
-    - Implement with Blazor View Builder discipline; keep DTO/route/SQL alignment explicit.
-    - **Add standardized debug logging across layers (UI, API, DB, Infra) to accelerate diagnosis.**
-    - Enforce environment safety and UTC time rules; add scoped diagnostics as needed.
-    - For multiple notes, implement each sequentially under the same key + mode.
-    - Verify with strict headless Playwright (trace/screenshots/video on failure).
-    - Update trackers/docs; present approval gate before marking complete.
+  - If cleanlogs:true → remove all `[DEBUG-WORKITEM:{key}:{layer}]` logs via structured diffs.
+  - If cleanlogs:false → preserve logs; still purge TEMP/state artifacts.
+  - Analyze per-key state/artifacts (including watchdog outputs) to extract lessons; update instructions accordingly.
+  - Purge artifacts, traces, and state dirs in **NOOR CANVAS\Workspaces\Copilot\{key}\** (or all keys) **after approval**.
+  - Ensure no functional code breakage.
+  - Generate Cleanup-<key>.MD (or Cleanup-Global.MD) in `.github` and add to alignment.
+  - Leave cleanup’s own state files up to date until purge.
 
 # ─────────────────────────────────────────────────────────
-# 🔗 Alignment Hooks (consult up front)
+# 🐶 Watchdog — Self-Recovery for Cleanup
+# ─────────────────────────────────────────────────────────
+watchdog:
+  idle_seconds_threshold: 120
+  graceful_stop_timeout_seconds: 10
+  max_retries: 1
+  monitored_steps:
+    - "scan_state"
+    - "instruction_updates"
+    - "artifact_removals"
+  behavior:
+    - Detect idle → mark as hung; capture log tail + pending list.
+    - Graceful stop → force kill if needed; record watchdog event.
+    - Retry once idempotently; else fail with watchdog_hang and pointers.
+
+# ─────────────────────────────────────────────────────────
+# 🔗 Alignment Targets
 # ─────────────────────────────────────────────────────────
 alignment:
-  - NOOR-CANVAS-DESIGN.MD
+  - .github/instructions/SelfAwareness.instructions.md
+  - .github/instructions/Ops-Watchdog-Troubleshooting.md
   - ncImplementationTracker.MD
-  - SelfAwareness.instructions.md
+  - Requirements-{key}.MD
+  - D:\PROJECTS\NOOR CANVAS\.github\*.MD
+  - Cleanup-<key>.MD
 
 # ─────────────────────────────────────────────────────────
 # 🛠️ Methods
 # ─────────────────────────────────────────────────────────
 methods:
   analyze:
-    - "Gather Context":
-        - Reference design/trackers and recent attempts tied to the key.
-        - From notes, interpret each item (split by ---) as a distinct analysis task.
-    - "Enumerate Use Cases":
-        - List visible/conditional actions; map expected routes/APIs.
-    - "Trace Map":
-        - Build View → Route → API/Action → DTO In/Out → SQL; note missing links as “—”.
-    - "Validation Matrix":
-        - DTO casing, names & types; nullable fidelity; auth/validate attributes; status codes vs UI.
-    - "Mismatches & Risks":
-        - Concurrency (Blazor/SignalR), timers/time-source, environment gaps, error boundaries.
-    - "Plan (Deferred)":
-        - Sequenced remediation with acceptance checks and effort sizing; request approval to proceed.
-
+    - Parse progress.log.jsonl, checkpoint.json, artifacts.json for durations/failures.
+    - Draft instruction updates (SelfAwareness + Ops-Watchdog).
   apply:
-    - "Plan & Scaffold":
-        - Restate acceptance criteria from notes (split by --- into distinct sub-tasks).
-        - Map requirement to affected View→Route→API→DTO→SQL for the key.
-
-    - "Implementation with Standardized Debug Logging":
-        - Insert concise, meaningful logs that follow ONE format everywhere to enable fast grep/remove:
-            # Standard tag: [DEBUG-WORKITEM:{key}:{layer}]
-            # Layers: UI | API | DB | INFRA
-            # Examples:
-            #   UI (Razor/Blazor):    console.debug("[DEBUG-WORKITEM:{key}:UI] {context} {value}")
-            #   API (C#):             logger.LogDebug("[DEBUG-WORKITEM:{key}:API] {Context} {@Payload}")
-            #   DB (T-SQL):           PRINT '[DEBUG-WORKITEM:{key}:DB] {Context} {Id}';
-            #   Infra (PS/Bash):      Write-Host "[DEBUG-WORKITEM:{key}:INFRA] {Step} {Status}"
-        - Scope:
-            - Add at entry/exit of critical flows, around async transitions, and before/after external calls.
-            - Include correlation IDs or key parameters (redact secrets).
-            - Keep messages short; prefer structured values over prose.
-        - Hygiene:
-            - Centralize any helper macros if available.
-            - Keep all logs easily discoverable via the tag; no ad-hoc prefixes.
-            - Document where logs were added (file:line) in the output manifest.
-
-    - "Verify":
-        - Start/confirm app health (9090/9091); run headless Playwright (/pwtest with ui_mode=headless).
-        - Assert that debug logs appear in execution output where expected.
-        - Attach HTML/JSON reports, trace, screenshots, video on failure.
-
-    - "Handoff":
-        - Update ncImplementationTracker.MD with:
-            - Files changed and rationale
-            - Where debug logs were added (file:line), and removal guidance
-            - Evidence artifacts and outcomes
-        - Present approval gate; do not mark resolved without explicit user confirmation.
+    - Update instruction files via structured diffs (show before/after).
+    - Remove logs conditionally (cleanlogs flag); show file:line previews.
+    - Purge per-key state dirs only after approval; keep cleanup state current until then.
+    - Document results in Cleanup-<key>.MD and add to alignment.
 
 # ─────────────────────────────────────────────────────────
-# 🧱 Structured Debug Logging (shared with cleanup)
-# ─────────────────────────────────────────────────────────
-debug_logging:
-  tag_format: "[DEBUG-WORKITEM:{key}:{layer}]"
-  layers: [UI, API, DB, INFRA]
-  placement:
-    - Entry/exit of critical flows
-    - Before/after async transitions and network/DB calls
-    - Around deserialization/DTO mapping and auth/validation
-  content_guidelines:
-    - Short, structured messages; redact secrets/tokens
-    - Include correlation IDs or key parameters where helpful
-  discoverability:
-    - Single canonical prefix (no variants)
-    - Greppable: `\\[DEBUG-WORKITEM:{key}:`
-  cleanup_hint:
-    - Use /cleanup prompt to strip all matching lines safely
-    - Keep a manifest of inserted logs for audit and removal
-
-# ─────────────────────────────────────────────────────────
-# 🚦 Guardrails (Unified)
+# 🚦 Guardrails
 # ─────────────────────────────────────────────────────────
 guardrails:
-  - Always tie findings, evidence, and outputs back to the active key.
-  - Multiple keys ("---") must be processed in order; produce separate outputs per key.
-  - Multiple notes ("---") must be processed sequentially under the same key + mode.
-  - [approval] Never mark resolved without explicit user approval.
-  - [history] Treat each run as continuation for its key; summarize prior attempts & contradictions.
-  - [readiness] Verify app is healthy before UI/E2E tests.
-  - [logging] Scoped "COPILOT-DEBUG:" logs for narrative plus standardized tag logs for grep/removal.
-  - [debug-tag] All temporary debug logs MUST use `[DEBUG-WORKITEM:{key}:{layer}]` exactly.
-  - [dto-casing] JSON camelCase ↔ C# PascalCase alignment explicit at each layer.
-  - [time] No hard-coded dates; prefer server/DB UTC; document TZ/DST handling.
-  - [env] KSESSIONS_DEV read-only; never prod; log branch/env.
-  - [duplication] Scan for near-duplicates before adding helpers.
-  - [concurrency] Validate async flows; SignalR initialization: Connect → Load State → Join Groups.
-  - [evidence] Provide before/after logs, screenshots, test results tied to memory_key.
-  - [ui-standards] Preserve NOOR Canvas design (Inter, #3B82F6/#8B5CF6, rounded corners, RTL).
-  - [playwright] Headless only; artifacts on failure.
-
-# ─────────────────────────────────────────────────────────
-# 🧪 Playwright Contracts
-# ─────────────────────────────────────────────────────────
-playwright:
-  mode_default: headless
-  reporters: [html, json, line]
-  artifacts: [trace on retry, screenshots on failure, video on failure]
-  helpers:
-    fillBlazorInput: |
-      async function fillBlazorInput(page, selector, value) {
-        const input = page.locator(selector);
-        await input.clear();
-        await input.fill(value);
-        await input.dispatchEvent('input');
-        await input.dispatchEvent('change');
-        await page.waitForTimeout(2000);
-      }
-    clickEnabledButton: |
-      async function clickEnabledButton(page, selector, timeout = 10000) {
-        const button = page.locator(selector);
-        await expect(button).toBeEnabled({ timeout });
-        await button.click();
-      }
+  - Only remove canonical logs if cleanlogs:true.
+  - Show diffs/snippets for instruction edits and log removals.
+  - Preserve build validity.
+  - Do not purge **NOOR CANVAS\Workspaces\Copilot\** until approval gate passes.
+  - Requirements-{key}.MD must remain untouched; authoritative.
+  - Watchdog must be enabled for long-running cleanup steps; record all events.
 
 # ─────────────────────────────────────────────────────────
 # 🧩 Output Shape
 # ─────────────────────────────────────────────────────────
 output:
-  - memory_key: workitem-context:<KEY>
-  - plan: step-by-step actions or review sequence
-  - evidence: file:line refs, logs, screenshots, test reports
-  - findings: (analyze) executive summary, narrative, trace table, validation matrix, gaps, risks
-  - implementation: (apply) diffs/commands, build output, artifacts
-  - debug_logging_manifest:
-      - files_with_logs: [path:line...]
-      - layers: [UI | API | DB | INFRA]
-      - removal_hint: >
-          Remove by grepping the tag: \[DEBUG-WORKITEM:{key}:
-  - docs: tracker/doc updates with key references
+  - learnings: { hang_signatures, flaky_steps, common_failures, recommendations }
+  - instruction_diffs: [ SelfAwareness.instructions.md, Ops-Watchdog-Troubleshooting.md ]
+  - removed_logs: include_if_cleanlogs_true [file:line…]
+  - purged_artifacts: [ state dirs/files ]
+  - watchdog_events: [ { step, first_observed, idle_secs, action_taken, retry, tail_log_path, pending_list_path } ]
+  - docs: created_or_updated: [ Cleanup-<key>.MD or Cleanup-Global.MD ]
   - approval_gate:
-      message: >
-        Work for {memory_key} is complete in mode:{mode}. Review evidence and approve to mark resolved.
+      message: "Cleanup ready (key:{key}, cleanlogs:{cleanlogs}). Approve to finalize."
       on_approval:
-        - Mark key RESOLVED with resolution notes.
+        - Apply removals and mark cleanup complete
       on_no_approval:
-        - Keep status unchanged; summarize deltas and next checks.
+        - Keep state intact; summarize pending deletions
 
 # ─────────────────────────────────────────────────────────
-# 📝 Self-Review Footer
+# 📝 Self-Review
 # ─────────────────────────────────────────────────────────
 self_review:
-  - Confirmed SelfAwareness.instructions.md consulted and Project Ledger updated.
-  - Avoided previously failed patterns for this key; documented changes.
-  - Captured explicit evidence; flagged any mock data usage; listed next-step recommendations.
-  - Verified that multiple notes were processed sequentially under the same key + mode.
-  - **Confirmed all temporary debug logs use the standardized tag and are documented for cleanup.**
+  - Consulted per-key state before actions; kept cleanup state current.
+  - Updated SelfAwareness + Ops-Watchdog with concrete improvements.
+  - Respected cleanlogs flag; build remains valid.
+  - Preserved Requirements-{key}.MD.
+  - Watchdog recorded, recovered, and documented any hangs.
+  - Prepared precise purge list gated by approval.
 
 # ─────────────────────────────────────────────────────────
-# 📦 Final Summary (to always show at end)
+# 📦 Final Summary
 # ─────────────────────────────────────────────────────────
 final_summary:
-  - Restate clearly what the user asked for (scope, key(s), mode, notes).
-  - Summarize what was done in response (analysis steps, fixes applied, tests run).
-  - Provide a compact manifest of changes:
-      • files touched or reviewed
-      • actions taken
-      • key outcomes
-      • where debug logs were inserted (tagged for easy cleanup)
-  - Format must be eloquent but concise — a neat executive recap.
+  - What the user asked.
+  - What Copilot implemented.
+  - Cleanup report: logs removed, artifacts purged, instruction updates.
+  - Documentation created/updated: Cleanup-<key>.MD.
+  - Resume info:
+      • **State path: NOOR CANVAS\Workspaces\Copilot\cleanup\**
+      • Last checkpoint: {checkpoint.step_id}

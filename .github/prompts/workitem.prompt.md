@@ -1,253 +1,284 @@
+---
 mode: agent
+
+# ─────────────────────────────────────────────────────────
+# ▶️ Usage
+# ─────────────────────────────────────────────────────────
 name: workitem
 alias: /workitem
-alt_aliases: [/fixissue]
 description: >
-  Unified agent for Noor Canvas tasks. The mode determines behavior:
-    • "analyze": architecture/issue review with evidence and an implementation-ready plan.
-    • "apply": implement/patch, add standardized debug logging across all layers,
-      verify with automated tests, and present an approval gate.
-  ALWAYS begin by consulting SelfAwareness.instructions.md and recent context to prevent repeat mistakes
-  and to update the Project Ledger (stack, ports, DBs, tokens, testing rules).
-  Never declare completion without explicit user approval and concrete evidence.
+  Implement a work item in Noor Canvas based on key, mode, and notes.
+  Capable of applying fixes, enhancements, styling redesigns, tests, and documentation.
+  Includes watchdog self-recovery, git-history first-aid, alignment with requirements and instructions,
+  and a phased, incremental application strategy to avoid risky large-scale changes.
 
 parameters:
   - name: key
     required: true
     description: >
-      Work item or issue memory key (ID or slug). Multiple keys allowed, separated by '---'.
-      Each key binds to `workitem-context:<KEY>` and must be processed sequentially with separate outputs.
+      Work item key.
 
   - name: mode
     required: true
     description: >
-      Execution mode (functional role):
-        • "analyze" → Perform systematic review/checklist; no code changes.
-        • "apply"   → Make changes, add standardized debug logging, run tests, collect artifacts, update trackers.
+      Execution mode: plan | apply | review
+
+  - name: test
+    required: false
+    default: false
+    description: >
+      If true, follow pwtest.prompt to generate + run headless Playwright tests spanning all layers.
 
   - name: notes
     required: false
     description: >
-      Free-form scope: requirements, targets (files/dirs/globs/screenshots), constraints, hypotheses, repro steps.
-      Multiple notes may be provided separated by '---'.
-      Each note is bound to the same key and mode as the first.
+      Freeform notes from user. May contain directives such as "fix SignalR", "restyle page",
+      or "optimize query". Multiple notes can be separated with '---'.
+
+usage:
+  prerequisites:
+    - Ensure the app can launch with:
+        • .\Workspaces\Global\nc.ps1     # simple launch
+        • .\Workspaces\Global\ncb.ps1    # clean, build, and launch
+    - Confirm environment assumptions (ports 9090/9091, Canvas writable, KSESSIONS_DEV read-only).
+    - If available, attach or reference Requirements-{key}.MD and any screenshots/notes.
+
+  run_examples:
+    - Plan only:
+        • /workitem key:NC-145 mode:plan notes:"introduce optimistic UI for save --- keep API unchanged"
+    - Incremental apply with tests:
+        • /workitem key:NC-145 mode:apply test:true notes:"restyle dashboard with Tailwind + Font Awesome"
+    - Review what happened:
+        • /workitem key:NC-145 mode:review
+
+  outputs:
+    - plan: plan.json or plan-v{n}.json with step-by-step approach.
+    - apply: structured diffs, docs, artifacts, and (optionally) Playwright results.
+    - review: summary of actions, rationale, failures, and next steps.
 
 # ─────────────────────────────────────────────────────────
-# 📖 Usage Syntax (Cheat Sheet)
-# ─────────────────────────────────────────────────────────
-# /workitem
-#   key:[key-name or key1 --- key2 --- key3]
-#   mode:[analyze | apply]
-#   notes:[note text or note1 --- note2 --- note3]
-
-# Examples:
-# /workitem
-#   key:"116"
-#   mode:"analyze"
-#   notes:"review SessionWaiting behavior --- check DTO casing drift in Host API"
-#
-# /workitem
-#   key:"feat-shared-assets"
-#   mode:"apply"
-#   notes:"#file:Host-SessionOpener.razor --- implement SharedAssets autodetect --- run headless E2E tests"
-
-# ─────────────────────────────────────────────────────────
-# 🧭 Context-First Boot (MANDATORY)
+# 🧭 Context Boot
 # ─────────────────────────────────────────────────────────
 context_boot:
-  - Read SelfAwareness.instructions.md and update the Project Ledger snapshot.
-  - Skim recent chat/workspace history for this key; avoid previously failed patterns.
-  - Confirm environment (ports 9090/9091), DB boundaries (Canvas writable; KSESSIONS_DEV read-only).
-  - Record context evidence (file:lines) used for decisions.
+  - Load prior state for this key from **NOOR CANVAS\Workspaces\Copilot\{key}\** if present.
+  - Consult .github/instructions/SelfAwareness.instructions.md for DB/schema restrictions and ledger.
+  - Review debug logs across UI/API/SQL for reported issues.
+  - Skim last 10 commits/chats relevant to this key.
+  - If Requirements-{key}.MD exists (from imgreq runs):
+      • Ingest and treat as authoritative functional requirements.
+      • Map acceptance criteria to its numbered requirements.
 
 # ─────────────────────────────────────────────────────────
-# 🎯 Objectives by Mode
+# 💾 State & Checkpoints
+# ─────────────────────────────────────────────────────────
+state_store:
+  root: "NOOR CANVAS\\Workspaces\\Copilot\\{key}\\"
+  files: { run_manifest: run.json, plan_manifest: plan.json, progress_log: progress.log.jsonl, checkpoint: checkpoint.json, artifacts_idx: artifacts.json }
+  io: { write_mode: append_minimal, compress: true, atomic_writes: true, debounce_ms: 150 }
+  load_policy:
+    - Resume from checkpoint if plan_hash matches; else write new plan-v{n}.json and resume.
+  save_policy:
+    - After each step: update checkpoint + append to progress log + update artifacts index.
+  retention: { ttl_hours: 24, cleanup_on_approval: true }
+
+# ─────────────────────────────────────────────────────────
+# 🎯 Objectives
 # ─────────────────────────────────────────────────────────
 objectives:
-  analyze:
-    - Perform systematic review across View → Route → API → DTO → SQL.
-    - Enumerate use cases; build end-to-end traces; validate naming/typing/auth/status codes.
-    - Surface mismatches, risks, unknowns; include concrete file:line evidence.
-    - For multiple notes, analyze each one sequentially under the same key + mode.
-    - Produce an implementation-ready plan with effort sizing and acceptance checks.
+  plan:
+    - Generate a detailed technical plan (UI, API, DB, infra).
+    - Align plan with Requirements-{key}.MD if exists.
+    - Output plan-v{n}.json in state.
   apply:
-    - Translate notes into a concrete plan aligned with NOOR-CANVAS-DESIGN phases.
-    - Implement with Blazor View Builder discipline; keep DTO/route/SQL alignment explicit.
-    - **Add standardized debug logging across layers (UI, API, DB, Infra) to accelerate diagnosis.**
-    - Enforce environment safety and UTC time rules; add scoped diagnostics as needed.
-    - For multiple notes, implement each sequentially under the same key + mode.
-    - Verify with strict headless Playwright (trace/screenshots/video on failure).
-    - Update trackers/docs; present approval gate before marking complete.
+    - Implement changes **incrementally** via Phased Apply (see below), with verification between phases.
+    - If notes include "restyle" or "redesign":
+        • Apply modern UI/UX styling.
+        • Use Tailwind CSS classes for styling.
+        • Use Font Awesome icons where appropriate to enhance visual clarity and dynamics.
+        • Ensure resulting view is clean, elegant, and consistent with modern practices.
+    - Always run app with .\nc.ps1 (or .\ncb.ps1 then .\nc.ps1 if build required).
+    - Generate/update technical .MD docs in `.github` describing the implementation.
+    - Add new docs to alignment for SelfAwareness.
+    - Trigger Playwright tests if test:true.
+    - Keep state files current.
+  review:
+    - Summarize what was attempted, what succeeded/failed, and why.
+    - Provide next-step recommendations.
+    - Keep state files current.
 
 # ─────────────────────────────────────────────────────────
-# 🔗 Alignment Hooks (consult up front)
+# 🔁 Phased Apply (Incremental Changes, Guardrails On)
+# ─────────────────────────────────────────────────────────
+phased_apply:
+  phases:
+    - phase_0_scaffold:
+        goal: "Safe scaffolding with no behavior change."
+        actions:
+          - Introduce feature flags/toggles where useful (default: off).
+          - Add minimal interfaces/types, placeholder components, and route stubs.
+          - Write tiny smoke test (component render / route mounts).
+        verify:
+          - App launches (`.\nc.ps1`), existing flows untouched.
+          - Headless smoke test passes; no regressions spotted in crucial routes.
+
+    - phase_1_minimal_viable_change:
+        goal: "Wire the smallest functional slice end-to-end."
+        actions:
+          - Implement narrow UI path + API call + DB-visible effect (if applicable).
+          - Add Gherkin-aligned tests for that slice (pwtest).
+          - Log under canonical tag `[DEBUG-WORKITEM:{key}:ui|api|db]` if temporary diagnostics are needed.
+        verify:
+          - Run targeted Playwright spec(s) headless; collect traces/screenshots for failures.
+          - Update `.github/Workitem-{key}.MD` with results and rationale.
+
+    - phase_2_expand_coverage:
+        goal: "Broaden functionality and edge cases."
+        actions:
+          - Add remaining UI states (empty/loading/error), validation, and accessibility bits.
+          - Extend tests to negative paths and boundary values.
+        verify:
+          - Re-run tests; review artifacts.
+          - Update docs and close Open Questions where evidence exists.
+
+    - phase_3_full_convergence:
+        goal: "Complete scope per Requirements-{key}.MD; remove temp flags/logs."
+        actions:
+          - Replace flagged paths with final implementations; remove temporary logs.
+          - Optimize queries and performance hotspots identified during testing.
+        verify:
+          - Full headless suite green; watchdog shows no hangs.
+          - Prepare cleanup gate (state purge via /cleanup).
+
+  rules:
+    - Never skip a phase; if a phase fails, fix forward or rollback within the same phase.
+    - Commit or checkpoint after each phase; document deltas in `.github/Workitem-{key}.MD`.
+    - Keep risk surface small: small diffs, local blast radius, feature flags if crossing module boundaries.
+
+# ─────────────────────────────────────────────────────────
+# 🐶 Watchdog — Self-Recovery
+# ─────────────────────────────────────────────────────────
+watchdog:
+  idle_seconds_threshold: 120
+  graceful_stop_timeout_seconds: 10
+  max_retries: 1
+  monitored_steps:
+    - "build"
+    - "run"
+    - "compile"
+    - "test"
+  behavior:
+    - Detect idle → capture log tail + process snapshot.
+    - Attempt graceful stop; force kill if unresponsive.
+    - Log event into artifacts and progress log.
+    - Retry once; if still hung, fail with status watchdog_hang.
+
+# ─────────────────────────────────────────────────────────
+# 🔗 Alignment
 # ─────────────────────────────────────────────────────────
 alignment:
-  - NOOR-CANVAS-DESIGN.MD
-  - ncImplementationTracker.MD
-  - SelfAwareness.instructions.md
+  - .github/instructions/SelfAwareness.instructions.md
+  - Requirements-{key}.MD (from imgreq runs)
+  - .github/Workitem-{key}.MD
+  - .github/prompts/pwtest.prompt.md
+  - Cleanup-{key}.MD
 
 # ─────────────────────────────────────────────────────────
 # 🛠️ Methods
 # ─────────────────────────────────────────────────────────
 methods:
-  analyze:
-    - "Gather Context":
-        - Reference design/trackers and recent attempts tied to the key.
-        - From notes, interpret each item (split by ---) as a distinct analysis task.
-    - "Enumerate Use Cases":
-        - List visible/conditional actions; map expected routes/APIs.
-    - "Trace Map":
-        - Build View → Route → API/Action → DTO In/Out → SQL; note missing links as “—”.
-    - "Validation Matrix":
-        - DTO casing, names & types; nullable fidelity; auth/validate attributes; status codes vs UI.
-    - "Mismatches & Risks":
-        - Concurrency (Blazor/SignalR), timers/time-source, environment gaps, error boundaries.
-    - "Plan (Deferred)":
-        - Sequenced remediation with acceptance checks and effort sizing; request approval to proceed.
-
+  plan:
+    - Derive steps from notes and prior state.
+    - Output plan.json (or plan-v{n}.json) with evidence.
   apply:
-    - "Plan & Scaffold":
-        - Restate acceptance criteria from notes (split by --- into distinct sub-tasks).
-        - Map requirement to affected View→Route→API→DTO→SQL for the key.
-
-    - "Implementation with Standardized Debug Logging":
-        - Insert concise, meaningful logs that follow ONE format everywhere to enable fast grep/remove:
-            # Standard tag: [DEBUG-WORKITEM:{key}:{layer}]
-            # Layers: UI | API | DB | INFRA
-            # Examples:
-            #   UI (Razor/Blazor):    console.debug("[DEBUG-WORKITEM:{key}:UI] {context} {value}")
-            #   API (C#):             logger.LogDebug("[DEBUG-WORKITEM:{key}:API] {Context} {@Payload}")
-            #   DB (T-SQL):           PRINT '[DEBUG-WORKITEM:{key}:DB] {Context} {Id}';
-            #   Infra (PS/Bash):      Write-Host "[DEBUG-WORKITEM:{key}:INFRA] {Step} {Status}"
-        - Scope:
-            - Add at entry/exit of critical flows, around async transitions, and before/after external calls.
-            - Include correlation IDs or key parameters (redact secrets).
-            - Keep messages short; prefer structured values over prose.
-        - Hygiene:
-            - Centralize any helper macros if available.
-            - Keep all logs easily discoverable via the tag; no ad-hoc prefixes.
-            - Document where logs were added (file:line) in the output manifest.
-
-    - "Verify":
-        - Start/confirm app health (9090/9091); run headless Playwright (/pwtest with ui_mode=headless).
-        - Assert that debug logs appear in execution output where expected.
-        - Attach HTML/JSON reports, trace, screenshots, video on failure.
-
-    - "Handoff":
-        - Update ncImplementationTracker.MD with:
-            - Files changed and rationale
-            - Where debug logs were added (file:line), and removal guidance
-            - Evidence artifacts and outcomes
-        - Present approval gate; do not mark resolved without explicit user confirmation.
+    - Run ncb.ps1 if build required, else nc.ps1.
+    - Execute **phased_apply** phases 0→3; checkpoint and verify after each phase.
+    - Apply structured diffs to UI/API/DB.
+    - Respect "restyle"/"redesign" instructions for UI (Tailwind + Font Awesome).
+    - Generate/update .MD doc in `.github` (Workitem-{key}.MD).
+    - Keep state up to date.
+  review:
+    - Summarize outcomes.
+    - Capture logs and diffs.
+    - Document blockers.
 
 # ─────────────────────────────────────────────────────────
-# 🧱 Structured Debug Logging (shared with cleanup)
+# 🧯 Error Handling (Git History First-Aid)
 # ─────────────────────────────────────────────────────────
-debug_logging:
-  tag_format: "[DEBUG-WORKITEM:{key}:{layer}]"
-  layers: [UI, API, DB, INFRA]
-  placement:
-    - Entry/exit of critical flows
-    - Before/after async transitions and network/DB calls
-    - Around deserialization/DTO mapping and auth/validation
-  content_guidelines:
-    - Short, structured messages; redact secrets/tokens
-    - Include correlation IDs or key parameters where helpful
-  discoverability:
-    - Single canonical prefix (no variants)
-    - Greppable: `\\[DEBUG-WORKITEM:{key}:`
-  cleanup_hint:
-    - Use /cleanup prompt to strip all matching lines safely
-    - Keep a manifest of inserted logs for audit and removal
+errors:
+  on_failure:
+    - Determine if feature previously worked.
+    - If regression → diff commits, restore last-known-good.
+    - If new → fix forward with tests.
+    - Document decision and evidence in .MD docs + state.
+  on_watchdog_hang:
+    - Include log tails and metadata in artifacts.
+    - Reference Ops-Watchdog-Troubleshooting.md.
+    - Retry once; if still hung, fail safe.
 
 # ─────────────────────────────────────────────────────────
-# 🚦 Guardrails (Unified)
+# 🧪 Test Plan Contract
+# ─────────────────────────────────────────────────────────
+test_plan_contract:
+  required_fields:
+    - routes_endpoints
+    - tokens_credentials (placeholders)
+    - setup_instructions
+    - validation_steps
+    - expected_outputs
+    - requirements_coverage (if Requirements-{key}.MD exists)
+
+# ─────────────────────────────────────────────────────────
+# 🚦 Guardrails
 # ─────────────────────────────────────────────────────────
 guardrails:
-  - Always tie findings, evidence, and outputs back to the active key.
-  - Multiple keys ("---") must be processed in order; produce separate outputs per key.
-  - Multiple notes ("---") must be processed sequentially under the same key + mode.
-  - [approval] Never mark resolved without explicit user approval.
-  - [history] Treat each run as continuation for its key; summarize prior attempts & contradictions.
-  - [readiness] Verify app is healthy before UI/E2E tests.
-  - [logging] Scoped "COPILOT-DEBUG:" logs for narrative plus standardized tag logs for grep/removal.
-  - [debug-tag] All temporary debug logs MUST use `[DEBUG-WORKITEM:{key}:{layer}]` exactly.
-  - [dto-casing] JSON camelCase ↔ C# PascalCase alignment explicit at each layer.
-  - [time] No hard-coded dates; prefer server/DB UTC; document TZ/DST handling.
-  - [env] KSESSIONS_DEV read-only; never prod; log branch/env.
-  - [duplication] Scan for near-duplicates before adding helpers.
-  - [concurrency] Validate async flows; SignalR initialization: Connect → Load State → Join Groups.
-  - [evidence] Provide before/after logs, screenshots, test results tied to memory_key.
-  - [ui-standards] Preserve NOOR Canvas design (Inter, #3B82F6/#8B5CF6, rounded corners, RTL).
-  - [playwright] Headless only; artifacts on failure.
-
-# ─────────────────────────────────────────────────────────
-# 🧪 Playwright Contracts
-# ─────────────────────────────────────────────────────────
-playwright:
-  mode_default: headless
-  reporters: [html, json, line]
-  artifacts: [trace on retry, screenshots on failure, video on failure]
-  helpers:
-    fillBlazorInput: |
-      async function fillBlazorInput(page, selector, value) {
-        const input = page.locator(selector);
-        await input.clear();
-        await input.fill(value);
-        await input.dispatchEvent('input');
-        await input.dispatchEvent('change');
-        await page.waitForTimeout(2000);
-      }
-    clickEnabledButton: |
-      async function clickEnabledButton(page, selector, timeout = 10000) {
-        const button = page.locator(selector);
-        await expect(button).toBeEnabled({ timeout });
-        await button.click();
-      }
+  - Use Tailwind and Font Awesome when restyling/redesigning.
+  - Structured diffs only; never overwrite entire files blindly.
+  - Requirements-{key}.MD is authoritative.
+  - Logs must follow canonical tag and be removable by /cleanup.
+  - **State must be updated each step under NOOR CANVAS\Workspaces\Copilot\{key}\; purge only via /cleanup approval.**
+  - Tests must run headless when test:true.
 
 # ─────────────────────────────────────────────────────────
 # 🧩 Output Shape
 # ─────────────────────────────────────────────────────────
 output:
-  - memory_key: workitem-context:<KEY>
-  - plan: step-by-step actions or review sequence
-  - evidence: file:line refs, logs, screenshots, test reports
-  - findings: (analyze) executive summary, narrative, trace table, validation matrix, gaps, risks
-  - implementation: (apply) diffs/commands, build output, artifacts
-  - debug_logging_manifest:
-      - files_with_logs: [path:line...]
-      - layers: [UI | API | DB | INFRA]
-      - removal_hint: >
-          Remove by grepping the tag: \[DEBUG-WORKITEM:{key}:
-  - docs: tracker/doc updates with key references
+  - state: { run_manifest, plan_manifest, checkpoint, artifacts_idx }
+  - plan: plan.json or plan-v{n}.json
+  - diffs: [files updated]
+  - docs: new/updated Workitem-{key}.MD in .github
+  - artifacts: logs, screenshots, traces, videos
+  - test_plan: per contract
   - approval_gate:
-      message: >
-        Work for {memory_key} is complete in mode:{mode}. Review evidence and approve to mark resolved.
+      message: "Workitem complete for {key}. Review docs, diffs, test plan, and approve."
       on_approval:
-        - Mark key RESOLVED with resolution notes.
+        - Finalize docs + request /cleanup purge
       on_no_approval:
-        - Keep status unchanged; summarize deltas and next checks.
+        - Keep state intact; summarize pending actions
 
 # ─────────────────────────────────────────────────────────
-# 📝 Self-Review Footer
+# 📝 Self-Review
 # ─────────────────────────────────────────────────────────
 self_review:
-  - Confirmed SelfAwareness.instructions.md consulted and Project Ledger updated.
-  - Avoided previously failed patterns for this key; documented changes.
-  - Captured explicit evidence; flagged any mock data usage; listed next-step recommendations.
-  - Verified that multiple notes were processed sequentially under the same key + mode.
-  - **Confirmed all temporary debug logs use the standardized tag and are documented for cleanup.**
+  - Resumed from per-key state if available.
+  - Consulted SelfAwareness and Requirements-{key}.MD.
+  - Verified Tailwind + Font Awesome used for restyle/redesign.
+  - Confirmed watchdog active.
+  - Documented regression vs new-feature decisions.
+  - Updated state and artifacts.
+  - Wrote Workitem-{key}.MD into .github and added to alignment.
 
 # ─────────────────────────────────────────────────────────
-# 📦 Final Summary (to always show at end)
+# 📦 Final Summary
 # ─────────────────────────────────────────────────────────
 final_summary:
-  - Restate clearly what the user asked for (scope, key(s), mode, notes).
-  - Summarize what was done in response (analysis steps, fixes applied, tests run).
-  - Provide a compact manifest of changes:
-      • files touched or reviewed
-      • actions taken
-      • key outcomes
-      • where debug logs were inserted (tagged for easy cleanup)
-  - Format must be eloquent but concise — a neat executive recap.
+  - What the user asked.
+  - What Copilot implemented.
+  - The Fix and why it should work.
+  - Detailed Test Plan for user validation.
+  - Files created/updated and aligned:
+      • D:\PROJECTS\NOOR CANVAS\.github\Workitem-{key}.MD
+      • Requirements-{key}.MD (if present)
+      • Cleanup-<key}.MD
+  - Resume info:
+      • **State path: NOOR CANVAS\Workspaces\Copilot\{key}\**
+      • Last checkpoint: {checkpoint.step_id}
