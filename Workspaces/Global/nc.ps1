@@ -9,6 +9,7 @@ if ($Help) {
     Write-Host ""
     Write-Host "DESCRIPTION:"
     Write-Host "  Launches NOOR Canvas ASP.NET Core Blazor Server application with Kestrel"
+    Write-Host "  Automatically kills existing NOOR Canvas processes and clears ports 9090/9091"
     Write-Host ""
     Write-Host "USAGE:"
     Write-Host "  nc                     # Launch with Kestrel server"
@@ -32,12 +33,39 @@ $project = Join-Path $root "SPA\NoorCanvas"
 
 Write-Host "Project directory: $project" -ForegroundColor White
 
-# Kill any existing dotnet processes for this project
-Write-Host "Cleaning up existing dotnet processes..." -ForegroundColor Yellow
+# Kill any existing processes for this project
+Write-Host "Cleaning up existing NOOR Canvas processes..." -ForegroundColor Yellow
+
+# Kill by process name (NoorCanvas executable)
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Kill by process name (dotnet processes running NoorCanvas)
 Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Where-Object { 
     $_.CommandLine -like "*NoorCanvas*" 
 } | Stop-Process -Force -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 1
+
+# Kill by port usage (anything using 9090/9091)
+$portsToKill = @(9090, 9091)
+foreach ($port in $portsToKill) {
+    $connections = netstat -ano | findstr ":$port" | findstr "LISTENING"
+    foreach ($connection in $connections) {
+        if ($connection -match '\s+(\d+)$') {
+            $pid = $matches[1]
+            try {
+                $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                if ($process -and $process.ProcessName -ne "System") {
+                    Write-Host "  Killing process $($process.ProcessName) (PID: $pid) using port $port" -ForegroundColor Gray
+                    Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+                }
+            }
+            catch {
+                # Process may already be terminated, continue
+            }
+        }
+    }
+}
+
+Start-Sleep -Seconds 2
 
 # Set up the URLs
 $httpUrl = "http://localhost:9090"

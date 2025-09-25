@@ -19,9 +19,10 @@ if ($Help) {
     Write-Host "  ncb -Help              # Show this help"
     Write-Host ""
     Write-Host "WORKFLOW:"
-    Write-Host "  1. Kill all running IIS Express and dotnet processes"
-    Write-Host "  2. Build the NOOR Canvas application in Release mode"
-    Write-Host "  3. Launch with IIS Express x64 on ports 9090/9091"
+    Write-Host "  1. Kill all running NOOR Canvas, IIS Express, and dotnet processes"
+    Write-Host "  2. Clear processes using ports 9090/9091"
+    Write-Host "  3. Build the NOOR Canvas application in Release mode"
+    Write-Host "  4. Launch with Kestrel server on ports 9090/9091"
     Write-Host ""
     return
 }
@@ -38,14 +39,48 @@ $project = Join-Path $root "SPA\NoorCanvas"
 
 Write-Host "Project directory: $project" -ForegroundColor White
 
-# Step 1: Kill running processes if Force is specified
-if ($Force) {
-    Write-Host "Force mode: Killing IIS Express and dotnet processes..." -ForegroundColor Yellow
-    Get-Process -Name "iisexpress*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Where-Object { 
-        $_.CommandLine -like "*NoorCanvas*" 
-    } | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 2
+# Step 1: Kill running processes (always, not just Force mode)
+Write-Host "Cleaning up running NOOR Canvas processes..." -ForegroundColor Yellow
+
+# Kill by process name (NoorCanvas executable)
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Kill IIS Express processes
+Get-Process -Name "iisexpress*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Kill dotnet processes running NoorCanvas
+Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Where-Object { 
+    $_.CommandLine -like "*NoorCanvas*" 
+} | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Kill by port usage (anything using 9090/9091) - Force mode or if processes found
+$portsToKill = @(9090, 9091)
+$foundProcesses = $false
+foreach ($port in $portsToKill) {
+    $connections = netstat -ano | findstr ":$port" | findstr "LISTENING"
+    foreach ($connection in $connections) {
+        if ($connection -match '\s+(\d+)$') {
+            $pid = $matches[1]
+            $foundProcesses = $true
+            try {
+                $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+                if ($process -and $process.ProcessName -ne "System") {
+                    Write-Host "  Killing process $($process.ProcessName) (PID: $pid) using port $port" -ForegroundColor Gray
+                    Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+                }
+            }
+            catch {
+                # Process may already be terminated, continue
+            }
+        }
+    }
+}
+
+if ($foundProcesses -or $Force) {
+    Write-Host "  Waiting for processes to terminate..." -ForegroundColor Gray
+    Start-Sleep -Seconds 3
+} else {
+    Start-Sleep -Seconds 1
 }
 
 # Step 2: Build the application

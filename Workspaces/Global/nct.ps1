@@ -27,6 +27,7 @@ if ($Help) {
     Write-Host "  - Participant session link creation with User GUID attachment"
     Write-Host "  - Ready-to-use Host GUIDs for authentication"
     Write-Host "  - Complete session setup including participant access"
+    Write-Host "  - Automatic cleanup of running processes before launching"
     Write-Host ""
     Write-Host "EXAMPLE OUTPUT:"
     Write-Host "  Session ID: 123"
@@ -164,6 +165,23 @@ if ($SessionId -gt 0) {
                 Write-Host ""
                 Write-Host "Click the link above to access the host interface, then press any key to launch NOOR Canvas..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                
+                # Clean up any existing processes before launching ncb
+                Write-Host ""
+                Write-Host "Cleaning up existing processes before launch..." -ForegroundColor Yellow
+                
+                # Kill by process name (NoorCanvas executable)
+                Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+                
+                # Kill IIS Express processes
+                Get-Process -Name "iisexpress*" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+                
+                # Kill dotnet processes running NoorCanvas
+                Get-Process -Name "dotnet" -ErrorAction SilentlyContinue | Where-Object { 
+                    $_.CommandLine -like "*NoorCanvas*" 
+                } | Stop-Process -Force -ErrorAction SilentlyContinue
+                
+                Start-Sleep -Seconds 2
                 
                 # Execute ncb (NOOR Canvas Build)
                 Write-Host ""
