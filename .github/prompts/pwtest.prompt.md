@@ -1,6 +1,7 @@
 ---
 mode: agent
 
+
 # ─────────────────────────────────────────────────────────
 # ▶️ Usage
 # ─────────────────────────────────────────────────────────
@@ -9,7 +10,7 @@ alias: /pwtest
 description: >
   Generate and run Playwright test suites for Noor Canvas work items.
   Tests must run HEADLESS and cover UI, API, and DB layers where applicable.
-  Integrates with workitem and sync flows (test:true), but can also be invoked directly.
+  Integrates with workitem and retrosync flows (test:true), but can also be invoked directly.
   Includes a watchdog that detects hung generation/run steps and self-recovers.
 
 parameters:
@@ -36,8 +37,8 @@ usage:
   prerequisites:
     - Node and Playwright installed; repo ready to run.
     - App can launch if e2e flows require it:
-      • D:\PROJECTS\NOOR CANVAS\Workspaces\Global\nc.ps1     # simple launch
-      • D:\PROJECTS\NOOR CANVAS\Workspaces\Global\ncb.ps1    # build and launch
+        • .\Workspaces\Global\nc.ps1
+        • .\Workspaces\Global\ncb.ps1
   run_examples:
     - Generate specs only:
         • /pwtest key:NC-145 mode:test notes:"cover error toast --- validate a11y roles"
@@ -55,16 +56,24 @@ usage:
 context_boot:
   - Load prior state for this key:
       • Read **NOOR CANVAS\Workspaces\Copilot\{key}\** (if present) for context/evidence.
-      • Use to avoid re-generating identical tests or re-running unchanged scopes.
+      • Avoid re-generating identical tests or re-running unchanged scopes.
+  - context_index:
+      discover:
+        - Look for `NOOR CANVAS\Workspaces\Copilot\{key}\index\context.idx.json`.
+        - If present → prefer `context.pack.jsonl` to select test targets and coverage.
+        - If absent/stale → build or delta-build per SelfAwareness rules.
+      prefer_for_planning: true
+      record_delta:
+        - After run, write `context.delta.json` and update `context.sources.json`.
   - Read .github/instructions/SelfAwareness.instructions.md for DB/schema restrictions and ledger.
   - Review debug logs for this key across UI/API/SQL to identify coverage gaps.
   - Skim last 10 commits/chats for context relevant to this key.
-  - If Requirements-{key}.MD exists (from imgreq runs):
-      • Ingest its requirements as authoritative acceptance criteria.
-      • Ensure all numbered requirements are tested across UI/API/DB layers.
+  - If Requirements-{key}.MD exists:
+      • Treat as authoritative acceptance criteria.
+      • Ensure numbered requirements are tested across UI/API/DB layers.
 
 # ─────────────────────────────────────────────────────────
-# 💾 Durable State & Checkpoints (kept current)
+# 💾 Durable State & Checkpoints
 # ─────────────────────────────────────────────────────────
 state_store:
   root: "NOOR CANVAS\\Workspaces\\Copilot\\pwtest\\{key}\\"
@@ -74,11 +83,14 @@ state_store:
     progress_log:   "progress.log.jsonl"
     checkpoint:     "checkpoint.json"
     artifacts_idx:  "artifacts.json"
+  includes_index:
+    path: "NOOR CANVAS\\Workspaces\\Copilot\\{key}\\index\\"
+    files: [ "context.idx.json", "context.pack.jsonl", "context.delta.json", "context.sources.json" ]
   io: { write_mode: append_minimal, compress: true, atomic_writes: true, debounce_ms: 150 }
   load_policy:
     - Resume from checkpoint if plan_hash matches; else write plan-v{n}.json and resume.
   save_policy:
-    - After each step: update checkpoint + append one progress line + update artifacts index.
+    - Update checkpoint + append progress + update artifacts after each step.
   retention: { ttl_hours: 24, cleanup_on_approval: true }
 
 # ─────────────────────────────────────────────────────────
@@ -89,15 +101,15 @@ objectives:
     - Generate Playwright specs covering:
         • Core flows (UI navigation, API requests, DB assertions)
         • At least one negative path
-    - Ensure tests explicitly validate Requirements-{key}.MD when present.
+    - Validate against Requirements-{key}.MD when present.
     - Save specs under: Tests/Playwright/{key}/
-    - Generate new .MD doc in `.github` describing test coverage and rationale; add to alignment.
-    - Leave pwtest state **up to date**.
+    - Write `.github/Test-{key}.MD` (coverage & rationale); add to alignment.
+    - Leave state **up to date**.
   run:
-    - Execute tests headlessly (`--headed` disallowed).
+    - Execute tests headlessly.
     - Collect traces, screenshots, videos for failures.
     - Update trackers with outcomes.
-    - Leave pwtest state **up to date**.
+    - Leave state **up to date**.
   all:
     - Do both: generate specs and run them.
 
@@ -106,9 +118,9 @@ objectives:
 # ─────────────────────────────────────────────────────────
 alignment:
   - .github/instructions/SelfAwareness.instructions.md
-  - Requirements-{key}.MD (from imgreq runs)
+  - Requirements-{key}.MD
   - D:\PROJECTS\NOOR CANVAS\.github\*.MD
-  - Cleanup-{key}.MD (from cleanup runs, for alignment)
+  - Cleanup-<key>.MD
 
 # ─────────────────────────────────────────────────────────
 # 🛠️ Methods
@@ -119,13 +131,13 @@ methods:
     - Include UI interactions, API validation, DB-visible effects.
     - Use placeholders for secrets/tokens.
     - Validate specs against Requirements-{key}.MD when available.
-    - Write/update `.github/Test-{key}.MD` documenting coverage and rationale.
+    - Write/update `.github/Test-{key}.MD`.
   run:
     - Execute: `npx playwright test --reporter=line --headless`
-    - Collect artifacts: { trace.zip, screenshots/, videos/ } for failed specs.
-    - Append a run summary with pass/fail + artifact paths into `.github/Test-{key}.MD`.
+    - Collect artifacts on failures.
+    - Append run summary + artifact paths into `.github/Test-{key}.MD`.
   all:
-    - Do test + run in sequence.
+    - Run test + run in sequence.
 
 # ─────────────────────────────────────────────────────────
 # 🐶 Watchdog — Self-Recovery from Hung Tests
@@ -134,36 +146,21 @@ watchdog:
   idle_seconds_threshold: 120
   graceful_stop_timeout_seconds: 10
   max_retries: 1
-  monitored_steps:
-    - "spec_generation"    # long file writes, dependency installs, codegen
-    - "test_execution"     # `npx playwright test --headless`
+  monitored_steps: [ "spec_generation", "test_execution" ]
   behavior:
-    - Detect idle:
-        • If no new stdout/stderr and no file growth in {trace, screenshots, videos, junit, .playwright} for `idle_seconds_threshold`, mark as "hung".
-    - On hang:
-        • Capture last 2000 bytes of stdout/stderr (log tail) and current process list → save to artifacts.
-        • Attempt graceful stop (SIGINT/CTRL+C equivalent) and wait `graceful_stop_timeout_seconds`.
-        • If still running → force kill (SIGKILL/taskkill /F).
-        • Record watchdog event in progress_log.jsonl and artifacts_idx.
-    - Retry policy:
-        • If retries < max_retries:
-            – For test_execution: retry the entire `npx playwright test --reporter=line --headless` once.
-            – For spec_generation: re-run generation step idempotently (do not duplicate files).
-        • If still hung after retry: fail fast with explicit “watchdog_hang” status and point to artifacts for triage.
+    - Detect idle → capture tails & process list; graceful stop → force kill; record event.
+    - Retry once idempotently; else fail with “watchdog_hang”.
 
 # ─────────────────────────────────────────────────────────
 # 🧯 Error Handling (Git History First-Aid)
 # ─────────────────────────────────────────────────────────
 errors:
   on_test_failure_or_error:
-    - Determine if failing behavior existed and worked before (git log/annotate/blame).
-    - If regression → diff commits, align to last-known-good behavior.
-    - If new feature → ignore history; fix forward.
-    - Document decision and evidence in `.github/Test-{key}.MD` + trackers.
+    - Classify regression vs new feature; act accordingly.
+    - Document evidence in `.github/Test-{key}.MD`.
   on_watchdog_hang:
-    - Include log tails, process tree, and step metadata in `.github/Test-{key}.MD`.
-    - Suggest remedies referencing `.github/instructions/Ops-Watchdog-Troubleshooting.md`.
-    - Keep state resumable; do not discard partial artifacts.
+    - Include log tails, process tree, and step metadata in the doc.
+    - Reference Ops-Watchdog-Troubleshooting; keep state resumable.
 
 # ─────────────────────────────────────────────────────────
 # 🧪 Test Plan Contract
@@ -171,76 +168,54 @@ errors:
 test_plan_contract:
   required_fields:
     - test_paths
-    - setup_instructions (env vars, DB state)
+    - setup_instructions
     - validation_steps
     - expected_outputs
-    - artifacts (traces, screenshots, videos)
-    - requirements_coverage (mapping to Requirements-{key}.MD when present)
+    - artifacts
+    - requirements_coverage
 
 # ─────────────────────────────────────────────────────────
 # 🚦 Guardrails
 # ─────────────────────────────────────────────────────────
 guardrails:
-  - Always run Playwright in headless mode.
-  - Specs must include at least one negative path.
-  - Secrets/tokens must be placeholders only.
+  - Always run Playwright headless.
+  - Include at least one negative path.
+  - Secrets/tokens as placeholders only.
   - Requirements-{key}.MD must be validated when present.
-  - **State lives only under NOOR CANVAS\Workspaces\Copilot\pwtest\{key}\ and must be kept current; purge after approval via /cleanup.**
-  - Watchdog must be enabled for spec generation and test execution; record all events.
+  - Keep state under `NOOR CANVAS\Workspaces\Copilot\pwtest\{key}\`; purge via `/cleanup`.
+  - Record index delta after runs.
 
 # ─────────────────────────────────────────────────────────
 # 🧩 Output Shape
 # ─────────────────────────────────────────────────────────
 output:
-  - state:
-      store: "NOOR CANVAS\\Workspaces\\Copilot\\pwtest\\{key}\\"
-      run_manifest: "run.json"
-      plan_manifest: "plan.json"
-      checkpoint:   "checkpoint.json"
-      artifacts_idx: "artifacts.json"
-  - specs: paths to generated Playwright test files
-  - run_results: outcomes of headless runs
-  - artifacts:
-      traces: [paths]
-      screenshots: [paths]
-      videos: [paths]
-      watchdog_events: [ { step, first_observed, idle_secs, action_taken, retry, tail_log_path, proc_snapshot_path } ]
-  - docs: `.github/Test-{key}.MD` created/updated (coverage, failures, artifacts)
-  - test_plan: per `test_plan_contract`
+  - state & index delta updated
+  - specs: [paths]
+  - run_results: pass/fail summary
+  - artifacts: traces/screenshots/videos (on failures)
+  - docs: `.github/Test-{key}.MD`
   - approval_gate:
-      message: >
-        Playwright tests complete for {key}. Review specs, results, and artifacts (incl. watchdog events).
-      on_approval:
-        - Mark tests approved and request /cleanup purge of state
-      on_no_approval:
-        - Keep state, summarize failures/hangs, and next steps
+      message: "Playwright tests complete. Approve?"
+      on_approval: mark approved, request `/cleanup` purge as needed
+      on_no_approval: keep state; summarize failures/next steps
 
 # ─────────────────────────────────────────────────────────
 # 📝 Self-Review
 # ─────────────────────────────────────────────────────────
 self_review:
-  - Consulted per-key state; avoided duplicate generation/runs.
-  - Verified SelfAwareness consulted for DB/schema rules.
-  - Ensured Playwright ran headless only.
-  - Captured negative paths in test specs.
-  - Validated specs against Requirements-{key}.MD when available.
-  - Watchdog recorded, recovered, and documented any hangs.
-  - Documented failures as regression vs new-feature with git evidence.
-  - Kept pwtest state up to date and resumable.
+  - Consulted **context.pack.jsonl** and Requirements-{key}.MD.
+  - Avoided duplicate generation/runs.
+  - Headless-only confirmed.
+  - Negative paths included.
+  - Index delta written; state resumable.
 
 # ─────────────────────────────────────────────────────────
 # 📦 Final Summary
 # ─────────────────────────────────────────────────────────
 final_summary:
-  - What the user asked.
-  - What Copilot implemented.
-    • Specs generated and run (paths listed).
-    • Files created/updated and added to alignment:
-      – D:\PROJECTS\NOOR CANVAS\.github\Test-{key}.MD
-      – Requirements-{key}.MD (validated)
-      – Cleanup-<key>.MD
-  - The Fix and why it should work.
-  - Detailed Test Plan for user to try out the tests.
-  - Resume Info:
+  - What was requested.
+  - Specs generated and/or run results.
+  - Paths to docs/artifacts.
+  - Resume info:
       • **State path: NOOR CANVAS\Workspaces\Copilot\pwtest\{key}\**
       • Last completed step: {checkpoint.step_id}

@@ -1,17 +1,4 @@
-# Lesson: Remove dead SignalR code and unused client fields to prevent confusion and compiler warnings. Use Playwright implementation comparison tests to validate architecture decisions.
-
-# Ledger Entry
-timestamp: 2024-12-13T10:35:00Z
-agent: GitHub Copilot
-key: canvas
-actions: SignalR cleanup (removed unused _hubConnection, dead JS code)
-rationale: Prevent confusion, resolve compiler warnings, preserve working SignalR features
-state/artifacts links: Workspaces/TEMP/state/canvas/
 ---
-applyTo: "**"
-description: Self-learning, context-first workspace rules for Copilot Chat. Tailored for Noor Canvas app. Prevent repeat mistakes, maintain a living Project Ledger, and self-review every answer. Keep lean; reference linked docs for details.
----
-
 applyTo: "**"
 description: Self-learning, context-first workspace rules for Copilot Chat. Tailored for Noor Canvas app. Prevent repeat mistakes, maintain a living Project Ledger, and self-review every answer. Keep lean; reference linked docs for details.
 ---
@@ -24,7 +11,7 @@ description: Self-learning, context-first workspace rules for Copilot Chat. Tail
 
 ## 0) Scope & Authority
 These instructions govern all Noor Canvas agents:
-- `/workitem`, `/sync`, `/cleanup`, `/pwtest`, `/imgreq`
+- `/workitem`, `/retrosync` (formerly `/sync`), `/cleanup`, `/pwtest`, `/imgreq`, `/continue`
 - Any future agents
 
 Where conflicts arise, **SelfAwareness prevails** unless the user explicitly overrides.
@@ -87,9 +74,9 @@ Behavior:
 
 ## 4) Execution Rules
 - Start app with:  
-  `.\nc.ps1` → launch only  
+  `.\Workspaces\Global\nc.ps1` → launch only  
 - Build + run with:  
-  `.\ncb.ps1` → clean/build/launch (then `.\nc.ps1` if needed)  
+  `.\Workspaces\Global\ncb.ps1` → clean/build/launch (then `.\Workspaces\Global\nc.ps1` if needed)  
 - Debug logs: `[DEBUG-WORKITEM:{key}:{layer}]`.  
 - Ports 9090/9091, auth/token handling must be correct.  
 - Schema drift only when explicitly allowed.
@@ -112,7 +99,7 @@ Use headless Playwright tests (`/pwtest`). Capture artifacts for failures. Cover
 ---
 
 ## 8) Documentation & Alignment
-Update `.MD` docs under `.github` for all major changes. `/sync` harmonizes docs, trackers, requirements.  
+Update `.MD` docs under `.github` for all major changes. `/retrosync` harmonizes docs, trackers, requirements.  
 
 ---
 
@@ -147,3 +134,45 @@ Agents must append ledger entries: timestamp, agent, key, actions, rationale, st
 - [ ] Confirmed nc.ps1/ncb.ps1 instructions + watchdog  
 - [ ] Planned with test plan contract  
 - [ ] Will keep state current and write final summary
+
+---
+
+## 14) Context Indexing (per-key)
+
+**Goal:** Build and maintain a compact, machine-oriented index of all relevant context for a given {key} to reduce token usage, prevent drift, and speed up multi-agent handoffs.
+
+- **Path (durable):** `NOOR CANVAS\Workspaces\Copilot\{key}\index\`  
+- **Files:**
+  - `context.idx.json`         # manifest + doc fingerprints + salience + xrefs
+  - `context.pack.jsonl`       # lossy, compact chunk summaries (one JSON per line), sorted by salience
+  - `context.delta.json`       # diff since last run (added/removed/changed refs)
+  - `context.sources.json`     # absolute/relative source paths + timestamps/hashes
+
+**Build Rules:**
+- Prefer **delta-indexing**:
+  1) Collect candidates: Requirements-{key}.MD, `.github/Workitem-{key}.MD`, `.github/Test-{key}.MD`, `Cleanup-<key>.MD`, retrosync outputs, recent diffs, and any files touched in the last N commits relevant to {key}.
+  2) Chunk semantically (~800–1200 chars), normalize whitespace, strip boilerplate.
+  3) Hash each chunk; reuse summaries if hash unchanged.
+  4) Summarize per chunk (machine-first; minimal prose):
+     - `who/what/where/when` (entities, file paths, timestamps)
+     - `claims` (facts/assertions)
+     - `contracts` (interfaces, routes, selectors, SQL, test names)
+     - `open_questions`
+  5) Update `context.idx.json` (manifest + salience + xrefs), `context.pack.jsonl` (summaries), `context.delta.json` (diff).
+
+**Rebuild When:**
+- Index missing/corrupted, schema/prompt scaffolding changed, or major Requirements-{key}.MD bump.
+
+**Salience Scoring (0–1):**
+- +0.3 direct {key} mention; +0.2 `.github/*{key}*.MD`; +0.2 edited <48h; +0.2 referenced by high-salience chunk; −0.2 archived/legacy.
+
+**Agent Contract:**
+- **All agents MUST:**
+  - Load `context.idx.json` (if present) before planning.
+  - Prefer `context.pack.jsonl` chunks for planning tokens over raw files.
+  - Write `context.delta.json` after runs.
+  - Append new docs to `context.sources.json`.
+
+**Guardrails:**
+- Index is not the source of truth—**Requirements-{key}.MD** wins on conflict.
+- Keep index ≤ 500 KB; evict least-salient chunks if needed.
