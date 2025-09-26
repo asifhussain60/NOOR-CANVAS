@@ -1278,138 +1278,91 @@
                 }
             });
 
-            // Asset sharing events
+            // Asset sharing events - SIMPLIFIED KSESSIONS PATTERN
             hubConnection.On<object>("AssetShared", async (assetData) =>
             {
                 var canvasTrackingId = Guid.NewGuid().ToString("N")[..8];
                 try
                 {
                     AddCanvasDebugLog("ASSET", "📦 AssetShared event received from SignalR");
-                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 📬 CANVAS RECEIVE: AssetShared event received, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                    AddCanvasDebugLog("DATA", $"📊 Asset data type: {assetData?.GetType()?.Name ?? "null"}");
-                    Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] Asset data type: {AssetType}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", assetData?.GetType()?.Name ?? "null", canvasTrackingId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 📬 CANVAS RECEIVE: AssetShared event received, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                     
-                    // ENHANCED: Log raw received data structure for debugging
-                    try
-                    {
-                        var rawJson = System.Text.Json.JsonSerializer.Serialize(assetData);
-                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 📋 CANVAS PARSE: Raw asset data serialized, length={Length} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", rawJson?.Length ?? 0, canvasTrackingId);
-                        Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] Raw data preview: {RawPreview} ;CLEANUP_OK", rawJson?.Substring(0, Math.Min(200, rawJson?.Length ?? 0)));
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] Could not serialize received asset data: {Error}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", ex.Message, canvasTrackingId);
-                    }
-
                     if (assetData != null && Model != null)
                     {
-                        // Parse the asset data - it comes as an anonymous object from SignalR
+                        // SIMPLIFIED: Direct property access like KSESSIONS - serialize and parse simply
                         var assetJson = System.Text.Json.JsonSerializer.Serialize(assetData);
-                        Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] Parsing asset JSON: {AssetJson}", assetJson);
+                        if (string.IsNullOrEmpty(assetJson))
+                        {
+                            AddCanvasDebugLog("ERROR", "❌ Failed to serialize asset data to JSON");
+                            Logger.LogWarning("[DEBUG-WORKITEM:hub:continue] ❌ SERIALIZATION ERROR: Asset data could not be serialized, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                            return;
+                        }
+                        
+                        AddCanvasDebugLog("DATA", $"📊 Raw JSON: {assetJson.Substring(0, Math.Min(200, assetJson.Length))}");
+                        Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 📋 JSON received: {JsonPreview}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                            assetJson.Substring(0, Math.Min(100, assetJson.Length)), canvasTrackingId);
 
                         using var jsonDoc = System.Text.Json.JsonDocument.Parse(assetJson);
                         var root = jsonDoc.RootElement;
 
-                        // COMPLIANCE FIX: Handle both direct asset data and wrapped asset data
-                        JsonElement assetRoot;
-                        bool hasAssetWrapper = false;
+                        // ENHANCED DEBUG: Log the full JSON structure to understand nesting
+                        Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🔍 FULL JSON STRUCTURE: {FullJson}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                            assetJson, canvasTrackingId);
                         
-                        if (root.TryGetProperty("asset", out var assetElement))
+                        // The SignalR hub wraps our data: look first for "asset" property, then "testContent" within it
+                        JsonElement actualAsset = root;
+                        if (root.TryGetProperty("asset", out var assetProperty))
                         {
-                            // Extract the actual asset data from wrapper
-                            var assetDataJson = System.Text.Json.JsonSerializer.Serialize(assetElement);
-                            using var assetDoc = System.Text.Json.JsonDocument.Parse(assetDataJson);
-                            assetRoot = assetDoc.RootElement;
-                            hasAssetWrapper = true;
-                            Logger.LogDebug("NOOR-CANVAS-SHARE: Processing wrapped asset data");
+                            actualAsset = assetProperty;
+                            AddCanvasDebugLog("PARSE", "📦 Found 'asset' wrapper property");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 📦 STRUCTURE: Found asset wrapper, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                         }
                         else
                         {
-                            // Asset data might be at root level (from REST API)
-                            assetRoot = root;
-                            Logger.LogDebug("NOOR-CANVAS-SHARE: Processing direct asset data");
+                            AddCanvasDebugLog("PARSE", "⚠️ No 'asset' wrapper found, using root object");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] ⚠️ STRUCTURE: No asset wrapper found, using root, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                         }
 
-                        if (hasAssetWrapper || root.TryGetProperty("assetType", out _) || root.TryGetProperty("testContent", out _))
+                        // DIRECT: Look for testContent property (from TestShareAsset)
+                        if (actualAsset.TryGetProperty("testContent", out var contentElement))
                         {
+                            var htmlContent = contentElement.GetString();
+                            AddCanvasDebugLog("SUCCESS", $"✅ Extracted testContent: {htmlContent?.Length ?? 0} chars");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🎨 CONTENT EXTRACTED: testContent found, length={ContentLength}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                                htmlContent?.Length ?? 0, canvasTrackingId);
 
-                            // COMPLIANCE FIX: Handle both test and production asset formats
-                            // Check for testContent property (from TestShareAsset method)
-                            if (assetRoot.TryGetProperty("testContent", out var contentElement))
-                            {
-                                var htmlContent = contentElement.GetString();
-                                AddCanvasDebugLog("SUCCESS", $"✅ Found testContent: {htmlContent?.Length ?? 0} characters");
-                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 🎨 CANVAS CONTENT: Found testContent, length={ContentLength} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                                    htmlContent?.Length ?? 0, canvasTrackingId);
-                                Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] HTML content preview: {ContentPreview} ;CLEANUP_OK", 
-                                    htmlContent?.Substring(0, Math.Min(200, htmlContent?.Length ?? 0)) ?? "null");
-
-                                Model.SharedAssetContent = htmlContent;
-                                AddCanvasDebugLog("ASSET", "🎨 SharedAssetContent updated - triggering UI refresh");
-                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 🔄 CANVAS UPDATE: SharedAssetContent updated, triggering StateHasChanged, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                                await InvokeAsync(StateHasChanged);
-
-                                AddCanvasDebugLog("SUCCESS", "✅ UI state refreshed - content should now be visible");
-                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] ✅ CANVAS SUCCESS: UI refreshed, content should be visible, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                            }
-                            // Handle production asset format (from REST API ShareAsset)
-                            else if (assetRoot.TryGetProperty("selector", out var selectorElement) && 
-                                     assetRoot.TryGetProperty("assetType", out var typeElement))
-                            {
-                                var selector = selectorElement.GetString();
-                                var assetType = typeElement.GetString();
-                                
-                                // Create HTML content for production assets
-                                var productionHtml = $@"
-                                    <div style=""background: linear-gradient(135deg, #006400, #228B22); 
-                                                border: 2px solid #D4AF37; 
-                                                border-radius: 12px; 
-                                                padding: 20px; 
-                                                margin: 15px 0; 
-                                                color: white;
-                                                font-family: Inter, Arial, sans-serif;"">
-                                        <h3 style=""margin: 0 0 10px 0; color: #D4AF37;"">
-                                            📄 Shared Asset: {assetType}
-                                        </h3>
-                                        <p style=""margin: 5px 0; font-size: 0.9rem; opacity: 0.9;"">
-                                            <strong>Selector:</strong> {selector}<br/>
-                                            <strong>Shared:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC
-                                        </p>
-                                        <div style=""background: rgba(255,255,255,0.1); 
-                                                    border-radius: 8px; 
-                                                    padding: 10px; 
-                                                    margin-top: 10px;"">
-                                            ✅ Production asset shared successfully via REST API
-                                        </div>
-                                    </div>";
-
-                                Logger.LogInformation("NOOR-CANVAS-SHARE: [PRODUCTION FORMAT] Setting SharedAssetContent for {AssetType} with selector {Selector}", 
-                                    assetType, selector);
-
-                                Model.SharedAssetContent = productionHtml;
-                                await InvokeAsync(StateHasChanged);
-
-                                Logger.LogInformation("NOOR-CANVAS-SHARE: [PRODUCTION FORMAT] SharedAssetContent updated successfully");
-                            }
-                            else
-                            {
-                                Logger.LogWarning("NOOR-CANVAS-SHARE: Neither testContent nor selector/assetType properties found in asset data");
-                            }
+                            // DIRECT: Set content and update UI (KSESSIONS pattern)
+                            Model.SharedAssetContent = htmlContent;
+                            AddCanvasDebugLog("RENDER", "🔄 Updating UI with new content");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🔄 UI UPDATE: SharedAssetContent set, calling StateHasChanged, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                            
+                            await InvokeAsync(StateHasChanged);
+                            
+                            AddCanvasDebugLog("SUCCESS", "✅ Content rendered - should be visible in canvas");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] ✅ RENDER SUCCESS: UI updated, content should be visible, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                         }
                         else
                         {
-                            Logger.LogWarning("NOOR-CANVAS-SHARE: No recognizable asset format found in received data");
-                            Logger.LogDebug("NOOR-CANVAS-SHARE: Raw JSON structure: {JsonStructure}", assetJson);
+                            AddCanvasDebugLog("WARNING", "⚠️ No testContent property found in asset data");
+                            Logger.LogWarning("[DEBUG-WORKITEM:hub:continue] ⚠️ PARSE WARNING: testContent property not found in asset, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                            
+                            // Log all available properties for debugging
+                            var availableProps = string.Join(", ", actualAsset.EnumerateObject().Select(p => p.Name));
+                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🔍 AVAILABLE PROPERTIES: [{Properties}], canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                                availableProps, canvasTrackingId);
                         }
                     }
                     else
                     {
-                        Logger.LogWarning("NOOR-CANVAS-SHARE: AssetShared received null data or Model is null");
+                        AddCanvasDebugLog("ERROR", "❌ AssetData or Model is null");
+                        Logger.LogWarning("[DEBUG-WORKITEM:hub:continue] ❌ NULL DATA: AssetData={HasAssetData}, Model={HasModel}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                            assetData != null, Model != null, canvasTrackingId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] ❌ CANVAS ERROR: Error processing AssetShared event, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                    AddCanvasDebugLog("ERROR", $"❌ Error processing AssetShared: {ex.Message}");
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hub:continue] ❌ CANVAS ERROR: Exception in AssetShared handler, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                 }
             });
 
