@@ -294,13 +294,11 @@
                     {
                         <div style="flex:1;overflow-y:auto;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
                             <div class="html-viewer-content session-transcript-content" data-islamic-content>
-                                @* [DEBUG-WORKITEM:signalcomm:continue] Simple bypass to prevent appendChild errors *@
-                                <div style="background:#F0F9FF;border:1px solid #0284C7;border-radius:0.5rem;padding:1.5rem;text-align:center;">
-                                    <h4 style="color:#0284C7;margin:0 0 1rem 0;">📋 Session Transcript Available</h4>
-                                    <p style="margin:0 0 0.5rem 0;">Transcript contains @(Model.TransformedTranscript.Length) characters of content.</p>
-                                    <p style="margin:0;font-size:0.875rem;color:#6B7280;">HTML rendering temporarily disabled to prevent DOM errors.</p>
-                                    <p style="margin:0.5rem 0 0 0;font-size:0.875rem;color:#6B7280;">Content remains accessible through API endpoints.</p>
-                                </div>
+                                @{
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] 🔧 Implementing safe transcript rendering ;CLEANUP_OK");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] Content length: {Length} characters ;CLEANUP_OK", Model.TransformedTranscript?.Length ?? 0);
+                                }
+                                @RenderTranscriptSafely(Model.TransformedTranscript)
                             </div>
                         </div>
                     }
@@ -815,15 +813,23 @@
                     .FirstOrDefaultAsync(s => s.SessionId == sessionIdLong);
                 
                 // Query transcript from KSessions database  
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] Loading transcript from KSESSIONS_DEV dbo.SessionTranscripts for SessionId: {SessionId}", sessionIdLong);
                 var transcript = await KSessionsDb.SessionTranscripts
                     .FirstOrDefaultAsync(t => t.SessionId == (int)sessionIdLong);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] ✅ Transcript query completed. Found: {TranscriptFound}, Length: {TranscriptLength} ;CLEANUP_OK", 
+                    transcript != null, transcript?.Transcript?.Length ?? 0);
                 
                 if (ksession != null && Model != null)
                 {
                     Model.SessionName = ksession.SessionName ?? "Unknown Session";
                     Model.SessionDescription = ksession.Description ?? "No description available";
                     Model.SessionStatus = "Waiting"; // Default status for new sessions
-                    Model.SessionTranscript = transcript?.Transcript ?? string.Empty; // Get transcript from KSessions database
+                    
+                    // Get transcript from KSessions database with detailed logging
+                    var transcriptContent = transcript?.Transcript ?? string.Empty;
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] Setting Model.SessionTranscript from KSESSIONS_DEV. Original length: {OriginalLength}, IsEmpty: {IsEmpty} ;CLEANUP_OK", 
+                        transcriptContent.Length, string.IsNullOrEmpty(transcriptContent));
+                    Model.SessionTranscript = transcriptContent;
                     
                     // Transform transcript with asset detection and share buttons
                     if (!string.IsNullOrEmpty(Model.SessionTranscript))
