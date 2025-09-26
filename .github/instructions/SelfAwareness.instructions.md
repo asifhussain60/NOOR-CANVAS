@@ -21,6 +21,15 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 - If the agent initiates a stop/restart, **self-attribute** in logs and summaries:
   - `[DEBUG-WORKITEM:{key}:lifecycle] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
+## Enhanced Processor for DOM Issues (Blazor appendChild Fix)
+- **Use enhanced processor approach** for large HTML content rendering in Blazor Server
+- **Never use Blazor RenderTreeBuilder.AddMarkupContent()** for large HTML (>20KB)
+- **Bypass appendChild errors** with pure JavaScript innerHTML assignment:
+  - Log with `[DEBUG-WORKITEM:{key}:bypass] Enhanced processor activated ;CLEANUP_OK`
+  - Use container.innerHTML = content instead of DOM tree operations
+  - Implement fallback text-only mode for DOM constraints
+- **Enhanced processor tags**: `[ENHANCED-PROCESSOR]` for console logs and error handling
+
 ## Terminal-Log Grounding (Mandatory)
 - Always call **`#getTerminalOutput`** and consider **`#terminalLastCommand`** when diagnosing.
 - Before claiming “app is shutting down”:

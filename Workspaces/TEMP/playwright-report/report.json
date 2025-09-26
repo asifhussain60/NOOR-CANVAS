@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -36,9 +34,7 @@
         "outputDir": "D:/PROJECTS/NOOR CANVAS/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
@@ -46,7 +42,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 30000
       }
     ],
     "shard": null,
@@ -56,243 +52,19 @@
     "workers": 4,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "database-broadcast-functional-test.spec.ts",
-      "file": "database-broadcast-functional-test.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Database Broadcasting Functional Tests",
-          "file": "database-broadcast-functional-test.spec.ts",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Host Control Panel - Simple HTML Broadcasting via Database",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 3162,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/LY7PQX4C\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/LY7PQX4C\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/LY7PQX4C\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/LY7PQX4C\", waiting until \"load\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts:9:20",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts",
-                          "column": 20,
-                          "line": 9
-                        },
-                        "snippet": "\u001b[0m \u001b[90m  7 |\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Navigate to Host Control Panel\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/LY7PQX4C'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 10 |\u001b[39m\n \u001b[90m 11 |\u001b[39m         \u001b[90m// Wait for the page to load completely\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts",
-                            "column": 20,
-                            "line": 9
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/LY7PQX4C\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/LY7PQX4C\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m  7 |\u001b[39m\n \u001b[90m  8 |\u001b[39m         \u001b[90m// Navigate to Host Control Panel\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  9 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/LY7PQX4C'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 10 |\u001b[39m\n \u001b[90m 11 |\u001b[39m         \u001b[90m// Wait for the page to load completely\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts:9:20\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "[DEBUG-WORKITEM:signalcomm:test] Starting Host Control Panel database broadcast test\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-26T19:15:45.738Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\database-broadcast-functio-8b388-L-Broadcasting-via-Database-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\database-broadcast-functio-8b388-L-Broadcasting-via-Database-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\database-broadcast-functio-8b388-L-Broadcasting-via-Database-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts",
-                        "column": 20,
-                        "line": 9
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "b68efed2b086157908dd-a260d14d5a2a2158901b",
-              "file": "database-broadcast-functional-test.spec.ts",
-              "line": 5,
-              "column": 9
-            },
-            {
-              "title": "API Direct Database Verification",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 438,
-                      "error": {
-                        "message": "Error: apiRequestContext.post: connect ECONNREFUSED ::1:9091\nCall log:\n\u001b[2m  - → POST https://localhost:9091/api/contentbroadcast\u001b[22m\n\u001b[2m    - user-agent: Playwright/1.55.0 (x64; windows 10.0) node/22.17\u001b[22m\n\u001b[2m    - accept: */*\u001b[22m\n\u001b[2m    - accept-encoding: gzip,deflate,br\u001b[22m\n\u001b[2m    - content-type: application/json\u001b[22m\n\u001b[2m    - content-length: 359\u001b[22m\n",
-                        "stack": "Error: apiRequestContext.post: connect ECONNREFUSED ::1:9091\nCall log:\n\u001b[2m  - → POST https://localhost:9091/api/contentbroadcast\u001b[22m\n\u001b[2m    - user-agent: Playwright/1.55.0 (x64; windows 10.0) node/22.17\u001b[22m\n\u001b[2m    - accept: */*\u001b[22m\n\u001b[2m    - accept-encoding: gzip,deflate,br\u001b[22m\n\u001b[2m    - content-type: application/json\u001b[22m\n\u001b[2m    - content-length: 359\u001b[22m\n\n    at apiRequestContext.post: connect ECONNREFUSED ::1:9091\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts:48:46",
-                        "location": {
-                          "file": "apiRequestContext.post: connect ECONNREFUSED :",
-                          "column": 9091,
-                          "line": 1
-                        }
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "apiRequestContext.post: connect ECONNREFUSED :",
-                            "column": 9091,
-                            "line": 1
-                          },
-                          "message": "Error: apiRequestContext.post: connect ECONNREFUSED ::1:9091\nCall log:\n\u001b[2m  - → POST https://localhost:9091/api/contentbroadcast\u001b[22m\n\u001b[2m    - user-agent: Playwright/1.55.0 (x64; windows 10.0) node/22.17\u001b[22m\n\u001b[2m    - accept: */*\u001b[22m\n\u001b[2m    - accept-encoding: gzip,deflate,br\u001b[22m\n\u001b[2m    - content-type: application/json\u001b[22m\n\u001b[2m    - content-length: 359\u001b[22m\n\n\u001b[2m    at apiRequestContext.post: connect ECONNREFUSED ::1:9091\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts:48:46\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "[DEBUG-WORKITEM:signalcomm:test] Starting API direct database verification\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-26T19:15:50.678Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "apiRequestContext.post: connect ECONNREFUSED :",
-                        "column": 9091,
-                        "line": 1
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "b68efed2b086157908dd-20fa487ed3886b75d922",
-              "file": "database-broadcast-functional-test.spec.ts",
-              "line": 44,
-              "column": 9
-            },
-            {
-              "title": "SessionCanvas Content Loading Test",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 894,
-                      "error": {
-                        "message": "Error: apiRequestContext.post: connect ECONNREFUSED ::1:9091\nCall log:\n\u001b[2m  - → POST https://localhost:9091/api/contentbroadcast\u001b[22m\n\u001b[2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\u001b[22m\n\u001b[2m    - accept: */*\u001b[22m\n\u001b[2m    - accept-encoding: gzip,deflate,br\u001b[22m\n\u001b[2m    - content-type: application/json\u001b[22m\n\u001b[2m    - content-length: 399\u001b[22m\n",
-                        "stack": "Error: apiRequestContext.post: connect ECONNREFUSED ::1:9091\nCall log:\n\u001b[2m  - → POST https://localhost:9091/api/contentbroadcast\u001b[22m\n\u001b[2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\u001b[22m\n\u001b[2m    - accept: */*\u001b[22m\n\u001b[2m    - accept-encoding: gzip,deflate,br\u001b[22m\n\u001b[2m    - content-type: application/json\u001b[22m\n\u001b[2m    - content-length: 399\u001b[22m\n\n    at apiRequestContext.post: connect ECONNREFUSED ::1:9091\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts:82:51",
-                        "location": {
-                          "file": "apiRequestContext.post: connect ECONNREFUSED :",
-                          "column": 9091,
-                          "line": 1
-                        }
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "apiRequestContext.post: connect ECONNREFUSED :",
-                            "column": 9091,
-                            "line": 1
-                          },
-                          "message": "Error: apiRequestContext.post: connect ECONNREFUSED ::1:9091\nCall log:\n\u001b[2m  - → POST https://localhost:9091/api/contentbroadcast\u001b[22m\n\u001b[2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\u001b[22m\n\u001b[2m    - accept: */*\u001b[22m\n\u001b[2m    - accept-encoding: gzip,deflate,br\u001b[22m\n\u001b[2m    - content-type: application/json\u001b[22m\n\u001b[2m    - content-length: 399\u001b[22m\n\n\u001b[2m    at apiRequestContext.post: connect ECONNREFUSED ::1:9091\u001b[22m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\database-broadcast-functional-test.spec.ts:82:51\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "[DEBUG-WORKITEM:signalcomm:test] Starting SessionCanvas content loading test\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-26T19:15:52.336Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\database-broadcast-functio-12350-Canvas-Content-Loading-Test-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\database-broadcast-functio-12350-Canvas-Content-Loading-Test-chromium\\video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "apiRequestContext.post: connect ECONNREFUSED :",
-                        "column": 9091,
-                        "line": 1
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "b68efed2b086157908dd-7b1a2ee090e202ee3720",
-              "file": "database-broadcast-functional-test.spec.ts",
-              "line": 78,
-              "column": 9
-            }
-          ]
-        }
-      ]
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2025-09-26T19:15:44.575Z",
-    "duration": 9248.879,
+    "startTime": "2025-09-26T22:51:40.241Z",
+    "duration": 20.32899999999995,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 3,
+    "unexpected": 0,
     "flaky": 0
   }
 }
