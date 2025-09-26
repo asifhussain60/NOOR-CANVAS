@@ -1206,7 +1206,7 @@
                 // Re-join session after reconnection
                 if (Model?.SessionId > 0)
                 {
-                    await hubConnection.SendAsync("JoinSession", Model.SessionId);
+                    await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
                     Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Re-joined session {SessionId} after reconnection", Model.SessionId);
                 }
             };
@@ -1281,22 +1281,24 @@
             // Asset sharing events
             hubConnection.On<object>("AssetShared", async (assetData) =>
             {
+                var canvasTrackingId = Guid.NewGuid().ToString("N")[..8];
                 try
                 {
                     AddCanvasDebugLog("ASSET", "📦 AssetShared event received from SignalR");
-                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] AssetShared event received in SessionCanvas");
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 📬 CANVAS RECEIVE: AssetShared event received, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                     AddCanvasDebugLog("DATA", $"📊 Asset data type: {assetData?.GetType()?.Name ?? "null"}");
-                    Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] Asset data type: {AssetType}", assetData?.GetType()?.Name ?? "null");
+                    Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] Asset data type: {AssetType}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", assetData?.GetType()?.Name ?? "null", canvasTrackingId);
                     
                     // ENHANCED: Log raw received data structure for debugging
                     try
                     {
                         var rawJson = System.Text.Json.JsonSerializer.Serialize(assetData);
-                        Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] Raw asset data: {RawData}", rawJson);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 📋 CANVAS PARSE: Raw asset data serialized, length={Length} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", rawJson?.Length ?? 0, canvasTrackingId);
+                        Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] Raw data preview: {RawPreview} ;CLEANUP_OK", rawJson?.Substring(0, Math.Min(200, rawJson?.Length ?? 0)));
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] Could not serialize received asset data: {Error}", ex.Message);
+                        Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] Could not serialize received asset data: {Error}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", ex.Message, canvasTrackingId);
                     }
 
                     if (assetData != null && Model != null)
@@ -1337,17 +1339,18 @@
                             {
                                 var htmlContent = contentElement.GetString();
                                 AddCanvasDebugLog("SUCCESS", $"✅ Found testContent: {htmlContent?.Length ?? 0} characters");
-                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [TEST FORMAT] Found testContent with {ContentLength} characters", 
-                                    htmlContent?.Length ?? 0);
-                                Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] [TEST FORMAT] HTML content preview: {ContentPreview}", 
+                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 🎨 CANVAS CONTENT: Found testContent, length={ContentLength} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                                    htmlContent?.Length ?? 0, canvasTrackingId);
+                                Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] HTML content preview: {ContentPreview} ;CLEANUP_OK", 
                                     htmlContent?.Substring(0, Math.Min(200, htmlContent?.Length ?? 0)) ?? "null");
 
                                 Model.SharedAssetContent = htmlContent;
                                 AddCanvasDebugLog("ASSET", "🎨 SharedAssetContent updated - triggering UI refresh");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] 🔄 CANVAS UPDATE: SharedAssetContent updated, triggering StateHasChanged, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                                 await InvokeAsync(StateHasChanged);
 
                                 AddCanvasDebugLog("SUCCESS", "✅ UI state refreshed - content should now be visible");
-                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [TEST FORMAT] SharedAssetContent updated successfully - UI should refresh");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] ✅ CANVAS SUCCESS: UI refreshed, content should be visible, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                             }
                             // Handle production asset format (from REST API ShareAsset)
                             else if (assetRoot.TryGetProperty("selector", out var selectorElement) && 
@@ -1406,7 +1409,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "NOOR-CANVAS-SHARE: Error processing AssetShared event");
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] ❌ CANVAS ERROR: Error processing AssetShared event, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                 }
             });
 
@@ -1449,13 +1452,16 @@
             
             if (Model?.SessionId > 0)
             {
+                var connectionTrackingId = Guid.NewGuid().ToString("N")[..8];
                 AddCanvasDebugLog("INFO", $"🔄 Attempting to join session group: session_{Model.SessionId}");
-                await hubConnection.SendAsync("JoinSession", Model.SessionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 🔗 GROUP JOIN: Attempting to join session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
+                await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
                 AddCanvasDebugLog("SUCCESS", $"✅ Joined SignalR group: session_{Model.SessionId}");
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Joined session {SessionId} via SignalR", Model.SessionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] ✅ GROUP SUCCESS: Joined session_{SessionId} as participant, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
                 
                 // Test message to verify group membership
                 AddCanvasDebugLog("INFO", $"🧪 Testing group membership for session_{Model.SessionId}");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 📡 GROUP READY: SessionCanvas ready to receive broadcasts in session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
             }
             else
             {

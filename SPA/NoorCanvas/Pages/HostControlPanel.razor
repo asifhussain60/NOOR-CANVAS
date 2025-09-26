@@ -22,12 +22,14 @@
 @inject NoorCanvas.Data.SimplifiedCanvasDbContext SimplifiedCanvasDb
 @inject NoorCanvas.Data.KSessionsDbContext KSessionsDb
 @inject NoorCanvas.Services.SessionStateService SessionStateService
+@inject NoorCanvas.Services.SafeHtmlRenderingService SafeHtmlRenderer
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
 <HeadContent>
     @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
     @* CSS styling for Islamic content handled by session-transcript.css *@
+
     <style>
         @@keyframes spin {
             0% { transform: rotate(0deg); }
@@ -294,11 +296,8 @@
                     {
                         <div style="flex:1;overflow-y:auto;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
                             <div class="html-viewer-content session-transcript-content" data-islamic-content>
-                                @{
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] 🔧 Implementing safe transcript rendering ;CLEANUP_OK");
-                                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] Content length: {Length} characters ;CLEANUP_OK", Model.TransformedTranscript?.Length ?? 0);
-                                }
-                                @RenderTranscriptSafely(Model.TransformedTranscript)
+                                @* [DEBUG-WORKITEM:hostcanvas:continue] Safe HTML rendering inspired by KSESSIONS $sce.trustAsHtml() ;CLEANUP_OK *@
+                                @SafeHtmlRenderer.RenderSafeHtml(Model?.TransformedTranscript ?? "")
                             </div>
                         </div>
                     }
@@ -660,10 +659,9 @@
                 
                 Logger.LogInformation("NOOR-SIGNALR: Host joined session {SessionId} and host group successfully", SessionId.Value);
                 
-                // Make SessionId available to JavaScript for ShareAsset calls
-                await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
-                AddDebugLog("DATA", $"📊 Set JavaScript window.currentSessionId = {SessionId.Value}");
-                Logger.LogInformation("COPILOT-DEBUG: Set window.currentSessionId = {SessionId} for JavaScript", SessionId.Value);
+                // [DEBUG-WORKITEM:hostcanvas:impl] JavaScript interop moved to OnAfterRenderAsync to fix prerendering error ;CLEANUP_OK
+                AddDebugLog("DATA", $"📊 SessionId {SessionId.Value} will be set in JavaScript during OnAfterRenderAsync");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:impl] SessionId {SessionId} scheduled for JavaScript assignment in OnAfterRenderAsync ;CLEANUP_OK", SessionId.Value);
             }
             catch (Exception ex)
             {
@@ -1197,12 +1195,15 @@
 
     private async Task TestShareAsset()
     {
+        var broadcastId = Guid.NewGuid().ToString("N")[..8];
         AddDebugLog("INFO", "🚀 TestShareAsset method called");
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 🎯 STEP 1/7: TestShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
         
         if (SessionId == null || hubConnection == null) 
         {
             var errorMsg = "Cannot test asset sharing: SignalR connection or session not available";
             AddDebugLog("ERROR", $"❌ Precondition failed: SessionId={SessionId}, hubConnection={hubConnection != null}");
+            Logger.LogError("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ❌ STEP 1 FAILED: Preconditions not met, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
             Logger.LogWarning("NOOR-TEST-ERROR: {ErrorMessage}", errorMsg);
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -1212,6 +1213,7 @@
         {
             var errorMsg = $"SignalR connection is in state: {hubConnection.State}. Expected: Connected";
             AddDebugLog("ERROR", $"❌ SignalR not connected: State={hubConnection.State}");
+            Logger.LogError("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ❌ STEP 1 FAILED: SignalR not connected, state={State}, broadcastId={BroadcastId} ;CLEANUP_OK", hubConnection.State, broadcastId);
             Logger.LogWarning("NOOR-TEST-ERROR: {ErrorMessage}", errorMsg);
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -1220,14 +1222,14 @@
         try
         {
             AddDebugLog("SUCCESS", $"✅ Preconditions passed: SessionId={SessionId.Value}, ConnectionId={hubConnection.ConnectionId}");
-            Logger.LogInformation("NOOR-TEST: Testing ShareAsset functionality for session {SessionId}", SessionId.Value);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ✅ STEP 2/7: Preconditions validated, SessionId={SessionId}, ConnectionId={ConnectionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, hubConnection.ConnectionId, broadcastId);
 
             // Create simple test asset
             var testId = Guid.NewGuid().ToString("N")[..8];
             var currentTime = DateTime.UtcNow.ToString("HH:mm:ss");
             
             AddDebugLog("DATA", $"📊 Generated test asset: TestId={testId}, Time={currentTime}");
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:UI] Creating simple test content for session {SessionId}", SessionId.Value);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 📦 STEP 3/7: Asset data created, testId={TestId}, time={Time}, broadcastId={BroadcastId} ;CLEANUP_OK", testId, currentTime, broadcastId);
             
             // Simple test HTML content - using double quotes and HTML encoding (NO EMOJIS for DOM compatibility)
             var testHtmlContent = $@"<div style=""background:#E8F5E8;color:#006400;padding:20px;border-radius:8px;text-align:center;border:2px solid #006400;"">
@@ -1245,13 +1247,13 @@
             };
 
             AddDebugLog("DATA", $"📦 Test asset payload created: shareId={testId}, htmlLength={testHtmlContent.Length} chars");
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:UI] Invoking ShareAsset for session {SessionId}", SessionId.Value);
-            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:UI] Test asset data: {TestAssetData}", 
-                System.Text.Json.JsonSerializer.Serialize(testAssetData, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 📋 STEP 4/7: HTML payload assembled, contentLength={Length} chars, shareId={ShareId}, broadcastId={BroadcastId} ;CLEANUP_OK", testHtmlContent.Length, testId, broadcastId);
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] Payload preview: {PayloadPreview} ;CLEANUP_OK", 
+                testHtmlContent.Substring(0, Math.Min(100, testHtmlContent.Length)));
 
             // Send via SignalR with timeout
             AddDebugLog("SIGNALR", $"🔄 Invoking ShareAsset on hub: SessionId={SessionId.Value}, Group=session_{SessionId.Value}");
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SIGNALR] Starting ShareAsset SignalR call with 5s timeout");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 🚀 STEP 5/7: Initiating SignalR ShareAsset call, target=session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
             var shareTask = hubConnection.InvokeAsync("ShareAsset", SessionId.Value, testAssetData);
             var timeoutTask = Task.Delay(5000); // 5 second timeout
             
@@ -1261,7 +1263,7 @@
             {
                 var errorMsg = "ShareAsset operation timed out after 5 seconds";
                 AddDebugLog("ERROR", "⏰ SignalR call timed out after 5 seconds");
-                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:ERROR] {ErrorMessage}", errorMsg);
+                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ❌ STEP 5 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
                 await ShowErrorMessageAsync(errorMsg);
                 return;
             }
@@ -1271,8 +1273,8 @@
             
             AddDebugLog("SUCCESS", "🎉 ShareAsset SignalR call completed successfully!");
             AddDebugLog("INFO", "📡 Asset should now be broadcasted to all SessionCanvas clients in group session_" + SessionId.Value);
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SUCCESS] ShareAsset completed successfully for session {SessionId}", SessionId.Value);
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SUCCESS] Simple HTML content should now appear in SessionCanvas for connected users");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ✅ STEP 6/7: SignalR ShareAsset call completed successfully, SessionId={SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 📡 STEP 7/7: Broadcast should now reach SessionCanvas clients in group session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
             await ShowSuccessMessageAsync("✅ Test asset shared successfully via SignalR!");
         }
         catch (TimeoutException ex)
@@ -1444,6 +1446,21 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // [DEBUG-WORKITEM:hostcanvas:impl] Set SessionId in JavaScript on first render to fix prerendering error ;CLEANUP_OK
+        if (firstRender && SessionId.HasValue)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
+                AddDebugLog("SUCCESS", $"✅ Set JavaScript window.currentSessionId = {SessionId.Value}");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:impl] Successfully set window.currentSessionId = {SessionId} in JavaScript ;CLEANUP_OK", SessionId.Value);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:impl] Failed to set SessionId in JavaScript ;CLEANUP_OK");
+            }
+        }
+        
         if (!firstRender && !string.IsNullOrEmpty(Model?.TransformedTranscript))
         {
             Logger.LogInformation("NOOR-HTML-VIEWER: Transcript rendered successfully ({Length} chars)", Model.TransformedTranscript.Length);
@@ -2165,53 +2182,11 @@
         public string? RequestId { get; set; }
     }
 
-    /// <summary>
-    /// [DEBUG-WORKITEM:signalcomm:continue] Safe transcript rendering to prevent appendChild errors
-    /// </summary>
-    private RenderFragment RenderTranscriptSafely(string? html)
-    {
-        return builder =>
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(html))
-                {
-                    builder.OpenElement(0, "div");
-                    builder.AddAttribute(1, "style", "color:#6B7280;text-align:center;padding:2rem;font-style:italic;");
-                    builder.AddContent(2, "No transcript content available.");
-                    builder.CloseElement();
-                    return;
-                }
+    @* [DEBUG-WORKITEM:hostcanvas:continue] Transcript cache removed - using SafeHtmlRenderingService instead ;CLEANUP_OK *@
 
-                // Progressive rendering strategy to prevent appendChild errors
-                if (html.Length > 100000)
-                {
-                    // Very large content - show summary only
-                    RenderLargeContentSummary(builder, html);
-                }
-                else if (html.Length > 50000)
-                {
-                    // Large content - attempt safe rendering with fallback
-                    RenderWithSafeFallback(builder, html);
-                }
-                else if (ContainsPotentiallyProblematicContent(html))
-                {
-                    // Content has potential issues - use sanitized rendering
-                    RenderSanitizedContent(builder, html);
-                }
-                else
-                {
-                    // Small, safe content - render normally
-                    builder.AddMarkupContent(0, html);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "[DEBUG-WORKITEM:signalcomm:continue] Safe rendering failed, using error fallback");
-                RenderErrorFallback(builder, ex, html?.Length ?? 0);
-            }
-        };
-    }
+    @* [DEBUG-WORKITEM:hostcanvas:continue] Obsolete transcript rendering methods removed - using SafeHtmlRenderingService instead ;CLEANUP_OK *@
+
+
 
     private void RenderLargeContentSummary(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string html)
     {
@@ -2276,6 +2251,8 @@
         builder.AddMarkupContent(0, sanitizedHtml);
         Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:continue] Rendered sanitized content");
     }
+
+    @* [DEBUG-WORKITEM:hostcanvas:continue] Enhanced Processor methods removed - using SafeHtmlRenderingService instead ;CLEANUP_OK *@
 
     private void RenderErrorFallback(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, Exception ex, int contentLength)
     {

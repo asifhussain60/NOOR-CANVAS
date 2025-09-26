@@ -56,22 +56,24 @@ public class SessionHub : Hub
     public async Task ShareAsset(long sessionId, object assetData)
     {
         var groupName = $"session_{sessionId}";
+        var hubTrackingId = Guid.NewGuid().ToString("N")[..8];
 
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB] ShareAsset method called with sessionId={SessionId}, connectionId={ConnectionId}", 
-            sessionId, Context.ConnectionId);
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 🎣 HUB ENTRY: ShareAsset method called, sessionId={SessionId}, connectionId={ConnectionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+            sessionId, Context.ConnectionId, hubTrackingId);
 
-        _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB] Asset data type: {AssetType}, group name: {GroupName}", 
-            assetData?.GetType()?.Name ?? "null", groupName);
+        _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] Asset data type: {AssetType}, group name: {GroupName}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+            assetData?.GetType()?.Name ?? "null", groupName, hubTrackingId);
         
         // ENHANCED: Log the actual asset data structure for debugging
         try
         {
             var assetJson = System.Text.Json.JsonSerializer.Serialize(assetData, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-            _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB] Asset data JSON: {AssetJson}", assetJson);
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📋 HUB PROCESS: Asset data serialized, length={Length} chars, hubTrackingId={HubTrackingId} ;CLEANUP_OK", assetJson?.Length ?? 0, hubTrackingId);
+            _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] Asset JSON preview: {AssetPreview} ;CLEANUP_OK", assetJson?.Substring(0, Math.Min(200, assetJson?.Length ?? 0)));
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HUB] Could not serialize asset data: {Error}", ex.Message);
+            _logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] Could not serialize asset data: {Error}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", ex.Message, hubTrackingId);
         }
 
         try
@@ -84,21 +86,21 @@ public class SessionHub : Hub
                 sharedBy = Context.ConnectionId
             };
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB] Broadcasting AssetShared to group {GroupName} for session {SessionId}", 
-                groupName, sessionId);
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📦 HUB BROADCAST: Broadcasting AssetShared to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+                groupName, sessionId, hubTrackingId);
 
             await Clients.Group(groupName).SendAsync("AssetShared", broadcastPayload);
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB] Successfully sent AssetShared message to group {GroupName} for session {SessionId}", 
-                groupName, sessionId);
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] ✅ HUB SUCCESS: AssetShared message sent to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+                groupName, sessionId, hubTrackingId);
             
-            _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB] Broadcast payload included testContent: {HasTestContent}", 
-                assetData?.GetType()?.GetProperty("testContent") != null ? "YES" : "NO");
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📝 HUB COMPLETE: Broadcast complete, testContent={HasTestContent}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+                assetData?.GetType()?.GetProperty("testContent") != null ? "YES" : "NO", hubTrackingId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:ERROR] Failed to send AssetShared message to group {GroupName} for session {SessionId}", 
-                groupName, sessionId);
+            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] ❌ HUB ERROR: Failed to send AssetShared message to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+                groupName, sessionId, hubTrackingId);
             throw;
         }
     }
