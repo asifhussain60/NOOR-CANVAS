@@ -1,10 +1,10 @@
-# NOOR Canvas Final Architecture Design (v3.0 COMPLETE)
+# NOOR Canvas Architecture Design (v3.1 ACTIVE DEVELOPMENT)
 
-**🎉 PROJECT STATUS**: **100% COMPLETE - PRODUCTION READY**  
-**🚀 DEPLOYMENT**: SharedAssets system deployed + all core functionality operational  
-**📅 FINALIZED**: September 19, 2025
+**🔄 PROJECT STATUS**: **ACTIVE DEVELOPMENT - CONTINUOUS IMPROVEMENT**  
+**🚀 DEPLOYMENT**: SharedAssets system operational + ongoing enhancements  
+**📅 LAST UPDATED**: September 25, 2025
 
-This document captures the final architecture of NOOR Canvas v3.0 Islamic Learning Platform as deployed in production. All components are operational and the system is ready for public use.
+This document captures the architecture of NOOR Canvas v3.1 Islamic Learning Platform with recent compliance fixes and debug panel enhancements. Core functionality is operational with ongoing improvements for cross-layer consistency and developer tooling.
 
 ---
 
@@ -48,6 +48,20 @@ KSESSIONS_DEV.dbo.* (Read-only - Islamic Content)
 
 #### **🔐 Authentication System**
 - **Token Format**: 8-character friendly tokens (e.g., `EP9M9NUN`)
+
+#### **🛠️ Development Debug Panel System (NEW)**
+**Status**: ✅ **IMPLEMENTED - September 2025**
+- **Purpose**: Enhanced developer debugging and system monitoring
+- **Features**: Real-time diagnostics, error tracking, performance monitoring
+- **Integration**: Embedded in application for development environments
+- **Access**: Available to developers for troubleshooting and optimization
+
+#### **🔗 Cross-Layer Compliance Framework (NEW)**
+**Status**: ✅ **IMPLEMENTED - hostcanvas key**
+- **SignalR Group Standardization**: Consistent `session_{id}` naming across all hubs
+- **Data Structure Alignment**: Dual-format asset handling for backward compatibility
+- **Contract Auditing**: Systematic validation of producer-consumer contracts
+- **Test Validation**: Comprehensive cross-layer compliance testing
 - **Security**: SHA256 hashed storage with expiration tracking
 - **Token Types**: HostToken (session creation) + UserToken (participant access)
 - **Validation**: canvas.SecureTokens → canvas.Sessions → KSESSIONS mapping
@@ -69,11 +83,8 @@ KSESSIONS_DEV.dbo.* (Read-only - Islamic Content)
 2. **SessionWaiting.razor** - Waiting room with live participant display
 
 ### **Real-time Features (SignalR)**
-- **SessionHub**: Session lifecycle events, participant management, **real-time session start**
-- **AnnotationHub**: Real-time annotation sharing  
-- **QAHub**: Live Q&A system with voting ✅ **FULLY OPERATIONAL**
-- **Participant Updates**: Sub-3-second refresh rates with **country flag display**
-- **Session Control**: Live session start/stop with participant notification
+SessionCanvas.razor no longer includes any SignalR client code. All real-time features are handled by SessionWaiting.razor, which is the canonical client for SignalR connections.
+All SignalR hubs (SessionHub, QAHub, AnnotationHub) are registered and functional. HTTP APIs are used for CRUD and setup only; all real-time features use SignalR.
 
 #### **🔧 Q&A System Technical Implementation (September 2025)**
 **Status**: ✅ **PRODUCTION READY** - Complete end-to-end functionality operational

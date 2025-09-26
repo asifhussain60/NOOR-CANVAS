@@ -57,28 +57,47 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
 
-        _logger.LogInformation("NOOR-HUB-SHARE: ShareAsset method called with sessionId={SessionId}, connectionId={ConnectionId}", 
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB] ShareAsset method called with sessionId={SessionId}, connectionId={ConnectionId}", 
             sessionId, Context.ConnectionId);
 
-        _logger.LogDebug("NOOR-HUB-SHARE: Asset data type: {AssetType}, group name: {GroupName}", 
+        _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB] Asset data type: {AssetType}, group name: {GroupName}", 
             assetData?.GetType()?.Name ?? "null", groupName);
+        
+        // ENHANCED: Log the actual asset data structure for debugging
+        try
+        {
+            var assetJson = System.Text.Json.JsonSerializer.Serialize(assetData, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB] Asset data JSON: {AssetJson}", assetJson);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HUB] Could not serialize asset data: {Error}", ex.Message);
+        }
 
         try
         {
-            await Clients.Group(groupName).SendAsync("AssetShared", new
+            var broadcastPayload = new
             {
                 sessionId = sessionId,
                 asset = assetData,
                 timestamp = DateTime.UtcNow,
                 sharedBy = Context.ConnectionId
-            });
+            };
 
-            _logger.LogInformation("NOOR-HUB-SHARE: Successfully sent AssetShared message to group {GroupName} for session {SessionId}", 
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB] Broadcasting AssetShared to group {GroupName} for session {SessionId}", 
                 groupName, sessionId);
+
+            await Clients.Group(groupName).SendAsync("AssetShared", broadcastPayload);
+
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB] Successfully sent AssetShared message to group {GroupName} for session {SessionId}", 
+                groupName, sessionId);
+            
+            _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB] Broadcast payload included testContent: {HasTestContent}", 
+                assetData?.GetType()?.GetProperty("testContent") != null ? "YES" : "NO");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "NOOR-HUB-SHARE: Failed to send AssetShared message to group {GroupName} for session {SessionId}", 
+            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:ERROR] Failed to send AssetShared message to group {GroupName} for session {SessionId}", 
                 groupName, sessionId);
             throw;
         }
@@ -300,6 +319,57 @@ public class SessionHub : Hub
     }
 
     /// <summary>
+    /// Broadcast HTML content to session participants
+    /// PRIMARY IMPLEMENTATION - replaces duplicate TestHub.BroadcastHtml
+    /// </summary>
+    public async Task BroadcastHtml(string sessionId, string htmlContent, string contentType = "general")
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        var groupName = $"session_{sessionId}";
+        
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] BroadcastHtml called: SessionId {SessionId}, ContentType {ContentType}, ContentLength {Length}, From {ConnectionId}", 
+            requestId, sessionId, contentType, htmlContent?.Length ?? 0, Context.ConnectionId);
+
+        var broadcastData = new
+        {
+            htmlContent = htmlContent,
+            contentType = contentType,
+            senderConnectionId = Context.ConnectionId,
+            timestamp = DateTime.UtcNow,
+            sessionId = sessionId,
+            requestId = requestId
+        };
+
+        try
+        {
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Broadcasting HtmlContentReceived to group {GroupName}", requestId, groupName);
+            
+            // Send to all clients in the session group 
+            await Clients.Group(groupName).SendAsync("HtmlContentReceived", broadcastData);
+            
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Successfully sent HtmlContentReceived to group {GroupName}", requestId, groupName);
+            
+            // Send confirmation back to sender for debugging
+            await Clients.Caller.SendAsync("HtmlBroadcastConfirmed", new
+            {
+                sessionId = sessionId,
+                contentType = contentType,
+                timestamp = DateTime.UtcNow,
+                status = "sent",
+                requestId = requestId,
+                groupName = groupName
+            });
+            
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] HTML broadcast confirmation sent to sender {ConnectionId}", requestId, Context.ConnectionId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Failed to broadcast HTML content to session {SessionId}", requestId, sessionId);
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Broadcast session ended event to all participants
     /// </summary>
     public async Task BroadcastSessionEnded(long sessionId, string reason = "Host ended session")
@@ -382,5 +452,40 @@ public class SessionHub : Hub
         }
 
         await base.OnDisconnectedAsync(exception);
+    }
+
+    // Test methods for SignalR functionality verification
+    public async Task BroadcastToAll(string message)
+    {
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] BroadcastToAll called: {Message} from {ConnectionId}", 
+            message, Context.ConnectionId);
+
+        try
+        {
+            await Clients.All.SendAsync("BroadcastMessage", message);
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] BroadcastToAll sent successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:TEST] BroadcastToAll failed: {Error}", ex.Message);
+            throw;
+        }
+    }
+
+    public async Task SendTestMessage(string message)
+    {
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] SendTestMessage called: {Message} from {ConnectionId}", 
+            message, Context.ConnectionId);
+
+        try
+        {
+            await Clients.All.SendAsync("TestMessage", message);
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] SendTestMessage sent successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:TEST] SendTestMessage failed: {Error}", ex.Message);
+            throw;
+        }
     }
 }

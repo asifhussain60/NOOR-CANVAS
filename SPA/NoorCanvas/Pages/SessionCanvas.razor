@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components.Web.HtmlRendering
+@using Microsoft.AspNetCore.SignalR.Client
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
@@ -15,7 +15,7 @@
 @inject ILogger<SessionCanvas> Logger
 @inject NoorCanvas.Services.SimplifiedTokenService TokenService
 
-<PageTitle>Session Canvas - NOOR Canvas</PageTitle>
+<PageTitle>Noor Canvas</PageTitle>
 
 <HeadContent>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,6 +23,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </HeadContent>
+
+<style>
+    .poppins { font-family: 'Poppins', sans-serif; }
+    .inter { font-family: 'Inter', sans-serif; }
+    .shadow-golden { box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); }
+    .tab-button.active { border-bottom-color: #D4AF37; color: #006400; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C5B358; }
+    .animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .8; }
+    }
+    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    @@media (max-width: 1024px) {
+        .main-grid { grid-template-columns: 1fr; }
+    }
+</style>
 
 <div style="background-color:#F8F5F1;display:flex;flex-direction:column;min-height:100vh;padding:1rem;">
 
@@ -74,6 +94,19 @@
         <!-- Session Canvas Content -->
         <div style="width:100%;max-width:80rem;margin:0 auto;">
             
+            <!-- REUSABLE DEBUG PANEL: SignalR Connection & Asset Reception Trace -->
+            <SignalRDebugPanel 
+                Title="SESSION CANVAS"
+                ViewType="NoorCanvas.Models.Debug.DebugPanelViewType.Canvas"
+                HubConnection="hubConnection"
+                DebugLog="canvasDebugLog"
+                SessionId="Model?.SessionId"
+                SessionToken="SessionToken"
+                UserGuid="@CurrentUserGuid"
+                SharedAssetContent="Model?.SharedAssetContent"
+                OnClearLog="HandleClearCanvasDebugLog"
+                OnAddLogEntry="HandleAddCanvasDebugLog" />
+            
             <!-- Header -->
             <div style="background-color:white;border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:2rem;">
@@ -96,7 +129,19 @@
                     </div>
                     
                     <!-- Action Buttons -->
-                    <div style="flex-shrink:0;display:flex;gap:0.75rem;">
+                    <div style="flex-shrink:0;display:flex;gap:0.75rem;align-items:center;">
+                        <!-- SignalR Connection Status -->
+                        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;background-color:@GetSignalRStatusBackgroundColor();border-radius:0.375rem;border:1px solid @GetSignalRStatusBorderColor();transition:all 0.3s ease;">
+                            <i class="@GetSignalRStatusIcon()" style="font-size:0.875rem;color:@GetSignalRStatusColor();"></i>
+                            <span style="font-size:0.75rem;color:#495057;font-weight:500;">@GetSignalRStatusText()</span>
+                            @if (hubConnection?.State == HubConnectionState.Disconnected)
+                            {
+                                <button @onclick="RetrySignalRConnection" style="margin-left:0.5rem;padding:0.25rem 0.5rem;background-color:#EF4444;color:white;border:none;border-radius:0.25rem;font-size:0.625rem;cursor:pointer;">
+                                    <i class="fa-solid fa-refresh" style="margin-right:0.25rem;"></i>Retry
+                                </button>
+                            }
+                        </div>
+                        
                         <button @onclick="NavigateToWaitingRoom" 
                                 style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#706357;background-color:#F8F5F1;padding:0.5rem 1rem;border-radius:0.375rem;border:1px solid #D4AF37;cursor:pointer;transition:all 0.2s;hover:background-color:#F3F4F6;">
                             <i class="fa-solid fa-arrow-left" style="margin-right:0.5rem;"></i>
@@ -116,6 +161,35 @@
                 
                 <!-- Canvas Content Area -->
                 <div style="background-color:white;border-radius:1rem;padding:2rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;">
+                    <!-- Connection Status Banner -->
+                    <div style="margin-bottom:1rem;padding:0.75rem;border-radius:0.5rem;@(GetSignalRStatusBackgroundColor() + GetSignalRStatusBorderColor())">
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <div style="display:flex;align-items:center;gap:0.5rem;">
+                                <i class="@GetSignalRStatusIcon()" style="@GetSignalRStatusIconStyle()"></i>
+                                <span style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#374151;">
+                                    Connection: @GetSignalRStatusText()
+                                </span>
+                                @if (GetSignalRStatusText() != "Connected" && GetSignalRStatusText() != "Connecting")
+                                {
+                                    <button @onclick="RetrySignalRConnection" style="font-family:'Inter',sans-serif;font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:0.25rem;background-color:#3B82F6;color:white;border:none;cursor:pointer;margin-left:0.5rem;">
+                                        <i class="fa-solid fa-refresh" style="margin-right:0.25rem;"></i>
+                                        Retry
+                                    </button>
+                                }
+                            </div>
+                            <span style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#6B7280;">
+                                @if (lastConnectionTime.HasValue)
+                                {
+                                    <text>Last connected: @lastConnectionTime.Value.ToString("HH:mm:ss")</text>
+                                }
+                                else
+                                {
+                                    <text>Establishing connection...</text>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
                         <h2 style="font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:600;color:#4B3C2B;margin:0;">Session Content</h2>
                         <div style="display:flex;gap:0.5rem;">
@@ -130,58 +204,160 @@
                         </div>
                     </div>
                     
-                    <!-- Canvas Placeholder -->
-                    <div style="border:2px dashed #D1D5DB;border-radius:0.5rem;padding:3rem;text-align:center;background-color:#F9FAFB;">
-                        <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
-                            <i class="fa-solid fa-chalkboard-user" style="font-size:4rem;color:#9CA3AF;"></i>
-                            <div>
-                                <h3 style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#6B7280;margin:0 0 0.5rem 0;">Welcome to Session Canvas</h3>
-                                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#9CA3AF;margin:0;">This is where the interactive session content will be displayed.</p>
-                                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#9CA3AF;margin:0.25rem 0 0 0;">Shared assets from the host will appear here in real-time.</p>
+                    <!-- Session Metadata Cards -->
+                    <div style="margin-bottom:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;">
+                        <div style="padding:0.75rem;background-color:#FDFBEB;border-radius:0.75rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #D4AF37;transition:transform 0.2s;text-align:center;">
+                            <i class="fa-solid fa-users" style="font-size:1.5rem;color:#006400;margin-bottom:0.25rem;"></i>
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;text-transform:uppercase;font-weight:500;color:#4B3C2B;margin:0;">Participants</p>
+                            <p style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:#4B3C2B;margin:0;">@(Model?.ParticipantCount ?? 0)</p>
+                        </div>
+                        <div style="padding:0.75rem;background-color:#FDFBEB;border-radius:0.75rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #D4AF37;transition:transform 0.2s;text-align:center;">
+                            <i class="fa-regular fa-clock" style="font-size:1.5rem;color:#006400;margin-bottom:0.25rem;"></i>
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;text-transform:uppercase;font-weight:500;color:#4B3C2B;margin:0;">Duration</p>
+                            <p style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:#4B3C2B;margin:0;">@FormatTime(Model?.Duration ?? TimeSpan.Zero)</p>
+                        </div>
+                        <div style="padding:0.75rem;background-color:#FDFBEB;border-radius:0.75rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #D4AF37;transition:transform 0.2s;text-align:center;grid-column:span 2;">
+                            <i class="fa-solid fa-book" style="font-size:1.5rem;color:#006400;margin-bottom:0.25rem;"></i>
+                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;text-transform:uppercase;font-weight:500;color:#4B3C2B;margin:0;">Topic</p>
+                            <p style="font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;color:#4B3C2B;margin:0;">@(Model?.Topic ?? "Session Content")</p>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Content Area -->
+                    <div style="height:400px;border:1px solid #D4AF37;padding:2rem;border-radius:1.5rem;background-color:#F9FAFB;box-shadow:inset 0 2px 4px rgba(0,0,0,0.1);transition:all 0.2s;display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1rem;">
+                        @if (!string.IsNullOrEmpty(Model?.SharedAssetContent))
+                        {
+                            <div style="width:100%;height:100%;">
+                                <div style="margin-bottom:10px;font-size:12px;color:#666;border-bottom:1px solid #ddd;padding-bottom:5px;">
+                                    Content received via SignalR at @DateTime.Now.ToString("HH:mm:ss")
+                                </div>
+                                @((MarkupString)GetSafeHtmlContent(Model.SharedAssetContent))
                             </div>
+                        }
+                        else
+                        {
+                            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;font-weight:300;" class="animate-pulse-subtle">Content from the session will appear here.</p>
+                        }
+                    </div>
+
+                    <!-- Ask a Question Panel -->
+                    <div style="background-color:#FDFBEB;border-radius:0.75rem;transition:all 0.3s;overflow:hidden;border:1px solid #D4AF37;">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:1rem;">
+                            <i class="fa-solid fa-hand-raised" style="color:#006400;font-size:1.5rem;"></i>
+                            <h4 style="font-family:'Poppins',sans-serif;font-size:1rem;font-weight:600;color:#4B3C2B;margin:0;">Ask a question</h4>
+                        </div>
+                        <div style="display:flex;align-items:stretch;gap:0.5rem;padding:0 1rem 1rem 1rem;">
+                            <textarea @bind="QuestionInput" 
+                                      style="flex:3;padding:1rem;border-radius:0.75rem;border:2px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
+                                      placeholder="Ask a question..." rows="3"></textarea>
+                            <button @onclick="SubmitQuestion" 
+                                    style="flex:1;padding:0.75rem 1.5rem;border-radius:0.75rem;color:white;font-weight:600;transition:all 0.2s;box-shadow:0 4px 14px 0 rgba(212,175,55,0.4);display:flex;align-items:center;justify-content:center;gap:0.5rem;border:2px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
+                                    class="shadow-golden">
+                                <span style="font-size:1rem;color:white;">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
+                            </button>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Participants & Chat Sidebar -->
-                <div style="display:flex;flex-direction:column;gap:1rem;">
+                <!-- Q&A and Participants Sidebar -->
+                <div style="background-color:white;border-radius:0.75rem;padding:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;display:flex;flex-direction:column;height:100%;">
                     
-                    <!-- Participants Panel -->
-                    <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #E5E7EB;flex:1;">
-                        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
-                            <h3 style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:#4B3C2B;margin:0;">Participants</h3>
-                            <span style="background-color:#D4AF37;color:white;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;padding:0.125rem 0.5rem;border-radius:9999px;">@(Model?.ParticipantCount ?? 0)</span>
+                    <!-- Tabs -->
+                    <div style="display:flex;margin-bottom:1rem;border-bottom:2px solid #E5E7EB;">
+                        <button @onclick="() => ActiveTab = Tab.QA" 
+                                style="flex:1;padding:0.75rem 0.5rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:2px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border:none;@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;" : "")"
+                                class="tab-button @(ActiveTab == Tab.QA ? "active" : "")">
+                            Q&A
+                        </button>
+                        <button @onclick="() => ActiveTab = Tab.Participants" 
+                                style="flex:1;padding:0.75rem 0.5rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:2px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border:none;@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;" : "")"
+                                class="tab-button @(ActiveTab == Tab.Participants ? "active" : "")">
+                            Participants
+                        </button>
+                    </div>
+
+                    <!-- Q&A Content -->
+                    <div style="flex:1;overflow-y:auto;@(ActiveTab == Tab.QA ? "" : "display:none;")" class="custom-scrollbar">
+                        <div style="padding-right:0.75rem;">
+                            <h3 style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;color:#4B3C2B;margin:0 0 1rem 0;">Recent Questions</h3>
+                            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                                @if (Model?.Questions?.Any() == true)
+                                {
+                                    @foreach (var question in Model.Questions)
+                                    {
+                                        var index = Model.Questions.IndexOf(question);
+                                        var bgColor = question.IsMyQuestion ? "#E6F3EA" : "#FBF9F6";
+                                        var upvoteColor = question.IsMyQuestion ? "#006400" : "#D4AF37";
+                                        var borderColor = question.IsMyQuestion ? "#006400" : "#D4AF37";
+
+                                        <div style="display:flex;align-items:flex-start;padding:0.75rem;border-radius:0.75rem;border:1px solid @borderColor;background-color:@bgColor;color:#4B3C2B;transition:all 0.2s;">
+                                            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;margin-right:0.75rem;">
+                                                <button @onclick="() => VoteQuestion(question.QuestionId)" 
+                                                        style="color:@upvoteColor;font-size:1.125rem;transition:color 0.2s;cursor:pointer;background:none;border:none;padding:0;">
+                                                    <i class="fa-solid fa-arrow-up"></i>
+                                                </button>
+                                                <span style="background-color:#C5B358;color:#4B3C2B;border-radius:9999px;padding:0.125rem 0.5rem;font-size:0.75rem;font-weight:700;">@question.Votes</span>
+                                            </div>
+                                            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+                                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                                    <span style="font-family:'Inter',sans-serif;font-size:0.875rem;width:100%;line-height:1.3;">@question.Text</span>
+                                                    @if (question.IsMyQuestion)
+                                                    {
+                                                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                                                            <i @onclick="() => EditQuestion(index)" class="fa-solid fa-pen" style="font-size:0.75rem;color:#6B7280;cursor:pointer;transition:color 0.2s;"></i>
+                                                            <i @onclick="() => ShowDeleteModal(index)" class="fa-solid fa-trash-can" style="font-size:0.75rem;color:#DC2626;cursor:pointer;transition:color 0.2s;"></i>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                @if (question.IsMyQuestion)
+                                                {
+                                                    <span style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:#006400;margin-top:0.25rem;">Your Question</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div style="text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.875rem;padding:2rem 0;">
+                                        <i class="fa-solid fa-question-circle" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i>
+                                        No questions yet. Be the first to ask!
+                                    </div>
+                                }
+                            </div>
                         </div>
-                        <div style="display:flex;flex-direction:column;gap:0.5rem;max-height:200px;overflow-y:auto;">
+                    </div>
+
+                    <!-- Participants Content -->
+                    <div style="flex:1;overflow-y:auto;@(ActiveTab == Tab.Participants ? "" : "display:none;")" class="custom-scrollbar">
+                        <h3 style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;color:#4B3C2B;margin:0 0 1rem 0;">All Participants</h3>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
                             @if (Model?.Participants?.Any() == true)
                             {
                                 @foreach (var participant in Model.Participants)
                                 {
-                                    <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background-color:#F8F9FA;border-radius:0.375rem;">
-                                        <div style="width:8px;height:8px;background-color:#10B981;border-radius:50%;"></div>
-                                        <span style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#374151;">@participant.Name</span>
+                                    <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:0.75rem;background-color:white;transition:background-color 0.2s;border:1px solid #E5E7EB;">
                                         @if (!string.IsNullOrEmpty(participant.Flag))
                                         {
-                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" style="height:12px;width:auto;border-radius:0.125rem;">
+                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" style="height:16px;width:auto;border-radius:0.125rem;border:1px solid #D1D5DB;">
                                         }
+                                        else
+                                        {
+                                            <div style="width:24px;height:16px;background-color:#4B3C2B;border-radius:0.125rem;display:flex;align-items:center;justify-content:center;">
+                                                <span style="color:#FBF9F6;font-size:0.625rem;font-weight:600;">@(participant.Country?.ToUpper() ?? "US")</span>
+                                            </div>
+                                        }
+                                        <span style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:500;color:#4B3C2B;">@participant.Name</span>
                                     </div>
                                 }
                             }
                             else
                             {
-                                <div style="text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.75rem;padding:1rem 0;">
+                                <div style="text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.875rem;padding:2rem 0;">
+                                    <i class="fa-solid fa-users" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i>
                                     No participants yet
                                 </div>
                             }
-                        </div>
-                    </div>
-                    
-                    <!-- Chat Panel -->
-                    <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);border:1px solid #E5E7EB;flex:1;">
-                        <h3 style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:#4B3C2B;margin:0 0 0.75rem 0;">Session Chat</h3>
-                        <div style="border:1px solid #E5E7EB;border-radius:0.375rem;padding:1rem;background-color:#F9FAFB;text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.75rem;">
-                            <i class="fa-solid fa-comments" style="font-size:1.5rem;margin-bottom:0.5rem;display:block;"></i>
-                            Chat functionality coming soon
                         </div>
                     </div>
                 </div>
@@ -190,6 +366,57 @@
     }
 </div>
 
+<!-- Floating Connection Status Indicator -->
+<div style="position:fixed;bottom:1rem;right:1rem;z-index:40;@(GetSignalRStatusBackgroundColor() + GetSignalRStatusBorderColor())border-radius:0.5rem;padding:0.75rem 1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);backdrop-filter:blur(10px);max-width:250px;">
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+        <i class="@GetSignalRStatusIcon()" style="@GetSignalRStatusIconStyle()"></i>
+        <div style="flex:1;">
+            <div style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:#374151;line-height:1;">
+                @GetSignalRStatusText()
+            </div>
+            @if (lastConnectionTime.HasValue && GetSignalRStatusText() == "Connected")
+            {
+                <div style="font-family:'Inter',sans-serif;font-size:0.625rem;color:#6B7280;line-height:1;margin-top:0.125rem;">
+                    Connected at @lastConnectionTime.Value.ToString("HH:mm:ss")
+                </div>
+            }
+            else if (GetSignalRStatusText() != "Connected")
+            {
+                <div style="font-family:'Inter',sans-serif;font-size:0.625rem;color:#6B7280;line-height:1;margin-top:0.125rem;">
+                    Real-time features unavailable
+                </div>
+            }
+        </div>
+        @if (GetSignalRStatusText() != "Connected" && GetSignalRStatusText() != "Connecting")
+        {
+            <button @onclick="RetrySignalRConnection" style="font-family:'Inter',sans-serif;font-size:0.625rem;padding:0.25rem 0.5rem;border-radius:0.25rem;background-color:#3B82F6;color:white;border:none;cursor:pointer;">
+                <i class="fa-solid fa-refresh" style="font-size:0.625rem;"></i>
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+@if (IsModalVisible)
+{
+    <div style="position:fixed;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:50;">
+        <div style="background-color:white;padding:2rem;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);max-width:24rem;width:100%;text-align:center;transform:scale(0.95);transition:all 0.2s;">
+            <h4 style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:#4B3C2B;margin:0 0 1rem 0;">Confirm Deletion</h4>
+            <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#6B7280;margin:0 0 1.5rem 0;">Are you sure you want to delete this question? This action cannot be undone.</p>
+            <div style="display:flex;justify-content:space-around;gap:1rem;">
+                <button @onclick="DeleteConfirmed" 
+                        style="flex:1;padding:0.5rem 1rem;border-radius:0.75rem;color:white;font-weight:600;background-color:#8B0000;border:none;cursor:pointer;transition:background-color 0.2s;font-family:'Inter',sans-serif;">
+                    Delete
+                </button>
+                <button @onclick="CancelDelete" 
+                        style="flex:1;padding:0.5rem 1rem;border-radius:0.75rem;color:#4B3C2B;font-weight:600;background-color:#E5E7EB;border:none;cursor:pointer;transition:background-color 0.2s;font-family:'Inter',sans-serif;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @implements IAsyncDisposable
 
 @code {
@@ -197,13 +424,32 @@
     
     private SessionCanvasViewModel? Model { get; set; }
     private long? _sessionId;
+    private HubConnection? hubConnection;
+    private HttpClient? Http;
+    private string CurrentUserGuid { get; set; } = Guid.NewGuid().ToString();
+
+    // Debug logging for tracing SignalR asset reception issues
+    private List<CanvasDebugLogEntry> canvasDebugLog = new List<CanvasDebugLogEntry>();
+    private const int MaxCanvasDebugLogEntries = 100;
+
+    // UI State
+    private string QuestionInput { get; set; } = string.Empty;
+    private int? EditingQuestionIndex { get; set; }
+    private int? QuestionToDeleteIndex { get; set; }
+    private bool IsModalVisible { get; set; } = false;
+
+    private enum Tab { QA, Participants }
+    private Tab ActiveTab { get; set; } = Tab.QA;
 
     protected override async Task OnInitializedAsync()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionCanvas OnInitialized - SessionToken: {SessionToken}", 
-            requestId, SessionToken ?? "null");
+        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionCanvas OnInitialized - SessionToken: '{SessionToken}' (Length: {Length})", 
+            requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
+
+        // Initialize HttpClient
+        Http = HttpClientFactory.CreateClient();
 
         Model = new SessionCanvasViewModel
         {
@@ -212,13 +458,23 @@
             SessionName = "Loading Session...",
             SessionDate = "Today",
             StartTime = "Loading...",
+            Topic = "Session Content",
             ParticipantCount = 0,
-            Participants = new List<ParticipantData>()
+            Participants = new List<ParticipantData>(),
+            Questions = new List<QuestionData>(),
+            Duration = TimeSpan.Zero,
+            SharedAssetContent = null
         };
 
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas ViewModel initialized, starting session data load", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
+        
+        // Initialize session data FIRST so SessionId is available
         await InitializeSessionAsync(requestId);
+        
+        // Then initialize SignalR connection with SessionId available
+        await InitializeSignalRAsync();
     }
 
     private async Task InitializeSessionAsync(string requestId)
@@ -248,79 +504,121 @@
 
     private async Task LoadSessionDataAsync(string token, string requestId)
     {
-        try
+        const int maxRetries = 3;
+        const int baseDelayMs = 500;
+        
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
-            // Validate session token and get session data using participant API
-            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
-            var apiUrl = $"api/participant/session/{token}/validate";
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validating UserToken via participant API: {ApiUrl}", requestId, apiUrl);
-            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Fixed API endpoint - using participant validation instead of host validation", requestId);
-
-            var response = await httpClient.GetAsync(apiUrl);
-            
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var content = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Raw API response: {Content}", requestId, content);
+                // Validate session token and get session data using participant API
+                using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+                var apiUrl = $"api/participant/session/{token}/validate";
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Attempt {Attempt}/{MaxRetries} - Validating UserToken via participant API: {ApiUrl}", 
+                    requestId, attempt, maxRetries, apiUrl);
+                Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Fixed API endpoint - using participant validation instead of host validation", requestId);
 
-                var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(content, 
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Deserialized response - Valid: {Valid}, SessionId: {SessionId}, Session: {Session}", 
-                    requestId, sessionResponse?.Valid, sessionResponse?.SessionId, sessionResponse?.Session?.ToString() ?? "null");
-
-                if (sessionResponse?.Valid == true && sessionResponse.Session != null)
+                var response = await httpClient.GetAsync(apiUrl);
+                
+                if (response.IsSuccessStatusCode)
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation successful - updating session data", requestId);
-                    UpdateSessionData(sessionResponse.Session);
-                    _sessionId = sessionResponse.Session.SessionId;
-                    
-                    // Load participants
-                    await LoadParticipantsAsync(requestId);
-                    
-                    Model!.CurrentState = SessionCanvasState.Loaded;
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas rendering with NOOR Canvas branding - NC-Header.png logo", requestId);
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session canvas loaded successfully", requestId);
+                    await ProcessSuccessfulValidation(response, requestId);
+                    return; // Success - exit retry loop
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound && attempt < maxRetries)
+                {
+                    // Retry on 404 - might be a timing issue with session start
+                    var delay = baseDelayMs * (int)Math.Pow(2, attempt - 1);
+                    Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Session validation failed with 404 (attempt {Attempt}/{MaxRetries}) - retrying in {Delay}ms", 
+                        requestId, attempt, maxRetries, delay);
+                    await Task.Delay(delay);
+                    continue;
                 }
                 else
                 {
-                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation failed - Valid: {Valid}, Session null: {SessionNull}", 
-                        requestId, sessionResponse?.Valid, sessionResponse?.Session == null);
+                    // Non-retryable error or final attempt
+                    Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Session validation failed: {StatusCode}", requestId, response.StatusCode);
                     Model!.CurrentState = SessionCanvasState.SessionNotFound;
-                    Model.ErrorMessage = "Session not found or invalid token.";
+                    Model.ErrorMessage = "Session not found. Please check your session token.";
+                    return;
                 }
+            }
+            catch (HttpRequestException ex) when (attempt < maxRetries)
+            {
+                // Retry on network errors
+                var delay = baseDelayMs * (int)Math.Pow(2, attempt - 1);
+                Logger.LogWarning(ex, "COPILOT-DEBUG: [{RequestId}] Network error during session canvas validation (attempt {Attempt}/{MaxRetries}) - retrying in {Delay}ms", 
+                    requestId, attempt, maxRetries, delay);
+                await Task.Delay(delay);
+                continue;
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Network error during session canvas validation (final attempt)", requestId);
+                Model!.CurrentState = SessionCanvasState.SessionNotFound;
+                Model.ErrorMessage = "Unable to connect to the server. Please check your internet connection.";
+                return;
+            }
+        }
+    }
+
+    private async Task ProcessSuccessfulValidation(HttpResponseMessage response, string requestId)
+    {
+        try
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Raw API response: {Content}", requestId, content);
+
+            var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(content, 
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Deserialized response - Valid: {Valid}, SessionId: {SessionId}, Session: {Session}", 
+                requestId, sessionResponse?.Valid, sessionResponse?.SessionId, sessionResponse?.Session?.ToString() ?? "null");
+
+            if (sessionResponse?.Valid == true && sessionResponse.Session != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation successful - updating session data", requestId);
+                UpdateSessionData(sessionResponse.Session);
+                _sessionId = sessionResponse.Session.SessionId;
+                
+                // Load participants
+                await LoadParticipantsAsync(requestId);
+                
+                Model!.CurrentState = SessionCanvasState.Loaded;
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas rendering with NOOR Canvas branding - NC-Header.png logo", requestId);
+                Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session canvas loaded successfully with SignalR Q&A integration", requestId);
             }
             else
             {
-                Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Session validation failed: {StatusCode}", requestId, response.StatusCode);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation failed - Valid: {Valid}, Session null: {SessionNull}", 
+                    requestId, sessionResponse?.Valid, sessionResponse?.Session == null);
                 Model!.CurrentState = SessionCanvasState.SessionNotFound;
-                Model.ErrorMessage = "Session not found. Please check your session token.";
+                Model.ErrorMessage = "Session not found or invalid token.";
             }
-        }
-        catch (HttpRequestException ex)
-        {
-            Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Network error during session canvas validation", requestId);
-            Model!.CurrentState = SessionCanvasState.SessionNotFound;
-            Model.ErrorMessage = "Unable to connect to the server. Please check your internet connection.";
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Unexpected error during session canvas validation", requestId);
+            Logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] Error processing validation response", requestId);
             Model!.CurrentState = SessionCanvasState.SessionNotFound;
-            Model.ErrorMessage = "An unexpected error occurred while loading the session.";
+            Model.ErrorMessage = "Error processing session data. Please try again.";
         }
-        
-        StateHasChanged();
     }
 
     private void UpdateSessionData(SessionData session)
     {
         if (Model == null) return;
 
+        Model.SessionId = session.SessionId;
         Model.SessionName = session.Title ?? "Session Canvas";
         Model.SessionDate = FormatDate(session.StartTime);
         Model.StartTime = FormatTime(session.StartTime);
+        Model.Topic = session.Title ?? "Session Content";
+        
+        if (session.StartTime.HasValue)
+        {
+            Model.SessionStartTime = session.StartTime.Value;
+        }
     }
 
     private async Task LoadParticipantsAsync(string requestId)
@@ -402,6 +700,89 @@
         await InvokeAsync(() => StateHasChanged());
     }
 
+    // SignalR Status Methods
+    private string GetSignalRStatusIcon()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "fa-solid fa-circle-check",
+            HubConnectionState.Connecting => "fa-solid fa-circle-notch fa-spin",
+            HubConnectionState.Reconnecting => "fa-solid fa-arrows-rotate fa-spin",
+            HubConnectionState.Disconnected => "fa-solid fa-circle-xmark",
+            _ => "fa-solid fa-circle-question"
+        };
+    }
+
+    private string GetSignalRStatusColor()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "#10B981",      // Green
+            HubConnectionState.Connecting => "#F59E0B",     // Yellow  
+            HubConnectionState.Reconnecting => "#F59E0B",   // Yellow
+            HubConnectionState.Disconnected => "#EF4444",  // Red
+            _ => "#6B7280"                                  // Gray
+        };
+    }
+
+    private string GetSignalRStatusText()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "Connected",
+            HubConnectionState.Connecting => "Connecting",
+            HubConnectionState.Reconnecting => "Reconnecting",
+            HubConnectionState.Disconnected => "Disconnected",
+            _ => "Unknown"
+        };
+    }
+
+    private string GetSignalRStatusBackgroundColor()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "#F0FDF4",      // Light green
+            HubConnectionState.Connecting => "#FFFBEB",     // Light yellow  
+            HubConnectionState.Reconnecting => "#FFFBEB",   // Light yellow
+            HubConnectionState.Disconnected => "#FEF2F2",  // Light red
+            _ => "#F8F9FA"                                  // Light gray
+        };
+    }
+
+    private string GetSignalRStatusBorderColor()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "#10B981",      // Green
+            HubConnectionState.Connecting => "#F59E0B",     // Yellow  
+            HubConnectionState.Reconnecting => "#F59E0B",   // Yellow
+            HubConnectionState.Disconnected => "#EF4444",  // Red
+            _ => "#E9ECEF"                                  // Gray
+        };
+    }
+
+    private async Task RetrySignalRConnection()
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Retrying SignalR connection...");
+            
+            if (hubConnection != null)
+            {
+                await hubConnection.DisposeAsync();
+            }
+            
+            await InitializeSignalRAsync();
+            StateHasChanged();
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection retry completed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Failed to retry SignalR connection");
+        }
+    }
+
     private void NavigateHome()
     {
         Navigation.NavigateTo("/");
@@ -446,23 +827,47 @@
         return dateTime?.ToString("h:mm tt") ?? "TBD";
     }
 
+    private static string FormatTime(TimeSpan timeSpan)
+    {
+        if (timeSpan.TotalHours >= 1)
+            return $"{(int)timeSpan.TotalHours}h {timeSpan.Minutes}m";
+        else
+            return $"{timeSpan.Minutes}m";
+    }
+
     public async ValueTask DisposeAsync()
     {
-        // No cleanup needed for this component
-        await Task.CompletedTask;
+        try
+        {
+            if (hubConnection != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Disposing SignalR connection");
+                await hubConnection.DisposeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Error disposing SignalR connection");
+        }
     }
 
     // ViewModel and Data Classes
     public class SessionCanvasViewModel
     {
+        public long SessionId { get; set; }
         public string? LogoText { get; set; }
         public SessionCanvasState CurrentState { get; set; }
         public string? SessionName { get; set; }
         public string? SessionDate { get; set; }
         public string? StartTime { get; set; }
+        public string? Topic { get; set; }
         public int ParticipantCount { get; set; }
         public List<ParticipantData>? Participants { get; set; }
+        public List<QuestionData>? Questions { get; set; }
         public string? ErrorMessage { get; set; }
+        public TimeSpan Duration { get; set; }
+        public DateTime? SessionStartTime { get; set; }
+        public string? SharedAssetContent { get; set; }
     }
 
     public enum SessionCanvasState
@@ -474,9 +879,22 @@
 
     public class ParticipantData
     {
+        public string UserId { get; set; } = "";
         public string Name { get; set; } = "";
         public string Country { get; set; } = "";
         public string Flag { get; set; } = "";
+    }
+
+    public class QuestionData
+    {
+        public int QuestionId { get; set; }
+        public string Text { get; set; } = "";
+        public int Votes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CreatedBy { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public bool IsAnswered { get; set; }
+        public bool IsMyQuestion { get; set; }
     }
 
     public class SessionValidationResponse
@@ -534,6 +952,91 @@
         public string? CountryFlag { get; set; }
     }
 
+    // Debug logging classes for SessionCanvas
+    public class CanvasDebugLogEntry : NoorCanvas.Models.Debug.IDebugLogEntry
+    {
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string Level { get; set; } = "INFO";
+        public string Message { get; set; } = "";
+    }
+
+    private void AddCanvasDebugLog(string level, string message)
+    {
+        canvasDebugLog.Add(new CanvasDebugLogEntry { Level = level, Message = message });
+        
+        // Keep only the latest entries
+        if (canvasDebugLog.Count > MaxCanvasDebugLogEntries)
+        {
+            canvasDebugLog.RemoveAt(0);
+        }
+        
+        // Also log to console for server-side logging
+        switch (level.ToUpper())
+        {
+            case "ERROR":
+                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] {Message}", message);
+                break;
+            case "WARN":
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] {Message}", message);
+                break;
+            default:
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] {Message}", message);
+                break;
+        }
+        
+        // Trigger UI update
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ClearCanvasDebugLog()
+    {
+        canvasDebugLog.Clear();
+        AddCanvasDebugLog("INFO", "Debug log cleared by user");
+        await Task.CompletedTask;
+    }
+    
+    // Event handlers for the reusable debug panel component
+    private async Task HandleClearCanvasDebugLog()
+    {
+        await ClearCanvasDebugLog();
+    }
+    
+    private async Task HandleAddCanvasDebugLog(string message)
+    {
+        // This is called by the component when it adds its own log entries
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CopyCanvasDebugLogToClipboard()
+    {
+        try
+        {
+            var logText = string.Join("\n", canvasDebugLog.Select(entry => $"[{entry.Timestamp:HH:mm:ss}] {entry.Level}: {entry.Message}"));
+            var fullLog = $"=== SESSION CANVAS DEBUG LOG ===\nGenerated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\nSession: {Model?.SessionId}\nConnection: {hubConnection?.ConnectionId}\n\n{logText}";
+            
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", fullLog);
+            AddCanvasDebugLog("SUCCESS", "✅ Debug log copied to clipboard!");
+        }
+        catch (Exception ex)
+        {
+            AddCanvasDebugLog("ERROR", $"❌ Failed to copy log: {ex.Message}");
+        }
+    }
+
+    private string GetCanvasLogEntryColor(string level)
+    {
+        return level.ToUpper() switch
+        {
+            "ERROR" => "#EF4444",
+            "WARN" => "#F59E0B", 
+            "SUCCESS" => "#10B981",
+            "SIGNALR" => "#8B5CF6",
+            "DATA" => "#06B6D4",
+            "ASSET" => "#F97316",
+            _ => "#E5E7EB"
+        };
+    }
+
     public class SessionTokenResponse
     {
         public long SessionId { get; set; }
@@ -543,5 +1046,496 @@
         public bool IsActive { get; set; }
         public int AccessCount { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    // Q&A Methods
+    private async Task SubmitQuestion()
+    {
+        if (string.IsNullOrWhiteSpace(QuestionInput) || Model?.SessionId == 0 || Http == null)
+            return;
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("/api/Question/Submit", new
+            {
+                SessionId = Model!.SessionId,
+                Question = QuestionInput.Trim(),
+                UserGuid = CurrentUserGuid
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                QuestionInput = "";
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error submitting question: {ex.Message}");
+        }
+    }
+
+    private async Task VoteQuestion(int questionId)
+    {
+        if (Http == null) return;
+        
+        try
+        {
+            var response = await Http.PostAsJsonAsync("/api/Question/Vote", new
+            {
+                QuestionId = questionId,
+                UserGuid = CurrentUserGuid
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Vote will be updated via SignalR
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error voting on question: {ex.Message}");
+        }
+    }
+
+    private void EditQuestion(int index)
+    {
+        if (Model?.Questions != null && index >= 0 && index < Model.Questions.Count)
+        {
+            EditingQuestionIndex = index;
+            QuestionInput = Model.Questions[index].Text;
+        }
+    }
+
+    private void ShowDeleteModal(int index)
+    {
+        if (Model?.Questions != null && index >= 0 && index < Model.Questions.Count)
+        {
+            QuestionToDeleteIndex = index;
+            IsModalVisible = true;
+        }
+    }
+
+    private void CancelDelete()
+    {
+        QuestionToDeleteIndex = null;
+        IsModalVisible = false;
+    }
+
+    private async Task DeleteConfirmed()
+    {
+        if (Http == null || QuestionToDeleteIndex == null || Model?.Questions == null) return;
+        
+        var index = QuestionToDeleteIndex.Value;
+        if (index >= 0 && index < Model.Questions.Count)
+        {
+            var questionId = Model.Questions[index].QuestionId;
+            
+            try
+            {
+                var response = await Http.DeleteAsync($"/api/Question/Delete/{questionId}?userGuid={CurrentUserGuid}");
+                if (response.IsSuccessStatusCode)
+                {
+                    // Question will be removed via SignalR
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting question: {ex.Message}");
+            }
+        }
+        
+        // Close modal
+        QuestionToDeleteIndex = null;
+        IsModalVisible = false;
+    }
+
+    // SignalR Integration
+    private async Task InitializeSignalRAsync()
+    {
+        try
+        {
+            // Dispose existing connection if any
+            if (hubConnection != null)
+            {
+                AddCanvasDebugLog("SIGNALR", "🔄 Disposing existing SignalR connection");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Disposing existing SignalR connection");
+                await hubConnection.DisposeAsync();
+                hubConnection = null;
+            }
+
+            AddCanvasDebugLog("SIGNALR", "🔗 Creating SignalR hub connection to /hub/session");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Creating SignalR hub connection to /hub/session");
+            
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
+                .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) })
+                .Build();
+
+            // Connection state change events
+            hubConnection.Closed += async (error) =>
+            {
+                AddCanvasDebugLog("ERROR", $"❌ SignalR connection closed: {error?.Message ?? "No error"}");
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection closed: {Error}", error?.Message ?? "No error");
+                await InvokeAsync(StateHasChanged);
+            };
+
+            hubConnection.Reconnecting += async (error) =>
+            {
+                AddCanvasDebugLog("WARN", $"🔄 SignalR reconnecting: {error?.Message ?? "No error"}");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnecting: {Error}", error?.Message ?? "No error");
+                await InvokeAsync(StateHasChanged);
+            };
+
+            hubConnection.Reconnected += async (connectionId) =>
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR reconnected with ID: {ConnectionId}", connectionId ?? "unknown");
+                lastConnectionTime = DateTime.Now;
+                await InvokeAsync(StateHasChanged);
+                
+                // Re-join session after reconnection
+                if (Model?.SessionId > 0)
+                {
+                    await hubConnection.SendAsync("JoinSession", Model.SessionId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Re-joined session {SessionId} after reconnection", Model.SessionId);
+                }
+            };
+
+            // Question events
+            hubConnection.On<QuestionData>("QuestionAdded", async (question) =>
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Question added via SignalR: {QuestionText}", question?.Text ?? "null");
+                if (Model?.Questions != null && question != null)
+                {
+                    Model.Questions.Add(question);
+                    await InvokeAsync(StateHasChanged);
+                }
+            });
+
+            hubConnection.On<int, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
+            {
+                if (Model?.Questions != null)
+                {
+                    var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+                    if (question != null)
+                    {
+                        question.Votes = newVoteCount;
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            });
+
+            hubConnection.On<int>("QuestionDeleted", async (questionId) =>
+            {
+                if (Model?.Questions != null)
+                {
+                    var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+                    if (question != null)
+                    {
+                        Model.Questions.Remove(question);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            });
+
+            // Participant events
+            hubConnection.On<ParticipantApiData>("ParticipantJoined", async (apiParticipant) =>
+            {
+                if (Model?.Participants != null)
+                {
+                    var participant = new ParticipantData
+                    {
+                        UserId = apiParticipant.UserId,
+                        Name = apiParticipant.DisplayName,
+                        Country = apiParticipant.Country ?? "",
+                        Flag = apiParticipant.CountryFlag ?? ""
+                    };
+                    Model.Participants.Add(participant);
+                    await InvokeAsync(StateHasChanged);
+                }
+            });
+
+            hubConnection.On<string>("ParticipantLeft", async (userId) =>
+            {
+                if (Model?.Participants != null)
+                {
+                    var participant = Model.Participants.FirstOrDefault(p => p.UserId == userId);
+                    if (participant != null)
+                    {
+                        Model.Participants.Remove(participant);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            });
+
+            // Asset sharing events
+            hubConnection.On<object>("AssetShared", async (assetData) =>
+            {
+                try
+                {
+                    AddCanvasDebugLog("ASSET", "📦 AssetShared event received from SignalR");
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] AssetShared event received in SessionCanvas");
+                    AddCanvasDebugLog("DATA", $"📊 Asset data type: {assetData?.GetType()?.Name ?? "null"}");
+                    Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] Asset data type: {AssetType}", assetData?.GetType()?.Name ?? "null");
+                    
+                    // ENHANCED: Log raw received data structure for debugging
+                    try
+                    {
+                        var rawJson = System.Text.Json.JsonSerializer.Serialize(assetData);
+                        Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] Raw asset data: {RawData}", rawJson);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] Could not serialize received asset data: {Error}", ex.Message);
+                    }
+
+                    if (assetData != null && Model != null)
+                    {
+                        // Parse the asset data - it comes as an anonymous object from SignalR
+                        var assetJson = System.Text.Json.JsonSerializer.Serialize(assetData);
+                        Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] Parsing asset JSON: {AssetJson}", assetJson);
+
+                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(assetJson);
+                        var root = jsonDoc.RootElement;
+
+                        // COMPLIANCE FIX: Handle both direct asset data and wrapped asset data
+                        JsonElement assetRoot;
+                        bool hasAssetWrapper = false;
+                        
+                        if (root.TryGetProperty("asset", out var assetElement))
+                        {
+                            // Extract the actual asset data from wrapper
+                            var assetDataJson = System.Text.Json.JsonSerializer.Serialize(assetElement);
+                            using var assetDoc = System.Text.Json.JsonDocument.Parse(assetDataJson);
+                            assetRoot = assetDoc.RootElement;
+                            hasAssetWrapper = true;
+                            Logger.LogDebug("NOOR-CANVAS-SHARE: Processing wrapped asset data");
+                        }
+                        else
+                        {
+                            // Asset data might be at root level (from REST API)
+                            assetRoot = root;
+                            Logger.LogDebug("NOOR-CANVAS-SHARE: Processing direct asset data");
+                        }
+
+                        if (hasAssetWrapper || root.TryGetProperty("assetType", out _) || root.TryGetProperty("testContent", out _))
+                        {
+
+                            // COMPLIANCE FIX: Handle both test and production asset formats
+                            // Check for testContent property (from TestShareAsset method)
+                            if (assetRoot.TryGetProperty("testContent", out var contentElement))
+                            {
+                                var htmlContent = contentElement.GetString();
+                                AddCanvasDebugLog("SUCCESS", $"✅ Found testContent: {htmlContent?.Length ?? 0} characters");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [TEST FORMAT] Found testContent with {ContentLength} characters", 
+                                    htmlContent?.Length ?? 0);
+                                Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:CANVAS] [TEST FORMAT] HTML content preview: {ContentPreview}", 
+                                    htmlContent?.Substring(0, Math.Min(200, htmlContent?.Length ?? 0)) ?? "null");
+
+                                Model.SharedAssetContent = htmlContent;
+                                AddCanvasDebugLog("ASSET", "🎨 SharedAssetContent updated - triggering UI refresh");
+                                await InvokeAsync(StateHasChanged);
+
+                                AddCanvasDebugLog("SUCCESS", "✅ UI state refreshed - content should now be visible");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [TEST FORMAT] SharedAssetContent updated successfully - UI should refresh");
+                            }
+                            // Handle production asset format (from REST API ShareAsset)
+                            else if (assetRoot.TryGetProperty("selector", out var selectorElement) && 
+                                     assetRoot.TryGetProperty("assetType", out var typeElement))
+                            {
+                                var selector = selectorElement.GetString();
+                                var assetType = typeElement.GetString();
+                                
+                                // Create HTML content for production assets
+                                var productionHtml = $@"
+                                    <div style=""background: linear-gradient(135deg, #006400, #228B22); 
+                                                border: 2px solid #D4AF37; 
+                                                border-radius: 12px; 
+                                                padding: 20px; 
+                                                margin: 15px 0; 
+                                                color: white;
+                                                font-family: Inter, Arial, sans-serif;"">
+                                        <h3 style=""margin: 0 0 10px 0; color: #D4AF37;"">
+                                            📄 Shared Asset: {assetType}
+                                        </h3>
+                                        <p style=""margin: 5px 0; font-size: 0.9rem; opacity: 0.9;"">
+                                            <strong>Selector:</strong> {selector}<br/>
+                                            <strong>Shared:</strong> {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC
+                                        </p>
+                                        <div style=""background: rgba(255,255,255,0.1); 
+                                                    border-radius: 8px; 
+                                                    padding: 10px; 
+                                                    margin-top: 10px;"">
+                                            ✅ Production asset shared successfully via REST API
+                                        </div>
+                                    </div>";
+
+                                Logger.LogInformation("NOOR-CANVAS-SHARE: [PRODUCTION FORMAT] Setting SharedAssetContent for {AssetType} with selector {Selector}", 
+                                    assetType, selector);
+
+                                Model.SharedAssetContent = productionHtml;
+                                await InvokeAsync(StateHasChanged);
+
+                                Logger.LogInformation("NOOR-CANVAS-SHARE: [PRODUCTION FORMAT] SharedAssetContent updated successfully");
+                            }
+                            else
+                            {
+                                Logger.LogWarning("NOOR-CANVAS-SHARE: Neither testContent nor selector/assetType properties found in asset data");
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogWarning("NOOR-CANVAS-SHARE: No recognizable asset format found in received data");
+                            Logger.LogDebug("NOOR-CANVAS-SHARE: Raw JSON structure: {JsonStructure}", assetJson);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("NOOR-CANVAS-SHARE: AssetShared received null data or Model is null");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "NOOR-CANVAS-SHARE: Error processing AssetShared event");
+                }
+            });
+
+            // HTML content broadcasting events (using working SimpleSignalRTest pattern)
+            hubConnection.On<object>("HtmlContentReceived", async (broadcastData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] HtmlContentReceived event received");
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(broadcastData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    if (root.TryGetProperty("htmlContent", out var htmlElement))
+                    {
+                        var htmlContent = htmlElement.GetString();
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] Received HTML content: {Length} chars", htmlContent?.Length ?? 0);
+                        
+                        if (Model != null)
+                        {
+                            Model.SharedAssetContent = htmlContent;
+                            await InvokeAsync(StateHasChanged);
+                        }
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:broadcast] HTML content displayed in session canvas");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:broadcast] Error processing HtmlContentReceived event");
+                }
+            });
+
+            AddCanvasDebugLog("SIGNALR", "🚀 Starting SignalR connection...");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
+            await hubConnection.StartAsync();
+            AddCanvasDebugLog("SUCCESS", $"✅ SignalR connected: State={hubConnection.State}, ConnectionId={hubConnection.ConnectionId}");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection started successfully, State: {State}", hubConnection.State);
+            
+            if (Model?.SessionId > 0)
+            {
+                AddCanvasDebugLog("INFO", $"🔄 Attempting to join session group: session_{Model.SessionId}");
+                await hubConnection.SendAsync("JoinSession", Model.SessionId);
+                AddCanvasDebugLog("SUCCESS", $"✅ Joined SignalR group: session_{Model.SessionId}");
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Joined session {SessionId} via SignalR", Model.SessionId);
+                
+                // Test message to verify group membership
+                AddCanvasDebugLog("INFO", $"🧪 Testing group membership for session_{Model.SessionId}");
+            }
+            else
+            {
+                AddCanvasDebugLog("WARN", "⚠️ SessionId not available - cannot join SignalR group");
+                AddCanvasDebugLog("DEBUG", $"📊 Model state: SessionId={Model?.SessionId}, SessionName={Model?.SessionName}");
+            }
+            
+            // Trigger UI update to show connected status
+            lastConnectionTime = DateTime.Now;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Error initializing SignalR connection: {Error}", ex.Message);
+            // Trigger UI update to show disconnected status with retry button
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private DateTime? lastConnectionTime;
+
+    private string GetSignalRStatusIconStyle()
+    {
+        var status = GetSignalRStatusText();
+        return status switch
+        {
+            "Connected" => "color:#10B981;",
+            "Connecting" => "color:#F59E0B;animation:spin 1s linear infinite;",
+            "Reconnecting" => "color:#F59E0B;animation:spin 1s linear infinite;",
+            _ => "color:#EF4444;"
+        };
+    }
+
+    /// <summary>
+    /// Safely process HTML content to prevent Blazor parsing errors
+    /// </summary>
+    private string GetSafeHtmlContent(string? htmlContent)
+    {
+        if (string.IsNullOrEmpty(htmlContent))
+            return string.Empty;
+
+        try
+        {
+            // Basic validation to prevent common parsing issues
+            var safeHtml = htmlContent.Trim();
+            
+            // Log the content being processed for debugging
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HTML] Processing HTML content: {Length} chars", safeHtml.Length);
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HTML] Content preview: {Preview}", 
+                safeHtml.Substring(0, Math.Min(100, safeHtml.Length)));
+
+            // Basic safety checks
+            if (safeHtml.Contains("<script", StringComparison.OrdinalIgnoreCase) ||
+                safeHtml.Contains("javascript:", StringComparison.OrdinalIgnoreCase) ||
+                safeHtml.Contains("on\"", StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HTML] Potentially unsafe HTML content detected, sanitizing");
+                return CreateSafeErrorMessage("Content contains potentially unsafe elements");
+            }
+
+            // Check for unmatched quotes that might cause parsing issues
+            var singleQuoteCount = safeHtml.Count(c => c == '\'');
+            var doubleQuoteCount = safeHtml.Count(c => c == '"');
+            
+            if (singleQuoteCount % 2 != 0 || doubleQuoteCount % 2 != 0)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HTML] Unmatched quotes detected in HTML content");
+                return CreateSafeErrorMessage("HTML content has formatting issues (unmatched quotes)");
+            }
+
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HTML] HTML content validated successfully");
+            return safeHtml;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:HTML] Error processing HTML content");
+            return CreateSafeErrorMessage($"Error processing HTML content: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Create a safe error message in HTML format
+    /// </summary>
+    private string CreateSafeErrorMessage(string message)
+    {
+        var timestamp = DateTime.Now.ToString("HH:mm:ss");
+        return $@"<div style=""background:#FEF2F2;color:#DC2626;padding:15px;border-radius:8px;border:1px solid #FCA5A5;text-align:center;"">
+<h4 style=""margin:0 0 8px 0;"">⚠️ Content Error</h4>
+<p style=""margin:0;font-size:14px;"">{System.Web.HttpUtility.HtmlEncode(message)}</p>
+<p style=""margin:8px 0 0 0;font-size:12px;opacity:0.8;"">Time: {timestamp}</p>
+</div>";
     }
 }

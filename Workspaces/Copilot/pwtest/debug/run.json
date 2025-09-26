@@ -1,0 +1,14 @@
+{
+    "key": "debug",
+    "mode": "test",
+    "ui_mode": "headless",
+    "notes": "Create a headless test to test the entire workflow of host logging in with valid token in the HostControlPanel.razor. Create multiple instances with valid user token and register with test data getting them to SessionWaiting.razor. Then start the session and confirm the users are routed to SessionCanvas.razor. Then test the asset share button functionality and confirm all user sessions receive it. Then Post a different question from each canvas for each user session and confrim that it reaches the host control panel",
+    "timestamp": "2025-09-25T00:00:00Z",
+    "plan_hash": "debug-v1-end-to-end-workflow-tests",
+    "current_step": 1,
+    "watchdog": {
+        "idle_seconds_threshold": 120,
+        "graceful_stop_timeout_seconds": 10,
+        "max_retries": 1
+    }
+}

@@ -1,0 +1,71 @@
+{
+    "generated_at": "2025-09-25T00:00:00Z",
+    "test_specs": [
+        {
+            "name": "end-to-end-workflow.spec.ts",
+            "path": "Tests/Playwright/debug/end-to-end-workflow.spec.ts",
+            "coverage": "Complete user workflow from host login through Q&A",
+            "contexts": 6,
+            "test_users": 5
+        },
+        {
+            "name": "host-control-panel-focused.spec.ts",
+            "path": "Tests/Playwright/debug/host-control-panel-focused.spec.ts",
+            "coverage": "HostControlPanel.razor component validation",
+            "contexts": 1,
+            "test_focus": "Host authentication, controls, error handling"
+        },
+        {
+            "name": "signalr-contract-validation.spec.ts",
+            "path": "Tests/Playwright/debug/signalr-contract-validation.spec.ts",
+            "coverage": "SignalR contract compliance and API validation",
+            "contexts": 2,
+            "contracts_tested": [
+                "AssetShared",
+                "NewQuestion",
+                "SessionStarted"
+            ]
+        }
+    ],
+    "documentation": {
+        "path": ".github/Test-debug.MD",
+        "sections": [
+            "Overview",
+            "Architecture",
+            "Test Data",
+            "Execution",
+            "Contracts",
+            "Performance"
+        ]
+    },
+    "infrastructure_requirements": [
+        "NOOR Canvas app on ports 9090/9091",
+        "Database with session 215 configured",
+        "SignalR hubs operational",
+        "Playwright installed"
+    ],
+    "validation_coverage": {
+        "ui_components": [
+            "HostControlPanel",
+            "SessionWaiting",
+            "SessionCanvas",
+            "UserLanding"
+        ],
+        "signalr_hubs": [
+            "SessionHub",
+            "QAHub",
+            "AnnotationHub"
+        ],
+        "api_endpoints": [
+            "/api/participant/validate-session",
+            "/api/participant/participants",
+            "/api/qa/submit-question"
+        ],
+        "workflows": [
+            "registration",
+            "session_start",
+            "asset_sharing",
+            "qa_submission"
+        ]
+    }
+}

@@ -1,217 +1,50 @@
----
 applyTo: "**"
-description: Self-learning, context-first workspace rules for Copilot Chat. Tailored for Noor Canvas app. Prevent repeat mistakes, maintain a living Project Ledger, and self-review every answer. Keep lean; reference linked docs for details.
+description: Self-learning, context-first workspace rules for Copilot Chat. Tailored for Noor Canvas.
 ---
 
 # SelfAwareness — Global Operating Guardrails
 
-> North Star: Prevent repeat mistakes, preserve working behavior, and make future runs faster and smarter.
+## Scope
+Governs `/workitem`, `/retrosync`, `/cleanup`, `/pwtest`, `/imgreq`, `/continue`.
 
----
+## Mandatory Inputs
+- Per-key state under `NOOR CANVAS\Workspaces\Copilot\{key}\`.
+- Requirements-{key}.MD.
+- Cleanup-<key>.MD.
+- Design & trackers (.MD).
+- This file.
+- Always consult **#terminalLastCommand** and **#getTerminalOutput** during detection/analysis to ground decisions in actual runtime logs.
 
-## 0) Scope & Authority
-These instructions govern all Noor Canvas agents:
-- `/workitem`, `/retrosync` (formerly `/sync`), `/cleanup`, `/pwtest`, `/imgreq`, `/continue`
-- Any future agents
+## Execution
+- **Never** run via `dotnet run` or `cd …; dotnet run`.
+- Use only:
+    • `.\Workspaces\Global
+c.ps1`  # launch only
+    • `.\Workspaces\Global
+cb.ps1` # clean, build, and launch
+- Ports 9090/9091 assumed; secrets as placeholders only.
+- Canonical debug tag: `[DEBUG-WORKITEM:{key}:{layer}]`.
 
-Where conflicts arise, **SelfAwareness prevails** unless the user explicitly overrides.
+## Testing
+- Prefer headless Playwright; capture artifacts on failure.
+- Map tests to numbered requirements when present.
 
----
+## Context Indexing
+- Maintain per-key index at `...\index\` (context.idx.json, pack.jsonl, delta, sources).
 
-## 1) Global Watchdog Requirement
-All agents MUST have a watchdog for long-running tasks.
+## Contract Compliance Workflow (All agents)
+1) Detect consumer usage vs producer DTOs.
+2) Contract reconciliation gate (missing/extra/type/nullable/version drift).
+3) Checkpoint.
+4) Incremental apply phases 0→3.
+5) Golden fixtures + Playwright specs.
 
-Defaults:
-- `idle_seconds_threshold`: 120
-- `graceful_stop_timeout_seconds`: 10
-- `max_retries`: 1
+## Watchdog (All agents)
+watchdog:
+  idle_seconds_threshold: 120
+  graceful_stop_timeout_seconds: 10
+  max_retries: 1
 
-Behavior:
-- If idle > threshold:
-  - Capture last 2000 bytes of stdout/stderr and process snapshot.
-  - Attempt graceful stop; if still stuck, force kill after timeout.
-- Record a `watchdog_event` in:
-  - `progress.log.jsonl`
-  - `artifacts.json`
-- Retry once (idempotent).  
-- If still hung → fail with status `watchdog_hang` and pointers to artifacts.
 
----
-
-## 2) Mandatory Inputs to Consult (every run)
-1. **Per-Key State**  
-   Path: `NOOR CANVAS\Workspaces\Copilot\{key}\`  
-   Files: `run.json`, `plan.json`, `progress.log.jsonl`, `checkpoint.json`, `artifacts.json`  
-   Must resume from `checkpoint` if present. Keep state files up to date on exit.  
-
-2. **Requirements-{key}.MD** (from `/imgreq`)  
-   Authoritative functional requirements.  
-
-3. **Operational Lessons**  
-   `Cleanup-<key>.MD` (or `Cleanup-Global.MD`)  
-
-4. **Design & Trackers**  
-   `Workspaces/Documentation/IMPLEMENTATIONS/NOOR-CANVAS-DESIGN.MD`  
-   `Workspaces/Documentation/IMPLEMENTATIONS/ncImplementationTracker.MD`  
-   `IssueTracker/ncIssueTracker.MD`  
-
-5. **Policy & Schema Guardrails**  
-   `.github/instructions/SelfAwareness.instructions.md` (this file)  
-   DB/schema constraints (KSESSIONS_DEV read-only unless explicitly allowed)  
-
-6. **Technical Docs in `.github`**  
-   Any `D:\PROJECTS\NOOR CANVAS\.github\*.MD`
-
----
-
-## 3) State & Resumability
-- Always **check per-key state first**.  
-- Resume from `checkpoint.json`.  
-- After each step: update logs, checkpoint, artifacts.  
-- If plan changes, version as `plan-v{n}.json`.  
-
----
-
-## 4) Execution Rules
-- Start app with:  
-  `.\Workspaces\Global\nc.ps1` → launch only  
-- Build + run with:  
-  `.\Workspaces\Global\ncb.ps1` → clean/build/launch (then `.\Workspaces\Global\nc.ps1` if needed)  
-- Debug logs: `[DEBUG-WORKITEM:{key}:{layer}]`.  
-- Ports 9090/9091, auth/token handling must be correct.  
-- Schema drift only when explicitly allowed.
-
----
-
-## 5) Git History First-Aid
-Check regressions vs new code; restore last-known-good or fix forward. Document rationale.  
-
----
-
-## 6) Requirements Discipline
-If `Requirements-{key}.MD` exists, it is **authoritative**. Map changes and tests to its numbered requirements.  
-
----
-
-## 7) Testing & Verification
-Use headless Playwright tests (`/pwtest`). Capture artifacts for failures. Cover UI/API/DB + requirements mapping.  
-
----
-
-## 8) Documentation & Alignment
-Update `.MD` docs under `.github` for all major changes. `/retrosync` harmonizes docs, trackers, requirements.  
-
----
-
-## 9) Cleanup & Learning Loop
-`/cleanup` mines lessons, updates instructions, produces cleanup docs, and aligns them.  
-
----
-
-## 10) Approval & Final Summary
-All agents must show an approval gate and summarize:  
-- What was asked, implemented, rationale, test plan, files touched, and resume info.  
-
----
-
-## 11) Safety & Non-Negotiables
-- No destructive DB changes on protected datasets unless user directs.  
-- No secret leaks. Use placeholders.  
-- Structured diffs only.  
-- Respect user constraints.  
-
----
-
-## 12) Ledger
-Agents must append ledger entries: timestamp, agent, key, actions, rationale, state/artifacts links.  
-
----
-
-## 13) Quick Checklist
-- [ ] Loaded per-key state (`NOOR CANVAS\Workspaces\Copilot\{key}\`)  
-- [ ] Consulted Requirements-{key}.MD  
-- [ ] Reviewed Cleanup docs  
-- [ ] Confirmed nc.ps1/ncb.ps1 instructions + watchdog  
-- [ ] Planned with test plan contract  
-- [ ] Will keep state current and write final summary
-
----
-
-## 14) Context Indexing (per-key)
-
-**Goal:** Build and maintain a compact, machine-oriented index of all relevant context for a given {key} to reduce token usage, prevent drift, and speed up multi-agent handoffs.
-
-- **Path (durable):** `NOOR CANVAS\Workspaces\Copilot\{key}\index\`  
-- **Files:**
-  - `context.idx.json`         # manifest + doc fingerprints + salience + xrefs
-  - `context.pack.jsonl`       # lossy, compact chunk summaries (one JSON per line), sorted by salience
-  - `context.delta.json`       # diff since last run (added/removed/changed refs)
-  - `context.sources.json`     # absolute/relative source paths + timestamps/hashes
-
-**Build Rules:**
-- Prefer **delta-indexing**:
-  1) Collect candidates: Requirements-{key}.MD, `.github/Workitem-{key}.MD`, `.github/Test-{key}.MD`, `Cleanup-<key>.MD`, retrosync outputs, recent diffs, and any files touched in the last N commits relevant to {key}.
-  2) Chunk semantically (~800–1200 chars), normalize whitespace, strip boilerplate.
-  3) Hash each chunk; reuse summaries if hash unchanged.
-  4) Summarize per chunk (machine-first; minimal prose):
-     - `who/what/where/when` (entities, file paths, timestamps)
-     - `claims` (facts/assertions)
-     - `contracts` (interfaces, routes, selectors, SQL, test names)
-     - `open_questions`
-  5) Update `context.idx.json` (manifest + salience + xrefs), `context.pack.jsonl` (summaries), `context.delta.json` (diff).
-
-**Rebuild When:**
-- Index missing/corrupted, schema/prompt scaffolding changed, or major Requirements-{key}.MD bump.
-
-**Salience Scoring (0–1):**
-- +0.3 direct {key} mention; +0.2 `.github/*{key}*.MD`; +0.2 edited <48h; +0.2 referenced by high-salience chunk; −0.2 archived/legacy.
-
-**Agent Contract:**
-- **All agents MUST:**
-  - Load `context.idx.json` (if present) before planning.
-  - Prefer `context.pack.jsonl` chunks for planning tokens over raw files.
-  - Write `context.delta.json` after runs.
-  - Append new docs to `context.sources.json`.
-
-**Guardrails:**
-- Index is not the source of truth—**Requirements-{key}.MD** wins on conflict.
-- Keep index ≤ 500 KB; evict least-salient chunks if needed.
-
-## Contract Compliance & Cross-Layer Alignment (mandatory)
-
-Purpose: eliminate “works on one side, breaks on the other” bugs by enforcing a shared, versioned contract across UI ↔ API ↔ realtime (SignalR) ↔ DB, with a checkpoint before any refactor.
-
-### Canonical Contract
-- Define DTOs under `Shared/Contracts/*` (or equivalent) used by **both** producer(s) and consumer(s).
-- Version every DTO with `SchemaVersion` (semver) and keep a light **Contract Registry**:
-  - File: `.github/Contracts-Registry.MD` (table of DTO → version → owners → consumers → invariants).
-
-### Required Workflow (all agents)
-1) **Detect & Index**
-   - On run start, load per-key Context Index and scan code for **consumer usage** (fields read/rendered) and **producer payloads** (fields sent/serialized).
-2) **Contract Reconciliation (Gate)**
-   - Derive a checklist: **missing**, **extra**, **nullable-but-used**, **type mismatches**, **version drift**.
-   - If any **required consumer field** is not producible from the DTO, **STOP** and output the checklist + proposed DTO patch.
-3) **State Checkpoint**
-   - Write `checkpoint.json` with `step_id:"contract_reconciliation"`, include the full checklist and selected fix plan.
-4) **Incremental Apply**
-   - Phase 0: add/patch DTO in `Shared/Contracts` (no behavior change).
-   - Phase 1: update producer(s) to populate required fields (e.g., `TestContent`), add runtime validation.
-   - Phase 2: update consumer(s) to read new/renamed fields; keep shims/feature flags if needed.
-   - Phase 3: remove shims/flags, delete obsolete fields.
-5) **Contract Tests (must)**
-   - Add golden fixtures in `Tests/Fixtures/<DTO>/`.
-   - Add Playwright/specs asserting DOM/API/Hub behaviors linked to numbered requirements.
-6) **Observability**
-   - Emit single-line logs on send/receive with `[DEBUG-WORKITEM:{key}:{layer}]` + `SchemaVersion`.
-   - Increment a counter for “rejected/invalid messages” with reason; surface in retro.
-
-### HostCanvas Example (pattern)
-- Consumer expects `testContent` (HTML) in asset payload.
-- Producer must populate `TestContent` (server-side DTO) and pass schema validation.
-- Acceptance: UI renders sanitized HTML; failing to include `testContent` fails tests and blocks apply.
-
-### Guardrails
-- **Requirements-{key}.MD** beats index/summaries on conflict.
-- Refactors must pass contract tests before removing shims.
-- Any change that drops or renames a **consumer-read field** requires a **minor or major** `SchemaVersion` bump and an entry in Contracts-Registry.
+## Approval & Summary
+Every run presents an approval gate and emits a final summary (what, why, files, tests, resume info).

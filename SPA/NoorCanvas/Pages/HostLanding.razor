@@ -478,26 +478,46 @@
 }
 
 <script>
-    async function copyUserLink() {
-        try {
-            const userLinkElement = document.getElementById('userLinkInput');
-            if (userLinkElement) {
-                await navigator.clipboard.writeText(userLinkElement.value);
-                
-                // Show success feedback
-                const button = event.target;
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                button.style.backgroundColor = '#059669';
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = '#3B82F6';
-                }, 2000);
+    // Copy User Landing Link Function
+    window.copyUserLink = function() {
+        const input = document.getElementById('userLinkInput');
+        if (input) {
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+
+            // Try using modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    console.log('NOOR-HOST-LANDING: User link copied to clipboard');
+                    showCopyFeedback();
+                }).catch(err => {
+                    console.error('NOOR-HOST-LANDING: Failed to copy with clipboard API:', err);
+                    // Fallback to execCommand
+                    document.execCommand('copy');
+                    showCopyFeedback();
+                });
+            } else {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                showCopyFeedback();
             }
-        } catch (err) {
-            console.error('Failed to copy user link:', err);
-            alert('Failed to copy link. Please copy manually.');
+        }
+    };
+
+    function showCopyFeedback() {
+        // Get the copy button by finding it in the DOM
+        const copyButton = document.querySelector('button[onclick="copyUserLink()"]');
+        if (copyButton) {
+            const originalText = copyButton.innerHTML;
+            const originalBgColor = copyButton.style.backgroundColor;
+            
+            copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            copyButton.style.backgroundColor = '#059669';
+            
+            setTimeout(() => {
+                copyButton.innerHTML = originalText;
+                copyButton.style.backgroundColor = originalBgColor;
+            }, 2000);
         }
     }
 </script>

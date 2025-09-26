@@ -85,6 +85,14 @@ builder.Services.AddSignalR(options =>
     options.HandshakeTimeout = TimeSpan.FromSeconds(15);
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB max message size
+    
+    // Enhanced logging for hostcanvas debugging
+    if (builder.Environment.IsDevelopment())
+    {
+        Log.Information("NOOR-SIGNALR-CONFIG: SignalR configured with detailed errors, timeouts: handshake={HandshakeTimeout}s, keepalive={KeepAliveInterval}s, client={ClientTimeoutInterval}s",
+            options.HandshakeTimeout?.TotalSeconds ?? 0, options.KeepAliveInterval?.TotalSeconds ?? 0, options.ClientTimeoutInterval?.TotalSeconds ?? 0);
+    }
 })
 .AddJsonProtocol(); // Force JSON protocol only
 
@@ -201,10 +209,13 @@ app.MapGet("/testing/{**catchall}", async (HttpContext context) =>
 app.MapControllers();
 app.MapFallbackToPage("/_Host");
 
-// Map SignalR Hubs
-app.MapHub<SessionHub>("/hub/session");
-app.MapHub<QAHub>("/hub/qa");
-app.MapHub<AnnotationHub>("/hub/annotation");
+// Map SignalR Hubs with enhanced logging
+app.MapHub<SessionHub>("/hub/session");        // PRIMARY: Production sessions, HTML broadcasting
+app.MapHub<QAHub>("/hub/qa");                  // Q&A functionality
+app.MapHub<AnnotationHub>("/hub/annotation");  // Annotation features
+app.MapHub<TestHub>("/hub/test");              // TESTING: Development/debugging only
+
+Log.Information("NOOR-SIGNALR: SignalR hubs mapped - SessionHub (/hub/session), QAHub (/hub/qa), AnnotationHub (/hub/annotation), TestHub (/hub/test)");
 
 // Health endpoint (also available at /healthz via controller)
 app.MapGet("/healthz", () => new

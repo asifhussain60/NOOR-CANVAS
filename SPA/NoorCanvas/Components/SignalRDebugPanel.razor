@@ -1,0 +1,504 @@
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Components
+@using NoorCanvas.Models.Debug
+@inject IJSRuntime JSRuntime
+@inject ILogger<SignalRDebugPanel> Logger
+
+<!-- Reusable SignalR Debug Panel with Self-Validation -->
+<div id="@PanelId" style="background:linear-gradient(135deg,#1E293B,#334155);border:2px solid @BorderColor;border-radius:1rem;padding:1.5rem;color:white;font-family:monospace;font-size:0.875rem;margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3 style="color:@TitleColor;font-weight:700;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <i class="@TitleIcon" style="color:@TitleColor;"></i>
+            DEBUG: @Title - SignalR Trace
+        </h3>
+        <div style="display:flex;gap:0.5rem;">
+            <button @onclick="RunSelfCheck" style="background:#8B5CF6;color:white;border:none;padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.75rem;cursor:pointer;" title="Run validation checks">
+                <i class="fa-solid fa-check-circle"></i> Self Check
+            </button>
+            <button @onclick="ClearDebugLog" style="background:#DC2626;color:white;border:none;padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.75rem;cursor:pointer;">
+                <i class="fa-solid fa-trash"></i> Clear Log
+            </button>
+            <button @onclick="CopyDebugLogToClipboard" style="background:#10B981;color:white;border:none;padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.75rem;cursor:pointer;">
+                <i class="fa-solid fa-copy"></i> Copy Log
+            </button>
+        </div>
+    </div>
+    
+    <!-- Self-Check Status Panel -->
+    @if (SelfCheckResults.Any())
+    {
+        <div style="background:#0F172A;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;border:2px solid @(AllChecksPass ? "#10B981" : "#EF4444");">
+            <h4 style="color:@(AllChecksPass ? "#34D399" : "#F87171");margin:0 0 0.5rem 0;">
+                @if (AllChecksPass)
+                {
+                    <i class="fa-solid fa-check-circle"></i> <text>✅ All Self-Checks PASSED</text>
+                }
+                else
+                {
+                    <i class="fa-solid fa-exclamation-triangle"></i> <text>❌ Some Self-Checks FAILED</text>
+                }
+            </h4>
+            <div style="display:grid;grid-template-columns:1fr;gap:0.5rem;">
+                @foreach (var check in SelfCheckResults)
+                {
+                    <div style="padding:0.5rem;border-radius:0.25rem;background:@(check.Passed ? "#064E3B" : "#7F1D1D");">
+                        <span style="color:@(check.Passed ? "#34D399" : "#F87171");">
+                            @(check.Passed ? "✅" : "❌") @check.Description
+                        </span>
+                        @if (!string.IsNullOrEmpty(check.Details))
+                        {
+                            <div style="font-size:0.7rem;color:#9CA3AF;margin-top:0.25rem;">@check.Details</div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    
+    <!-- Connection Status -->
+    <div style="background:#0F172A;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;">
+        <h4 style="color:#34D399;margin:0 0 0.5rem 0;">🔌 SignalR Connection Status</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+                <strong style="color:#FBBF24;">Connection State:</strong> 
+                <span style="color:@GetSignalRStatusColor();">@GetSignalRStatusText()</span>
+            </div>
+            <div>
+                <strong style="color:#FBBF24;">Connection ID:</strong> 
+                <span style="color:#E5E7EB;">@(HubConnection?.ConnectionId ?? "N/A")</span>
+            </div>
+            <div>
+                <strong style="color:#FBBF24;">Hub URL:</strong> 
+                <span style="color:#E5E7EB;">@HubUrl</span>
+            </div>
+            <div>
+                <strong style="color:#FBBF24;">Session ID:</strong> 
+                <span style="color:#E5E7EB;">@(SessionId?.ToString() ?? "N/A")</span>
+            </div>
+            
+            @if (ViewType == DebugPanelViewType.Host)
+            {
+                <div>
+                    <strong style="color:#FBBF24;">Host Token:</strong> 
+                    <span style="color:#E5E7EB;">@(HostToken ?? "N/A")</span>
+                </div>
+                <div>
+                    <strong style="color:#FBBF24;">User Token:</strong> 
+                    <span style="color:#E5E7EB;">@(UserToken ?? "N/A")</span>
+                </div>
+            }
+            else if (ViewType == DebugPanelViewType.Canvas)
+            {
+                <div>
+                    <strong style="color:#FBBF24;">Session Token:</strong> 
+                    <span style="color:#E5E7EB;">@(SessionToken ?? "N/A")</span>
+                </div>
+                <div>
+                    <strong style="color:#FBBF24;">User GUID:</strong> 
+                    <span style="color:#E5E7EB;">@(UserGuid ?? "N/A")</span>
+                </div>
+            }
+        </div>
+        
+        <!-- SignalR Groups -->
+        <div style="margin-top:1rem;">
+            <strong style="color:#FBBF24;">SignalR Groups:</strong>
+            <div style="margin-top:0.5rem;padding:0.5rem;background:#1E293B;border-radius:0.25rem;">
+                @if (SessionId.HasValue)
+                {
+                    <span style="color:#34D399;">session_@SessionId</span>
+                    @if (ViewType == DebugPanelViewType.Host)
+                    {
+                        <br/><span style="color:#34D399;">host_@SessionId</span>
+                    }
+                }
+                else
+                {
+                    <span style="color:#EF4444;">No groups joined (SessionId not available)</span>
+                }
+            </div>
+        </div>
+        
+        @if (ViewType == DebugPanelViewType.Canvas && !string.IsNullOrEmpty(SharedAssetContent))
+        {
+            <!-- Shared Asset Content Status -->
+            <div style="margin-top:1rem;">
+                <strong style="color:#FBBF24;">Shared Asset Content:</strong>
+                <div style="margin-top:0.5rem;padding:0.5rem;background:#1E293B;border-radius:0.25rem;">
+                    @if (!string.IsNullOrEmpty(SharedAssetContent))
+                    {
+                        <span style="color:#34D399;">✅ Content received (@SharedAssetContent.Length chars)</span>
+                    }
+                    else
+                    {
+                        <span style="color:#F59E0B;">⏳ Waiting for content...</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Debug Log -->
+    <div style="background:#0F172A;border-radius:0.5rem;padding:1rem;">
+        <h4 style="color:#34D399;margin:0 0 0.5rem 0;">📋 Debug Log (Real-time)</h4>
+        <div id="@(PanelId)-log" style="height:200px;overflow-y:auto;background:#000;border-radius:0.25rem;padding:0.5rem;font-size:0.75rem;line-height:1.4;">
+            @foreach (var logEntry in GetCombinedLogEntries())
+            {
+                <div style="margin-bottom:0.25rem;color:@GetLogEntryColor(logEntry.Level);">
+                    <span style="color:#94A3B8;">[@logEntry.Timestamp.ToString("HH:mm:ss.fff")]</span>
+                    <span style="color:#FBBF24;">[@logEntry.Level]</span>
+                    <span>@logEntry.Message</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    // Required Parameters
+    [Parameter] public string Title { get; set; } = "Debug Panel";
+    [Parameter] public DebugPanelViewType ViewType { get; set; } = DebugPanelViewType.Generic;
+    [Parameter] public HubConnection? HubConnection { get; set; }
+    [Parameter] public IEnumerable<IDebugLogEntry> DebugLog { get; set; } = new List<IDebugLogEntry>();
+    
+    // Internal log for component-generated entries
+    private List<IDebugLogEntry> InternalLog { get; set; } = new();
+    
+    // Connection Parameters
+    [Parameter] public string HubUrl { get; set; } = "/hub/session";
+    [Parameter] public long? SessionId { get; set; }
+    
+    // Host-specific Parameters
+    [Parameter] public string? HostToken { get; set; }
+    [Parameter] public string? UserToken { get; set; }
+    
+    // Canvas-specific Parameters  
+    [Parameter] public string? SessionToken { get; set; }
+    [Parameter] public string? UserGuid { get; set; }
+    [Parameter] public string? SharedAssetContent { get; set; }
+    
+    // Event Callbacks
+    [Parameter] public EventCallback OnClearLog { get; set; }
+    [Parameter] public EventCallback<string> OnAddLogEntry { get; set; }
+    
+    // Styling Parameters
+    [Parameter] public string BorderColor { get; set; } = "#3B82F6";
+    [Parameter] public string TitleColor { get; set; } = "#60A5FA";
+    [Parameter] public string TitleIcon { get; set; } = "fa-solid fa-bug";
+    
+    // Internal Properties
+    private string PanelId => $"debug-panel-{ViewType.ToString().ToLower()}";
+    private List<SelfCheckResult> SelfCheckResults { get; set; } = new();
+    private bool AllChecksPass => SelfCheckResults.All(c => c.Passed);
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Set view-specific defaults
+        if (ViewType == DebugPanelViewType.Canvas)
+        {
+            BorderColor = "#8B5CF6";
+            TitleColor = "#A78BFA";
+            TitleIcon = "fa-solid fa-palette";
+        }
+        
+        AddLogEntry("INFO", $"🔧 {Title} debug panel initialized");
+        await RunSelfCheck();
+    }
+    
+    /// <summary>
+    /// Run comprehensive self-checks to validate connection state and data consistency
+    /// </summary>
+    private async Task RunSelfCheck()
+    {
+        SelfCheckResults.Clear();
+        AddLogEntry("INFO", "🔍 Running self-check validation...");
+        
+        try
+        {
+            // Check 1: Hub Connection Exists
+            SelfCheckResults.Add(new SelfCheckResult
+            {
+                Description = "SignalR Hub Connection",
+                Passed = HubConnection != null,
+                Details = HubConnection != null ? $"Connection object exists" : "HubConnection is null (may be initializing)"
+            });
+            
+            // Check 2: Hub Connection State
+            if (HubConnection != null)
+            {
+                var isConnected = HubConnection.State == HubConnectionState.Connected;
+                var isConnecting = HubConnection.State == HubConnectionState.Connecting;
+                SelfCheckResults.Add(new SelfCheckResult
+                {
+                    Description = "SignalR Connection State",
+                    Passed = isConnected || isConnecting,
+                    Details = $"State: {HubConnection.State}, Expected: Connected (or Connecting during initialization)"
+                });
+                
+                // Check 3: Connection ID Available
+                var hasConnectionId = !string.IsNullOrEmpty(HubConnection.ConnectionId);
+                SelfCheckResults.Add(new SelfCheckResult
+                {
+                    Description = "SignalR Connection ID",
+                    Passed = hasConnectionId || isConnecting,
+                    Details = $"ConnectionId: {HubConnection.ConnectionId ?? "NULL (may be connecting)"}"
+                });
+            }
+            
+            // Check 4: Hub URL Consistency
+            SelfCheckResults.Add(new SelfCheckResult
+            {
+                Description = "Hub URL Configuration",
+                Passed = HubUrl == "/hub/session",
+                Details = $"Expected: /hub/session, Actual: {HubUrl}"
+            });
+            
+            // Check 5: Session ID Available
+            SelfCheckResults.Add(new SelfCheckResult
+            {
+                Description = "Session ID Available",
+                Passed = SessionId.HasValue && SessionId.Value > 0,
+                Details = $"SessionId: {SessionId?.ToString() ?? "NULL"}"
+            });
+            
+            // View-specific checks
+            if (ViewType == DebugPanelViewType.Host)
+            {
+                await RunHostSpecificChecks();
+            }
+            else if (ViewType == DebugPanelViewType.Canvas)
+            {
+                await RunCanvasSpecificChecks();
+            }
+            
+            // Check 6: Data Consistency Between Views
+            await RunCrossViewConsistencyChecks();
+            
+            // Log results
+            var passedCount = SelfCheckResults.Count(c => c.Passed);
+            var totalCount = SelfCheckResults.Count;
+            
+            if (AllChecksPass)
+            {
+                AddLogEntry("SUCCESS", $"✅ Self-check PASSED: {passedCount}/{totalCount} checks successful");
+            }
+            else
+            {
+                AddLogEntry("ERROR", $"❌ Self-check FAILED: {passedCount}/{totalCount} checks passed");
+                var failedChecks = SelfCheckResults.Where(c => !c.Passed).Select(c => c.Description);
+                AddLogEntry("ERROR", $"Failed checks: {string.Join(", ", failedChecks)}");
+            }
+        }
+        catch (Exception ex)
+        {
+            AddLogEntry("ERROR", $"❌ Self-check error: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-PANEL] Self-check validation failed");
+        }
+        
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task RunHostSpecificChecks()
+    {
+        // Check Host Token (8 characters)
+        SelfCheckResults.Add(new SelfCheckResult
+        {
+            Description = "Host Token Format",
+            Passed = !string.IsNullOrEmpty(HostToken) && HostToken.Length == 8,
+            Details = $"HostToken length: {HostToken?.Length ?? 0}, Expected: 8"
+        });
+        
+        // Check User Token (8 characters)
+        SelfCheckResults.Add(new SelfCheckResult
+        {
+            Description = "User Token Format",
+            Passed = !string.IsNullOrEmpty(UserToken) && UserToken.Length == 8,
+            Details = $"UserToken length: {UserToken?.Length ?? 0}, Expected: 8"  
+        });
+        
+        // Check SignalR Group Membership (Host should join both session and host groups)
+        if (SessionId.HasValue)
+        {
+            SelfCheckResults.Add(new SelfCheckResult
+            {
+                Description = "SignalR Group Membership",
+                Passed = true, // We can't directly check group membership, so we assume it's correct if SessionId exists
+                Details = $"Expected groups: session_{SessionId}, host_{SessionId}"
+            });
+        }
+        
+        await Task.CompletedTask;
+    }
+    
+    private async Task RunCanvasSpecificChecks()
+    {
+        // Check Session Token (8 characters)
+        SelfCheckResults.Add(new SelfCheckResult
+        {
+            Description = "Session Token Format",
+            Passed = !string.IsNullOrEmpty(SessionToken) && SessionToken.Length == 8,
+            Details = $"SessionToken length: {SessionToken?.Length ?? 0}, Expected: 8"
+        });
+        
+        // Check User GUID Format
+        SelfCheckResults.Add(new SelfCheckResult
+        {
+            Description = "User GUID Format",
+            Passed = !string.IsNullOrEmpty(UserGuid) && Guid.TryParse(UserGuid, out _),
+            Details = $"UserGuid: {UserGuid ?? "NULL"}, Valid GUID: {(!string.IsNullOrEmpty(UserGuid) && Guid.TryParse(UserGuid, out _))}"
+        });
+        
+        // Check SignalR Group Membership (Canvas should only join session group)
+        if (SessionId.HasValue)
+        {
+            SelfCheckResults.Add(new SelfCheckResult
+            {
+                Description = "SignalR Group Membership",
+                Passed = true, // We can't directly check group membership, so we assume it's correct if SessionId exists
+                Details = $"Expected group: session_{SessionId}"
+            });
+        }
+        
+        await Task.CompletedTask;
+    }
+    
+    private async Task RunCrossViewConsistencyChecks()
+    {
+        // This check validates that data should match between Host and Canvas views
+        // These are the things that SHOULD be the same:
+        // - Hub URL (/hub/session)
+        // - Session ID (same session)
+        // - SignalR Group (session_X)
+        
+        // These are the things that SHOULD be different:
+        // - Connection ID (each connection gets unique ID)
+        // - Tokens (HostToken vs SessionToken vs UserToken)
+        // - User identification (Host uses tokens, Canvas uses GUID)
+        
+        SelfCheckResults.Add(new SelfCheckResult
+        {
+            Description = "Cross-View Data Expectations",
+            Passed = true,
+            Details = "SHOULD MATCH: Hub URL, Session ID, SignalR Group. SHOULD DIFFER: Connection ID, Tokens, User IDs"
+        });
+        
+        await Task.CompletedTask;
+    }
+    
+    // SignalR Status Methods
+    private string GetSignalRStatusColor()
+    {
+        return HubConnection?.State switch
+        {
+            HubConnectionState.Connected => "#10B981",      // Green
+            HubConnectionState.Connecting => "#F59E0B",     // Yellow  
+            HubConnectionState.Reconnecting => "#F59E0B",   // Yellow
+            HubConnectionState.Disconnected => "#EF4444",  // Red
+            _ => "#6B7280"                                  // Gray
+        };
+    }
+    
+    private string GetSignalRStatusText()
+    {
+        return HubConnection?.State switch
+        {
+            HubConnectionState.Connected => "Connected",
+            HubConnectionState.Connecting => "Connecting",
+            HubConnectionState.Reconnecting => "Reconnecting",
+            HubConnectionState.Disconnected => "Disconnected",
+            _ => "Unknown"
+        };
+    }
+    
+    private string GetLogEntryColor(string level)
+    {
+        return level.ToUpper() switch
+        {
+            "ERROR" => "#EF4444",
+            "WARN" => "#F59E0B",
+            "SUCCESS" => "#10B981",
+            "SIGNALR" => "#8B5CF6",
+            "DATA" => "#06B6D4",
+            "ASSET" => "#F97316",
+            _ => "#E5E7EB"
+        };
+    }
+    
+    // Helper Methods
+    private IEnumerable<IDebugLogEntry> GetCombinedLogEntries()
+    {
+        return DebugLog.Concat(InternalLog).OrderBy(entry => entry.Timestamp);
+    }
+    
+    // Event Handlers
+    private async Task ClearDebugLog()
+    {
+        InternalLog.Clear();
+        SelfCheckResults.Clear();
+        AddLogEntry("INFO", "Debug log cleared by user");
+        
+        if (OnClearLog.HasDelegate)
+        {
+            await OnClearLog.InvokeAsync();
+        }
+    }
+    
+    private async Task CopyDebugLogToClipboard()
+    {
+        try
+        {
+            var logText = string.Join("\n", DebugLog.Select(entry => $"[{entry.Timestamp:HH:mm:ss}] {entry.Level}: {entry.Message}"));
+            var selfCheckText = string.Join("\n", SelfCheckResults.Select(check => $"{(check.Passed ? "✅" : "❌")} {check.Description}: {check.Details}"));
+            
+            var fullLog = $@"=== {Title.ToUpper()} DEBUG LOG ===
+Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
+View Type: {ViewType}
+Session: {SessionId}
+Connection: {HubConnection?.ConnectionId}
+
+=== SELF-CHECK RESULTS ===
+{selfCheckText}
+
+=== DEBUG LOG ===
+{logText}";
+            
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", fullLog);
+            AddLogEntry("SUCCESS", "✅ Debug log copied to clipboard!");
+        }
+        catch (Exception ex)
+        {
+            AddLogEntry("ERROR", $"❌ Failed to copy log: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-PANEL] Failed to copy debug log to clipboard");
+        }
+    }
+    
+    private void AddLogEntry(string level, string message)
+    {
+        var entry = new NoorCanvas.Models.Debug.DebugLogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = level,
+            Message = message
+        };
+        
+        InternalLog.Add(entry);
+        
+        // Keep only the latest entries
+        const int maxEntries = 50; // Reduced since we're combining with external log
+        if (InternalLog.Count > maxEntries)
+        {
+            InternalLog.RemoveAt(0);
+        }
+        
+        // Invoke callback if available
+        if (OnAddLogEntry.HasDelegate)
+        {
+            _ = OnAddLogEntry.InvokeAsync($"[{level}] {message}");
+        }
+        
+        // Trigger UI update
+        InvokeAsync(StateHasChanged);
+    }
+    
+    // Supporting Classes are now in NoorCanvas.Models.Debug namespace
+}

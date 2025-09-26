@@ -1,0 +1,32 @@
+{
+    "version": "1.0.0",
+    "generated_at": "2025-09-25T00:00:00Z",
+    "test_scope": "end-to-end-workflow",
+    "test_paths": [
+        "Tests/Playwright/debug/host-control-panel-workflow.spec.ts",
+        "Tests/Playwright/debug/multi-user-session-flow.spec.ts",
+        "Tests/Playwright/debug/asset-sharing-realtime.spec.ts",
+        "Tests/Playwright/debug/qa-workflow.spec.ts"
+    ],
+    "setup_instructions": [
+        "Ensure NOOR Canvas app is running on ports 9090/9091",
+        "Database should have clean test session data",
+        "SignalR hubs must be operational"
+    ],
+    "validation_steps": [
+        "Host logs in with valid token",
+        "Multiple users register and join session",
+        "Session starts and users navigate to canvas",
+        "Asset sharing works via SignalR",
+        "Q&A flows from canvas to host panel"
+    ],
+    "expected_outputs": {
+        "host_login": "Host control panel loads with session data",
+        "user_registration": "Users successfully join waiting room",
+        "session_start": "All users navigate to session canvas",
+        "asset_sharing": "Shared assets appear in all user sessions",
+        "qa_workflow": "Questions from users appear in host panel"
+    },
+    "artifacts": [],
+    "requirements_coverage": "Full end-to-end workflow testing"
+}

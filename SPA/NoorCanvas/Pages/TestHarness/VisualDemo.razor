@@ -967,10 +967,11 @@
         StateHasChanged();
     }
     
-    private async Task OnUserLoaded(int userIndex)
+    private Task OnUserLoaded(int userIndex)
     {
         // Called when iframe loads - could add initialization logic here
         Console.WriteLine($"User {userIndex} iframe loaded");
+        return Task.CompletedTask;
     }
 
 }

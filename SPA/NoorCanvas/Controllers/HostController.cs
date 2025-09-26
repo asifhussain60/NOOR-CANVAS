@@ -265,26 +265,39 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { error = "Valid SessionId, AlbumId, and CategoryId are required" });
                 }
 
-                // Create session in Canvas database
-                var session = new NoorCanvas.Models.Simplified.Session
+                // Host Provisioner has already created session record - FETCH not CREATE
+                _logger.LogInformation("NOOR-HOST-CREATE: Fetching existing session with SessionId: {SessionId} created by Host Provisioner", request.SessionId);
+
+                // FETCH existing session from Canvas database (created by Host Provisioner)
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == request.SessionId);
+                
+                if (session == null)
                 {
-                    // Title removed - fetch from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId
-                    // Description removed - fetch from KSESSIONS_DEV.dbo.Sessions.Description via SessionId
-                    Status = "Active",
-                    CreatedAt = DateTime.UtcNow,
-                    ExpiresAt = DateTime.UtcNow.AddHours(3),
-                    MaxParticipants = request.MaxParticipants
-                };
+                    _logger.LogError("NOOR-HOST-CREATE: Session {SessionId} not found - Host Provisioner should have created it", request.SessionId);
+                    return BadRequest(new { error = $"Session {request.SessionId} not found. Ensure Host Provisioner has created the session first." });
+                }
 
-                _context.Sessions.Add(session);
-                await _context.SaveChangesAsync();
+                // Validate session belongs to this HostGuid
+                if (session.HostToken != request.HostGuid)
+                {
+                    _logger.LogError("NOOR-HOST-CREATE: Session {SessionId} HostToken mismatch. Expected: {ExpectedHost}, Found: {ActualHost}", 
+                        request.SessionId, request.HostGuid, session.HostToken);
+                    return BadRequest(new { error = "Session does not belong to the specified HostGuid" });
+                }
 
-                // Generate tokens for the session
-                var (hostToken, userToken) = await _simplifiedTokenService.GenerateTokenPairForSessionAsync(session.SessionId);
+                _logger.LogInformation("NOOR-HOST-CREATE: Found existing session - SessionId: {SessionId}, HostToken: {HostToken}, UserToken: {UserToken}", 
+                    session.SessionId, session.HostToken, session.UserToken);
 
-                var joinLink = $"https://localhost:9091/user/landing/{userToken}";
+                // Validate UserToken exists (should be populated by Host Provisioner)
+                if (string.IsNullOrEmpty(session.UserToken))
+                {
+                    _logger.LogError("NOOR-HOST-CREATE: Session {SessionId} missing UserToken - Host Provisioner issue", request.SessionId);
+                    return BadRequest(new { error = "Session found but UserToken is missing. Host Provisioner configuration issue." });
+                }
 
-                _logger.LogInformation("NOOR-SUCCESS: Session created with ID: {SessionId}, Join Link: {JoinLink}",
+                var joinLink = $"https://localhost:9091/user/landing/{session.UserToken}";
+
+                _logger.LogInformation("NOOR-SUCCESS: Session fetched with ID: {SessionId}, Join Link: {JoinLink}",
                     session.SessionId, joinLink);
 
                 return Ok(new CreateSessionResponse
@@ -292,7 +305,7 @@ namespace NoorCanvas.Controllers
                     SessionId = session.SessionId,
                     Status = "Success",
                     JoinLink = joinLink,
-                    SessionGuid = hostToken
+                    SessionGuid = session.HostToken
                 });
             }
             catch (Exception ex)
@@ -302,8 +315,11 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        /*
         /// <summary>
+        /// DEPRECATED: Duplicate of CreateSession - use POST /api/host/session/create instead
         /// Create session for Host-SessionOpener with friendly token generation
+        /// Commented out per hostcanvas duplicate elimination - can be restored if Host-SessionOpener specific behavior needed
         /// </summary>
         [HttpPost("create-session")]
         public async Task<IActionResult> CreateSessionWithTokens([FromQuery] string token, [FromBody] JsonElement sessionData)
@@ -514,6 +530,7 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to create session", details = ex.Message, stackTrace = ex.StackTrace });
             }
         }
+        */
 
         [HttpPost("session/{sessionId}/start")]
         public async Task<IActionResult> StartSession(long sessionId)
@@ -796,6 +813,9 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        /*
+        // DEPRECATED: Duplicate of CreateSession - use POST /api/host/session/create instead
+        // Commented out per hostcanvas duplicate elimination - can be restored if KSESSIONS-specific begin behavior needed
         [HttpPost("sessions/{sessionId}/begin")]
         public async Task<IActionResult> BeginSession(int sessionId, [FromQuery] string guid)
         {
@@ -863,6 +883,7 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to start session" });
             }
         }
+        */
 
         [HttpGet("session-details/{sessionId}")]
         public async Task<IActionResult> GetSessionDetails(int sessionId, [FromQuery] string guid)
@@ -1073,7 +1094,8 @@ namespace NoorCanvas.Controllers
                     dataId, request.SessionId);
 
                 // Broadcast to session participants via SessionHub (UC-L1 workflow)
-                var sessionGroupName = $"Session_{request.SessionId}";
+                // COMPLIANCE FIX: Use consistent group naming with SessionHub.ShareAsset (session_{id})
+                var sessionGroupName = $"session_{request.SessionId}";
                 await _sessionHub.Clients.Group(sessionGroupName).SendAsync("AssetShared", new
                 {
                     assetId = dataId,

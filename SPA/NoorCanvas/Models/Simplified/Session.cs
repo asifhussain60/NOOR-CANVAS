@@ -7,7 +7,7 @@ namespace NoorCanvas.Models.Simplified;
 public class Session
 {
     /// <summary>
-    /// KSESSIONS database SessionId - now the primary key for consistent referencing
+    /// Auto-generated Canvas SessionId - primary key (not the KSESSIONS database SessionId)
     /// </summary>
     [Key]
     public long SessionId { get; set; }

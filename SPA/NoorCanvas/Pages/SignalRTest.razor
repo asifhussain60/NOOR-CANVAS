@@ -1,0 +1,897 @@
+@* 
+DEPRECATED COMPONENT: SignalRTest.razor
+- Replaced by SimpleSignalRTest.razor (simpler, working implementation)
+- Preserved for potential feature restoration
+- Complex implementation with over-engineered testing features
+
+@page "/signalr-test"
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Text.Json
+@inject ILogger<SignalRTest> Logger
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<div style="padding: 2rem; max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif;">
+    <h1 style="color: #333; margin-bottom: 2rem;">SignalR HTML Broadcasting Test</h1>
+    
+    <!-- Connection Status -->
+    <div style="padding: 1rem; margin-bottom: 2rem; border-radius: 8px; @GetStatusBackgroundColor()">
+        <h3 style="margin: 0 0 0.5rem 0;">Connection Status: @GetConnectionStatus()</h3>
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">
+            @if (hubConnection?.ConnectionId != null)
+            {
+                <text>Connection ID: @hubConnection.ConnectionId</text>
+            }
+            else
+            {
+                <text>No connection established</text>
+            }
+        </p>
+    </div>
+
+    <!-- Controls -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <button @onclick="ConnectSignalR" disabled="@IsConnecting" 
+                style="padding: 0.75rem 1rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            @(IsConnecting ? "Connecting..." : "Connect")
+        </button>
+        
+        <button @onclick="DisconnectSignalR" disabled="@(!IsConnected)" 
+                style="padding: 0.75rem 1rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Disconnect
+        </button>
+        
+        <button @onclick="SendTestMessage" disabled="@(!IsConnected)" 
+                style="padding: 0.75rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Send Test Message
+        </button>
+        
+        <button @onclick="ClearMessages" 
+                style="padding: 0.75rem 1rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Clear Messages
+        </button>
+    </div>
+
+    <!-- Session Management -->
+    <div style="margin-bottom: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin: 0 0 1rem 0;">HTML Broadcasting Session</h4>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <input @bind="sessionId" disabled="@(!IsConnected)"
+                   style="flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
+                   placeholder="Enter session ID (e.g., test-session-1)"/>
+            <button @onclick="JoinSession" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(sessionId))"
+                    style="padding: 0.5rem 1rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Join Session
+            </button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(currentSessionId))
+        {
+            <div style="color: #28a745; font-weight: bold;">
+                Active in session: @currentSessionId
+            </div>
+        }
+    </div>
+
+    <!-- HTML Content Broadcasting -->
+    <div style="margin-bottom: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 8px;">
+        <h4 style="margin: 0 0 1rem 0;">HTML Content Broadcasting</h4>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">HTML Content:</label>
+            <textarea @bind="htmlContent" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                      style="width: 100%; height: 150px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-family: monospace;"
+                      placeholder="Enter HTML content to broadcast (e.g., <div style='color: red;'>Hello from Session A!</div>)"></textarea>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <select @bind="contentType" disabled="@(!IsConnected)"
+                    style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="general">General Content</option>
+                <option value="announcement">Announcement</option>  
+                <option value="asset">Asset Share</option>
+                <option value="test">Test Content</option>
+            </select>
+            <button @onclick="BroadcastHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId) || string.IsNullOrWhiteSpace(htmlContent))"
+                    style="flex: 1; padding: 0.5rem 1rem; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Broadcast HTML
+            </button>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button @onclick="SendSampleHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                    style="flex: 1; padding: 0.5rem 1rem; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Send Sample HTML
+            </button>
+            <button @onclick="SendComplexHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                    style="flex: 1; padding: 0.5rem 1rem; background: #20c997; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Send Complex HTML
+            </button>
+        </div>
+    </div>
+
+    <!-- HTML Content Broadcasting -->
+    <div style="margin-bottom: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 8px;">
+        <h4 style="margin: 0 0 1rem 0;">HTML Content Broadcasting</h4>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">HTML Content:</label>
+            <textarea @bind="htmlContent" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                      style="width: 100%; height: 100px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-family: monospace;"
+                      placeholder="Enter HTML content to broadcast (e.g., <div style='color: red;'>Hello from Session A!</div>)"></textarea>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <select @bind="contentType" disabled="@(!IsConnected)"
+                    style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="general">General Content</option>
+                <option value="announcement">Announcement</option>  
+                <option value="asset">Asset Share</option>
+                <option value="test">Test Content</option>
+            </select>
+            <button @onclick="BroadcastHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId) || string.IsNullOrWhiteSpace(htmlContent))"
+                    style="flex: 1; padding: 0.5rem 1rem; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Broadcast HTML
+            </button>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button @onclick="SendSampleHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                    style="flex: 1; padding: 0.5rem 1rem; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Send Sample HTML
+            </button>
+            <button @onclick="SendComplexHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                    style="flex: 1; padding: 0.5rem 1rem; background: #20c997; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Send Complex HTML
+            </button>
+        </div>
+        
+        <!-- Additional Styled HTML Sample Generators -->
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6;">
+            <h5 style="margin: 0 0 0.5rem 0; color: #6c757d; font-size: 0.9rem;">Styled HTML Block Generators:</h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.5rem;">
+                <button @onclick="SendCardBlock" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                        style="padding: 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    📄 Card Block
+                </button>
+                <button @onclick="SendAlertBlock" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                        style="padding: 0.5rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    ⚠️ Alert Block
+                </button>
+                <button @onclick="SendProgressBlock" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                        style="padding: 0.5rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    📊 Progress Block
+                </button>
+                <button @onclick="SendQuoteBlock" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                        style="padding: 0.5rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    💬 Quote Block
+                </button>
+                <button @onclick="SendTableBlock" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                        style="padding: 0.5rem; background: #fd7e14; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    📋 Table Block
+                </button>
+                <button @onclick="SendTimelineBlock" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSessionId))"
+                        style="padding: 0.5rem; background: #e83e8c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                    ⏱️ Timeline Block
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML Content Display -->
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+        <h3 style="margin: 0 0 1rem 0;">📺 Received HTML Content Display</h3>
+        <div id="htmlDisplay" style="min-height: 150px; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 1rem;">
+            @if (lastReceivedHtml != null)
+            {
+                <div style="border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 10px;">
+                    <small style="color: #6c757d;">Latest HTML content received:</small>
+                </div>
+                @((MarkupString)lastReceivedHtml)
+            }
+            else
+            {
+                <p style="color: #6c757d; font-style: italic; text-align: center; margin: 0;">
+                    No HTML content received yet. Join a session and have someone broadcast HTML content.
+                </p>
+            }
+        </div>
+    </div>
+
+    <!-- Messages Log -->
+    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem;">
+        <h3 style="margin: 0 0 1rem 0;">Messages Log (@messages.Count)</h3>
+        <div style="height: 400px; overflow-y: auto; background: white; padding: 1rem; border-radius: 4px;">
+            @if (messages.Any())
+            {
+                @foreach (var message in messages.OrderByDescending(m => m.Timestamp))
+                {
+                    <div style="padding: 0.5rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <strong style="color: @GetMessageTypeColor(message.Type);">[@message.Type]</strong>
+                                <span style="margin-left: 0.5rem;">@message.Content</span>
+                            </div>
+                            <small style="color: #666; white-space: nowrap; margin-left: 1rem;">
+                                @message.Timestamp.ToString("HH:mm:ss.fff")
+                            </small>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="color: #666; font-style: italic; margin: 0;">No messages yet. Connect and send a test message.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<TestMessage> messages = new();
+    private string customMessage = "";
+    private bool IsConnecting = false;
+    
+    // HTML Broadcasting fields
+    private string sessionId = "";
+    private string currentSessionId = "";
+    private string htmlContent = "";
+    private string contentType = "general";
+    private string? lastReceivedHtml = null;
+
+    public class TestMessage
+    {
+        public DateTime Timestamp { get; set; }
+        public string Type { get; set; } = "";
+        public string Content { get; set; } = "";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        AddMessage("SYSTEM", "SignalR Test Page Initialized");
+        await ConnectSignalR();
+    }
+
+    private async Task ConnectSignalR()
+    {
+        if (IsConnected || IsConnecting) return;
+
+        try
+        {
+            IsConnecting = true;
+            StateHasChanged();
+
+            var hubUrl = Navigation.ToAbsoluteUri("/hub/test");
+            AddMessage("SYSTEM", $"Creating SignalR connection to: {hubUrl}");
+            AddMessage("SYSTEM", $"Base URI: {Navigation.BaseUri}");
+
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/hub/test"))
+                .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5) })
+                .Build();
+
+            // Event handlers
+            hubConnection.Closed += async (error) =>
+            {
+                AddMessage("CONNECTION", $"Connection closed: {error?.Message ?? "Normal closure"}");
+                await InvokeAsync(StateHasChanged);
+            };
+
+            hubConnection.Reconnecting += async (error) =>
+            {
+                AddMessage("CONNECTION", $"Reconnecting: {error?.Message ?? "Network issue"}");
+                await InvokeAsync(StateHasChanged);
+            };
+
+            hubConnection.Reconnected += async (connectionId) =>
+            {
+                AddMessage("CONNECTION", $"Reconnected with ID: {connectionId}");
+                await InvokeAsync(StateHasChanged);
+            };
+
+            // Simple message handlers for TestHub
+            hubConnection.On<string>("ReceiveMessage", async (message) =>
+            {
+                AddMessage("RECEIVED", $"Received message: {message}");
+                await InvokeAsync(StateHasChanged);
+            });
+
+            hubConnection.On<string>("EchoResponse", async (message) =>
+            {
+                AddMessage("ECHO", $"Echo response: {message}");
+                await InvokeAsync(StateHasChanged);
+            });
+
+            // HTML Broadcasting handlers
+            hubConnection.On<object>("ParticipantJoined", async (data) =>
+            {
+                var json = JsonSerializer.Serialize(data);
+                AddMessage("SESSION", $"Participant joined: {json}");
+                await InvokeAsync(StateHasChanged);
+            });
+
+            hubConnection.On<object>("HtmlContentReceived", async (data) =>
+            {
+                try
+                {
+                    AddMessage("HTML_RECEIVED", "[DEBUG-WORKITEM:hostcanvas:HTML] Received HTML content broadcast");
+                    
+                    var json = JsonSerializer.Serialize(data);
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    var htmlContentReceived = root.TryGetProperty("htmlContent", out var htmlElement) ? htmlElement.GetString() : "No content";
+                    var contentTypeReceived = root.TryGetProperty("contentType", out var typeElement) ? typeElement.GetString() : "unknown";
+                    var senderConnectionId = root.TryGetProperty("senderConnectionId", out var senderElement) ? senderElement.GetString() : "unknown";
+                    
+                    AddMessage("HTML_RECEIVED", $"[DEBUG-WORKITEM:hostcanvas:HTML] Content Type: {contentTypeReceived} | From: {senderConnectionId} | Length: {htmlContentReceived?.Length ?? 0} chars");
+                    
+                    // Update the display with the received HTML
+                    lastReceivedHtml = htmlContentReceived;
+                    
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception ex)
+                {
+                    AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to parse HTML content: {ex.Message}");
+                    await InvokeAsync(StateHasChanged);
+                }
+            });
+
+            hubConnection.On<object>("HtmlBroadcastConfirmed", async (data) =>
+            {
+                var json = JsonSerializer.Serialize(data);
+                AddMessage("HTML_CONFIRMED", $"HTML broadcast confirmed: {json}");
+                await InvokeAsync(StateHasChanged);
+            });
+
+            AddMessage("SYSTEM", "Starting connection...");
+            await hubConnection.StartAsync();
+
+            AddMessage("SUCCESS", $"Connected! Connection ID: {hubConnection.ConnectionId}");
+            AddMessage("SYSTEM", $"Connection State: {hubConnection.State}");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Connection failed: {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                AddMessage("ERROR", $"Inner exception: {ex.InnerException.Message}");
+            }
+            AddMessage("ERROR", $"Exception type: {ex.GetType().Name}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:TEST] SignalR connection failed");
+        }
+        finally
+        {
+            IsConnecting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DisconnectSignalR()
+    {
+        if (hubConnection != null)
+        {
+            AddMessage("SYSTEM", "Disconnecting...");
+            await hubConnection.DisposeAsync();
+            hubConnection = null;
+            AddMessage("SYSTEM", "Disconnected");
+            StateHasChanged();
+        }
+    }
+
+    private async Task SendTestMessage()
+    {
+        if (!IsConnected) return;
+
+        try
+        {
+            var testMessage = $"Test message from client at {DateTime.Now:HH:mm:ss}";
+            AddMessage("SENDING", $"Sending: {testMessage}");
+            
+            await hubConnection!.SendAsync("SendMessage", testMessage);
+            AddMessage("SENT", "Message sent successfully");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Send failed: {ex.Message}");
+        }
+    }
+
+    private async Task SendCustomMessage()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(customMessage)) return;
+
+        try
+        {
+            AddMessage("SENDING", $"Sending custom: {customMessage}");
+            await hubConnection!.SendAsync("SendMessage", customMessage);
+            AddMessage("SENT", "Custom message sent successfully");
+            
+            // Also test the echo functionality
+            await hubConnection!.SendAsync("Echo", customMessage);
+            AddMessage("SENT", "Echo request sent");
+            
+            customMessage = "";
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Send failed: {ex.Message}");
+        }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && IsConnected && !string.IsNullOrWhiteSpace(customMessage))
+        {
+            await SendCustomMessage();
+        }
+    }
+
+    private void ClearMessages()
+    {
+        messages.Clear();
+        lastReceivedHtml = null;
+        AddMessage("SYSTEM", "Messages cleared");
+        StateHasChanged();
+    }
+
+    private void AddMessage(string type, string content)
+    {
+        messages.Add(new TestMessage
+        {
+            Timestamp = DateTime.Now,
+            Type = type,
+            Content = content
+        });
+
+        // Keep only last 100 messages
+        if (messages.Count > 100)
+        {
+            messages.RemoveAt(0);
+        }
+
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] {Type}: {Content}", type, content);
+    }
+
+    private bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+    private string GetConnectionStatus()
+    {
+        return hubConnection?.State.ToString() ?? "Disconnected";
+    }
+
+    private string GetStatusBackgroundColor()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "background: #d4edda; border: 1px solid #c3e6cb; color: #155724;",
+            HubConnectionState.Connecting => "background: #fff3cd; border: 1px solid #ffeaa7; color: #856404;",
+            HubConnectionState.Reconnecting => "background: #fff3cd; border: 1px solid #ffeaa7; color: #856404;",
+            _ => "background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24;"
+        };
+    }
+
+    private string GetMessageTypeColor(string type)
+    {
+        return type switch
+        {
+            "SUCCESS" => "#28a745",
+            "ERROR" => "#dc3545",
+            "CONNECTION" => "#6f42c1",
+            "RECEIVED" => "#17a2b8",
+            "BROADCAST" => "#fd7e14",
+            "SENDING" => "#007bff",
+            "SENT" => "#20c997",
+            "SYSTEM" => "#6c757d",
+            _ => "#333"
+        };
+    }
+
+    private async Task JoinSession()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(sessionId)) return;
+
+        try
+        {
+            AddMessage("SESSION", $"Joining HTML test session: {sessionId}");
+            await hubConnection!.SendAsync("JoinHtmlTestSession", sessionId);
+            currentSessionId = sessionId;
+            AddMessage("SESSION", $"Successfully joined session: {sessionId}");
+            sessionId = ""; // Clear input after joining
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Failed to join session: {ex.Message}");
+        }
+    }
+
+    private async Task BroadcastHtml()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId) || string.IsNullOrWhiteSpace(htmlContent)) return;
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"Broadcasting HTML (Type: {contentType}): {htmlContent}");
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, htmlContent, contentType);
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Failed to broadcast HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendSampleHtml()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var sampleHtml = $@"<div style='background: linear-gradient(45deg, #ff6b35, #f7931e); color: white; padding: 15px; border-radius: 10px; margin: 10px 0; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);'>
+            <h3 style='margin: 0 0 10px 0;'>🎨 Sample HTML Content</h3>
+            <p style='margin: 0; font-size: 14px;'>Sent from connection: {hubConnection?.ConnectionId}</p>
+            <p style='margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;'>Time: {DateTime.Now:HH:mm:ss}</p>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"Sending sample HTML content");
+            htmlContent = sampleHtml;
+            contentType = "test";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, sampleHtml, "test");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Failed to send sample HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendComplexHtml()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var complexHtml = $@"<div style='background: #f8f9fa; border: 2px solid #007bff; border-radius: 15px; padding: 20px; margin: 15px 0; font-family: Arial, sans-serif;'>
+            <div style='display: flex; align-items: center; margin-bottom: 15px;'>
+                <div style='width: 50px; height: 50px; background: linear-gradient(135deg, #007bff, #28a745); border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;'>🚀</div>
+                <div>
+                    <h4 style='margin: 0; color: #343a40;'>Complex HTML Broadcasting Test</h4>
+                    <p style='margin: 5px 0 0 0; color: #6c757d; font-size: 12px;'>From: {hubConnection?.ConnectionId} | Session: {currentSessionId}</p>
+                </div>
+            </div>
+            <div style='background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;'>
+                <p style='margin: 0 0 10px 0; color: #495057;'>This is a complex HTML structure with:</p>
+                <ul style='margin: 0; color: #6c757d;'>
+                    <li>Multiple nested divs with CSS styling</li>
+                    <li>Flexbox layouts and gradients</li>
+                    <li>Dynamic content injection</li>
+                    <li>Emoji and special characters: 🎨 ✨ 🔥</li>
+                </ul>
+            </div>
+            <div style='text-align: center; padding: 10px; background: rgba(40, 167, 69, 0.1); border-radius: 5px; border-left: 4px solid #28a745;'>
+                <strong style='color: #28a745;'>✅ Broadcasting successful at {DateTime.Now:yyyy-MM-dd HH:mm:ss}</strong>
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"Sending complex HTML content");
+            htmlContent = complexHtml;
+            contentType = "asset";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, complexHtml, "asset");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Failed to send complex HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendCardBlock()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var cardHtml = $@"<div style='background: white; border: 1px solid #dee2e6; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 15px 0; overflow: hidden; max-width: 400px;'>
+            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px;'>
+                <h4 style='margin: 0 0 8px 0; font-size: 18px; font-weight: 600;'>📄 Sample Card</h4>
+                <p style='margin: 0; opacity: 0.9; font-size: 14px;'>From: {hubConnection?.ConnectionId}</p>
+            </div>
+            <div style='padding: 20px;'>
+                <p style='margin: 0 0 15px 0; color: #495057; line-height: 1.5;'>This is a beautifully styled card component with gradient header and clean content area.</p>
+                <div style='display: flex; gap: 10px;'>
+                    <span style='background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;'>📊 Data</span>
+                    <span style='background: #f3e5f5; color: #7b1fa2; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;'>🎨 Design</span>
+                </div>
+                <div style='margin-top: 15px; text-align: right;'>
+                    <small style='color: #6c757d;'>Sent at {DateTime.Now:HH:mm:ss}</small>
+                </div>  
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"[DEBUG-WORKITEM:hostcanvas:HTML] Sending card block HTML");
+            htmlContent = cardHtml;
+            contentType = "general";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, cardHtml, "general");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to send card block HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendAlertBlock()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var alertHtml = $@"<div style='background: #fff3cd; border: 1px solid #ffeaa7; border-left: 4px solid #ffc107; border-radius: 8px; padding: 16px; margin: 15px 0; position: relative;'>
+            <div style='display: flex; align-items: flex-start; gap: 12px;'>
+                <div style='background: #ffc107; color: #212529; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;'>⚠️</div>
+                <div style='flex: 1;'>
+                    <h5 style='margin: 0 0 8px 0; color: #856404; font-size: 16px; font-weight: 600;'>Important Notice</h5>
+                    <p style='margin: 0 0 12px 0; color: #856404; line-height: 1.4;'>This is a styled alert block with warning styling. Perfect for highlighting important information or system messages.</p>
+                    <div style='background: rgba(255, 193, 7, 0.1); padding: 8px 12px; border-radius: 4px; margin-top: 8px;'>
+                        <small style='color: #856404; font-weight: 500;'>Broadcasted from session: {currentSessionId} at {DateTime.Now:HH:mm:ss}</small>
+                    </div>
+                </div>
+                <button style='background: none; border: none; color: #856404; font-size: 18px; cursor: pointer; opacity: 0.7; line-height: 1;'>×</button>
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"[DEBUG-WORKITEM:hostcanvas:HTML] Sending alert block HTML");
+            htmlContent = alertHtml;
+            contentType = "announcement";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, alertHtml, "announcement");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to send alert block HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendProgressBlock()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var random = new Random();
+        var progress1 = random.Next(20, 95);
+        var progress2 = random.Next(10, 80);
+        var progress3 = random.Next(30, 100);
+
+        var progressHtml = $@"<div style='background: white; border: 1px solid #e3f2fd; border-radius: 10px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);'>
+            <div style='display: flex; align-items: center; gap: 10px; margin-bottom: 20px;'>
+                <div style='background: #4caf50; color: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;'>📊</div>
+                <div>
+                    <h4 style='margin: 0; color: #2c3e50; font-size: 18px;'>Progress Dashboard</h4>
+                    <p style='margin: 2px 0 0 0; color: #7f8c8d; font-size: 12px;'>Real-time progress indicators</p>
+                </div>
+            </div>
+            
+            <div style='margin-bottom: 16px;'>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 4px;'>
+                    <span style='color: #34495e; font-weight: 500; font-size: 14px;'>Task Completion</span>
+                    <span style='color: #27ae60; font-weight: 600; font-size: 14px;'>{progress1}%</span>
+                </div>
+                <div style='background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;'>
+                    <div style='background: linear-gradient(90deg, #27ae60, #2ecc71); height: 100%; width: {progress1}%; transition: width 0.3s ease;'></div>
+                </div>
+            </div>
+            
+            <div style='margin-bottom: 16px;'>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 4px;'>
+                    <span style='color: #34495e; font-weight: 500; font-size: 14px;'>Data Processing</span>
+                    <span style='color: #3498db; font-weight: 600; font-size: 14px;'>{progress2}%</span>
+                </div>
+                <div style='background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;'>
+                    <div style='background: linear-gradient(90deg, #3498db, #5dade2); height: 100%; width: {progress2}%; transition: width 0.3s ease;'></div>
+                </div>
+            </div>
+            
+            <div style='margin-bottom: 12px;'>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 4px;'>
+                    <span style='color: #34495e; font-weight: 500; font-size: 14px;'>System Health</span>
+                    <span style='color: #e74c3c; font-weight: 600; font-size: 14px;'>{progress3}%</span>
+                </div>
+                <div style='background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;'>
+                    <div style='background: linear-gradient(90deg, #e74c3c, #ec7063); height: 100%; width: {progress3}%; transition: width 0.3s ease;'></div>
+                </div>
+            </div>
+            
+            <div style='text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #ecf0f1;'>
+                <small style='color: #95a5a6;'>Updated at {DateTime.Now:HH:mm:ss} from {hubConnection?.ConnectionId}</small>
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"[DEBUG-WORKITEM:hostcanvas:HTML] Sending progress block HTML");
+            htmlContent = progressHtml;
+            contentType = "general";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, progressHtml, "general");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to send progress block HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendQuoteBlock()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var quotes = new[]
+        {
+            ("The only way to do great work is to love what you do.", "Steve Jobs"),
+            ("Innovation distinguishes between a leader and a follower.", "Steve Jobs"),
+            ("Design is not just what it looks like and feels like. Design is how it works.", "Steve Jobs"),
+            ("The future belongs to those who believe in the beauty of their dreams.", "Eleanor Roosevelt"),
+            ("It is during our darkest moments that we must focus to see the light.", "Aristotle")
+        };
+        
+        var selectedQuote = quotes[new Random().Next(quotes.Length)];
+
+        var quoteHtml = $@"<div style='background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 15px; padding: 30px; margin: 20px 0; position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.1);'>
+            <div style='position: absolute; top: 15px; left: 25px; font-size: 48px; color: rgba(52, 73, 94, 0.2); font-family: Georgia, serif; line-height: 1;'>&ldquo;</div>
+            <div style='margin: 20px 0 25px 40px;'>
+                <p style='margin: 0; font-size: 18px; line-height: 1.6; color: #2c3e50; font-style: italic; font-weight: 400;'>{selectedQuote.Item1}</p>
+            </div>
+            <div style='text-align: right; margin-top: 20px;'>
+                <div style='display: inline-block; background: rgba(255, 255, 255, 0.7); padding: 8px 16px; border-radius: 20px; backdrop-filter: blur(10px);'>
+                    <span style='color: #34495e; font-weight: 600; font-size: 14px;'>— {selectedQuote.Item2}</span>
+                </div>
+            </div>
+            <div style='text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(52, 73, 94, 0.1);'>
+                <small style='color: #7f8c8d; font-size: 12px;'>💬 Shared from session {currentSessionId} at {DateTime.Now:HH:mm:ss}</small>
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"[DEBUG-WORKITEM:hostcanvas:HTML] Sending quote block HTML");
+            htmlContent = quoteHtml;
+            contentType = "general";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, quoteHtml, "general");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to send quote block HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendTableBlock()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var tableHtml = $@"<div style='background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin: 20px 0; border: 1px solid #e1e8ed;'>
+            <div style='background: linear-gradient(90deg, #ff7e5f, #feb47b); color: white; padding: 16px 20px;'>
+                <h4 style='margin: 0; display: flex; align-items: center; gap: 8px; font-size: 16px;'>
+                    📋 Data Summary Table
+                    <span style='background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: normal;'>Live Data</span>
+                </h4>
+            </div>
+            <div style='overflow-x: auto;'>
+                <table style='width: 100%; border-collapse: collapse; font-size: 14px;'>
+                    <thead>
+                        <tr style='background: #f8f9fa; border-bottom: 2px solid #dee2e6;'>
+                            <th style='padding: 12px 16px; text-align: left; font-weight: 600; color: #495057;'>Metric</th>
+                            <th style='padding: 12px 16px; text-align: right; font-weight: 600; color: #495057;'>Value</th>
+                            <th style='padding: 12px 16px; text-align: center; font-weight: 600; color: #495057;'>Status</th>
+                            <th style='padding: 12px 16px; text-align: center; font-weight: 600; color: #495057;'>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style='border-bottom: 1px solid #e9ecef;'>
+                            <td style='padding: 12px 16px; color: #212529; font-weight: 500;'>Active Sessions</td>
+                            <td style='padding: 12px 16px; text-align: right; color: #212529; font-weight: 600;'>{new Random().Next(15, 45)}</td>
+                            <td style='padding: 12px 16px; text-align: center;'>
+                                <span style='background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;'>✅ Good</span>
+                            </td>
+                            <td style='padding: 12px 16px; text-align: center; font-size: 16px;'>📈</td>
+                        </tr>
+                        <tr style='border-bottom: 1px solid #e9ecef;'>
+                            <td style='padding: 12px 16px; color: #212529; font-weight: 500;'>Response Time</td>
+                            <td style='padding: 12px 16px; text-align: right; color: #212529; font-weight: 600;'>{new Random().Next(120, 300)}ms</td>
+                            <td style='padding: 12px 16px; text-align: center;'>
+                                <span style='background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;'>⚠️ Fair</span>
+                            </td>
+                            <td style='padding: 12px 16px; text-align: center; font-size: 16px;'>📊</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 12px 16px; color: #212529; font-weight: 500;'>Data Transfer</td>
+                            <td style='padding: 12px 16px; text-align: right; color: #212529; font-weight: 600;'>{new Random().Next(1, 15)}.{new Random().Next(0, 9)}MB</td>
+                            <td style='padding: 12px 16px; text-align: center;'>
+                                <span style='background: #d1ecf1; color: #0c5460; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;'>ℹ️ Normal</span>
+                            </td>
+                            <td style='padding: 12px 16px; text-align: center; font-size: 16px;'>📉</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style='padding: 12px 20px; background: #f8f9fa; border-top: 1px solid #e9ecef; text-align: center;'>
+                <small style='color: #6c757d;'>Generated at {DateTime.Now:HH:mm:ss} from connection {hubConnection?.ConnectionId}</small>
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"[DEBUG-WORKITEM:hostcanvas:HTML] Sending table block HTML");
+            htmlContent = tableHtml;
+            contentType = "general";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, tableHtml, "general");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to send table block HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendTimelineBlock()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSessionId)) return;
+
+        var now = DateTime.Now;
+        var timelineHtml = $@"<div style='background: white; border-radius: 15px; padding: 24px; margin: 20px 0; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #f0f0f0;'>
+            <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #f8f9fa;'>
+                <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;'>⏱️</div>
+                <div>
+                    <h4 style='margin: 0; color: #2c3e50; font-size: 20px; font-weight: 600;'>Activity Timeline</h4>
+                    <p style='margin: 4px 0 0 0; color: #7f8c8d; font-size: 14px;'>Recent session activities</p>
+                </div>
+            </div>
+            
+            <div style='position: relative;'>
+                <div style='position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #3498db, #e74c3c); opacity: 0.3;'></div>
+                
+                <div style='display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; position: relative;'>
+                    <div style='background: #3498db; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 1; border: 3px solid white; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);'>🚀</div>
+                    <div style='flex: 1; background: #f8f9fa; padding: 16px; border-radius: 10px; border-left: 4px solid #3498db;'>
+                        <h6 style='margin: 0 0 8px 0; color: #2c3e50; font-size: 15px; font-weight: 600;'>Session Started</h6>
+                        <p style='margin: 0 0 8px 0; color: #34495e; font-size: 13px; line-height: 1.4;'>HTML broadcasting session initiated with advanced styled content capabilities.</p>
+                        <small style='color: #7f8c8d; font-size: 12px;'>{now.AddMinutes(-5):HH:mm:ss}</small>
+                    </div>
+                </div>
+                
+                <div style='display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; position: relative;'>
+                    <div style='background: #27ae60; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 1; border: 3px solid white; box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);'>✅</div>
+                    <div style='flex: 1; background: #f8f9fa; padding: 16px; border-radius: 10px; border-left: 4px solid #27ae60;'>
+                        <h6 style='margin: 0 0 8px 0; color: #2c3e50; font-size: 15px; font-weight: 600;'>Connection Established</h6>
+                        <p style='margin: 0 0 8px 0; color: #34495e; font-size: 13px; line-height: 1.4;'>SignalR connection successfully established with TestHub endpoint.</p>
+                        <small style='color: #7f8c8d; font-size: 12px;'>{now.AddMinutes(-3):HH:mm:ss}</small>
+                    </div>
+                </div>
+                
+                <div style='display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; position: relative;'>
+                    <div style='background: #e67e22; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 1; border: 3px solid white; box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);'>📡</div>
+                    <div style='flex: 1; background: #f8f9fa; padding: 16px; border-radius: 10px; border-left: 4px solid #e67e22;'>
+                        <h6 style='margin: 0 0 8px 0; color: #2c3e50; font-size: 15px; font-weight: 600;'>Broadcasting Active</h6>
+                        <p style='margin: 0 0 8px 0; color: #34495e; font-size: 13px; line-height: 1.4;'>Real-time HTML content broadcasting is now active and ready for cross-session communication.</p>
+                        <small style='color: #7f8c8d; font-size: 12px;'>{now.AddMinutes(-1):HH:mm:ss}</small>
+                    </div>
+                </div>
+                
+                <div style='display: flex; align-items: flex-start; gap: 16px; position: relative;'>
+                    <div style='background: #9b59b6; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; z-index: 1; border: 3px solid white; box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);'>📝</div>
+                    <div style='flex: 1; background: #f8f9fa; padding: 16px; border-radius: 10px; border-left: 4px solid #9b59b6;'>
+                        <h6 style='margin: 0 0 8px 0; color: #2c3e50; font-size: 15px; font-weight: 600;'>Timeline Generated</h6>
+                        <p style='margin: 0 0 8px 0; color: #34495e; font-size: 13px; line-height: 1.4;'>This timeline block was generated and broadcasted from session {currentSessionId}.</p>
+                        <small style='color: #7f8c8d; font-size: 12px;'>{now:HH:mm:ss}</small>
+                    </div>
+                </div>
+            </div>
+        </div>";
+
+        try
+        {
+            AddMessage("HTML_SENDING", $"[DEBUG-WORKITEM:hostcanvas:HTML] Sending timeline block HTML");
+            htmlContent = timelineHtml;
+            contentType = "general";
+            await hubConnection!.SendAsync("BroadcastHtml", currentSessionId, timelineHtml, "general");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:HTML] Failed to send timeline block HTML: {ex.Message}");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+*@
+}

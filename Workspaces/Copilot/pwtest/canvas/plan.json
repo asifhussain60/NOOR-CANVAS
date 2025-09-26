@@ -1,0 +1,29 @@
+{
+    "key": "canvas",
+    "mode": "test",
+    "ui_mode": "headed",
+    "status": "completed",
+    "timestamp": "2025-09-25T12:29:00Z",
+    "step_id": "test_generation_complete",
+    "plan": {
+        "test_scope": "NoorCanvas Simulation with multi-iframe setup for host and 3 participants",
+        "approach": "Create comprehensive Playwright test with embedded iframes and SignalR debugging",
+        "coverage": [
+            "UI navigation",
+            "API validation",
+            "SignalR communication",
+            "session transitions"
+        ],
+        "negative_paths": [
+            "invalid tokens",
+            "network failures",
+            "race conditions"
+        ]
+    },
+    "notes": "Create a view with iframes simulating the host session along with 3 users sessions running simultaneously. The host iframe should be on the left, and the 3 user iframes should be on the right. Wireup the signalR to work with the setup so we can test. Add comprehensive debug info on the page or browser console that can assist in debugging the issue.",
+    "artifacts": {
+        "test_spec_path": "Tests/Playwright/canvas/noor-canvas-simulation.spec.ts",
+        "test_html_path": "Tests/Playwright/canvas/simulation-harness.html",
+        "coverage_doc": ".github/Test-canvas.MD"
+    }
+}

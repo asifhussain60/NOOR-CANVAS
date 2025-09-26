@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoorCanvas Multi-Session Simulation Harness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-gold: #D4AF37;
+            --primary-gold-hover: #B8941F;
+            --primary-green: #006400;
+            --primary-brown: #4B3C2B;
+            --cream-bg: #FDFBEB;
+            --cream-secondary: #F5F1E8;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--cream-bg) 0%, var(--cream-secondary) 100%);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .simulation-header {
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-gold-hover) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .simulation-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .simulation-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .simulation-header p {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .simulation-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            padding: 24px;
+            height: calc(100vh - 160px);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .host-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 3px solid var(--primary-gold);
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .host-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-gold), var(--primary-gold-hover), var(--primary-gold));
+            z-index: 1;
+        }
+        
+        .host-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(212, 175, 55, 0.2);
+        }
+        
+        .participants-section {
+            display: grid;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .iframe-container {
+            background: white;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .iframe-container.participant {
+            border: 2px solid var(--primary-green);
+        }
+        
+        .iframe-container.participant::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), #008000, var(--primary-green));
+            z-index: 1;
+        }
+        
+        .iframe-container:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .iframe-header {
+            background: var(--primary-brown);
+            color: white;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 0.02em;
+        }
+        
+        .iframe-header.host {
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-hover));
+            font-size: 14px;
+            padding: 14px 18px;
+        }
+        
+        .iframe-header.participant {
+            background: linear-gradient(135deg, var(--primary-green), #008000);
+        }
+        
+        .connection-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            position: relative;
+        }
+        
+        .connection-status.connected {
+            background: #22c55e;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        
+        .connection-status::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            transform: translate(-50%, -50%);
+            animation: ripple 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+        
+        iframe {
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+            background: white;
+            transition: var(--transition);
+        }
+        
+        .iframe-container:hover iframe {
+            filter: brightness(1.02);
+        }
+        
+        .debug-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #00ff41;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 12px;
+            height: 140px;
+            overflow-y: auto;
+            padding: 12px;
+            border-top: 3px solid var(--primary-gold);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .debug-panel.collapsed {
+            height: 36px;
+        }
+        
+        .debug-header {
+            cursor: pointer;
+            background: linear-gradient(135deg, #333 0%, #444 100%);
+            margin: -12px -12px 12px -12px;
+            padding: 10px 12px;
+            border-bottom: 2px solid var(--primary-gold);
+            user-select: none;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .debug-header:hover {
+            background: linear-gradient(135deg, #444 0%, #555 100%);
+            transform: translateY(-1px);
+        }
+        
+        .debug-header::before {
+            content: '🐛';
+            font-size: 16px;
+        }
+        
+        .debug-log {
+            white-space: pre-wrap;
+            line-height: 1.4;
+            font-size: 11px;
+        }
+        
+        .log-timestamp {
+            color: #888;
+            font-weight: 500;
+        }
+        
+        .log-info {
+            color: #00ff41;
+        }
+        
+        .log-warning {
+            color: #ffa500;
+            font-weight: 600;
+        }
+        
+        .log-error {
+            color: #ff4757;
+            font-weight: 700;
+        }
+        
+        .log-signalr {
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .simulation-controls {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            min-width: 240px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .simulation-controls h4 {
+            margin-bottom: 12px;
+            color: var(--primary-brown);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .simulation-controls h4::before {
+            content: '⚡';
+            font-size: 16px;
+        }
+        
+        .control-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin: 6px 0;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-hover));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: var(--transition);
+        }
+        
+        .control-button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .control-button:hover::before {
+            left: 100%;
+        }
+        
+        .control-button:active {
+            transform: translateY(0);
+        }
+        
+        .control-button.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .control-button.danger:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .simulation-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .simulation-controls {
+                min-width: 200px;
+                right: 16px;
+                top: 90px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .simulation-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 16px;
+                padding: 16px;
+            }
+            
+            .participants-section {
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 1fr;
+            }
+            
+            .simulation-controls {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 16px auto 0;
+                max-width: 300px;
+            }
+            
+            .debug-panel {
+                height: 120px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .simulation-header h1 {
+                font-size: 24px;
+            }
+            
+            .simulation-header p {
+                font-size: 14px;
+            }
+            
+            .participants-section {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
+            }
+            
+            .simulation-container {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .debug-panel {
+                height: 100px;
+                font-size: 10px;
+            }
+        }
+        
+        /* Accessibility Improvements */
+        .control-button:focus {
+            outline: 3px solid rgba(212, 175, 55, 0.5);
+            outline-offset: 2px;
+        }
+        
+        .debug-header:focus {
+            outline: 2px solid var(--primary-gold);
+            outline-offset: 2px;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .simulation-header {
+                background: #000;
+                border-bottom: 3px solid var(--primary-gold);
+            }
+            
+            .iframe-container {
+                border-width: 3px;
+            }
+            
+            .debug-panel {
+                background: #000;
+                color: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="simulation-header">
+        <h1>🎯 NoorCanvas Multi-Session Simulation</h1>
+        <p>Host Session (Left) + 3 Participant Sessions (Right) with Real-time SignalR Communication</p>
+    </div>
+    
+    <div class="simulation-container">
+        <!-- Host Session -->
+        <div class="host-section">
+            <div class="iframe-header host">
+                <span>🏠 HOST SESSION</span>
+                <div class="connection-status" id="host-status"></div>
+            </div>
+            <iframe id="host-frame" data-role="host" src="about:blank"></iframe>
+        </div>
+        
+        <!-- Participant Sessions -->
+        <div class="participants-section">
+            <div class="iframe-container participant">
+                <div class="iframe-header participant">
+                    <span>👤 PARTICIPANT 1</span>
+                    <div class="connection-status" id="participant1-status"></div>
+                </div>
+                <iframe id="participant1-frame" data-role="participant" data-participant="1" src="about:blank"></iframe>
+            </div>
+            
+            <div class="iframe-container participant">
+                <div class="iframe-header participant">
+                    <span>👤 PARTICIPANT 2</span>
+                    <div class="connection-status" id="participant2-status"></div>
+                </div>
+                <iframe id="participant2-frame" data-role="participant" data-participant="2" src="about:blank"></iframe>
+            </div>
+            
+            <div class="iframe-container participant">
+                <div class="iframe-header participant">
+                    <span>👤 PARTICIPANT 3</span>
+                    <div class="connection-status" id="participant3-status"></div>
+                </div>
+                <iframe id="participant3-frame" data-role="participant" data-participant="3" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Simulation Controls -->
+    <div class="simulation-controls">
+        <h4>Simulation Controls</h4>
+        <div id="app-status" style="margin-bottom: 12px; padding: 8px 12px; border-radius: 6px; font-size: 12px; text-align: center;">
+            <span id="status-indicator">🔍</span> <span id="status-text">Checking NoorCanvas App...</span>
+        </div>
+        <button class="control-button" onclick="startSession()">
+            <span>🚀</span> Start Session
+        </button>
+        <button class="control-button" onclick="addTestQuestion()">
+            <span>❓</span> Add Test Question
+        </button>
+        <button class="control-button" onclick="simulateVoting()">
+            <span>👍</span> Simulate Voting
+        </button>
+        <button class="control-button" onclick="triggerParticipantJoin()">
+            <span>➕</span> Add Participant
+        </button>
+        <button class="control-button danger" onclick="simulateConnectionDrop()">
+            <span>📡</span> Drop Connection
+        </button>
+        <button class="control-button" onclick="exportDebugLog()">
+            <span>💾</span> Export Debug Log
+        </button>
+        <button class="control-button" onclick="refreshSimulation()" style="margin-top: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb);">
+            <span>🔄</span> Refresh Simulation
+        </button>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debug-panel">
+        <div class="debug-header" onclick="toggleDebugPanel()">
+            DEBUG CONSOLE (Click to toggle) - SignalR Events, API Calls, Race Conditions
+        </div>
+        <div class="debug-log" id="debug-log"></div>
+    </div>
+
+    <script>
+        // Debug logging system
+        class DebugLogger {
+            constructor() {
+                this.logs = [];
+                this.maxLogs = 1000;
+            }
+            
+            log(level, source, message, data = null) {
+                const timestamp = new Date().toISOString().substr(11, 12);
+                const logEntry = {
+                    timestamp,
+                    level,
+                    source,
+                    message,
+                    data
+                };
+                
+                this.logs.push(logEntry);
+                if (this.logs.length > this.maxLogs) {
+                    this.logs.shift();
+                }
+                
+                this.displayLog(logEntry);
+                console.log(`[${timestamp}] ${level.toUpperCase()} [${source}] ${message}`, data || '');
+            }
+            
+            displayLog(entry) {
+                const debugLog = document.getElementById('debug-log');
+                const logLine = document.createElement('div');
+                logLine.style.marginBottom = '2px';
+                logLine.innerHTML = `<span class="log-timestamp">[${entry.timestamp}]</span> <span class="log-${entry.level}">${entry.level.toUpperCase().padEnd(7)}</span> <span style="color: #fff; font-weight: 600;">[${entry.source.padEnd(12)}]</span> ${entry.message}`;
+                if (entry.data) {
+                    const dataStr = typeof entry.data === 'string' ? entry.data : JSON.stringify(entry.data, null, 2);
+                    logLine.innerHTML += `<br><span style="color: #aaa; margin-left: 20px; font-size: 10px;">${dataStr}</span>`;
+                }
+                debugLog.appendChild(logLine);
+                debugLog.scrollTop = debugLog.scrollHeight;
+                
+                // Limit log entries to prevent memory issues
+                const maxLogEntries = 500;
+                while (debugLog.children.length > maxLogEntries) {
+                    debugLog.removeChild(debugLog.firstChild);
+                }
+            }
+            
+            info(source, message, data) { this.log('info', source, message, data); }
+            warning(source, message, data) { this.log('warning', source, message, data); }
+            error(source, message, data) { this.log('error', source, message, data); }
+            signalr(source, message, data) { this.log('signalr', source, message, data); }
+        }
+        
+        const logger = new DebugLogger();
+        
+        // Simulation state
+        let simulationState = {
+            hostUrl: null,
+            participantTokens: [],
+            sessionId: null,
+            isSessionActive: false,
+            connections: {
+                host: false,
+                participant1: false,
+                participant2: false,
+                participant3: false
+            }
+        };
+        
+        // Update app status indicator
+        function updateAppStatus(isRunning) {
+            const statusDiv = document.getElementById('app-status');
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            if (isRunning) {
+                statusDiv.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+                statusDiv.style.color = 'white';
+                indicator.textContent = '✅';
+                text.textContent = 'NoorCanvas App Running';
+            } else {
+                statusDiv.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                statusDiv.style.color = 'white';
+                indicator.textContent = '⚠️';
+                text.textContent = 'NoorCanvas App Not Running';
+            }
+        }
+        
+        // Initialize simulation with modern async/await patterns
+        async function initializeSimulation() {
+            logger.info('INIT', '🚀 Starting NoorCanvas Multi-Session Simulation');
+            
+            try {
+                // Show loading state
+                document.body.style.cursor = 'wait';
+                
+                // Check if NoorCanvas app is running
+                let appRunning = false;
+                try {
+                    const response = await fetch('https://localhost:9091', { method: 'HEAD', mode: 'no-cors' });
+                    appRunning = true;
+                } catch (error) {
+                    appRunning = false;
+                }
+                
+                updateAppStatus(appRunning);
+                
+                // Generate session tokens for participants
+                await generateParticipantTokens();
+                
+                // Load sessions with proper error handling
+                const loadPromises = [
+                    loadHostSession(),
+                    loadParticipantSessions()
+                ];
+                
+                await Promise.allSettled(loadPromises);
+                
+                // Setup performance monitoring
+                setupPerformanceMonitoring();
+                
+                logger.info('INIT', '✅ Simulation initialization complete');
+            } catch (error) {
+                logger.error('INIT', '❌ Failed to initialize simulation', error.message);
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+        }
+        
+        function setupPerformanceMonitoring() {
+            // Monitor frame load performance
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'navigation') {
+                        logger.info('PERF', `Navigation timing: ${Math.round(entry.loadEventEnd - entry.fetchStart)}ms`);
+                    }
+                }
+            });
+            
+            try {
+                observer.observe({ entryTypes: ['navigation'] });
+            } catch (e) {
+                logger.warning('PERF', 'Performance monitoring not available');
+            }
+        }
+        
+        async function generateParticipantTokens() {
+            logger.info('TOKENS', 'Generating participant session tokens');
+            
+            // This would typically create actual session tokens via API
+            simulationState.participantTokens = [
+                'TEST_TOKEN_PARTICIPANT_1',
+                'TEST_TOKEN_PARTICIPANT_2', 
+                'TEST_TOKEN_PARTICIPANT_3'
+            ];
+            
+            logger.info('TOKENS', 'Generated tokens for 3 participants', simulationState.participantTokens);
+        }
+        
+        async function loadHostSession() {
+            const hostFrame = document.getElementById('host-frame');
+            const baseUrl = 'https://localhost:9091';
+            
+            logger.info('HOST', 'Loading host session interface');
+            
+            // First check if the NoorCanvas app is running
+            try {
+                const response = await fetch(baseUrl, { method: 'HEAD', mode: 'no-cors' });
+                hostFrame.src = `${baseUrl}`;
+                simulationState.hostUrl = baseUrl;
+                logger.info('HOST', 'NoorCanvas application detected, loading real host session');
+            } catch (error) {
+                // If app is not running, show a placeholder
+                logger.warning('HOST', 'NoorCanvas application not running, showing placeholder');
+                hostFrame.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { 
+                                font-family: Inter, sans-serif; 
+                                background: linear-gradient(135deg, #FDFBEB 0%, #F5F1E8 100%);
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                height: 100vh; 
+                                margin: 0;
+                                color: #4B3C2B;
+                            }
+                            .placeholder {
+                                text-align: center;
+                                padding: 40px;
+                                background: white;
+                                border-radius: 12px;
+                                box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+                                border: 2px solid #D4AF37;
+                            }
+                            .status { color: #D4AF37; font-size: 24px; margin-bottom: 16px; }
+                            .instructions { font-size: 14px; color: #666; margin-top: 12px; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="placeholder">
+                            <div class="status">🏠 HOST SESSION PLACEHOLDER</div>
+                            <div>Waiting for NoorCanvas Application</div>
+                            <div class="instructions">
+                                Start the main app with: <code>./Workspaces/Global/nc.ps1</code><br>
+                                Then refresh this simulation harness
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                simulationState.hostUrl = null;
+            }
+            
+            // Monitor host frame load
+            hostFrame.onload = () => {
+                logger.info('HOST', 'Host session loaded successfully');
+                updateConnectionStatus('host', true);
+                
+                // Only inject monitoring if we have a real URL
+                if (simulationState.hostUrl) {
+                    injectFrameMonitoring(hostFrame, 'HOST');
+                }
+            };
+            
+            hostFrame.onerror = (error) => {
+                logger.error('HOST', 'Failed to load host session', error);
+                updateConnectionStatus('host', false);
+            };
+        }
+        
+        async function loadParticipantSessions() {
+            const participants = ['participant1', 'participant2', 'participant3'];
+            const baseUrl = 'https://localhost:9091';
+            
+            // Check if NoorCanvas app is running
+            let appRunning = false;
+            try {
+                const response = await fetch(baseUrl, { method: 'HEAD', mode: 'no-cors' });
+                appRunning = true;
+                logger.info('PARTICIPANT', 'NoorCanvas application detected, loading real participant sessions');
+            } catch (error) {
+                logger.warning('PARTICIPANT', 'NoorCanvas application not running, showing placeholders');
+            }
+            
+            for (let i = 0; i < participants.length; i++) {
+                const participantId = participants[i];
+                const frame = document.getElementById(`${participantId}-frame`);
+                const token = simulationState.participantTokens[i];
+                
+                logger.info('PARTICIPANT', `Loading ${participantId} with token ${token}`);
+                
+                if (appRunning) {
+                    // In real scenario, this would use actual participant URLs with tokens
+                    const participantUrl = `${baseUrl}/SessionWaiting/${token}`;
+                    frame.src = participantUrl;
+                } else {
+                    // Show placeholder when app is not running
+                    frame.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <style>
+                                body { 
+                                    font-family: Inter, sans-serif; 
+                                    background: linear-gradient(135deg, #FDFBEB 0%, #F5F1E8 100%);
+                                    display: flex; 
+                                    align-items: center; 
+                                    justify-content: center; 
+                                    height: 100vh; 
+                                    margin: 0;
+                                    color: #4B3C2B;
+                                }
+                                .placeholder {
+                                    text-align: center;
+                                    padding: 30px;
+                                    background: white;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                    border: 2px solid #006400;
+                                }
+                                .status { color: #006400; font-size: 18px; margin-bottom: 12px; }
+                                .token { font-size: 12px; color: #888; font-family: monospace; margin-top: 8px; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="placeholder">
+                                <div class="status">👤 PARTICIPANT ${i + 1}</div>
+                                <div>Awaiting Session</div>
+                                <div class="token">Token: ${token}</div>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                }
+                
+                // Monitor participant frame load
+                frame.onload = () => {
+                    logger.info('PARTICIPANT', `${participantId} session loaded successfully`);
+                    updateConnectionStatus(participantId, true);
+                    
+                    // Only inject monitoring if we have a real URL
+                    if (appRunning) {
+                        injectFrameMonitoring(frame, participantId.toUpperCase());
+                    }
+                };
+                
+                frame.onerror = (error) => {
+                    logger.error('PARTICIPANT', `Failed to load ${participantId} session`, error);
+                    updateConnectionStatus(participantId, false);
+                };
+            }
+        }
+        
+        function injectFrameMonitoring(frame, role) {
+            try {
+                // Inject SignalR monitoring script into iframe
+                const monitoringScript = `
+                    // Monitor SignalR connections
+                    if (window.blazorCulture && window.blazorCulture.connection) {
+                        const connection = window.blazorCulture.connection;
+                        
+                        connection.on('QuestionAdded', (data) => {
+                            parent.postMessage({
+                                type: 'signalr_event',
+                                event: 'QuestionAdded',
+                                role: '${role}',
+                                data: data
+                            }, '*');
+                        });
+                        
+                        connection.on('QuestionVoteUpdated', (data) => {
+                            parent.postMessage({
+                                type: 'signalr_event',
+                                event: 'QuestionVoteUpdated',
+                                role: '${role}',
+                                data: data
+                            }, '*');
+                        });
+                        
+                        connection.on('SessionBegan', (data) => {
+                            parent.postMessage({
+                                type: 'signalr_event',
+                                event: 'SessionBegan',
+                                role: '${role}',
+                                data: data
+                            }, '*');
+                        });
+                        
+                        connection.on('ParticipantJoined', (data) => {
+                            parent.postMessage({
+                                type: 'signalr_event',
+                                event: 'ParticipantJoined',
+                                role: '${role}',
+                                data: data
+                            }, '*');
+                        });
+                    }
+                    
+                    // Monitor API calls
+                    const originalFetch = fetch;
+                    fetch = function(...args) {
+                        parent.postMessage({
+                            type: 'api_call',
+                            role: '${role}',
+                            url: args[0],
+                            options: args[1]
+                        }, '*');
+                        
+                        return originalFetch.apply(this, args)
+                            .then(response => {
+                                parent.postMessage({
+                                    type: 'api_response',
+                                    role: '${role}',
+                                    url: args[0],
+                                    status: response.status,
+                                    ok: response.ok
+                                }, '*');
+                                return response;
+                            })
+                            .catch(error => {
+                                parent.postMessage({
+                                    type: 'api_error',
+                                    role: '${role}',
+                                    url: args[0],
+                                    error: error.message
+                                }, '*');
+                                throw error;
+                            });
+                    };
+                `;
+                
+                setTimeout(() => {
+                    try {
+                        frame.contentWindow.eval(monitoringScript);
+                        logger.info('MONITOR', `Injected monitoring script into ${role} frame`);
+                    } catch (e) {
+                        logger.warning('MONITOR', `Could not inject monitoring script into ${role} frame (CORS)`, e.message);
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                logger.warning('MONITOR', `Failed to inject monitoring for ${role}`, error);
+            }
+        }
+        
+        function updateConnectionStatus(role, connected) {
+            const statusElement = document.getElementById(`${role}-status`);
+            if (statusElement) {
+                statusElement.classList.toggle('connected', connected);
+                simulationState.connections[role] = connected;
+            }
+            
+            logger.info('CONNECTION', `${role} connection status: ${connected ? 'CONNECTED' : 'DISCONNECTED'}`);
+        }
+        
+        // Listen for messages from iframes
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type) {
+                switch (event.data.type) {
+                    case 'signalr_event':
+                        logger.signalr('IFRAME', `${event.data.role}: ${event.data.event}`, event.data.data);
+                        break;
+                    case 'api_call':
+                        logger.info('API', `${event.data.role}: ${event.data.url}`, event.data.options);
+                        break;
+                    case 'api_response':
+                        logger.info('API', `${event.data.role}: ${event.data.url} → ${event.data.status}`, { ok: event.data.ok });
+                        break;
+                    case 'api_error':
+                        logger.error('API', `${event.data.role}: ${event.data.url} → ERROR`, event.data.error);
+                        break;
+                }
+            }
+        });
+        
+        // Add refresh functionality
+        async function refreshSimulation() {
+            logger.info('CONTROL', '🔄 Refreshing simulation harness');
+            
+            // Reset connection states
+            simulationState.connections = {
+                host: false,
+                participant1: false,
+                participant2: false,
+                participant3: false
+            };
+            
+            // Reload all sessions
+            await initializeSimulation();
+        }
+        
+        // Simulation control functions
+        async function startSession() {
+            logger.info('CONTROL', 'Starting session via host interface');
+            
+            if (!simulationState.hostUrl) {
+                logger.warning('CONTROL', 'Cannot start session - NoorCanvas app not running');
+                alert('Please start the NoorCanvas application first:\\n\\n./Workspaces/Global/nc.ps1\\n\\nThen click "Refresh Simulation"');
+                return;
+            }
+            
+            try {
+                const hostFrame = document.getElementById('host-frame');
+                // This would trigger the "Start Session" button in the host frame
+                hostFrame.contentWindow.postMessage({ action: 'start_session' }, '*');
+                
+                simulationState.isSessionActive = true;
+                logger.info('CONTROL', 'Session start command sent');
+            } catch (error) {
+                logger.error('CONTROL', 'Failed to start session', error);
+            }
+        }
+        
+        async function addTestQuestion() {
+            logger.info('CONTROL', 'Adding test question via participant 1');
+            
+            try {
+                const participant1Frame = document.getElementById('participant1-frame');
+                participant1Frame.contentWindow.postMessage({ 
+                    action: 'add_question', 
+                    question: 'This is a test question from the simulation harness'
+                }, '*');
+                
+                logger.info('CONTROL', 'Test question command sent');
+            } catch (error) {
+                logger.error('CONTROL', 'Failed to add test question', error);
+            }
+        }
+        
+        async function simulateVoting() {
+            logger.info('CONTROL', 'Simulating voting from multiple participants');
+            
+            const participants = ['participant1', 'participant2', 'participant3'];
+            
+            for (const participant of participants) {
+                try {
+                    const frame = document.getElementById(`${participant}-frame`);
+                    frame.contentWindow.postMessage({ action: 'vote_question', questionId: 1 }, '*');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 200)); // Stagger votes
+                } catch (error) {
+                    logger.error('CONTROL', `Failed to simulate vote from ${participant}`, error);
+                }
+            }
+            
+            logger.info('CONTROL', 'Voting simulation complete');
+        }
+        
+        async function triggerParticipantJoin() {
+            logger.info('CONTROL', 'Simulating new participant join');
+            
+            try {
+                // This would simulate a new participant joining
+                const joinData = {
+                    participantId: 'TEST_PARTICIPANT_4',
+                    name: 'Simulation Test User',
+                    timestamp: new Date().toISOString()
+                };
+                
+                logger.signalr('CONTROL', 'Simulated ParticipantJoined event', joinData);
+            } catch (error) {
+                logger.error('CONTROL', 'Failed to simulate participant join', error);
+            }
+        }
+        
+        async function simulateConnectionDrop() {
+            logger.warning('CONTROL', 'Simulating connection drop for participant 2');
+            
+            try {
+                updateConnectionStatus('participant2', false);
+                
+                setTimeout(() => {
+                    logger.info('CONTROL', 'Reconnecting participant 2');
+                    updateConnectionStatus('participant2', true);
+                }, 3000);
+                
+            } catch (error) {
+                logger.error('CONTROL', 'Failed to simulate connection drop', error);
+            }
+        }
+        
+        function exportDebugLog() {
+            const logData = logger.logs.map(log => 
+                `[${log.timestamp}] ${log.level.toUpperCase()} [${log.source}] ${log.message}${log.data ? ' ' + JSON.stringify(log.data) : ''}`
+            ).join('\\n');
+            
+            const blob = new Blob([logData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `noorcanvas-debug-${new Date().toISOString().substr(0, 19).replace(/:/g, '-')}.log`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            logger.info('EXPORT', 'Debug log exported successfully');
+        }
+        
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debug-panel');
+            panel.classList.toggle('collapsed');
+        }
+        
+        // Start simulation on load
+        document.addEventListener('DOMContentLoaded', () => {
+            logger.info('DOM', 'Document loaded, initializing simulation');
+            setTimeout(initializeSimulation, 1000);
+        });
+        
+        // Watchdog for hung operations
+        let lastActivity = Date.now();
+        let watchdogActive = true;
+        
+        function resetWatchdog() {
+            lastActivity = Date.now();
+        }
+        
+        setInterval(() => {
+            if (!watchdogActive) return;
+            
+            const idleTime = Date.now() - lastActivity;
+            if (idleTime > 120000) { // 2 minutes
+                logger.warning('WATCHDOG', `Simulation has been idle for ${Math.floor(idleTime/1000)} seconds`);
+                
+                // Check if any frames are still loading
+                const frames = document.querySelectorAll('iframe');
+                frames.forEach(frame => {
+                    if (!frame.src || frame.src === 'about:blank') {
+                        logger.error('WATCHDOG', `${frame.id} appears to be hung - no source loaded`);
+                    }
+                });
+                
+                resetWatchdog();
+            }
+        }, 30000);
+        
+        // Reset watchdog on any user interaction
+        document.addEventListener('click', resetWatchdog);
+        document.addEventListener('keypress', resetWatchdog);
+        
+        // Handle window unload
+        window.addEventListener('beforeunload', () => {
+            logger.info('CLEANUP', 'Simulation ending - saving final state');
+            watchdogActive = false;
+        });
+    </script>
+</body>
+</html>

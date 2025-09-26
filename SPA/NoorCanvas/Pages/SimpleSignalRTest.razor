@@ -1,0 +1,316 @@
+@page "/simple-signalr-test"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<div style="padding: 2rem; max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+    <h1 style="color: #333; margin-bottom: 2rem;">🚀 Simple SignalR Test</h1>
+    
+    <!-- Connection Status -->
+    <div style="padding: 1rem; margin-bottom: 2rem; border-radius: 8px; @GetStatusColor()">
+        <h3 style="margin: 0;">Status: @GetConnectionStatus()</h3>
+    </div>
+
+    <!-- Simple Controls -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+        <button @onclick="Connect" disabled="@IsConnected" 
+                style="padding: 1rem; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
+            Connect
+        </button>
+        
+        <button @onclick="Disconnect" disabled="@(!IsConnected)" 
+                style="padding: 1rem; background: #dc3545; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
+            Disconnect
+        </button>
+    </div>
+
+    <!-- Session Management -->
+    <div style="margin-bottom: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="margin: 0 0 1rem 0;">Join Session</h4>
+        <div style="display: flex; gap: 0.5rem;">
+            <input @bind="sessionId" disabled="@(!IsConnected)"
+                   style="flex: 1; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;"
+                   placeholder="Enter session name (e.g., test123)"/>
+            <button @onclick="JoinSession" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(sessionId))"
+                    style="padding: 0.75rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
+                Join
+            </button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(currentSession))
+        {
+            <div style="margin-top: 1rem; color: #28a745; font-weight: bold;">
+                ✅ In session: @currentSession
+            </div>
+        }
+    </div>
+
+    <!-- Send HTML -->
+    <div style="margin-bottom: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 8px;">
+        <h4 style="margin: 0 0 1rem 0;">Send HTML</h4>
+        <textarea @bind="htmlToSend" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSession))"
+                  style="width: 100%; height: 100px; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 14px; resize: vertical;"
+                  placeholder="<h1>Hello from my session!</h1>"></textarea>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+            <button @onclick="SendHtml" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSession) || string.IsNullOrWhiteSpace(htmlToSend))"
+                    style="flex: 1; padding: 0.75rem; background: #ff6b35; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
+                Send HTML
+            </button>
+            <button @onclick="SendSample" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(currentSession))"
+                    style="flex: 1; padding: 0.75rem; background: #6f42c1; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
+                Send Sample
+            </button>
+        </div>
+    </div>
+
+    <!-- Display Received HTML -->
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+        <h3 style="margin: 0 0 1rem 0;">📺 Received HTML</h3>
+        <div style="min-height: 100px; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 1rem;">
+            @if (receivedHtml != null)
+            {
+                @((MarkupString)receivedHtml)
+            }
+            else
+            {
+                <p style="color: #666; font-style: italic; margin: 0;">No HTML received yet.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Simple Message Log -->
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem;">
+        <h3 style="margin: 0 0 1rem 0;">📋 Messages (@messages.Count)</h3>
+        <div style="height: 200px; overflow-y: auto; background: white; padding: 1rem; border-radius: 4px; font-family: monospace; font-size: 12px;">
+            @if (messages.Any())
+            {
+                @foreach (var msg in messages.TakeLast(20))
+                {
+                    <div style="margin-bottom: 0.5rem; color: @GetMessageColor(msg.Type);">
+                        [@msg.Timestamp.ToString("HH:mm:ss")] @msg.Type: @msg.Content
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="color: #666; margin: 0;">No messages yet.</p>
+            }
+        </div>
+        <button @onclick="ClearMessages" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Clear
+        </button>
+    </div>
+</div>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<SimpleMessage> messages = new();
+    private string sessionId = "";
+    private string currentSession = "";
+    private string htmlToSend = "";
+    private string? receivedHtml = null;
+
+    public class SimpleMessage
+    {
+        public DateTime Timestamp { get; set; }
+        public string Type { get; set; } = "";
+        public string Content { get; set; } = "";
+    }
+
+    private async Task Connect()
+    {
+        try
+        {
+            AddMessage("SYSTEM", "Connecting...");
+            AddMessage("DEBUG", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Attempting connection to /hub/test");
+            
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/hub/test"))
+                .WithAutomaticReconnect()
+                .Build();
+
+            // Handle received HTML
+            hubConnection.On<object>("HtmlContentReceived", (data) =>
+            {
+                InvokeAsync(() =>
+                {
+                    try
+                    {
+                        AddMessage("DEBUG", "[DEBUG-WORKITEM:hostcanvas:CLIENT] HtmlContentReceived event fired");
+                        var json = System.Text.Json.JsonSerializer.Serialize(data);
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        
+                        var htmlContent = root.TryGetProperty("htmlContent", out var htmlElement) ? htmlElement.GetString() : "";
+                        var sender = root.TryGetProperty("senderConnectionId", out var senderElement) ? senderElement.GetString() : "unknown";
+                        
+                        receivedHtml = htmlContent;
+                        AddMessage("HTML", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Received from {sender}, length: {htmlContent?.Length ?? 0}");
+                        StateHasChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Failed to parse HTML: {ex.Message}");
+                    }
+                });
+            });
+
+            // Handle session events
+            hubConnection.On<object>("ParticipantJoined", (data) =>
+            {
+                InvokeAsync(() =>
+                {
+                    AddMessage("SESSION", "[DEBUG-WORKITEM:hostcanvas:CLIENT] ParticipantJoined event fired");
+                    StateHasChanged();
+                });
+            });
+
+            // Handle broadcast confirmations
+            hubConnection.On<object>("HtmlBroadcastConfirmed", (data) =>
+            {
+                InvokeAsync(() =>
+                {
+                    AddMessage("CONFIRM", "[DEBUG-WORKITEM:hostcanvas:CLIENT] HtmlBroadcastConfirmed event fired");
+                    StateHasChanged();
+                });
+            });
+
+            await hubConnection.StartAsync();
+            AddMessage("SUCCESS", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Connected! ID: {hubConnection.ConnectionId}");
+            AddMessage("DEBUG", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Connection state: {hubConnection.State}");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Connection failed: {ex.Message}");
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Exception type: {ex.GetType().Name}");
+        }
+    }
+
+    private async Task Disconnect()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+            hubConnection = null;
+            currentSession = "";
+            AddMessage("SYSTEM", "Disconnected");
+        }
+    }
+
+    private async Task JoinSession()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(sessionId)) return;
+
+        try
+        {
+            AddMessage("DEBUG", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Attempting to join session: {sessionId}");
+            await hubConnection!.SendAsync("JoinHtmlTestSession", sessionId);
+            currentSession = sessionId;
+            AddMessage("SESSION", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Joined session: {sessionId}");
+            sessionId = "";
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Failed to join session: {ex.Message}");
+        }
+    }
+
+    private async Task SendHtml()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSession) || string.IsNullOrWhiteSpace(htmlToSend)) return;
+
+        try
+        {
+            AddMessage("DEBUG", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Sending HTML to session: {currentSession}, length: {htmlToSend.Length}");
+            await hubConnection!.SendAsync("BroadcastHtml", currentSession, htmlToSend, "general");
+            AddMessage("SENT", "[DEBUG-WORKITEM:hostcanvas:CLIENT] HTML sent successfully");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"[DEBUG-WORKITEM:hostcanvas:CLIENT] Failed to send HTML: {ex.Message}");
+        }
+    }
+
+    private async Task SendSample()
+    {
+        if (!IsConnected || string.IsNullOrWhiteSpace(currentSession)) return;
+
+        var sampleHtml = $@"<div style='background: linear-gradient(45deg, #ff6b35, #f7931e); color: white; padding: 20px; border-radius: 10px; text-align: center;'>
+            <h2 style='margin: 0 0 10px 0;'>🎉 Sample HTML</h2>
+            <p style='margin: 0; opacity: 0.9;'>Sent at {DateTime.Now:HH:mm:ss}</p>
+        </div>";
+
+        try
+        {
+            htmlToSend = sampleHtml;
+            await hubConnection!.SendAsync("BroadcastHtml", currentSession, sampleHtml, "test");
+            AddMessage("SENT", "Sample HTML sent");
+        }
+        catch (Exception ex)
+        {
+            AddMessage("ERROR", $"Failed to send sample: {ex.Message}");
+        }
+    }
+
+    private void ClearMessages()
+    {
+        messages.Clear();
+        receivedHtml = null;
+        AddMessage("SYSTEM", "Messages cleared");
+    }
+
+    private void AddMessage(string type, string content)
+    {
+        messages.Add(new SimpleMessage
+        {
+            Timestamp = DateTime.Now,
+            Type = type,
+            Content = content
+        });
+
+        // Keep only last 50 messages
+        if (messages.Count > 50)
+        {
+            messages.RemoveRange(0, messages.Count - 50);
+        }
+
+        StateHasChanged();
+    }
+
+    private bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+    private string GetConnectionStatus()
+    {
+        return hubConnection?.State.ToString() ?? "Disconnected";
+    }
+
+    private string GetStatusColor()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "background: #d4edda; color: #155724;",
+            HubConnectionState.Connecting => "background: #fff3cd; color: #856404;",
+            _ => "background: #f8d7da; color: #721c24;"
+        };
+    }
+
+    private string GetMessageColor(string type)
+    {
+        return type switch
+        {
+            "SUCCESS" => "#28a745",
+            "ERROR" => "#dc3545",
+            "HTML" => "#ff6b35",
+            "SESSION" => "#007bff",
+            "SENT" => "#20c997",
+            _ => "#6c757d"
+        };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

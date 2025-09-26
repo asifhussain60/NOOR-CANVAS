@@ -1,0 +1,63 @@
+{
+    "manifest": {
+        "created_at": "2025-09-26T12:46:00Z",
+        "key": "hostcanvas",
+        "mode": "analyze",
+        "schema_version": "1.0"
+    },
+    "critical_context": {
+        "javascript_error": {
+            "error": "Uncaught SyntaxError: Failed to execute 'appendChild' on 'Node': Invalid or unexpected token",
+            "location": "blazor.server.js:1:20794",
+            "salience": 1.0,
+            "impact": "Critical - prevents HTML rendering"
+        },
+        "success_message_paradox": {
+            "issue": "Test asset shared successfully via SignalR message appears despite JavaScript error",
+            "salience": 0.9,
+            "impact": "Confusing user experience - success reported on failure"
+        },
+        "git_reference": {
+            "commit": "581594d9d777fa0be547fff085da6d85089288c2",
+            "description": "Working HTML transmission implementation",
+            "salience": 0.8
+        }
+    },
+    "source_files": {
+        "HostControlPanel.razor": {
+            "path": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\HostControlPanel.razor",
+            "size": 2438,
+            "salience": 1.0,
+            "contains": [
+                "TestShareAsset method",
+                "View Session Canvas button",
+                "SignalR connection"
+            ]
+        },
+        "SessionCanvas.razor": {
+            "path": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\SessionCanvas.razor",
+            "size": 1405,
+            "salience": 0.9,
+            "contains": [
+                "HtmlContentReceived handler",
+                "SignalR event processing"
+            ]
+        },
+        "SessionHub.cs": {
+            "path": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Hubs\\SessionHub.cs",
+            "size": 473,
+            "salience": 0.8,
+            "contains": [
+                "BroadcastHtml method",
+                "ShareAsset method",
+                "SignalR hub implementation"
+            ]
+        }
+    },
+    "known_issues": [
+        "appendChild SyntaxError suggests malformed HTML being injected",
+        "Success message timing vs error occurrence needs investigation",
+        "HTML encoding/escaping may be problematic",
+        "View Session Canvas functionality needs removal"
+    ]
+}

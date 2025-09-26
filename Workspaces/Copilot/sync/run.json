@@ -1,0 +1,12 @@
+{
+    "sync_session": "sync-20241213",
+    "timestamp": "2024-12-13T10:45:00Z",
+    "status": "started",
+    "notes": "",
+    "context_sources": [
+        "recent_commits",
+        "workitem_canvas_state",
+        "terminal_logs",
+        "implementation_analysis"
+    ]
+}

@@ -7,10 +7,12 @@
 @using System.Text.Json.Serialization
 @using System.Text.Json
 @using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.SignalR
 @using Microsoft.EntityFrameworkCore
 @using NoorCanvas.Models
 @using AngleSharp.Dom
 @using AngleSharp.Html.Parser
+@using System.Web
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -61,6 +63,31 @@
                 border-radius: 1rem !important;
             }
         }
+        
+        /* Share button styles for asset sharing functionality */
+        .ks-share-wrapper {
+            margin: 2px 5px 8px 0;
+            display: inline-block;
+        }
+        
+        .ks-share-button, .ks-share-btn {
+            background-color: #dc2626;
+            color: white;
+            padding: 4px 10px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .ks-share-button:hover, .ks-share-btn:hover {
+            background-color: #b91c1c;
+            transform: scale(1.05);
+        }
     </style>
 </HeadContent>
 
@@ -68,6 +95,18 @@
 <div style="background-color:#F8F5F1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1rem;font-family:'Inter',sans-serif;">
 
     <div style="width:95%;background-color:white;border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);padding:2rem;display:flex;flex-direction:column;gap:1.5rem;">
+
+        <!-- REUSABLE DEBUG PANEL: SignalR Connection & Asset Sharing Trace -->
+        <SignalRDebugPanel 
+            Title="HOST CONTROL PANEL"
+            ViewType="NoorCanvas.Models.Debug.DebugPanelViewType.Host"
+            HubConnection="hubConnection"
+            DebugLog="debugLog"
+            SessionId="SessionId"
+            HostToken="HostToken"
+            UserToken="UserToken"
+            OnClearLog="HandleClearDebugLog"
+            OnAddLogEntry="HandleAddDebugLog" />
 
         <!-- Header & Session Info -->
         <header style="text-align:center;">
@@ -82,6 +121,51 @@
                 <span>HOST CONTROL PANEL</span>
             </h1>
         </header>
+
+        <!-- Error Display Panel -->
+        <div id="noor-error-panel" style="display:none;background:linear-gradient(135deg,#FEF2F2,#FECACA);border:2px solid #DC2626;border-radius:1rem;padding:1.5rem;margin-bottom:1rem;box-shadow:0 10px 15px -3px rgba(220,38,38,0.1);">
+            <div style="display:flex;align-items:flex-start;gap:1rem;">
+                <div style="flex-shrink:0;background:#DC2626;color:white;width:2.5rem;height:2.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-exclamation-triangle" style="font-size:1.125rem;"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <h4 style="font-weight:700;font-size:1.125rem;color:#DC2626;margin:0 0 0.5rem 0;display:flex;align-items:center;gap:0.5rem;">
+                        <span>System Error Detected</span>
+                        <span id="error-timestamp" style="font-size:0.75rem;font-weight:400;color:#6B7280;"></span>
+                    </h4>
+                    <div id="error-content" style="background:rgba(255,255,255,0.8);border-radius:0.5rem;padding:1rem;margin-bottom:1rem;border:1px solid #FCA5A5;">
+                        <div id="error-message" style="font-family:monospace;font-size:0.875rem;color:#374151;word-break:break-all;white-space:pre-wrap;"></div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                        <button id="copy-error-btn" onclick="copyErrorToClipboard()" 
+                                style="padding:0.5rem 1rem;background:#DC2626;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;"
+                                onmouseover="this.style.backgroundColor='#B91C1C'"
+                                onmouseout="this.style.backgroundColor='#DC2626'">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copy Error</span>
+                        </button>
+                        <button onclick="dismissError()" 
+                                style="padding:0.5rem 1rem;background:#6B7280;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;"
+                                onmouseover="this.style.backgroundColor='#4B5563'"
+                                onmouseout="this.style.backgroundColor='#6B7280'">
+                            <i class="fa-solid fa-times"></i>
+                            <span>Dismiss</span>
+                        </button>
+                        <button onclick="toggleErrorDetails()" 
+                                style="padding:0.5rem 1rem;background:#3B82F6;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;"
+                                onmouseover="this.style.backgroundColor='#2563EB'"
+                                onmouseout="this.style.backgroundColor='#3B82F6'">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span>Details</span>
+                        </button>
+                    </div>
+                    <div id="error-details" style="display:none;margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.9);border-radius:0.5rem;border:1px solid #E5E7EB;">
+                        <h5 style="font-weight:600;font-size:0.875rem;color:#374151;margin:0 0 0.5rem 0;">Technical Details:</h5>
+                        <div id="error-stack" style="font-family:monospace;font-size:0.75rem;color:#6B7280;white-space:pre-wrap;word-break:break-all;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div style="display:flex;justify-content:center;width:100%;">
             <div style="display:flex;flex-direction:column;gap:1rem;align-items:stretch;width:50%;">
@@ -137,20 +221,44 @@
                             <span>Start Session</span>
                         </button>
                         
-                        @if (!string.IsNullOrEmpty(UserToken))
-                        {
-                            <button @onclick="NavigateToSessionCanvas" 
-                                    disabled="@isLoading"
-                                    style="width:100%;padding:0.875rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(139,92,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#8B5CF6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                                    onmouseover="this.style.backgroundColor='#7C3AED'; this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.backgroundColor='#8B5CF6'; this.style.transform='scale(1)'">
-                                <i class="fa-solid fa-palette" style="font-size:1rem;"></i>
-                                <span>View Session Canvas</span>
-                            </button>
-                        }
+
+                        
+                        <!-- SignalR Connection Status -->
+                        <div style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1rem;background-color:#F8F9FA;border-radius:0.75rem;border:1px solid #E9ECEF;">
+                            <i class="@GetSignalRStatusIcon()" style="font-size:1rem;color:@GetSignalRStatusColor();"></i>
+                            <span style="font-size:0.875rem;color:#495057;font-weight:500;">@GetSignalRStatusText()</span>
+                        </div>
                         
                         @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
                         {
+                            <!-- Rich Text Box for Broadcasting HTML -->
+                            <div style="width:100%;background-color:#F0F9FF;border-radius:1rem;border:1px solid #3B82F6;padding:1rem;margin-bottom:1rem;">
+                                <h4 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:600;font-size:1rem;color:#3B82F6;margin-bottom:0.75rem;text-align:center;">
+                                    <i class="fa-solid fa-broadcast-tower" style="color:#3B82F6;"></i>
+                                    <span>Broadcast HTML to Sessions</span>
+                                </h4>
+                                <textarea @bind="BroadcastHtmlContent" 
+                                         placeholder="Enter HTML content to broadcast to all user sessions..."
+                                         style="width:100%;min-height:100px;padding:0.75rem;border:1px solid #D1D5DB;border-radius:0.5rem;font-family:monospace;font-size:0.875rem;resize:vertical;"
+                                         rows="4"></textarea>
+                                <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+                                    <button @onclick="BroadcastHtmlToSessions" 
+                                            disabled="@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent))"
+                                            style="flex:1;padding:0.5rem 1rem;background-color:#10B981;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "not-allowed" : "pointer");opacity:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "0.5" : "1");transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;"
+                                            onmouseover="if (!this.disabled) this.style.backgroundColor='#059669'"
+                                            onmouseout="if (!this.disabled) this.style.backgroundColor='#10B981'">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                        <span>Broadcast</span>
+                                    </button>
+                                    <button @onclick="ClearBroadcastContent" 
+                                            style="padding:0.5rem;background-color:#6B7280;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;cursor:pointer;transition:all 0.2s;"
+                                            onmouseover="this.style.backgroundColor='#4B5563'"
+                                            onmouseout="this.style.backgroundColor='#6B7280'">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <button @onclick="TestShareAsset" 
                                     disabled="@isLoading"
                                     style="width:100%;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(59,130,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#3B82F6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
@@ -196,7 +304,35 @@
                     {
                         <div style="flex:1;overflow-y:auto;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
                             <div class="html-viewer-content session-transcript-content" data-islamic-content>
-                                @((MarkupString)(Model.TransformedTranscript))
+                                @try {
+                                    @* HOTFIX: Temporary bypass of HTML transformation to isolate appendChild issue *@
+                                    @if (string.IsNullOrEmpty(Model.TransformedTranscript) || Model.TransformedTranscript.Length > 50000)
+                                    {
+                                        <div style="background:#FFF3CD;border:1px solid #FFEAA7;border-radius:0.5rem;padding:1rem;color:#856404;">
+                                            <h4>📋 Session Transcript</h4>
+                                            <p><strong>Status:</strong> HTML content temporarily disabled for debugging</p>
+                                            <p><strong>Original Length:</strong> @(Model.SessionTranscript?.Length ?? 0) characters</p>
+                                            <p><strong>Transformed Length:</strong> @(Model.TransformedTranscript?.Length ?? 0) characters</p>
+                                            <p><em>Complex HTML rendering temporarily bypassed to isolate appendChild error</em></p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        @((MarkupString)(Model.TransformedTranscript))
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    <div style="color: red; padding: 20px; border: 2px solid red; border-radius: 5px;">
+                                        <h4>[DEBUG-WORKITEM:hostcanvas:ERROR] MarkupString Rendering Failed</h4>
+                                        <p><strong>Error:</strong> @ex.Message</p>
+                                        <p><strong>HTML Length:</strong> @(Model.TransformedTranscript?.Length ?? 0) characters</p>
+                                        <details>
+                                            <summary>Show problematic HTML (first 1000 chars)</summary>
+                                            <pre style="background: #f5f5f5; padding: 10px; overflow: auto; max-height: 200px;">@(Model.TransformedTranscript?.Substring(0, Math.Min(1000, Model.TransformedTranscript?.Length ?? 0)))</pre>
+                                        </details>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
@@ -245,7 +381,7 @@
                     {
                         @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered))
                         {
-                            <div style="@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "")padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;@(question.IsAnswered ? "" : "background-color:#FFFFFF;");margin-bottom:0.5rem;border-radius:0.5rem;">
+                            <div style="padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;margin-bottom:0.5rem;border-radius:0.5rem;@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "background-color:#FFFFFF;")">
                                 <div style="display:flex;align-items:flex-start;gap:0.5rem;">
                                     <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");margin-top:0.25rem;flex-shrink:0;"></i>
                                     <div style="flex:1;">
@@ -337,6 +473,13 @@
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
+    
+    // Rich text box for broadcasting HTML content
+    private string BroadcastHtmlContent { get; set; } = string.Empty;
+    
+    // Debug logging for tracing SignalR issues
+    private List<DebugLogEntry> debugLog = new List<DebugLogEntry>();
+    private const int MaxDebugLogEntries = 100;
     
     // Host auth token (GUID) removed - use HostToken (8-char) for host flows
 
@@ -502,8 +645,10 @@
                 }
             });
 
+            AddDebugLog("SIGNALR", "🔗 Starting SignalR connection to /hub/session");
             Logger.LogInformation("COPILOT-DEBUG: Starting SignalR connection to /hub/session");
             await hubConnection.StartAsync();
+            AddDebugLog("SUCCESS", $"✅ SignalR connected: ConnectionId={hubConnection.ConnectionId}, State={hubConnection.State}");
             Logger.LogInformation("COPILOT-DEBUG: SignalR connection established - ConnectionId: {ConnectionId}, State: {State}", 
                 hubConnection.ConnectionId, hubConnection.State);
             
@@ -522,20 +667,24 @@
         {
             try
             {
+                AddDebugLog("SIGNALR", $"👥 Joining SignalR groups for SessionId: {SessionId.Value}");
                 Logger.LogInformation("COPILOT-DEBUG: Joining SignalR groups for SessionId: {SessionId}", SessionId.Value);
                 
                 // Join general session group (for asset sharing, etc.)
                 await hubConnection.InvokeAsync("JoinSession", SessionId.Value, "host");
+                AddDebugLog("SUCCESS", $"✅ Joined session group: session_{SessionId.Value} as host");
                 Logger.LogInformation("COPILOT-DEBUG: Joined session group session_{SessionId} as host", SessionId.Value);
                 
                 // Join host-specific group (for question notifications)
                 await hubConnection.InvokeAsync("JoinHostGroup", SessionId.Value.ToString());
+                AddDebugLog("SUCCESS", $"✅ Joined host group: Host_{SessionId.Value}");
                 Logger.LogInformation("COPILOT-DEBUG: Joined host group Host_{SessionId}", SessionId.Value);
                 
                 Logger.LogInformation("NOOR-SIGNALR: Host joined session {SessionId} and host group successfully", SessionId.Value);
                 
                 // Make SessionId available to JavaScript for ShareAsset calls
                 await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
+                AddDebugLog("DATA", $"📊 Set JavaScript window.currentSessionId = {SessionId.Value}");
                 Logger.LogInformation("COPILOT-DEBUG: Set window.currentSessionId = {SessionId} for JavaScript", SessionId.Value);
             }
             catch (Exception ex)
@@ -581,8 +730,9 @@
                           
             if (isToken)
             {
-                hostToken = sessionIdOrToken;
-                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Processing as HOST TOKEN: {HostToken}", requestId, hostToken);
+                hostToken = sessionIdOrToken?.Trim();
+                HostToken = hostToken; // Set the property with trimmed value
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Processing as HOST TOKEN: '{HostToken}' (Length: {Length})", requestId, hostToken, hostToken?.Length ?? 0);
                 
                 // First, check if this token exists in the current database
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Checking if token exists in database...", requestId);
@@ -607,8 +757,8 @@
                 {
                     if (!string.IsNullOrEmpty(matchingTokenRecord.UserToken))
                     {
-                        UserToken = matchingTokenRecord.UserToken;
-                        Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ UserToken loaded from database: {UserToken}", requestId, UserToken);
+                        UserToken = matchingTokenRecord.UserToken?.Trim();
+                        Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ UserToken loaded from database: '{UserToken}' (Length: {Length})", requestId, UserToken, UserToken?.Length ?? 0);
                     }
                     
                     // Legacy HostAuthToken column removed - rely on HostToken and HostSessions if needed
@@ -619,7 +769,7 @@
                 }
                 
                 // Map token to session ID for API calls
-                var mappedSessionId = await GetSessionIdFromTokenAsync(hostToken);
+                var mappedSessionId = !string.IsNullOrEmpty(hostToken) ? await GetSessionIdFromTokenAsync(hostToken) : null;
                 if (string.IsNullOrEmpty(mappedSessionId))
                 {
                     Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ CRITICAL: Could not map token '{Token}' to session ID", requestId, hostToken);
@@ -952,33 +1102,189 @@
 
     private async Task TestShareAsset()
     {
-        if (SessionId == null || hubConnection == null) return;
+        AddDebugLog("INFO", "🚀 TestShareAsset method called");
+        
+        if (SessionId == null || hubConnection == null) 
+        {
+            var errorMsg = "Cannot test asset sharing: SignalR connection or session not available";
+            AddDebugLog("ERROR", $"❌ Precondition failed: SessionId={SessionId}, hubConnection={hubConnection != null}");
+            Logger.LogWarning("NOOR-TEST-ERROR: {ErrorMessage}", errorMsg);
+            await ShowErrorMessageAsync(errorMsg);
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            var errorMsg = $"SignalR connection is in state: {hubConnection.State}. Expected: Connected";
+            AddDebugLog("ERROR", $"❌ SignalR not connected: State={hubConnection.State}");
+            Logger.LogWarning("NOOR-TEST-ERROR: {ErrorMessage}", errorMsg);
+            await ShowErrorMessageAsync(errorMsg);
+            return;
+        }
 
         try
         {
+            AddDebugLog("SUCCESS", $"✅ Preconditions passed: SessionId={SessionId.Value}, ConnectionId={hubConnection.ConnectionId}");
             Logger.LogInformation("NOOR-TEST: Testing ShareAsset functionality for session {SessionId}", SessionId.Value);
 
-            // Create test asset data
+            // Create simple test asset
+            var testId = Guid.NewGuid().ToString("N")[..8];
+            var currentTime = DateTime.UtcNow.ToString("HH:mm:ss");
+            
+            AddDebugLog("DATA", $"📊 Generated test asset: TestId={testId}, Time={currentTime}");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:UI] Creating simple test content for session {SessionId}", SessionId.Value);
+            
+            // Simple test HTML content - using double quotes and HTML encoding (NO EMOJIS for DOM compatibility)
+            var testHtmlContent = $@"<div style=""background:#E8F5E8;color:#006400;padding:20px;border-radius:8px;text-align:center;border:2px solid #006400;"">
+<h3 style=""margin:0 0 10px 0;"">Test Asset Shared</h3>
+<p style=""margin:5px 0;""><strong>Time:</strong> {System.Web.HttpUtility.HtmlEncode(currentTime)}</p>
+<p style=""margin:5px 0;""><strong>Test ID:</strong> {System.Web.HttpUtility.HtmlEncode(testId)}</p>
+<p style=""margin:10px 0 0 0;font-size:14px;"">SignalR connection working!</p>
+</div>";
+
             var testAssetData = new
             {
-                shareId = Guid.NewGuid().ToString("N")[..8],
-                assetType = "Test Asset",
-                uniqueAssetId = "TEST_001",
-                instanceCount = 1,
-                testContent = "This is a test shared asset from the host control panel."
+                testContent = testHtmlContent,
+                shareId = testId,
+                timestamp = DateTime.UtcNow
             };
 
-            // Send via SignalR
-            await hubConnection.InvokeAsync("ShareAsset", SessionId.Value, testAssetData);
+            AddDebugLog("DATA", $"📦 Test asset payload created: shareId={testId}, htmlLength={testHtmlContent.Length} chars");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:UI] Invoking ShareAsset for session {SessionId}", SessionId.Value);
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:UI] Test asset data: {TestAssetData}", 
+                System.Text.Json.JsonSerializer.Serialize(testAssetData, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+
+            // Send via SignalR with timeout
+            AddDebugLog("SIGNALR", $"🔄 Invoking ShareAsset on hub: SessionId={SessionId.Value}, Group=session_{SessionId.Value}");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SIGNALR] Starting ShareAsset SignalR call with 5s timeout");
+            var shareTask = hubConnection.InvokeAsync("ShareAsset", SessionId.Value, testAssetData);
+            var timeoutTask = Task.Delay(5000); // 5 second timeout
             
-            Logger.LogInformation("NOOR-TEST: ShareAsset invoked successfully for session {SessionId}", SessionId.Value);
-            await ShowMessageAsync("Test asset shared successfully!");
+            var completedTask = await Task.WhenAny(shareTask, timeoutTask);
+            
+            if (completedTask == timeoutTask)
+            {
+                var errorMsg = "ShareAsset operation timed out after 5 seconds";
+                AddDebugLog("ERROR", "⏰ SignalR call timed out after 5 seconds");
+                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:ERROR] {ErrorMessage}", errorMsg);
+                await ShowErrorMessageAsync(errorMsg);
+                return;
+            }
+
+            // If we reach here, ShareAsset completed successfully
+            await shareTask; // Await the actual task to catch any exceptions
+            
+            AddDebugLog("SUCCESS", "🎉 ShareAsset SignalR call completed successfully!");
+            AddDebugLog("INFO", "📡 Asset should now be broadcasted to all SessionCanvas clients in group session_" + SessionId.Value);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SUCCESS] ShareAsset completed successfully for session {SessionId}", SessionId.Value);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SUCCESS] Simple HTML content should now appear in SessionCanvas for connected users");
+            await ShowSuccessMessageAsync("✅ Test asset shared successfully via SignalR!");
+        }
+        catch (TimeoutException ex)
+        {
+            var errorMsg = "ShareAsset operation timed out";
+            Logger.LogError(ex, "NOOR-TEST-ERROR: {ErrorMessage} for session {SessionId}", errorMsg, SessionId);
+            await ShowErrorMessageAsync($"{errorMsg}: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("showErrorPanel", $"{errorMsg}: {ex.Message}", ex.ToString());
+        }
+        catch (HubException ex)
+        {
+            var errorMsg = "SignalR Hub error during asset sharing";
+            Logger.LogError(ex, "NOOR-TEST-ERROR: {ErrorMessage} for session {SessionId}", errorMsg, SessionId);
+            await ShowErrorMessageAsync($"{errorMsg}: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("showErrorPanel", $"{errorMsg}: {ex.Message}", ex.ToString());
+        }
+        catch (InvalidOperationException ex)
+        {
+            var errorMsg = "Invalid operation during asset sharing";
+            Logger.LogError(ex, "NOOR-TEST-ERROR: {ErrorMessage} for session {SessionId}", errorMsg, SessionId);
+            await ShowErrorMessageAsync($"{errorMsg}: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("showErrorPanel", $"{errorMsg}: {ex.Message}", ex.ToString());
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-TEST: Failed to test share asset for session {SessionId}", SessionId);
-            await ShowMessageAsync("Failed to share test asset");
+            var errorMsg = "Unexpected error during asset sharing";
+            Logger.LogError(ex, "NOOR-TEST-ERROR: {ErrorMessage} for session {SessionId}", errorMsg, SessionId);
+            await ShowErrorMessageAsync($"{errorMsg}: {ex.Message}");
+            
+            // Also show in error panel for debugging
+            await JSRuntime.InvokeVoidAsync("showErrorPanel", $"{errorMsg}: {ex.Message}", ex.ToString());
         }
+    }
+
+    // SignalR Status Methods
+    private string GetSignalRStatusIcon()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "fa-solid fa-circle-check",
+            HubConnectionState.Connecting => "fa-solid fa-circle-notch fa-spin",
+            HubConnectionState.Reconnecting => "fa-solid fa-arrows-rotate fa-spin",
+            HubConnectionState.Disconnected => "fa-solid fa-circle-xmark",
+            _ => "fa-solid fa-circle-question"
+        };
+    }
+
+    private string GetSignalRStatusColor()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "#10B981",      // Green
+            HubConnectionState.Connecting => "#F59E0B",     // Yellow  
+            HubConnectionState.Reconnecting => "#F59E0B",   // Yellow
+            HubConnectionState.Disconnected => "#EF4444",  // Red
+            _ => "#6B7280"                                  // Gray
+        };
+    }
+
+    private string GetSignalRStatusText()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "Connected",
+            HubConnectionState.Connecting => "Connecting",
+            HubConnectionState.Reconnecting => "Reconnecting",
+            HubConnectionState.Disconnected => "Disconnected",
+            _ => "Unknown"
+        };
+    }
+
+    // Rich Text Box Methods
+    private async Task BroadcastHtmlToSessions()
+    {
+        if (string.IsNullOrEmpty(BroadcastHtmlContent) || SessionId == null || hubConnection == null)
+        {
+            await ShowErrorMessageAsync("Cannot broadcast: Missing content, session, or SignalR connection");
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            await ShowErrorMessageAsync($"Cannot broadcast: SignalR not connected (Status: {hubConnection.State})");
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:broadcast] Broadcasting HTML content to session {SessionId}", SessionId.Value);
+            
+            // Use the working BroadcastHtml method (same as SimpleSignalRTest)
+            await hubConnection.InvokeAsync("BroadcastHtml", SessionId.Value.ToString(), BroadcastHtmlContent, "host_broadcast");
+            
+            await ShowSuccessMessageAsync("✅ HTML content broadcasted to all user sessions!");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:broadcast] Successfully broadcasted HTML content");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:broadcast] Failed to broadcast HTML content");
+            await ShowErrorMessageAsync($"Broadcast failed: {ex.Message}");
+        }
+    }
+
+    private async Task ClearBroadcastContent()
+    {
+        BroadcastHtmlContent = string.Empty;
+        await InvokeAsync(StateHasChanged);
     }
 
     private void NavigateToSessionCanvas()
@@ -1011,11 +1317,11 @@
         }
     }
 
-    private void ShowDeleteModal(Guid questionId)
+    private async Task ShowDeleteModal(Guid questionId)
     {
         questionToDeleteId = questionId;
         showDeleteModal = true;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ConfirmDelete()
@@ -1031,10 +1337,10 @@
         }
     }
 
-    private void CancelDelete()
+    private async Task CancelDelete()
     {
         showDeleteModal = false;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task ShowMessageAsync(string message)
@@ -1049,6 +1355,34 @@
             showMessage = false;
             await InvokeAsync(StateHasChanged);
         }, null, TimeSpan.FromSeconds(3), Timeout.InfiniteTimeSpan);
+    }
+
+    private async Task ShowSuccessMessageAsync(string message)
+    {
+        messageText = message;
+        showMessage = true;
+        await InvokeAsync(StateHasChanged);
+
+        messageTimer?.Dispose();
+        messageTimer = new Timer(async _ =>
+        {
+            showMessage = false;
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(4), Timeout.InfiniteTimeSpan);
+    }
+
+    private async Task ShowErrorMessageAsync(string message)
+    {
+        messageText = $"❌ {message}";
+        showMessage = true;
+        await InvokeAsync(StateHasChanged);
+
+        messageTimer?.Dispose();
+        messageTimer = new Timer(async _ =>
+        {
+            showMessage = false;
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(6), Timeout.InfiniteTimeSpan);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -1161,6 +1495,90 @@
         public DateTime SubmittedAt { get; set; }
     }
 
+    // Debug logging classes and methods
+    public class DebugLogEntry : NoorCanvas.Models.Debug.IDebugLogEntry
+    {
+        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public string Level { get; set; } = "INFO";
+        public string Message { get; set; } = "";
+    }
+
+    private void AddDebugLog(string level, string message)
+    {
+        debugLog.Add(new DebugLogEntry { Level = level, Message = message });
+        
+        // Keep only the latest entries
+        if (debugLog.Count > MaxDebugLogEntries)
+        {
+            debugLog.RemoveAt(0);
+        }
+        
+        // Also log to console for server-side logging
+        switch (level.ToUpper())
+        {
+            case "ERROR":
+                Logger.LogError("[DEBUG-WORKITEM:hostcanvas:HOST] {Message}", message);
+                break;
+            case "WARN":
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HOST] {Message}", message);
+                break;
+            default:
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] {Message}", message);
+                break;
+        }
+        
+        // Trigger UI update
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ClearDebugLog()
+    {
+        debugLog.Clear();
+        AddDebugLog("INFO", "Debug log cleared by user");
+        await Task.CompletedTask;
+    }
+    
+    // Event handlers for the reusable debug panel component
+    private async Task HandleClearDebugLog()
+    {
+        await ClearDebugLog();
+    }
+    
+    private async Task HandleAddDebugLog(string message)
+    {
+        // This is called by the component when it adds its own log entries
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CopyDebugLogToClipboard()
+    {
+        try
+        {
+            var logText = string.Join("\n", debugLog.Select(entry => $"[{entry.Timestamp:HH:mm:ss}] {entry.Level}: {entry.Message}"));
+            var fullLog = $"=== HOST CONTROL PANEL DEBUG LOG ===\nGenerated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\nSession: {SessionId}\nConnection: {hubConnection?.ConnectionId}\n\n{logText}";
+            
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", fullLog);
+            AddDebugLog("SUCCESS", "✅ Debug log copied to clipboard!");
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", $"❌ Failed to copy log: {ex.Message}");
+        }
+    }
+
+    private string GetLogEntryColor(string level)
+    {
+        return level.ToUpper() switch
+        {
+            "ERROR" => "#EF4444",
+            "WARN" => "#F59E0B", 
+            "SUCCESS" => "#10B981",
+            "SIGNALR" => "#8B5CF6",
+            "DATA" => "#06B6D4",
+            _ => "#E5E7EB"
+        };
+    }
+
     /// <summary>
     /// Transforms the transcript HTML by removing delete buttons and adding SHARE buttons for each asset
     /// Share buttons are only injected when session status is "Active"
@@ -1197,8 +1615,31 @@
                 finalHtml = sanitizedInput;
             }
             
-            Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Transformation completed. Original: {OriginalLength}, Final: {FinalLength}, ShareButtons: {ShareButtonsInjected}", 
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:TRANSFORM] Transformation completed. Original: {OriginalLength}, Final: {FinalLength}, ShareButtons: {ShareButtonsInjected}", 
                 originalHtml.Length, finalHtml.Length, Model?.SessionStatus == "Active");
+
+            // SAFETY: Validate HTML structure before returning
+            try
+            {
+                // Log a sample of the transformed HTML for debugging
+                var htmlSample = finalHtml.Length > 500 ? finalHtml.Substring(0, 500) + "..." : finalHtml;
+                Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:TRANSFORM] HTML sample: {HtmlSample}", htmlSample);
+                
+                // Basic validation - check for unclosed tags that might cause issues
+                if (finalHtml.Contains("<button") && !finalHtml.Contains("</button>"))
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hostcanvas:ERROR] Detected unclosed button tags in transformed HTML");
+                }
+                
+                if (finalHtml.Contains("<div") && (finalHtml.Split("<div").Length - 1) != (finalHtml.Split("</div>").Length - 1))
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:WARNING] Potential unclosed div tags detected");
+                }
+            }
+            catch (Exception validationEx)
+            {
+                Logger.LogError(validationEx, "[DEBUG-WORKITEM:hostcanvas:ERROR] HTML validation failed: {Error}", validationEx.Message);
+            }
 
             // Avoid double-wrapping: if the transformed HTML already contains a top-level ks-transcript wrapper, return as-is
             var trimmed = finalHtml.TrimStart();
@@ -1209,6 +1650,7 @@
 
             // Wrap final HTML in a root scoping div so transcript CSS can be safely scoped
             var wrapped = $"<div class=\"ks-transcript\">{finalHtml}</div>";
+            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:TRANSFORM] Wrapped HTML length: {WrappedLength}", wrapped.Length);
             return wrapped;
         }
         catch (Exception ex)
@@ -1315,15 +1757,17 @@
     }
 
     /// <summary>
-    /// Create HTML for a share button
+    /// Create HTML for a share button (FIXED: Proper HTML encoding for Blazor MarkupString)
     /// </summary>
     private string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
-        // NOTE: We intentionally do not include inline event handlers or style attributes here to avoid introducing XSS-vectors.
-        // Client-side JS should attach click handlers to elements with the .ks-share-button class and data-* attributes.
-        // Styling should come from CSS (.ks-share-wrapper, .ks-share-button) rather than inline styles.
+        // ISSUE FIX: HTML-encode all user-provided values to prevent parsing errors
+        var encodedAssetType = System.Web.HttpUtility.HtmlEncode(assetType);
+        var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
+        var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
+        
         return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button"" data-share-button=""asset"" data-share-id=""{shareId}"" data-asset-type=""{assetType}"" data-instance-number=""{instanceNumber}"">📤 SHARE {displayName.ToUpper()} #{instanceNumber}</button></div>";
+               $@"<button class=""ks-share-button"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"">📤 SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
     }
 
     /// <summary>
@@ -1604,12 +2048,14 @@
     }
 
     /// <summary>
-    /// Generate share button HTML for an asset
+    /// Generate share button HTML for an asset (FIXED: Proper quote escaping for Blazor MarkupString)
     /// </summary>
     private string GenerateShareButton(long assetId, string assetType)
     {
-        return $@"<button data-share-button=""asset"" data-asset-id=""{assetId}"" data-asset-type=""{assetType}"" onclick=""shareIndividualAsset('{assetId}', '{assetType}')"" style=""background-color: #dc2626; color: white; padding: 4px 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin: 2px 5px 8px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s; display: inline-block;"" onmouseover=""this.style.backgroundColor='#b91c1c'; this.style.transform='scale(1.05)'"" onmouseout=""this.style.backgroundColor='#dc2626'; this.style.transform='scale(1)'"">SHARE</button>
-";
+        // ISSUE FIX: Use HTML-encoded quotes and avoid complex inline event handlers that cause parsing errors
+        var escapedAssetType = System.Web.HttpUtility.HtmlEncode(assetType);
+        
+        return $@"<button data-share-button=""asset"" data-asset-id=""{assetId}"" data-asset-type=""{escapedAssetType}"" class=""ks-share-btn"" type=""button"">SHARE</button>";
     }
 
     // REMOVED: DetectAndTrackAssetsAsync - replaced by simplified database-driven approach
@@ -1742,16 +2188,29 @@
         } catch (error) {
             console.error('NOOR-ASSET-SHARE: Error sharing asset:', assetId, error);
             
+            // Show detailed error message to user
+            let errorMessage = 'Unknown error occurred';
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (typeof error === 'string') {
+                errorMessage = error;
+            }
+            
+            // Show toast notification with error details
+            showErrorToast(`Failed to share asset: ${errorMessage}`);
+            
             // Find button and show error feedback
             const shareButton = document.querySelector(`button[data-asset-id="${assetId}"]`);
             if (shareButton) {
                 shareButton.textContent = '✗ ERROR';
                 shareButton.style.backgroundColor = '#dc2626';
+                shareButton.title = `Error: ${errorMessage}`;
                 
                 setTimeout(() => {
                     shareButton.textContent = 'SHARE';
                     shareButton.style.backgroundColor = '#dc2626';
                     shareButton.disabled = false;
+                    shareButton.title = 'Share this asset';
                 }, 3000);
             }
         }
@@ -1898,28 +2357,203 @@
         }, 3000);
     };
 
-    // User Registration Link Copy Function
-    async function copyUserLink() {
+    window.showErrorToast = function(errorMessage) {
+        // Create error toast element
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2em;">⚠️</span>
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Asset Sharing Error</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">
+                        ${errorMessage}
+                    </div>
+                </div>
+            </div>
+        `;
+        toast.style.cssText = `
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 10000;
+            font-family: 'Inter', sans-serif;
+            min-width: 350px;
+            max-width: 500px;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Hide toast after 5 seconds (longer for errors)
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 5000);
+    };
+
+    // Copy User Landing Link Function
+    window.copyUserLink = function() {
+        const input = document.getElementById('userLinkInput');
+        if (input) {
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+
+            // Try using modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    console.log('NOOR-HOST-PANEL: User link copied to clipboard');
+                    showCopyFeedback();
+                }).catch(err => {
+                    console.error('NOOR-HOST-PANEL: Failed to copy with clipboard API:', err);
+                    // Fallback to execCommand
+                    document.execCommand('copy');
+                    showCopyFeedback();
+                });
+            } else {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                showCopyFeedback();
+            }
+        }
+    };
+
+    function showCopyFeedback() {
+        // Get the copy button by finding it in the DOM
+        const copyButton = document.querySelector('button[onclick="copyUserLink()"]');
+        if (copyButton) {
+            const originalText = copyButton.innerHTML;
+            const originalBgColor = copyButton.style.backgroundColor;
+            
+            copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            copyButton.style.backgroundColor = '#059669';
+            
+            setTimeout(() => {
+                copyButton.innerHTML = originalText;
+                copyButton.style.backgroundColor = originalBgColor;
+            }, 2000);
+        }
+    }
+
+    // Error Display Panel Functions
+    let currentError = null;
+
+    function showErrorPanel(error, details = null) {
+        console.log('[DEBUG-WORKITEM:hostcanvas:ui] Showing error panel:', error);
+        
+        currentError = {
+            message: error.toString(),
+            details: details || error.stack || 'No additional details available',
+            timestamp: new Date().toISOString()
+        };
+
+        const panel = document.getElementById('noor-error-panel');
+        const messageEl = document.getElementById('error-message');
+        const timestampEl = document.getElementById('error-timestamp');
+        const stackEl = document.getElementById('error-stack');
+
+        if (panel && messageEl && timestampEl && stackEl) {
+            messageEl.textContent = currentError.message;
+            timestampEl.textContent = new Date(currentError.timestamp).toLocaleString();
+            stackEl.textContent = currentError.details;
+            panel.style.display = 'block';
+            
+            // Scroll to top to make error visible
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function dismissError() {
+        const panel = document.getElementById('noor-error-panel');
+        if (panel) {
+            panel.style.display = 'none';
+        }
+        currentError = null;
+    }
+
+    function toggleErrorDetails() {
+        const details = document.getElementById('error-details');
+        if (details) {
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    async function copyErrorToClipboard() {
+        if (!currentError) return;
+        
+        const errorReport = `NOOR Canvas Error Report
+Generated: ${currentError.timestamp}
+Host Control Panel - Asset Sharing Error
+
+Error Message:
+${currentError.message}
+
+Technical Details:
+${currentError.details}
+
+Page URL: ${window.location.href}
+User Agent: ${navigator.userAgent}
+Timestamp: ${new Date().toISOString()}
+
+Please share this report with the development team for debugging.`;
+
         try {
-            const userLinkElement = document.getElementById('userLinkInput');
-            if (userLinkElement) {
-                await navigator.clipboard.writeText(userLinkElement.value);
-                
-                // Show success feedback
-                const button = event.target;
-                const originalText = button.innerHTML;
-                button.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            await navigator.clipboard.writeText(errorReport);
+            
+            const button = document.getElementById('copy-error-btn');
+            if (button) {
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copied!</span>';
                 button.style.backgroundColor = '#059669';
                 
                 setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.style.backgroundColor = '#3B82F6';
+                    button.innerHTML = originalContent;
+                    button.style.backgroundColor = '#DC2626';
                 }, 2000);
             }
         } catch (err) {
-            console.error('Failed to copy user link:', err);
-            alert('Failed to copy link. Please copy manually.');
+            console.error('Failed to copy error report:', err);
+            // Fallback: show in a modal/alert
+            alert('Copy failed. Please manually copy:\n\n' + errorReport);
         }
     }
+
+    // Global error handler to catch unhandled errors
+    window.addEventListener('error', function(event) {
+        console.error('[DEBUG-WORKITEM:hostcanvas:error] Global error caught:', event.error);
+        showErrorPanel(event.error || event.message, event.error?.stack);
+    });
+
+    // Promise rejection handler
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('[DEBUG-WORKITEM:hostcanvas:error] Unhandled promise rejection:', event.reason);
+        showErrorPanel(event.reason, event.reason?.stack);
+    });
+
+    // Override console.error to capture application errors
+    const originalConsoleError = console.error;
+    console.error = function(...args) {
+        originalConsoleError.apply(console, args);
+        
+        // Show error panel for specific error patterns
+        const errorMessage = args.join(' ');
+        if (errorMessage.includes('NOOR-') || errorMessage.includes('ShareAsset') || errorMessage.includes('SignalR')) {
+            showErrorPanel(errorMessage, 'Console error captured by error display system');
+        }
+    };
+
+    console.log('[DEBUG-WORKITEM:hostcanvas:ui] Error display system initialized');
 </script>
 

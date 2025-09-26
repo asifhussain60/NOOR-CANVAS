@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas - Host & User Simulator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->        // Configuration object
+        const currentConfig = {
+            baseUrl: 'http://localhost:9090',
+            hostToken: '',
+            userToken: '',
+            instances: []
+        };link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .iframe-container {
+            transition: all 0.3s ease;
+        }
+        .iframe-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .control-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .instance-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            min-height: 200px;
+        }
+        
+        /* Enhanced responsive breakpoints for large monitors */
+        @media (min-width: 768px) {
+            .instance-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .instance-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        @media (min-width: 1280px) {
+            .instance-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media (min-width: 1920px) {
+            .instance-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 1.75rem;
+            }
+        }
+        @media (min-width: 2560px) {
+            .instance-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 2rem;
+            }
+        }
+        @media (max-width: 767px) {
+            .instance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Host instance styling */
+        .host-instance {
+            grid-column: 1 / -1;
+            margin-bottom: 2rem;
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+        .host-instance iframe {
+            min-height: 500px;
+        }
+        
+        /* User instance styling */
+        .user-instance {
+            border: 2px solid #6366f1;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        .user-instance iframe {
+            min-height: 400px;
+        }
+        
+        /* Instance headers */
+        .instance-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        /* Maximized view mode */
+        .maximized-view {
+            padding-top: 2rem;
+        }
+        .maximized-view .instance-grid {
+            height: calc(100vh - 120px);
+        }
+        .maximized-view .iframe-container iframe,
+        .maximized-view .host-instance iframe,
+        .maximized-view .user-instance iframe {
+            height: calc(50vh - 100px);
+            min-height: 300px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-indigo-500">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-palette text-3xl text-indigo-600"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">NOOR Canvas</h1>
+                        <p class="text-sm text-gray-600">Host & User Experience Simulator</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <p class="text-sm text-gray-600">Base URL</p>
+                            <div id="healthStatus" class="flex items-center">
+                                <div class="w-2 h-2 rounded-full bg-gray-400" id="healthIndicator"></div>
+                                <span class="text-xs text-gray-500 ml-1" id="healthText">Checking...</span>
+                            </div>
+                        </div>
+                        <p class="text-sm font-mono text-gray-800" id="baseUrl">http://localhost:9090</p>
+                    </div>
+                    <button onclick="toggleSettings()" class="p-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 transition-colors">
+                        <i class="fas fa-cog text-indigo-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="hidden bg-yellow-50 border-b border-yellow-200 px-6 py-4">
+        <div class="container mx-auto">
+            <div class="space-y-3">
+                <div class="flex items-center space-x-4">
+                    <label class="text-sm font-medium text-gray-700">Base URL:</label>
+                    <input type="text" id="baseUrlInput" value="http://localhost:9090" 
+                           class="px-3 py-1 border border-gray-300 rounded-md text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <button onclick="updateBaseUrl()" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
+                    <button onclick="resetToDefault()" class="px-3 py-1 bg-gray-500 text-white text-sm rounded-md hover:bg-gray-600">
+                        <i class="fas fa-undo mr-1"></i>Reset
+                    </button>
+                    <button onclick="switchToHTTPS()" class="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">
+                        <i class="fas fa-lock mr-1"></i>HTTPS:9091
+                    </button>
+                    <button onclick="switchToHTTP()" class="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">
+                        <i class="fas fa-globe mr-1"></i>HTTP:9090
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2 text-xs text-gray-600">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                    <span>Make sure NOOR Canvas is running with <code class="bg-gray-200 px-1 rounded">nc</code> or <code class="bg-gray-200 px-1 rounded">ncb</code> commands before creating instances.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel text-white py-8">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Host Configuration -->
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-crown text-2xl mr-3"></i>
+                        <h2 class="text-xl font-bold">Host Configuration</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Host Token</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="hostToken" placeholder="Enter host token or generate new"
+                                       class="flex-1 px-3 py-2 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                                <button onclick="generateHostToken()" class="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-md font-medium">
+                                    <i class="fas fa-magic mr-1"></i>Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Host URL</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="hostUrl" readonly 
+                                       class="flex-1 px-3 py-2 rounded-md bg-gray-100 text-gray-800 font-mono text-sm">
+                                <button onclick="copyToClipboard('hostUrl')" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-md">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button onclick="openHostWindow()" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-md">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Host Instance</label>
+                            <button onclick="createHostInstance()" class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-md font-medium">
+                                <i class="fas fa-crown mr-2"></i>Create Host Instance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Configuration -->
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-users text-2xl mr-3"></i>
+                        <h2 class="text-xl font-bold">User Configuration</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">User Token</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="userToken" placeholder="Enter user/session token"
+                                       class="flex-1 px-3 py-2 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                                <button onclick="generateUserToken()" class="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-md font-medium">
+                                    <i class="fas fa-magic mr-1"></i>Generate
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">User URL</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="userUrl" readonly 
+                                       class="flex-1 px-3 py-2 rounded-md bg-gray-100 text-gray-800 font-mono text-sm">
+                                <button onclick="copyToClipboard('userUrl')" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-md">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Number of User Instances</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="userInstances" value="2" min="1" max="8"
+                                       class="w-20 px-3 py-2 rounded-md text-gray-800 text-center focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                                <button onclick="createInstances()" class="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md font-medium">
+                                    <i class="fas fa-plus mr-2"></i>Create Instances
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mt-8 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-bolt text-2xl mr-3"></i>
+                        <h2 class="text-xl font-bold">Quick Actions</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <label class="text-sm font-medium">Layout:</label>
+                        <select id="layoutMode" onchange="changeLayout()" class="px-3 py-1 rounded-md text-gray-800 text-sm">
+                            <option value="auto">Auto Grid</option>
+                            <option value="2col">2 Columns</option>
+                            <option value="3col">3 Columns</option>
+                            <option value="4col">4 Columns</option>
+                            <option value="6col">6 Columns</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                    <button onclick="clearAllInstances()" class="flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 rounded-md font-medium">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                    <button onclick="refreshAllInstances()" class="flex items-center justify-center px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-md font-medium">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh All
+                    </button>
+                    <button onclick="openAllInTabs()" class="flex items-center justify-center px-4 py-3 bg-green-500 hover:bg-green-600 rounded-md font-medium">
+                        <i class="fas fa-external-link-alt mr-2"></i>Open in Tabs
+                    </button>
+                    <button onclick="exportConfiguration()" class="flex items-center justify-center px-4 py-3 bg-purple-500 hover:bg-purple-600 rounded-md font-medium">
+                        <i class="fas fa-download mr-2"></i>Export Config
+                    </button>
+                    <button onclick="maximizeView()" class="flex items-center justify-center px-4 py-3 bg-gray-600 hover:bg-gray-700 rounded-md font-medium">
+                        <i class="fas fa-expand mr-2"></i>Maximize
+                    </button>
+                    <button onclick="resetLayout()" class="flex items-center justify-center px-4 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-md font-medium">
+                        <i class="fas fa-undo mr-2"></i>Reset Layout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instance Display Area -->
+    <div class="container mx-auto px-6 py-8">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-desktop text-2xl text-gray-700 mr-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Active Instances</h2>
+            </div>
+            <div class="text-sm text-gray-600 font-medium">
+                <span id="instanceCount">0 instances</span>
+            </div>
+        </div>
+        
+        <div id="instanceContainer" class="instance-grid">
+            <!-- Dynamic iframe instances will be inserted here -->
+        </div>
+        
+        <!-- No Instances Message -->
+        <div id="noInstancesMessage" class="text-center py-16">
+            <i class="fas fa-laptop-code text-6xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Instances Created</h3>
+            <p class="text-gray-500 mb-6">Configure your tokens above and click "Create Instances" to start simulating the NOOR Canvas experience.</p>
+            <div class="space-x-4">
+                <button onclick="quickDemo()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">
+                    <i class="fas fa-play mr-2"></i>Quick Demo
+                </button>
+                <button onclick="loadSampleConfiguration()" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">
+                    <i class="fas fa-cogs mr-2"></i>Load Sample Config
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2">
+        <!-- Dynamic toast notifications will be inserted here -->
+    </div>
+
+    <script>
+        // Configuration state
+        let currentConfig = {
+            baseUrl: 'https://localhost:9091',
+            hostToken: '',
+            userToken: '',
+            instances: []
+        };
+
+        // Health check function
+        async function checkNoorCanvasHealth() {
+            const healthIndicator = document.getElementById('healthIndicator');
+            const healthText = document.getElementById('healthText');
+            
+            try {
+                const response = await fetch(`${currentConfig.baseUrl}/healthz`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    const health = await response.json();
+                    healthIndicator.className = 'w-2 h-2 rounded-full bg-green-500';
+                    healthText.textContent = 'Online';
+                    healthText.className = 'text-xs text-green-600 ml-1';
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                healthIndicator.className = 'w-2 h-2 rounded-full bg-red-500';
+                healthText.textContent = 'Offline';
+                healthText.className = 'text-xs text-red-600 ml-1';
+            }
+        }
+
+        // Start health check monitoring
+        function startHealthMonitoring() {
+            checkNoorCanvasHealth();
+            // Check every 30 seconds
+            setInterval(checkNoorCanvasHealth, 30000);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUrls();
+            loadSavedConfiguration();
+            updateInstanceCount();
+            startHealthMonitoring();
+        });
+
+        // Settings panel toggle
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        // Update base URL
+        function updateBaseUrl() {
+            const newUrl = document.getElementById('baseUrlInput').value.trim();
+            if (newUrl && isValidUrl(newUrl)) {
+                currentConfig.baseUrl = newUrl;
+                document.getElementById('baseUrl').textContent = newUrl;
+                updateUrls();
+                saveConfiguration();
+                showToast('Base URL updated successfully', 'success');
+                // Check health of new URL
+                setTimeout(checkNoorCanvasHealth, 500);
+            } else {
+                showToast('Please enter a valid URL', 'error');
+            }
+        }
+
+        // Reset to default URL
+        function resetToDefault() {
+            currentConfig.baseUrl = 'http://localhost:9090';
+            document.getElementById('baseUrlInput').value = currentConfig.baseUrl;
+            document.getElementById('baseUrl').textContent = currentConfig.baseUrl;
+            updateUrls();
+            saveConfiguration();
+            showToast('Reset to default URL (HTTP:9090)', 'info');
+        }
+
+        // Switch to HTTPS port
+        function switchToHTTPS() {
+            currentConfig.baseUrl = 'https://localhost:9091';
+            document.getElementById('baseUrlInput').value = currentConfig.baseUrl;
+            document.getElementById('baseUrl').textContent = currentConfig.baseUrl;
+            updateUrls();
+            saveConfiguration();
+            showToast('Switched to HTTPS:9091', 'success');
+            setTimeout(checkNoorCanvasHealth, 500);
+        }
+
+        // Switch to HTTP port
+        function switchToHTTP() {
+            currentConfig.baseUrl = 'http://localhost:9090';
+            document.getElementById('baseUrlInput').value = currentConfig.baseUrl;
+            document.getElementById('baseUrl').textContent = currentConfig.baseUrl;
+            updateUrls();
+            saveConfiguration();
+            showToast('Switched to HTTP:9090', 'success');
+            setTimeout(checkNoorCanvasHealth, 500);
+        }
+
+        // Generate random host token
+        function generateHostToken() {
+            const hostToken = generateRandomToken(8).toUpperCase();
+            document.getElementById('hostToken').value = hostToken;
+            currentConfig.hostToken = hostToken;
+            updateUrls();
+            saveConfiguration();
+            showToast('Host token generated: ' + hostToken, 'success');
+        }
+
+        // Generate random user token
+        function generateUserToken() {
+            const userToken = generateRandomToken(8).toUpperCase();
+            document.getElementById('userToken').value = userToken;
+            currentConfig.userToken = userToken;
+            updateUrls();
+            saveConfiguration();
+            showToast('User token generated: ' + userToken, 'success');
+        }
+
+        // Generate random token
+        function generateRandomToken(length = 8) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Update URLs based on current tokens
+        function updateUrls() {
+            const hostToken = document.getElementById('hostToken').value || currentConfig.hostToken;
+            const userToken = document.getElementById('userToken').value || currentConfig.userToken;
+            
+            // Update host URL - using correct NOOR Canvas route
+            const hostUrl = hostToken ? `${currentConfig.baseUrl}/host/control-panel/${hostToken}` : '';
+            document.getElementById('hostUrl').value = hostUrl;
+            
+            // Update user URL - using correct NOOR Canvas route
+            const userUrl = userToken ? `${currentConfig.baseUrl}/session/canvas/${userToken}` : '';
+            document.getElementById('userUrl').value = userUrl;
+
+            // Update current config
+            currentConfig.hostToken = hostToken;
+            currentConfig.userToken = userToken;
+            
+            // Trigger health check when URLs update
+            if (typeof checkNoorCanvasHealth === 'function') {
+                setTimeout(checkNoorCanvasHealth, 100);
+            }
+        }
+
+        // Listen for token input changes
+        document.getElementById('hostToken').addEventListener('input', updateUrls);
+        document.getElementById('userToken').addEventListener('input', updateUrls);
+
+        // Copy URL to clipboard
+        async function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.value;
+            
+            if (!text) {
+                showToast('No URL to copy', 'warning');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('URL copied to clipboard', 'success');
+            } catch (err) {
+                showToast('Failed to copy URL', 'error');
+            }
+        }
+
+        // Open host window
+        function openHostWindow() {
+            const hostUrl = document.getElementById('hostUrl').value;
+            if (hostUrl) {
+                window.open(hostUrl, '_blank');
+                showToast('Host window opened', 'info');
+            } else {
+                showToast('Please enter a host token first', 'warning');
+            }
+        }
+
+        // Create host instance
+        function createHostInstance() {
+            const hostUrl = document.getElementById('hostUrl').value;
+            const hostToken = document.getElementById('hostToken').value;
+            
+            if (!hostUrl) {
+                showToast('Please enter a host URL first', 'error');
+                return;
+            }
+            
+            // Check if host instance already exists
+            const existingHost = document.querySelector('.host-instance');
+            if (existingHost) {
+                showToast('Host instance already exists. Remove it first.', 'warning');
+                return;
+            }
+            
+            const fullUrl = hostToken ? `${hostUrl}?token=${hostToken}` : hostUrl;
+            
+            // Create iframe container
+            const container = document.createElement('div');
+            container.id = 'host-instance';
+            container.className = 'host-instance relative border-4 border-yellow-500 rounded-lg overflow-hidden shadow-lg mb-6';
+            
+            // Create header with controls
+            const header = document.createElement('div');
+            header.className = 'bg-yellow-500 text-gray-900 px-3 py-2 flex items-center justify-between text-sm font-medium';
+            header.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-crown mr-2 text-yellow-800"></i>
+                    <span>Host Instance</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="refreshHostInstance()" class="hover:bg-yellow-600 p-1 rounded" title="Refresh">
+                        <i class="fas fa-sync-alt text-xs"></i>
+                    </button>
+                    <button onclick="openInTab('${fullUrl}')" class="hover:bg-yellow-600 p-1 rounded" title="Open in Tab">
+                        <i class="fas fa-external-link-alt text-xs"></i>
+                    </button>
+                    <button onclick="removeHostInstance()" class="hover:bg-red-500 hover:text-white p-1 rounded" title="Remove">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Create iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = fullUrl;
+            iframe.id = 'host-iframe';
+            iframe.className = 'w-full border-0';
+            iframe.style.height = '500px';
+            
+            container.appendChild(header);
+            container.appendChild(iframe);
+            
+            // Add to instances container, before user instances
+            const instanceContainer = document.getElementById('instanceContainer');
+            instanceContainer.insertBefore(container, instanceContainer.firstChild);
+            
+            updateInstanceCount();
+            showToast('Host instance created successfully', 'success');
+        }
+
+        // Refresh host instance
+        function refreshHostInstance() {
+            const iframe = document.getElementById('host-iframe');
+            if (iframe) {
+                iframe.src = iframe.src;
+                showToast('Host instance refreshed', 'info');
+            }
+        }
+
+        // Remove host instance
+        function removeHostInstance() {
+            const hostInstance = document.getElementById('host-instance');
+            if (hostInstance) {
+                hostInstance.remove();
+                updateInstanceCount();
+                showToast('Host instance removed', 'info');
+            }
+        }
+
+        // Open URL in new tab
+        function openInTab(url) {
+            window.open(url, '_blank');
+            showToast('Opened in new tab', 'info');
+        }
+
+        // Layout management functions
+        function changeLayout() {
+            const layoutMode = document.getElementById('layoutMode').value;
+            const instanceContainer = document.getElementById('instanceContainer');
+            
+            // Remove existing layout classes
+            instanceContainer.classList.remove('grid-cols-1', 'grid-cols-2', 'grid-cols-3', 'grid-cols-4', 'grid-cols-6');
+            instanceContainer.classList.remove('md:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4', '2xl:grid-cols-6');
+            
+            switch(layoutMode) {
+                case '2col':
+                    instanceContainer.classList.add('grid-cols-2');
+                    break;
+                case '3col':
+                    instanceContainer.classList.add('grid-cols-3');
+                    break;
+                case '4col':
+                    instanceContainer.classList.add('grid-cols-4');
+                    break;
+                case '6col':
+                    instanceContainer.classList.add('grid-cols-6');
+                    break;
+                case 'auto':
+                default:
+                    instanceContainer.classList.add('md:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4', '2xl:grid-cols-6');
+                    break;
+            }
+            
+            showToast(`Layout changed to ${layoutMode === 'auto' ? 'responsive' : layoutMode}`, 'success');
+        }
+
+        // Maximize view by hiding configuration panels
+        function maximizeView() {
+            const configSection = document.querySelector('.bg-white.bg-opacity-10');
+            const quickActions = document.querySelector('.bg-white.bg-opacity-20').parentElement;
+            const body = document.body;
+            
+            if (body.classList.contains('maximized-view')) {
+                configSection.style.display = 'block';
+                quickActions.style.display = 'block';
+                body.classList.remove('maximized-view');
+                showToast('Configuration panels restored', 'info');
+            } else {
+                configSection.style.display = 'none';
+                quickActions.style.display = 'none';
+                body.classList.add('maximized-view');
+                showToast('View maximized - panels hidden', 'info');
+            }
+        }
+
+        // Reset layout to default
+        function resetLayout() {
+            const instanceContainer = document.getElementById('instanceContainer');
+            const layoutMode = document.getElementById('layoutMode');
+            const body = document.body;
+            
+            // Reset to auto layout
+            instanceContainer.className = 'instance-grid';
+            layoutMode.value = 'auto';
+            
+            // Show configuration panels if hidden
+            const configSection = document.querySelector('.bg-white.bg-opacity-10');
+            const quickActions = document.querySelector('.bg-white.bg-opacity-20').parentElement;
+            configSection.style.display = 'block';
+            quickActions.style.display = 'block';
+            body.classList.remove('maximized-view');
+            
+            showToast('Layout reset to default', 'success');
+        }
+
+        // Create user instances
+        function createInstances() {
+            const userUrl = document.getElementById('userUrl').value;
+            const instanceCount = parseInt(document.getElementById('userInstances').value);
+
+            if (!userUrl) {
+                showToast('Please enter a user token first', 'warning');
+                return;
+            }
+
+            if (instanceCount < 1 || instanceCount > 8) {
+                showToast('Please enter a valid number of instances (1-8)', 'warning');
+                return;
+            }
+
+            // Clear existing user instances only (preserve host instance)
+            const container = document.getElementById('instanceContainer');
+            const userInstances = container.querySelectorAll('.user-instance, .iframe-container');
+            userInstances.forEach(instance => instance.remove());
+
+            // Create new instances
+            for (let i = 1; i <= instanceCount; i++) {
+                const instanceDiv = createInstanceElement(userUrl, i);
+                container.appendChild(instanceDiv);
+                currentConfig.instances.push({
+                    id: i,
+                    url: userUrl,
+                    title: `User Instance ${i}`
+                });
+            }
+
+            updateInstanceCount();
+            saveConfiguration();
+            showToast(`Created ${instanceCount} user instance(s)`, 'success');
+        }
+
+        // Create instance element
+        function createInstanceElement(url, instanceNumber) {
+            const div = document.createElement('div');
+            div.className = 'user-instance bg-white rounded-lg shadow-lg overflow-hidden';
+            div.innerHTML = `
+                <div class="instance-header bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-2 flex items-center justify-between text-sm font-medium">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-user-circle"></i>
+                        <span>User Instance ${instanceNumber}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="refreshInstance(${instanceNumber})" class="p-1 hover:bg-white hover:bg-opacity-20 rounded" title="Refresh">
+                            <i class="fas fa-sync-alt text-xs"></i>
+                        </button>
+                        <button onclick="openInstanceInTab(${instanceNumber})" class="p-1 hover:bg-white hover:bg-opacity-20 rounded" title="Open in new tab">
+                            <i class="fas fa-external-link-alt text-xs"></i>
+                        </button>
+                        <button onclick="removeInstance(${instanceNumber})" class="p-1 hover:bg-white hover:bg-opacity-20 rounded" title="Remove">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <iframe id="iframe-${instanceNumber}" src="${url}" class="w-full border-0" loading="lazy"></iframe>
+                    <div class="absolute inset-0 bg-gray-100 flex items-center justify-center" id="loading-${instanceNumber}">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin text-2xl text-gray-500 mb-2"></i>
+                            <p class="text-gray-600">Loading instance...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Hide loading overlay when iframe loads
+            const iframe = div.querySelector(`#iframe-${instanceNumber}`);
+            const loading = div.querySelector(`#loading-${instanceNumber}`);
+            
+            iframe.addEventListener('load', () => {
+                loading.style.display = 'none';
+            });
+
+            iframe.addEventListener('error', () => {
+                loading.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-500 mb-2"></i>
+                        <p class="text-red-600">Failed to load</p>
+                        <button onclick="refreshInstance(${instanceNumber})" class="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+                            <i class="fas fa-redo mr-1"></i>Retry
+                        </button>
+                    </div>
+                `;
+            });
+
+            return div;
+        }
+
+        // Refresh specific instance
+        function refreshInstance(instanceNumber) {
+            const iframe = document.getElementById(`iframe-${instanceNumber}`);
+            const loading = document.getElementById(`loading-${instanceNumber}`);
+            if (iframe && loading) {
+                loading.style.display = 'flex';
+                iframe.src = iframe.src;
+                showToast(`Refreshing instance ${instanceNumber}`, 'info');
+            }
+        }
+
+        // Open instance in new tab
+        function openInstanceInTab(instanceNumber) {
+            const iframe = document.getElementById(`iframe-${instanceNumber}`);
+            if (iframe) {
+                window.open(iframe.src, '_blank');
+                showToast(`Instance ${instanceNumber} opened in new tab`, 'info');
+            }
+        }
+
+        // Remove specific instance
+        function removeInstance(instanceNumber) {
+            const container = document.getElementById('instanceContainer');
+            const instanceDiv = document.querySelector(`#iframe-${instanceNumber}`).closest('.user-instance, .iframe-container');
+            if (instanceDiv) {
+                instanceDiv.remove();
+                currentConfig.instances = currentConfig.instances.filter(inst => inst.id !== instanceNumber);
+                
+                updateInstanceCount();
+                saveConfiguration();
+                showToast(`Instance ${instanceNumber} removed`, 'info');
+            }
+        }
+
+        // Clear all instances
+        function clearAllInstances() {
+            const container = document.getElementById('instanceContainer');
+            container.innerHTML = '';
+            currentConfig.instances = [];
+            document.getElementById('noInstancesMessage').style.display = 'block';
+            updateInstanceCount();
+            saveConfiguration();
+            showToast('All instances cleared', 'info');
+        }
+
+        // Update instance count display
+        function updateInstanceCount() {
+            const hostCount = document.querySelectorAll('.host-instance').length;
+            const userCount = document.querySelectorAll('.user-instance').length;
+            const total = hostCount + userCount;
+            
+            const countElement = document.getElementById('instanceCount');
+            if (countElement) {
+                if (total === 0) {
+                    countElement.textContent = '0 instances';
+                } else {
+                    const parts = [];
+                    if (hostCount > 0) parts.push(`${hostCount} host`);
+                    if (userCount > 0) parts.push(`${userCount} user`);
+                    countElement.textContent = `${total} instances (${parts.join(', ')})`;
+                }
+            }
+            
+            // Show/hide no instances message
+            const noMessage = document.getElementById('noInstancesMessage');
+            if (noMessage) {
+                noMessage.style.display = total === 0 ? 'block' : 'none';
+            }
+        }
+
+        // Refresh all instances
+        function refreshAllInstances() {
+            const iframes = document.querySelectorAll('iframe[id^="iframe-"]');
+            iframes.forEach(iframe => {
+                const loading = document.getElementById(`loading-${iframe.id.split('-')[1]}`);
+                if (loading) loading.style.display = 'flex';
+                iframe.src = iframe.src;
+            });
+            if (iframes.length > 0) {
+                showToast(`Refreshing ${iframes.length} instance(s)`, 'info');
+            }
+        }
+
+        // Open all instances in tabs
+        function openAllInTabs() {
+            const hostUrl = document.getElementById('hostUrl').value;
+            const userUrl = document.getElementById('userUrl').value;
+            
+            let tabCount = 0;
+            
+            if (hostUrl) {
+                window.open(hostUrl, '_blank');
+                tabCount++;
+            }
+            
+            if (userUrl && currentConfig.instances.length > 0) {
+                // Open just one user tab instead of all instances to avoid popup blocker
+                window.open(userUrl, '_blank');
+                tabCount++;
+            }
+            
+            if (tabCount > 0) {
+                showToast(`Opened ${tabCount} tab(s)`, 'success');
+            } else {
+                showToast('No URLs to open', 'warning');
+            }
+        }
+
+        // Export configuration
+        function exportConfiguration() {
+            const config = {
+                baseUrl: currentConfig.baseUrl,
+                hostToken: currentConfig.hostToken,
+                userToken: currentConfig.userToken,
+                instanceCount: currentConfig.instances.length,
+                timestamp: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(config, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `noor-canvas-sim-config-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            showToast('Configuration exported', 'success');
+        }
+
+        // Quick demo setup
+        function quickDemo() {
+            // Generate sample tokens
+            const hostToken = generateRandomToken(8).toUpperCase();
+            const userToken = generateRandomToken(8).toUpperCase();
+            
+            // Set tokens
+            document.getElementById('hostToken').value = hostToken;
+            document.getElementById('userToken').value = userToken;
+            document.getElementById('userInstances').value = 2;
+            
+            // Update URLs
+            updateUrls();
+            
+            // Create instances
+            createInstances();
+            
+            showToast('Quick demo setup completed!', 'success');
+        }
+
+        // Load sample configuration
+        function loadSampleConfiguration() {
+            document.getElementById('hostToken').value = 'SAMPLE01';
+            document.getElementById('userToken').value = 'USER001';
+            document.getElementById('userInstances').value = 3;
+            updateUrls();
+            showToast('Sample configuration loaded', 'info');
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform translate-x-full transition-transform duration-300`;
+            toast.innerHTML = `
+                <i class="${icons[type]}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-2 hover:bg-white hover:bg-opacity-20 p-1 rounded">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 10);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        if (toast.parentElement) {
+                            toast.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Configuration persistence
+        function saveConfiguration() {
+            try {
+                localStorage.setItem('noorCanvasSimConfig', JSON.stringify(currentConfig));
+            } catch (e) {
+                console.warn('Failed to save configuration:', e);
+            }
+        }
+
+        function loadSavedConfiguration() {
+            try {
+                const saved = localStorage.getItem('noorCanvasSimConfig');
+                if (saved) {
+                    const config = JSON.parse(saved);
+                    currentConfig.baseUrl = config.baseUrl || currentConfig.baseUrl;
+                    currentConfig.hostToken = config.hostToken || '';
+                    currentConfig.userToken = config.userToken || '';
+                    
+                    // Update UI
+                    document.getElementById('baseUrlInput').value = currentConfig.baseUrl;
+                    document.getElementById('baseUrl').textContent = currentConfig.baseUrl;
+                    document.getElementById('hostToken').value = currentConfig.hostToken;
+                    document.getElementById('userToken').value = currentConfig.userToken;
+                    
+                    updateUrls();
+                }
+            } catch (e) {
+                console.warn('Failed to load saved configuration:', e);
+            }
+        }
+
+        // Utility functions
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

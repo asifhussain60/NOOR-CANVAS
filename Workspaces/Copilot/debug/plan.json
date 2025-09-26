@@ -1,0 +1,88 @@
+{
+    "workitem_key": "debug",
+    "plan_version": "v1",
+    "timestamp": "2025-09-25T00:00:00Z",
+    "requirements": {
+        "floating_panel": {
+            "position": "bottom-right",
+            "visibility": "development-only",
+            "configurable": true
+        },
+        "test_data_button": {
+            "label": "Enter Test Data",
+            "behavior": "view-specific data population"
+        },
+        "user_landing_integration": {
+            "test_name": "superhero names (random)",
+            "test_email": "generated emails",
+            "test_country": "random from dropdown"
+        }
+    },
+    "implementation_steps": [
+        {
+            "step": 1,
+            "title": "Create Debug Panel Component",
+            "description": "Create a reusable DebugPanel.razor component that can be included in any view",
+            "files": [
+                "Components/DebugPanel.razor",
+                "Components/DebugPanel.razor.cs"
+            ]
+        },
+        {
+            "step": 2,
+            "title": "Configuration Support",
+            "description": "Add configuration to enable/disable debug panel based on environment",
+            "files": [
+                "appsettings.Development.json",
+                "appsettings.json"
+            ]
+        },
+        {
+            "step": 3,
+            "title": "Test Data Service",
+            "description": "Create a service for generating random superhero test data",
+            "files": [
+                "Services/ITestDataService.cs",
+                "Services/TestDataService.cs"
+            ]
+        },
+        {
+            "step": 4,
+            "title": "Integration with UserLanding",
+            "description": "Integrate debug panel with UserLanding.razor and implement test data population",
+            "files": [
+                "Pages/UserLanding.razor"
+            ]
+        },
+        {
+            "step": 5,
+            "title": "Styling and Layout",
+            "description": "Apply Tailwind CSS styling for floating panel with modern design",
+            "files": [
+                "wwwroot/css/debug-panel.css"
+            ]
+        },
+        {
+            "step": 6,
+            "title": "Service Registration",
+            "description": "Register services in Program.cs with proper scoping",
+            "files": [
+                "Program.cs"
+            ]
+        }
+    ],
+    "technical_details": {
+        "framework": "Blazor Server",
+        "styling": "Tailwind CSS + Font Awesome",
+        "configuration": "IConfiguration with environment-specific settings",
+        "data_generation": "Random superhero names, emails, countries"
+    },
+    "test_plan": {
+        "manual_testing": [
+            "Verify panel only shows in Development environment",
+            "Test random data generation on UserLanding",
+            "Verify panel positioning and styling",
+            "Test configuration toggle functionality"
+        ]
+    }
+}

@@ -39,7 +39,8 @@
 
         /* Styling for the tab buttons */
         .tab-button.active {
-            border-color: #D4AF37;
+            border-color: #006400;
+            color: #006400;
         }
 
         /* Custom scrollbar for participants list */
@@ -92,79 +93,69 @@
         }
     </style>
 </head>
+<!-- The body is now a flex container that will fill the entire screen height -->
 <body class="bg-[#FBF9F6] flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
 
-    <!-- Main Grid Layout -->
-    <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Grid Layout container. The flex-1 class allows this container to grow and fill the vertical space. -->
+    <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
 
-        <!-- Left Column: Main Canvas & Metadata -->
-        <main class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col">
+        <!-- Left Column: Main Canvas & Metadata. Added max-h-[920px] to limit height. -->
+        <main class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col h-full max-h-[920px]">
             <!-- Canvas Section -->
-            <div class="flex items-center justify-center space-x-2 text-[#006400] mb-4">
-                <i class="fa-solid fa-chalkboard-user text-2xl"></i>
-                <h3 class="poppins text-2xl font-semibold">Noor Canvas</h3>
-            </div>
-
-            <!-- Collapsible Q&A Panel -->
-            <div class="bg-gradient-to-r from-[#D4AF37] to-[#C5B358] rounded-xl mb-4 transition-all duration-300 ease-in-out overflow-hidden" id="collapsible-qa">
-                <div class="flex items-center justify-center space-x-2 cursor-pointer p-4" id="qa-header">
-                    <i class="fa-solid fa-hand-raised text-[#006400] text-3xl"></i>
-                    <h4 class="poppins text-md font-semibold text-[#4B3C2B]">I have a question</h4>
-                    <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" id="chevron-icon"></i>
-                </div>
-                <div id="qa-content" class="h-0 transition-all duration-300 ease-in-out">
-                    <div class="space-y-4 px-4 pb-4">
-                        <textarea class="w-full p-4 rounded-xl border-2 border-[#4B3C2B] focus:outline-none focus:ring-2 focus:ring-[#C5B358] inter text-[#4B3C2B] placeholder:text-gray-500" placeholder="Ask a question..." rows="3"></textarea>
-                        <button id="submit-question-btn" class="w-full py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-green bg-[#006400] flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span>Submit Question</span>
-                        </button>
-                    </div>
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-24 h-24 rounded-full bg-[#D4AF37] flex items-center justify-center">
+                    <span class="text-white text-4xl font-bold poppins">NC</span>
                 </div>
             </div>
-
-            <div id="session-content" class="flex-1 min-h-[400px] border-4 border-double border-[#D4AF37] p-8 rounded-3xl bg-[#FBF9F6] flex flex-col items-center justify-center text-center text-[#706357] text-lg font-light shadow-inner transition-all hover:shadow-lg">
-                <i class="fa-solid fa-spinner text-6xl text-[#D4AF37] mb-4 animate-spin-slow"></i>
-                <p class="animate-pulse-subtle">Awaiting content from the instructor...</p>
-            </div>
-            
-            <!-- Leave Button -->
-            <button id="leave-session-btn" class="mt-6 bg-[#8B0000] text-white rounded-full py-2 px-6 flex items-center justify-center space-x-2 transition-all hover:scale-105 shadow-md">
-                <i class="fa-solid fa-door-open"></i>
-                <span>Leave Session</span>
-            </button>
 
             <!-- Session Metadata -->
-            <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="p-3 bg-white rounded-xl golden-gradient shadow-md border border-[#D4AF37] hover:scale-105 transition-transform">
-                    <i class="fa-solid fa-users text-2xl text-[#4B3C2B] mb-1"></i>
+            <div class="mt-6 mb-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="p-3 bg-[#FDFBEB] rounded-xl shadow-md border border-[#D4AF37] hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-users text-2xl text-[#006400] mb-1"></i>
                     <p class="text-xs inter uppercase font-medium text-[#4B3C2B]">Participants</p>
                     <p id="participants-count" class="text-xl poppins font-bold text-[#4B3C2B]"></p>
                 </div>
-                <div class="p-3 bg-white rounded-xl golden-gradient shadow-md border border-[#D4AF37] hover:scale-105 transition-transform">
-                    <i class="fa-regular fa-clock text-2xl text-[#4B3C2B] mb-1"></i>
+                <div class="p-3 bg-[#FDFBEB] rounded-xl shadow-md border border-[#D4AF37] hover:scale-105 transition-transform">
+                    <i class="fa-regular fa-clock text-2xl text-[#006400] mb-1"></i>
                     <p class="text-xs inter uppercase font-medium text-[#4B3C2B]">Duration</p>
                     <p id="duration-timer" class="text-xl poppins font-bold text-[#4B3C2B]"></p>
                 </div>
-                <div class="p-3 bg-white rounded-xl golden-gradient shadow-md border border-[#D4AF37] hover:scale-105 transition-transform md:col-span-2">
-                    <i class="fa-solid fa-book text-2xl text-[#4B3C2B] mb-1"></i>
+                <div class="p-3 bg-[#FDFBEB] rounded-xl shadow-md border border-[#D4AF37] hover:scale-105 transition-transform md:col-span-2">
+                    <i class="fa-solid fa-book text-2xl text-[#006400] mb-1"></i>
                     <p class="text-xs inter uppercase font-medium text-[#4B3C2B]">Topic</p>
                     <p id="topic" class="text-md poppins font-bold text-[#4B3C2B]"></p>
                 </div>
             </div>
+
+            <div id="session-content" class="h-[400px] border border-[#D4AF37] p-8 rounded-3xl bg-[#F9FAFB] shadow-inner transition-all hover:shadow-lg flex items-center justify-center text-center">
+                <p class="inter text-lg text-[#706357] font-light animate-pulse-subtle">Content from the session will appear here.</p>
+            </div>
+            <!-- The 'Ask a question' panel is now also a flex-1 to fill the remaining space. -->
+            <div class="mt-4 bg-[#FDFBEB] rounded-xl transition-all duration-300 ease-in-out overflow-hidden border border-[#D4AF37]" id="ask-question-box">
+                <div class="flex items-center justify-center space-x-2 p-4">
+                    <i class="fa-solid fa-hand-raised text-[#006400] text-3xl"></i>
+                    <h4 class="poppins text-md font-semibold text-[#4B3C2B]">Ask a question</h4>
+                </div>
+                <div class="flex items-stretch space-x-2 px-4 pb-4">
+                        <textarea id="question-input" class="w-3/4 p-4 rounded-xl border-2 border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#C5B358] inter text-[#4B3C2B] placeholder:text-gray-500" placeholder="Ask a question..." rows="3"></textarea>
+                        <button id="submit-question-btn" class="w-1/4 py-3 px-6 rounded-xl text-white font-semibold transition-transform transform hover:scale-105 shadow-golden bg-[#D4AF37] flex items-center justify-center space-x-2 border-2 border-[#D4AF37]">
+                            <span id="submit-btn-text" class="text-lg text-white">Submit</span>
+                        </button>
+                    </div>
+                </div>
         </main>
 
-        <!-- Right Column: Q&A and Participants -->
-        <aside class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col" id="right-panel">
+        <!-- Right Column: Q&A and Participants. Added max-h-[920px] to limit height. -->
+        <aside class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col h-full max-h-[920px]">
             <!-- Tabs -->
             <div class="flex mb-4 border-b-2 border-gray-200">
                 <button id="qa-tab-btn" class="flex-1 py-3 px-2 text-center text-[#4B3C2B] poppins font-semibold border-b-2 border-transparent transition-all tab-button active">Q&A</button>
                 <button id="participants-tab-btn" class="flex-1 py-3 px-2 text-center text-[#4B3C2B] poppins font-semibold border-b-2 border-transparent transition-all tab-button">Participants</button>
             </div>
 
-            <!-- Q&A Content -->
+            <!-- Q&A Content. flex-1 allows this div to take up the remaining space, and overflow-y-auto enables scrolling. -->
             <div id="qa-panel" class="tab-content flex-1 overflow-y-auto custom-scrollbar">
-                <div class="mt-2 space-y-4">
+                <div class="mt-2 space-y-4 pr-3">
                     <h3 class="inter font-semibold text-sm text-[#4B3C2B]">Recent Questions</h3>
                     <div id="questions-list" class="flex flex-col space-y-3">
                         <!-- Questions will be dynamically inserted here -->
@@ -172,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- Participants Content -->
+            <!-- Participants Content. flex-1 and overflow-y-auto are crucial for the scroll behavior. -->
             <div id="participants-panel" class="tab-content hidden flex-1 overflow-y-auto custom-scrollbar">
                 <h3 class="inter font-semibold text-sm text-[#4B3C2B]">All Participants</h3>
                 <ul id="participants-list" class="mt-4 space-y-2">
@@ -183,15 +174,15 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <div id="leave-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 modal opacity-0 invisible">
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 modal opacity-0 invisible">
         <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center transform scale-95 transition-all">
-            <h4 class="text-xl poppins font-bold text-[#4B3C2B] mb-4">Confirm Leave Session</h4>
-            <p class="inter text-sm text-gray-600 mb-6">Are you sure you want to leave the live session?</p>
+            <h4 class="text-xl poppins font-bold text-[#4B3C2B] mb-4">Confirm Deletion</h4>
+            <p class="inter text-sm text-gray-600 mb-6">Are you sure you want to delete this question? This action cannot be undone.</p>
             <div class="flex justify-around space-x-4">
-                <button id="confirm-leave-btn" class="flex-1 py-2 px-4 rounded-xl text-white font-semibold bg-[#8B0000] hover:bg-[#A52A2A] transition-colors">
-                    Leave
+                <button id="confirm-delete-btn" class="flex-1 py-2 px-4 rounded-xl text-white font-semibold bg-[#8B0000] hover:bg-[#A52A2A] transition-colors">
+                    Delete
                 </button>
-                <button id="cancel-leave-btn" class="flex-1 py-2 px-4 rounded-xl text-[#4B3C2B] font-semibold bg-gray-200 hover:bg-gray-300 transition-colors">
+                <button id="cancel-delete-btn" class="flex-1 py-2 px-4 rounded-xl text-[#4B3C2B] font-semibold bg-gray-200 hover:bg-gray-300 transition-colors">
                     Cancel
                 </button>
             </div>
@@ -209,20 +200,14 @@
             const topicEl = document.getElementById('topic');
             const questionsList = document.getElementById('questions-list');
             const participantsList = document.getElementById('participants-list');
-
-            const collapsibleQa = document.getElementById('collapsible-qa');
-            const qaHeader = document.getElementById('qa-header');
-            const qaContent = document.getElementById('qa-content');
-            const chevronIcon = document.getElementById('chevron-icon');
             const submitQuestionBtn = document.getElementById('submit-question-btn');
-            
-            const leaveSessionBtn = document.getElementById('leave-session-btn');
-            const leaveModal = document.getElementById('leave-modal');
-            const confirmLeaveBtn = document.getElementById('confirm-leave-btn');
-            const cancelLeaveBtn = document.getElementById('cancel-leave-btn');
+            const questionInput = document.getElementById('question-input');
+            const submitBtnText = document.getElementById('submit-btn-text');
+            const deleteModal = document.getElementById('delete-modal');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            let questionToDeleteIndex = null;
 
-            const leftPanel = document.querySelector('main');
-            const rightPanel = document.getElementById('right-panel');
 
             // --- Model (Simulated Data) ---
             const model = {
@@ -251,21 +236,28 @@
                     { name: 'Zahra Hassan', country: 'TR' },
                 ],
                 questions: [
-                    { text: 'Can you re-share the ayah card?', votes: 2 },
-                    { text: 'How can I implement what I\'ve learned in my daily life?', votes: 4 },
-                    { text: 'What is the significance of the Battle of Badr and how can we apply its lessons today? This is a very long question to test the wrapping.', votes: 10 },
-                    { text: 'What\'s the meaning of "Tawhid" and its importance?', votes: 6 },
-                    { text: 'What is the importance of "sabr" (patience) in Islam?', votes: 18 },
+                    { text: 'Can you re-share the ayah card?', votes: 2, isMyQuestion: false },
+                    { text: 'How can I implement what I\'ve learned in my daily life?', votes: 4, isMyQuestion: false },
+                    { text: 'What is the significance of the Battle of Badr and how can we apply its lessons today? This is a very long question to test the wrapping.', votes: 10, isMyQuestion: false },
+                    { text: 'What\'s the meaning of "Tawhid" and its importance?', votes: 6, isMyQuestion: true },
+                    { text: 'What is the importance of "sabr" (patience) in Islam?', votes: 18, isMyQuestion: false },
+                    { text: 'Can you explain the pillars of Islam in more detail?', votes: 5, isMyQuestion: false },
+                    { text: 'What is the role of the Prophet Muhammad (PBUH) in our lives today?', votes: 7, isMyQuestion: true },
+                    { text: 'How do I start memorizing the Quran?', votes: 3, isMyQuestion: false },
+                    { text: 'What are the benefits of fasting in Ramadan beyond the spiritual ones?', votes: 12, isMyQuestion: false },
+                    { text: 'Is it permissible to listen to music in Islam?', votes: 9, isMyQuestion: true },
                 ],
                 topic: 'Chapter 3: Foundational Concepts'
             };
 
+            let editingQuestionIndex = null;
+
             // --- Rendering Functions ---
             const renderParticipants = () => {
-                const participantsHtml = model.participants.map(p => `
-                    <li class="flex items-center space-x-3 p-2 bg-[#FBF9F6] rounded-lg">
-                        <img src="https://placehold.co/24x16/4B3C2B/FBF9F6?text=${p.country}" class="rounded-sm">
-                        <span class="inter text-sm text-[#4B3C2B] font-medium">${p.name}</span>
+                const participantsHtml = model.participants.map((p, index) => `
+                    <li class="flex items-center space-x-3 p-3 rounded-xl bg-white hover:bg-gray-100 transition-colors">
+                        <img src="https://placehold.co/24x16/4B3C2B/FBF9F6?text=${p.country}" class="rounded-full border border-gray-300">
+                        <span class="inter text-sm font-medium ${index % 2 === 0 ? 'text-[#4B3C2B]' : 'text-gray-500'}">${p.name}</span>
                     </li>
                 `).join('');
                 participantsList.innerHTML = participantsHtml;
@@ -273,18 +265,47 @@
             };
 
             const renderQuestions = () => {
-                const questionsHtml = model.questions.map(q => `
-                    <div class="flex items-start p-3 rounded-xl border border-[#D4AF37] bg-[#FBF9F6] text-[#4B3C2B] group hover:bg-[#FBF9F6] transition-colors duration-200">
+                const questionsHtml = model.questions.map((q, index) => {
+                    const bgColor = q.isMyQuestion ? 'bg-[#E6F3EA]' : 'bg-[#FBF9F6]';
+                    const upvoteColor = q.isMyQuestion ? 'text-[#006400]' : 'text-[#D4AF37]';
+                    const controls = q.isMyQuestion ? `
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-pen text-xs text-gray-500 hover:text-gray-700 cursor-pointer edit-btn" data-index="${index}"></i>
+                            <i class="fa-solid fa-trash-can text-xs text-red-500 hover:text-red-700 cursor-pointer delete-btn" data-index="${index}"></i>
+                        </div>` : '';
+                    
+                    return `
+                    <div class="flex items-start p-3 rounded-xl border ${q.isMyQuestion ? 'border-[#006400]' : 'border-[#D4AF37]'} ${bgColor} text-[#4B3C2B] group transition-colors duration-200">
                         <div class="flex flex-col items-center space-y-1 mr-3">
-                            <button class="text-[#006400] text-lg transition-colors hover:text-[#008000]">
+                            <button class="${upvoteColor} text-lg transition-colors hover:text-[#008000]">
                                 <i class="fa-solid fa-arrow-up"></i>
                             </button>
                             <span class="vote-count bg-[#C5B358] text-[#4B3C2B] rounded-full px-2 text-xs font-bold">${q.votes}</span>
                         </div>
-                        <span class="inter text-sm w-full leading-snug">${q.text}</span>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="flex items-center justify-between">
+                                <span class="inter text-sm w-full leading-snug">${q.text}</span>
+                                ${controls}
+                            </div>
+                            ${q.isMyQuestion ? `<span class="inter text-xs font-semibold text-[#006400] mt-1">Your Question</span>` : ''}
+                        </div>
                     </div>
-                `).join('');
+                    `}).join('');
                 questionsList.innerHTML = questionsHtml;
+
+                // Add event listeners for edit and delete buttons
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const index = e.target.dataset.index;
+                        editQuestion(index);
+                    });
+                });
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const index = e.target.dataset.index;
+                        showDeleteModal(index);
+                    });
+                });
             };
 
             const renderMetadata = () => {
@@ -310,16 +331,66 @@
             }
             
             // --- Modal Functions ---
-            const showModal = () => {
-                leaveModal.classList.remove('hidden', 'invisible', 'opacity-0');
-                leaveModal.classList.add('visible', 'opacity-100');
+            const showModal = (modal) => {
+                modal.classList.remove('hidden', 'invisible', 'opacity-0');
+                modal.classList.add('visible', 'opacity-100');
             };
 
-            const hideModal = () => {
-                leaveModal.classList.remove('visible', 'opacity-100');
-                leaveModal.classList.add('hidden', 'invisible', 'opacity-0');
+            const hideModal = (modal) => {
+                modal.classList.remove('visible', 'opacity-100');
+                modal.classList.add('hidden', 'invisible', 'opacity-0');
             };
 
+            const showDeleteModal = (index) => {
+                questionToDeleteIndex = index;
+                showModal(deleteModal);
+            };
+
+            // --- Functionality Functions ---
+            const editQuestion = (index) => {
+                const questionToEdit = model.questions[index];
+                questionInput.value = questionToEdit.text;
+                submitBtnText.textContent = "Update";
+                submitQuestionBtn.classList.remove('bg-[#D4AF37]');
+                submitQuestionBtn.classList.add('bg-[#006400]');
+                editingQuestionIndex = index;
+            };
+
+            const submitQuestion = () => {
+                const newQuestionText = questionInput.value.trim();
+                if (newQuestionText === '') return;
+
+                if (editingQuestionIndex !== null) {
+                    // Update existing question
+                    model.questions[editingQuestionIndex].text = newQuestionText;
+                    
+                    // Reset to "submit" mode
+                    submitBtnText.textContent = "Submit";
+                    submitQuestionBtn.classList.remove('bg-[#006400]');
+                    submitQuestionBtn.classList.add('bg-[#D4AF37]');
+                    editingQuestionIndex = null;
+                } else {
+                    // Add new question
+                    const newQuestion = {
+                        text: newQuestionText,
+                        votes: 0,
+                        isMyQuestion: true
+                    };
+                    model.questions.push(newQuestion);
+                }
+                questionInput.value = '';
+                renderQuestions();
+            };
+            
+            const deleteConfirmed = () => {
+                if (questionToDeleteIndex !== null) {
+                    model.questions.splice(questionToDeleteIndex, 1);
+                    hideModal(deleteModal);
+                    renderQuestions();
+                    questionToDeleteIndex = null;
+                }
+            };
+            
             // --- Initial Render & Timers ---
             renderAll();
 
@@ -344,46 +415,10 @@
                 switchTab(participantsTabBtn, participantsPanel, qaTabBtn, qaPanel);
             });
 
-            qaHeader.addEventListener('click', () => {
-                if (collapsibleQa.classList.contains('expanded')) {
-                    collapsibleQa.classList.remove('expanded');
-                    qaContent.style.height = '0px';
-                    chevronIcon.classList.remove('rotate-180');
-                } else {
-                    collapsibleQa.classList.add('expanded');
-                    qaContent.style.height = qaContent.scrollHeight + 'px';
-                    chevronIcon.classList.add('rotate-180');
-                }
-            });
-
-            submitQuestionBtn.addEventListener('click', () => {
-                collapsibleQa.classList.remove('expanded');
-                qaContent.style.height = '0px';
-                chevronIcon.classList.remove('rotate-180');
-            });
+            submitQuestionBtn.addEventListener('click', submitQuestion);
+            confirmDeleteBtn.addEventListener('click', deleteConfirmed);
+            cancelDeleteBtn.addEventListener('click', () => hideModal(deleteModal));
             
-            leaveSessionBtn.addEventListener('click', showModal);
-            confirmLeaveBtn.addEventListener('click', () => {
-                // Here you would add the logic to actually leave the session
-                // For this example, we'll just log to the console
-                console.log('Leaving session...');
-                hideModal();
-            });
-            cancelLeaveBtn.addEventListener('click', hideModal);
-
-            let rAF;
-            const syncHeights = () => {
-                if (rAF) return;
-                rAF = window.requestAnimationFrame(() => {
-                    const leftHeight = leftPanel.offsetHeight;
-                    rightPanel.style.height = leftHeight + 'px';
-                    rAF = null;
-                });
-            };
-
-            const resizeObserver = new ResizeObserver(syncHeights);
-            resizeObserver.observe(leftPanel);
-
         });
     </script>
 </body>

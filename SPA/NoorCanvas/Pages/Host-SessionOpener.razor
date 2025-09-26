@@ -259,6 +259,14 @@
         public string? RequestId { get; set; }
     }
 
+    public class CreateSessionResponse
+    {
+        public long SessionId { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string JoinLink { get; set; } = string.Empty;
+        public string SessionGuid { get; set; } = string.Empty;
+    }
+
     public class HostSessionInfo
     {
         public int SessionId { get; set; }
@@ -408,7 +416,9 @@
         
         // Initialize with dynamic data for immediate functionality
         Model.LogoText = "NOOR Canvas - Host Session Management";
-        Model.SessionUrl = $"{baseUrl}/session/waiting/demo-session";
+        // SessionUrl will be set after session creation with actual UserToken
+        Model.SessionUrl = string.Empty;
+        Logger.LogInformation("NOOR-HOST-OPENER: [DEBUG-URL-INIT] SessionUrl initialized to empty: '{SessionUrl}'", Model.SessionUrl);
         
         // Load albums for user selection
         await LoadAlbumsAsync();
@@ -797,11 +807,25 @@
             Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Pre-API validation - SelectedAlbum null/empty: {AlbumEmpty}, SelectedCategory null/empty: {CategoryEmpty}, SelectedSession null/empty: {SessionEmpty}",
                 string.IsNullOrEmpty(SelectedAlbum), string.IsNullOrEmpty(SelectedCategory), string.IsNullOrEmpty(SelectedSession));
 
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Calling session creation API at api/host/create-session?token={Token}...", Model.HostFriendlyToken);
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Full API URL: {BaseAddress}api/host/create-session?token={Token}", httpClient.BaseAddress, Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Calling session creation API at api/host/session/create...");
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Full API URL: {BaseAddress}api/host/session/create", httpClient.BaseAddress);
+            
+            // Prepare CreateSessionRequest payload for the non-deprecated endpoint
+            var createSessionRequest = new
+            {
+                HostGuid = Model.HostFriendlyToken,
+                SessionId = int.Parse(SelectedSession ?? "0"),
+                AlbumId = int.Parse(SelectedAlbum ?? "0"),
+                CategoryId = int.Parse(SelectedCategory ?? "0"),
+                Title = "Host Session", // Default title
+                Description = "Session created by host", // Default description
+                MaxParticipants = (int?)null // Use default from backend
+            };
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] CreateSessionRequest payload: {Request}", System.Text.Json.JsonSerializer.Serialize(createSessionRequest));
             
             // Call the API to create session and generate tokens
-            var response = await httpClient.PostAsJsonAsync($"api/host/create-session?token={Model.HostFriendlyToken}", sessionData);
+            var response = await httpClient.PostAsJsonAsync("api/host/session/create", createSessionRequest);
             
             Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] API call completed with status: {StatusCode} ({StatusCodeNumber})", response.StatusCode, (int)response.StatusCode);
             Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Response headers: {Headers}", response.Headers.ToString());
@@ -818,44 +842,48 @@
                 try
                 {
                     var result = !string.IsNullOrEmpty(responseContent) 
-                        ? System.Text.Json.JsonSerializer.Deserialize<SessionCreationResponse>(responseContent, 
+                        ? System.Text.Json.JsonSerializer.Deserialize<CreateSessionResponse>(responseContent, 
                             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                         : null;
                     
                     Logger.LogInformation("NOOR-HOST-OPENER: API response parsed: {Result}", result == null ? "NULL" : System.Text.Json.JsonSerializer.Serialize(result));
                     
-                    if (result != null && !string.IsNullOrEmpty(result.UserToken))
+                    if (result != null && !string.IsNullOrEmpty(result.JoinLink))
                     {
-                        // ISSUE-104 FIX: Update the session URL with proper user authentication URL format using dynamic base URL
-                        var configuredBaseUrl = GetBaseUrl();
-                        SessionUrl = $"{configuredBaseUrl}/user/landing/{result.UserToken}";
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - User Token: {UserToken}", result.UserToken);
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session URL updated to proper format: {SessionUrl}", SessionUrl);
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] URL format changed from '/session/{token}' to '/user/landing/{token}' for proper authentication flow");
+                        // ISSUE-104 FIX: Use the JoinLink directly from the API response 
+                        SessionUrl = result.JoinLink;
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - Session ID: {SessionId}", result.SessionId);
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session URL set from API JoinLink: {SessionUrl}", SessionUrl);
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] Using proper /user/landing/{token} format from API response");
                         
                         // TOKEN-CONSISTENCY FIX: Update host token from API response to maintain consistency
-                        if (!string.IsNullOrEmpty(result.HostToken))
+                        if (!string.IsNullOrEmpty(result.SessionGuid))
                         {
                             var originalHostToken = Model.HostFriendlyToken;
-                            Model.HostFriendlyToken = result.HostToken;
+                            Model.HostFriendlyToken = result.SessionGuid;
                             Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Host token updated from API response - Original: {OriginalToken}, New: {NewToken}", 
-                                originalHostToken, result.HostToken);
+                                originalHostToken, result.SessionGuid);
                             Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] This ensures LoadControlPanel() uses the same token that validates in HostControlPanel");
                         }
                         else
                         {
-                            Logger.LogWarning("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-WARNING] API response missing HostToken - keeping original: {OriginalToken}", Model.HostFriendlyToken);
+                            Logger.LogWarning("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-WARNING] API response missing SessionGuid - keeping original: {OriginalToken}", Model.HostFriendlyToken);
                         }
                         
                         // NEW FEATURE: Clear existing participants when host opens session
                         // This ensures a fresh start for each session by removing any previously registered participants
-                        await ClearExistingParticipants(result.UserToken);
+                        // Extract user token from JoinLink (format: https://localhost:9091/user/landing/{userToken})
+                        var userToken = result.JoinLink.Split('/').LastOrDefault();
+                        if (!string.IsNullOrEmpty(userToken))
+                        {
+                            await ClearExistingParticipants(userToken);
+                        }
                     }
                     else
                     {
-                        Logger.LogError("NOOR-HOST-OPENER: [ISSUE-104-ERROR] Invalid response from session creation API - Result: {Result}, UserToken: {UserToken}", 
-                            result?.ToString() ?? "NULL", result?.UserToken ?? "NULL");
-                        throw new Exception("Invalid response from session creation API - missing UserToken");
+                        Logger.LogError("NOOR-HOST-OPENER: [ISSUE-104-ERROR] Invalid response from session creation API - Result: {Result}, JoinLink: {JoinLink}", 
+                            result?.ToString() ?? "NULL", result?.JoinLink ?? "NULL");
+                        throw new Exception("Invalid response from session creation API - missing JoinLink");
                     }
                 }
                 catch (JsonException jsonEx)

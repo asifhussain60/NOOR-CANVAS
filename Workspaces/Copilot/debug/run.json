@@ -1,0 +1,14 @@
+{
+    "key": "debug",
+    "mode": "apply",
+    "test": false,
+    "notes": "Create a debug mode structure that shows up as a floating panel on the bottom right of all razor views ONLY in development mode. These should not exist in production, therefore ensure configurability. This debug panel should have a button saying 'Enter Test Data'. When clicked, depending on which razor view the user is on, the button should enter the correct information. On #file:UserLanding.razor - clicking the button should Enter a test name, email and pick a random country from the dropdown. Create test data using superhero names. I want you to randomly choose data rather than showing the same data evertime.",
+    "timestamp": "2025-09-25T00:00:00Z",
+    "plan_hash": "debug-v1-dev-panel-implementation",
+    "current_step": 1,
+    "watchdog": {
+        "idle_seconds_threshold": 120,
+        "graceful_stop_timeout_seconds": 10,
+        "max_retries": 1
+    }
+}

@@ -27,6 +27,30 @@ ksrun -test -Https       # Use HTTPS (port 9091) for testing
 ksrun -Help              # Show all available options
 ```
 
+### 🎭 **SimHostUser - Host & User Experience Simulator** (NEW)
+
+**Primary Command**: `.\SimHostUser.ps1`
+
+Sophisticated web-based tool for simulating both host and user experiences with multiple simultaneous instances for comprehensive SignalR testing.
+
+#### **🔥 Key Features**
+
+- **🤴 Host Simulation**: Generate host tokens, create URLs, direct access to control panel
+- **👥 Multi-User Testing**: Create 1-8 simultaneous user session instances  
+- **📱 Live Preview**: Real-time iframe views of all interfaces
+- **⚙️ Configuration Management**: Export/import settings, base URL configuration
+- **🚀 Quick Demo**: One-click setup for immediate testing
+- **🎨 Modern UI**: Tailwind CSS styling with Font Awesome icons
+
+#### **Quick Usage**
+
+```powershell
+.\SimHostUser.ps1              # Launch simulator with default browser
+.\SimHostUser.ps1 -Browser chrome  # Launch with Chrome
+.\SimHostUser.ps1 -Port 8080   # Launch on custom port
+.\SimHostUser.ps1 -Help        # Show detailed help and features
+```
+
 ### 🔑 **NCT - NOOR Canvas Token Provisioner**
 
 Host token generation and management command for NOOR Canvas sessions.
