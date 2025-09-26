@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "TimingFixTest/1.0.0": {
+        "runtime": {
+          "TimingFixTest.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TimingFixTest/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,50 +1,46 @@
-applyTo: "**"
-description: Self-learning, context-first workspace rules for Copilot Chat. Tailored for Noor Canvas.
 ---
+title: SelfAwareness — Global Operating Guardrails
+version: 2.1.0
+appliesTo: **
+key: 
+updated: 2025-09-26
+---
+# SelfAwareness — Global Operating Guardrails (2.1.0)
 
-# SelfAwareness — Global Operating Guardrails
+> Source of truth for agent behavior. Keep **.github/prompts** as the canonical location.
+> All other files under **Workspaces/copilot/** reference these paths and rules.
 
 ## Scope
-Governs `/workitem`, `/retrosync`, `/cleanup`, `/pwtest`, `/imgreq`, `/continue`.
+Governs: `/workitem`, `/retrosync`, `/cleanup`, `/pwtest`, `/imgreq`, `/continue`.
 
-## Mandatory Inputs
-- Per-key state under `NOOR CANVAS\Workspaces\Copilot\{key}\`.
-- Requirements-{key}.MD.
-- Cleanup-<key>.MD.
-- Design & trackers (.MD).
-- This file.
-- Always consult **#terminalLastCommand** and **#getTerminalOutput** during detection/analysis to ground decisions in actual runtime logs.
+## Absolute Rules
+- **Do not** launch with `dotnet run` or variants.
+- Launch only via:
+  - `./Workspaces/copilot/Global/nc.ps1`  (launch)
+  - `./Workspaces/copilot/Global/ncb.ps1` (clean, build, launch)
+- Always consult terminal logs using `#getTerminalOutput` and include a short evidence tail in summaries.
+- If the agent stops/restarts the app, log self-attribution:
+  - `[DEBUG-WORKITEM:{key}:lifecycle] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
-## Execution
-- **Never** run via `dotnet run` or `cd …; dotnet run`.
-- Use only:
-    • `.\Workspaces\Global
-c.ps1`  # launch only
-    • `.\Workspaces\Global
-cb.ps1` # clean, build, and launch
-- Ports 9090/9091 assumed; secrets as placeholders only.
-- Canonical debug tag: `[DEBUG-WORKITEM:{key}:{layer}]`.
+## Playwright Canon
+- `Workspaces/copilot/config/playwright.config.ts` must set `testDir: "Workspaces/copilot/Tests/Playwright"`.
+- Tests live under `Workspaces/copilot/Tests/Playwright/{key}/` (e.g., `hostcanvas`).
 
-## Testing
-- Prefer headless Playwright; capture artifacts on failure.
-- Map tests to numbered requirements when present.
+## Iterative Accumulation Policy (Global)
+- Make one change → run its test.
+- Add the second change → run test1 + test2.
+- Continue accumulating until **all** identified tests for the scope are green.
+- Do **not** ask for approval until all created tests are green.
+- After a fully green run, ask the user to perform a manual run once, then request approval to mark complete.
 
-## Context Indexing
-- Maintain per-key index at `...\index\` (context.idx.json, pack.jsonl, delta, sources).
+## Debug Logging & Cleanup
+- Temporary debug lines include **`;CLEANUP_OK`** for surgical removal by `/cleanup`.
+- Use structured tags: `[DEBUG-WORKITEM:{key}:{layer}]`
 
-## Contract Compliance Workflow (All agents)
-1) Detect consumer usage vs producer DTOs.
-2) Contract reconciliation gate (missing/extra/type/nullable/version drift).
-3) Checkpoint.
-4) Incremental apply phases 0→3.
-5) Golden fixtures + Playwright specs.
+## Terminal Evidence
+- Summaries include a **Terminal Evidence** block with the last 10–20 lines relevant to the change.
 
-## Watchdog (All agents)
-watchdog:
-  idle_seconds_threshold: 120
-  graceful_stop_timeout_seconds: 10
-  max_retries: 1
-
-
-## Approval & Summary
-Every run presents an approval gate and emits a final summary (what, why, files, tests, resume info).
+## Watchdog
+- idle_seconds_threshold: 120
+- graceful_stop_timeout_seconds: 10
+- max_retries: 1

@@ -1,0 +1,15 @@
+D:\PROJECTS\NOOR CANVAS\TokenTest\bin\Debug\net9.0\TokenTest.exe
+D:\PROJECTS\NOOR CANVAS\TokenTest\bin\Debug\net9.0\TokenTest.deps.json
+D:\PROJECTS\NOOR CANVAS\TokenTest\bin\Debug\net9.0\TokenTest.runtimeconfig.json
+D:\PROJECTS\NOOR CANVAS\TokenTest\bin\Debug\net9.0\TokenTest.dll
+D:\PROJECTS\NOOR CANVAS\TokenTest\bin\Debug\net9.0\TokenTest.pdb
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.GeneratedMSBuildEditorConfig.editorconfig
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.AssemblyInfoInputs.cache
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.AssemblyInfo.cs
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.csproj.CoreCompileInputs.cache
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.sourcelink.json
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.dll
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\refint\TokenTest.dll
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.pdb
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\TokenTest.genruntimeconfig.cache
+D:\PROJECTS\NOOR CANVAS\TokenTest\obj\Debug\net9.0\ref\TokenTest.dll

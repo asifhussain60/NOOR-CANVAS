@@ -146,6 +146,7 @@ builder.Services.AddScoped<NoorCanvas.Services.Development.ITestDataService, Noo
 
 // Schema Migration Services - Simplified schema only
 builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service
+builder.Services.AddScoped<SessionStateService>(); // Session state persistence service
 
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection

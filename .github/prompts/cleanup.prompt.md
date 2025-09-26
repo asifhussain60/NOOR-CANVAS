@@ -1,68 +1,78 @@
-mode: agent
-name: cleanup
-alias: /cleanup
-description: >
-  Remove or neutralize temporary debug logs and artifacts (including Playwright traces/videos),
-  manage Context Index lifecycle, and capture watchdog learnings. Safe, reversible by PR.
+---
+title: cleanup — Log/Artifact Janitor + Structure Verifier
+version: 2.2.0
+appliesTo: /cleanup
+updated: 2025-09-26
+---
+# /cleanup — Log/Artifact Janitor **plus** Structure Verifier & Optional Auto-Migrate (2.2.0)
 
-parameters:
-  - name: key
-    required: false
-  - name: cleanlogs
-    required: false
-    default: true
-  - name: purge_index
-    required: false
+## Purpose
+1) **Clean** temporary logs/artifacts safely using the `;CLEANUP_OK` marker.
+2) **Verify** the repo structure matches the canonical layout under `Workspaces/copilot/`.
+3) **Optionally auto-migrate** strays back into place (idempotent).
 
-usage:
-  prerequisites:
-    - Ensure no uncommitted work will be lost.
-  run_examples:
-    - /cleanup key:hostcanvas cleanlogs:true
-    - /cleanup purge_index:ttl:14
+## Root Path
+`D:\PROJECTS\NOOR CANVAS`
 
-context_boot:
-  - Discover scope (key or ALL) via Copilot\* state.
-  - Inspect index timestamps to evaluate TTL/date rules.
-  - Read SelfAwareness; review debug logs and {"#getTerminalOutput"}.
-  - Preserve Requirements-{key}.MD.
+## Modes
+- `mode: clean` (default) — remove only temp logs/artifacts that carry the cleanup marker or are older than retention policy.
+- `mode: verify` — do not modify files; report all structural drift and recommended moves.
+- `mode: migrate_fix` — perform the recommended moves to restore the canonical structure (safe and idempotent).
 
-objectives:
-  - Remove `[DEBUG-WORKITEM:{key}:{layer}]` logs if cleanlogs:true.
-  - Purge stale Context Index folders by rule (all | ttl:D | before:DATE | none).
-  - Identify and purge stale Playwright artifacts after approval.
-  - Emit Cleanup-<key>.MD (or Global).
+## Canonical Structure (high level)
+- `.github/prompts/` (source of truth for prompts/instructions/templates)
+- `Workspaces/copilot/` is the root for everything else:
+  - `Global/nc.ps1`, `Global/ncb.ps1`
+  - `config/playwright.config.ts` (must set `testDir: "Workspaces/copilot/Tests/Playwright"`)
+  - `Tests/Playwright/{key}/...`
+  - `state/{key}/(Requirements-*.md, Cleanup-*.md, SelfReview-*.md, reviews/)`
+  - `logs/(app|copilot|terminal)/`
+  - `artifacts/(playwright|coverage|build)/`
+  - `ops/(scripts|tasks)/`
+  - `docs/(architecture.md|decisions|runbooks)/`
+  - `src/...` (application code)
 
-methods:
-  analyze:
-    - Parse progress/checkpoint/artifacts; draft instruction updates.
-    - Build purge candidates; list file previews for approval.
-  apply:
-    - Apply diffs/removals after approval and document results.
+## Cleanup Rules
+- **Markers:** Only delete lines/files with explicit `;CLEANUP_OK` or dated artifacts older than the retention setting.
+- **Targets:**
+  - `Workspaces/copilot/logs/copilot/` (temp agent logs)
+  - `Workspaces/copilot/logs/terminal/` (tailed outputs)
+  - `Workspaces/copilot/artifacts/playwright/` (old reports, traces, videos)
+- **Retention:** Default 7 days unless specified in `Workspaces/copilot/state/{key}/Cleanup-{key}.md`.
 
-watchdog:
-watchdog:
-  idle_seconds_threshold: 120
-  graceful_stop_timeout_seconds: 10
-  max_retries: 1
+## Structure Verification (Drift Detection)
+Report any of the following:
+- Folders present at repo root **other than** `.github/`.
+- `Tests/`, `config/`, `docs/`, `logs/`, `artifacts/`, `ops/`, `src/`, or `state/` found **outside** `Workspaces/copilot/`.
+- Playwright config missing, or `testDir` not equal to `Workspaces/copilot/Tests/Playwright`.
+- Key assets missing under `Workspaces/copilot/state/{key}/`: `Requirements-`, `Cleanup-`, `SelfReview-`, `reviews/`.
+- PowerShell launchers missing under `Workspaces/copilot/Global/`.
 
+## Auto-Migrate (when `mode: migrate_fix`)
+- Create `Workspaces/copilot/` if missing.
+- Move these if found at root or elsewhere:
+  - `src/` → `Workspaces/copilot/src/`
+  - `Tests/Playwright/` → `Workspaces/copilot/Tests/Playwright/`
+  - `config/` → `Workspaces/copilot/config/`
+  - `docs/` → `Workspaces/copilot/docs/`
+  - `logs/` → `Workspaces/copilot/logs/`
+  - `artifacts/` → `Workspaces/copilot/artifacts/`
+  - `ops/` → `Workspaces/copilot/ops/`
+  - Any `Requirements-*.md`, `Cleanup-*.md`, `SelfReview-*.md` → `Workspaces/copilot/state/{key}/`
+- Re-check `playwright.config.ts` and **rewrite** `testDir` to `Workspaces/copilot/Tests/Playwright` if needed.
+- Remove empty original folders after moves (leave `.github/` untouched).
 
-alignment:
-  - .github/instructions/SelfAwareness.instructions.md
-  - .github/instructions/Ops-Watchdog-Troubleshooting.md
-  - Requirements-{key}.MD
-  - D:\PROJECTS\NOOR CANVAS\.github\*.MD
+## Terminal Evidence & Honesty
+- Before deleting or moving, read `#getTerminalOutput` for context if the app is running; pause actions that would interrupt a live run.
+- If the agent stops/restarts anything to proceed, log:
+  `[DEBUG-WORKITEM:{key}:cleanup] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
-guardrails:
-  - Show diffs/snippets; preserve build validity.
-  - Do not delete authoritative docs.
-  - Purge Copilot state/index only after approval.
+## Output
+- **mode: clean** → list of deletions with reasons (marker/age), and bytes reclaimed.
+- **mode: verify** → drift report with recommended actions.
+- **mode: migrate_fix** → actions performed, files moved, config rewrites, and a final `verify` summary.
 
-output:
-  - instruction_diffs
-  - removed_logs
-  - purged_artifacts
-  - purged_index
-  - watchdog_events
-  - docs_created_or_updated
-  - approval_gate
+## Safety Notes
+- Never touch `.github/` beyond reading prompts/templates.
+- Never delete files lacking `;CLEANUP_OK` unless they match age-based retention in artifacts folders.
+- All moves are relative to `D:\PROJECTS\NOOR CANVAS` and are idempotent (re-running finds nothing to change).

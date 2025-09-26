@@ -14,6 +14,7 @@
 @inject NavigationManager Navigation
 @inject ILogger<SessionCanvas> Logger
 @inject NoorCanvas.Services.SimplifiedTokenService TokenService
+@inject NoorCanvas.Services.SessionStateService SessionStateService
 
 <PageTitle>Noor Canvas</PageTitle>
 
@@ -470,6 +471,9 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
         
+        // Check for persisted session state first (for page refresh/navigation scenarios)
+        await LoadPersistedSessionStateAsync(requestId);
+        
         // Initialize session data FIRST so SessionId is available
         await InitializeSessionAsync(requestId);
         
@@ -579,7 +583,7 @@
             if (sessionResponse?.Valid == true && sessionResponse.Session != null)
             {
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation successful - updating session data", requestId);
-                UpdateSessionData(sessionResponse.Session);
+                await UpdateSessionData(sessionResponse.Session);
                 _sessionId = sessionResponse.Session.SessionId;
                 
                 // Load participants
@@ -605,7 +609,7 @@
         }
     }
 
-    private void UpdateSessionData(SessionData session)
+    private async Task UpdateSessionData(SessionData session)
     {
         if (Model == null) return;
 
@@ -619,6 +623,9 @@
         {
             Model.SessionStartTime = session.StartTime.Value;
         }
+        
+        // Save session state to localStorage for persistence
+        await SaveSessionStateAsync();
     }
 
     private async Task LoadParticipantsAsync(string requestId)
@@ -1462,6 +1469,91 @@
             Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] Error initializing SignalR connection: {Error}", ex.Message);
             // Trigger UI update to show disconnected status with retry button
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task LoadPersistedSessionStateAsync(string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Loading persisted session state from localStorage", requestId);
+            
+            var sessionState = await SessionStateService.LoadSessionStateAsync();
+            
+            if (sessionState != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Found persisted SessionId: {SessionId}", 
+                    requestId, sessionState.SessionId);
+                
+                // Only use persisted state if we don't have a current SessionId
+                if (_sessionId == null || _sessionId == 0)
+                {
+                    _sessionId = sessionState.SessionId;
+                    
+                    // Pre-populate model with persisted data to avoid empty initial state
+                    if (Model != null)
+                    {
+                        Model.SessionId = sessionState.SessionId;
+                        Model.SessionName = sessionState.SessionName;
+                        Model.Topic = sessionState.Topic;
+                        Model.ParticipantCount = sessionState.ParticipantCount;
+                        
+                        // Update the formatted display fields
+                        if (sessionState.StartedAt.HasValue)
+                        {
+                            Model.SessionDate = FormatDate(sessionState.StartedAt.Value);
+                            Model.StartTime = FormatTime(sessionState.StartedAt.Value);
+                            Model.SessionStartTime = sessionState.StartedAt.Value;
+                        }
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Pre-populated model with persisted data", requestId);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+                else
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Current SessionId ({CurrentSessionId}) exists, skipping persisted SessionId ({PersistedSessionId})", 
+                        requestId, _sessionId, sessionState.SessionId);
+                }
+            }
+            else
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] No persisted session state found", requestId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Error loading persisted session state", requestId);
+        }
+    }
+
+    private async Task SaveSessionStateAsync()
+    {
+        try
+        {
+            if (_sessionId.HasValue && Model != null)
+            {
+                var sessionState = new NoorCanvas.Services.SessionStateService.SessionState
+                {
+                    SessionId = (int)_sessionId.Value,
+                    SessionName = Model.SessionName ?? "Unknown Session",
+                    SessionDescription = "Session Canvas View",
+                    SessionStatus = "Active",
+                    Topic = Model.Topic ?? "Session Content",
+                    ParticipantCount = Model.ParticipantCount,
+                    StartedAt = Model.SessionStartTime,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var saved = await SessionStateService.SaveSessionStateAsync(sessionState);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] Session state saved: {Success} for SessionId: {SessionId}", 
+                    saved, _sessionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSION] Error saving session state");
         }
     }
 

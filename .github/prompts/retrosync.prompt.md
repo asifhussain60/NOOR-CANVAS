@@ -1,60 +1,17 @@
-mode: agent
-name: retrosync
-alias: /retrosync
-description: >
-  Evidence-based retrospective + synchronization across docs/trackers/requirements,
-  grounded in commits, chats, terminal output, debug logs, and per-key state.
+---
+title: retrosync — Requirements & Reality Reconciler
+version: 2.1.0
+appliesTo: /retrosync
+key: 
+updated: 2025-09-26
+---
+# /retrosync — Requirements & Reality Reconciler (2.1.0)
 
-parameters:
-  - name: notes
-    required: false
+## Purpose
+Reconcile current implementation with `Requirements-{key}.md`, update gaps, and propose test coverage.
 
-usage:
-  prerequisites:
-    - Repo clean or throwaway branch for doc edits.
-    - **Never** run via `dotnet run` or `cd …; dotnet run`.
-- Use only:
-    • `.\Workspaces\Global
-c.ps1`  # launch only
-    • `.\Workspaces\Global
-cb.ps1` # clean, build, and launch
-  run_examples:
-    - /retrosync notes:"review Playwright gaps --- close SessionWaiting bug"
-
-context_boot:
-  - Inspect per-key state under Copilot\*; gather run/plan/progress/checkpoint/artifacts.
-  - Prefer context index for planning; delta after run.
-  - Read SelfAwareness; review {"#getTerminalOutput"} and debug logs.
-  - If Requirements-{key}.MD exists, align to it.
-
-objectives:
-  - Derive diffs for design docs, trackers, SelfAwareness.
-  - Contract drift audit (producer↔consumer).
-  - Structured test plan suggestions.
-  - Leave retrosync state current.
-
-methods:
-  analyze:
-    - Gather commits/diffs/logs/state; compare to design/trackers/requirements.
-  apply:
-    - Apply doc diffs with approval gate; write new .github docs as needed.
-
-watchdog:
-watchdog:
-  idle_seconds_threshold: 120
-  graceful_stop_timeout_seconds: 10
-  max_retries: 1
-
-
-guardrails:
-  - Structured diffs only; do not remove SelfAwareness without approval.
-  - Requirements-{key}.MD authoritative.
-  - Record index delta; keep state under Copilot.
-
-output:
-  - plan
-  - diffs
-  - evidence
-  - successful_patterns
-  - watchdog_events
-  - approval_gate
+## Steps
+1. Parse `Workspaces/copilot/state/{key}/Requirements-{key}.md`.
+2. Scan specs in `Workspaces/copilot/Tests/Playwright/{key}/`.
+3. Propose missing cases and add them following the **Iterative Accumulation Policy**.
+4. Record findings in `Workspaces/copilot/state/{key}/SelfReview-{key}.md` and timestamped snapshot under `reviews/`.

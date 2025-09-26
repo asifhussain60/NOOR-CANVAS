@@ -1,0 +1,36 @@
+{
+    "workitem": {
+        "key": "hostcanvas",
+        "mode": "apply",
+        "test": false,
+        "notes": "CRITICAL REGRESSION: SessionId extraction that was working (SessionId: 212) is now returning NULL again. Terminal logs show successful initialization but user debug shows NULL.",
+        "timestamp": "2025-09-26T11:08:00Z",
+        "phase": "phase_1_minimal_viable_change"
+    },
+    "analysis": {
+        "current_issues": [
+            "REGRESSION: SessionId extraction returning NULL despite previous success (was SessionId: 212)",
+            "HubConnection is null during Self Check (timing/initialization issue)",
+            "Token length validation working (9 chars accepted) but SessionId extraction failing",
+            "Mismatch between terminal logs (success) and Self Check (failure)"
+        ],
+        "debug_evidence": {
+            "sessionId_available": false,
+            "hubConnection_state": "null",
+            "token_lengths": {
+                "host": 9,
+                "user": 9,
+                "expected": "8 or 9"
+            },
+            "signalr_groups_joined": true,
+            "connection_successful": true,
+            "terminal_shows_success": true,
+            "self_check_shows_failure": true
+        },
+        "diagnosis": {
+            "likely_cause": "URL/token mismatch or timing issue between initialization and Self Check",
+            "evidence": "Terminal logs show SessionId: 212 but Self Check shows NULL",
+            "next_action": "Verify URL being accessed and timing of SessionId extraction vs Self Check"
+        }
+    }
+}

@@ -159,28 +159,44 @@
         {
             <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);margin-top:1.5rem;">
                 
-                <!-- Session URL Title -->
-                <h3 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.25rem;color:#006400;margin-bottom:1rem;">Session URL</h3>
+                <!-- Session URLs Title -->
+                <h3 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.25rem;color:#006400;margin-bottom:1rem;">Session URLs</h3>
             
-            <!-- URL Display and Copy Button -->
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0.5rem;">
-                <span id="sessionUrl" style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#1f2937;word-break:break-all;text-align:center;">@SessionUrl</span>
-                <button id="copyButton" @onclick="CopyUrl" 
-                        style="font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1rem;border-radius:50px;@(Copied ? "background-color:#006400;" : "background-color:#D4AF37;") color:#FFFFFF;border:none;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
-                    <i class="fa-solid @(Copied ? "fa-check" : "fa-copy")"></i>
-                    <span>@(Copied ? "Copied!" : "Copy Link")</span>
-                </button>
-            </div>
+                <!-- User Landing URL -->
+                <div style="margin-bottom:1.5rem;">
+                    <h4 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;color:#374151;margin-bottom:0.5rem;">📱 User Landing URL</h4>
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0.5rem;">
+                        <span id="userUrl" style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#1f2937;word-break:break-all;text-align:center;">@UserLandingUrl</span>
+                        <button id="copyUserButton" @onclick="CopyUserUrl" 
+                                style="font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1rem;border-radius:50px;@(UserCopied ? "background-color:#006400;" : "background-color:#D4AF37;") color:#FFFFFF;border:none;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
+                            <i class="fa-solid @(UserCopied ? "fa-check" : "fa-copy")"></i>
+                            <span>@(UserCopied ? "Copied!" : "Copy User Link")</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Host Session Opener URL -->
+                <div style="margin-bottom:1.5rem;">
+                    <h4 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;color:#374151;margin-bottom:0.5rem;">🎛️ Host Session Opener URL</h4>
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0.5rem;">
+                        <span id="hostUrl" style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#1f2937;word-break:break-all;text-align:center;">@HostSessionUrl</span>
+                        <button id="copyHostButton" @onclick="CopyHostUrl" 
+                                style="font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1rem;border-radius:50px;@(HostCopied ? "background-color:#006400;" : "background-color:#C5B358;") color:#FFFFFF;border:none;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
+                            <i class="fa-solid @(HostCopied ? "fa-check" : "fa-copy")"></i>
+                            <span>@(HostCopied ? "Copied!" : "Copy Host Link")</span>
+                        </button>
+                    </div>
+                </div>
             
-            <!-- Load Control Panel Button -->
-            <div style="display:flex;justify-content:center;margin-top:1rem;margin-top:1.5rem;">
-                <button id="loadControlPanelBtn" @onclick="LoadControlPanel" 
-                        style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;background-color:#006400;color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Load Control Panel</span>
-                </button>
+                <!-- Load Control Panel Button -->
+                <div style="display:flex;justify-content:center;margin-top:1rem;margin-top:1.5rem;">
+                    <button id="loadControlPanelBtn" @onclick="LoadControlPanel" 
+                            style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;background-color:#006400;color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Load Control Panel</span>
+                    </button>
+                </div>
             </div>
-        </div>
         }
     </div>
 </div>
@@ -203,6 +219,10 @@
         public bool IsFormValid { get; set; }
         public bool Copied { get; set; }
         public string SessionUrl { get; set; } = string.Empty; // Will be set dynamically from configuration
+        public string UserLandingUrl { get; set; } = string.Empty; // User landing URL
+        public string HostSessionUrl { get; set; } = string.Empty; // Host session opener URL  
+        public bool UserCopied { get; set; } = false; // Track user URL copy state
+        public bool HostCopied { get; set; } = false; // Track host URL copy state
         public bool IsLoadingAlbums { get; set; }
         public bool IsLoadingCategories { get; set; }
         public bool IsLoadingSessions { get; set; }
@@ -389,6 +409,30 @@
     {
         get => Model.ShowSessionUrlPanel;
         set => Model.ShowSessionUrlPanel = value;
+    }
+    
+    private string UserLandingUrl
+    {
+        get => Model.UserLandingUrl;
+        set => Model.UserLandingUrl = value;
+    }
+    
+    private string HostSessionUrl
+    {
+        get => Model.HostSessionUrl;
+        set => Model.HostSessionUrl = value;
+    }
+    
+    private bool UserCopied
+    {
+        get => Model.UserCopied;
+        set => Model.UserCopied = value;
+    }
+    
+    private bool HostCopied
+    {
+        get => Model.HostCopied;
+        set => Model.HostCopied = value;
     }
 
     protected override async Task OnInitializedAsync()
@@ -647,6 +691,10 @@
         {
             ShowSessionUrlPanel = false;
             SessionUrl = ""; // Clear the URL as well
+            UserLandingUrl = ""; // Clear user landing URL
+            HostSessionUrl = ""; // Clear host session URL
+            UserCopied = false; // Reset user copy state
+            HostCopied = false; // Reset host copy state
         }
 
         IsFormValid = !string.IsNullOrEmpty(SelectedAlbum) &&
@@ -706,6 +754,50 @@
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying URL to clipboard");
             ErrorMessage = "Failed to copy URL. Please copy manually.";
+        }
+    }
+
+    private async Task CopyUserUrl()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", UserLandingUrl);
+            UserCopied = true;
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: User landing URL copied to clipboard: {Url}", UserLandingUrl);
+            
+            // Reset after 2 seconds
+            await Task.Delay(2000);
+            UserCopied = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying user URL to clipboard");
+            ErrorMessage = "Failed to copy user URL. Please copy manually.";
+        }
+    }
+
+    private async Task CopyHostUrl()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", HostSessionUrl);
+            HostCopied = true;
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-HOST-OPENER: Host session URL copied to clipboard: {Url}", HostSessionUrl);
+            
+            // Reset after 2 seconds
+            await Task.Delay(2000);
+            HostCopied = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying host URL to clipboard");
+            ErrorMessage = "Failed to copy host URL. Please copy manually.";
         }
     }
 
@@ -852,8 +944,9 @@
                     {
                         // ISSUE-104 FIX: Use the JoinLink directly from the API response 
                         SessionUrl = result.JoinLink;
+                        UserLandingUrl = result.JoinLink; // Set user landing URL
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - Session ID: {SessionId}", result.SessionId);
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session URL set from API JoinLink: {SessionUrl}", SessionUrl);
+                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] User landing URL set from API JoinLink: {UserLandingUrl}", UserLandingUrl);
                         Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] Using proper /user/landing/{token} format from API response");
                         
                         // TOKEN-CONSISTENCY FIX: Update host token from API response to maintain consistency
@@ -864,10 +957,20 @@
                             Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Host token updated from API response - Original: {OriginalToken}, New: {NewToken}", 
                                 originalHostToken, result.SessionGuid);
                             Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] This ensures LoadControlPanel() uses the same token that validates in HostControlPanel");
+                            
+                            // WORKITEM-HOSTCANVAS: Generate host session opener URL
+                            var hostBaseUrl = GetBaseUrl();
+                            HostSessionUrl = $"{hostBaseUrl}/host/session-opener/{result.SessionGuid}";
+                            Logger.LogInformation("NOOR-HOST-OPENER: [WORKITEM-HOSTCANVAS] Host session opener URL generated: {HostSessionUrl}", HostSessionUrl);
                         }
                         else
                         {
                             Logger.LogWarning("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-WARNING] API response missing SessionGuid - keeping original: {OriginalToken}", Model.HostFriendlyToken);
+                            
+                            // WORKITEM-HOSTCANVAS: Generate host URL with current token as fallback
+                            var hostBaseUrl = GetBaseUrl();
+                            HostSessionUrl = $"{hostBaseUrl}/host/session-opener/{Model.HostFriendlyToken}";
+                            Logger.LogInformation("NOOR-HOST-OPENER: [WORKITEM-HOSTCANVAS] Host session opener URL generated with fallback token: {HostSessionUrl}", HostSessionUrl);
                         }
                         
                         // NEW FEATURE: Clear existing participants when host opens session

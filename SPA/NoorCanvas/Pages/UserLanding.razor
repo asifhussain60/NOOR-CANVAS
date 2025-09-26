@@ -150,6 +150,10 @@
 <DebugPanel CurrentViewName="UserLanding" OnEnterTestData="HandleEnterTestData" />
 
 @code {
+    // [DEBUG-WORKITEM:hostcanvas:impl] IMPORTANT: This page has TWO PHASES - Token validation phase shows only token input field, 
+    // registration phase (after successful token validation) shows name/email/country fields. Both phases are on same page.
+    // The registration form fields are INVISIBLE until AFTER a user token is validated successfully. ;CLEANUP_OK
+    
     [Parameter] public string? SessionToken { get; set; }
     
     private UserLandingViewModel? Model { get; set; }

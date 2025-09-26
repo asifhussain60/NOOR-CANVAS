@@ -20,6 +20,7 @@
 @inject NoorCanvas.Data.CanvasDbContext CanvasDb
 @inject NoorCanvas.Data.SimplifiedCanvasDbContext SimplifiedCanvasDb
 @inject NoorCanvas.Data.KSessionsDbContext KSessionsDb
+@inject NoorCanvas.Services.SessionStateService SessionStateService
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
@@ -237,36 +238,41 @@
                                     <i class="fa-solid fa-broadcast-tower" style="color:#3B82F6;"></i>
                                     <span>Broadcast HTML to Sessions</span>
                                 </h4>
-                                <textarea @bind="BroadcastHtmlContent" 
-                                         placeholder="Enter HTML content to broadcast to all user sessions..."
-                                         style="width:100%;min-height:100px;padding:0.75rem;border:1px solid #D1D5DB;border-radius:0.5rem;font-family:monospace;font-size:0.875rem;resize:vertical;"
-                                         rows="4"></textarea>
-                                <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+                                
+                                <!-- HTML Template Buttons -->
+                                <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+                                    <button @onclick="LoadSimpleHtml" 
+                                            style="flex:1;padding:0.5rem 1rem;background-color:#8B5CF6;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;"
+                                            onmouseover="this.style.backgroundColor='#7C3AED'"
+                                            onmouseout="this.style.backgroundColor='#8B5CF6'">
+                                        <i class="fa-solid fa-code"></i>
+                                        <span>Simple HTML</span>
+                                    </button>
+                                    <button @onclick="LoadComplexHtml" 
+                                            style="flex:1;padding:0.5rem 1rem;background-color:#F59E0B;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;"
+                                            onmouseover="this.style.backgroundColor='#D97706'"
+                                            onmouseout="this.style.backgroundColor='#F59E0B'">
+                                        <i class="fa-solid fa-star"></i>
+                                        <span>Complex HTML</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- HTML Content Input with inline Broadcast button -->
+                                <div style="position:relative;">
+                                    <textarea @bind="BroadcastHtmlContent" 
+                                             placeholder="Enter HTML content to broadcast to all user sessions..."
+                                             style="width:100%;min-height:120px;padding:0.75rem 80px 0.75rem 0.75rem;border:1px solid #D1D5DB;border-radius:0.5rem;font-family:monospace;font-size:0.875rem;resize:vertical;"
+                                             rows="5"></textarea>
                                     <button @onclick="BroadcastHtmlToSessions" 
                                             disabled="@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent))"
-                                            style="flex:1;padding:0.5rem 1rem;background-color:#10B981;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "not-allowed" : "pointer");opacity:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "0.5" : "1");transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;"
+                                            style="position:absolute;top:0.5rem;right:0.5rem;padding:0.5rem;background-color:#10B981;color:white;border:none;border-radius:0.375rem;font-size:0.875rem;font-weight:600;cursor:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "not-allowed" : "pointer");opacity:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "0.5" : "1");transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.25rem;width:70px;height:40px;"
                                             onmouseover="if (!this.disabled) this.style.backgroundColor='#059669'"
-                                            onmouseout="if (!this.disabled) this.style.backgroundColor='#10B981'">
+                                            onmouseout="if (!this.disabled) this.style.backgroundColor='#10B981'"
+                                            title="Broadcast HTML to all sessions">
                                         <i class="fa-solid fa-paper-plane"></i>
-                                        <span>Broadcast</span>
-                                    </button>
-                                    <button @onclick="ClearBroadcastContent" 
-                                            style="padding:0.5rem;background-color:#6B7280;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;cursor:pointer;transition:all 0.2s;"
-                                            onmouseover="this.style.backgroundColor='#4B5563'"
-                                            onmouseout="this.style.backgroundColor='#6B7280'">
-                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
                             </div>
-                            
-                            <button @onclick="TestShareAsset" 
-                                    disabled="@isLoading"
-                                    style="width:100%;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(59,130,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#3B82F6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                                    onmouseover="this.style.backgroundColor='#2563EB'; this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.backgroundColor='#3B82F6'; this.style.transform='scale(1)'">
-                                <i class="fa-solid fa-share" style="font-size:1rem;"></i>
-                                <span>Test Share Asset</span>
-                            </button>
                         }
                     </div>
                 </div>
@@ -485,13 +491,25 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization started", requestId);
+        
         // Initialize model
         Model ??= new HostControlPanelViewModel();
         
         // Initialize empty model
         await InitializeSessionAsync();
         
-        // Initialize SignalR connection for real-time updates
+        // CRITICAL: Extract SessionId from HostToken FIRST so it's available for all other operations
+        if (!string.IsNullOrEmpty(HostToken))
+        {
+            await ExtractSessionIdFromTokenAsync(HostToken, requestId);
+        }
+        
+        // Check for persisted session state (fallback if SessionId not extracted)
+        await LoadPersistedSessionStateAsync(requestId);
+        
+        // Initialize SignalR connection for real-time updates (SessionId now available)
         await InitializeSignalRAsync();
         
         // Load real session data if HostToken provided
@@ -502,6 +520,9 @@
             // Join SignalR groups AFTER SessionId is loaded
             await JoinSignalRGroupsAsync();
         }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization completed - SessionId: {SessionId}", 
+            requestId, SessionId);
     }
 
     private async Task InitializeSessionAsync()
@@ -720,13 +741,13 @@
             string sessionId = sessionIdOrToken;
             string? hostToken = null;
             
-            // Check if it looks like a token (8 characters, alphanumeric) vs session ID (numeric)
+            // Check if it looks like a token (8 or 9 characters, alphanumeric) vs session ID (numeric)
             bool isToken = !string.IsNullOrEmpty(sessionIdOrToken) && 
-                          sessionIdOrToken.Length == 8 && 
+                          (sessionIdOrToken.Length == 8 || sessionIdOrToken.Length == 9) && 
                           sessionIdOrToken.All(c => char.IsLetterOrDigit(c)) &&
                           !sessionIdOrToken.All(c => char.IsDigit(c));
                           
-            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token detection result: IsToken={IsToken}", requestId, isToken);
+            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token detection result: IsToken={IsToken}, Length={Length}", requestId, isToken, sessionIdOrToken?.Length ?? 0);
                           
             if (isToken)
             {
@@ -859,6 +880,9 @@
                     
                     // Force UI update after setting session name and transcript
                     await InvokeAsync(StateHasChanged);
+                    
+                    // Save session state to localStorage for persistence across page refreshes
+                    await SaveSessionStateAsync();
                 }
                 else
                 {
@@ -1004,6 +1028,112 @@
             {
                 Model.Questions = new List<QuestionItem>();
             }
+        }
+    }
+
+    private async Task LoadPersistedSessionStateAsync(string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Loading persisted session state from localStorage", requestId);
+            
+            var sessionState = await SessionStateService.LoadSessionStateAsync();
+            
+            if (sessionState != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Found persisted SessionId: {SessionId}", 
+                    requestId, sessionState.SessionId);
+                
+                // Only use persisted state if we don't have a current SessionId
+                if (SessionId == null || SessionId == 0)
+                {
+                    SessionId = sessionState.SessionId;
+                    
+                    // Pre-populate model with persisted data to avoid empty initial state
+                    if (Model != null)
+                    {
+                        Model.SessionName = sessionState.SessionName;
+                        Model.SessionDescription = sessionState.SessionDescription;
+                        Model.SessionStatus = sessionState.SessionStatus;
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Pre-populated model with persisted data", requestId);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+                else
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Current SessionId ({CurrentSessionId}) exists, skipping persisted SessionId ({PersistedSessionId})", 
+                        requestId, SessionId, sessionState.SessionId);
+                }
+            }
+            else
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] No persisted session state found", requestId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Error loading persisted session state", requestId);
+        }
+    }
+
+    private async Task ExtractSessionIdFromTokenAsync(string hostToken, string requestId)
+    {
+        try 
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Extracting SessionId from HostToken: '{HostToken}' (Length: {Length})", 
+                requestId, hostToken, hostToken?.Length ?? 0);
+            
+            // Quick lookup to get SessionId from token without loading full session data
+            var canvasSession = await SimplifiedCanvasDb.Sessions
+                .Where(s => s.HostToken == hostToken)
+                .Select(s => s.SessionId)
+                .FirstOrDefaultAsync();
+                
+            if (canvasSession > 0)
+            {
+                SessionId = (int)canvasSession;
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ✅ SessionId extracted: {SessionId}", 
+                    requestId, SessionId);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ⚠️ No SessionId found for HostToken: {HostToken}", 
+                    requestId, hostToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Error extracting SessionId from token", requestId);
+        }
+    }
+
+    private async Task SaveSessionStateAsync()
+    {
+        try
+        {
+            if (SessionId.HasValue && Model != null)
+            {
+                var sessionState = new NoorCanvas.Services.SessionStateService.SessionState
+                {
+                    SessionId = SessionId.Value,
+                    SessionName = Model.SessionName ?? "Unknown Session",
+                    SessionDescription = Model.SessionDescription ?? "",
+                    SessionStatus = Model.SessionStatus ?? "Unknown",
+                    Topic = "Session Content",
+                    ParticipantCount = 0, // Will be updated by SignalR events
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var saved = await SessionStateService.SaveSessionStateAsync(sessionState);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] Session state saved: {Success} for SessionId: {SessionId}", 
+                    saved, SessionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:SESSION] Error saving session state");
         }
     }
 
@@ -1285,6 +1415,39 @@
     {
         BroadcastHtmlContent = string.Empty;
         await InvokeAsync(StateHasChanged);
+    }
+
+    // [DEBUG-WORKITEM:signalcomm:impl] HTML template methods for easy broadcast content loading ;CLEANUP_OK
+    private async Task LoadSimpleHtml()
+    {
+        BroadcastHtmlContent = @"<div style=""background:#E8F5E8;color:#006400;padding:20px;border-radius:8px;text-align:center;border:2px solid #006400;"">
+<h3 style=""margin:0 0 10px 0;"">Welcome Message</h3>
+<p style=""margin:5px 0;"">This is a simple HTML broadcast message.</p>
+<p style=""margin:10px 0 0 0;font-size:14px;"">Shared from Host Control Panel</p>
+</div>";
+        await InvokeAsync(StateHasChanged);
+        Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] Simple HTML template loaded into broadcast textarea ;CLEANUP_OK");
+    }
+
+    private async Task LoadComplexHtml()
+    {
+        BroadcastHtmlContent = @"<div style=""background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;padding:25px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.1);max-width:500px;margin:0 auto;font-family:'Inter',sans-serif;"">
+<div style=""text-align:center;margin-bottom:20px;"">
+    <div style=""background:rgba(255,255,255,0.2);border-radius:50%;width:60px;height:60px;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;"">
+        <span style=""font-size:24px;font-weight:bold;"">🕌</span>
+    </div>
+    <h3 style=""margin:0 0 10px 0;font-size:18px;font-weight:600;"">Ayah of Reflection</h3>
+</div>
+<div style=""background:rgba(255,255,255,0.1);padding:20px;border-radius:8px;margin-bottom:15px;border-left:4px solid rgba(255,255,255,0.5);"">
+    <p style=""margin:0;font-style:italic;line-height:1.6;font-size:16px;text-align:center;"">""And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy.""</p>
+</div>
+<div style=""text-align:center;opacity:0.9;"">
+    <p style=""margin:0;font-size:14px;font-weight:500;"">- The Holy Quran, Surah Ar-Rum (30:21)</p>
+    <p style=""margin:10px 0 0 0;font-size:12px;opacity:0.8;"">Shared with love from NOOR Canvas</p>
+</div>
+</div>";
+        await InvokeAsync(StateHasChanged);
+        Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] Complex HTML template (Ayah card style) loaded into broadcast textarea ;CLEANUP_OK");
     }
 
     private void NavigateToSessionCanvas()
