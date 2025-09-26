@@ -148,6 +148,9 @@ builder.Services.AddScoped<NoorCanvas.Services.Development.ITestDataService, Noo
 builder.Services.AddScoped<SimplifiedTokenService>(); // Simplified token service
 builder.Services.AddScoped<SessionStateService>(); // Session state persistence service
 
+// [DEBUG-WORKITEM:hostcanvas:continue] HTML rendering service for safe transcript display ;CLEANUP_OK
+builder.Services.AddScoped<SafeHtmlRenderingService>(); // Safe HTML rendering inspired by KSESSIONS $sce.trustAsHtml
+
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks

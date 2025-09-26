@@ -40,14 +40,14 @@ namespace NoorCanvas.Services
                 var securityResult = ValidateSecurity(htmlContent);
                 if (!securityResult.IsValid)
                 {
-                    return SafeHtmlResult.Error(securityResult.ErrorMessage);
+                    return SafeHtmlResult.Error(securityResult.ErrorMessage ?? "Security validation failed");
                 }
 
                 // Phase 2: Blazor compatibility analysis
                 var compatibilityResult = AnalyzeBlazorCompatibility(htmlContent);
                 if (!compatibilityResult.IsValid && mode == ParseMode.Strict)
                 {
-                    return SafeHtmlResult.Error(compatibilityResult.ErrorMessage);
+                    return SafeHtmlResult.Error(compatibilityResult.ErrorMessage ?? "Blazor compatibility validation failed");
                 }
 
                 // Phase 3: CSS processing and simplification
@@ -60,7 +60,7 @@ namespace NoorCanvas.Services
                 var finalValidation = ValidateFinalHtml(normalizedHtml);
                 if (!finalValidation.IsValid)
                 {
-                    return SafeHtmlResult.Error(finalValidation.ErrorMessage);
+                    return SafeHtmlResult.Error(finalValidation.ErrorMessage ?? "Final HTML validation failed");
                 }
 
                 _logger.LogInformation("[DEBUG-WORKITEM:signalcomm:PARSER] HTML parsing successful, output length: {Length} ;CLEANUP_OK", 
