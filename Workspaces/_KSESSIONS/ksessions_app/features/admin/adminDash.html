@@ -1,0 +1,144 @@
+﻿<div class="matter" data-ng-controller="adminDashCtl">
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-8">
+                <div class="widget">
+                    <div class="widget-head">
+                        <div class="pull-left">
+                            <div>
+                                Site Access For last
+                                <input type="text"
+                                       data-ng-model="vm.auditDays"
+                                       ng-model-options="{ updateOn: 'blur' }"
+                                       style="width: 50px; text-align: center;" /> days
+                                <input type="text"
+                                       style="margin-left: 100px;"
+                                       placeholder="Filter By Member Name"
+                                       data-zu-on-escape-key=""
+                                       data-ng-model="vm.filterAuditLogData" />
+                                <button class="btn btn-lg btn-success"
+                                        data-ng-click="vm.refreshData()">
+                                    Refresh
+                                </button>
+                                <i class="fa fa-spinner fa-spin" data-ng-show="vm.showSpinner" style="font-size:24px"></i>
+                            </div>
+                        </div>
+                        <div class="pull-right">
+                            {{vm.auditLogs.length}} records
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="widget-content">
+
+                        <div class="table-responsive" data-ng-show="vm.auditLogs.length">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="width180">Member</th>
+                                        <th>Grp</th>
+                                        <th>Desc</th>
+                                        <th>Date</th>
+                                        <th>IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-ng-repeat="log in vm.auditLogs | filter:vm.filterAuditLogData | orderObjectBy:'sysCreatedDate' : true">
+                                        <td>
+                                            <a href="" data-ng-click="vm.deleteAuditLog(log)">
+                                                <i class="fa fa-trash fa-lg" style="color: maroon;"></i>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <img src="{{log.pictureUrl}}"
+                                                 class="rounded thumbnail-40"
+                                                 data-ng-click="vm.resetProfilePic(log)"
+                                                 alt="/Content/images/no-image-female.png" />
+                                        </td>
+                                        <td>
+                                            <span class="padding-left-5">{{log.memberName}}</span>
+                                        </td>
+                                        <td>
+                                            <img data-ng-src="/Content/images/ALBUMS/{{log.groupId}}.jpg"
+                                                 class="rounded thumbnail-40" />
+                                        </td>
+                                        <td data-ng-bind-html="log.auditDesc"></td>
+                                        <td>{{log.sessionEntry | date : 'MM/dd/yyyy'}} </td>
+
+                                        <td>
+                                            <table>
+                                                <tr data-ng-repeat="ip in log.ipLogs">
+                                                    <td>
+                                                        <img data-ng-if="ip && ip.city"
+                                                             data-ng-src="https://resources.kashkole.com/Images/flags/large/{{ip.countryCode}}.svg"
+                                                             class="flag-icon-background flag-icon flag-small" />
+                                                        <img data-ng-if="!ip || !ip.city"
+                                                             data-ng-src="https://resources.kashkole.com/Images/flags/NOFLAG.jpg"
+                                                             class="flag-icon-background flag-icon flag-small" />
+
+                                                        <span data-ng-if="ip && ip.city">
+                                                            <a data-ng-href="http://ip-api.com/#{{ip.ipAddress}}" target="_blank">{{ip.city}}</a>
+                                                        </span>
+                                                        <span data-ng-if="!ip || !ip.city">
+                                                            <a target="_blank"
+                                                               class="text-danger"
+                                                               data-ng-href="http://ip-api.com/#{{ip.ipAddress}}">
+                                                                {{ip.ipAddress}}
+                                                            </a>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="widget" data-ng-show="vm.auditDenials.length">
+
+                    <div class="widget-head">
+                        <h4 style="color: white;">DENIALS</h4>
+                        <button class="btn btn-sm btn-danger"
+                                data-ng-click="vm.removeDenials()">
+                            Delete Denials
+                        </button>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table table-bordered">
+                            <tr data-ng-repeat="deny in vm.auditDenials">
+                                <td class="width110">{{deny.entryDateFormatted}}</td>
+                                <td>{{deny.udf1}}</td>
+                                <td>
+                                    <img data-ng-if="deny && deny.city"
+                                         data-ng-src="https://resources.kashkole.com/Images/flags/large/{{deny.countryCode}}.svg" class="flag-icon-background flag-icon flag-small" />
+                                    <img data-ng-if="!deny || !deny.city"
+                                         data-ng-src="https://resources.kashkole.com/Images/flags/NOFLAG.jpg" class="flag-icon-background flag-icon flag-small" />
+
+                                    <span data-ng-if="deny && deny.city">
+                                        <a data-ng-href="http://ip-api.com/#{{deny.ipAddress}}" target="_blank">{{deny.city}}</a>
+                                    </span>
+                                    <span data-ng-if="!deny || !deny.city">
+                                        <a target="_blank"
+                                           class="text-danger"
+                                           data-ng-href="http://ip-api.com/#{{deny.ipAddress}}">
+                                            {{deny.ipAddress}}
+                                        </a>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

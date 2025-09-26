@@ -1,0 +1,172 @@
+<div class="wrap-container8040" data-ng-controller="registrationCtl">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                <div class="login-div">
+                    <div class="login-header">
+                        <img data-ng-if="!vm.isMobileBrowser" src="/Content/images/LOGO.gif" class="app-logo img-rounded" />
+                    </div>
+
+                    <!-- Registration Form -->
+                    <div class="row login-divider" data-ng-if="!vm.validationComplete">
+                        <div class="col-md-12">
+                            <div class="text-center" style="margin-bottom: 20px;">
+                                <h4 style="color: #333; margin-bottom: 10px;">Complete Your Registration</h4>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                                    Please ensure you use the same email address for Gmail or Amazon authentication.
+                                </p>
+
+                                <div class="alert alert-info" style="margin-bottom: 15px; font-size: 13px;"
+                                     ng-show="vm.registrationData.firstName || vm.registrationData.lastName || vm.registrationData.nickName">
+                                    <i class="fa fa-info-circle" style="margin-right: 5px;"></i>
+                                    <strong>Form Pre-populated:</strong> We've filled in your existing information. Please review and update any fields as needed.
+                                </div>
+                            </div>
+
+                            <form name="registrationForm" novalidate>
+                                <!-- Email (readonly) -->
+                                <div class="form-group">
+                                    <label for="email" class="control-label">Email Address</label>
+                                    <input type="email"
+                                           id="email"
+                                           name="email"
+                                           class="form-control"
+                                           ng-model="vm.registrationData.email"
+                                           readonly
+                                           style="background-color: #f5f5f5;">
+                                </div>
+
+                                <!-- First Name -->
+                                <div class="form-group">
+                                    <label for="firstName" class="control-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="firstName"
+                                           name="firstName"
+                                           class="form-control"
+                                           ng-model="vm.registrationData.firstName"
+                                           placeholder="Enter your first name"
+                                           required>
+                                    <div ng-show="registrationForm.firstName.$touched && registrationForm.firstName.$invalid"
+                                         class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                        <div ng-show="registrationForm.firstName.$error.required">First Name is required</div>
+                                    </div>
+                                </div>
+
+                                <!-- Last Name -->
+                                <div class="form-group">
+                                    <label for="lastName" class="control-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="lastName"
+                                           name="lastName"
+                                           class="form-control"
+                                           ng-model="vm.registrationData.lastName"
+                                           placeholder="Enter your last name"
+                                           required>
+                                    <div ng-show="registrationForm.lastName.$touched && registrationForm.lastName.$invalid"
+                                         class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                        <div ng-show="registrationForm.lastName.$error.required">Last Name is required</div>
+                                    </div>
+                                </div>
+
+                                <!-- Nick Name -->
+                                <div class="form-group">
+                                    <label for="nickName" class="control-label">How do you like to be addressed? <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           id="nickName"
+                                           name="nickName"
+                                           class="form-control"
+                                           ng-model="vm.registrationData.nickName"
+                                           placeholder="Enter how you'd like to be addressed"
+                                           required>
+                                    <div ng-show="registrationForm.nickName.$touched && registrationForm.nickName.$invalid"
+                                         class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                        <div ng-show="registrationForm.nickName.$error.required">Please tell us how you'd like to be addressed</div>
+                                    </div>
+                                </div>
+
+                                <!-- Gender -->
+                                <div class="form-group">
+                                    <label for="gender" class="control-label">Gender <span class="text-danger">*</span></label>
+                                    <select id="gender"
+                                            name="gender"
+                                            class="form-control"
+                                            ng-model="vm.registrationData.gender"
+                                            required>
+                                        <option value="">Please select...</option>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
+                                    <div ng-show="registrationForm.gender.$touched && registrationForm.gender.$invalid"
+                                         class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                        <div ng-show="registrationForm.gender.$error.required">Gender is required</div>
+                                    </div>
+                                </div>
+
+                                <!-- Country -->
+                                <div class="form-group">
+                                    <label for="country" class="control-label">Country <span class="text-danger">*</span></label>
+                                    <select id="country"
+                                            name="country"
+                                            class="form-control"
+                                            ng-model="vm.registrationData.countryId"
+                                            ng-options="country.id as country.countryName for country in vm.countries | orderBy:'countryName'"
+                                            required>
+                                        <option value="">Please select your country...</option>
+                                    </select>
+                                    <div ng-show="registrationForm.country.$touched && registrationForm.country.$invalid"
+                                         class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                        <div ng-show="registrationForm.country.$error.required">Country is required</div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="form-group text-center" style="margin-top: 30px;">
+                                    <button type="button"
+                                            ng-click="vm.submit()"
+                                            ng-disabled="registrationForm.$invalid || vm.submitting"
+                                            class="btn btn-success btn-lg"
+                                            style="width: 100%; margin-bottom: 15px;">
+                                        <i class="fa fa-user-check" ng-show="!vm.submitting"></i>
+                                        <i class="fa fa-spinner fa-spin" ng-show="vm.submitting"></i>
+                                        {{ vm.submitting ? 'Completing Registration...' : 'Complete Registration' }}
+                                    </button>
+                                    <button type="button"
+                                            ng-click="vm.backToLogin()"
+                                            class="btn btn-default"
+                                            style="width: 100%;">
+                                        <i class="fa fa-arrow-left"></i>
+                                        Back to Login
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div class="row login-divider" data-ng-if="vm.validationComplete">
+                        <div class="col-md-12 text-center">
+                            <div style="margin-bottom: 30px;">
+                                <i class="fa fa-check-circle fa-3x text-success" style="margin-bottom: 15px;"></i>
+                                <h4 style="color: #28a745; margin-bottom: 15px;">Registration Completed Successfully!</h4>
+                                <p style="color: #666; font-size: 16px; margin-bottom: 25px;">
+                                    Your account has been validated and activated. You can now login to access the application.
+                                </p>
+                                <button type="button"
+                                        ng-click="vm.backToLogin()"
+                                        class="btn btn-primary btn-lg">
+                                    <i class="fa fa-sign-in"></i>
+                                    Login Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <p class="small text-center">
+                        Please ensure all information provided is accurate. This will be used to validate your access to the application.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

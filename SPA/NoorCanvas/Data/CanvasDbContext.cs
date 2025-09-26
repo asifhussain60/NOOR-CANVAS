@@ -25,6 +25,8 @@ public class CanvasDbContext : DbContext
     public DbSet<Issue> Issues { get; set; }
     public DbSet<SecureToken> SecureTokens { get; set; }
     public DbSet<SessionParticipant> SessionParticipants { get; set; }
+    
+    // [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcast DbSet removed ;CLEANUP_OK
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

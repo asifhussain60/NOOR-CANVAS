@@ -1,0 +1,1355 @@
+/*!
+ * Froala Editor Ahadees Plugin Styles - Modern Material Design
+ * Enhanced styling for the Islamic narrations popup with Material Design principles
+ * Draggable modal interface with elegant animations and responsive design
+ */
+
+/* ===== MATERIAL DESIGN VARIABLES (BLUE THEME) ===== */
+:root {
+  /* Primary Theme Colors - Blue Variants */
+  --ahadees-primary: #1976d2;
+  --ahadees-primary-dark: #0d47a1;
+  --ahadees-primary-light: #42a5f5;
+  --ahadees-accent: #2196f3;
+  --ahadees-accent-light: #64b5f6;
+  
+  /* Secondary Blue Colors */
+  --ahadees-secondary: #03a9f4;
+  --ahadees-secondary-dark: #0277bd;
+  --ahadees-secondary-light: #4fc3f7;
+  
+  /* Deep Blue Variants */
+  --ahadees-deep-blue: #0d47a1;
+  --ahadees-deep-blue-dark: #01579b;
+  --ahadees-deep-blue-light: #1565c0;
+  
+  /* Light Background Colors */
+  --ahadees-background-primary: #e3f2fd;
+  --ahadees-background-secondary: #e1f5fe;
+  --ahadees-background-soft: #fafafa;
+  
+  /* Islamic Theme Colors */
+  --ahadees-islamic-green: #27ae60;
+  --ahadees-islamic-gold: #f1c40f;
+  
+  /* Neutral Colors */
+  --ahadees-grey-50: #fafafa;
+  --ahadees-grey-100: #f5f5f5;
+  --ahadees-grey-200: #eeeeee;
+  --ahadees-grey-300: #e0e0e0;
+  --ahadees-grey-400: #bdbdbd;
+  --ahadees-grey-500: #9e9e9e;
+  --ahadees-grey-700: #616161;
+  --ahadees-grey-800: #424242;
+  --ahadees-grey-900: #212121;
+  
+  /* Enhanced Shadows with Blue Tints */
+  --ahadees-shadow-1: 0 1px 3px rgba(25,118,210,0.12), 0 1px 2px rgba(33,150,243,0.08);
+  --ahadees-shadow-2: 0 3px 6px rgba(25,118,210,0.16), 0 3px 6px rgba(33,150,243,0.12);
+  --ahadees-shadow-3: 0 10px 20px rgba(25,118,210,0.19), 0 6px 6px rgba(33,150,243,0.15);
+  --ahadees-shadow-4: 0 14px 28px rgba(25,118,210,0.25), 0 10px 10px rgba(33,150,243,0.18);
+  
+  /* Typography */
+  --ahadees-font-family: 'Roboto', 'Segoe UI', sans-serif;
+  --ahadees-arabic-font-family: 'Amiri', 'Traditional Arabic', 'Arial Unicode MS', sans-serif;
+  
+  /* Transitions */
+  --ahadees-transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ahadees-transition-fast: all 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* ===== AHADEES BUTTON STYLING (BLUE THEME) ===== */
+.fr-toolbar .fr-command[data-cmd="ahadees"] {
+    color: var(--ahadees-primary) !important;
+    transition: var(--ahadees-transition-fast);
+}
+
+.fr-toolbar .fr-command[data-cmd="ahadees"]:hover {
+    color: var(--ahadees-primary-dark) !important;
+    transform: scale(1.1);
+}
+
+/* ===== ETYMOLOGY MANAGEMENT BUTTON STYLING (BLUE THEME) ===== */
+.fr-toolbar .fr-command[data-cmd="etymologyManagementButton"] {
+    color: var(--ahadees-primary) !important;
+    transition: var(--ahadees-transition-fast);
+}
+
+.fr-toolbar .fr-command[data-cmd="etymologyManagementButton"]:hover {
+    color: var(--ahadees-primary-dark) !important;
+    transform: scale(1.1);
+}
+
+/* ===== POETRY BUTTON STYLING (GREEN THEME) ===== */
+.fr-toolbar .fr-command[data-cmd="poetryButton"] {
+    color: #2e7d32 !important;
+    transition: var(--ahadees-transition-fast);
+}
+
+.fr-toolbar .fr-command[data-cmd="poetryButton"]:hover {
+    color: #1b5e20 !important;
+    transform: scale(1.1);
+}
+
+/* ===== MODAL OVERLAY (BLUE THEME) ===== */
+#ahadees-fallback-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(33, 150, 243, 0.15) 100%) !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(8px);
+    animation: ahadees-modal-fade-in 0.3s ease-out;
+}
+
+@keyframes ahadees-modal-fade-in {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+/* ===== MODAL CONTAINER (ENHANCED DRAGGING) ===== */
+#ahadees-modal-container {
+    width: 900px !important;
+    max-height: 700px !important;
+    background: linear-gradient(135deg, #ffffff 0%, var(--ahadees-background-primary) 100%) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--ahadees-shadow-4) !important;
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    cursor: default !important;
+    animation: ahadees-modal-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid var(--ahadees-primary-light);
+    z-index: 99999 !important;
+}
+
+@keyframes ahadees-modal-slide-in {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+#ahadees-modal-container:hover {
+    box-shadow: var(--ahadees-shadow-4), 0 0 0 1px var(--ahadees-primary-light);
+}
+
+/* ===== MODAL HEADER (ENHANCED DRAGGING) ===== */
+#ahadees-modal-header {
+    background: linear-gradient(135deg, var(--ahadees-deep-blue) 0%, var(--ahadees-deep-blue-dark) 100%) !important;
+    color: white !important;
+    padding: 24px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    cursor: grab !important;
+    user-select: none !important;
+    border-radius: 16px 16px 0 0 !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 100000 !important;
+}
+
+#ahadees-modal-header:active {
+    cursor: grabbing !important;
+}
+
+#ahadees-modal-header * {
+    pointer-events: none !important;
+}
+
+#ahadees-modal-header button {
+    pointer-events: auto !important;
+}
+
+#ahadees-modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+#ahadees-modal-header h4 {
+    margin: 0 !important;
+    font-family: var(--ahadees-font-family) !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    color: white !important;
+    position: relative;
+    z-index: 1;
+}
+
+#ahadees-modal-header .emoji {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* ===== MANAGE AHADEES BUTTON ===== */
+#manage-ahadees-link {
+    margin-left: 24px !important;
+    background: rgba(255,255,255,0.15) !important;
+    color: white !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    transition: var(--ahadees-transition) !important;
+    box-shadow: var(--ahadees-shadow-1);
+    position: relative;
+    z-index: 1;
+}
+
+#manage-ahadees-link:hover {
+    background: rgba(255,255,255,0.25) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--ahadees-shadow-2) !important;
+}
+
+#manage-ahadees-link:active {
+    transform: translateY(0) !important;
+}
+
+/* ===== CLOSE BUTTON ===== */
+#close-ahadees-modal {
+    background: rgba(255,255,255,0.15) !important;
+    border: none !important;
+    color: white !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    transition: var(--ahadees-transition) !important;
+    position: relative;
+    z-index: 1;
+}
+
+#close-ahadees-modal:hover {
+    background: rgba(244, 67, 54, 0.2) !important;
+    transform: scale(1.1) !important;
+    color: #ffcdd2 !important;
+}
+
+#close-ahadees-modal:active {
+    transform: scale(0.95) !important;
+}
+
+/* ===== MODAL CONTENT (NON-INTERFERING WITH DRAG) ===== */
+#ahadees-modal-content {
+    padding: 32px !important;
+    max-height: 580px !important;
+    overflow-y: auto !important;
+    cursor: default !important;
+    background: linear-gradient(135deg, var(--ahadees-background-primary) 0%, var(--ahadees-background-secondary) 100%);
+    pointer-events: auto !important;
+}
+
+/* ===== MODAL CONTENT SECTIONS ===== */
+.ks-ahadees-search-section {
+    margin-bottom: 24px !important;
+}
+
+.ks-ahadees-search-subsection {
+    margin-bottom: 24px !important;
+}
+
+.ks-ahadees-search-label {
+    font-weight: 600 !important;
+    color: #333 !important;
+    display: block !important;
+    margin-bottom: 10px !important;
+    font-size: 16px !important;
+}
+
+.ks-ahadees-search-tip {
+    margin-top: 10px !important;
+    font-size: 13px !important;
+    color: #666 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+.ks-ahadees-button-container {
+    text-align: center !important;
+    margin-bottom: 24px !important;
+}
+
+.ks-ahadees-header-left {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.ks-ahadees-header-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.ks-ahadees-drag-hint {
+    font-size: 12px !important;
+    opacity: 0.8 !important;
+    font-style: italic !important;
+}
+
+/* Custom scrollbar */
+#ahadees-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#ahadees-modal-content::-webkit-scrollbar-track {
+    background: var(--ahadees-grey-100);
+    border-radius: 4px;
+}
+
+#ahadees-modal-content::-webkit-scrollbar-thumb {
+    background: var(--ahadees-grey-400);
+    border-radius: 4px;
+    transition: var(--ahadees-transition);
+}
+
+#ahadees-modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--ahadees-grey-500);
+}
+
+/* ===== SEARCH INPUT ===== */
+#universal-search-input {
+    width: 100% !important;
+    padding: 18px 24px !important;
+    border: 2px solid var(--ahadees-grey-300) !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-family: var(--ahadees-font-family) !important;
+    background: #ffffff !important;
+    color: var(--ahadees-grey-800) !important;
+    transition: var(--ahadees-transition) !important;
+    box-shadow: var(--ahadees-shadow-1);
+    box-sizing: border-box !important;
+}
+
+#universal-search-input:focus {
+    outline: none !important;
+    border-color: var(--ahadees-primary) !important;
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.15), var(--ahadees-shadow-2) !important;
+    background: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+#universal-search-input:hover:not(:focus) {
+    border-color: var(--ahadees-grey-400) !important;
+    box-shadow: var(--ahadees-shadow-2);
+}
+
+#universal-search-input::placeholder {
+    color: var(--ahadees-grey-500) !important;
+    opacity: 1 !important;
+    font-style: italic;
+}
+
+/* ===== ACTION BUTTONS ===== */
+#universal-search-btn,
+#fallback-recent-btn,
+#clear-search-btn {
+    padding: 16px 32px !important;
+    border: none !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    font-family: var(--ahadees-font-family) !important;
+    transition: var(--ahadees-transition) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+#universal-search-btn {
+    background: linear-gradient(135deg, var(--ahadees-primary) 0%, var(--ahadees-primary-dark) 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
+}
+
+#fallback-recent-btn {
+    background: linear-gradient(135deg, var(--ahadees-accent) 0%, var(--ahadees-secondary-dark) 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+#clear-search-btn {
+    background: linear-gradient(135deg, var(--ahadees-secondary) 0%, var(--ahadees-secondary-dark) 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(3, 169, 244, 0.4);
+}
+
+#universal-search-btn:hover,
+#fallback-recent-btn:hover,
+#clear-search-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+}
+
+#universal-search-btn:active,
+#fallback-recent-btn:active,
+#clear-search-btn:active {
+    transform: translateY(-1px) !important;
+}
+
+/* Ripple effect */
+#universal-search-btn::before,
+#fallback-recent-btn::before,
+#clear-search-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+#universal-search-btn:active::before,
+#fallback-recent-btn:active::before,
+#clear-search-btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* ===== RESULTS CONTAINER ===== */
+#fallback-ahadees-results {
+    border: 2px solid var(--ahadees-grey-200) !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    min-height: 280px !important;
+    transition: var(--ahadees-transition) !important;
+    box-shadow: var(--ahadees-shadow-1);
+    overflow: hidden;
+}
+
+#fallback-ahadees-results:hover {
+    border-color: var(--ahadees-grey-300);
+    box-shadow: var(--ahadees-shadow-2);
+}
+
+/* ===== SEARCH STATUS ===== */
+#search-status {
+    color: var(--ahadees-primary) !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    transition: var(--ahadees-transition-fast);
+}
+
+/* ===== HADEES RESULT ITEMS (ENHANCED SPACING & BORDERS) ===== */
+.ahadees-result-item {
+    background: #ffffff;
+    border: 2px solid var(--ahadees-grey-400);
+    border-radius: 12px;
+    margin: 24px 16px;
+    padding: 0;
+    cursor: pointer;
+    transition: var(--ahadees-transition);
+    overflow: hidden;
+    box-shadow: var(--ahadees-shadow-2);
+    position: relative;
+}
+
+/* Fallback hadees item styling */
+.fallback-hadees-item {
+    border: 1px solid #ddd !important;
+    margin-bottom: 10px !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    background: white !important;
+}
+
+.fallback-hadees-item:hover {
+    background: #e3f2fd !important;
+}
+
+.ks-ahadees-narrator-section {
+    margin-bottom: 10px !important;
+}
+
+.ks-ahadees-narrator-name {
+    color: #007bff !important;
+    font-weight: bold !important;
+}
+
+.ks-ahadees-subject-text {
+    color: #666 !important;
+}
+
+.ks-ahadees-arabic-section {
+    font-family: 'Amiri', Arial !important;
+    font-size: 18px !important;
+    direction: rtl !important;
+    text-align: right !important;
+    margin-bottom: 10px !important;
+    padding: 10px !important;
+    background: rgba(241, 196, 15, 0.05) !important;
+    border-right: 3px solid var(--ahadees-islamic-gold) !important;
+    border-radius: 4px !important;
+}
+
+.ks-ahadees-english-section {
+    color: #555 !important;
+    line-height: 1.6 !important;
+    margin-bottom: 10px !important;
+}
+
+.ks-ahadees-insert-prompt {
+    text-align: right !important;
+}
+
+.ks-ahadees-insert-text {
+    color: #007bff !important;
+    font-weight: bold !important;
+}
+
+/* ===== EMPTY STATE STYLING ===== */
+.ks-ahadees-empty-state {
+    text-align: center !important;
+    padding: 50px !important;
+    color: #666 !important;
+}
+
+.ks-ahadees-empty-icon {
+    font-size: 52px !important;
+    margin-bottom: 20px !important;
+    color: #007bff !important;
+    opacity: 0.7 !important;
+}
+
+.ks-ahadees-empty-title {
+    font-size: 18px !important;
+    margin: 0 !important;
+    font-weight: 500 !important;
+}
+
+.ks-ahadees-empty-subtitle {
+    font-size: 14px !important;
+    margin-top: 8px !important;
+    opacity: 0.8 !important;
+}
+
+.ahadees-result-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ahadees-primary) 0%, var(--ahadees-accent) 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.ahadees-result-item:hover {
+    border-color: var(--ahadees-primary);
+    box-shadow: var(--ahadees-shadow-3);
+    transform: translateY(-4px);
+}
+
+.ahadees-result-item:active {
+    transform: translateY(-2px);
+}
+
+/* ===== HADEES HEADER (LIGHT THEME) ===== */
+.ahadees-result-header {
+    padding: 20px 24px 16px 24px;
+    background: linear-gradient(135deg, var(--ahadees-background-primary) 0%, #ffffff 100%);
+    border-bottom: 1px solid var(--ahadees-grey-200);
+    margin-top: 4px;
+}
+
+.ahadees-result-header h6 {
+    margin: 0;
+    color: var(--ahadees-grey-800);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: var(--ahadees-font-family);
+}
+
+.ahadees-narrator {
+    color: var(--ahadees-primary) !important;
+    font-weight: 700;
+    padding: 6px 16px;
+    background: rgba(25, 118, 210, 0.1);
+    border-radius: 24px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ahadees-subject {
+    color: var(--ahadees-islamic-green) !important;
+    font-weight: 600;
+    padding: 6px 16px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 24px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ahadees-reference {
+    color: var(--ahadees-grey-500) !important;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+/* ===== ARABIC TEXT DISPLAY (UPDATED WITH SPECIFIC STYLES) ===== */
+.ahadees-arabic-text {
+    font-family: 'Amiri', Arial !important;
+    font-size: 45px !important;
+    direction: rtl !important;
+    text-align: right !important;
+    margin-bottom: 10px !important;
+    padding: 10px !important;
+    background: rgba(241, 196, 15, 0.05) !important;
+    border-right: 3px solid var(--ahadees-islamic-gold) !important;
+    border-radius: 4px !important;
+    line-height: 44px !important;
+    font-weight: 500;
+    color: #4a5568 !important;
+    position: relative;
+    font-feature-settings: "liga" 1, "kern" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.3px;
+}
+
+.ahadees-arabic-text::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 24px;
+    right: 24px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--ahadees-accent) 50%, transparent 100%);
+    opacity: 0.6;
+}
+
+/* ===== ENGLISH TRANSLATION (UPDATED THEME) ===== */
+.ahadees-english-text {
+    color: var(--ahadees-primary-dark);
+    font-size: 16px;
+    line-height: 1.7;
+    font-style: italic;
+    background: linear-gradient(135deg, var(--ahadees-background-primary) 0%, #ffffff 100%);
+    padding: 24px;
+    margin: 0;
+    border: none;
+    text-align: center;
+    font-weight: 400;
+    position: relative;
+    font-family: var(--ahadees-font-family);
+}
+
+.ahadees-english-text::before {
+    content: '"';
+    position: absolute;
+    top: 8px;
+    left: 24px;
+    font-size: 32px;
+    color: #2e7d32;
+    opacity: 0.4;
+    font-family: Georgia, serif;
+    font-weight: bold;
+}
+
+.ahadees-english-text::after {
+    content: '"';
+    position: absolute;
+    bottom: 8px;
+    right: 24px;
+    font-size: 32px;
+    color: #2e7d32;
+    opacity: 0.4;
+    font-family: Georgia, serif;
+    font-weight: bold;
+}
+
+/* ===== LOADING STATES ===== */
+.ahadees-loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ahadees-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    border: 4px solid var(--ahadees-grey-300);
+    border-top: 4px solid var(--ahadees-primary);
+    border-radius: 50%;
+    animation: ahadees-spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes ahadees-spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    #ahadees-modal-container {
+        width: 95vw !important;
+        max-height: 90vh !important;
+        border-radius: 12px !important;
+    }
+    
+    #ahadees-modal-header {
+        padding: 16px !important;
+        border-radius: 12px 12px 0 0 !important;
+    }
+    
+    #ahadees-modal-header h4 {
+        font-size: 18px !important;
+    }
+    
+    #manage-ahadees-link {
+        margin-left: 12px !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    #ahadees-modal-content {
+        padding: 16px !important;
+        max-height: calc(90vh - 120px) !important;
+    }
+    
+    #universal-search-input {
+        padding: 14px 16px !important;
+        font-size: 14px !important;
+    }
+    
+    #universal-search-btn,
+    #fallback-recent-btn,
+    #clear-search-btn {
+        padding: 12px 20px !important;
+        font-size: 12px !important;
+        margin: 4px !important;
+    }
+    
+    .ahadees-result-item {
+        margin: 8px !important;
+    }
+    
+    .ahadees-arabic-text {
+        font-size: 20px !important;
+        padding: 10px !important;
+        line-height: 40px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .ahadees-english-text {
+        padding: 16px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Focus indicators for keyboard navigation */
+#close-ahadees-modal:focus,
+#manage-ahadees-link:focus,
+#universal-search-btn:focus,
+#fallback-recent-btn:focus,
+#clear-search-btn:focus {
+    outline: 2px solid var(--ahadees-primary) !important;
+    outline-offset: 2px !important;
+}
+
+/* ===== LIGHT THEME ENHANCEMENT (BLUE THEME) ===== */
+@media (prefers-color-scheme: light) {
+    :root {
+        /* Enhanced Light Blue Theme Variables */
+        --ahadees-enhanced-light: #f1f8ff;
+        --ahadees-enhanced-blue: #e3f2fd;
+        --ahadees-enhanced-light-blue: #e1f5fe;
+    }
+    
+    #ahadees-modal-container {
+        background: linear-gradient(135deg, #ffffff 0%, var(--ahadees-enhanced-light) 100%) !important;
+        border-color: var(--ahadees-primary-light) !important;
+    }
+    
+    #ahadees-modal-content {
+        background: linear-gradient(135deg, var(--ahadees-enhanced-blue) 0%, var(--ahadees-enhanced-light-blue) 100%) !important;
+    }
+    
+    #universal-search-input {
+        background: #ffffff !important;
+        color: var(--ahadees-grey-800) !important;
+        border-color: var(--ahadees-primary-light) !important;
+    }
+    
+    #fallback-ahadees-results {
+        background: linear-gradient(135deg, #ffffff 0%, var(--ahadees-enhanced-light) 100%) !important;
+        border-color: var(--ahadees-primary-light) !important;
+    }
+    
+    .ahadees-result-item {
+        background: #ffffff !important;
+        border-color: var(--ahadees-primary-light) !important;
+    }
+    
+    .ahadees-arabic-text {
+        background: rgba(241, 196, 15, 0.05) !important;
+        color: #4a5568 !important;
+    }
+    
+    .ahadees-english-text {
+        background: linear-gradient(135deg, var(--ahadees-enhanced-blue) 0%, #ffffff 100%) !important;
+        color: var(--ahadees-primary-dark) !important;
+    }
+}
+
+/* ===== LEGACY FROALA POPUP STYLES (DEPRECATED) ===== */
+/* These styles are kept for backward compatibility but are not used in the new modal */
+
+.froala-ahadees-header .fr-popup-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.froala-ahadees-content {
+    padding: 20px;
+}
+
+.froala-search-section {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.froala-search-section label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+    font-size: 13px;
+}
+
+.froala-search-section .form-control {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.froala-search-section .form-control:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    outline: none;
+}
+
+.froala-search-actions {
+    text-align: center;
+}
+
+.froala-search-actions .fr-btn {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.froala-search-actions .fr-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.froala-search-actions #froala-recent-btn {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+.froala-search-actions #froala-recent-btn:hover {
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.froala-results-section {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.froala-hadees-item {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.froala-hadees-item:hover {
+    border-color: #1976d2;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+    transform: translateY(-1px);
+}
+
+.froala-hadees-item:active {
+    transform: translateY(0);
+}
+
+.froala-hadees-header {
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.froala-hadees-arabic {
+    font-family: 'Amiri', 'Traditional Arabic', serif;
+    font-size: 18px;
+    line-height: 1.8;
+    direction: rtl;
+    text-align: right;
+    background: rgba(241, 196, 15, 0.05);
+    border-right: 3px solid var(--ahadees-islamic-gold);
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.froala-hadees-english {
+    color: #555;
+    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.froala-hadees-actions {
+    text-align: right;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 8px;
+}
+
+.froala-hadees-actions small {
+    color: #999;
+    font-style: italic;
+}
+
+.froala-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.froala-no-results i {
+    display: block;
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.froala-loading {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.froala-loading i {
+    font-size: 32px;
+    color: #1976d2;
+    animation: froala-spin 1s linear infinite;
+}
+
+@keyframes froala-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== ROBUST SELECTORS FOR HTML CLEANUP RESISTANCE ===== */
+
+/* Multiple selectors to ensure styling persists after HTML cleanup */
+.inserted-hadees,
+div.inserted-hadees,
+.ks-ahadees-container,
+div.ks-ahadees-container {
+    margin: 24px auto !important;
+    padding: 16px !important;
+    border: 2px solid #2dae5d !important;
+    border-radius: 16px !important;
+    box-shadow: var(--ahadees-shadow-2) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    width: 85% !important;
+    max-width: 1200px !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    background-color: #eef5ee;
+}
+
+/* Header styling with multiple selectors */
+.inserted-hadees .hadees-header,
+.inserted-hadees .ks-ahadees-header,
+.ks-ahadees-container .hadees-header,
+.ks-ahadees-container .ks-ahadees-header,
+div[class*="hadees-header"],
+div[class*="ahadees-header"] {
+    margin-bottom: 16px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 3px solid var(--ahadees-islamic-gold) !important;
+    position: relative !important;
+    display: block !important;
+    box-sizing: border-box !important;
+}
+
+/* Header text styling with multiple selectors */
+.inserted-hadees .hadees-header h4,
+.inserted-hadees .ks-ahadees-header h4,
+.ks-ahadees-container .hadees-header h4,
+.ks-ahadees-container .ks-ahadees-header h4,
+div[class*="hadees-header"] h4,
+div[class*="ahadees-header"] h4 {
+    margin: 0 !important;
+    color: #000000 !important; /* Black text for narrator */
+    display: flex !important;
+    align-items: center !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    font-family: var(--ahadees-font-family) !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    box-sizing: border-box !important;
+}
+
+.inserted-hadees .hadees-header h4 *, 
+.ks-ahadees-container .hadees-header h4 *, 
+div[class*="hadees-header"] h4 * {
+    color: #ed964a !important;
+}
+
+/* Icon styling with multiple selectors */
+.inserted-hadees .hadees-header i,
+.inserted-hadees .ks-ahadees-header i,
+.ks-ahadees-container .hadees-header i,
+.ks-ahadees-container .ks-ahadees-header i,
+div[class*="hadees-header"] i,
+div[class*="ahadees-header"] i,
+.ks-ahadees-header-icon,
+i.ks-ahadees-header-icon {
+    color: #382303 !important;
+    font-size: 20px !important;
+    margin-right: 10px !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)) !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+/* Arabic text styling with multiple selectors */
+.inserted-hadees .hadees-arabic,
+.inserted-hadees .ks-ahadees-arabic,
+.ks-ahadees-container .hadees-arabic,
+.ks-ahadees-container .ks-ahadees-arabic,
+div[class*="hadees-arabic"],
+div[class*="ahadees-arabic"] {
+    font-family: var(--ahadees-arabic-font-family) !important;
+    font-size: 31px !important;
+    line-height: 1.65 !important;
+    direction: rtl !important;
+    text-align: center !important;
+    padding: 20px !important;
+    background: #fdf9e7 !important;
+    border: 2px solid #f49b4d !important;
+    border-radius: 12px !important;
+    width: 90% !important;
+    margin: 40px auto 16px auto !important;
+    color: var(--ahadees-grey-800) !important;
+    font-weight: 500 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+}
+
+/* English text styling with multiple selectors */
+.inserted-hadees .hadees-english,
+.inserted-hadees .ks-ahadees-english,
+.ks-ahadees-container .hadees-english,
+.ks-ahadees-container .ks-ahadees-english,
+div[class*="hadees-english"],
+div[class*="ahadees-english"] {
+    font-size: 18px !important;
+    line-height: 1.7 !important;
+    color: #07460a !important;
+    margin-bottom: 0px !important;
+    padding: 16px !important;
+    border-radius: 0 0 8px 8px !important;
+    font-style: normal !important;
+    text-align: center !important;
+    position: relative !important;
+    font-family: 'Roboto', var(--ahadees-font-family) !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+}
+
+/* Subject span styling */
+.ks-ahadees-subject,
+span.ks-ahadees-subject,
+span[class*="ahadees-subject"] {
+    color:#ffa10a !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+}
+
+/* ===== DELETE BUTTON STYLING (REDUCED SIZE) ===== */
+.ks-ahadees-delete-btn,
+button.ks-ahadees-delete-btn,
+.inserted-hadees .ks-ahadees-delete-btn,
+.ks-ahadees-container .ks-ahadees-delete-btn {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    background: #e74c3c !important;
+    color: white !important;
+    border: none !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    z-index: 10 !important;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3) !important;
+}
+
+.ks-ahadees-delete-btn:hover,
+button.ks-ahadees-delete-btn:hover {
+    background: #c0392b !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5) !important;
+}
+
+.ks-ahadees-delete-btn:active,
+button.ks-ahadees-delete-btn:active {
+    transform: scale(0.95) !important;
+}
+
+/* Gradient bar for hadees containers */
+.inserted-hadees::before,
+.ks-ahadees-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ahadees-islamic-green) 0%, var(--ahadees-islamic-gold) 100%);
+    border-radius: 16px 16px 0 0;
+}
+
+/* ===== ADDITIONAL TEXT COLOR PROTECTION ===== */
+/* Force correct colors on all text elements within hadees containers */
+.inserted-hadees *, 
+.ks-ahadees-container *,
+div[class*="hadees"] *,
+div[class*="ahadees"] * {
+    /* Protect against any red color inheritance */
+    color: inherit !important;
+}
+
+/* Specific text color enforcement */
+.inserted-hadees p,
+.inserted-hadees span,
+.inserted-hadees div,
+.ks-ahadees-container p,
+.ks-ahadees-container span,
+.ks-ahadees-container div,
+div[class*="hadees"] p,
+div[class*="hadees"] span,
+div[class*="hadees"] div {
+    color: var(--ahadees-grey-800) !important;
+}
+
+/* Re-enforce header text color */
+.inserted-hadees .hadees-header h4 *,
+.ks-ahadees-container .hadees-header h4 *,
+div[class*="hadees-header"] h4 * {
+color: #ed964a !important;
+}
+
+/* Re-enforce Arabic text color */
+.inserted-hadees .hadees-arabic *,
+.ks-ahadees-container .hadees-arabic *,
+div[class*="hadees-arabic"] * {
+    color: var(--ahadees-grey-800) !important;
+}
+
+/* Re-enforce English text color */
+.inserted-hadees .hadees-english *,
+.ks-ahadees-container .hadees-english *,
+div[class*="hadees-english"] * {
+    color: #2e7d32 !important;
+}.inserted-hadees .hadees-english::before,
+.inserted-hadees .hadees-english::after {
+    display: none;
+}
+
+.inserted-hadees .hadees-english::before {
+    display: none;
+}
+
+.inserted-hadees .hadees-english::after {
+    display: none;
+}
+
+.inserted-hadees .hadees-footer {
+    display: none !important;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ahadees-grey-200);
+    font-size: 13px;
+    color: var(--ahadees-grey-500);
+    text-align: center;
+    font-family: var(--ahadees-font-family);
+    font-style: italic;
+}
+
+/* ===== ENHANCED RESPONSIVE DESIGN FOR INSERTED HADEES ===== */
+@media (max-width: 768px) {
+    .inserted-hadees {
+        margin: 16px auto !important;
+        padding: 12px !important;
+        border-radius: 12px !important;
+        width: 95% !important;
+        display: block !important;
+        box-sizing: border-box !important;
+    }
+    
+    .inserted-hadees .hadees-header h4 {
+        font-size: 16px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    .inserted-hadees .hadees-arabic {
+        font-size: 24px !important;
+        padding: 12px !important;
+        line-height: 1.6 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+    }
+    
+    .inserted-hadees .hadees-english {
+        font-size: 14px !important;
+        padding: 12px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+    }
+    
+    .inserted-hadees .hadees-footer {
+        font-size: 12px !important;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .inserted-hadees {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 2px solid #000;
+    }
+    
+    .inserted-hadees .hadees-arabic {
+        background: none;
+        border-right: 3px solid #000;
+    }
+    
+    .inserted-hadees .hadees-english {
+        background: none;
+    }
+    
+    .inserted-hadees::before {
+        display: none;
+    }
+}
+
+/* ========================= Status Message Styles ========================= */
+
+.ks-ahadees-status-error {
+    color: #dc3545 !important;
+}
+
+.ks-ahadees-status-success {
+    color: #28a745 !important;
+}
+
+.ks-ahadees-status-info {
+    color: #007bff !important;
+}
+
+.ks-ahadees-status-warning {
+    color: #ffc107 !important;
+}

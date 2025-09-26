@@ -1,0 +1,505 @@
+<div class="session-token-panel" 
+     data-ng-show="vm.isVisible" 
+     data-ng-class="{'dragging': vm.isDragging}">
+    <div class="token-panel">
+        <div class="panel-heading draggable-header" 
+             data-ng-mousedown="vm.startDrag($event)">
+            <h4 class="panel-title">
+                <i class="fa fa-arrows drag-handle" title="Drag to move panel"></i>
+                <i class="fa fa-tags"></i> Session Tokens ({{vm.tokens.length}})
+                <button type="button" class="btn btn-xs btn-default pull-right" data-ng-click="vm.close()" data-ng-mousedown="$event.stopPropagation()">
+                    <i class="fa fa-times"></i>
+                </button>
+            </h4>
+        </div>
+        
+        <div class="panel-body">
+            <!-- Loading indicator -->
+            <div data-ng-show="vm.isLoading" class="text-center">
+                <i class="fa fa-spinner fa-spin"></i> Loading tokens...
+            </div>
+
+            <!-- Add new token section -->
+            <div class="form-group" data-ng-hide="vm.isLoading">
+                <label for="newToken" class="control-label">Add Token:</label>
+                <div class="token-input-container">
+                    <textarea id="newToken"
+                              class="form-control token-textarea" 
+                              data-ng-model="vm.newToken" 
+                              placeholder="Enter token, paste JSON array, or double-click text in editor&#10;Examples:&#10;• Single token: Authentication&#10;• JSON array: [&quot;token1&quot;, &quot;token2&quot;]&#10;• JSON object: {&quot;tokens&quot;: [&quot;token1&quot;, &quot;token2&quot;]}"
+                              data-ng-keydown="($event.keyCode === 13 && !$event.shiftKey) && ($event.preventDefault() || vm.addToken())"
+                              rows="5"
+                              maxlength="10000"></textarea>
+                    <div class="input-actions">
+                        <button type="button" 
+                                class="btn btn-success btn-sm" 
+                                data-ng-click="vm.addToken()"
+                                data-ng-disabled="!vm.newToken || vm.newToken.trim().length === 0">
+                            <i class="fa fa-plus"></i> Add
+                        </button>
+                        <button type="button" 
+                                class="btn btn-default btn-sm" 
+                                data-ng-click="vm.clearInput()"
+                                data-ng-disabled="!vm.newToken || vm.newToken.trim().length === 0"
+                                title="Clear the input field">
+                            <i class="fa fa-eraser"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compact token list with labels -->
+            <div class="token-list-compact" data-ng-hide="vm.isLoading">
+                <div data-ng-show="vm.tokens.length === 0" class="text-muted text-center">
+                    <i class="fa fa-info-circle"></i> No tokens added yet
+                </div>
+
+                <div data-ng-show="vm.tokens.length > 0" class="tokens-container">
+                    <div data-ng-repeat="token in vm.tokens" class="token-badge">
+                        <span class="token-text" 
+                              title="Click to delete '{{token.token}}'"
+                              data-ng-click="vm.removeToken($index)">{{token.token}}</span>
+                        <button type="button" 
+                                class="btn btn-xs btn-danger token-delete" 
+                                data-ng-click="vm.removeToken($index)"
+                                title="Delete '{{token.token}}'">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="text-center token-actions" data-ng-hide="vm.isLoading">
+                <button type="button" 
+                        class="btn btn-primary btn-sm" 
+                        data-ng-click="vm.saveTokens()"
+                        data-ng-disabled="vm.isSaving || vm.tokens.length === 0">
+                    <i class="fa fa-save" data-ng-hide="vm.isSaving"></i>
+                    <i class="fa fa-spinner fa-spin" data-ng-show="vm.isSaving"></i>
+                    {{ vm.isSaving ? 'Saving...' : 'Save Tokens' }}
+                </button>
+                
+                <button type="button" 
+                        class="btn btn-default btn-sm" 
+                        data-ng-click="vm.loadTokens()"
+                        data-ng-disabled="vm.isLoading || vm.isSaving">
+                    <i class="fa fa-refresh"></i> Refresh
+                </button>
+                
+                <button type="button" 
+                        class="btn btn-warning btn-sm" 
+                        data-ng-click="vm.clearTokens()"
+                        data-ng-disabled="vm.isLoading || vm.isSaving || vm.tokens.length === 0"
+                        title="Permanently delete all tokens from database">
+                    <i class="fa fa-trash"></i> Delete All
+                </button>
+            </div>
+            
+            <!-- Status Message -->
+            <div class="status-message" data-ng-show="vm.showStatus" 
+                 data-ng-class="{'status-success': vm.statusType === 'success', 
+                                'status-error': vm.statusType === 'error',
+                                'status-warning': vm.statusType === 'warning'}">
+                <i class="fa" data-ng-class="{'fa-check-circle': vm.statusType === 'success', 
+                                             'fa-exclamation-triangle': vm.statusType === 'error',
+                                             'fa-warning': vm.statusType === 'warning'}"></i>
+                {{vm.statusMessage}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.session-token-panel {
+    position: fixed;
+    top: 100px;
+    left: auto;
+    right: 20px;
+    z-index: 9999;
+    width: 525px; /* Increased by 75% from 300px */
+    max-height: 750px; /* Increased from 650px to accommodate status message */
+    background-color: #d4c5e8 !important; /* Purple background - 20% darker than light purple */
+    border: 4px solid #7b4397; /* Purple border to match */
+    border-radius: 8px; /* Slightly rounded corners for depth */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(74, 144, 226, 0.15); /* Enhanced shadow with blue tint */
+    backdrop-filter: blur(3px); /* Slightly more blur for better backdrop separation */
+    padding: 6px; /* Add padding to ensure background is visible around inner content */
+    
+    /* Default visible state - when ng-show is true */
+    transform: translateX(0);
+    transition: transform 0.4s ease-in-out;
+}
+
+/* When panel is hidden via ng-show (initial state and when closed) */
+.session-token-panel.ng-hide {
+    transform: translateX(100%) !important;
+}
+
+/* AngularJS animation classes for smooth show/hide */
+.session-token-panel.ng-hide-add {
+    /* When hiding (ng-show becomes false) - start visible */
+    transform: translateX(0);
+    transition: transform 0.3s ease-in-out;
+}
+
+.session-token-panel.ng-hide-add-active {
+    /* Animation target when hiding - slide out to right */
+    transform: translateX(100%);
+}
+
+.session-token-panel.ng-hide-remove {
+    /* When showing (ng-show becomes true) - start hidden to right */
+    transform: translateX(100%);
+    transition: transform 0.4s ease-in-out;
+}
+
+.session-token-panel.ng-hide-remove-active {
+    /* Animation target when showing - slide in from right */
+    transform: translateX(0);
+}
+
+/* Disable transitions during drag for better performance */
+.session-token-panel.dragging {
+    transition: none !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow when dragging */
+    transform: scale(1.02); /* Slightly larger scale for better feedback - overrides slide transform */
+    border-color: #7b4397; /* Purple border when dragging */
+}
+
+body.dragging {
+    cursor: move !important;
+    user-select: none;
+}
+
+.token-panel {
+    margin: 0; /* Remove margin so background shows through */
+    background: transparent; /* Make transparent to show outer background */
+    border: none; /* Remove inner border since we have outer border */
+    border-radius: 6px; /* Match parent border radius */
+    box-shadow: none; /* Remove inner shadow */
+}
+
+.token-panel .panel-heading {
+    background-color: #7b4397; /* Matching purple theme */
+    border-color: #7b4397;
+    color: white;
+    padding: 8px 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Header shadow for depth */
+}
+
+.draggable-header {
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.draggable-header:hover {
+    background-color: #5d2c6b !important; /* Darker purple on hover */
+}
+
+.dragging {
+    cursor: move !important;
+}
+
+.drag-handle {
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+}
+
+.token-panel .panel-heading .panel-title {
+    font-size: 14px;
+    margin: 0;
+}
+
+.token-panel .panel-heading .btn {
+    margin-top: -2px;
+}
+
+.token-panel .panel-body {
+    padding: 15px;
+    max-height: 500px; /* Increased from 400px to accommodate more content */
+    overflow-y: auto;
+    background: transparent; /* Make transparent to show outer background */
+}
+
+/* Compact token list styles */
+.token-list-compact {
+    margin-bottom: 15px;
+}
+
+.tokens-container {
+    max-height: 120px; /* Increased to show approximately 4 rows of tokens */
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.6); /* Semi-transparent white to show background through */
+    /* Custom scrollbar styling for better appearance */
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Webkit scrollbar styling for Chrome/Safari */
+.tokens-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tokens-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tokens-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    border: 1px solid #f1f1f1;
+}
+
+.tokens-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.token-badge {
+    display: inline-block;
+    background-color: #f0f8ff;
+    border: 1px solid #b0d4f1;
+    border-radius: 12px;
+    padding: 4px 10px 4px 12px; /* Slightly increased padding for better token display */
+    margin: 3px;
+    font-size: 12px; /* Slightly larger font for better readability */
+    line-height: 1.3;
+    position: relative;
+    max-width: 400px; /* Increased max-width to accommodate larger panel */
+    vertical-align: top;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.token-text {
+    display: inline-block;
+    max-width: 320px; /* Increased to accommodate larger tokens in wider panel */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333;
+    font-weight: 500;
+    font-family: 'Roboto', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    margin-right: 2px; /* Reduced from 6px by 70% */
+    vertical-align: middle;
+    cursor: pointer; /* Make it clear the text is clickable */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.token-text:hover {
+    color: #d9534f;
+    background-color: rgba(217, 83, 79, 0.1);
+    text-decoration: none;
+}
+
+.token-delete {
+    background: none;
+    border: none;
+    color: #d9534f;
+    padding: 0;
+    margin-left: 4px;
+    width: 14px;
+    height: 14px;
+    line-height: 12px;
+    border-radius: 50%;
+    font-size: 8px;
+    vertical-align: middle;
+}
+
+.token-delete:hover {
+    background-color: #d9534f;
+    color: white;
+}
+
+.token-delete:focus {
+    outline: none;
+}
+
+.token-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.token-actions .btn {
+    margin: 0 5px;
+}
+
+.help-block {
+    margin-top: 10px;
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 1px solid #f5f5f5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .session-token-panel {
+        width: 420px; /* Adjusted for 75% increase while maintaining mobile usability */
+        right: 10px;
+    }
+    
+    .token-text {
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .session-token-panel {
+        width: 350px; /* Further reduced for smaller screens */
+        right: 5px;
+        top: 80px;
+    }
+    
+    .token-panel .panel-body {
+        padding: 12px;
+    }
+    
+    .token-text {
+        max-width: 220px;
+    }
+    
+    .token-badge {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .session-token-panel {
+        width: 280px; /* Minimum usable width */
+        right: 5px;
+        top: 80px;
+    }
+    
+    .token-panel .panel-body {
+        padding: 10px;
+    }
+    
+    .token-text {
+        max-width: 180px;
+    }
+    
+    .token-badge {
+        max-width: 250px;
+    }
+}
+
+/* Animation for panel show/hide */
+.session-token-panel.ng-hide-add,
+.session-token-panel.ng-hide-remove {
+    transition: all 0.3s ease;
+}
+
+.session-token-panel.ng-hide-add.ng-hide-add-active {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.session-token-panel.ng-hide-remove.ng-hide-remove-active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.session-token-panel.ng-hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+/* Status message styling */
+.status-message {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Token input styling */
+.token-input-container {
+    position: relative;
+}
+
+.token-textarea {
+    min-height: 60px;
+    max-height: 150px;
+    resize: vertical;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.token-textarea:focus {
+    border-color: #7b4397;
+    box-shadow: 0 0 0 0.2rem rgba(123, 67, 151, 0.25);
+    outline: none;
+}
+
+.token-textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.input-actions {
+    margin-top: 8px;
+    text-align: right;
+}
+
+.input-actions .btn {
+    margin-left: 5px;
+}
+
+.input-actions .btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>

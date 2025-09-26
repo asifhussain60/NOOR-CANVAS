@@ -1,0 +1,382 @@
+﻿<div class="content" data-ng-controller="adminCtl">
+
+    <!-- admin-sidebar -->
+    <div class="admin-sidebar">
+
+        <div class="admin-sidebar-dropdown visible-sm visible-xs">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-bars"></i> Navigation <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li data-ng-if="g.member.isAdmin">
+                    <a href="" data-ng-click="stateGo('admin.home')">
+                        <i class="fa fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="divider" data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'groups')"></li>
+                <li class="dropdown-header" data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'groups')">USER ACCESS</li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'members')">
+                    <a href="" data-ng-click="stateGo('admin.family')">
+                        <i class="fa fa-users"></i> Family Members
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'memberAccess')">
+                    <a href="" data-ng-click="stateGo('admin.memberAccess')">
+                        <i class="fa fa-folder-o"></i> Member Access
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'editAccess')">
+                    <a href="" data-ng-click="stateGo('admin.login')">
+                        <i class="fa fa-user-circle"></i> Login Simulation
+                    </a>
+                </li>
+                <li class="divider" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')"></li>
+                <li class="dropdown-header" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">SESSION</li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                    <a href="" data-ng-click="stateGo('admin.search')">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                    <a href="" data-ng-click="stateGo('admin.album')">
+                        <i class="fa fa-folder-o"></i> Albums
+                    </a>
+                </li>
+                <li data-ng-if="(g.member.isAdmin || g.member.canEdit) && vm.isMenuVisible('sessions', 'sessions')">
+                    <a href="" data-ng-click="stateGo('admin.session')">
+                        <i class="fa fa-headphones"></i> Sessions
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                    <a href="" data-ng-click="stateGo('admin.transcript')">
+                        <i class="fa fa-file-text"></i> Session Transcript
+                    </a>
+                </li>
+                <li data-ng-if="(g.member.isAdmin || g.member.canEdit) && vm.isMenuVisible('sessions', 'sessions')">
+                    <a href="" data-ng-click="stateGo('admin.summary')">
+                        <i class="fa fa-list-alt"></i> Session Summary
+                    </a>
+                </li>
+                <li class="divider" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')"></li>
+                <li class="dropdown-header" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')">TOOLS</li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'categories')">
+                    <a href="" data-ng-click="stateGo('admin.quranManager')">
+                        <i class="fa fa-book"></i> Quran
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')">
+                    <a href="" data-ng-click="stateGo('admin.hubPreloader')">
+                        <i class="fa fa-spinner"></i> Hub Preloader
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'etymology')">
+                    <a href="" data-ng-click="stateGo('admin.etymologyManager')">
+                        <i class="fa fa-tree"></i> Etymology
+                    </a>
+                </li>
+
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'ahadees')">
+                    <a href="" data-ng-click="stateGo('admin.ahadeesManager')">
+                        <i class="fa fa-comments"></i> Ahadees
+                    </a>
+                </li>
+                <li data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')">
+                    <a href="" data-ng-click="stateGo('admin.logViewer')">
+                        <i class="fa fa-file-text-o"></i> Log Viewer
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!--- admin-sidebar navigation -->
+        <!-- If the main navigation has sub navigation, then add the class "has_sub" to "li" of main navigation. -->
+        <ul id="nav" class="hidden-sm hidden-xs">
+            <!-- Main menu with font awesome icon -->
+            <li class="has_sub" data-ng-if="g.member.isAdmin">
+                <a href="" data-ng-click="stateGo('admin.home')">
+                    <i class="fa fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="has_sub" data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'groups')">
+                <a href="#">
+                    <i class="fa fa-users"></i>&nbsp;
+                    USER ACCESS <span class="pull-right"><i class="fa fa-chevron-right"></i></span>
+                </a>
+                <ul>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'members')">
+                        <a href="" data-ng-click="stateGo('admin.family')">
+                            <i class="fa fa-users"></i> Family Members
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'memberAccess')">
+                        <a href="" data-ng-click="stateGo('admin.memberAccess')">
+                            <i class="fa fa-folder-o" aria-hidden="true"></i> Member Access
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('userAccess', 'editAccess')">
+                        <a href="" data-ng-click="stateGo('admin.login')">
+                            <i class="fa fa-user-circle"></i> Login Simulation
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="has_sub open" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                <a href="#">
+                    <i class="fa fa-play-circle"></i>&nbsp;
+                    SESSION <span class="pull-right"><i class="fa fa-chevron-right"></i></span>
+                </a>
+                <ul>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                        <a href="" data-ng-click="stateGo('admin.search')">
+                            <i class="fa fa-search" aria-hidden="true"></i> Search
+                        </a>
+                    </li>
+
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                        <a href="" data-ng-click="stateGo('admin.album')">
+                            <i class="fa fa-folder-o" aria-hidden="true"></i> Albums
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="(g.member.isAdmin || g.member.canEdit) && vm.isMenuVisible('sessions', 'sessions')">
+                        <a href="" data-ng-click="stateGo('admin.session')">
+                            <i class="fa fa-headphones"></i> Sessions
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'sessions')">
+                        <a href="" data-ng-click="stateGo('admin.transcript')">
+                            <i class="fa fa-file-text"></i> Session Transcript
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="(g.member.isAdmin || g.member.canEdit) && vm.isMenuVisible('sessions', 'sessions')">
+                        <a href="" data-ng-click="stateGo('admin.summary')">
+                            <i class="fa fa-list-alt"></i> Session Summary
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="has_sub" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')">
+                <a href="#">
+                    <i class="fa fa-cogs"></i>&nbsp;
+                    TOOLS <span class="pull-right"><i class="fa fa-chevron-right"></i></span>
+                </a>
+                <ul>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'categories')">
+                        <a href="" data-ng-click="stateGo('admin.quranManager')">
+                            <i class="fa fa-book"></i> Quran
+                        </a>
+                    </li>
+
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')">
+                        <a href="" data-ng-click="stateGo('admin.hubPreloader')">
+                            <i class="fa fa-spinner"></i> Hub Preloader
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'etymology')">
+                        <a href="" data-ng-click="stateGo('admin.etymologyManager')">
+                            <i class="fa fa-tree"></i> Etymology
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('sessions', 'ahadees')">
+                        <a href="" data-ng-click="stateGo('admin.ahadeesManager')">
+                            <i class="fa fa-comments"></i> Ahadees
+                        </a>
+                    </li>
+                    <li class="sub-item" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard')">
+                        <a href="" data-ng-click="stateGo('admin.logViewer')">
+                            <i class="fa fa-file-text-o"></i> Log Viewer
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            
+            <li class="has_sub test-suite-section" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'utilityBoard') && vm.isDevelopmentSafe">
+                <a href="#">
+                    <i class="fa fa-cogs"></i>&nbsp;
+                    TEST SUITE<span class="pull-right"><i class="fa fa-chevron-right"></i></span>
+                </a>
+                <ul>
+                    <li class="sub-item ng-scope" data-ng-if="g.member.isAdmin">
+                        <a href="" data-ng-click="stateGo('admin.testSuite')">
+                            <i class="fa fa-flask" aria-hidden="true"></i> Test Suite
+                        </a>
+                    </li>
+                    <li class="sub-item ng-scope" data-ng-if="g.member.isAdmin">
+                        <a href="" data-ng-click="stateGo('admin.testConfig')">
+                            <i class="fa fa-cogs" aria-hidden="true"></i> Test Config
+                        </a>
+                    </li>
+                    <li class="sub-item ng-scope" data-ng-if="g.member.isAdmin">
+                        <a href="" data-ng-click="stateGo('admin.testHarness')">
+                            <i class="fa fa-magic" aria-hidden="true"></i> Harness
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li class="has_sub admin-section ng-scope" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'sqlBackups')">
+                <a href="#">
+                    <i class="fa fa-bar-chart" aria-hidden="true"></i>&nbsp;
+                    ADMIN <span class="pull-right"><i class="fa fa-chevron-right" aria-hidden="true"></i></span>
+                </a>
+                <ul>
+                    <li class="sub-item ng-scope" data-ng-if="g.member.isAdmin && vm.isMenuVisible('tools', 'sqlBackups')">
+                        <a href="" data-ng-click="stateGo('admin.sqlBackups')">
+                            <i class="fa fa-database" aria-hidden="true"></i> SQL Backups
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div> <!-- End Admin Sidebar -->
+
+    <div class="mainbar">
+        <!-- Page heading -->
+        <div class="page-head">
+            <h2 class="pull-left">
+                <i class="fa fa-home"></i>
+                {{g.navConfig.adminTitle}}
+                <span class="login-simulation" data-ng-if="g.member.adminSimulationMode">
+                    Simulating Login Of: {{g.member.fullName}}
+                    <a href="" style="display: inline!important" data-ng-click="g.resetAdmin()"> [Reset]</a>
+                </span>
+            </h2>
+            
+            <!-- Database Connection Indicator (hidden when dangerous) -->
+            <div class="database-indicator pull-right" data-ng-if="vm.databaseInfo && !vm.isDangerousConfiguration">
+                <div class="db-status-badge {{vm.dbIndicatorClass}}" 
+                     data-ng-click="vm.extractJwtInfo()"
+                     style="cursor: pointer;"
+                     title="Connected to {{vm.databaseInfo.defaultDatabase}} & {{vm.databaseInfo.quranDatabase}} - Click to extract JWT and API info">
+                    <i class="fa fa-database"></i>
+                </div>
+            </div>
+            
+            <div class="clearfix" style="height: 60px;"></div>
+        </div>
+
+        <div data-ui-view=""></div>
+    </div> <!-- End Mainbar -->
+
+    <!-- Mainbar ends -->
+    <div class="clearfix"></div>
+</div>
+
+<script>
+// Aggressive FOUC prevention - Multiple fallbacks
+(function() {
+    function showSidebar() {
+        var sidebar = document.querySelector('.admin-sidebar');
+        var body = document.body;
+        
+        if (sidebar) {
+            sidebar.classList.add('show-sidebar');
+            body.classList.add('styles-loaded');
+        }
+    }
+    
+    // Immediate attempt
+    if (document.readyState === 'loading') {
+        // DOM is still loading
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(showSidebar, 50);
+        });
+    } else {
+        // DOM is already loaded
+        setTimeout(showSidebar, 50);
+    }
+    
+    // Fallback timeout
+    setTimeout(showSidebar, 200);
+    
+    // Another fallback for slower systems
+    setTimeout(showSidebar, 500);
+})();
+
+// GLOBAL FIX: jQuery/mCustomScrollbar conflict resolution
+$(document).ready(function() {
+    // Fix for jQuery dropdown issue with mCustomScrollbar conflict
+    $(document).on('click', '.dropdown-toggle', function(e) {
+        e.stopPropagation();
+        var $dropdown = $(this).parent();
+        var isOpen = $dropdown.hasClass('open');
+        
+        // Close all other dropdowns
+        $('.dropdown').removeClass('open');
+        
+        // Toggle current dropdown
+        if (!isOpen) {
+            $dropdown.addClass('open');
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.dropdown').length) {
+            $('.dropdown').removeClass('open');
+        }
+    });
+    
+    // Close dropdown when clicking on menu item
+    $(document).on('click', '.dropdown-menu a', function(e) {
+        $(this).closest('.dropdown').removeClass('open');
+    });
+    
+    // CRITICAL: Override jQuery load method to prevent mCustomScrollbar conflicts
+    var originalLoad = $.fn.load;
+    $.fn.load = function(url, params, callback) {
+        // If url is not a string or is undefined, skip the load operation
+        if (typeof url !== 'string' || !url) {
+            console.warn('jQuery load called with invalid URL, skipping to prevent mCustomScrollbar conflict:', url);
+            return this;
+        }
+        
+        // If url doesn't contain indexOf method, it's not a proper URL string
+        if (!url.indexOf) {
+            console.warn('jQuery load called with non-string URL, skipping to prevent mCustomScrollbar conflict:', typeof url, url);
+            return this;
+        }
+        
+        // Call original load method with validated parameters
+        return originalLoad.call(this, url, params, callback);
+    };
+    
+    console.log('Global jQuery/mCustomScrollbar conflict fix applied');
+});
+</script>
+
+<!-- CRITICAL DANGER WARNING - LARGE CENTER SCREEN OVERLAY (NO CLOSE) -->
+<div data-ng-if="vm.isDangerousConfiguration" class="danger-overlay-modal">
+    <div class="danger-overlay-content">
+        <div class="danger-icon">
+            <i class="fa fa-exclamation-triangle fa-5x"></i>
+        </div>
+        <h1 class="danger-title">⚠️ CRITICAL DANGER ⚠️</h1>
+        <h2 class="danger-subtitle">PRODUCTION ENVIRONMENT MISCONFIGURED</h2>
+        <div class="danger-message">
+            <p><strong>This production domain is connected to DEVELOPMENT databases!</strong></p>
+            <p>This is an extremely dangerous configuration that could:</p>
+            <ul>
+                <li>🔥 <strong>Corrupt production data</strong></li>
+                <li>🔥 <strong>Expose sensitive information</strong></li>
+                <li>🔥 <strong>Cause data loss</strong></li>
+                <li>🔥 <strong>Break user sessions</strong></li>
+            </ul>
+            <p class="danger-action"><strong>IMMEDIATE ACTION REQUIRED:</strong> Fix database connections NOW!</p>
+        </div>
+        <div class="danger-buttons">
+            <button type="button" class="btn btn-danger btn-lg" data-ng-click="vm.extractJwtInfo()">
+                <i class="fa fa-wrench"></i> View Connection Details
+            </button>
+            <button type="button" class="btn btn-warning btn-lg" onclick="window.location.reload()">
+                <i class="fa fa-refresh"></i> Refresh Page
+            </button>
+        </div>
+    </div>
+</div>
+                $('#dangerWarningModal').modal('show');
+            }
+        }, 500);
+    });
+</script>

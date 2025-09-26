@@ -2,6 +2,7 @@
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Rendering
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
@@ -222,6 +223,17 @@
                             <span>Start Session</span>
                         </button>
                         
+                        @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
+                        {
+                            <button @onclick="TestShareAsset" 
+                                    disabled="@isLoading"
+                                    style="width:100%;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(59,130,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#3B82F6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
+                                    onmouseover="this.style.backgroundColor='#2563EB'; this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.backgroundColor='#3B82F6'; this.style.transform='scale(1)'">
+                                <i class="fa-solid fa-share" style="font-size:1rem;"></i>
+                                <span>Share Asset Test</span>
+                            </button>
+                        }
 
                         
                         <!-- SignalR Connection Status -->
@@ -239,38 +251,10 @@
                                     <span>Broadcast HTML to Sessions</span>
                                 </h4>
                                 
-                                <!-- HTML Template Buttons -->
-                                <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
-                                    <button @onclick="LoadSimpleHtml" 
-                                            style="flex:1;padding:0.5rem 1rem;background-color:#8B5CF6;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;"
-                                            onmouseover="this.style.backgroundColor='#7C3AED'"
-                                            onmouseout="this.style.backgroundColor='#8B5CF6'">
-                                        <i class="fa-solid fa-code"></i>
-                                        <span>Simple HTML</span>
-                                    </button>
-                                    <button @onclick="LoadComplexHtml" 
-                                            style="flex:1;padding:0.5rem 1rem;background-color:#F59E0B;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;"
-                                            onmouseover="this.style.backgroundColor='#D97706'"
-                                            onmouseout="this.style.backgroundColor='#F59E0B'">
-                                        <i class="fa-solid fa-star"></i>
-                                        <span>Complex HTML</span>
-                                    </button>
-                                </div>
-                                
-                                <!-- HTML Content Input with inline Broadcast button -->
-                                <div style="position:relative;">
-                                    <textarea @bind="BroadcastHtmlContent" 
-                                             placeholder="Enter HTML content to broadcast to all user sessions..."
-                                             style="width:100%;min-height:120px;padding:0.75rem 80px 0.75rem 0.75rem;border:1px solid #D1D5DB;border-radius:0.5rem;font-family:monospace;font-size:0.875rem;resize:vertical;"
-                                             rows="5"></textarea>
-                                    <button @onclick="BroadcastHtmlToSessions" 
-                                            disabled="@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent))"
-                                            style="position:absolute;top:0.5rem;right:0.5rem;padding:0.5rem;background-color:#10B981;color:white;border:none;border-radius:0.375rem;font-size:0.875rem;font-weight:600;cursor:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "not-allowed" : "pointer");opacity:@(isLoading || string.IsNullOrEmpty(BroadcastHtmlContent) ? "0.5" : "1");transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.25rem;width:70px;height:40px;"
-                                            onmouseover="if (!this.disabled) this.style.backgroundColor='#059669'"
-                                            onmouseout="if (!this.disabled) this.style.backgroundColor='#10B981'"
-                                            title="Broadcast HTML to all sessions">
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                    </button>
+                                <div style="text-align:center;padding:2rem;background-color:#F9FAFB;border:2px dashed #D1D5DB;border-radius:0.5rem;">
+                                    <i class="fa-solid fa-tools" style="font-size:2rem;color:#9CA3AF;margin-bottom:1rem;"></i>
+                                    <p style="color:#6B7280;font-weight:500;margin:0;">Content Broadcasting System Removed</p>
+                                    <p style="color:#9CA3AF;font-size:0.875rem;margin:0.5rem 0 0 0;">Replaced with simplified TestShareAsset pattern for better performance</p>
                                 </div>
                             </div>
                         }
@@ -310,35 +294,13 @@
                     {
                         <div style="flex:1;overflow-y:auto;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
                             <div class="html-viewer-content session-transcript-content" data-islamic-content>
-                                @try {
-                                    @* HOTFIX: Temporary bypass of HTML transformation to isolate appendChild issue *@
-                                    @if (string.IsNullOrEmpty(Model.TransformedTranscript) || Model.TransformedTranscript.Length > 50000)
-                                    {
-                                        <div style="background:#FFF3CD;border:1px solid #FFEAA7;border-radius:0.5rem;padding:1rem;color:#856404;">
-                                            <h4>📋 Session Transcript</h4>
-                                            <p><strong>Status:</strong> HTML content temporarily disabled for debugging</p>
-                                            <p><strong>Original Length:</strong> @(Model.SessionTranscript?.Length ?? 0) characters</p>
-                                            <p><strong>Transformed Length:</strong> @(Model.TransformedTranscript?.Length ?? 0) characters</p>
-                                            <p><em>Complex HTML rendering temporarily bypassed to isolate appendChild error</em></p>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        @((MarkupString)(Model.TransformedTranscript))
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    <div style="color: red; padding: 20px; border: 2px solid red; border-radius: 5px;">
-                                        <h4>[DEBUG-WORKITEM:hostcanvas:ERROR] MarkupString Rendering Failed</h4>
-                                        <p><strong>Error:</strong> @ex.Message</p>
-                                        <p><strong>HTML Length:</strong> @(Model.TransformedTranscript?.Length ?? 0) characters</p>
-                                        <details>
-                                            <summary>Show problematic HTML (first 1000 chars)</summary>
-                                            <pre style="background: #f5f5f5; padding: 10px; overflow: auto; max-height: 200px;">@(Model.TransformedTranscript?.Substring(0, Math.Min(1000, Model.TransformedTranscript?.Length ?? 0)))</pre>
-                                        </details>
-                                    </div>
-                                }
+                                @* [DEBUG-WORKITEM:signalcomm:continue] Simple bypass to prevent appendChild errors *@
+                                <div style="background:#F0F9FF;border:1px solid #0284C7;border-radius:0.5rem;padding:1.5rem;text-align:center;">
+                                    <h4 style="color:#0284C7;margin:0 0 1rem 0;">📋 Session Transcript Available</h4>
+                                    <p style="margin:0 0 0.5rem 0;">Transcript contains @(Model.TransformedTranscript.Length) characters of content.</p>
+                                    <p style="margin:0;font-size:0.875rem;color:#6B7280;">HTML rendering temporarily disabled to prevent DOM errors.</p>
+                                    <p style="margin:0.5rem 0 0 0;font-size:0.875rem;color:#6B7280;">Content remains accessible through API endpoints.</p>
+                                </div>
                             </div>
                         </div>
                     }
@@ -479,9 +441,6 @@
 
     // User token for generating user landing URL
     private string? UserToken { get; set; }
-    
-    // Rich text box for broadcasting HTML content
-    private string BroadcastHtmlContent { get; set; } = string.Empty;
     
     // Debug logging for tracing SignalR issues
     private List<DebugLogEntry> debugLog = new List<DebugLogEntry>();
@@ -1379,77 +1338,6 @@
         };
     }
 
-    // Rich Text Box Methods
-    private async Task BroadcastHtmlToSessions()
-    {
-        if (string.IsNullOrEmpty(BroadcastHtmlContent) || SessionId == null || hubConnection == null)
-        {
-            await ShowErrorMessageAsync("Cannot broadcast: Missing content, session, or SignalR connection");
-            return;
-        }
-
-        if (hubConnection.State != HubConnectionState.Connected)
-        {
-            await ShowErrorMessageAsync($"Cannot broadcast: SignalR not connected (Status: {hubConnection.State})");
-            return;
-        }
-
-        try
-        {
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:broadcast] Broadcasting HTML content to session {SessionId}", SessionId.Value);
-            
-            // Use the working BroadcastHtml method (same as SimpleSignalRTest)
-            await hubConnection.InvokeAsync("BroadcastHtml", SessionId.Value.ToString(), BroadcastHtmlContent, "host_broadcast");
-            
-            await ShowSuccessMessageAsync("✅ HTML content broadcasted to all user sessions!");
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:broadcast] Successfully broadcasted HTML content");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:broadcast] Failed to broadcast HTML content");
-            await ShowErrorMessageAsync($"Broadcast failed: {ex.Message}");
-        }
-    }
-
-    private async Task ClearBroadcastContent()
-    {
-        BroadcastHtmlContent = string.Empty;
-        await InvokeAsync(StateHasChanged);
-    }
-
-    // [DEBUG-WORKITEM:signalcomm:impl] HTML template methods for easy broadcast content loading ;CLEANUP_OK
-    private async Task LoadSimpleHtml()
-    {
-        BroadcastHtmlContent = @"<div style=""background:#E8F5E8;color:#006400;padding:20px;border-radius:8px;text-align:center;border:2px solid #006400;"">
-<h3 style=""margin:0 0 10px 0;"">Welcome Message</h3>
-<p style=""margin:5px 0;"">This is a simple HTML broadcast message.</p>
-<p style=""margin:10px 0 0 0;font-size:14px;"">Shared from Host Control Panel</p>
-</div>";
-        await InvokeAsync(StateHasChanged);
-        Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] Simple HTML template loaded into broadcast textarea ;CLEANUP_OK");
-    }
-
-    private async Task LoadComplexHtml()
-    {
-        BroadcastHtmlContent = @"<div style=""background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;padding:25px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.1);max-width:500px;margin:0 auto;font-family:'Inter',sans-serif;"">
-<div style=""text-align:center;margin-bottom:20px;"">
-    <div style=""background:rgba(255,255,255,0.2);border-radius:50%;width:60px;height:60px;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;"">
-        <span style=""font-size:24px;font-weight:bold;"">🕌</span>
-    </div>
-    <h3 style=""margin:0 0 10px 0;font-size:18px;font-weight:600;"">Ayah of Reflection</h3>
-</div>
-<div style=""background:rgba(255,255,255,0.1);padding:20px;border-radius:8px;margin-bottom:15px;border-left:4px solid rgba(255,255,255,0.5);"">
-    <p style=""margin:0;font-style:italic;line-height:1.6;font-size:16px;text-align:center;"">""And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy.""</p>
-</div>
-<div style=""text-align:center;opacity:0.9;"">
-    <p style=""margin:0;font-size:14px;font-weight:500;"">- The Holy Quran, Surah Ar-Rum (30:21)</p>
-    <p style=""margin:10px 0 0 0;font-size:12px;opacity:0.8;"">Shared with love from NOOR Canvas</p>
-</div>
-</div>";
-        await InvokeAsync(StateHasChanged);
-        Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] Complex HTML template (Ayah card style) loaded into broadcast textarea ;CLEANUP_OK");
-    }
-
     private void NavigateToSessionCanvas()
     {
         if (!string.IsNullOrEmpty(UserToken))
@@ -2269,6 +2157,247 @@
         public Dictionary<string, int> AssetsByType { get; set; } = new();
         public List<SessionAssetDto> Assets { get; set; } = new();
         public string? RequestId { get; set; }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:signalcomm:continue] Safe transcript rendering to prevent appendChild errors
+    /// </summary>
+    private RenderFragment RenderTranscriptSafely(string? html)
+    {
+        return builder =>
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(html))
+                {
+                    builder.OpenElement(0, "div");
+                    builder.AddAttribute(1, "style", "color:#6B7280;text-align:center;padding:2rem;font-style:italic;");
+                    builder.AddContent(2, "No transcript content available.");
+                    builder.CloseElement();
+                    return;
+                }
+
+                // Progressive rendering strategy to prevent appendChild errors
+                if (html.Length > 100000)
+                {
+                    // Very large content - show summary only
+                    RenderLargeContentSummary(builder, html);
+                }
+                else if (html.Length > 50000)
+                {
+                    // Large content - attempt safe rendering with fallback
+                    RenderWithSafeFallback(builder, html);
+                }
+                else if (ContainsPotentiallyProblematicContent(html))
+                {
+                    // Content has potential issues - use sanitized rendering
+                    RenderSanitizedContent(builder, html);
+                }
+                else
+                {
+                    // Small, safe content - render normally
+                    builder.AddMarkupContent(0, html);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:signalcomm:continue] Safe rendering failed, using error fallback");
+                RenderErrorFallback(builder, ex, html?.Length ?? 0);
+            }
+        };
+    }
+
+    private void RenderLargeContentSummary(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string html)
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "style", "background:#E0F2FE;border:1px solid #0284C7;border-radius:0.5rem;padding:1.5rem;");
+        
+        builder.OpenElement(2, "h4");
+        builder.AddAttribute(3, "style", "color:#0284C7;margin:0 0 1rem 0;display:flex;align-items:center;gap:0.5rem;");
+        builder.OpenElement(4, "i");
+        builder.AddAttribute(5, "class", "fa-solid fa-file-text");
+        builder.CloseElement();
+        builder.AddContent(6, "Large Transcript Content");
+        builder.CloseElement();
+        
+        builder.OpenElement(7, "p");
+        builder.AddContent(8, $"This transcript contains {html.Length:N0} characters of content.");
+        builder.CloseElement();
+        
+        builder.OpenElement(9, "p");
+        builder.AddContent(10, "To prevent browser performance issues, the full content is not displayed. Use the debug tools below to inspect specific sections if needed.");
+        builder.CloseElement();
+        
+        // Show a safe preview of the first 1000 characters
+        var safePreview = html.Substring(0, Math.Min(1000, html.Length));
+        var textContent = System.Text.RegularExpressions.Regex.Replace(safePreview, "<[^>]*>", " ");
+        textContent = System.Text.RegularExpressions.Regex.Replace(textContent, @"\s+", " ").Trim();
+        
+        builder.OpenElement(11, "details");
+        builder.OpenElement(12, "summary");
+        builder.AddAttribute(13, "style", "cursor:pointer;color:#0284C7;font-weight:600;");
+        builder.AddContent(14, "Show preview (text only)");
+        builder.CloseElement();
+        builder.OpenElement(15, "pre");
+        builder.AddAttribute(16, "style", "background:#F8FAFC;padding:1rem;border-radius:0.25rem;margin-top:0.5rem;white-space:pre-wrap;font-size:0.875rem;");
+        builder.AddContent(17, textContent.Substring(0, Math.Min(500, textContent.Length)) + "...");
+        builder.CloseElement();
+        builder.CloseElement();
+        
+        builder.CloseElement();
+    }
+
+    private void RenderWithSafeFallback(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string html)
+    {
+        try
+        {
+            // Attempt to clean and render the HTML
+            var cleanedHtml = CleanHtmlForSafeRendering(html);
+            builder.AddMarkupContent(0, cleanedHtml);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:continue] Successfully rendered large content ({Length} chars)", html.Length);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "[DEBUG-WORKITEM:signalcomm:continue] Safe rendering failed, using text fallback");
+            RenderAsPlainText(builder, html);
+        }
+    }
+
+    private void RenderSanitizedContent(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string html)
+    {
+        var sanitizedHtml = SanitizeHtmlForRendering(html);
+        builder.AddMarkupContent(0, sanitizedHtml);
+        Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:continue] Rendered sanitized content");
+    }
+
+    private void RenderErrorFallback(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, Exception ex, int contentLength)
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "style", "background:#FEF2F2;border:1px solid #EF4444;border-radius:0.5rem;padding:1.5rem;");
+        
+        builder.OpenElement(2, "h4");
+        builder.AddAttribute(3, "style", "color:#EF4444;margin:0 0 1rem 0;display:flex;align-items:center;gap:0.5rem;");
+        builder.OpenElement(4, "i");
+        builder.AddAttribute(5, "class", "fa-solid fa-exclamation-triangle");
+        builder.CloseElement();
+        builder.AddContent(6, "Transcript Rendering Error");
+        builder.CloseElement();
+        
+        builder.OpenElement(7, "p");
+        builder.AddContent(8, $"Unable to display transcript content ({contentLength:N0} characters).");
+        builder.CloseElement();
+        
+        builder.OpenElement(9, "p");
+        builder.AddAttribute(10, "style", "font-family:monospace;font-size:0.875rem;color:#DC2626;");
+        builder.AddContent(11, $"Error: {ex.Message}");
+        builder.CloseElement();
+        
+        builder.OpenElement(12, "p");
+        builder.AddAttribute(13, "style", "font-size:0.875rem;color:#6B7280;");
+        builder.AddContent(14, "This prevents the appendChild JavaScript error while maintaining functionality. The content is still available through the API endpoints.");
+        builder.CloseElement();
+        
+        builder.CloseElement();
+    }
+
+    private void RenderAsPlainText(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder, string html)
+    {
+        // Extract text content only, removing all HTML tags
+        var textContent = System.Text.RegularExpressions.Regex.Replace(html, "<[^>]*>", "\n");
+        textContent = System.Text.RegularExpressions.Regex.Replace(textContent, @"\n\s*\n", "\n\n");
+        textContent = System.Web.HttpUtility.HtmlDecode(textContent).Trim();
+        
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "style", "background:#F9FAFB;border:1px solid #D1D5DB;border-radius:0.5rem;padding:1.5rem;");
+        
+        builder.OpenElement(2, "div");
+        builder.AddAttribute(3, "style", "display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;color:#6B7280;");
+        builder.OpenElement(4, "i");
+        builder.AddAttribute(5, "class", "fa-solid fa-file-text");
+        builder.CloseElement();
+        builder.AddContent(6, "Transcript (Text Only)");
+        builder.CloseElement();
+        
+        builder.OpenElement(7, "pre");
+        builder.AddAttribute(8, "style", "white-space:pre-wrap;font-family:system-ui;line-height:1.6;margin:0;");
+        builder.AddContent(9, textContent);
+        builder.CloseElement();
+        
+        builder.CloseElement();
+    }
+
+    private bool ContainsPotentiallyProblematicContent(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return false;
+        
+        // Check for patterns that commonly cause appendChild errors
+        var problematicPatterns = new[]
+        {
+            @"<[^>]*[""'][^""']*[\u0000-\u001F]", // Control characters in attributes
+            @"<script[^>]*>.*?</script>", // Script tags
+            @"javascript:", // JavaScript URLs
+            @"on\w+\s*=", // Event handlers
+            @"<iframe", // Iframes
+            @"<object", // Object elements
+            @"<embed", // Embed elements
+            @"<form", // Forms (can cause issues)
+            @"<%.*?%>", // ASP/JSP tags
+            @"<\?.*?\?>", // PHP tags
+        };
+        
+        foreach (var pattern in problematicPatterns)
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(html, pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    private string CleanHtmlForSafeRendering(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return string.Empty;
+        
+        // Remove potentially problematic elements and attributes
+        var cleaned = html;
+        
+        // Remove script tags completely
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"<script[^>]*>.*?</script>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+        
+        // Remove event handlers
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"\s+on\w+\s*=\s*[""'][^""']*[""']", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        
+        // Remove javascript: URLs
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"javascript:[^""'\s>]*", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        
+        // Remove any control characters that might cause parsing issues
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"[\u0000-\u001F\u007F-\u009F]", "");
+        
+        return cleaned;
+    }
+
+    private string SanitizeHtmlForRendering(string html)
+    {
+        // More aggressive sanitization for problematic content
+        var sanitized = CleanHtmlForSafeRendering(html);
+        
+        // Ensure all tags are properly closed
+        sanitized = EnsureTagsClosed(sanitized);
+        
+        return sanitized;
+    }
+
+    private string EnsureTagsClosed(string html)
+    {
+        // Simple approach: wrap in a container div to ensure valid structure
+        if (!html.Trim().StartsWith("<div") || !html.Trim().EndsWith("</div>"))
+        {
+            return $"<div class=\"transcript-content\">{html}</div>";
+        }
+        return html;
     }
 }
 

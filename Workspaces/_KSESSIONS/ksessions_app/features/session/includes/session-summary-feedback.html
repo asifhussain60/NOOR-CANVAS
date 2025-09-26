@@ -1,0 +1,27 @@
+﻿<div class="row" data-ng-if="vm.speakerIsAsif()">
+    <div class="col-md-offset-3 col-md-6">
+        <div class="margin-top-20 pointer" data-ng-if="!vm.currentSession.score">
+            <div class="box box2 shadow2 ">
+                <span class="feedback-asif">
+                    <img src="/Content/images/Asif.gif" />
+                </span>
+                <span class="feedback-asif-msg">
+                    <strong>{{g.member.nickName || g.member.fullName}},</strong> I would love to hear your thoughts on this session!
+                    Please <a href="" data-ng-click="vm.gotoSessionFeedback()">Click Here</a> to give me your feedback.
+                </span>
+            </div>
+        </div>
+
+        <!--<div class="margin-top-20 pointer padding-topbottom-20" data-ng-if="vm.currentSession.score">
+            <div class="box box3 shadow3 ">
+                <span class="feedback-asif">
+                    <img src="/Content/images/AsifThankYou.gif" />
+                </span>
+                <div class="feedback-asif-msg text-center" style="height: 40px">
+                    You have already given your feedback for this session.
+                </div>
+            </div>
+        </div>-->
+
+    </div>
+</div>

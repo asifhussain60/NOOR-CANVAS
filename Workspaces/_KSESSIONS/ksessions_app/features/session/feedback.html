@@ -1,0 +1,23 @@
+﻿<div class="wrap-container20" data-ng-controller="feedbackCtl">
+
+    <div class="container">
+
+        <div class="row" data-ng-show="vm.viewReady">
+
+            <div data-zu-feedback=""
+                 data-sessionid="{{cm.currentSession.id}}"
+                 data-session-name="{{cm.currentSession.name}}"
+                 data-memberid="{{g.member.id}}"
+                 data-member-name="{{g.member.fullName}}"
+                 data-feedback-source="2"
+                 data-redirect="vm.onFeedbackSubmit"></div>
+
+        </div>
+
+        <div data-zu-blank-row data-repeat="1"></div>
+
+    </div>
+
+
+
+</div>

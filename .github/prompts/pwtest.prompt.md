@@ -1,25 +1,27 @@
 ---
 title: pwtest — Playwright Test Agent
-version: 2.1.0
+version: 2.3.0
 appliesTo: /pwtest
-key: 
 updated: 2025-09-26
 ---
-# /pwtest — Playwright Test Agent (2.1.0)
 
-## Purpose
-Create and maintain e2e tests that validate the changes for a specific `key`.
+# /pwtest — Playwright Test Agent (2.3.0)
 
-## Canonical Location
-- `Workspaces/copilot/Tests/Playwright/{key}/` (e.g., `hostcanvas`).
-- Global config: `Workspaces/copilot/config/playwright.config.ts` with `testDir: "Workspaces/copilot/Tests/Playwright"`.
+Creates and maintains end‑to‑end tests for a specific `key` that anchor iterative stabilization.
+
+## Canonical Locations
+- Specs: `Workspaces/copilot/Tests/Playwright/{key}/`
+- Config: `Workspaces/copilot/config/playwright.config.ts`
+  - `testDir: "Workspaces/copilot/Tests/Playwright"`
+  - `baseURL` from `APP_URL` env var
+  - reporter → HTML in `Workspaces/copilot/artifacts/playwright/report`
 
 ## Behavior
-- For each identified issue, create a spec file with a clear name and link it to the `key`.
-- Run tests headless by default; allow `--headed` if asked.
-- Adhere to the **Iterative Accumulation Policy**:
-  - After adding the nth spec, run 1..n cumulatively and fix failures before proceeding.
-- Capture artifacts to `Workspaces/copilot/artifacts/playwright/`.
+- For each issue, create **one** spec with a clear, sluggified name (e.g., `token-length.spec.ts`).
+- Tag specs with `@{key}` to enable filtering.
+- Prefer headless; allow `--headed` when needed.
+- On failure, attach artifacts and a terminal tail (Evidence).
 
-## Terminal Evidence
-- Always attach a short tail from `#getTerminalOutput` when reporting failures.
+## Iterative Accumulation
+- After adding the nth spec, run tests **1..n** cumulatively.
+- Fix failures before moving to the next spec/change.

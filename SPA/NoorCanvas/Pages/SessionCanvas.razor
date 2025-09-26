@@ -8,6 +8,7 @@
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
 @using System.Text.Json
+@using NoorCanvas.Services
 
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
@@ -15,6 +16,7 @@
 @inject ILogger<SessionCanvas> Logger
 @inject NoorCanvas.Services.SimplifiedTokenService TokenService
 @inject NoorCanvas.Services.SessionStateService SessionStateService
+@inject NoorCanvas.Services.HtmlParsingService HtmlParsingService
 
 <PageTitle>Noor Canvas</PageTitle>
 
@@ -23,6 +25,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="~/js/html-renderer.js"></script>
 </HeadContent>
 
 <style>
@@ -1572,7 +1575,8 @@
     }
 
     /// <summary>
-    /// Safely process HTML content to prevent Blazor parsing errors
+    /// Safely process HTML content using advanced parsing service to replace Blazor DOM parser limitations
+    /// [DEBUG-WORKITEM:signalcomm:impl] Enhanced with HtmlParsingService for robust parsing ;CLEANUP_OK
     /// </summary>
     private string GetSafeHtmlContent(string? htmlContent)
     {
@@ -1581,40 +1585,31 @@
 
         try
         {
-            // Basic validation to prevent common parsing issues
-            var safeHtml = htmlContent.Trim();
+            // Use the advanced HTML parsing service instead of basic validation
+            var parseResult = HtmlParsingService.ParseHtml(htmlContent, ParseMode.Safe);
             
-            // Log the content being processed for debugging
-            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HTML] Processing HTML content: {Length} chars", safeHtml.Length);
-            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HTML] Content preview: {Preview}", 
-                safeHtml.Substring(0, Math.Min(100, safeHtml.Length)));
-
-            // Basic safety checks
-            if (safeHtml.Contains("<script", StringComparison.OrdinalIgnoreCase) ||
-                safeHtml.Contains("javascript:", StringComparison.OrdinalIgnoreCase) ||
-                safeHtml.Contains("on\"", StringComparison.OrdinalIgnoreCase))
+            if (!parseResult.IsValid)
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HTML] Potentially unsafe HTML content detected, sanitizing");
-                return CreateSafeErrorMessage("Content contains potentially unsafe elements");
+                Logger.LogWarning("[DEBUG-WORKITEM:signalcomm:impl] HTML parsing failed: {Error} ;CLEANUP_OK", parseResult.ErrorMessage);
+                return CreateSafeErrorMessage(parseResult.ErrorMessage ?? "Unknown parsing error");
             }
 
-            // Check for unmatched quotes that might cause parsing issues
-            var singleQuoteCount = safeHtml.Count(c => c == '\'');
-            var doubleQuoteCount = safeHtml.Count(c => c == '"');
-            
-            if (singleQuoteCount % 2 != 0 || doubleQuoteCount % 2 != 0)
+            // Log any warnings from the parser
+            if (parseResult.Warnings.Any())
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:HTML] Unmatched quotes detected in HTML content");
-                return CreateSafeErrorMessage("HTML content has formatting issues (unmatched quotes)");
+                Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] HTML parsing warnings: {Warnings} ;CLEANUP_OK", 
+                    string.Join(", ", parseResult.Warnings));
             }
 
-            Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HTML] HTML content validated successfully");
-            return safeHtml;
+            Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] HTML parsed successfully by advanced parser, length: {Length} ;CLEANUP_OK", 
+                parseResult.Content?.Length ?? 0);
+
+            return parseResult.Content ?? string.Empty;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:HTML] Error processing HTML content");
-            return CreateSafeErrorMessage($"Error processing HTML content: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:signalcomm:impl] Error in advanced HTML parsing ;CLEANUP_OK");
+            return CreateSafeErrorMessage($"Parser error: {ex.Message}");
         }
     }
 
@@ -1627,7 +1622,7 @@
         return $@"<div style=""background:#FEF2F2;color:#DC2626;padding:15px;border-radius:8px;border:1px solid #FCA5A5;text-align:center;"">
 <h4 style=""margin:0 0 8px 0;"">⚠️ Content Error</h4>
 <p style=""margin:0;font-size:14px;"">{System.Web.HttpUtility.HtmlEncode(message)}</p>
-<p style=""margin:8px 0 0 0;font-size:12px;opacity:0.8;"">Time: {timestamp}</p>
+<p style=""margin:8px 0 0 0;font-size:12px;opacity:0.8;"">Time: {timestamp} (Advanced Parser)</p>
 </div>";
     }
 }

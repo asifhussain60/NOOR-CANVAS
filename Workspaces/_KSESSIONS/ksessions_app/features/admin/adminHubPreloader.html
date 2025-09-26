@@ -1,0 +1,96 @@
+﻿<div data-ng-controller="adminHubPreloaderCtl">
+
+    <div class="container" data-ng-show="vm.viewReady">
+
+        <div class="row">
+            <div class="col-md-offset-1 col-md-5">
+                <div class="admin-widget wred">
+                    <div class="admin-widget-head">
+                        <span>Hub Preloader for sessions</span>
+                    </div>
+                    <div class="admin-widget-content">
+                        <div class="padd">
+                            <div class="form-horizontal">
+
+                                <div zu-session-selection=""
+                                     data-album-id-field="vm.fPreloader.albumId"
+                                     data-session-id-field="vm.fPreloader.sessionId"
+                                     data-on-album-select="vm.onAlbumSelect"
+                                     data-on-session-select="vm.onSessionSelect"
+                                     data-filter-by-category="false">
+                                </div>
+
+                                <!-- Albums Dropdown List -->
+                                <!--<div class="form-group">
+                                    <label class="control-label col-md-3">
+                                        Albums <span data-ng-show="vm.fPreloader.albumId">[{{vm.fPreloader.albumId}}]</span>
+                                    </label>
+                                    <div class="col-md-9">
+                                        <select data-ng-model="vm.fPreloader.albumId"
+                                                tabindex="1"
+                                                class="form-control"
+                                                ng-options="album.id as album.name for album in vm.cm.albums | orderObjectBy:'name'">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>-->
+                                <!-- Sessions Drop down list -->
+                                <!--<div class="form-group">
+                                    <label class="control-label col-md-3">
+                                        Sessions <span data-ng-show="vm.fPreloader.sessionId">[{{vm.fPreloader.sessionId}}]</span>
+                                    </label>
+                                    <div class="col-md-9">
+                                        <select data-ng-model="vm.fPreloader.sessionId"
+                                                tabindex="2"
+                                                class="form-control"
+                                                ng-options="session.id as '['+ session.sequence +'] ' + session.name for session in vm.cm.currentAlbum.sessions | orderObjectBy:'sequence' : true">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-if="vm.fPreloader.sessionId && vm.json">
+
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <div data-ng-include="'/app/features/admin/includes/admin-preloader-wordcomp.html'"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <div data-ng-include="'/app/features/admin/includes/admin-preloader-quran.html'"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <div data-ng-include="'/app/features/admin/includes/admin-preloader-roots.html'"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-1 col-md-10">
+                    <div data-ng-include="'/app/features/admin/includes/admin-preloader-question.html'"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-center">
+                        <button class="btn btn-u btn-u-green margin-topbottom-15"
+                                data-ng-click="vm.savePreloader()">
+                            Save Preloader Object
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div data-zu-blank-row data-repeat="3"></div>
+
+</div>

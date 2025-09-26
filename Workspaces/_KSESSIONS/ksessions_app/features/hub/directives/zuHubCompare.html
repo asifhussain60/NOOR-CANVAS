@@ -1,0 +1,111 @@
+﻿<div class="padding-topbottom-20">
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Word Compare</h3>
+            <table class="table table-bordered table-responsive">
+                <tr>
+                    <td>
+                        <button class="btn btn-u btn-u-red"
+                                data-ng-click="f.arabic1='';" tabindex="-1">
+                            <i class="fa fa-eraser" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <input id="arabic1" type="text" class="inlineArabic max-width"
+                               data-ng-model="f.arabic1"
+                               placeholder="Arabic 1" />
+                    </td>
+                    <td>
+                        <button class="btn btn-u btn-u-red"
+                                data-ng-disabled="f.isNarration"
+                                data-ng-click="f.arabic2='';" tabindex="-1">
+                            <i class="fa fa-eraser" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <input type="text" class="inlineArabic max-width"
+                               data-ng-model="f.arabic2"
+                               data-ng-disabled="f.isNarration"
+                               placeholder="Arabic 2" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button class="btn btn-u btn-u-red"
+                                data-ng-click="f.english1='';" tabindex="-1">
+                            <i class="fa fa-eraser" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <input type="text"
+                               data-ng-model="f.english1"
+                               placeholder="English 1"
+                               class="inlineArabic max-width" />
+                    </td>
+                    <td>
+                        <button class="btn btn-u btn-u-red"
+                                data-ng-disabled="f.isNarration"
+                                data-ng-click="f.english2=''" tabindex="-1">
+                            <i class="fa fa-eraser" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <input type="text"
+                               data-ng-model="f.english2"
+                               data-ng-disabled="f.isNarration"
+                               placeholder="English 2"
+                               class="inlineArabic max-width" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-center" style="font-size: x-large">
+                        <label>
+                            <input type="checkbox" class="hidden" data-ng-checked="f.isNarration"
+                                   data-ng-click="f.isNarration = !f.isNarration" />
+                            <span></span>
+                        </label>
+                        Is Narration?
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <button class="btn btn-u" data-ng-click="newForm()" tabindex="-1">
+                            Reset
+                        </button>
+                        <button class="btn btn-u btn-u-green" data-ng-click="publishWords()">
+                            Publish
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-4" data-ng-if="hub.host.preloader.wordComparisons.length">
+            <div class="margin-top-20">
+                <h4 class="margin-left-30">Preloaders</h4>
+                <ul class="preloader-list">
+                    <li data-ng-repeat="wc in hub.host.preloader.wordComparisons">
+                        <a href="" class="" data-ng-click="loadWordCompare(wc)">
+                            <i class="fa"
+                               data-ng-class="{'fa-hand-pointer-o': !wc.isPublished, 'fa-check' : wc.isPublished}"
+                               aria-hidden="true"></i>
+                            &nbsp;
+                            {{wc.description}}
+                        </a>
+                        <ul data-ng-if="wc.highlights && wc.highlights.length">
+                            <li data-ng-repeat="h in wc.highlights | orderObjectBy:'ordinal'">
+                                <a href="" class="inlineArabic" style="font-size: 1.5em;"
+                                   data-ng-click="loadWordCompareWithHighlight(wc,h);">
+                                    {{h.item}}
+                                </a>
+                            </li>
+                        </ul>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+</div>

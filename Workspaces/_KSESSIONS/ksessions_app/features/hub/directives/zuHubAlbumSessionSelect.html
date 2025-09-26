@@ -1,0 +1,71 @@
+﻿<form class="form-horizontal">
+    <div data-ng-hide="hs.fImageHub.clientUrl">
+
+        <div zu-session-selection=""
+             data-album-id-field="hs.fImageHub.albumId"
+             data-session-id-field="hs.fImageHub.sessionId"
+             data-speaker-id="1"
+             data-on-album-select="onAlbumSelect"
+             data-on-session-select="onSessionSelect"
+             data-filter-by-category="false"
+             data-forget-last-selection="true"
+             data-hide-completed-albums="true"
+             data-hide-entity-id="true">
+        </div>
+
+        <!--<div class="form-group">
+            <label class="control-label col-md-2">Groups</label>
+            <div class="col-md-9">
+                <select ng-model="hs.fImageHub.albumId"
+                        class="form-control"
+                        ng-options="album.id as album.name for album in cm.albums | orderObjectBy:'createdDate' ">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Sessions</label>
+            <div class="col-md-9">
+                <select data-ng-model="hs.fImageHub.sessionId"
+                        class="form-control"
+                        ng-options="session.id as '['+ session.sequence +'] ' + session.name for session in cm.currentAlbum.sessions | orderObjectBy:'sequence' : true">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>-->
+        <div class="form-group">
+            <label class="control-label col-md-2">Start</label>
+            <div class="col-md-10">
+                <input type="text" data-ng-model="hs.fImageHub.sesionStartTime" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group" data-ng-if="hs.fImageHub.clientUrl">
+        <label class="control-label col-md-2">Client</label>
+        <div class="col-md-9">
+            <div id="clientUrl" class="text-danger">
+                {{hs.fImageHub.clientUrl}}
+                <i id="btn-copy" class="fa fa-clipboard pointer padding-left10"
+                   data-clipboard-action="copy"
+                   data-clipboard-target="#clientUrl"></i>
+
+                <i id="btn-reset" class="fa fa-power-off pointer padding-left10"
+                   data-ng-click="hs.resetHub()"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-12 text-center">
+            <button class="btn btn-u" data-ng-if="!hs.session.guid"
+                    data-ng-disabled="!hs.fImageHub.sessionId"
+                    data-ng-click="generateSessionGuid()">
+                Generate Guid
+            </button>
+            <button class="btn btn-u" data-ng-if="hs.session.guid"
+                    data-ng-click="openCloseHubSession()">
+                {{buttonCaption}} Session
+            </button>
+        </div>
+    </div>
+
+</form>

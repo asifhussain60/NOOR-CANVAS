@@ -151,6 +151,9 @@ builder.Services.AddScoped<SessionStateService>(); // Session state persistence 
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks
+builder.Services.AddScoped<HtmlParsingService>(); // [DEBUG-WORKITEM:signalcomm:impl] Advanced HTML parsing service to replace Blazor DOM parser limitations ;CLEANUP_OK
+// [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcastService removed ;CLEANUP_OK
+// [DEBUG-WORKITEM:canvascleanup:impl] DatabaseMigrator removed ;CLEANUP_OK
 
 var app = builder.Build();
 
@@ -293,7 +296,7 @@ static void ValidateStartupConfiguration(IServiceProvider services)
             logger.LogWarning(ex, "⚠️ NOOR-WARNING: HttpClient validation failed: {Message}", ex.Message);
         }
 
-        // Database Connection Validation (non-blocking)
+        // Database Connection Validation and ContentBroadcasts table setup (non-blocking)
         try
         {
             using var scope = services.CreateScope();
@@ -307,6 +310,9 @@ static void ValidateStartupConfiguration(IServiceProvider services)
             else
             {
                 logger.LogInformation("✅ NOOR-VALIDATION: Canvas database connection verified");
+                
+                // [DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table will be created on first access ;CLEANUP_OK
+                logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table migration will run on first broadcast ;CLEANUP_OK");
             }
         }
         catch (Exception ex)

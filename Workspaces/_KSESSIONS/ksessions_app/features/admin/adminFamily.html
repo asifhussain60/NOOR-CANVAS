@@ -1,0 +1,126 @@
+﻿<div class="matter" data-ng-controller="adminFamilyCtl">
+    <div class="container">
+        <!-- CONTROL PANEL -->
+        <div class="row" data-ng-show="vm.viewReady">
+            <div class="col-md-offset-1 col-md-9 col-lg-9">
+                <div class="panel panel-default">
+                    <div class="panel-heading-broad">
+                        <span class="panel-header">GROUP BY PANEL</span>
+                        <span class="panel-header-actions">
+                            <button class="btn btn-lg btn-success margin-right-10"
+                                    data-ng-click="vm.redirectToMemberForm(null)">
+                                <i class="fas fa-2x fa-user-plus"></i>
+                            </button>
+                        </span>
+                    </div>
+                    <!-- Group By Buttons -->
+                    <div class="panel-body">
+                        <button class="btn btn-lg btn-info"
+                                data-ng-click="vm.displayMemberData(1)">
+                            Member List
+                        </button>
+                        <button class="btn btn-lg btn-info"
+                                data-ng-click="vm.displayMemberData(2)">
+                            Group By Countries
+                        </button>
+                        <button class="btn btn-lg btn-info"
+                                data-ng-click="vm.displayMemberData(3)">
+                            Group By Status
+                        </button>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div data-ng-hide="!vm.mg.IsMemberList()" class="margin-left-20">
+                        <button class="btn btn-sm btn-danger margin-left-20"
+                                data-ng-click="vm.filterMembers=''">
+                            <i class="fas fa-2x fa-eraser"></i>
+                        </button>
+                        <input type="text"
+                               data-ng-model="vm.filterMembers"
+                               class="filter-textbox"
+                               placeholder="Filter" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GROUP PILLS -->
+        <div class="row" data-ng-if="vm.memberGroup.length>1">
+            <div class="col-md-9 col-md-offset-1 col-lg-9">
+                <button class="btn btn-sm btn-success"
+                        data-ng-click="vm.toggleHeaderPanel($index)"
+                        data-ng-repeat="btn in vm.memberGroup">
+                    {{btn.entity.name}}
+                </button>
+            </div>
+        </div>
+
+        <!-- MEMBER LIST -->
+        <div class="row" data-ng-show="vm.viewReady">
+            <div class=" col-md-9 col-md-offset-1 col-lg-9">
+                <div id="header-{{$index}}" class="admin-widget wred" data-ng-repeat="parent in vm.memberGroup">
+
+                    <!-- GROUP HEADER (PARENT BLOCK) -->
+                    <div class="admin-widget-head pointer"
+                         data-ng-click="vm.toggleHeaderPanel($index)">
+                        <!-- Header Icon -->
+                        <i class="fa fa-{{parent.entity.icon}} fa-lg"></i>
+                        <!-- Flag Icon -->
+                        <span data-zu-flag="parent.entity.icon" zu-size="medium" data-ng-if="vm.mg.ShowHeaderFlag()"></span>
+                        <!-- Header Label -->
+                        <span class="padding-left10">{{parent.entity.name}}</span>
+                    </div>
+                    <div class="admin-widget-content">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-lg-12">
+                                <!-- GROUP BODY (CHILD BLOCK) -->
+                                <ul class="whiteTags"
+                                    data-ng-if="!parent.isCollapsed">
+                                    <li class=""
+                                        data-ng-repeat="child in parent.children | orderObjectBy:'fullName' | filter:vm.filterMembers"
+                                        data-ng-class="{'greyTag': !child.isActive}">
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <!-- Gender -->
+                                                <span data-zu-gender="child.gender" zu-size="2"></span>
+                                                <!-- Flag -->
+                                                <span data-zu-flag="child.isO2" zu-size="small" data-ng-if="!vm.mg.IsCountries()"></span>
+                                            </div>
+                                            <!-- Member Name + Email -->
+                                            <div class="col-md-4 display-inline user-name">
+                                                <div class="user-name pointer"
+                                                     data-ng-click="vm.redirectToMemberForm(child.id)"
+                                                     data-ng-class="{'color-green': child.isAdmin}">
+                                                    {{child.fullName}}
+                                                </div>
+                                                <div class="user-email">{{child.emailAddress}}</div>
+                                            </div>
+                                            <!-- Toggle Bar -->
+                                            <div class="col-md-1 col-md-offset-4">
+                                                <span data-zu-toggle=""
+                                                      data-ng-if="!child.isAdmin"
+                                                      data-toggle="child.isActive"
+                                                      data-id="child.id"
+                                                      data-on-toggle-click="vm.toggleMemberActiveStatus"
+                                                      zu-size="2">
+                                                </span>
+                                            </div>
+                                            <!-- Administrator Icon -->
+                                            <div class="col-md-1">
+                                                <button data-ng-if="!child.isAdmin"
+                                                        data-ng-click="vm.deleteFamilyMember(parent, child, $index)">
+                                                    <i style="color: #9c0d0d;" class="far fa-2x fa-trash-alt"></i>
+                                                </button>
+                                                <i class="fas fa-2x fa-user-shield color-green" data-ng-if="child.isAdmin"></i>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

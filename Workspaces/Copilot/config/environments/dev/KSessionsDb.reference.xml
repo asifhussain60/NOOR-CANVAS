@@ -1,0 +1,3 @@
+<add name="KSessionsDb" 
+         connectionString="Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password={PWD};Connection Timeout=3600;MultipleActiveResultSets=true"  
+         providerName="System.Data.SqlClient" />

@@ -1,0 +1,178 @@
+<div class="matter admin-utilities-container admin-utility-standard-font" data-ng-controller="adminSystemUtilitiesCtl">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget wviolet">
+                    <div class="widget-head">
+                        <div class="pull-left">
+                            <i class="fa fa-cogs"></i> System Utilities & Maintenance
+                        </div>
+                        <div class="widget-icons pull-right">
+                            <a href="#" class="wminimize"><i class="fa fa-chevron-up"></i></a>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="widget-content" style="padding-top: 40px; padding-bottom: 40px;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <!-- Run All Checks Section -->
+                                <div class="alert alert-success" style="margin-bottom: 30px; padding: 25px;">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <strong><i class="fa fa-rocket"></i> Comprehensive System Checks:</strong>
+                                            <p style="margin: 5px 0 0 0; font-size: 12px;">
+                                                Execute all maintenance operations in sequence: Status Refresh → Clear Cache → Rebuild Indexes → Update Statistics → Check Integrity
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-right">
+                                            <button class="btn btn-success btn-lg" 
+                                                    data-ng-click="vm.runAllChecks()" 
+                                                    data-ng-disabled="vm.isRunningAllChecks"
+                                                    style="position: relative; overflow: hidden;">
+                                                <div data-ng-if="!vm.isRunningAllChecks">
+                                                    <i class="fa fa-play-circle fa-lg"></i> Run All Checks
+                                                </div>
+                                                <div data-ng-if="vm.isRunningAllChecks">
+                                                    <i class="fa fa-spinner fa-spin fa-lg"></i> 
+                                                    {{vm.runAllChecksProgress.currentOperation}}
+                                                    <br><small>({{vm.runAllChecksProgress.current}}/{{vm.runAllChecksProgress.total}})</small>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Progress Bar (shown when running) -->
+                                    <div data-ng-if="vm.isRunningAllChecks" style="margin-top: 15px;">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-success progress-bar-striped active" 
+                                                 role="progressbar" 
+                                                 style="width: {{(vm.runAllChecksProgress.current / vm.runAllChecksProgress.total) * 100}}%">
+                                                {{vm.runAllChecksProgress.current}} of {{vm.runAllChecksProgress.total}} operations
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Recent Results -->
+                                        <div data-ng-if="vm.runAllChecksProgress.results.length > 0" style="margin-top: 10px;">
+                                            <strong>Recent Results:</strong>
+                                            <div data-ng-repeat="result in vm.runAllChecksProgress.results | limitTo:3:vm.runAllChecksProgress.results.length-3" 
+                                                 style="font-size: 11px; margin-top: 2px;">
+                                                <span data-ng-class="result.success ? 'text-success' : 'text-danger'">
+                                                    <i class="fa" data-ng-class="result.success ? 'fa-check' : 'fa-times'"></i>
+                                                    {{result.operation}}: {{result.message}}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Utilities Section -->
+                        <div class="row" style="margin-top: 30px;">
+                            <div class="col-md-12">
+                                <div class="panel panel-warning" style="border-left: 5px solid #f39c12; margin-bottom: 30px;">
+                                    <div class="panel-heading" style="background-color: #f39c12; color: white; padding: 20px;">
+                                        <h4><i class="fa fa-cogs"></i> Database & System Maintenance Tools</h4>
+                                        <small>Quick access to common database and system maintenance tasks</small>
+                                    </div>
+                                    <div class="panel-body" style="background-color: #fffef8; padding: 30px;">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <button class="btn btn-warning btn-block btn-system-utility" 
+                                                        data-ng-click="vm.clearCache()" 
+                                                        data-ng-disabled="vm.isClearingCache"
+                                                        style="height: 80px; position: relative; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease;">
+                                                    <div data-ng-if="!vm.isClearingCache">
+                                                        <i class="fa fa-trash-o fa-2x"></i><br>
+                                                        <strong>Clear Cache</strong>
+                                                    </div>
+                                                    <div data-ng-if="vm.isClearingCache">
+                                                        <i class="fa fa-spinner fa-spin fa-2x"></i><br>
+                                                        <strong>Clearing...</strong>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-info btn-block btn-system-utility" 
+                                                        data-ng-click="vm.rebuildIndexes()" 
+                                                        data-ng-disabled="vm.isRebuildingIndexes"
+                                                        style="height: 80px; position: relative; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease;">
+                                                    <div data-ng-if="!vm.isRebuildingIndexes">
+                                                        <i class="fa fa-wrench fa-2x"></i><br>
+                                                        <strong>Rebuild Indexes</strong>
+                                                    </div>
+                                                    <div data-ng-if="vm.isRebuildingIndexes">
+                                                        <i class="fa fa-spinner fa-spin fa-2x"></i><br>
+                                                        <strong>Rebuilding...</strong>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-success btn-block btn-system-utility" 
+                                                        data-ng-click="vm.updateStatistics()" 
+                                                        data-ng-disabled="vm.isUpdatingStatistics"
+                                                        style="height: 80px; position: relative; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease;">
+                                                    <div data-ng-if="!vm.isUpdatingStatistics">
+                                                        <i class="fa fa-bar-chart fa-2x"></i><br>
+                                                        <strong>Update Statistics</strong>
+                                                    </div>
+                                                    <div data-ng-if="vm.isUpdatingStatistics">
+                                                        <i class="fa fa-spinner fa-spin fa-2x"></i><br>
+                                                        <strong>Updating...</strong>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-primary btn-block btn-system-utility" 
+                                                        data-ng-click="vm.checkIntegrity()" 
+                                                        data-ng-disabled="vm.isCheckingIntegrity"
+                                                        style="height: 80px; position: relative; overflow: hidden; border: 2px solid transparent; transition: all 0.3s ease;">
+                                                    <div data-ng-if="!vm.isCheckingIntegrity">
+                                                        <i class="fa fa-shield fa-2x"></i><br>
+                                                        <strong>Check Integrity</strong>
+                                                    </div>
+                                                    <div data-ng-if="vm.isCheckingIntegrity">
+                                                        <i class="fa fa-spinner fa-spin fa-2x"></i><br>
+                                                        <strong>Checking...</strong>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top: 25px; margin-bottom: 15px;">
+                                            <div class="col-md-12">
+                                                <div class="alert alert-warning" style="margin: 0; font-size: 12px; padding: 20px;">
+                                                    <i class="fa fa-info-circle"></i>
+                                                    <strong>Note:</strong> These operations may take several minutes to complete. Database operations will execute asynchronously with real-time feedback.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Standard 18px font-size for all utility UI elements */
+.admin-utility-standard-font,
+.admin-utility-standard-font * {
+    font-size: 18px !important;
+}
+
+/* Maintain proportional sizing for specific elements */
+.admin-utility-standard-font h1 { font-size: 36px !important; }
+.admin-utility-standard-font h2 { font-size: 32px !important; }
+.admin-utility-standard-font h3 { font-size: 28px !important; }
+.admin-utility-standard-font h4 { font-size: 24px !important; }
+.admin-utility-standard-font h5 { font-size: 20px !important; }
+.admin-utility-standard-font h6 { font-size: 18px !important; }
+.admin-utility-standard-font small { font-size: 16px !important; }
+.admin-utility-standard-font .fa { font-size: 18px !important; }
+.admin-utility-standard-font .fa-lg { font-size: 22px !important; }
+.admin-utility-standard-font .fa-2x { font-size: 36px !important; }
+</style>

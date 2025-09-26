@@ -1,36 +1,34 @@
-/**
- * [DEBUG-WORKITEM:hostcanvas:config] Playwright configuration for copilot test suite
- * Following SelfAwareness requirements: testDir: "Workspaces/copilot/Tests/Playwright"
- * ;CLEANUP_OK
- */
+// @ts-check
+import { defineConfig, devices } from '@playwright/test';
 
-import { defineConfig } from '@playwright/test';
-import path from 'path';
+/** Resolve baseURL from environment; fall back to dev defaults */
+const baseURL = process.env.APP_URL ?? 'http://localhost:9090';
 
 export default defineConfig({
-    timeout: 30 * 1000,
-    testDir: 'Workspaces/copilot/Tests/Playwright',
-    retries: 0,
-    reporter: [
-        ['list'],
-        [
-            'json',
-            {
-                outputFile: path.resolve(__dirname, '..', '..', 'Workspaces', 'TEMP', 'playwright-report', 'copilot-report.json'),
-            },
-        ],
-    ],
-    outputDir: path.resolve(__dirname, '..', '..', 'Workspaces', 'TEMP', 'playwright-artifacts'),
-    use: {
-        trace: 'on-first-retry',
-        screenshot: 'only-on-failure',
-        video: 'retain-on-failure',
-        baseURL: 'http://localhost:9090',
-    },
-    projects: [
-        {
-            name: 'chromium',
-            use: { browserName: 'chromium' },
-        },
-    ],
+  testDir: 'Workspaces/copilot/Tests/Playwright',
+  timeout: 30_000,
+  expect: { timeout: 7_000 },
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 4 : undefined,
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'Workspaces/copilot/artifacts/playwright/report', open: 'never' }]
+  ],
+  use: {
+    baseURL,
+    trace: 'on-first-retry',
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    actionTimeout: 15_000,
+    navigationTimeout: 20_000,
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox',  use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit',   use: { ...devices['Desktop Safari'] } },
+  ],
+  // Tag by key, e.g., `@hostcanvas`
+  grep: process.env.PW_GREP ? new RegExp(process.env.PW_GREP) : undefined,
 });

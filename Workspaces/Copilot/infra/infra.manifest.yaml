@@ -1,0 +1,45 @@
+# infra.manifest.yaml
+# Non-secret ids for environments. Keep passwords/keys out of this file.
+environments:
+  dev:
+    app_url: http://localhost:9090
+    api_url: http://localhost:9091
+    databases:
+      default:
+        engine: mssql
+        name: NoorCanvas_Dev
+        server: localhost
+        port: 1433
+      ksessions:
+        engine: mssql
+        name: KSESSIONS_DEV
+        server: AHHOME
+        port: 1433
+  qa:
+    app_url: https://qa.noorcanvas.example.com
+    api_url: https://qa-api.noorcanvas.example.com
+    databases:
+      default:
+        engine: mssql
+        name: NoorCanvas_QA
+        server: sql-qa.noorcanvas.example.com
+        port: 1433
+      ksessions:
+        engine: mssql
+        name: KSESSIONS_QA
+        server: sql-qa.noorcanvas.example.com
+        port: 1433
+  prod:
+    app_url: https://app.noorcanvas.example.com
+    api_url: https://api.noorcanvas.example.com
+    databases:
+      default:
+        engine: mssql
+        name: NoorCanvas
+        server: sql-prod.noorcanvas.example.com
+        port: 1433
+      ksessions:
+        engine: mssql
+        name: KSESSIONS
+        server: sql-prod.noorcanvas.example.com
+        port: 1433

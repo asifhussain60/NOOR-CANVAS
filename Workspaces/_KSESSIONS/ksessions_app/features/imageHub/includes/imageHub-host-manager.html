@@ -1,0 +1,148 @@
+﻿<div class="row">
+    <div class="col-md-12">
+
+        <h3>TAB CONTROL</h3>
+        <uib-tabset active="0">
+            <uib-tab index="0" heading="Static title">Static content</uib-tab>
+            <uib-tab index="1" heading="Static title">Static content</uib-tab>
+            <uib-tab index="2" heading="Static title">Static content</uib-tab>
+            <uib-tab index="3" heading="Static title">Static content</uib-tab>
+        </uib-tabset>
+
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="sidebar">
+            <div class="widget">
+                <h4>Admin Section</h4>
+                <div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Groups</label>
+                            <div class="col-md-9">
+                                <select ng-model="vm.fImageHub.albumId"
+                                        class="form-control"
+                                        ng-options="album.id as album.name for album in vm.cm.albums | orderObjectBy:'createdDate' ">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Sessions</label>
+                            <div class="col-md-9">
+                                <select data-ng-model="vm.fImageHub.sessionId"
+                                        class="form-control"
+                                        ng-options="session.id as '['+ session.sequence +'] ' + session.name for session in vm.cm.currentAlbum.sessions | orderObjectBy:'sequence' : true">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12 text-center">
+                                <button class="btn btn-u"
+                                        data-ng-click="vm.openSessionAndLoadContent()"
+                                        data-ng-disabled="vm.sessionOpen">
+                                    Open Session
+                                </button>
+                                <button class="btn btn-u"
+                                        data-ng-click="vm.closeSession()"
+                                        data-ng-disabled="!vm.sessionOpen">
+                                    Close Session
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTERED USER LIST -->
+
+    <div class="col-md-6">
+        <div class="sidebar" data-ng-if="vm.registeredUsers.length">
+            <div class="widget">
+                <h4>Registered Users</h4>
+                <div class="album-content multiColumn-3">
+                    <ul>
+                        <li data-ng-repeat="user in vm.registeredUsers">
+                            <i class="fa fa-user"></i>
+                            <span>{{user.UserName}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- QURAN - SURAH AYATS -->
+
+<div data-ng-if="vm.sessionOpen">
+    <div class="row">
+        <div class="col-md-12">
+            <label>Quran Surah & Ayat Number</label><br />
+            <input type="text"
+                   placeholder="Surah"
+                   data-ng-model="vm.hostControls.surahNumber"
+                   data-ng-change="vm.user.quran.ayats = null"
+                   style="width: 100px; padding: 10px;"
+                   class="margin-bottom-15" />
+            <input type="text"
+                   placeholder="Ayats"
+                   data-ng-model="vm.hostControls.ayatNumbers"
+                   data-ng-change="vm.user.quran.translations = null"
+                   style="width: 150px; padding: 10px;"
+                   class="margin-bottom-15" />
+            <button class="btn btn-u" data-ng-click="vm.getQuranAyats()">Push To Clients</button>
+        </div>
+    </div>
+    <div class="row" data-ng-if="vm.user.quran.ayats && vm.user.quran.translations">
+        <div class="col-md-offset-1 col-md-10 surah-display ">
+            <div class="amiriCrimson" style="text-align: right; direction: rtl;"
+                 data-ng-bind-html="vm.user.quran.ayats">
+            </div>
+            <div class="text-right" style="width: 100%; padding: 5px;"
+                 data-ng-bind-html="vm.user.quran.translations">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ARABIC TEXT -->
+<div class="row" data-ng-if="vm.sessionOpen">
+    <div class="col-md-12">
+        <label>Paste Arabic text here and tab out</label>
+        <input type="text"
+               placeholder="{{vm.hostControls.lastArabicText}}"
+               data-ng-model="vm.hostControls.arabicText"
+               class="form-control inlineArabic margin-bottom-15"
+               style="height: 70px; direction: rtl; text-align: right"
+               data-ng-blur="vm.arabicTextPasted()" />
+    </div>
+</div>
+
+<!-- ENGLISH HTML -->
+<div class="row" data-ng-if="vm.htmlText">
+
+</div>
+
+
+<!-- IMAGES -->
+
+<div class="row" data-ng-if="vm.imageList.length">
+    <label style="padding-left: 16px;">Session Images</label><br />
+    <div class="col-md-3" data-ng-repeat="img in vm.imageList">
+        <div data-ng-class="{'img-highlight': img.selected}">
+            <img class="pointer center-div" style="width: 95%; height: auto; border: gray 1px solid;"
+                 data-ng-click="vm.publishImage(img)"
+                 data-ng-src="{{img.imageUri}}"
+                 alt="Loading..." />
+        </div>
+    </div>
+</div>
