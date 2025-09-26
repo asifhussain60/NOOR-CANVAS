@@ -22,8 +22,8 @@ parameters:
     required: true
     description: >
       Execution mode:
-        • "analyze" → Generate the requirements spec only (no file updates).
-        • "apply"   → Generate the spec and integrate it into the repo docs/trackers, ready for /workitem.
+        • analyze → Generate the requirements spec only (no file updates).
+        • apply   → Generate the spec and integrate it into the repo docs/trackers, ready for /workitem.
 
   - name: notes
     required: false
@@ -36,9 +36,8 @@ parameters:
 
 usage:
   prerequisites:
-    - Ensure the app can launch with:
-        • .\Workspaces\Global\nc.ps1
-        • .\Workspaces\Global\ncb.ps1
+    - If any verification step requires the app, **always** start/refresh using the build+run script:
+        • .\Workspaces\Global\ncb.ps1     # builds and launches; REQUIRED (do not use dotnet run / nc.ps1)
     - Place input screenshots (PNG/JPG/PDF pages) in an accessible path.
 
   run_examples:
@@ -104,12 +103,12 @@ objectives:
     - Map every annotated UI element to a numbered requirement with Given/When/Then.
     - Capture copy verbatim; include accessibility & telemetry expectations.
     - List conflicts/ambiguities as **Open Questions**.
-    - When UI annotations imply payload fields (e.g., HTML content areas), add a **Contract Requirements** subsection that names the required DTO fields verbatim (e.g., `TestContent`) to be enforced by /workitem.  
+    - When UI annotations imply payload fields, add a **Contract Requirements** subsection naming required DTO fields.
   apply:
     - All from **analyze**, then:
       • Create or update **Requirements-{key}.MD** (authoritative).
       • Link spec into design/trackers for discoverability.
-      • Emit `.github/Handoff-{key}.MD` for `/workitem` with scope highlights and risks.
+      • Emit `.github/Handoff-{key}.MD` for `/workitem`.
       • Leave imgreq state **up to date**.
 
 # ─────────────────────────────────────────────────────────
@@ -178,8 +177,8 @@ guardrails:
   - Acceptance criteria must be testable and unambiguous.
   - Structured diffs only.
   - **Requirements-{key}.MD** is authoritative post-apply.
-  - Logs use `[DEBUG-WORKITEM:{key}:{layer}]` if any are produced.
   - Keep state & index current; purge via `/cleanup`.
+  - **Execution**: if the app must run for verification, **must use** `.\\Workspaces\\Global\\ncb.ps1`; never `dotnet run`; never prefer `nc.ps1`.
 
 # ─────────────────────────────────────────────────────────
 # 🧩 Output Shape
