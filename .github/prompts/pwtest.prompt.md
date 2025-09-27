@@ -1,104 +1,110 @@
 ---
 mode: agent
 ---
----
 title: pwtest — Playwright Test Agent
-version: 2.8.0
+version: 2.9.0
 appliesTo: /pwtest
 updated: 2025-09-27
 ---
-# /pwtest — Playwright Test Agent (v2.8.0)
 
-Creates and maintains Playwright tests for a given `{key}`. Tests validate implementation changes iteratively with cumulative runs, structured debug logging, and terminal-grounded evidence.
+# /pwtest — Playwright Test Agent (v2.9.0)
+
+Creates and maintains Playwright tests for a given `{key}`. Validates implementation changes **iteratively** with analyzers, lints, cumulative test runs, structured debug logs, and terminal-grounded evidence.
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** controls debug logging behavior for this run
-  - `none`   → (default) no debug logging
-  - `simple` → add debug logging only for critical checks and lifecycle events
-  - `trace`  → add debug logging for every test step so failures can be reconstructed fully
+- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
-- Tests under: `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- Existing specs under `Workspaces/Copilot/prompts.keys/{key}/tests/`
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
-## Node.js Usage in NOOR Canvas
-- Node.js is used **exclusively** for Playwright testing.  
-- The core NOOR Canvas application is **not Node.js-based** — it’s ASP.NET Core 8.0 with Blazor Server + SignalR.  
-- Node.js provides:
-  - Playwright framework (configured in `playwright.config.js`)
-  - Global setup in `PlayWright/Tests/global-setup.ts`
-  - TypeScript test files under `Tests/`
-  - Dependencies managed in `package.json`
-- Node.js is a **development dependency only**; production stack is entirely .NET.
-
-## Playwright Configuration Summary
-- **Main Config:** `./playwright.config.js`
-  - TestDir: `Tests`
-  - BaseURL: `https://localhost:9091`
-  - Browsers: Chromium, Firefox, WebKit
-  - Parallel execution with HTML reporter
-  - Retries: 2 (CI), 0 (local)
-- **Global Setup:** `./PlayWright/Tests/global-setup.ts`
-  - Validates https://localhost:9091/api/healthcheck
-  - Retries: 5 attempts, 2s delays
-- **Package Config:** `./package.json`
-  - Playwright v1.40.0
-  - Scripts: `test`, `test:headed`, `test:debug`, `report`
-- **Test Files:** `Tests/*.spec.ts`
-  - Example: `host-experience.spec.ts`
-  - Purpose: E2E validation of Blazor Server UI across browsers.
-
 ## Launch Policy
-- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
-- Only use:
-  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
-  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
-- If you stop or restart the app, self-attribute it:
-  [DEBUG-WORKITEM:{key}:pwtest:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- **Never** use `dotnet run` or any variant.
+- Launch the .NET app only via:
+  - `./Workspaces/Copilot/Global/nc.ps1`  (launch only)
+  - `./Workspaces/Copilot/Global/ncb.ps1` (clean, build, then launch)
+- If you stop or restart the app, self-attribute the lifecycle event in logs:
+  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+
+## Analyzer & Linter Enforcement
+Before writing or executing tests:
+- **.NET analyzers** — run `dotnet build --no-restore --warnaserror` and require **zero warnings**.
+- **Playwright lints/format** — run `npm run lint` and `npm run format:check` and require **0 warnings / 0 formatting issues**.
+If analyzers or lints fail, stop and fix violations before proceeding.
 
 ## Debug Logging Rules
-- All debug lines must use the consistent marker:
-  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
-- `{layer}` values: `pwtest` (test execution), `lifecycle`
-- `RUN_ID` is a short unique id for this run (timestamp + random suffix).
-- Behavior by mode:
-  - **none**: do not insert debug lines.
-  - **simple**: add logs for major test milestones (start, pass/fail, teardown).
-  - **trace**: log each navigation, selector wait, assertion, and artifact save.
+- Use the marker: [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- `{layer}` values: `pwtest` (test authoring/execution), `tests` (shared test layer), `lifecycle`
+- `RUN_ID`: short unique id (timestamp + random suffix)
+- Modes:
+  - **none**: no debug lines
+  - **simple**: major milestones (start, discovered specs, run complete, pass/fail summary)
+  - **trace**: every significant step (navigation, waits, assertions, artifact saves)
+
+## Node.js Usage & App Context
+- The NOOR Canvas app is **ASP.NET Core 8.0 + Blazor Server + SignalR**.
+- Node.js is **test-only** and used exclusively for Playwright E2E.
+- Tests run against the running .NET app at `https://localhost:9091` (or from `APP_URL` if provided).
+
+## Playwright Configuration (expected rails)
+- Global config file: `Workspaces/Copilot/config/playwright.config.ts`
+  - `testDir`: `Workspaces/Copilot/prompts.keys/{key}/tests`
+  - `baseURL`: read from `APP_URL` (never hardcode)
+  - Reporter: HTML to `Workspaces/Copilot/artifacts/playwright/report`
+  - Traces/Screenshots: enable on failure and save under `Workspaces/Copilot/artifacts/playwright/`
+- Global setup (if used): `PlayWright/tests/global-setup.ts`
 
 ## Test Authoring Rules
-- Specs must live under:
-  Workspaces/Copilot/prompts.keys/{key}/tests/
-- Global config: Workspaces/Copilot/config/playwright.config.ts must set:
-  - testDir: "Workspaces/Copilot/prompts.keys/{key}/tests"
-  - baseURL from APP_URL (never hardcode URLs)
-  - HTML report to Workspaces/Copilot/artifacts/playwright/report
-- Each spec:
-  - Focus on one concern per file
-  - Use top-level describe with `@{key}` tag for filtering
-  - Add secondary tags if needed for filtering subsets
+- Place all specs for this `{key}` in:
+  `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- Each spec file:
+  - One primary concern per file (keep tests focused and readable)
+  - Top-level `describe` includes an `@{key}` tag for filtering
+  - Prefer resilient selectors (role, label, test-id) over brittle CSS
+  - Avoid sleeps; use `await page.waitFor*` and expect polling
 
-## Iterative Accumulation
-- Add one spec at a time.
-- Run the new spec → then run all prior + new cumulatively (spec1 → spec1+spec2 → …).
-- Fix failures before moving to the next test.
+## Iterative Accumulation Protocol
+Write and run tests **incrementally**, always accumulating:
+1. Add `spec1` for the smallest slice of behavior → run analyzers → run lints → run `spec1`
+2. Add `spec2` expanding coverage → run analyzers → lints → run `spec1 + spec2`
+3. Add `spec3` … continue accumulating until targeted behavior is fully covered
+- Fix failures **before** adding new specs.
+- Keep specs deterministic; remove hidden state between tests (isolate via fixtures or fresh pages).
+
+## Execution Rules
+- Prefer headed/trace-on-failure in development; CI may run headless parallel.
+- Do not hardcode ports/URLs; derive from `APP_URL` or config.
+- Save artifacts relative to repo:
+  - HTML report → `Workspaces/Copilot/artifacts/playwright/report`
+  - Traces → `Workspaces/Copilot/artifacts/playwright/traces`
+  - Screenshots → `Workspaces/Copilot/artifacts/playwright/screenshots`
 
 ## Terminal Evidence (mandatory)
-- Always include a short tail (10–20 lines) from #getTerminalOutput relevant to the test run.
-- Show self-attribution line if lifecycle events were triggered.
+- Capture and include a short tail (10–20 lines) from `#getTerminalOutput` that shows:
+  - The analyzer/linter pass prior to test execution
+  - The summary of the latest Playwright run (passed/failed, retries, artifacts)
+- If you initiated a restart/stop, include the attribution line in the evidence section.
 
 ## Outputs
-- Specs created/updated
-- Test run results
-- Artifacts (HTML report, traces, screenshots)
-- Debug logs (mode-dependent)
-- Terminal Evidence tail
+Provide a summary containing:
+- Specs created/updated (filenames, brief intent)
+- Analyzer/linter results (pass/fail + counts)
+- Test run results (per-browser if relevant), with artifact locations
+- Terminal Evidence tail (10–20 lines)
+- Next incremental spec(s) to add for broader coverage
+
+## Approval Workflow
+- Do **not** prompt for user approval until:
+  - Analyzers and lints are green
+  - The accumulated test suite for `{key}` is green
+- After a fully green run, prompt for one manual verification pass
+- Then request approval to mark the `/pwtest` task complete
 
 ## Guardrails
-- Do not modify Workspaces/Copilot/config/environments/appsettings.*.json or any secrets unless explicitly requested.
-- Respect canonical layout: all key-scoped work in prompts.keys/{key}/workitem/ and prompts.keys/{key}/tests/.
-- Do not create new roots outside Workspaces/Copilot/ (except .github/).
+- Do not edit `Workspaces/Copilot/config/environments/appsettings.*.json` or secrets unless explicitly requested
+- Respect canonical layout: keep all `{key}`-scoped tests under `prompts.keys/{key}/tests/`
+- Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)

@@ -1,98 +1,78 @@
 ---
 mode: agent
 ---
-title: cleanup — Log/Artifact Janitor + Structure Verifier & Migrator
-version: 2.8.0
+title: cleanup — Cleanup Agent
+version: 2.7.0
 appliesTo: /cleanup
 updated: 2025-09-27
 ---
-# /cleanup — Log/Artifact Janitor + Structure Verifier & Migrator (v2.8.0)
+
+# /cleanup — Cleanup Agent (v2.7.0)
+
+Removes obsolete artifacts, temporary debug logs, and unused code for a given `{key}`, while ensuring analyzers, lints, and test suites are green before declaring cleanup complete.
 
 ## Parameters
-- **mode:** 
-  - `clean` (default) → remove logs/artifacts marked with ;CLEANUP_OK or older than retention.
-  - `verify` → no changes, produce a drift report.
-  - `migrate_fix` → fix drift by moving Copilot-owned dirs and stragglers into canonical layout.
-- **commit:** 
-  - `false` (default) → debug logs may remain in files; agent may commit with them intact.
-  - `true` → scrub all debug logs from uncommitted files before commit. Ensures only clean code goes into GitHub.
+- **key:** identifier for this work stream (e.g., `vault`)
+- **log:** logging mode (`none`, `simple`, `trace`) controlling verbosity
 
-## Root Path
-D:\PROJECTS\NOOR CANVAS
-
-## Canonical Structure
-- `.github/prompts/` at repo root (source of truth).
-- Root-level exceptions (valid, never flagged as drift):  
-  `DocFX/`, `Scripts/`, `PlayWright/`, `Tools/`, `SPA/`
-- All Copilot-owned work must live under `Workspaces/Copilot/`:
-  - `Global/`
-  - `config/`
-  - `infra/`
-  - `src/`
-  - `ops/`
-  - `docs/`
-  - `logs/`
-  - `artifacts/`
-  - `prompts.keys/{key}/workitem/`
-  - `prompts.keys/{key}/tests/`
-
-## Cleanup Sources
-- Global defaults:
-  - retention_days: 7
-  - marker: `;CLEANUP_OK`
-- Per-key overrides:
-  - Read `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md`
-  - If present, override defaults (retention, exclusions).
-
-## Debug Log Handling
-- Debug lines must always follow:
-  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
-- When `commit=false`:
-  - These lines may remain in code, safe for local debug commits.
-- When `commit=true`:
-  - Identify **uncommitted files** (via git status).
-  - Strip lines matching:
-    ^\[DEBUG-WORKITEM:.*\]\s.*;CLEANUP_OK$
-  - Ensure no debug logs remain before commit.
-  - Artifacts/logs under `logs/` and `artifacts/` still follow retention rules.
-
-## Structure Verification
-Report drift only when:
-- Non-exempt folders exist at repo root.
-- Copilot-owned directories live outside `Workspaces/Copilot/`.
-- Missing `Global/nc.ps1` or `Global/ncb.ps1`.
-- Playwright config points outside canonical tests.
-- Required per-key docs missing (Requirements-{key}.md, SelfReview-{key}.md).
-
-## Auto-Migrate (mode: migrate_fix)
-- Move **stragglers from previous structures** into canonical paths:
-  - `state/{key}/` → `Workspaces/Copilot/prompts.keys/{key}/workitem/`
-  - `Tests/Playwright/{key}/` → `Workspaces/Copilot/prompts.keys/{key}/tests/`
-  - `Workspaces/Copilot/state/{key}/…` → folded into `prompts.keys/{key}/workitem/`
-- If conflicts occur, skip or merge without overwrite unless explicitly allowed.
-- Rewrite `playwright.config.ts` if its `testDir` points to legacy paths.
-- Consolidate per-key artifacts into `prompts.keys/{key}/`.
-- Never touch `infra/`, `config/environments/`, or root-level exceptions.
-
-## Node.js & Testing Context
-- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
-- Cleanup may verify Playwright configs or migrate tests but must never treat Node.js as part of the main app stack.  
-- The production stack remains **ASP.NET Core 8.0 + Blazor Server + SignalR**.
+## Inputs (read)
+- `.github/prompts/SelfAwareness.instructions.md`
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (if exists)
+- Requirements, self-review, and test files for `{key}`
+- `#getTerminalOutput` and `#terminalLastCommand`
 
 ## Launch Policy
-- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
-- Only use:
-  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
-  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
-- If you stop or restart the app, self-attribute it:
-  [DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- **Never** use `dotnet run`
+- Only launch via:
+  - `./Workspaces/Copilot/Global/nc.ps1`
+  - `./Workspaces/Copilot/Global/ncb.ps1`
+- If stopping/restarting the app, self-attribute in logs:  
+  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
-## Terminal Evidence & Honesty
-- Always capture a short tail from #getTerminalOutput before destructive actions.
-- Include attribution log lines when lifecycle changes are initiated.
+## Analyzer & Linter Enforcement
+Cleanup cannot complete until analyzers and lints are clean:
+- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
+- Run `npm run lint` → must pass with 0 warnings
+- Run `npm run format:check` → must pass with 0 formatting issues
+
+## Debug Logging Rules
+- Use marker: [DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK
+- `RUN_ID`: short unique id (timestamp + suffix)
+- Respect `none`, `simple`, `trace` modes
+
+## Cleanup Protocol
+1. Remove temporary debug logs marked with `;CLEANUP_OK`
+2. Remove unused files, obsolete artifacts, and redundant snapshots
+3. Simplify duplicate/unreferenced code
+4. Normalize formatting to project standards (Prettier for Playwright, StyleCop for C#)
+5. Validate results with analyzers and lints
+6. Run cumulative test suite for `{key}` to ensure no regressions
+
+## Iterative Validation
+- After each cleanup pass:
+  - Run analyzers
+  - Run lints
+  - Run tests
+- Repeat until no warnings, lints, or failures remain
+
+## Terminal Evidence
+- Capture 10–20 lines from `#getTerminalOutput` showing analyzer/linter/test status
+- Include in summary
 
 ## Outputs
-- `clean` → Deleted items with reasons + bytes reclaimed.
-- `verify` → Drift report + recommended actions.
-- `migrate_fix` → Actions taken, stragglers migrated, + final verify summary.
-- When commit=true → Confirmation that all uncommitted files were scrubbed of debug logs before commit.
+Summaries must include:
+- Items cleaned (logs, files, duplicate code)
+- Analyzer/linter results after cleanup
+- Test suite results (pass/fail counts)
+- Terminal Evidence tail
+
+## Approval Workflow
+- Do not declare cleanup complete until analyzers, lints, and tests are green
+- After green run, request confirmation from user
+- Then finalize cleanup task
+
+## Guardrails
+- Do not remove requirement or test files unless explicitly orphaned and confirmed
+- Do not modify `appsettings.*.json` or secrets
+- Keep all `{key}`-scoped files in their directories
+- Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)

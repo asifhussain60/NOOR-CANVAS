@@ -2,105 +2,116 @@ import { expect, test } from '@playwright/test';
 
 /**
  * Simple Q&A JsonElement Fix Verification Test
- * 
+ *
  * This test verifies that the JsonElement casting fix in QuestionController.GetQuestions
  * is working correctly by directly testing the API endpoint that was causing issues.
- * 
+ *
  * Previous Issue: System.InvalidCastException when casting JsonElement to primitive types
  * Fix Applied: Added GetIntFromJsonElement() and GetBoolFromJsonElement() helper methods
  */
 
 test.describe('Q&A JsonElement Fix Verification', () => {
-    const TEST_TOKEN = 'A3ECXMRK'; // Known active test token for session 212
-    const BASE_URL = 'https://localhost:9091';
+  const TEST_TOKEN = 'A3ECXMRK'; // Known active test token for session 212
+  const BASE_URL = 'https://localhost:9091';
 
-    test.beforeAll(async () => {
-        console.log('🔧 Starting Q&A JsonElement Fix Verification Test');
-        console.log(`📋 Using test token: ${TEST_TOKEN}`);
-        console.log(`🌐 Testing against: ${BASE_URL}`);
+  test.beforeAll(async () => {
+    console.log('🔧 Starting Q&A JsonElement Fix Verification Test');
+    console.log(`📋 Using test token: ${TEST_TOKEN}`);
+    console.log(`🌐 Testing against: ${BASE_URL}`);
+  });
+
+  test('should retrieve questions without JsonElement casting exceptions', async ({ request }) => {
+    console.log('\n🔍 TEST: Direct Q&A API JsonElement Fix Verification');
+
+    // Test the Questions API endpoint that was previously failing with JsonElement casting issues
+    console.log(`📡 Making GET request to: ${BASE_URL}/api/question/session/${TEST_TOKEN}`);
+
+    const response = await request.get(`${BASE_URL}/api/question/session/${TEST_TOKEN}`, {
+      ignoreHTTPSErrors: true,
     });
 
-    test('should retrieve questions without JsonElement casting exceptions', async ({ request }) => {
-        console.log('\n🔍 TEST: Direct Q&A API JsonElement Fix Verification');
+    // Verify the response is successful (no more JsonElement exceptions)
+    expect(response.status()).toBe(200);
+    console.log(`✅ API Response Status: ${response.status()}`);
 
-        // Test the Questions API endpoint that was previously failing with JsonElement casting issues
-        console.log(`📡 Making GET request to: ${BASE_URL}/api/question/session/${TEST_TOKEN}`);
+    // Parse the response JSON
+    const responseBody = await response.json();
+    console.log(`📊 Response Structure: ${JSON.stringify(Object.keys(responseBody))}`);
 
-        const response = await request.get(`${BASE_URL}/api/question/session/${TEST_TOKEN}`, {
-            ignoreHTTPSErrors: true
-        });
+    // Verify the response structure indicates the JsonElement fix is working
+    expect(responseBody).toHaveProperty('success');
+    expect(responseBody).toHaveProperty('questions');
+    expect(responseBody).toHaveProperty('totalCount');
+    expect(responseBody).toHaveProperty('message');
 
-        // Verify the response is successful (no more JsonElement exceptions)
-        expect(response.status()).toBe(200);
-        console.log(`✅ API Response Status: ${response.status()}`);
+    console.log(
+      `✅ JsonElement Fix Verification: Questions array length = ${responseBody.questions?.length || 0}`,
+    );
+    console.log(`✅ JsonElement Fix Verification: Total count = ${responseBody.totalCount || 0}`);
+    console.log(`✅ JsonElement Fix Verification: Success status = ${responseBody.success}`);
 
-        // Parse the response JSON
-        const responseBody = await response.json();
-        console.log(`📊 Response Structure: ${JSON.stringify(Object.keys(responseBody))}`);
+    // If questions exist, verify the structure contains properly parsed JsonElement data
+    if (responseBody.questions && responseBody.questions.length > 0) {
+      const firstQuestion = responseBody.questions[0];
+      console.log(`📝 First Question Structure: ${JSON.stringify(Object.keys(firstQuestion))}`);
 
-        // Verify the response structure indicates the JsonElement fix is working
-        expect(responseBody).toHaveProperty('success');
-        expect(responseBody).toHaveProperty('questions');
-        expect(responseBody).toHaveProperty('totalCount');
-        expect(responseBody).toHaveProperty('message');
+      // These properties should be properly parsed from JsonElement now (no casting exceptions)
+      expect(firstQuestion).toHaveProperty('id');
+      expect(firstQuestion).toHaveProperty('questionText');
+      expect(firstQuestion).toHaveProperty('userName');
+      expect(firstQuestion).toHaveProperty('userId');
+      expect(firstQuestion).toHaveProperty('isAnonymous');
+      expect(firstQuestion).toHaveProperty('createdAt');
 
-        console.log(`✅ JsonElement Fix Verification: Questions array length = ${responseBody.questions?.length || 0}`);
-        console.log(`✅ JsonElement Fix Verification: Total count = ${responseBody.totalCount || 0}`);
-        console.log(`✅ JsonElement Fix Verification: Success status = ${responseBody.success}`);
+      // Verify that integer and boolean properties are properly converted from JsonElement
+      expect(typeof firstQuestion.id).toBe('number');
+      expect(typeof firstQuestion.isAnonymous).toBe('boolean');
 
-        // If questions exist, verify the structure contains properly parsed JsonElement data
-        if (responseBody.questions && responseBody.questions.length > 0) {
-            const firstQuestion = responseBody.questions[0];
-            console.log(`📝 First Question Structure: ${JSON.stringify(Object.keys(firstQuestion))}`);
+      console.log(
+        `✅ JsonElement Parsing Verification: ID is number type = ${typeof firstQuestion.id === 'number'}`,
+      );
+      console.log(
+        `✅ JsonElement Parsing Verification: isAnonymous is boolean type = ${typeof firstQuestion.isAnonymous === 'boolean'}`,
+      );
+    }
 
-            // These properties should be properly parsed from JsonElement now (no casting exceptions)
-            expect(firstQuestion).toHaveProperty('id');
-            expect(firstQuestion).toHaveProperty('questionText');
-            expect(firstQuestion).toHaveProperty('userName');
-            expect(firstQuestion).toHaveProperty('userId');
-            expect(firstQuestion).toHaveProperty('isAnonymous');
-            expect(firstQuestion).toHaveProperty('createdAt');
+    console.log('🎉 JsonElement Fix Verification Test Completed Successfully!');
+  });
 
-            // Verify that integer and boolean properties are properly converted from JsonElement
-            expect(typeof firstQuestion.id).toBe('number');
-            expect(typeof firstQuestion.isAnonymous).toBe('boolean');
+  test('should handle session validation without JsonElement issues', async ({ request }) => {
+    console.log('\n🔍 TEST: Session Validation API JsonElement Compatibility');
 
-            console.log(`✅ JsonElement Parsing Verification: ID is number type = ${typeof firstQuestion.id === 'number'}`);
-            console.log(`✅ JsonElement Parsing Verification: isAnonymous is boolean type = ${typeof firstQuestion.isAnonymous === 'boolean'}`);
-        }
+    // Test session validation endpoint to ensure no related JsonElement issues
+    console.log(
+      `📡 Making GET request to: ${BASE_URL}/api/participant/session/${TEST_TOKEN}/validate`,
+    );
 
-        console.log('🎉 JsonElement Fix Verification Test Completed Successfully!');
-    });
+    const response = await request.get(
+      `${BASE_URL}/api/participant/session/${TEST_TOKEN}/validate`,
+      {
+        ignoreHTTPSErrors: true,
+      },
+    );
 
-    test('should handle session validation without JsonElement issues', async ({ request }) => {
-        console.log('\n🔍 TEST: Session Validation API JsonElement Compatibility');
+    expect(response.status()).toBe(200);
+    console.log(`✅ Session Validation Status: ${response.status()}`);
 
-        // Test session validation endpoint to ensure no related JsonElement issues
-        console.log(`📡 Making GET request to: ${BASE_URL}/api/participant/session/${TEST_TOKEN}/validate`);
+    const responseBody = await response.json();
+    console.log(`📊 Session Validation Response: ${JSON.stringify(Object.keys(responseBody))}`);
 
-        const response = await request.get(`${BASE_URL}/api/participant/session/${TEST_TOKEN}/validate`, {
-            ignoreHTTPSErrors: true
-        });
+    // Verify session validation is working (indicating overall API health)
+    expect(responseBody).toHaveProperty('valid');
+    expect(responseBody.valid).toBe(true);
 
-        expect(response.status()).toBe(200);
-        console.log(`✅ Session Validation Status: ${response.status()}`);
+    console.log(`✅ Session Validation: Valid = ${responseBody.valid}`);
+    console.log('🎉 Session Validation JsonElement Compatibility Test Completed!');
+  });
 
-        const responseBody = await response.json();
-        console.log(`📊 Session Validation Response: ${JSON.stringify(Object.keys(responseBody))}`);
-
-        // Verify session validation is working (indicating overall API health)
-        expect(responseBody).toHaveProperty('valid');
-        expect(responseBody.valid).toBe(true);
-
-        console.log(`✅ Session Validation: Valid = ${responseBody.valid}`);
-        console.log('🎉 Session Validation JsonElement Compatibility Test Completed!');
-    });
-
-    test.afterAll(async () => {
-        console.log('\n📋 Q&A JsonElement Fix Verification Test Summary:');
-        console.log('✅ Questions API endpoint responds without JsonElement casting exceptions');
-        console.log('✅ JsonElement properties are properly converted to primitive types');
-        console.log('✅ Session validation works correctly');
-        console.log('✅ Overall API health confirmed - JsonElement fix is working');
-    });
+  test.afterAll(async () => {
+    console.log('\n📋 Q&A JsonElement Fix Verification Test Summary:');
+    console.log('✅ Questions API endpoint responds without JsonElement casting exceptions');
+    console.log('✅ JsonElement properties are properly converted to primitive types');
+    console.log('✅ Session validation works correctly');
+    console.log('✅ Overall API health confirmed - JsonElement fix is working');
+  });
 });

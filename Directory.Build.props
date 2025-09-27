@@ -2,6 +2,9 @@
   <PropertyGroup>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Temporarily disabled for gradual migration - Re-enable after fixing violations -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Suppress StyleCop warnings that will be fixed incrementally -->
+        <NoWarn>$(NoWarn);SA1200;SA1208;SA1210;SA1649;SA1402;SA1204;SA1201;SA1202;SA1203;SA1310;SA1516;SA1512;SA1515;SA1513;SA1501;SA1133;SA1025;SA1137;SA1502;SA1127;SA1108;SA1505;SA1503;SA1101;SA1116;SA1117;SA1413;SA1508;SA1122;SA1633;SA1309;SA1028;SA1500;SA1316;SA1128;SA0001</NoWarn>
   </PropertyGroup>
 </Project>

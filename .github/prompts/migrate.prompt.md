@@ -1,82 +1,81 @@
 ---
 mode: agent
 ---
-
----
 title: migrate — Repo Folder Migration Agent
-version: 2.1.0
+version: 2.3.0
 appliesTo: /migrate
-updated: 2025-09-26
+updated: 2025-09-27
 ---
-# /migrate — Repo Folder Migration Agent
 
-## Purpose
-Perform a one-time cleanup and reorganization of the Noor Canvas repository, moving all assets into the unified `Workspaces/copilot/` hierarchy while keeping `.github/prompts/` as the root source of truth.
+# /migrate — Repo Folder Migration Agent (v2.3.0)
 
-## Root Path
-`D:\PROJECTS\NOOR CANVAS`
+Performs one-time repo reorganizations into the `Workspaces/Copilot/` structure. Ensures analyzers, lints, and test suites are healthy after migration.
 
-## Migration Tasks
-1. **Preserve .github**
-   - Leave `.github/prompts/` and `.github/workflows/` untouched at the repo root.
-   - These remain the single source of truth for prompts and instruction files.
+## Parameters
+- **key:** identifier for migration scope (if applicable)
+- **log:** logging mode (`none`, `simple`, `trace`)
 
-2. **Move Everything Else Under Workspaces/copilot/**
-   - If not already present, create:
-     ```
-     D:\PROJECTS\NOOR CANVAS\Workspaces\copilot\
-     ```
-   - Relocate existing directories (`src/`, `Tests/`, `config/`, `docs/`, `logs/`, `artifacts/`, `ops/`, `state/`) beneath it.
-   - Normalize paths as follows:
-     - `src/` → `Workspaces/copilot/src/`
-     - `Tests/Playwright/` → `Workspaces/copilot/Tests/Playwright/`
-     - `config/` → `Workspaces/copilot/config/`
-     - `docs/` → `Workspaces/copilot/docs/`
-     - `logs/` → `Workspaces/copilot/logs/`
-     - `artifacts/` → `Workspaces/copilot/artifacts/`
-     - `ops/` → `Workspaces/copilot/ops/`
-     - Any `Requirements-*.md`, `Cleanup-*.md`, or `SelfReview-*.md` → `Workspaces/copilot/state/{key}/`
+## Inputs (read)
+- `.github/prompts/SelfAwareness.instructions.md`
+- Current repo file/folder structure
+- `#getTerminalOutput` for runtime validation
 
-3. **Templates**
-   - Place operational copies of templates under:
-     ```
-     Workspaces/copilot/Global/templates/
-     ```
-   - Canonical versions stay in:
-     ```
-     .github/prompts/templates/
-     ```
+## Launch Policy
+- **Never** use `dotnet run`
+- Launch migrated app only via:
+  - `./Workspaces/Copilot/Global/nc.ps1`
+  - `./Workspaces/Copilot/Global/ncb.ps1`
+- If restart required, self-attribute in logs:  
+  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
-4. **PowerShell Launchers**
-   - Ensure these exist in:
-     ```
-     Workspaces/copilot/Global/nc.ps1
-     Workspaces/copilot/Global/ncb.ps1
-     ```
+## Analyzer & Linter Enforcement
+After migration, validate:
+- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
+- Run `npm run lint` → must pass with 0 warnings
+- Run `npm run format:check` → must pass with 0 formatting issues
 
-5. **Playwright Config**
-   - Ensure config lives at:
-     ```
-     Workspaces/copilot/config/playwright.config.ts
-     ```
-   - Inside config, enforce:
-     ```ts
-     testDir: 'Workspaces/copilot/Tests/Playwright'
-     ```
+Migration cannot be declared complete until analyzers, lints, and tests are clean.
 
-6. **Cleanup Old Roots**
-   - After moving, delete empty original folders from repo root **except** `.github/`.
-   - Any temporary debug logs must end with `;CLEANUP_OK` so `/cleanup` can safely purge them.
+## Debug Logging Rules
+- Marker: [DEBUG-WORKITEM:{key}:migrate:{RUN_ID}] message ;CLEANUP_OK
+- `RUN_ID`: short unique id (timestamp + suffix)
+- Respect `none`, `simple`, `trace` modes
 
-## Post-Migration Verification
-- Run `Workspaces/copilot/ops/tasks/verify-structure.ps1` to confirm:
-  - `nc.ps1` and `ncb.ps1` exist and are executable.
-  - `playwright.config.ts` points to the correct `testDir`.
-  - Each `{key}` in `state/` has `Requirements-`, `Cleanup-`, and `SelfReview-` files.
-  - Logs, artifacts, and reviews directories exist.
+## Migration Protocol
+1. Move existing prompt files to:
+   - `.github/prompts/` → canonical prompts
+   - `Workspaces/Copilot/prompts.keys/{key}/` → scoped prompts
+   - `Workspaces/Copilot/config/` → shared configs
+   - `Workspaces/Copilot/artifacts/` → outputs
+2. Update references to new paths
+3. Ensure `.github/workflows/build.yml` points to correct locations
+4. Remove obsolete folders or duplicates
+5. Run analyzers, lints, and tests to confirm nothing broken
 
-## Summary Output
-- Provide a final summary including:
-  - List of files moved and their new paths.
-  - Removed empty folders.
-  - Verification result (PASS/FAIL).
+## Iterative Validation
+- Run analyzers and lints after each stage
+- Run Playwright cumulative suite against migrated structure
+- Repeat until all results are green
+
+## Terminal Evidence
+- Capture 10–20 lines from `#getTerminalOutput` showing analyzers/lints/tests succeeding
+- Include in migration summary
+
+## Outputs
+Summaries must include:
+- Files/folders moved
+- References updated
+- Analyzer/linter results
+- Test results
+- Terminal Evidence tail
+
+## Approval Workflow
+- Do not declare migration complete until analyzers, lints, and tests are all green
+- After green run, present migration summary
+- Request confirmation to finalize
+
+## Guardrails
+- Do not touch secrets (`appsettings.*.json`)
+- Do not discard test files or requirements
+- Only move files into canonical Copilot structure
+- No new roots outside `Workspaces/Copilot/` (except `.github/`)

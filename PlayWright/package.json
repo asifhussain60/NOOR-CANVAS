@@ -1,21 +1,21 @@
 {
-  "name": "noor-canvas-playwright-tests",
-  "version": "1.0.0",
-  "description": "Playwright tests for NOOR Canvas with linting",
-  "main": "index.js",
-  "scripts": {
-    "lint": "eslint 'Tests/**/*.{ts,tsx}' --max-warnings=0",
-    "format": "prettier --write 'Tests/**/*.{ts,tsx}'",
-    "test": "playwright test"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.40.0",
-    "@typescript-eslint/eslint-plugin": "^6.7.4",
-    "@typescript-eslint/parser": "^6.7.4",
-    "eslint": "^8.50.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-playwright": "^0.16.0",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
-  }
+    "name": "noor-canvas-playwright-tests",
+    "version": "1.0.0",
+    "description": "Playwright tests for NOOR Canvas with linting",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint 'Tests/**/*.{ts,tsx}' --max-warnings=0",
+        "format": "prettier --write 'Tests/**/*.{ts,tsx}'",
+        "test": "playwright test"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.40.0",
+        "@typescript-eslint/eslint-plugin": "^6.7.4",
+        "@typescript-eslint/parser": "^6.7.4",
+        "eslint": "^8.50.0",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-playwright": "^0.16.0",
+        "prettier": "^3.0.3",
+        "typescript": "^5.2.2"
+    }
 }

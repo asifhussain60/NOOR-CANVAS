@@ -33,7 +33,7 @@ namespace NoorCanvas.Services
 
             try
             {
-                _logger.LogInformation("[DEBUG-WORKITEM:signalcomm:PARSER] Starting HTML parsing, mode: {Mode}, length: {Length} ;CLEANUP_OK", 
+                _logger.LogInformation("Starting HTML parsing, mode: {Mode}, length: {Length}", 
                     mode, htmlContent.Length);
 
                 // Phase 1: Security validation
@@ -70,7 +70,7 @@ namespace NoorCanvas.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[DEBUG-WORKITEM:signalcomm:PARSER] HTML parsing failed ;CLEANUP_OK");
+                _logger.LogError(ex, "HTML parsing failed");
                 return SafeHtmlResult.Error($"Parser error: {ex.Message}");
             }
         }

@@ -1,80 +1,92 @@
 ---
 mode: agent
 ---
-title: retrosync — Requirements & Reality Reconciler
-version: 2.8.0
+title: retrosync — Requirements/Test Synchronization Agent
+version: 2.7.0
 appliesTo: /retrosync
 updated: 2025-09-27
 ---
-# /retrosync — Requirements & Reality Reconciler (v2.8.0)
 
-Keeps requirements, implementation, and tests in sync for a given `{key}`, without external trackers. Operates entirely inside the canonical key layout.
+# /retrosync — Requirements/Test Synchronization Agent (v2.7.0)
+
+Keeps requirements, implementation, and tests synchronized for a given `{key}`, ensuring analyzers, lints, and test suites are healthy before confirming consistency.
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** controls debug logging behavior for this run
-  - `none`   → (default) no debug logging
-  - `simple` → add debug logging only for critical checks and lifecycle events
-  - `trace`  → add debug logging for every step so the agent can reconstruct the full reconciliation flow
+- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md` (rolling log)
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (optional overrides)
-- Tests under: `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (if present)
+- Test specs under `Workspaces/Copilot/prompts.keys/{key}/tests/`
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
-- Only use:
-  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
-  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
-- If you stop or restart the app, self-attribute it:
+- **Never** use `dotnet run`.
+- Launch via:
+  - `./Workspaces/Copilot/Global/nc.ps1`
+  - `./Workspaces/Copilot/Global/ncb.ps1`
+- If restarting/stopping, self-attribute in logs:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
+## Analyzer & Linter Enforcement
+Before reconciling requirements/tests:
+- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
+- Run `npm run lint` → must pass with 0 warnings
+- Run `npm run format:check` → must pass with 0 formatting issues
+
+Retrosync cannot proceed until analyzers and lints are clean.
+
 ## Debug Logging Rules
-- All debug lines must use the consistent marker:
-  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
-- `{layer}` values: `retrosync` (reconciliation), `tests`, `lifecycle`
-- `RUN_ID` is a short unique id for this run (timestamp + short suffix).
-- Behavior by mode:
-  - **none**: do not insert debug lines.
-  - **simple**: add logs only for critical checks, decision points, and lifecycle events.
-  - **trace**: log every step of the reconciliation process.
+- Use marker: [DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK
+- `{layer}` values: `retrosync`, `tests`, `impl`, `lifecycle`
+- `RUN_ID`: unique id (timestamp + suffix)
+- Respect `none`, `simple`, `trace` modes
 
-## Testing & Node.js Context
-- The NOOR Canvas application is **ASP.NET Core 8.0 + Blazor Server + SignalR**.  
-- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
-- Retrosync validates coverage by comparing requirements → Playwright tests, but must never confuse Node.js with app logic.  
-- Playwright setup: `playwright.config.js`, `PlayWright/Tests/global-setup.ts`, and `Tests/*.spec.ts`.
+## Synchronization Protocol
+1. Parse requirements file and extract acceptance criteria
+2. Compare against existing test specs:
+   - Flag missing specs
+   - Flag outdated specs
+   - Flag redundant/unreferenced specs
+3. Compare against implementation notes in `SelfReview-{key}.md`
+   - Identify drift between requirements and implementation
+4. Suggest changes:
+   - Add/update/remove tests
+   - Update requirements docs if implementation differs
+   - Highlight gaps where implementation is missing coverage
+5. Validate after changes:
+   - Run analyzers
+   - Run lints
+   - Run updated cumulative tests
 
-## Protocol
-1. Parse requirements from `Requirements-{key}.md`.
-2. Cross-check against tests in `prompts.keys/{key}/tests/`.
-3. Identify gaps: missing coverage, ambiguous specs, or failing tests.
-4. Plan minimal deltas (new/updated specs or requirement clarifications).
-5. Apply iteratively:
-   - Add/update one spec at a time.
-   - Run cumulative tests (spec1 → spec1+spec2 → …).
-   - Fix failures before moving on.
-6. Update `SelfReview-{key}.md` with coverage matrix and evidence.
-7. Write immutable snapshot into `reviews/` with timestamped filename.
+## Iterative Testing
+- Ensure Playwright config points to correct testDir and baseURL
+- For each adjustment, rerun the cumulative suite
+- Only declare synchronization complete if all specs pass
 
 ## Terminal Evidence
-- Always include a short tail (10–20 lines) from #getTerminalOutput in summaries.
-- If you initiated lifecycle actions, include the self-attribution line.
+- Capture 10–20 lines from `#getTerminalOutput` that show analyzer/linter passes and test run summary
+- Include attribution line if retrosync triggered a restart
 
 ## Outputs
-- Coverage matrix: requirement → spec(s) → status
-- Specs added/updated
-- Tests run and results
+Summaries must include:
+- Requirements analyzed
+- Specs added/updated/removed
+- Analyzer/linter results
+- Test suite status (pass/fail counts)
 - Terminal Evidence tail
-- Updated rolling `SelfReview-{key}.md`
-- New snapshot in `reviews/`
-- Next steps for full coverage
+- Notes on any uncovered gaps or manual review needs
+
+## Approval Workflow
+- Do not request user approval until analyzers, lints, and test suite are all green
+- After a green run, present reconciliation summary for confirmation
+- Then request approval to mark retrosync task complete
 
 ## Guardrails
-- Do not modify Workspaces/Copilot/config/environments/appsettings.*.json or any secrets unless explicitly requested.
-- Respect canonical layout: all key-scoped work in prompts.keys/{key}/workitem/ and prompts.keys/{key}/tests/.
-- Do not create new roots outside Workspaces/Copilot/ (except .github/).
+- Do not edit or remove `Requirements-{key}.md` unless explicitly updating synced requirements
+- Do not alter `appsettings.*.json` or secrets
+- Keep all `{key}`-scoped requirements, self-reviews, and tests inside their respective directories
+- Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)

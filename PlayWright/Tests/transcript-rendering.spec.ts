@@ -1,6 +1,6 @@
 /**
  * @hostcanvas Session Transcript Rendering Diagnostic Test
- * 
+ *
  * Comprehensive test to diagnose why the Enhanced Processor isn't working
  * for large transcript content in the Host Control Panel.
  */
@@ -12,12 +12,11 @@ declare global {
   interface Window {
     enhancedProcessorRender?: (content: string) => void;
   }
-  var $transcript: any;
-  var DotNetTranscript: any;
+  var $transcript: unknown;
+  var DotNetTranscript: unknown;
 }
 
 test.describe('Host Canvas - Session Transcript Rendering', () => {
-
   test('should diagnose transcript rendering issues @hostcanvas', async ({ page }) => {
     // [DEBUG-WORKITEM:hostcanvas:continue] Starting headless diagnostic test ;CLEANUP_OK
 
@@ -62,7 +61,7 @@ test.describe('Host Canvas - Session Transcript Rendering', () => {
 
     // Check if transcript loading div exists (should be replaced by Enhanced Processor)
     const loadingDiv = page.locator('#transcript-loading');
-    const loadingExists = await loadingDiv.count() > 0;
+    const loadingExists = (await loadingDiv.count()) > 0;
 
     console.log(`[PLAYWRIGHT] Loading div exists: ${loadingExists}`);
 
@@ -73,7 +72,7 @@ test.describe('Host Canvas - Session Transcript Rendering', () => {
 
     // Check console for JavaScript errors
     const jsErrors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         jsErrors.push(msg.text());
         console.log(`[PLAYWRIGHT] JavaScript Error: ${msg.text()}`);
@@ -109,7 +108,7 @@ test.describe('Host Canvas - Session Transcript Rendering', () => {
 
     // Check network requests for any failed API calls
     const failedRequests: string[] = [];
-    page.on('response', response => {
+    page.on('response', (response) => {
       if (!response.ok()) {
         failedRequests.push(`${response.status()} ${response.url()}`);
         console.log(`[PLAYWRIGHT] Failed request: ${response.status()} ${response.url()}`);
@@ -133,14 +132,18 @@ test.describe('Host Canvas - Session Transcript Rendering', () => {
 
     // If we're still showing loading message, that's the problem
     if (finalContent?.includes('Loading transcript content via enhanced processor')) {
-      console.log('[PLAYWRIGHT] DIAGNOSIS: Enhanced Processor not executing - still showing loading message');
+      console.log(
+        '[PLAYWRIGHT] DIAGNOSIS: Enhanced Processor not executing - still showing loading message',
+      );
 
       // Additional diagnostics
       const containerHTML = await transcriptContainer.innerHTML();
       console.log(`[PLAYWRIGHT] Full container HTML: ${containerHTML}`);
 
       // Check if RenderFragment is being called at all
-      const hasRenderFragment = containerHTML.includes('Loading transcript content via enhanced processor');
+      const hasRenderFragment = containerHTML.includes(
+        'Loading transcript content via enhanced processor',
+      );
       console.log(`[PLAYWRIGHT] Has loading message (RenderFragment called): ${hasRenderFragment}`);
     }
 
@@ -175,7 +178,8 @@ test.describe('Host Canvas - Session Transcript Rendering', () => {
         hasBlazorRuntime: typeof DotNet !== 'undefined',
         enhancedProcessorExists: typeof window.enhancedProcessorRender === 'function',
         containerExists: !!document.getElementById('transcript-content-container'),
-        containerHTML: document.getElementById('transcript-content-container')?.innerHTML || 'NOT FOUND'
+        containerHTML:
+          document.getElementById('transcript-content-container')?.innerHTML || 'NOT FOUND',
       };
     });
 
@@ -193,12 +197,12 @@ test.describe('Host Canvas - Session Transcript Rendering', () => {
           const container = document.getElementById('transcript-content-container');
           return {
             success: true,
-            resultHTML: container?.innerHTML || 'No container found'
+            resultHTML: container?.innerHTML || 'No container found',
           };
         } catch (error) {
           return {
             success: false,
-            error: String(error)
+            error: String(error),
           };
         }
       });

@@ -1,22 +1,20 @@
 ---
 mode: agent
 ---
----
 title: workitem — Implementation Agent
-version: 2.8.0
+version: 2.10.0
 appliesTo: /workitem
 updated: 2025-09-27
 ---
-# /workitem — Implementation Agent (v2.8.0)
 
-Implements scoped changes for a given `{key}` and stabilizes them with cumulative Playwright tests, structured debug logs, and terminal-grounded evidence.
+# /workitem — Implementation Agent (v2.10.0)
+
+Implements scoped changes for a given `{key}` and stabilizes them with analyzers, cumulative Playwright tests, structured debug logs, and terminal-grounded evidence.
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** controls debug logging behavior for this run
-  - `none`   → (default) no debug logging
-  - `simple` → add debug logging only for critical checks and lifecycle events
-  - `trace`  → add debug logging for every step so the agent can reconstruct the full flow
+- **log:** controls debug logging behavior (`none`, `simple`, `trace`)
+- **commit:** whether changes should be committed automatically (subject to Commit Policy)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
@@ -27,63 +25,70 @@ Implements scoped changes for a given `{key}` and stabilizes them with cumulativ
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
-- Only use:
-  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
-  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
-- If you stop or restart the app, self-attribute it:
+- **Never** use `dotnet run` or any variant.
+- Launch only via:
+  - `./Workspaces/Copilot/Global/nc.ps1`  (launch only)
+  - `./Workspaces/Copilot/Global/ncb.ps1` (clean, build, then launch)
+- If you stop or restart the app, self-attribute in logs:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Debug Logging Rules
-- All debug lines must use the consistent marker:
-  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
-- `{layer}` values: `impl` (implementation), `tests` (test execution), `lifecycle` (start/stop events)
-- `RUN_ID` is a short unique id for this run (timestamp + random suffix).
-- Behavior by mode:
-  - **none**: do not insert debug lines.
-  - **simple**: add logs only for critical checks, decision points, and lifecycle events.
-  - **trace**: log every step of the flow, including intermediate calculations, branching decisions, and results.
+- Marker: [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- `{layer}` values: `impl`, `tests`, `pwtest`, `retrosync`, `refactor`, `cleanup`, `lifecycle`
+- `RUN_ID`: short unique id (timestamp + suffix)
+- Modes:
+  - **none**: no debug lines
+  - **simple**: logs only for key lifecycle events and checks
+  - **trace**: logs for every step, including intermediate calculations and branching
+
+## Analyzer & Linter Enforcement
+Before tests, enforce analyzers and linters:
+
+- **.NET**  
+  - Run: `dotnet build --no-restore --warnaserror`  
+  - Must succeed with **zero warnings** (Roslyn + StyleCop analyzers)
+
+- **Playwright**  
+  - Run: `npm run lint` → must pass with 0 warnings  
+  - Run: `npm run format:check` → must pass with 0 formatting issues
+
+If analyzers or lints fail, stop and fix violations before proceeding.
 
 ## Testing & Node.js Context
-- The NOOR Canvas application is **ASP.NET Core 8.0 + Blazor Server + SignalR**.  
-- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
-- Tests run against the running .NET app at `https://localhost:9091`.  
-- Playwright configuration is defined in `playwright.config.js`, with setup in `PlayWright/Tests/global-setup.ts`, and test files in `Tests/*.spec.ts`.  
-- Node.js is never part of the production stack.
+- App: ASP.NET Core 8.0 + Blazor Server + SignalR
+- Node.js: **test-only**, used exclusively for Playwright E2E
+- Tests run against the .NET app at `https://localhost:9091`
+- Config: `playwright.config.js`  
+- Setup: `PlayWright/tests/global-setup.ts`  
+- Specs: `Tests/*.spec.ts`
 
 ## Implementation Protocol
-- Make one change at a time; commit the smallest viable increment.
-- After each change, run the relevant Playwright specs tied to this `{key}`.
-- Insert only temporary diagnostics marked with ;CLEANUP_OK (safe for cleanup).
-- Debug logging must respect the chosen `log` mode.
+- Commit the smallest viable increment
+- After each change:
+  1. Run analyzers (`dotnet build --warnaserror`)
+  2. Run lints (`npm run lint`, `npm run format:check`)
+  3. Run Playwright specs tied to this `{key}`
+- Insert only temporary diagnostics marked with ;CLEANUP_OK
+- Respect chosen logging mode
 
 ## Iterative Testing
-- Specs must live under:
-  Workspaces/Copilot/prompts.keys/{key}/tests/
-- Global config: Workspaces/Copilot/config/playwright.config.ts must set:
-  - testDir: "Workspaces/Copilot/prompts.keys/{key}/tests"
-  - baseURL from APP_URL (never hardcode URLs)
-  - HTML report to Workspaces/Copilot/artifacts/playwright/report
-- Follow Iterative Accumulation:
-  1. Implement change + spec; run spec1
-  2. Add second change + spec; run spec1+spec2
-  3. Add third change + spec; run spec1+spec2+spec3
-  … continue until all are green.
+- Specs must live under:  
+  `Workspaces/Copilot/prompts.keys/{key}/tests/`
+
+- Global config: `Workspaces/Copilot/config/playwright.config.ts` must set:
+  - `testDir: "Workspaces/Copilot/prompts.keys/{key}/tests"`
+  - `baseURL` from APP_URL (never hardcode)
+  - HTML report → `Workspaces/Copilot/artifacts/playwright/report`
+
+- Follow incremental accumulation:
+  1. Implement change + spec → analyzers + lints → run spec1
+  2. Add second change + spec → analyzers + lints → run spec1+spec2
+  3. Add third change + spec → analyzers + lints → run spec1+spec2+spec3
+  … continue until all pass
 
 ## Terminal Evidence (mandatory)
-- Before/after significant steps, capture a short tail (10–20 lines) from #getTerminalOutput and include it in the summary’s Terminal Evidence section.
-- Do not claim shutdowns without proof. If you initiated it, show the self-attribution line.
+- Capture short tail (10–20 lines) from `#getTerminalOutput` before/after major steps
+- Include this in summary under “Terminal Evidence”
+- If shutdown was agent-initiated, include attribution log
 
-## Output & Approval Flow
-- Summaries must include:
-  - What changed and why
-  - Files changed
-  - Tests added/updated and their current pass/fail state
-  - Terminal Evidence tail
-- Do not ask the user for approval until all identified tests for this key are green.
-- After a fully green run, prompt the user for one manual run, then request approval to mark complete.
-
-## Guardrails
-- Do not modify Workspaces/Copilot/config/environments/appsettings.*.json or any secrets unless explicitly requested.
-- Respect canonical layout: all key-scoped work in prompts.keys/{key}/workitem/ and prompts.keys/{key}/tests/.
-- Do not create new roots outside Workspaces/Copilot/ (except .github/).
+## Commit

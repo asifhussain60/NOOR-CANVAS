@@ -83,7 +83,9 @@ test.describe('SignalR Integration - HostCanvas', () => {
     await userPage.waitForTimeout(1000);
 
     // Check if asset appears on user page
-    const sharedAsset = await userPage.locator('[data-testid="shared-asset-content"]').textContent();
+    const sharedAsset = await userPage
+      .locator('[data-testid="shared-asset-content"]')
+      .textContent();
     console.log(`[DEBUG-WORKITEM:hostcanvas:TEST] Shared asset content: ${sharedAsset}`);
 
     expect(sharedAsset).toContain('Test Asset Shared');
