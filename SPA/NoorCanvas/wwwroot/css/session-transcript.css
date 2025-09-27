@@ -181,7 +181,7 @@
 .session-transcript-content .inlineArabic,
 .transcript-display .inlineArabic,
 .islamic-content .inlineArabic {
-    font-family: 'Amiri', serif;
+    font-family: 'Scheherazade New', 'Harmattan', serif;
     direction: rtl;
     font-size: 28px;
     display: inline-block;

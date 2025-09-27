@@ -101,16 +101,17 @@
     <div style="width:95%;background-color:white;border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);padding:2rem;display:flex;flex-direction:column;gap:1.5rem;">
 
         <!-- Header & Session Info -->
-        <header style="text-align:center;">
+        <header style="text-align:center;background:linear-gradient(135deg,#F8F5F1,#FFFFFF);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem;box-shadow:0 8px 25px -8px rgba(0,100,0,0.15);border:1px solid rgba(212,175,55,0.2);">
             <!-- Logo -->
             <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
                 <img src="/images/NoorCanvas.png?v=20250924" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" />
             </div>
-            <h1 style="font-size:2.25rem;font-weight:700;color:#006400;margin-bottom:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
-                <i class="fa-solid fa-gear" style="color:#006400;"></i>
+            <h1 style="font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#006400,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.75rem;letter-spacing:-0.025em;">
+                <i class="fa-solid fa-gear" style="color:#006400;font-size:2.25rem;"></i>
                 <span>HOST CONTROL PANEL</span>
             </h1>
+            <p style="color:#6B7280;font-size:1rem;font-weight:500;margin:0;">Manage your session with professional-grade controls</p>
         </header>
 
         <!-- Error Display Panel -->
@@ -158,12 +159,21 @@
             </div>
         </div>
 
+        <!-- Elegant Session Management Container -->
         <div style="display:flex;justify-content:center;width:100%;">
-            <div style="display:flex;flex-direction:column;gap:1rem;align-items:stretch;width:50%;">
+            <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:stretch;width:50%;background:linear-gradient(135deg,#FFFFFF,#F8F9FA);border-radius:2rem;padding:2rem;box-shadow:0 20px 40px -12px rgba(0,0,0,0.35),0 8px 16px -8px rgba(0,0,0,0.2);border:1px solid rgba(212,175,55,0.3);position:relative;overflow:hidden;">
+                <!-- Decorative gradient overlay -->
+                <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#D4AF37,#FFD700,#D4AF37);border-radius:2rem 2rem 0 0;"></div>
+                <!-- SignalR Status Icon (Top-Right Modern Design) -->
+                <div style="position:absolute;top:1rem;right:1rem;z-index:10;">
+                    <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:@(GetSignalRStatusColor() == "#10B981" ? "linear-gradient(135deg,#10B981,#059669)" : "linear-gradient(135deg,#EF4444,#DC2626)");box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;border:2px solid white;">
+                        <i class="@GetSignalRStatusIcon()" style="font-size:1rem;color:white;"></i>
+                    </div>
+                </div>
                 <!-- Session Details Panel -->
                 <div style="background-color:white;padding:1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:1px solid #D4AF37;">
-                    <h2 style="font-weight:700;font-size:1.5rem;color:#D4AF37;margin-bottom:1rem;">@(Model?.SessionName ?? "Loading Session...")</h2>
-                    <p style="color:#6B7280;font-size:0.875rem;line-height:1.625;margin-bottom:1rem;">@(Model?.SessionDescription ?? "Session details are being loaded...")</p>
+                    <h2 style="font-weight:700;font-size:2rem;color:#D4AF37;margin-bottom:1rem;">@(Model?.SessionName ?? "Loading Session...")</h2>
+                    <p style="color:#6B7280;font-size:0.875rem;line-height:1.625;margin-bottom:1rem;">@(FormatSessionDescriptionToProperCase(Model?.SessionDescription ?? "Session details are being loaded..."))</p>
                 </div>
 
                 <!-- Session Controls Panel -->
@@ -188,11 +198,10 @@
                                            readonly
                                            style="flex:1;background:transparent;border:none;color:#374151;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;"
                                            id="userLinkInput" />
-                                    <button onclick="copyUserLink()" 
-                                            style="padding:0.375rem 0.75rem;background-color:#3B82F6;color:white;border:none;border-radius:0.375rem;font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;font-weight:500;"
-                                            onmouseover="this.style.backgroundColor='#2563EB'"
-                                            onmouseout="this.style.backgroundColor='#3B82F6'">
-                                        <i class="fa-solid fa-copy"></i> Copy
+                                    <button @onclick="CopyUserLink" 
+                                            id="copyUserLinkButton"
+                                            style="@GetCopyButtonStyle()">
+                                        <i class="@GetCopyIcon()"></i> @GetCopyText()
                                     </button>
                                 </div>
                             </div>
@@ -203,50 +212,21 @@
                     }
                     
                     <div style="width:100%;display:flex;justify-content:center;gap:1rem;flex-direction:column;">
+                        
                         <button @onclick="StartSession" 
                                 disabled="@(isLoading || Model?.SessionStatus == "Active")"
-                                style="width:100%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;cursor:@(isLoading || Model?.SessionStatus == "Active" ? "not-allowed" : "pointer");opacity:@(isLoading || Model?.SessionStatus == "Active" ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;" 
+                                style="width:100%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;@(isLoading || Model?.SessionStatus == "Active" ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
                                 onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
                                 onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
                             <i class="fa-solid fa-play" style="font-size:1.25rem;"></i>
                             <span>Start Session</span>
                         </button>
                         
-                        @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
-                        {
-                            <button @onclick="TestShareAsset" 
-                                    disabled="@isLoading"
-                                    style="width:100%;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(59,130,246,0.4);color:white;font-weight:600;font-size:1rem;background-color:#3B82F6;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                                    onmouseover="this.style.backgroundColor='#2563EB'; this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.backgroundColor='#3B82F6'; this.style.transform='scale(1)'">
-                                <i class="fa-solid fa-share" style="font-size:1rem;"></i>
-                                <span>Share Asset Test</span>
-                            </button>
-                        }
+
+
 
                         
-                        <!-- SignalR Connection Status -->
-                        <div style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1rem;background-color:#F8F9FA;border-radius:0.75rem;border:1px solid #E9ECEF;">
-                            <i class="@GetSignalRStatusIcon()" style="font-size:1rem;color:@GetSignalRStatusColor();"></i>
-                            <span style="font-size:0.875rem;color:#495057;font-weight:500;">@GetSignalRStatusText()</span>
-                        </div>
-                        
-                        @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
-                        {
-                            <!-- Rich Text Box for Broadcasting HTML -->
-                            <div style="width:100%;background-color:#F0F9FF;border-radius:1rem;border:1px solid #3B82F6;padding:1rem;margin-bottom:1rem;">
-                                <h4 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:600;font-size:1rem;color:#3B82F6;margin-bottom:0.75rem;text-align:center;">
-                                    <i class="fa-solid fa-broadcast-tower" style="color:#3B82F6;"></i>
-                                    <span>Broadcast HTML to Sessions</span>
-                                </h4>
-                                
-                                <div style="text-align:center;padding:2rem;background-color:#F9FAFB;border:2px dashed #D1D5DB;border-radius:0.5rem;">
-                                    <i class="fa-solid fa-tools" style="font-size:2rem;color:#9CA3AF;margin-bottom:1rem;"></i>
-                                    <p style="color:#6B7280;font-weight:500;margin:0;">Content Broadcasting System Removed</p>
-                                    <p style="color:#9CA3AF;font-size:0.875rem;margin:0.5rem 0 0 0;">Replaced with simplified TestShareAsset pattern for better performance</p>
-                                </div>
-                            </div>
-                        }
+
                     </div>
                 </div>
             </div>
@@ -407,6 +387,101 @@
     }
 </div>
 
+@* Debug Panel - Development Only *@
+@* Show only when session is active *@
+@if (System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" && Model?.SessionStatus == "Active")
+{
+    <div class="debug-panel @(_isDebugExpanded ? "expanded" : "collapsed")" 
+         style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        
+        @* Toggle Button *@
+        <button @onclick="ToggleDebugPanel" 
+                disabled="@(Model?.SessionStatus != "Active")"
+                style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: none; cursor: @(Model?.SessionStatus == "Active" ? "pointer" : "not-allowed"); background-color: @(Model?.SessionStatus == "Active" ? "#3B82F6" : "#94A3B8"); color: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease; opacity: @(Model?.SessionStatus == "Active" ? "1" : "0.5");"
+                onmouseover="if(this.disabled) return; this.style.backgroundColor='#2563EB'; this.style.transform='scale(1.05)'"
+                onmouseout="if(this.disabled) return; this.style.backgroundColor='#3B82F6'; this.style.transform='scale(1)';">
+            <i class="fas @(_isDebugExpanded ? "fa-times" : "fa-bug")" style="font-size: 1.125rem;"></i>
+        </button>
+        
+        @* Debug Panel Content *@
+        @if (_isDebugExpanded)
+        {
+            <div style="background-color: white; border: 1px solid #D1D5DB; border-radius: 0.75rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); margin-top: 0.5rem; padding: 1rem; min-width: 300px; max-width: 400px;">
+                
+                @* Header *@
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #E5E7EB;">
+                    <h3 style="font-size: 0.875rem; font-weight: 700; color: #1F2937; display: flex; align-items: center; margin: 0;">
+                        <i class="fas fa-bug" style="color: #3B82F6; margin-right: 0.5rem;"></i>
+                        Debug Panel
+                    </h3>
+                    <span style="font-size: 0.75rem; color: #6B7280; background-color: #F3F4F6; padding: 0.25rem 0.5rem; border-radius: 0.25rem;">
+                        DEV MODE
+                    </span>
+                </div>
+                
+                @* Current Page Info *@
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem;">Current View:</div>
+                    <div style="font-size: 0.875rem; font-family: monospace; color: #1F2937; background-color: #F9FAFB; padding: 0.5rem; border-radius: 0.25rem;">
+                        HostControlPanel
+                    </div>
+                </div>
+                
+                @* Debug Actions *@
+                <div style="margin-bottom: 0.75rem;">
+                    @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
+                    {
+                        <button @onclick="TestShareAsset" 
+                                disabled="@isLoading"
+                                style="width: 100%; background-color: #10B981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; border: none; cursor: @(isLoading ? "not-allowed" : "pointer"); opacity: @(isLoading ? "0.6" : "1");"
+                                onmouseover="this.style.backgroundColor='#059669'"
+                                onmouseout="this.style.backgroundColor='#10B981'">
+                            @if (isLoading)
+                            {
+                                <i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>
+                                <span>Testing...</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-share" style="margin-right: 0.5rem;"></i>
+                                <span>Test Share Asset</span>
+                            }
+                        </button>
+                    }
+                    else
+                    {
+                        <div style="font-size: 0.75rem; color: #6B7280; text-align: center; padding: 0.5rem; background-color: #F9FAFB; border-radius: 0.5rem;">
+                            <i class="fas fa-info-circle" style="margin-right: 0.25rem;"></i>
+                            Start session to enable debug actions
+                        </div>
+                    }
+                </div>
+                
+                @* System Info *@
+                <div style="padding-top: 0.75rem; border-top: 1px solid #E5E7EB;">
+                    <button @onclick="ToggleDebugDetails" 
+                            style="width: 100%; text-align: left; font-size: 0.75rem; color: #6B7280; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer;"
+                            onmouseover="this.style.color='#1F2937'"
+                            onmouseout="this.style.color='#6B7280'">
+                        <span>System Info</span>
+                        <i class="fas @(_showDebugDetails ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                    </button>
+                    
+                    @if (_showDebugDetails)
+                    {
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6B7280; display: flex; flex-direction: column; gap: 0.25rem;">
+                            <div>Environment: @(System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown")</div>
+                            <div>Session ID: @(SessionId?.ToString() ?? "Not loaded")</div>
+                            <div>Timestamp: @DateTime.Now.ToString("HH:mm:ss")</div>
+                            <div>SignalR: @(hubConnection?.State.ToString() ?? "Not connected")</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
 @code {
     [Parameter] public string? HostToken { get; set; }
     [Parameter] public HostControlPanelViewModel? Model { get; set; }
@@ -426,6 +501,9 @@
     // User token for generating user landing URL
     private string? UserToken { get; set; }
     
+    // Debug panel state
+    private bool _isDebugExpanded = false;
+    private bool _showDebugDetails = false;
 
     
     // Host auth token (GUID) removed - use HostToken (8-char) for host flows
@@ -1323,11 +1401,11 @@
     {
         return hubConnection?.State switch
         {
-            HubConnectionState.Connected => "Connected",
-            HubConnectionState.Connecting => "Connecting",
-            HubConnectionState.Reconnecting => "Reconnecting",
-            HubConnectionState.Disconnected => "Disconnected",
-            _ => "Unknown"
+            HubConnectionState.Connected => "Connected to SignalR Hub",
+            HubConnectionState.Connecting => "Connecting to SignalR Hub",
+            HubConnectionState.Reconnecting => "Reconnecting to SignalR Hub",
+            HubConnectionState.Disconnected => "Disconnected from SignalR Hub",
+            _ => "SignalR Hub Status Unknown"
         };
     }
 
@@ -1473,6 +1551,7 @@
         public string? SessionTranscript { get; set; }
         public string? TransformedTranscript { get; set; }
         public List<QuestionItem>? Questions { get; set; }
+        public bool UserCopied { get; set; }
     }
 
     public class QuestionItem
@@ -2306,6 +2385,97 @@
         }
         return html;
     }
+    
+    // Debug Panel Methods
+    private void ToggleDebugPanel()
+    {
+        _isDebugExpanded = !_isDebugExpanded;
+        Logger.LogDebug("[DEBUG-WORKITEM:hostcontrolpanel:debug] Debug panel toggled: {IsExpanded}", _isDebugExpanded);
+    }
+    
+    private void ToggleDebugDetails()
+    {
+        _showDebugDetails = !_showDebugDetails;
+    }
+    
+    // Phase 4: Format session description to proper case
+    private string FormatSessionDescriptionToProperCase(string description)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+            return description ?? "";
+            
+        // Convert to proper case (capitalize first letter of each word)
+        var words = description.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var properCaseWords = new List<string>();
+        
+        foreach (var word in words)
+        {
+            if (word.Length == 0) continue;
+            
+            // Handle common articles and prepositions that should remain lowercase
+            // except when they're the first word
+            var lowercaseWords = new[] { "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "from", "up", "about", "into", "through", "during", "before", "after", "above", "below", "over", "under", "between", "among" };
+            
+            if (properCaseWords.Count > 0 && lowercaseWords.Contains(word.ToLower()))
+            {
+                properCaseWords.Add(word.ToLower());
+            }
+            else
+            {
+                // Capitalize first letter, keep rest as original case
+                properCaseWords.Add(char.ToUpper(word[0]) + word.Substring(1).ToLower());
+            }
+        }
+        
+        return string.Join(" ", properCaseWords);
+    }
+    
+    // Copy User Landing Link - Simplified for reliability
+    private async Task CopyUserLink()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(UserToken) && Model != null)
+            {
+                var userLink = $"https://localhost:9091/user/landing/{UserToken}";
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", userLink);
+                Model.UserCopied = true;
+                StateHasChanged();
+                
+                await Task.Delay(3000);
+                Model.UserCopied = false;
+                StateHasChanged();
+                
+                Logger.LogDebug("[DEBUG-WORKITEM:hostcontrolpanel:copy] User link copied to clipboard: {UserLink}", userLink);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error copying user URL to clipboard");
+        }
+    }
+
+    private string GetCopyButtonStyle()
+    {
+        var baseStyle = "padding:0.375rem 0.75rem;border:none;border-radius:0.375rem;font-size:0.75rem;cursor:pointer;transition:all 0.3s ease;font-family:'Inter',sans-serif;font-weight:500;display:flex;align-items:center;gap:0.25rem;";
+        
+        if (Model?.UserCopied == true)
+        {
+            return baseStyle + "background-color:#10b981;color:#ffffff;";
+        }
+        
+        return baseStyle + "background-color:#3B82F6;color:#ffffff;";
+    }
+
+    private string GetCopyIcon()
+    {
+        return Model?.UserCopied == true ? "fa-solid fa-check" : "fa-solid fa-copy";
+    }
+
+    private string GetCopyText()
+    {
+        return Model?.UserCopied == true ? "Copied!" : "Copy";
+    }
 }
 
 <script>
@@ -2316,9 +2486,9 @@
         console.log('NOOR-ASSET-SHARE: Sharing individual asset:', assetId, 'Type:', assetType);
         
         try {
-            // Get session details
-            const sessionId = '@(SessionId ?? 0)';
-            const hostToken = '@(HostToken ?? "")';
+            // Get session details (safely encoded using System.Text.Json)
+            const sessionId = @System.Text.Json.JsonSerializer.Serialize(SessionId ?? 0);
+            const hostToken = @System.Text.Json.JsonSerializer.Serialize(HostToken ?? "");
             
             if (!sessionId || !hostToken) {
                 console.error('NOOR-ASSET-SHARE: Missing session ID or host token');
@@ -2603,7 +2773,9 @@
         }, 5000);
     };
 
-    // Copy User Landing Link Function
+    // Simplified clipboard handling - Blazor will handle copy operations directly via JSRuntime
+
+    // Copy User Landing Link Function (Legacy - keeping for compatibility)
     window.copyUserLink = function() {
         const input = document.getElementById('userLinkInput');
         if (input) {
@@ -2629,22 +2801,7 @@
         }
     };
 
-    function showCopyFeedback() {
-        // Get the copy button by finding it in the DOM
-        const copyButton = document.querySelector('button[onclick="copyUserLink()"]');
-        if (copyButton) {
-            const originalText = copyButton.innerHTML;
-            const originalBgColor = copyButton.style.backgroundColor;
-            
-            copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-            copyButton.style.backgroundColor = '#059669';
-            
-            setTimeout(() => {
-                copyButton.innerHTML = originalText;
-                copyButton.style.backgroundColor = originalBgColor;
-            }, 2000);
-        }
-    }
+    // Copy functionality is now handled entirely by Blazor via JSRuntime - no JavaScript manipulation needed
 
     // Error Display Panel Functions
     let currentError = null;
