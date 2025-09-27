@@ -1,76 +1,94 @@
 ---
 mode: agent
 ---
-# /cleanup — Log/Artifact Janitor **plus** Structure Verifier & Optional Auto-Migrate (2.3.1)
+---
+title: cleanup — Log/Artifact Janitor + Structure Verifier & Migrator
+version: 2.7.0
+appliesTo: /cleanup
+updated: 2025-09-27
+---
+# /cleanup — Log/Artifact Janitor + Structure Verifier & Migrator (v2.7.0)
 
-## Purpose
-1) Clean temporary logs/artifacts using `;CLEANUP_OK` and retention rules.  
-2) Verify that the repository matches the canonical structure.  
-3) Optionally perform an idempotent auto-migration to fix drift (excluding approved root exceptions).
+## Parameters
+- **mode:** 
+  - `clean` (default) → remove logs/artifacts marked with ;CLEANUP_OK or older than retention.
+  - `verify` → no changes, produce a drift report.
+  - `migrate_fix` → fix drift by moving Copilot-owned dirs and stragglers into canonical layout.
+- **commit:** 
+  - `false` (default) → debug logs may remain in files; agent may commit with them intact.
+  - `true` → scrub all debug logs from uncommitted files before commit. Ensures only clean code goes into GitHub.
 
 ## Root Path
-`D:\PROJECTS\NOOR CANVAS`
+D:\PROJECTS\NOOR CANVAS
 
-## Modes
-- `mode: clean` (default) — Delete only `;CLEANUP_OK` temp logs or aged artifacts.
-- `mode: verify` — No changes; produce a drift report.
-- `mode: migrate_fix` — Perform recommended moves to restore the canonical structure (respecting root exceptions).
-
-## Canonical Structure (with explicit root exceptions)
+## Canonical Structure
 - `.github/prompts/` at repo root (source of truth).
+- Root-level exceptions (valid, never flagged as drift):  
+  `DocFX/`, `Scripts/`, `PlayWright/`, `Tools/`, `SPA/`
+- All Copilot-owned work must live under `Workspaces/Copilot/`:
+  - `Global/`
+  - `config/`
+  - `infra/`
+  - `src/`
+  - `ops/`
+  - `docs/`
+  - `logs/`
+  - `artifacts/`
+  - `prompts.keys/{key}/workitem/`
+  - `prompts.keys/{key}/tests/`
 
-### Root-level exceptions (VALID at repo root; **never** move or flag as drift)
-- `DocFX/`          # documentation system stays at root
-- `Scripts/`        # legacy scripts stay at root
-- `PlayWright/`     # legacy E2E/test assets stay at root
-- `Tools/`          # tooling stays at root
-- `SPA/`            # front-end root stays at root
+## Cleanup Sources
+- Global defaults:
+  - retention_days: 7
+  - marker: `;CLEANUP_OK`
+- Per-key overrides:
+  - Read `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md`
+  - If present, override defaults (retention, exclusions).
 
-### Copilot-owned tree (everything else for Copilot belongs under `Workspaces/copilot/`)
-- `Global/nc.ps1`, `Global/ncb.ps1`
-- `config/playwright.config.ts` (must set `testDir: "Workspaces/copilot/Tests/Playwright"`)
-- `Tests/Playwright/{key}/`
-- `state/{key}/(Requirements-*.md, Cleanup-*.md, SelfReview-*.md, reviews/)`
-- `logs/(app|copilot|terminal)/`
-- `artifacts/(playwright|coverage|build)/`
-- `ops/(scripts|tasks)/`
-- `docs/(architecture.md|decisions|runbooks)/`
-- `infra/` (manifests, IaC)
-- `src/` (application code)
+## Debug Log Handling
+- Debug lines must always follow:
+  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- When `commit=false`:
+  - These lines may remain in code, safe for local debug commits.
+- When `commit=true`:
+  - Identify **uncommitted files** (via git status).
+  - Strip lines matching:
+    ^\[DEBUG-WORKITEM:.*\]\s.*;CLEANUP_OK$
+  - Ensure no debug logs remain before commit.
+  - Artifacts/logs under `logs/` and `artifacts/` still follow retention rules.
 
-## Cleanup Rules
-- **Markers**: Only delete content with `;CLEANUP_OK`.
-- **Targets**:
-  - `Workspaces/copilot/logs/copilot/` (temp agent logs)
-  - `Workspaces/copilot/logs/terminal/` (tailed outputs)
-  - `Workspaces/copilot/artifacts/playwright/` (old reports/traces/videos)
-- **Retention**: Default 7 days; may be overridden in `state/{key}/Cleanup-{key}.md`.
-- **Do not touch**:
-  - `infra/` and `config/environments/` (configs & infra data)
-  - Any of the **root-level exceptions**: `DocFX/`, `Scripts/`, `PlayWright/`, `Tools/`, `SPA/`
-
-## Structure Verification (Drift Detection)
-Report drift **only** when:
-- Folders at repo root are present **other than**: `.github/`, `DocFX/`, `Scripts/`, `PlayWright/`, `Tools/`, `SPA/`.
-- Copilot-owned directories are found **outside** `Workspaces/copilot/`.
-- `Workspaces/copilot/config/playwright.config.ts` is missing, or its `testDir` ≠ `Workspaces/copilot/Tests/Playwright`.
-- Missing `state/{key}` assets (Requirements, Cleanup, SelfReview, reviews/).
+## Structure Verification
+Report drift only when:
+- Non-exempt folders exist at repo root.
+- Copilot-owned directories live outside `Workspaces/Copilot/`.
 - Missing `Global/nc.ps1` or `Global/ncb.ps1`.
+- Playwright config points outside canonical tests.
+- Required per-key docs missing (Requirements-{key}.md, SelfReview-{key}.md).
 
-## Auto-Migrate (when `mode: migrate_fix`)
-- Create `Workspaces/copilot/` if missing.
-- Move stray **Copilot-owned** directories into `Workspaces/copilot/`:
-  - `src/`, `Tests/Playwright/`, `config/`, `docs/`, `logs/`, `artifacts/`, `ops/`, `infra/`
-- Move `Requirements-*`, `Cleanup-*`, `SelfReview-*` into `state/{key}/`.
-- Rewrite `playwright.config.ts` `testDir` to canonical value if needed.
-- Remove empty original folders; leave `.github/` and all **root exceptions** untouched.
+## Auto-Migrate (mode: migrate_fix)
+- Move **stragglers from previous structures** into canonical paths:
+  - `state/{key}/` → `Workspaces/Copilot/prompts.keys/{key}/workitem/`
+  - `Tests/Playwright/{key}/` → `Workspaces/Copilot/prompts.keys/{key}/tests/`
+  - `Workspaces/Copilot/state/{key}/…` → folded into `prompts.keys/{key}/workitem/`
+- If conflicts occur, skip or merge without overwrite unless explicitly allowed.
+- Rewrite `playwright.config.ts` if its `testDir` points to legacy paths.
+- Consolidate per-key artifacts into `prompts.keys/{key}/`.
+- Never touch `infra/`, `config/environments/`, or root-level exceptions.
+
+## Launch Policy
+- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
+- Only use:
+  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
+  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
+- If you stop or restart the app, self-attribute it:
+  [DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Terminal Evidence & Honesty
-- Read `#getTerminalOutput` before disruptive actions; pause if an active run is detected.
-- If the agent stops/restarts anything, log:
-  `[DEBUG-WORKITEM:{key}:cleanup] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+- Always capture a short tail from #getTerminalOutput before destructive actions.
+- Include attribution log lines when lifecycle changes are initiated.
 
-## Output
+## Outputs
 - `clean` → Deleted items with reasons + bytes reclaimed.
-- `verify` → Drift report + recommendations.
-- `migrate_fix` → Actions taken + final verify summary.
+- `verify` → Drift report + recommended actions.
+- `migrate_fix` → Actions taken, stragglers migrated, + final verify summary.
+- When commit=true → Confirmation that all uncommitted files were scrubbed of debug logs before commit.

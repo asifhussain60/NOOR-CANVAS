@@ -1,54 +1,75 @@
 ---
 mode: agent
 ---
-# /retrosync — Requirements & Reality Reconciler (2.3.0)
+---
+title: retrosync — Requirements & Reality Reconciler
+version: 2.7.0
+appliesTo: /retrosync
+updated: 2025-09-27
+---
+# /retrosync — Requirements & Reality Reconciler (v2.7.0)
 
-Align code and tests with `Requirements-{key}.md`, surface gaps, add missing coverage, and record a self-review with terminal-grounded evidence.
+Keeps requirements, implementation, and tests in sync for a given `{key}`, without external trackers. Operates entirely inside the canonical key layout.
+
+## Parameters
+- **key:** identifier for this work stream (e.g., `vault`)
+- **log:** controls debug logging behavior for this run
+  - `none`   → (default) no debug logging
+  - `simple` → add debug logging only for critical checks and lifecycle events
+  - `trace`  → add debug logging for every step so the agent can reconstruct the full reconciliation flow
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.v2.md`
-- `Workspaces/copilot/state/{key}/Requirements-{key}.md`
-- `Workspaces/copilot/state/{key}/Cleanup-{key}.md`
-- (Optional, read-only) `Workspaces/copilot/infra/infra.manifest.yaml` for non-secret endpoints/DB names
-- `#getTerminalOutput` and `#terminalLastCommand` (mandatory for evidence)
+- `.github/prompts/SelfAwareness.instructions.md`
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md` (rolling log)
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (optional overrides)
+- Tests under: `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-- **Never** use `dotnet run`.
-- Use only:
-  - `./Workspaces/copilot/Global/nc.ps1`  # launch
-  - `./Workspaces/copilot/Global/ncb.ps1` # clean, build, then launch
-- If you stop/restart the app, self-attribute it:
-  `[DEBUG-WORKITEM:{key}:lifecycle] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
+- Only use:
+  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
+  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
+- If you stop or restart the app, self-attribute it:
+  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
-## Reconciliation Steps
-1. **Parse requirements:** Extract concrete, testable behaviors from `Requirements-{key}.md` (routes, DTOs, UI states, validation, auth).
-2. **Map to tests:** For each requirement, find matching specs under `Workspaces/copilot/Tests/Playwright/{key}/`. Note missing or ambiguous coverage.
-3. **Plan minimal deltas:** Propose the smallest changes to code and/or specs to satisfy each unmet requirement. Respect existing contracts.
-4. **Apply incrementally:** Implement one change at a time, then update/add exactly one spec for that change.
-5. **Iterative Accumulation:** After each spec addition, run the suite cumulatively (1 → 1+2 → 1+2+3 …) until **all** scoped specs are green.
-6. **Self-Review:** Update `Workspaces/copilot/state/{key}/SelfReview-{key}.md` and create a timestamped snapshot in `Workspaces/copilot/state/{key}/reviews/`.
+## Debug Logging Rules
+- All debug lines must use the consistent marker:
+  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- `{layer}` values: `retrosync` (reconciliation), `tests`, `lifecycle`
+- `RUN_ID` is a short unique id for this run (timestamp + short suffix).
+- Behavior by mode:
+  - **none**: do not insert debug lines.
+  - **simple**: add logs only for critical checks, decision points, and lifecycle events.
+  - **trace**: log every step of the reconciliation process.
 
-## Testing Canon
-- Specs live at: `Workspaces/copilot/Tests/Playwright/{key}/`
-- Global config: `Workspaces/copilot/config/playwright.config.ts` must set:
-  - `testDir: "Workspaces/copilot/Tests/Playwright"`
-  - `baseURL` from `APP_URL` env var (do **not** hardcode URLs)
-  - Reporter output to `Workspaces/copilot/artifacts/playwright/report`
-- Tag specs with `@{key}`; allow filtering via `PW_GREP`.
+## Protocol
+1. Parse requirements from `Requirements-{key}.md`.
+2. Cross-check against tests in `prompts.keys/{key}/tests/`.
+3. Identify gaps: missing coverage, ambiguous specs, or failing tests.
+4. Plan minimal deltas (new/updated specs or requirement clarifications).
+5. Apply iteratively:
+   - Add/update one spec at a time.
+   - Run cumulative tests (spec1 → spec1+spec2 → …).
+   - Fix failures before moving on.
+6. Update `SelfReview-{key}.md` with coverage matrix and evidence.
+7. Write immutable snapshot into `reviews/` with timestamped filename.
 
-## Terminal Evidence (mandatory)
-- Include a short, relevant tail from `#getTerminalOutput` in every summary.
-- Do not claim shutdowns without evidence. If **you** initiated it, state so and include the structured line.
+## Terminal Evidence
+- Always include a short tail (10–20 lines) from #getTerminalOutput in summaries.
+- If you initiated lifecycle actions, include the self-attribution line.
 
-## Output
-Provide a structured summary containing:
-- **Requirements coverage matrix:** requirement → spec(s) → status (covered / missing / flaky)
-- **Changes applied:** files and rationale
-- **Specs added/updated:** names and current pass/fail
-- **Terminal Evidence:** last 10–20 relevant lines with timestamps
-- **Next steps:** remaining unaddressed requirements (if any)
+## Outputs
+- Coverage matrix: requirement → spec(s) → status
+- Specs added/updated
+- Tests run and results
+- Terminal Evidence tail
+- Updated rolling `SelfReview-{key}.md`
+- New snapshot in `reviews/`
+- Next steps for full coverage
 
 ## Guardrails
-- Do not modify `Workspaces/copilot/config/environments/appsettings.*.json` or secrets unless explicitly requested.
-- Respect canonical layout; do not create new roots outside `Workspaces/copilot/` (except `.github/`).
-- Temporary diagnostics must end with `;CLEANUP_OK` for safe removal by `/cleanup`.
+- Do not modify Workspaces/Copilot/config/environments/appsettings.*.json or any secrets unless explicitly requested.
+- Respect canonical layout: all key-scoped work in prompts.keys/{key}/workitem/ and prompts.keys/{key}/tests/.
+- Do not create new roots outside Workspaces/Copilot/ (except .github/).

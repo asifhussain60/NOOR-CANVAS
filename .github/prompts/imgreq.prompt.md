@@ -1,44 +1,60 @@
 ---
 mode: agent
 ---
-# /imgreq — Image Request Agent (2.3.0)
+---
+title: imgreq — Image Request Agent
+version: 2.7.0
+appliesTo: /imgreq
+updated: 2025-09-27
+---
+# /imgreq — Image Request Agent (v2.7.0)
 
-Generates or requests visual assets for a given `key` while respecting runtime state, evidence discipline, and repository layout.
+Generates or captures visual artifacts (diagrams, screenshots, flows) for a given `{key}`, with structured debug logging and terminal-grounded evidence.
+
+## Parameters
+- **key:** identifier for this work stream (e.g., `vault`)
+- **log:** controls debug logging behavior for this run
+  - `none`   → (default) no debug logging
+  - `simple` → add debug logging for critical capture points and lifecycle events
+  - `trace`  → add debug logging for every capture step (navigation, waits, saves)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.v2.md`
-- `Workspaces/copilot/state/{key}/Requirements-{key}.md`
-- (Optional) `Workspaces/copilot/infra/infra.manifest.yaml` for non-secret routes/hosts
-- `#getTerminalOutput` (attach a short, relevant tail when image capture depends on live app behavior)
+- `.github/prompts/SelfAwareness.instructions.md`
+- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
+- (Optional, read-only) `Workspaces/Copilot/infra/infra.manifest.yaml` for non-secret routes/hosts
+- `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
-## Launch & Environment Rules
-- **Never** start the app with `dotnet run`.
-- Use only:
-  - `./Workspaces/copilot/Global/nc.ps1`  # launch
-  - `./Workspaces/copilot/Global/ncb.ps1` # clean, build, then launch
-- Base URLs come from the environment (`APP_URL`) rather than hardcoding.
+## Launch Policy
+- **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
+- Only use:
+  - `./Workspaces/Copilot/Global/nc.ps1`  # launch
+  - `./Workspaces/Copilot/Global/ncb.ps1` # clean, build, then launch
+- If you stop or restart the app, self-attribute it:
+  [DEBUG-WORKITEM:{key}:imgreq:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
-## What this agent may do
-- Generate static assets (diagrams, UI state maps, flow charts) and save them to artifacts.
-- Request/playwright-driven screenshots of live pages **if** the app is already running via `nc.ps1`/`ncb.ps1`.
-- Create lightweight helper scripts or Playwright snippets to reproduce consistent screenshots (viewport, route, wait conditions).
+## Debug Logging Rules
+- All debug lines must use the consistent marker:
+  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- `{layer}` values: `imgreq` (image/screenshot generation), `lifecycle`
+- `RUN_ID` is a short unique id for this run (timestamp + random suffix).
+- Behavior by mode:
+  - **none**: do not insert debug lines.
+  - **simple**: add logs for capture start/end and errors.
+  - **trace**: log every navigation, wait, and screenshot event.
 
-## What this agent must NOT do
-- Must not embed or manipulate secrets.
-- Must not change `appsettings.*.json` unless explicitly asked.
-- Must not reconfigure Playwright `testDir` or global config; use the canonical config.
+## Artifact Rules
+- Generated images must be saved under:
+  Workspaces/Copilot/artifacts/{key}/images/
+- Playwright screenshots (if used) must save into:
+  Workspaces/Copilot/artifacts/playwright/report/
+- Always report relative paths in summaries.
 
-## Artifacts & Paths
-- Save outputs under: `Workspaces/copilot/artifacts/`
-  - Example images: `Workspaces/copilot/artifacts/{key}/images/…`
-  - If using Playwright screenshots, prefer: `Workspaces/copilot/artifacts/playwright/report/` (alongside other test artifacts)
-- When summarizing, provide relative paths so CI can pick them up.
-
-## Playwright Screenshot Guidance (if needed)
-- Use the canonical config at `Workspaces/copilot/config/playwright.config.ts`.
-- Derive `baseURL` from `APP_URL`. Example:
+## Playwright Screenshot Guidance
+- Config: Workspaces/Copilot/config/playwright.config.ts
+  - baseURL from APP_URL (never hardcode URLs)
+- Example pattern:
   ```ts
-  await page.goto('/some/route');   // baseURL from env
+  await page.goto('/route'); 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.waitForLoadState('networkidle');
-  await page.screenshot({ path: 'Workspaces/copilot/artifacts/{key}/images/route-snapshot.png', fullPage: true });
+  await page.screenshot({ path: 'Workspaces/Copilot/artifacts/{key}/images/route.png', fullPage: true });
