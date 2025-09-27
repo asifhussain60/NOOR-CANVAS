@@ -2,97 +2,50 @@
 mode: agent
 ---
 
-# /continue — Continuation Agent (v2.8.0)
+# /continue — Continuation Agent (v3.0.0)
 
-Carries forward partially completed work for a given `{key}`, ensuring analyzers, lints, and tests are green before resuming implementation. Obeys strict commit rules to prevent broken code from being committed.
+Resumes partially completed work for `{key}`, ensuring quality gates pass before proceeding.
+
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for this work stream (e.g., `vault`)
-- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity - default: `simple`
-- **commit:** controls whether changes are committed
-  - `true` → commit after analyzers, lints, and tests succeed  
-  - `false` → do not commit  
-  - `force` → bypass analyzer/linter/test checks (manual override only)
-- **mode:** operation mode (`analyze`, `apply`, `test`)
-  - **analyze** → analyze continuation plan and document in MD file
-  - **apply** → (default) continue work without docs, no temporary tests
-  - **test** → perform all `apply` work PLUS create temporary validation test + cleanup
-- **notes:** freeform description of the requested continuation (context, files, details, edge cases)
+- **key:** Work stream identifier - auto-inferred if not provided
+- **log:** Debug verbosity (`none`, `simple`, `trace`) - default: `simple`
+- **commit:** Commit control (`true`, `false`, `force`)
+- **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
+- **notes:** Continuation description (context, files, constraints)
 
-## Test Mode Protocol (ONLY when mode: test)
-**IMPORTANT**: Temporary tests are ONLY created when `mode: test` is explicitly specified.
+## Operation Modes
 
-When `mode: test` is specified, execute ALL of `apply` mode functionality PLUS these additional steps:
+### Test Mode (`mode: test`)
+Perform `apply` mode work PLUS create temporary validation:
+1. Execute continuation work
+2. Generate headless Playwright test: `Workspaces/TEMP/continue-{key}-{RUN_ID}.spec.ts`
+3. Validate test passes (3 retry limit)
+4. Cleanup temporary test post-validation
 
-1. **Execute Apply Mode**: Resume all requested work exactly as per `apply` mode from last checkpoint
-2. **Create Temporary Test**: Generate a headless, silent Playwright test:
-   - Location: `Workspaces/TEMP/continue-{key}-{RUN_ID}.spec.ts`
-   - Must be headless and silent (no browser UI)
-   - Test should validate the specific continuation changes made
-3. **Run and Validate**: Execute the temporary test and ensure it passes (retry up to 3 times if needed)
-4. **Mark Complete**: Log completion: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] test_mode_validation_complete ;CLEANUP_OK`
-5. **Cleanup**: Remove the temporary test file after successful validation
-6. **Final Checks**: Run full analyzer/linter/test suite as per normal protocol
+### Phase Processing (`---` Delimited Input)
+**Reference:** SelfAwareness.instructions.md Phase Prompt Processing for complete workflow.
+- Parse phases on `---` delimiters
+- Sequential processing with temporary test per phase
+- Cleanup after all phases complete (unless `commit:false`)
 
-**Note**: If `mode` is `analyze` or `apply`, do NOT create any temporary tests.
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
+- **Terminal State Analysis:**
+  - `#getTerminalOutput` for current buffer contents
+  - `#terminalLastCommand` for execution context
+  - Exit codes, error states, working directory context
 
-## Phase Prompt Handling
-When continuation input contains `---` separators, treat each section as a separate todo item:
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
-1. **Parse Phases**: Split continuation input on `---` delimiters to identify individual todo items
-2. **Sequential Processing**: Process each phase in order:
-   - Resume/continue the required change from last checkpoint
-   - Create a headless, silent Playwright test in `Workspaces/TEMP/continue-phase-{phase_number}-{key}-{RUN_ID}.spec.ts`
-   - Ensure the test passes (retry up to 3 times if needed)
-   - Mark the todo complete with debug log: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] continue_phase_{phase_number}_complete ;CLEANUP_OK`
-   - Update checkpoint state
-   - Move to next phase
-3. **Test Requirements**: 
-   - Tests must be headless and silent (no browser UI)
-   - Use `Workspaces/TEMP/` directory for temporary phase tests only
-   - Follow proper Playwright structure for permanent tests as per config files
-   - Clean up temporary tests after all phases complete (unless `commit:false`)
-4. **Completion**: After all phases complete, run full analyzer/linter/test suite before final commit
-
-## Inputs (read)
-- `.github/instructions/SelfAwareness.instructions.md`
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
-- Existing code and tests under `Workspaces/Copilot/prompts.keys/{key}/`
-- **Terminal State Analysis** (CRITICAL):
-  - `#getTerminalOutput` for current terminal buffer contents
-  - `#terminalLastCommand` for last executed command context
-  - Exit codes and error states from previous operations
-  - Working directory context and environment variables
-  - Recent command history to understand implementation sequence
-
-## Launch Policy
-
-### For Development Work
-- **Never** use `dotnet run` for development
-- Launch only via:
-  - `./Workspaces/Global/nc.ps1`
-  - `./Workspaces/Global/ncb.ps1`
-- If stopping/restarting the app, log attribution:  
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
-
-### For Playwright Testing (when mode: test)
-- **Use Playwright's webServer configuration** for automatic app lifecycle management
-- **Set `PW_MODE=standalone`** to enable webServer startup
-- **Never** use PowerShell scripts during test execution
-- Playwright handles `dotnet run` via webServer config in `config/testing/playwright.config.cjs`
-
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
-
-Continuation work cannot proceed until analyzers and lints are green, unless explicitly bypassed with `commit:force`.
-
-## Debug Logging Rules
-- Use consistent marker:  
-  [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
-- Layers: `impl`, `tests`, `pwtest`, `retrosync`, `refactor`, `cleanup`, `lifecycle`
-- `RUN_ID` is a unique id (timestamp + suffix)
-- Respect `none`, `simple`, `trace` modes from SelfAwareness
+### Quality Gates
+- Continuation proceeds only when: analyzers green, linters clean, tests passing
+- Override available via `commit:force` (manual use only)
+- Debug marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
 
 ## Continuation Protocol
 1. **Load Context**: Read requirements, self-review, and prior changes

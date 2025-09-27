@@ -2,52 +2,43 @@
 mode: agent
 ---
 
-# /cleanup — Cleanup Agent (v2.7.0)
+# /cleanup — Cleanup Agent (v3.0.0)
+
+Removes unused files, simplifies duplicate code, normalizes formatting, and validates results with analyzers/linters/tests.
+
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for this work stream (e.g., `vault`)
-- **notes:** freeform description of the cleanup task (scope, files to clean, details, edge cases)
+- **key:** Work stream identifier (e.g., `vault`) - auto-inferred if not provided
+- **notes:** Cleanup task description (scope, files, edge cases)
 
-## Inputs (read)
-- `.github/instructions/SelfAwareness.instructions.md`
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
 - Current codebase and file organization
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (if exists)
-- Requirements, self-review, and test files for `{key}`
-- `#getTerminalOutput` and `#terminalLastCommand`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
+- `#getTerminalOutput` for execution evidence
 
-## Launch Policy
-- **Never** use `dotnet run`
-- Launch only via:
-  - `./Workspaces/Global/nc.ps1`
-  - `./Workspaces/Global/ncb.ps1`
-- If stopping/restarting the app, log attribution:  
-  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+### Quality Gates
+- Cleanup complete only when: analyzers green, linters clean, tests passing
+- Debug marker: `[DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK`
+- Logging modes: `none`, `simple`, `trace`
 
-Cleanup cannot be declared complete until analyzers, lints, and tests are clean.
+## Execution Protocol
+1. **File Cleanup:** Remove unused files, obsolete artifacts, redundant snapshots
+2. **Code Simplification:** Eliminate duplicate/unreferenced code
+3. **Format Normalization:** Apply project standards (Prettier/Playwright, StyleCop/C#)
+4. **Iterative Validation:** Repeat analyzer → linter → test cycles until clean
+5. **Evidence Capture:** Include 10-20 lines from `#getTerminalOutput` in completion summary
 
-- Use marker: `[DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK`
-- `RUN_ID`: short unique id (timestamp + suffix)
-- Respect `none`, `simple`, `trace` modes
-
-## Cleanup Protocol
-1. Remove unused files, obsolete artifacts, and redundant snapshots
-2. Simplify duplicate/unreferenced code
-3. Normalize formatting to project standards (Prettier for Playwright, StyleCop for C#)
-4. Validate results with analyzers and lints
-5. Run cumulative test suite for `{key}` to ensure no regressions
-
-## Iterative Validation
-- After each cleanup pass:
-  - Run analyzers
-  - Run lints
-  - Run tests
-- Repeat until no warnings, lints, or failures remain
-
-## Terminal Evidence
-- Capture 10–20 lines from `#getTerminalOutput` showing analyzer/linter/test status
+## Completion Criteria
+- Zero analyzer warnings
+- Zero linter errors  
+- All tests passing
+- Clean git status (if applicable)
 - Include in summary
 
 ## Outputs

@@ -1,53 +1,31 @@
 ---
 mode: agent
 ---
-title: promptsync — Instruction & Prompt Synchronizer
-version: 1.1.0
-appliesTo: /promptsync
----
 
-# /promptsync — Instruction & Prompt Synchronizer
+# /promptsync — Instruction & Prompt Synchronizer (v3.0.0)
 
-Ensures all instruction files and prompt files within the `.github` folder are fully aligned and synchronized.  
-The agent reconciles overlaps, removes contradictions, enforces folder-structure consistency, and optimizes instructions for efficiency and fault reduction.
+Synchronizes all instruction and prompt files within `.github` folder, reconciles overlaps, removes contradictions, and optimizes for efficiency.
 
----
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **scope:** target scope (default: `all`)  
-  - Options: `instructions`, `prompts`, or `all`  
-- **notes:** freeform description of specific sync goals, conflicts, or constraints to resolve
+- **scope:** Target scope (`instructions`, `prompts`, `all`) - default: `all`
+- **notes:** Sync goals, conflicts, or constraints to resolve
 
----
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- All `.github/**/*.instructions.md` and `.github/**/*.prompt.md` files
+- Repository structure for `.github` folder
+- `#getTerminalOutput` for validation evidence
 
-## Inputs (read)
-- `.github/**/*.instructions.md`
-- `.github/**/*.prompt.md`
-- Repository file/folder structure for `.github`
-- `#getTerminalOutput` for validation of sync effects
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
----
-
-## Launch Policy
-- **Never** run application builds directly from `dotnet run`
-- Use only the approved global launch scripts:
-  - `./Workspaces/Copilot/Global/nc.ps1`
-  - `./Workspaces/Copilot/Global/ncb.ps1`
-
----
-
-## Synchronization Rules
-
-### File Consistency
-- Align all `.instructions.md` and `.prompt.md` files with the same **priority hierarchy**.
-- Remove obsolete or conflicting directives (favor latest and most stable).
-- Ensure file naming matches intended folder structure (`Workspaces/Copilot/prompts.keys/{key}/...` where relevant).
-
-### Structural Alignment
-- Folder references must be accurate and non-redundant.
-- Cross-prompt references must not conflict (e.g., cleanup agent vs. migrate agent).
-
-### Optimization & Fault Reduction
+## Synchronization Protocol
+1. **File Consistency:** Align priority hierarchies, remove obsolete directives
+2. **Structural Alignment:** Ensure accurate folder references, resolve cross-prompt conflicts
+3. **Optimization:** Reduce redundancy, improve fault tolerance
+4. **Validation:** Verify synchronization via terminal evidence
 - Deduplicate overlapping guidance.
 - Normalize repeated rules into consistent patterns.
 - Ensure terminal commands reference only global PowerShell scripts (`nc.ps1`, `ncb.ps1`).

@@ -2,51 +2,37 @@
 mode: agent
 ---
 
-## Terminal Evidence (mandatory)
-- Capture short tail (10–20 lines) from `#getTerminalOutput` before/after major steps
-- Include this in summary under "Terminal Evidence"
-- If shutdown was agent-initiated, include attribution log
+# /workitem — Implementation Agent (v3.0.0)
 
-## Documentation Placement (CRITICAL)
-- **NEVER** create analysis or summary files in project root
-- **ALL** documentation must go in: `Workspaces/Copilot/_DOCS/`
-- Use appropriate subdirectory: `/summaries/`, `/analysis/`, `/configs/`, `/migrations/`
-- Follow SelfAwareness.instructions.md File Organization Rules
+Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and structured validation.
 
-## Database Guardrails
-**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**
-
-## Commit Policy
-- Commit only after analyzers, lints, and tests pass
-- Include RUN_ID in commit messages for traceability
-- Respect `commit` parameter: `true`, `false`, or `force`
-- **When `commit:true` or `commit:force`**: Clean up uncommitted files:
-  - Add all modified files: `git add .`
-  - Reset/ignore untracked files that shouldn't be committed
-  - Ensure clean working tree after commit: `git status --porcelain` should be empty
-  - If conflicts arise, resolve by either committing or explicitly ignoring via `.gitignore`
-
----
-
-## /workitem — Implementation Agent (v2.11.0)
-
-Implements scoped changes for a given `{key}` and stabilizes them with analyzers, cumulative Playwright tests, structured debug logs, and terminal-grounded evidence.
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for this work stream (e.g., `vault`)
-- **log:** controls debug logging behavior (`none`, `simple`, `trace`) - default: `simple`
-- **commit:** whether changes should be committed automatically (subject to Commit Policy)
-  - `true` → commit after analyzers, lints, and tests succeed  
-  - `false` → do not commit  
-  - `force` → bypass analyzer/linter/test checks (manual override only)
-- **mode:** operation mode (`analyze`, `apply`, `test`)
-  - **analyze** → analyze requested work and document in MD file
-  - **apply** → (default) perform the work without docs, no temporary tests
-  - **test** → perform all `apply` work PLUS create temporary validation test + cleanup
-- **notes:** freeform description of the requested work (scope, files, details, edge cases)
+- **key:** Work stream identifier - auto-inferred if not provided
+- **log:** Debug behavior (`none`, `simple`, `trace`) - default: `simple`
+- **commit:** Commit control (`true`, `false`, `force`) - subject to quality gates
+- **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
+- **notes:** Work description (scope, files, constraints)
 
-## Test Mode Protocol (ONLY when mode: test)
-**IMPORTANT**: Temporary tests are ONLY created when `mode: test` is explicitly specified.
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
+- `#getTerminalOutput` for execution evidence
+
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, linter, and commit rules.
+
+### Documentation Placement
+- **CRITICAL:** All documentation in `Workspaces/Copilot/_DOCS/` subdirectories
+- **NEVER** create analysis/summary files in project root
+- Follow SelfAwareness File Organization Rules
+
+## Operation Modes
+
+### Test Mode (`mode: test`)
+**Create temporary validation tests only when explicitly specified:**
 
 When `mode: test` is specified, execute ALL of `apply` mode functionality PLUS these additional steps:
 
@@ -112,56 +98,37 @@ When user input contains `---` separators, treat each section as a separate todo
   - **simple**: logs only for key lifecycle events and checks
   - **trace**: logs for every step, including intermediate calculations and branching
 
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+### Quality Gates
+- **Stop on violations:** Analyzers or linters must pass before proceeding
+- **Reference:** SelfAwareness.instructions.md for complete rules
 
-If analyzers or lints fail, stop and fix violations before proceeding.
+### Application Context
+- **NOOR Canvas:** ASP.NET Core 8.0 + Blazor Server + SignalR
+- **Node.js Role:** Test-only, exclusively for Playwright E2E
+- **Test Execution:** Use `$env:PW_MODE="standalone"` for webServer management
+- **Config:** `config/testing/playwright.config.cjs`
 
-## Testing & Node.js Context
-- App: ASP.NET Core 8.0 + Blazor Server + SignalR
-- Node.js: **test-only**, used exclusively for Playwright E2E
-- **Playwright manages .NET app lifecycle** via webServer configuration
-- Tests run against auto-started app at `https://localhost:9091`
-- **Always use**: `$env:PW_MODE="standalone"` for automatic app management
-- Config: `config/testing/playwright.config.cjs`  
-- Setup: `PlayWright/tests/global-setup.ts`  
-- Specs: `Tests/*.spec.ts`
+## Execution Protocol
+1. **Incremental Implementation:** Smallest viable changes with validation cycles
+2. **Quality Validation:** Analyzer → Linter → Playwright test execution per change
+3. **Debug Markers:** Temporary diagnostics marked with `;CLEANUP_OK`
+4. **Commit Process:** 
+   - Pre-commit validation (unless `force`)
+   - Stage changes: `git add .`
+   - Handle untracked files (ignore or remove appropriately)
+   - Commit with `{key}` and `RUN_ID` attribution
+   - Verify clean state: `git status --porcelain` empty
 
-### Correct Test Execution Pattern
-```powershell
-# Set standalone mode for webServer management
-$env:PW_MODE="standalone"
-# Run tests - Playwright starts/stops app automatically
-npx playwright test --config=config/testing/playwright.config.cjs
-```
+## Test Organization
+- **Spec Location:** `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- **Config:** Use centralized `config/testing/playwright.config.cjs` or key-specific config
+- **Base URL:** Dynamic from APP_URL (never hardcode)
 
-## Implementation Protocol
-- Commit the smallest viable increment
-- After each change:
-  1. Run analyzers (`dotnet build --warnaserror`)
-  2. Run lints (`npm run lint`, `npm run format:check`) using configs in `config/testing/`
-  3. Run Playwright specs tied to this `{key}`
-- Insert only temporary diagnostics marked with ;CLEANUP_OK
-- Respect chosen logging mode
-
-## Cleanup Protocol (when `commit:true` or `commit:force`)
-1. **Pre-commit validation**: Ensure all checks pass (unless `force`)
-2. **Stage relevant changes**: `git add .` for all work-related modifications
-3. **Handle untracked files**:
-   - Temporary/build artifacts → Add to `.gitignore` if not already covered
-   - Test artifacts → Keep in appropriate `artifacts/` or `TEMP/` directories
-   - Logs/debug files → Remove or add to `.gitignore`
-4. **Commit with attribution**: Include `{key}` and `RUN_ID` in commit message
-5. **Verify clean state**: `git status --porcelain` should return empty
-6. **Document any ignored files** in commit message if new .gitignore entries added
-
-## Iterative Testing
-- Specs must live under:  
-  `Workspaces/Copilot/prompts.keys/{key}/tests/`
-
-- Global config: Use centralized `config/testing/playwright.config.cjs` or create specific config for key-based testing:
-  - `testDir: "Workspaces/Copilot/prompts.keys/{key}/tests"`
-  - `baseURL` from APP_URL (never hardcode)
+## Completion Criteria
+- All quality gates passed (analyzers, linters, tests)
+- Terminal evidence captured (10-20 lines)
+- Clean git status (if applicable)
+- Documentation properly placed in `Workspaces/Copilot/_DOCS/`
   - HTML report → `Workspaces/Copilot/artifacts/playwright/report`
 
 - Follow incremental accumulation:

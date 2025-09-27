@@ -2,57 +2,58 @@
 mode: agent
 ---
 
-# /retrosync — Requirements/Test Synchronization Agent (v2.7.0)
+# /retrosync — Requirements/Test Synchronization Agent (v3.0.0)
 
-Keeps requirements, implementation, and tests synchronized for a given `{key}`, ensuring analyzers, lints, and test suites are healthy before confirming consistency.
+Synchronizes requirements, implementation, and tests for `{key}` while maintaining quality gates.
+
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for this work stream (e.g., `vault`)
-- **notes:** freeform description of the synchronization scope (requirements/tests to reconcile, files to compare, drift details)
+- **key:** Work stream identifier - auto-inferred if not provided
+- **notes:** Synchronization scope (requirements/tests, drift details)
 
-## Inputs (read)
-- `.github/instructions/SelfAwareness.instructions.md`
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD` (architectural reference)
 - Current git history and changes
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (if present)
-- Test specs under `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
-## Launch Policy
-- **Never** use `dotnet run`
-- Launch only via:
-  - `./Workspaces/Global/nc.ps1`
-  - `./Workspaces/Global/ncb.ps1`
-- If stopping/restarting the app, log attribution:  
-  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+### Quality Gates
+- Synchronization complete only when: analyzers green, linters clean, tests passing
+- Debug marker: `[DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK`
+- Layers: `retrosync`, `tests`, `impl`, `lifecycle`
 
-Synchronization cannot be declared complete until analyzers, lints, and tests are clean.
-
-- Use marker: `[DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK`
-- `{layer}` values: `retrosync`, `tests`, `impl`, `lifecycle`
-- `RUN_ID`: unique id (timestamp + suffix)
-- Respect `none`, `simple`, `trace` modes
-
-## Synchronization Protocol
-1. Parse requirements file and extract acceptance criteria
-2. Compare against existing test specs:
-   - Flag missing specs
-   - Flag outdated specs
-   - Flag redundant/unreferenced specs
-3. Compare against implementation notes in `SelfReview-{key}.md`
-   - Identify drift between requirements and implementation
-4. Suggest changes:
+## Execution Protocol
+1. **Requirements Analysis:** Parse requirements and extract acceptance criteria
+2. **Test Spec Comparison:** Flag missing, outdated, or redundant specs
+3. **Implementation Drift:** Compare requirements vs implementation notes
+4. **Architecture Synchronization:** Audit NOOR-CANVAS_ARCHITECTURE.MD against codebase
+   - API endpoint inventory (52 endpoints, 11 controllers)
+   - Service architecture updates (15+ services)
+   - Component catalog maintenance (15+ pages, 10+ components)
+   - SignalR hub documentation (4 hubs with methods/events)
+   - **Remove obsolete/deprecated APIs, endpoints, services, and components**
+   - **Add new APIs, services, components discovered during implementation**
+   - **Update method signatures, parameters, and return types** that have changed
+   - **Verify all documented endpoints exist and are functional**
+   - **Update database schema changes and new tables/models**
+   - **Refresh SignalR hub methods and events**
+   - **Update service responsibilities and key methods**
+   - **Synchronize Razor page routes and component dependencies**
+5. Suggest changes:
    - Add/update/remove tests
    - Update requirements docs if implementation differs
+   - **Update architecture document with current reality**
    - Highlight gaps where implementation is missing coverage
-5. Validate after changes:
+6. Validate after changes:
    - Run analyzers
    - Run lints
    - Run updated cumulative tests
+   - **Verify architecture document accuracy against live codebase**
 
 ## Iterative Testing
 - Ensure Playwright config points to correct testDir and baseURL
@@ -67,6 +68,12 @@ Synchronization cannot be declared complete until analyzers, lints, and tests ar
 Summaries must include:
 - Requirements analyzed
 - Specs added/updated/removed
+- **Architecture document changes:**
+  - **APIs/endpoints added/removed/modified**
+  - **Services added/removed/updated**
+  - **Components and pages added/removed/modified**
+  - **Database schema changes**
+  - **Deprecated functionality removed from documentation**
 - Analyzer/linter results
 - Test suite status (pass/fail counts)
 - Terminal Evidence tail
@@ -109,6 +116,57 @@ Summaries must include:
 - **Deployment**: Monitor any changes to build and deployment procedures
 
 # Additional Responsibilities
-- Detect and record newly introduced libraries, frameworks, or dependencies.
-- Identify changes in the technology stack or infrastructure.
-- Sync these updates into **SelfAwareness.instructions.md** so Copilot has the latest context.
+
+## Architecture Document Maintenance
+**CRITICAL:** Maintain `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD` as the single source of truth for system architecture.
+
+### Architecture Synchronization Tasks
+1. **API Endpoint Auditing:**
+   - Scan all controllers for new/removed/modified endpoints
+   - Update method signatures, parameters, and return types
+   - Remove documentation for deprecated/deleted endpoints
+   - Verify all documented endpoints are functional
+
+2. **Service and Component Inventory:**
+   - Audit `/Services/` directory for new/removed/renamed services
+   - Update service responsibilities and key method signatures
+   - Scan `/Components/` and `/Pages/` for UI component changes
+   - Update Razor page routes and component dependencies
+
+3. **Database Schema Synchronization:**
+   - Review Entity Framework models for schema changes
+   - Update table structures, new models, and relationships
+   - Document new DbContext additions or modifications
+   - Remove obsolete model documentation
+
+4. **SignalR Hub Updates:**
+   - Audit hub methods and client events for changes
+   - Update hub method signatures and parameter documentation
+   - Document new hubs or removed functionality
+   - Verify real-time communication patterns
+
+5. **Deprecation and Cleanup:**
+   - **Remove all references to obsolete/deprecated functionality**
+   - **Delete documentation for removed APIs, services, or components**
+   - **Update integration patterns that have changed**
+   - **Clean up outdated architectural decisions**
+
+### Architecture Validation Protocol
+- **Before declaring synchronization complete:**
+  - Verify every documented API endpoint responds correctly
+  - Confirm all documented services exist in the codebase
+  - Validate all Razor page routes are accessible
+  - Test documented SignalR hub connections and methods
+  - Ensure database schema matches documented tables/models
+
+### Technology Stack Updates
+- Detect and record newly introduced libraries, frameworks, or dependencies
+- Identify changes in the technology stack or infrastructure
+- Sync these updates into **SelfAwareness.instructions.md** so Copilot has the latest context
+- **Update architecture document with new dependencies and integration patterns**
+
+### Documentation Quality Standards
+- **Accuracy:** All documented functionality must exist and work as described
+- **Completeness:** No significant APIs, services, or components should be undocumented
+- **Currency:** Remove obsolete information immediately upon detection
+- **Consistency:** Maintain consistent formatting and structure throughout the document

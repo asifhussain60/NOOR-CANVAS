@@ -2,52 +2,43 @@
 mode: agent
 ---
 
-# /migrate — Repo Folder Migration Agent (v2.4.0)
+# /migrate — Repository Migration Agent (v3.0.0)
 
-Performs selective repo reorganization to complete the `Workspaces/Copilot/` structure. Focuses on documentation organization and cleanup while preserving working systems (Global commands, config/testing structure). Ensures analyzers, lints, and test suites remain healthy.
+Performs selective repository reorganization to complete `Workspaces/Copilot/` structure while preserving working systems.
+
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for migration scope (if applicable)
-- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
-- **commit:** controls whether changes are committed
-  - `true` → commit after analyzers, lints, and tests succeed  
-  - `false` → do not commit  
-  - `force` → bypass analyzer/linter/test checks (manual override only)
-- **notes:** freeform description of the migration task (folders to move, paths to update, constraints)
+- **key:** Migration scope identifier (optional)
+- **log:** Debug verbosity (`none`, `simple`, `trace`)
+- **commit:** Commit control (`true`, `false`, `force`)
+- **notes:** Migration task description (folders, paths, constraints)
 
-## Inputs (read)
-- `.github/instructions/SelfAwareness.instructions.md`
-- Current repo file/folder structure
+## Context & Assessment
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- Current repository structure and scattered files
 - `#getTerminalOutput` for runtime validation
 
-## Current State Assessment
-- ✅ **Configs already migrated**: `config/testing/` structure in place and working
-- ✅ **Global commands functional**: `Workspaces/Global/` with PATH integration
-- ✅ **Copilot structure exists**: `Workspaces/Copilot/_DOCS/` hierarchy established
-- 🔄 **Remaining work**: Documentation organization and cleanup of scattered files
+### Migration Status
+- ✅ `config/testing/` structure operational
+- ✅ `Workspaces/Global/` commands functional  
+- ✅ `Workspaces/Copilot/_DOCS/` hierarchy established
+- 🔄 **Focus:** Documentation organization and cleanup
 
-## Launch Policy
-- **Never** use `dotnet run`
-- Launch only via:
-  - `./Workspaces/Global/nc.ps1`
-  - `./Workspaces/Global/ncb.ps1`
-- If stopping/restarting the app, log attribution:  
-  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+### Quality Gates
+- Migration complete only when: analyzers green, linters clean, tests passing
+- Debug marker: `[DEBUG-WORKITEM:{key}:migrate:{RUN_ID}] message ;CLEANUP_OK`
 
-Migration cannot be declared complete until analyzers, lints, and tests are clean.
-
-- Use marker: `[DEBUG-WORKITEM:{key}:migrate:{RUN_ID}] message ;CLEANUP_OK`
-- `RUN_ID`: short unique id (timestamp + suffix)
-- Respect `none`, `simple`, `trace` modes
-
-## Migration Protocol
-1. **Organize documentation files**:
-   - Move scattered analysis files → `Workspaces/Copilot/_DOCS/analysis/`
-   - Move summary files → `Workspaces/Copilot/_DOCS/summaries/`
-   - Move configuration docs → `Workspaces/Copilot/_DOCS/configs/`
+## Execution Protocol
+1. **Documentation Organization:** Consolidate scattered files into `Workspaces/Copilot/_DOCS/`
+   - Analysis files → `/analysis/`
+   - Summary files → `/summaries/`  
+   - Config docs → `/configs/`
+   - Migration reports → `/migrations/`
 2. **Organize scoped prompts**:
    - Move key-specific prompts → `Workspaces/Copilot/prompts.keys/{key}/`
    - Keep canonical prompts in `.github/prompts/` (already correct)

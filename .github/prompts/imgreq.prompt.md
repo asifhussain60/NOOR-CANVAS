@@ -2,52 +2,42 @@
 mode: agent
 ---
 
-# /imgreq — Image Request Agent (v2.8.0)
+# /imgreq — Image Request Agent (v3.0.0)
 
-Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a given `{key}`, ensuring analyzers, lints, and tests remain green for any supporting code changes.
+Generates visual artifacts (diagrams, UI mockups, workflows) for `{key}` while maintaining code quality.
+
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for this work stream (e.g., `vault`)
-- **notes:** freeform description of the image request (artifacts needed, formats, files to update, context)
+- **key:** Work stream identifier - auto-inferred if not provided
+- **notes:** Image request description (artifacts, formats, context)
 
-## Inputs (read)
-- `.github/instructions/SelfAwareness.instructions.md`
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
 - Current implementation status and scope
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
-- Any design references or test files under `Workspaces/Copilot/prompts.keys/{key}/`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 
-## Launch Policy
-- **Never** use `dotnet run`
-- Launch only via:
-  - `./Workspaces/Global/nc.ps1`
-  - `./Workspaces/Global/ncb.ps1`
-- If stopping/restarting the app, log attribution:  
-  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+### Quality Gates
+- Implementation complete only when: analyzers green, linters clean, tests passing
+- Debug marker: `[DEBUG-WORKITEM:{key}:imgreq:{RUN_ID}] message ;CLEANUP_OK`
 
-Implementation cannot be marked complete until analyzers, lints, and tests are green.
+## Execution Protocol
+1. **Requirements Analysis:** Parse context and requirements for `{key}`
+2. **Artifact Generation:** Create needed visuals:
+   - UI mockups, workflow diagrams, architecture sketches
+   - Use project standards (Mermaid, PlantUML, PNG/SVG)
+   - Output location: `Workspaces/Copilot/artifacts/{key}/images/`
+3. **Integration:** Link artifacts in requirements/test files for traceability
+4. **Validation:** If supporting code modified, run analyzer → linter → test cycles
 
-- Use marker: `[DEBUG-WORKITEM:{key}:imgreq:{RUN_ID}] message ;CLEANUP_OK`
-- `RUN_ID`: unique id (timestamp + suffix)
-- Modes: respect `none`, `simple`, `trace`
-
-## Image Request Protocol
-1. Parse requirements and context for `{key}`
-2. Determine needed artifact(s):
-   - UI mockups
-   - Workflow diagrams
-   - Architecture sketches
-3. Generate visuals using project standards (e.g., Mermaid, PlantUML, or PNG/SVG exports)
-4. Place outputs in:
-   - `Workspaces/Copilot/artifacts/{key}/images/`
-5. Link generated artifacts in requirements/test files for traceability
-
-## Iterative Validation
-- If supporting code is touched (e.g., HTML, Blazor, or test harness):
-  - Run analyzers
-  - Run lints
+## Completion Criteria
+- Visual artifacts generated and properly linked
+- Supporting code passes all quality gates
+- Clean terminal evidence captured
   - Run cumulative tests
 - Confirm everything remains green before marking task complete
 

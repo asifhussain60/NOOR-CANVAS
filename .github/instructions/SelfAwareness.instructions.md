@@ -6,6 +6,19 @@
 ## Scope
 Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
+## Required Reading
+**CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
+- **`.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`** - Comprehensive application architecture documentation including:
+  - Complete API endpoint catalog (52 endpoints across 11 controllers)
+  - Razor pages and component inventory (15+ pages, 10+ components)
+  - Service architecture (15+ services with responsibilities)
+  - SignalR hub documentation (4 hubs with methods and events)
+  - Data model catalog and database schemas
+  - Authentication flows and security patterns
+  - Integration patterns and common workflows
+
+**Purpose:** This prevents duplication of existing functionality and ensures new implementations follow established architectural patterns.
+
 ## Core Principles
 - **Deterministic rails**: follow these rules exactly; do not invent new flows.  
 - **Single source of truth**: prompts here; configs and state under `Workspaces/Copilot/`.  

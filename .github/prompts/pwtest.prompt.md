@@ -2,52 +2,42 @@
 mode: agent
 ---
 
-# /pwtest — Playwright Test Agent (v2.9.0)
+# /pwtest — Playwright Test Agent (v3.0.0)
 
-Creates and maintains Playwright tests for a given `{key}`. Validates implementation changes **iteratively** with analyzers, lints, cumulative test runs, structured debug logs, and terminal-grounded evidence.
+Creates and maintains Playwright tests for `{key}` with iterative validation via analyzers, linters, and test execution.
+
+**Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** identifier for this work stream (e.g., `vault`)
-- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
-- **notes:** freeform description of the test work (scenarios, files under test, considerations)
+- **key:** Work stream identifier - auto-inferred if not provided
+- **log:** Debug verbosity (`none`, `simple`, `trace`)
+- **notes:** Test work description (scenarios, files, considerations)
 
-## Inputs (read)
-- `.github/instructions/SelfAwareness.instructions.md`
+## Context & Inputs
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
 - Current test structure and coverage
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
-- Existing specs under `Workspaces/Copilot/prompts.keys/{key}/tests/`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
-## Launch Policy
-- **Playwright manages application lifecycle automatically via webServer configuration**
-- **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for Playwright test runs
-- **Always** use `PW_MODE=standalone` environment variable to enable automatic app startup
-- Playwright's `webServer` configuration in `config/testing/playwright.config.cjs` handles:
-  - Starting .NET app with `dotnet run` in correct directory
-  - Waiting for port 9091 to be ready
-  - Shutting down app after tests complete
-- If manual restart is needed, set environment variable and re-run Playwright:
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] playwright_webserver_restart=true reason=<text> ;CLEANUP_OK
+## Operating Protocols
+**Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
-## Analyzer & Linter Enforcement
-**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+### Playwright Launch Protocol
+- **CRITICAL:** Playwright manages app lifecycle via webServer configuration
+- Use `PW_MODE=standalone` for automatic app startup/shutdown
+- **Never** use PowerShell scripts (nc.ps1/ncb.ps1) for test execution
+- webServer config in `config/testing/playwright.config.cjs` handles .NET app lifecycle
 
-Test creation cannot be marked complete until analyzers, lints, and tests are green.
+### Quality Gates
+- Test creation complete only when: analyzers green, linters clean, tests passing
+- Debug marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
+- Layers: `pwtest`, `tests`, `lifecycle`
 
-## Debug Logging Rules
-- Use marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
-- `{layer}` values: `pwtest` (test authoring/execution), `tests` (shared test layer), `lifecycle`
-- `RUN_ID`: short unique id (timestamp + random suffix)
-- Modes:
-  - **none**: no debug lines
-  - **simple**: major milestones (start, discovered specs, run complete, pass/fail summary)
-  - **trace**: every significant step (navigation, waits, assertions, artifact saves)
-
-## Node.js Usage & App Context
-- The NOOR Canvas app is **ASP.NET Core 8.0 + Blazor Server + SignalR**.
-- Node.js is **test-only** and used exclusively for Playwright E2E.
-- **Playwright's webServer manages the .NET app lifecycle** - starts with `dotnet run`, monitors port 9091, shuts down after tests
+## Application Context
+- **NOOR Canvas:** ASP.NET Core 8.0 + Blazor Server + SignalR
+- **Node.js Role:** Test-only, exclusively for Playwright E2E
+- **Lifecycle Management:** Playwright webServer controls .NET app (port 9091)
 - Tests run against Playwright-managed app at `https://localhost:9091`
 - **Use `PW_MODE=standalone`** to enable webServer automatic management
 
