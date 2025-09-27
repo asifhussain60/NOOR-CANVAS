@@ -91,6 +91,14 @@ a, .btn-link {
     background-position: center;
 }
 
+/* NOOR Canvas Logo Sizing - 200x200px equivalent */
+.noor-canvas-logo img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    margin: 0 auto;
+}
+
 /* NOOR Canvas Toast Notification Styling */
 .noor-toast {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
