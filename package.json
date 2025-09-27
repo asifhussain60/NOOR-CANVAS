@@ -1,6 +1,7 @@
 {
   "name": "noor-canvas",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
@@ -26,7 +27,9 @@
     "test:typescript": "playwright test --config=playwright.config.ts",
     "test:copilot-demo": "playwright codegen --target=typescript https://localhost:9091",
     "build:tests": "tsc --noEmit",
-    "lint:tests": "eslint Tests/**/*.ts --fix"
+    "lint": "eslint 'PlayWright/**/*.{ts,tsx}' --max-warnings=0",
+    "format": "prettier --write 'PlayWright/**/*.{ts,tsx}'",
+    "format:check": "prettier --check 'PlayWright/**/*.{ts,tsx}'"
   },
   "repository": {
     "type": "git",
@@ -44,8 +47,14 @@
     "@playwright/test": "^1.55.0",
     "@types/mssql": "^9.1.8",
     "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.2.2",
     "mssql": "^11.0.1",
     "playwright": "^1.55.0",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

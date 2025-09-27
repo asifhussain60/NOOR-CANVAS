@@ -1,0 +1,39 @@
+name: Build and Analyze
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: .NET Build with Analyzers
+      run: dotnet build --no-restore --warnaserror
+
+    - name: Install Playwright dependencies
+      run: npm install
+
+    - name: Lint Playwright Tests
+      run: npm run lint
+
+    - name: Format check Playwright Tests
+      run: npm run format -- --check
