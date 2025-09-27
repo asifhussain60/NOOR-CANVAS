@@ -18,16 +18,27 @@ Resumes partially completed work for `{key}`, ensuring quality gates pass before
 ## Operation Modes
 
 ### Test Mode (`mode: test`)
-Perform `apply` mode work PLUS create temporary validation:
+Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test` is explicitly specified:
 1. Execute continuation work
-2. Generate headless Playwright test: `Workspaces/TEMP/continue-{key}-{RUN_ID}.spec.ts`
-3. Validate test passes (3 retry limit)
-4. Cleanup temporary test post-validation
+2. **ONLY if `mode: test`**: Generate headless Playwright test: `Workspaces/TEMP/continue-{key}-{RUN_ID}.spec.ts`
+3. **ONLY if `mode: test`**: Execute test using proper command:
+   ```powershell
+   Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "Workspaces/TEMP/continue-{key}-{RUN_ID}.spec.ts"
+   ```
+4. **ONLY if `mode: test`**: Validate test passes (3 retry limit)
+5. **ONLY if `mode: test`**: Cleanup temporary test post-validation
+
+**CRITICAL**: If `mode` is `analyze` or `apply`, do NOT create any temporary tests.
 
 ### Phase Processing (`---` Delimited Input)
 **Reference:** SelfAwareness.instructions.md Phase Prompt Processing for complete workflow.
 - Parse phases on `---` delimiters
-- Sequential processing with temporary test per phase
+- Sequential processing with temporary test per phase **ONLY when `mode: test`**
+- **ONLY if `mode: test`**: Create temporary tests using proper execution:
+  ```powershell
+  Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "Workspaces/TEMP/phase-{N}-{key}-{RUN_ID}.spec.ts"
+  ```
+- **NEVER** use `dotnet run`, `dotnet build`, `nc`, or `ncb` during test execution
 - Cleanup after all phases complete (unless `commit:false`)
 
 ## Context & Inputs
@@ -82,16 +93,19 @@ Perform `apply` mode work PLUS create temporary validation:
 - Use Playwright tests in `Workspaces/Copilot/prompts.keys/{key}/tests/`
 - **Always use `PW_MODE=standalone`** for webServer automatic app management
 - Ensure global config (`config/testing/playwright.config.cjs`) points to correct testDir and baseURL
-- **Never manually start .NET app** - let Playwright's webServer handle it
+- **NEVER manually start .NET app** - let Playwright's webServer handle it
+- **NEVER use `dotnet run`, `dotnet build`, `nc`, or `ncb`** during test execution
 - Add/extend tests for resumed work
 - Run cumulative suite to ensure nothing regresses
 
 ### Correct Test Execution for Continuation
 ```powershell
-# Set standalone mode
-$env:PW_MODE="standalone"
-# Run tests with webServer management
-npx playwright test --config=config/testing/playwright.config.cjs
+# Always start with sleep timer and port check
+Start-Sleep -Seconds 15; netstat -an | findstr :9091
+# Set standalone mode and run tests
+$env:PW_MODE="standalone"; npx playwright test "test-file.spec.ts"
+# For full suite with config
+$env:PW_MODE="standalone"; npx playwright test --config=config/testing/playwright.config.cjs
 ```
 
 ## Terminal Evidence (Enhanced Analysis)

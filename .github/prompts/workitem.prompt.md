@@ -32,7 +32,7 @@ Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and 
 ## Operation Modes
 
 ### Test Mode (`mode: test`)
-**Create temporary validation tests only when explicitly specified:**
+**Create temporary validation tests ONLY when `mode: test` is explicitly specified:**
 
 When `mode: test` is specified, execute ALL of `apply` mode functionality PLUS these additional steps:
 
@@ -41,12 +41,16 @@ When `mode: test` is specified, execute ALL of `apply` mode functionality PLUS t
    - Location: `Workspaces/TEMP/workitem-{key}-{RUN_ID}.spec.ts`
    - Must be headless and silent (no browser UI)
    - Test should validate the specific changes made
-3. **Run and Validate**: Execute the temporary test and ensure it passes (retry up to 3 times if needed)
+3. **Run and Validate**: Execute the temporary test using proper command:
+   ```powershell
+   Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "Workspaces/TEMP/workitem-{key}-{RUN_ID}.spec.ts"
+   ```
+   - Retry up to 3 times if needed
 4. **Mark Complete**: Log completion: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] test_mode_validation_complete ;CLEANUP_OK`
 5. **Cleanup**: Remove the temporary test file after successful validation
 6. **Final Checks**: Run full analyzer/linter/test suite as per normal protocol
 
-**Note**: If `mode` is `analyze` or `apply`, do NOT create any temporary tests.
+**CRITICAL**: If `mode` is `analyze` or `apply`, do NOT create any temporary tests. Only `mode: test` creates temporary validation tests.
 
 ## Phase Prompt Handling
 When user input contains `---` separators, treat each section as a separate todo item:
@@ -54,13 +58,19 @@ When user input contains `---` separators, treat each section as a separate todo
 1. **Parse Phases**: Split input on `---` delimiters to identify individual todo items
 2. **Sequential Processing**: Process each phase in order:
    - Make the required change
-   - Create a headless, silent Playwright test in `Workspaces/TEMP/phase-{phase_number}-{key}-{RUN_ID}.spec.ts`
-   - Ensure the test passes (retry up to 3 times if needed)
+   - **ONLY if `mode: test`**: Create a headless, silent Playwright test in `Workspaces/TEMP/phase-{phase_number}-{key}-{RUN_ID}.spec.ts`
+   - **ONLY if `mode: test`**: Execute test using proper command:
+     ```powershell
+     Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "Workspaces/TEMP/phase-{phase_number}-{key}-{RUN_ID}.spec.ts"
+     ```
+   - **ONLY if `mode: test`**: Ensure the test passes (retry up to 3 times if needed)
    - Mark the todo complete with debug log: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] phase_{phase_number}_complete ;CLEANUP_OK`
    - Move to next phase
-3. **Test Requirements**: 
+3. **Test Requirements** (ONLY when `mode: test`):
    - Tests must be headless and silent (no browser UI)
    - Use `Workspaces/TEMP/` directory for temporary phase tests only
+   - Never use `dotnet run`, `nc`, or `ncb` commands during test execution
+   - Always use sleep timer and netstat check before test execution
    - Follow proper Playwright structure for permanent tests as per config files
    - Clean up temporary tests after all phases complete (unless `commit:false`)
 4. **Completion**: After all phases complete, run full analyzer/linter/test suite before final commit
@@ -86,8 +96,15 @@ When user input contains `---` separators, treat each section as a separate todo
 ### For Playwright Testing (when mode: test)
 - **Use Playwright's webServer configuration** for automatic app lifecycle management
 - **Set `PW_MODE=standalone`** to enable webServer startup
-- **Never** use PowerShell scripts during test execution
+- **NEVER** use `dotnet run`, `dotnet build`, `nc`, or `ncb` commands during test execution
+- **NEVER** use PowerShell scripts during test execution
+- **ALWAYS** use sleep timer before test execution: `Start-Sleep -Seconds 15`
+- **ALWAYS** check port availability: `netstat -an | findstr :9091`
 - Playwright handles `dotnet run` via webServer config in `config/testing/playwright.config.cjs`
+- Proper test execution format:
+  ```powershell
+  Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "test-file.spec.ts"
+  ```
 
 ## Debug Logging Rules
 - Marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
