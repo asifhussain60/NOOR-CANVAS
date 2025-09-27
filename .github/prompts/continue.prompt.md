@@ -56,6 +56,18 @@ Continuation work cannot proceed until analyzers and lints are green, unless exp
    - Run tests for this `{key}`
 5. Record debug logs and evidence inline with changes
 
+## Cleanup Protocol (when `commit:true` or `commit:force`)
+1. **Pre-commit validation**: Ensure all checks pass (unless `force`)
+2. **Stage relevant changes**: `git add .` for all continuation work
+3. **Handle uncommitted artifacts**:
+   - Progress logs → Keep in `Workspaces/Copilot/continue/{key}/`
+   - Checkpoint files → Update and commit with work
+   - Temporary test files → Remove or move to appropriate directories
+   - Debug outputs → Clean up or add to `.gitignore`
+4. **Commit with continuation attribution**: Include `{key}` and continuation context
+5. **Verify clean working tree**: No uncommitted changes should remain
+6. **Update checkpoint state** to reflect completed continuation
+
 ## Iterative Testing
 - Use Playwright tests in `Workspaces/Copilot/prompts.keys/{key}/tests/`
 - Ensure global config points to correct testDir and baseURL
@@ -74,7 +86,12 @@ Continuation work cannot proceed until analyzers and lints are green, unless exp
   - All relevant Playwright tests for `{key}` pass (using `config/testing/playwright.config.cjs`).  
 - Commits must be blocked if any analyzers, lints, or tests fail.  
 - Bypass is only allowed if user explicitly sets `commit:force`.  
-- All commit messages must reference the `{key}` they belong to.  
+- All commit messages must reference the `{key}` they belong to.
+- **When `commit:true` or `commit:force`**: Clean up uncommitted files:
+  - Add all relevant modified files: `git add .`
+  - Reset/ignore untracked files that shouldn't be committed
+  - Ensure clean working tree after commit: `git status --porcelain` should be empty
+  - If conflicts arise, resolve by either committing or explicitly ignoring via `.gitignore`  
 
 ## Output & Approval Flow
 Summaries must include:

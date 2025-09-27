@@ -20,6 +20,11 @@ mode: agent
 - Commit only after analyzers, lints, and tests pass
 - Include RUN_ID in commit messages for traceability
 - Respect `commit` parameter: `true`, `false`, or `force`
+- **When `commit:true` or `commit:force`**: Clean up uncommitted files:
+  - Add all modified files: `git add .`
+  - Reset/ignore untracked files that shouldn't be committed
+  - Ensure clean working tree after commit: `git status --porcelain` should be empty
+  - If conflicts arise, resolve by either committing or explicitly ignoring via `.gitignore`
 
 ---
 
@@ -86,6 +91,17 @@ If analyzers or lints fail, stop and fix violations before proceeding.
   3. Run Playwright specs tied to this `{key}`
 - Insert only temporary diagnostics marked with ;CLEANUP_OK
 - Respect chosen logging mode
+
+## Cleanup Protocol (when `commit:true` or `commit:force`)
+1. **Pre-commit validation**: Ensure all checks pass (unless `force`)
+2. **Stage relevant changes**: `git add .` for all work-related modifications
+3. **Handle untracked files**:
+   - Temporary/build artifacts → Add to `.gitignore` if not already covered
+   - Test artifacts → Keep in appropriate `artifacts/` or `TEMP/` directories
+   - Logs/debug files → Remove or add to `.gitignore`
+4. **Commit with attribution**: Include `{key}` and `RUN_ID` in commit message
+5. **Verify clean state**: `git status --porcelain` should return empty
+6. **Document any ignored files** in commit message if new .gitignore entries added
 
 ## Iterative Testing
 - Specs must live under:  
