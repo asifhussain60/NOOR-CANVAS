@@ -1,16 +1,12 @@
 ---
 mode: agent
 ---
-title: cleanup — Cleanup Agent
-version: 2.7.0
-appliesTo: /cleanup
-updated: 2025-09-27
----
 
 # /cleanup — Cleanup Agent (v2.7.0)
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
+- **notes:** freeform description of the cleanup task (scope, files to clean, details, edge cases)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`

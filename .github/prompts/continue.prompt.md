@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: continue — Continuation Agent
-version: 2.8.0
-appliesTo: /continue
-updated: 2025-09-27
 ---
 
 # /continue — Continuation Agent (v2.8.0)
@@ -14,6 +10,11 @@ Carries forward partially completed work for a given `{key}`, ensuring analyzers
 - **key:** identifier for this work stream (e.g., `vault`)
 - **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
 - **commit:** controls whether changes are committed  
+- **mode:** operation mode (`analyze`, `apply`, `test`)
+  - **analyze** → analyze continuation plan and document in MD file
+  - **apply** → (default) continue work without docs
+  - **test** → apply + generate Playwright test
+- **notes:** freeform description of the requested continuation (context, files, details, edge cases)
   - `true` → commit after analyzers, lints, and tests succeed  
   - `false` → do not commit  
   - `force` → bypass analyzer/linter/test checks (manual override only)

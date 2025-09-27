@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: migrate — Repo Folder Migration Agent
-version: 2.3.0
-appliesTo: /migrate
-updated: 2025-09-27
 ---
 
 # /migrate — Repo Folder Migration Agent (v2.3.0)
@@ -12,6 +8,7 @@ Performs one-time repo reorganizations into the `Workspaces/Copilot/` structure.
 
 ## Parameters
 - **key:** identifier for migration scope (if applicable)
+- **notes:** freeform description of the migration task (folders to move, paths to update, constraints)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`

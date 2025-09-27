@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: pwtest — Playwright Test Agent
-version: 2.9.0
-appliesTo: /pwtest
-updated: 2025-09-27
 ---
 
 # /pwtest — Playwright Test Agent (v2.9.0)
@@ -13,6 +9,7 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
 - **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
+- **notes:** freeform description of the test work (scenarios, files under test, considerations)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`

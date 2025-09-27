@@ -1,0 +1,33 @@
+End to end test instructions
+
+1. Load https://localhost:9091/host/session-opener/{HostToken}
+2. Click on "Access Host Control Panel" button.
+This will load the #file:Host-SessionOpener.razor view. On the view Wait till all fields are lodaed. 
+
+
+Revise all prompts where necessary, ensuring that the instructions are clear, cohesive, and harmonious. Each set of instructions should work seamlessly together, without any contradictions, to create a unified guiding framework. I want all files provided in a zip downloadable format with a version number attached to it.
+
+
+
+
+Prompt template you can use:
+
+Give me the complete [filename] as a single continuous code block, with no placeholders or ellipses. Show the entire file exactly as it should exist in my repo, formatted so it will not split into multiple blocks.
+
+Generate a zip containing all my updated prompt/instruction files. Each file must be complete, including my original instructions and your added patches. There should be no placeholders, and the code should be formatted as a single code block internally, so that nothing is split. Do a before-and-after line count comparison so I can ensure you have not condensed the prompts
+
+
+
+
+
+Follow instructions in workitem.prompt.md.
+key: hostcanvas mode: apply test: false notes: Update #file:Host-SessionOpener.razor to also generate the https://localhost:9091/host/session-opener/PQ9N5YWW url IN ADDITION TO THE https://localhost:9091/user/landing/KJAHA99L link. I should be able to copy both to clipboard individually using separate copy buttons
+
+
+signalcomm
+
+
+[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] - Host broadcast initiation
+[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] - Server-side processing
+[DEBUG-WORKITEM:hostcanvas:CANVAS-TRACK] - Client-side reception
+[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 	

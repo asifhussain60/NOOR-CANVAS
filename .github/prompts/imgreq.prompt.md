@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: imgreq — Image Request Agent
-version: 2.8.0
-appliesTo: /imgreq
-updated: 2025-09-27
 ---
 
 # /imgreq — Image Request Agent (v2.8.0)
@@ -12,6 +8,7 @@ Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a gi
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
+- **notes:** freeform description of the image request (artifacts needed, formats, files to update, context)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`

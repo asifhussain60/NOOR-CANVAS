@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: retrosync — Requirements/Test Synchronization Agent
-version: 2.7.0
-appliesTo: /retrosync
-updated: 2025-09-27
 ---
 
 # /retrosync — Requirements/Test Synchronization Agent (v2.7.0)
@@ -12,6 +8,7 @@ Keeps requirements, implementation, and tests synchronized for a given `{key}`, 
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
+- **notes:** freeform description of the synchronization scope (requirements/tests to reconcile, files to compare, drift details)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`

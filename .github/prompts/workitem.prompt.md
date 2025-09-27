@@ -28,6 +28,11 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
 - **key:** identifier for this work stream (e.g., `vault`)
 - **log:** controls debug logging behavior (`none`, `simple`, `trace`)
 - **commit:** whether changes should be committed automatically (subject to Commit Policy)
+- **mode:** operation mode (`analyze`, `apply`, `test`)
+  - **analyze** → analyze requested work and document in MD file
+  - **apply** → (default) perform the work without docs
+  - **test** → apply + generate Playwright test
+- **notes:** freeform description of the requested work (scope, files, details, edge cases)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`

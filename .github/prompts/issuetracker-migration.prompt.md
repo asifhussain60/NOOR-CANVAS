@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: issuetracker-migration — IssueTracker Migration Agent
-version: 1.0.0
-appliesTo: /issuetracker-migration
-updated: 2025-09-27
 ---
 
 # /issuetracker-migration — IssueTracker Migration Agent

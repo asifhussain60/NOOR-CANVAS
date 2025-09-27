@@ -1,9 +1,5 @@
 ---
 mode: agent
-title: refactor — Structural Integrity Agent
-version: 1.2.0
-appliesTo: /refactor
-updated: 2025-09-27
 ---
 
 # /refactor — Structural Integrity Agent (v1.2.0)
@@ -12,6 +8,7 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
+- **notes:** freeform description of the refactor task (areas to target, files/modules, rationale)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
