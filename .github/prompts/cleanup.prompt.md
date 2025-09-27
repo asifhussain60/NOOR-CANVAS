@@ -9,7 +9,6 @@ mode: agent
 - **notes:** freeform description of the cleanup task (scope, files to clean, details, edge cases)
 
 ## Inputs (read)
-## Inputs (read)
 - `.github/instructions/SelfAwareness.instructions.md`
 - Current codebase and file organization
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (if exists)
@@ -21,7 +20,8 @@ mode: agent
 - Launch only via:
   - `./Workspaces/Global/nc.ps1`
   - `./Workspaces/Global/ncb.ps1`
-- Marker: `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+- If stopping/restarting the app, log attribution:  
+  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Analyzer & Linter Enforcement
 **See SelfAwareness.instructions.md for complete analyzer and linter rules.**

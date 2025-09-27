@@ -34,16 +34,50 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** controls debug logging behavior (`none`, `simple`, `trace`)
+- **log:** controls debug logging behavior (`none`, `simple`, `trace`) - default: `simple`
 - **commit:** whether changes should be committed automatically (subject to Commit Policy)
   - `true` → commit after analyzers, lints, and tests succeed  
   - `false` → do not commit  
   - `force` → bypass analyzer/linter/test checks (manual override only)
 - **mode:** operation mode (`analyze`, `apply`, `test`)
   - **analyze** → analyze requested work and document in MD file
-  - **apply** → (default) perform the work without docs
-  - **test** → apply + generate Playwright test
+  - **apply** → (default) perform the work without docs, no temporary tests
+  - **test** → perform all `apply` work PLUS create temporary validation test + cleanup
 - **notes:** freeform description of the requested work (scope, files, details, edge cases)
+
+## Test Mode Protocol (ONLY when mode: test)
+**IMPORTANT**: Temporary tests are ONLY created when `mode: test` is explicitly specified.
+
+When `mode: test` is specified, execute ALL of `apply` mode functionality PLUS these additional steps:
+
+1. **Execute Apply Mode**: Complete all requested work exactly as per `apply` mode
+2. **Create Temporary Test**: Generate a headless, silent Playwright test:
+   - Location: `Workspaces/TEMP/workitem-{key}-{RUN_ID}.spec.ts`
+   - Must be headless and silent (no browser UI)
+   - Test should validate the specific changes made
+3. **Run and Validate**: Execute the temporary test and ensure it passes (retry up to 3 times if needed)
+4. **Mark Complete**: Log completion: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] test_mode_validation_complete ;CLEANUP_OK`
+5. **Cleanup**: Remove the temporary test file after successful validation
+6. **Final Checks**: Run full analyzer/linter/test suite as per normal protocol
+
+**Note**: If `mode` is `analyze` or `apply`, do NOT create any temporary tests.
+
+## Phase Prompt Handling
+When user input contains `---` separators, treat each section as a separate todo item:
+
+1. **Parse Phases**: Split input on `---` delimiters to identify individual todo items
+2. **Sequential Processing**: Process each phase in order:
+   - Make the required change
+   - Create a headless, silent Playwright test in `Workspaces/TEMP/phase-{phase_number}-{key}-{RUN_ID}.spec.ts`
+   - Ensure the test passes (retry up to 3 times if needed)
+   - Mark the todo complete with debug log: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] phase_{phase_number}_complete ;CLEANUP_OK`
+   - Move to next phase
+3. **Test Requirements**: 
+   - Tests must be headless and silent (no browser UI)
+   - Use `Workspaces/TEMP/` directory for temporary phase tests only
+   - Follow proper Playwright structure for permanent tests as per config files
+   - Clean up temporary tests after all phases complete (unless `commit:false`)
+4. **Completion**: After all phases complete, run full analyzer/linter/test suite before final commit
 
 ## Inputs (read)
 - `.github/instructions/SelfAwareness.instructions.md`

@@ -27,7 +27,7 @@
         
         <!-- Logo -->
         <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
-            <img src="/images/NoorCanvas.png?v=20250924" alt="@(Model?.LogoText ?? "NOOR Canvas")" style="max-width:150px;height:auto;margin:0 auto;" />
+            <img src="/images/NoorCanvas.png?v=20250924" alt="@(Model?.LogoText ?? "NOOR Canvas")" style="max-width:300px;height:auto;margin:0 auto;" />
         </div>
 
         <!-- Title Section from mock -->
@@ -50,12 +50,12 @@
                 
                 <!-- Icon circle from mock -->
                 <div style="background-color:white;padding:2rem;border-radius:50%;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);">
-                    <i class="fa-solid fa-people-arrows" style="font-size:3rem;color:#D4AF37;"></i>
+                    <i class="fa-solid fa-people-arrows" style="font-size:3rem;color:#006400;"></i>
                 </div>
                 
                 <!-- Session Title and Description from mock -->
                 <h3 style="font-size:1.5rem;font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;margin-top:1.5rem;margin-bottom:0;">HOST SESSION</h3>
-                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;margin-bottom:0;">Manage Islamic learning sessions with interactive tools</p>
+                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;margin-bottom:0;">Guided Islamic Learning</p>
             </div>
 
             <!-- Input Section from mock -->
@@ -75,10 +75,12 @@
                     
                     <!-- Input field adapted from mock -->
                     <InputText @bind-Value="Model!.FriendlyToken" 
-                               placeholder="Enter your Host GUID Token"
+                               placeholder="8 CHAR TOKEN"
                                disabled="@isLoading"
                                autocomplete="off"
-                               style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;"
+                               maxlength="8"
+                               @oninput="OnTokenInput"
+                               style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;text-align:center;text-transform:uppercase;"
                                @onfocus="@(() => SetFocusStyle(true))"
                                @onblur="@(() => SetFocusStyle(false))" />
                 </div>
@@ -443,11 +445,29 @@
         // No need for dynamic style manipulation as CSS handles it
     }
 
+    private void OnTokenInput(ChangeEventArgs e)
+    {
+        if (Model != null && e.Value != null)
+        {
+            var input = e.Value.ToString() ?? "";
+            // Limit to 8 characters and convert to uppercase
+            if (input.Length <= 8)
+            {
+                Model.FriendlyToken = input.ToUpperInvariant();
+            }
+            else
+            {
+                Model.FriendlyToken = input.Substring(0, 8).ToUpperInvariant();
+            }
+        }
+    }
+
     public class HostLandingViewModel
     {
         public string? LogoText { get; set; }
 
         [Required(ErrorMessage = "Friendly token is required")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "Token must be exactly 8 characters")]
         public string FriendlyToken { get; set; } = "";
 
         public string? SessionName { get; set; }

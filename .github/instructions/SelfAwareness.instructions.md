@@ -4,13 +4,43 @@
 > Everything else lives under **Workspaces/Copilot/**.
 
 ## Scope
-Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`.
+Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
 ## Core Principles
 - **Deterministic rails**: follow these rules exactly; do not invent new flows.  
 - **Single source of truth**: prompts here; configs and state under `Workspaces/Copilot/`.  
 - **Evidence-first**: factor terminal logs, analyzers, and artifacts into analysis and summaries.  
-- **Small steps**: change one thing at a time, accumulate tests, and stabilize before moving on.  
+- **Small steps**: change one thing at a time, accumulate tests, and stabilize before moving on.
+
+## Phase Prompt Processing
+All agents must handle `---` delimited input as separate todo items:
+
+### Phase Recognition
+- **Delimiter**: `---` on its own line indicates phase separation
+- **Parsing**: Split user input into individual phases for sequential processing
+- **Identification**: Each phase gets a unique identifier: `phase_{number}` where number starts at 1
+
+### Phase Processing Workflow
+For each phase, agents must:
+1. **Implementation**: Make the required change for this specific phase
+2. **Test Generation**: Create headless, silent Playwright test in `Workspaces/TEMP/`
+   - Naming: `{agent}-phase-{phase_number}-{key}-{RUN_ID}.spec.ts`
+   - Must be headless and silent (no browser UI)
+   - Must validate the specific change made in this phase
+3. **Test Validation**: Ensure test passes (retry up to 3 times if needed)
+4. **Phase Completion**: Mark complete with debug log
+5. **Next Phase**: Move to subsequent phase only after current phase is fully complete
+
+### Temporary Test Management
+- **Location**: All phase tests go in `Workspaces/TEMP/` directory
+- **Cleanup**: Remove temporary phase tests after all phases complete (unless `commit:false`)
+- **Distinction**: Permanent tests follow proper structure as per config files in `config/testing/`
+- **Isolation**: Each phase test should be independent and not depend on previous phase tests
+
+### Phase Completion Logging
+- **Format**: `[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] phase_{number}_complete status=success/failure ;CLEANUP_OK`
+- **Required**: Each phase must log completion before proceeding to next phase
+- **Failure Handling**: If phase fails, stop processing and report failure with specific phase number  
 
 ## File Organization Rules
 **CRITICAL**: Never create analysis, summary, or documentation files in the project root.

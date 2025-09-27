@@ -11,7 +11,6 @@ Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a gi
 - **notes:** freeform description of the image request (artifacts needed, formats, files to update, context)
 
 ## Inputs (read)
-## Inputs (read)
 - `.github/instructions/SelfAwareness.instructions.md`
 - Current implementation status and scope
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
@@ -22,14 +21,15 @@ Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a gi
 - Launch only via:
   - `./Workspaces/Global/nc.ps1`
   - `./Workspaces/Global/ncb.ps1`
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- If stopping/restarting the app, log attribution:  
+  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Analyzer & Linter Enforcement
 **See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
 Implementation cannot be marked complete until analyzers, lints, and tests are green.
 
-- Marker: [DEBUG-WORKITEM:{key}:imgreq:{RUN_ID}] message ;CLEANUP_OK
+- Use marker: `[DEBUG-WORKITEM:{key}:imgreq:{RUN_ID}] message ;CLEANUP_OK`
 - `RUN_ID`: unique id (timestamp + suffix)
 - Modes: respect `none`, `simple`, `trace`
 

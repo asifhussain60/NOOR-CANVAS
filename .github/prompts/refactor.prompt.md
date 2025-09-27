@@ -11,7 +11,6 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 - **notes:** freeform description of the refactor task (areas to target, files/modules, rationale)
 
 ## Inputs (read)
-## Inputs (read)
 - `.github/instructions/SelfAwareness.instructions.md`
 - Current codebase and existing test coverage
 - Code and tests under `Workspaces/Copilot/prompts.keys/{key}/`
@@ -23,15 +22,15 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 - Launch only via:
   - `./Workspaces/Global/nc.ps1`
   - `./Workspaces/Global/ncb.ps1`
-- If restart occurs, self-attribute:  
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- If stopping/restarting the app, log attribution:  
+  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Analyzer & Linter Enforcement
 **See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
 Refactoring cannot be marked complete until analyzers, lints, and tests are green.
 
-- Marker: [DEBUG-WORKITEM:{key}:refactor:{RUN_ID}] message ;CLEANUP_OK
+- Use marker: `[DEBUG-WORKITEM:{key}:refactor:{RUN_ID}] message ;CLEANUP_OK`
 - Respect `none`, `simple`, `trace` modes
 - `RUN_ID`: unique id (timestamp + suffix)
 

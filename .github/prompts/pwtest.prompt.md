@@ -12,7 +12,6 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 - **notes:** freeform description of the test work (scenarios, files under test, considerations)
 
 ## Inputs (read)
-## Inputs (read)
 - `.github/instructions/SelfAwareness.instructions.md`
 - Current test structure and coverage
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
@@ -34,7 +33,7 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 Test creation cannot be marked complete until analyzers, lints, and tests are green.
 
 ## Debug Logging Rules
-- Use the marker: [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- Use marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
 - `{layer}` values: `pwtest` (test authoring/execution), `tests` (shared test layer), `lifecycle`
 - `RUN_ID`: short unique id (timestamp + random suffix)
 - Modes:

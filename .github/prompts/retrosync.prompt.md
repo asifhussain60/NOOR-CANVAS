@@ -11,7 +11,6 @@ Keeps requirements, implementation, and tests synchronized for a given `{key}`, 
 - **notes:** freeform description of the synchronization scope (requirements/tests to reconcile, files to compare, drift details)
 
 ## Inputs (read)
-## Inputs (read)
 - `.github/instructions/SelfAwareness.instructions.md`
 - Current git history and changes
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
@@ -21,18 +20,19 @@ Keeps requirements, implementation, and tests synchronized for a given `{key}`, 
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-- **Never** use `dotnet run`.
+- **Never** use `dotnet run`
 - Launch only via:
   - `./Workspaces/Global/nc.ps1`
   - `./Workspaces/Global/ncb.ps1`
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- If stopping/restarting the app, log attribution:  
+  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Analyzer & Linter Enforcement
 **See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
 Synchronization cannot be declared complete until analyzers, lints, and tests are clean.
 
-- Use marker: [DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK
+- Use marker: `[DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK`
 - `{layer}` values: `retrosync`, `tests`, `impl`, `lifecycle`
 - `RUN_ID`: unique id (timestamp + suffix)
 - Respect `none`, `simple`, `trace` modes
