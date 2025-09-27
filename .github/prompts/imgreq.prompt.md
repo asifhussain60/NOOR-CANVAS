@@ -3,11 +3,11 @@ mode: agent
 ---
 ---
 title: imgreq — Image Request Agent
-version: 2.7.0
+version: 2.8.0
 appliesTo: /imgreq
 updated: 2025-09-27
 ---
-# /imgreq — Image Request Agent (v2.7.0)
+# /imgreq — Image Request Agent (v2.8.0)
 
 Generates or captures visual artifacts (diagrams, screenshots, flows) for a given `{key}`, with structured debug logging and terminal-grounded evidence.
 
@@ -48,6 +48,11 @@ Generates or captures visual artifacts (diagrams, screenshots, flows) for a give
 - Playwright screenshots (if used) must save into:
   Workspaces/Copilot/artifacts/playwright/report/
 - Always report relative paths in summaries.
+
+## Node.js & Testing Context
+- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
+- Imgreq may invoke Playwright for screenshots, but must never assume Node.js is part of the app.  
+- The production stack remains **ASP.NET Core 8.0 + Blazor Server + SignalR**.
 
 ## Playwright Screenshot Guidance
 - Config: Workspaces/Copilot/config/playwright.config.ts

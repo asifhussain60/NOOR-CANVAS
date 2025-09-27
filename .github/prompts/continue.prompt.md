@@ -2,11 +2,11 @@
 mode: agent
 ---
 title: continue — Progressor Agent
-version: 2.7.0
+version: 2.8.0
 appliesTo: /continue
 updated: 2025-09-27
 ---
-# /continue — Progressor Agent (v2.7.0)
+# /continue — Progressor Agent (v2.8.0)
 
 Advances a partially completed `/workitem` using the same rails, without resetting context or contracts. Continues exactly where the last successful step left off, with controlled debug logging and terminal-grounded evidence.
 
@@ -43,6 +43,12 @@ Advances a partially completed `/workitem` using the same rails, without resetti
   - **simple**: add logs only for critical checks, decision points, and lifecycle events.
   - **trace**: log every step of the continuation flow.
 
+## Testing & Node.js Context
+- The NOOR Canvas application is **ASP.NET Core 8.0 + Blazor Server + SignalR**.  
+- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
+- Playwright config: `playwright.config.js`, setup in `PlayWright/Tests/global-setup.ts`, and test files under `Tests/*.spec.ts`.  
+- Node.js is never part of the production stack; continuation steps must respect this separation.
+
 ## Continuation Protocol
 - Do not replan; pick up the next smallest change from the last `/workitem` step.
 - Make one change at a time; run tests and review terminal evidence before moving on.
@@ -50,15 +56,15 @@ Advances a partially completed `/workitem` using the same rails, without resetti
   Workspaces/Copilot/prompts.keys/{key}/tests/
 - Insert debug logs based on the chosen `log` mode.
 
-## Testing
+## Iterative Testing
 - Specs must live under:
   Workspaces/Copilot/prompts.keys/{key}/tests/
 - Global config: Workspaces/Copilot/config/playwright.config.ts must set:
   - testDir: "Workspaces/Copilot/prompts.keys/{key}/tests"
   - baseURL from APP_URL (never hardcode URLs)
   - HTML report to Workspaces/Copilot/artifacts/playwright/report
-- Follow Iterative Accumulation:
-  After each new change/spec, run all prior specs cumulatively (spec1 → spec1+spec2 → …) and fix failures before moving on.
+- After each new change/spec, run all prior specs cumulatively (spec1 → spec1+spec2 → …).  
+- Fix failures before moving on.
 
 ## Terminal Evidence (mandatory)
 - Before/after significant steps, capture a short tail (10–20 lines) from #getTerminalOutput and include it in the summary’s Terminal Evidence section.
@@ -78,36 +84,3 @@ Advances a partially completed `/workitem` using the same rails, without resetti
 - Do not modify Workspaces/Copilot/config/environments/appsettings.*.json or any secrets unless explicitly requested.
 - Respect canonical layout: all key-scoped work in prompts.keys/{key}/workitem/ and prompts.keys/{key}/tests/.
 - Do not create new roots outside Workspaces/Copilot/ (except .github/).
-
-## Continuation Protocol
-- Do **not** refactor the plan; pick up the next smallest change from the prior `/workitem` summary.
-- Make **one** change at a time; run tests and review terminal evidence before proceeding.
-- Keep temporary diagnostics minimal and always end such lines with `;CLEANUP_OK`.
-
-## Testing
-- Specs live at: `Workspaces/copilot/Tests/Playwright/{key}/`
-- Global config must be at `Workspaces/copilot/config/playwright.config.ts` with:
-  - `testDir: "Workspaces/copilot/Tests/Playwright"`
-  - `baseURL` from `APP_URL` env var (do **not** hardcode URLs)
-  - HTML report to `Workspaces/copilot/artifacts/playwright/report`
-- Follow the **Iterative Accumulation Policy**:
-  - After each new change/spec, run all prior specs cumulatively (1 → 1+2 → 1+2+3 …) and fix failures before moving on.
-
-## Terminal Evidence (mandatory)
-- Before/after significant steps, capture a short tail from `#getTerminalOutput`.
-- Don’t claim shutdowns without evidence. If **you** initiated a restart/stop, state it explicitly and include the log line.
-
-## Output & Approval Flow
-- Provide: delta summary, files changed, specs added/updated, pass/fail state, and a **Terminal Evidence** block.
-- Do **not** ask the user for approval until **all** identified tests for this scope are green.
-- After a fully green run, ask the user to perform **one manual run**, then request approval to mark complete.
-
-## Logging Conventions
-- Implementation/continuation diagnostics:
-  `[DEBUG-WORKITEM:{key}:continue] message ;CLEANUP_OK`
-- Lifecycle events:
-  `[DEBUG-WORKITEM:{key}:lifecycle] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
-
-## Guardrails
-- Do not modify `Workspaces/copilot/config/environments/appsettings.*.json` or secrets unless explicitly requested.
-- Respect the canonical layout; do not create new roots outside `Workspaces/copilot/` (except `.github/`).

@@ -1,13 +1,12 @@
 ---
 mode: agent
 ---
----
 title: retrosync — Requirements & Reality Reconciler
-version: 2.7.0
+version: 2.8.0
 appliesTo: /retrosync
 updated: 2025-09-27
 ---
-# /retrosync — Requirements & Reality Reconciler (v2.7.0)
+# /retrosync — Requirements & Reality Reconciler (v2.8.0)
 
 Keeps requirements, implementation, and tests in sync for a given `{key}`, without external trackers. Operates entirely inside the canonical key layout.
 
@@ -43,6 +42,12 @@ Keeps requirements, implementation, and tests in sync for a given `{key}`, witho
   - **none**: do not insert debug lines.
   - **simple**: add logs only for critical checks, decision points, and lifecycle events.
   - **trace**: log every step of the reconciliation process.
+
+## Testing & Node.js Context
+- The NOOR Canvas application is **ASP.NET Core 8.0 + Blazor Server + SignalR**.  
+- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
+- Retrosync validates coverage by comparing requirements → Playwright tests, but must never confuse Node.js with app logic.  
+- Playwright setup: `playwright.config.js`, `PlayWright/Tests/global-setup.ts`, and `Tests/*.spec.ts`.
 
 ## Protocol
 1. Parse requirements from `Requirements-{key}.md`.

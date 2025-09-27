@@ -1,13 +1,12 @@
 ---
 mode: agent
 ---
----
 title: cleanup — Log/Artifact Janitor + Structure Verifier & Migrator
-version: 2.7.0
+version: 2.8.0
 appliesTo: /cleanup
 updated: 2025-09-27
 ---
-# /cleanup — Log/Artifact Janitor + Structure Verifier & Migrator (v2.7.0)
+# /cleanup — Log/Artifact Janitor + Structure Verifier & Migrator (v2.8.0)
 
 ## Parameters
 - **mode:** 
@@ -74,6 +73,11 @@ Report drift only when:
 - Rewrite `playwright.config.ts` if its `testDir` points to legacy paths.
 - Consolidate per-key artifacts into `prompts.keys/{key}/`.
 - Never touch `infra/`, `config/environments/`, or root-level exceptions.
+
+## Node.js & Testing Context
+- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
+- Cleanup may verify Playwright configs or migrate tests but must never treat Node.js as part of the main app stack.  
+- The production stack remains **ASP.NET Core 8.0 + Blazor Server + SignalR**.
 
 ## Launch Policy
 - **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.

@@ -1,12 +1,13 @@
 ---
 mode: agent
 ---
+---
 title: workitem — Implementation Agent
-version: 2.7.0
+version: 2.8.0
 appliesTo: /workitem
 updated: 2025-09-27
 ---
-# /workitem — Implementation Agent (v2.7.0)
+# /workitem — Implementation Agent (v2.8.0)
 
 Implements scoped changes for a given `{key}` and stabilizes them with cumulative Playwright tests, structured debug logs, and terminal-grounded evidence.
 
@@ -43,13 +44,20 @@ Implements scoped changes for a given `{key}` and stabilizes them with cumulativ
   - **simple**: add logs only for critical checks, decision points, and lifecycle events.
   - **trace**: log every step of the flow, including intermediate calculations, branching decisions, and results.
 
+## Testing & Node.js Context
+- The NOOR Canvas application is **ASP.NET Core 8.0 + Blazor Server + SignalR**.  
+- Node.js is **test-only**: used exclusively for Playwright E2E tests.  
+- Tests run against the running .NET app at `https://localhost:9091`.  
+- Playwright configuration is defined in `playwright.config.js`, with setup in `PlayWright/Tests/global-setup.ts`, and test files in `Tests/*.spec.ts`.  
+- Node.js is never part of the production stack.
+
 ## Implementation Protocol
 - Make one change at a time; commit the smallest viable increment.
 - After each change, run the relevant Playwright specs tied to this `{key}`.
 - Insert only temporary diagnostics marked with ;CLEANUP_OK (safe for cleanup).
 - Debug logging must respect the chosen `log` mode.
 
-## Testing
+## Iterative Testing
 - Specs must live under:
   Workspaces/Copilot/prompts.keys/{key}/tests/
 - Global config: Workspaces/Copilot/config/playwright.config.ts must set:
@@ -79,4 +87,3 @@ Implements scoped changes for a given `{key}` and stabilizes them with cumulativ
 - Do not modify Workspaces/Copilot/config/environments/appsettings.*.json or any secrets unless explicitly requested.
 - Respect canonical layout: all key-scoped work in prompts.keys/{key}/workitem/ and prompts.keys/{key}/tests/.
 - Do not create new roots outside Workspaces/Copilot/ (except .github/).
-

@@ -1,12 +1,13 @@
 ---
 mode: agent
 ---
+---
 title: pwtest — Playwright Test Agent
-version: 2.5.0
+version: 2.8.0
 appliesTo: /pwtest
 updated: 2025-09-27
 ---
-# /pwtest — Playwright Test Agent (v2.5.0)
+# /pwtest — Playwright Test Agent (v2.8.0)
 
 Creates and maintains Playwright tests for a given `{key}`. Tests validate implementation changes iteratively with cumulative runs, structured debug logging, and terminal-grounded evidence.
 
@@ -23,6 +24,33 @@ Creates and maintains Playwright tests for a given `{key}`. Tests validate imple
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
 - Tests under: `Workspaces/Copilot/prompts.keys/{key}/tests/`
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
+
+## Node.js Usage in NOOR Canvas
+- Node.js is used **exclusively** for Playwright testing.  
+- The core NOOR Canvas application is **not Node.js-based** — it’s ASP.NET Core 8.0 with Blazor Server + SignalR.  
+- Node.js provides:
+  - Playwright framework (configured in `playwright.config.js`)
+  - Global setup in `PlayWright/Tests/global-setup.ts`
+  - TypeScript test files under `Tests/`
+  - Dependencies managed in `package.json`
+- Node.js is a **development dependency only**; production stack is entirely .NET.
+
+## Playwright Configuration Summary
+- **Main Config:** `./playwright.config.js`
+  - TestDir: `Tests`
+  - BaseURL: `https://localhost:9091`
+  - Browsers: Chromium, Firefox, WebKit
+  - Parallel execution with HTML reporter
+  - Retries: 2 (CI), 0 (local)
+- **Global Setup:** `./PlayWright/Tests/global-setup.ts`
+  - Validates https://localhost:9091/api/healthcheck
+  - Retries: 5 attempts, 2s delays
+- **Package Config:** `./package.json`
+  - Playwright v1.40.0
+  - Scripts: `test`, `test:headed`, `test:debug`, `report`
+- **Test Files:** `Tests/*.spec.ts`
+  - Example: `host-experience.spec.ts`
+  - Purpose: E2E validation of Blazor Server UI across browsers.
 
 ## Launch Policy
 - **Never** use `dotnet run` or `cd "…NoorCanvas" && dotnet run`.
