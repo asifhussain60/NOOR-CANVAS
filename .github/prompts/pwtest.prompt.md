@@ -20,12 +20,15 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-- **Never** use `dotnet run` or any variant.
-- Launch only via:
-  - `./Workspaces/Global/nc.ps1`  (launch only)
-  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)
-- If you stop or restart the app, self-attribute the lifecycle event in logs:
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- **Playwright manages application lifecycle automatically via webServer configuration**
+- **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for Playwright test runs
+- **Always** use `PW_MODE=standalone` environment variable to enable automatic app startup
+- Playwright's `webServer` configuration in `config/testing/playwright.config.cjs` handles:
+  - Starting .NET app with `dotnet run` in correct directory
+  - Waiting for port 9091 to be ready
+  - Shutting down app after tests complete
+- If manual restart is needed, set environment variable and re-run Playwright:
+  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] playwright_webserver_restart=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
 **See SelfAwareness.instructions.md for complete analyzer and linter rules.**
@@ -44,14 +47,22 @@ Test creation cannot be marked complete until analyzers, lints, and tests are gr
 ## Node.js Usage & App Context
 - The NOOR Canvas app is **ASP.NET Core 8.0 + Blazor Server + SignalR**.
 - Node.js is **test-only** and used exclusively for Playwright E2E.
-- Tests run against the running .NET app at `https://localhost:9091` (or from `APP_URL` if provided).
+- **Playwright's webServer manages the .NET app lifecycle** - starts with `dotnet run`, monitors port 9091, shuts down after tests
+- Tests run against Playwright-managed app at `https://localhost:9091`
+- **Use `PW_MODE=standalone`** to enable webServer automatic management
 
 ## Playwright Configuration (expected rails)
-- Global config file: `Workspaces/Copilot/config/playwright.config.ts`
+- **Primary config**: `config/testing/playwright.config.cjs` (centralized configuration)
+  - `webServer` configuration handles automatic .NET app startup/shutdown
   - `testDir`: `Workspaces/Copilot/prompts.keys/{key}/tests`
-  - `baseURL`: read from `APP_URL` (never hardcode)
+  - `baseURL`: automatically set to `https://localhost:9091` when webServer starts
   - Reporter: HTML to `Workspaces/Copilot/artifacts/playwright/report`
   - Traces/Screenshots: enable on failure and save under `Workspaces/Copilot/artifacts/playwright/`
+- **webServer Configuration**: Automatically handles:
+  - `command: 'dotnet run'` in `SPA/NoorCanvas` directory
+  - `port: 9091` with readiness detection
+  - `reuseExistingServer: !process.env.CI` for development efficiency
+  - `timeout: 60000` for app startup
 - Global setup (if used): `PlayWright/tests/global-setup.ts`
 
 ## Test Authoring Rules
@@ -72,8 +83,11 @@ Write and run tests **incrementally**, always accumulating:
 - Keep specs deterministic; remove hidden state between tests (isolate via fixtures or fresh pages).
 
 ## Execution Rules
-- Prefer headed/trace-on-failure in development; CI may run headless parallel.
-- Do not hardcode ports/URLs; derive from `APP_URL` or config.
+- **Always use `PW_MODE=standalone`** to enable webServer automatic app management
+- **Never manually start the .NET app** - let Playwright's webServer handle it
+- Use environment variable: `$env:PW_MODE="standalone"` (PowerShell) or `PW_MODE=standalone` (bash)
+- Prefer headed/trace-on-failure in development; CI may run headless parallel
+- Ports/URLs automatically configured via webServer (https://localhost:9091)
 - Save artifacts relative to repo:
   - HTML report → `Workspaces/Copilot/artifacts/playwright/report`
   - Traces → `Workspaces/Copilot/artifacts/playwright/traces`

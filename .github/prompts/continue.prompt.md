@@ -59,15 +59,28 @@ When continuation input contains `---` separators, treat each section as a separ
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
 - Existing code and tests under `Workspaces/Copilot/prompts.keys/{key}/`
-- `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
+- **Terminal State Analysis** (CRITICAL):
+  - `#getTerminalOutput` for current terminal buffer contents
+  - `#terminalLastCommand` for last executed command context
+  - Exit codes and error states from previous operations
+  - Working directory context and environment variables
+  - Recent command history to understand implementation sequence
 
 ## Launch Policy
-- **Never** use `dotnet run`
+
+### For Development Work
+- **Never** use `dotnet run` for development
 - Launch only via:
   - `./Workspaces/Global/nc.ps1`
   - `./Workspaces/Global/ncb.ps1`
 - If stopping/restarting the app, log attribution:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+
+### For Playwright Testing (when mode: test)
+- **Use Playwright's webServer configuration** for automatic app lifecycle management
+- **Set `PW_MODE=standalone`** to enable webServer startup
+- **Never** use PowerShell scripts during test execution
+- Playwright handles `dotnet run` via webServer config in `config/testing/playwright.config.cjs`
 
 ## Analyzer & Linter Enforcement
 **See SelfAwareness.instructions.md for complete analyzer and linter rules.**
@@ -82,14 +95,23 @@ Continuation work cannot proceed until analyzers and lints are green, unless exp
 - Respect `none`, `simple`, `trace` modes from SelfAwareness
 
 ## Continuation Protocol
-1. Load context from requirements, self-review, and prior changes
-2. Identify the last verified good state (analyzers, lints, tests passing)
-3. Resume implementation from that checkpoint
-4. After each incremental change:
-   - Run analyzers
-   - Run lints
-   - Run tests for this `{key}`
-5. Record debug logs and evidence inline with changes
+1. **Load Context**: Read requirements, self-review, and prior changes
+2. **Analyze Terminal State**: Use `#getTerminalOutput` and `#terminalLastCommand` to assess:
+   - Last command executed and its exit code
+   - Current working directory context
+   - Any error messages or warnings in recent output
+   - Previous analyzer/linter/test results
+3. **Identify Last Good State**: Determine checkpoint based on terminal evidence:
+   - Successful build outputs (exit code 0)
+   - Passing test runs (no failures in output)
+   - Clean linter results (no warnings/errors)
+4. **Resume Implementation**: Continue from verified checkpoint
+5. **After Each Incremental Change**:
+   - Run analyzers and capture terminal output
+   - Run lints and analyze results in terminal
+   - Run tests for this `{key}` and review output
+   - Factor terminal results into next decision
+6. **Record Evidence**: Include terminal output snippets in debug logs
 
 ## Cleanup Protocol (when `commit:true` or `commit:force`)
 1. **Pre-commit validation**: Ensure all checks pass (unless `force`)
@@ -105,13 +127,48 @@ Continuation work cannot proceed until analyzers and lints are green, unless exp
 
 ## Iterative Testing
 - Use Playwright tests in `Workspaces/Copilot/prompts.keys/{key}/tests/`
-- Ensure global config points to correct testDir and baseURL
+- **Always use `PW_MODE=standalone`** for webServer automatic app management
+- Ensure global config (`config/testing/playwright.config.cjs`) points to correct testDir and baseURL
+- **Never manually start .NET app** - let Playwright's webServer handle it
 - Add/extend tests for resumed work
 - Run cumulative suite to ensure nothing regresses
 
-## Terminal Evidence
-- Capture and include tail (10–20 lines) of terminal output before/after changes
-- Show analyzer/linter/test results in the continuation summary
+### Correct Test Execution for Continuation
+```powershell
+# Set standalone mode
+$env:PW_MODE="standalone"
+# Run tests with webServer management
+npx playwright test --config=config/testing/playwright.config.cjs
+```
+
+## Terminal Evidence (Enhanced Analysis)
+
+### Required Terminal Analysis
+- **Before Changes**: Capture current terminal state using `#getTerminalOutput`
+  - Last command executed and exit code
+  - Working directory context
+  - Any pending error states or warnings
+- **During Implementation**: Monitor terminal feedback after each step:
+  - Analyzer results (build warnings/errors)
+  - Linter output (formatting/style issues)
+  - Test execution results (pass/fail status)
+- **After Changes**: Document final terminal state
+  - Clean exit codes (0 = success)
+  - No remaining errors in output
+  - Successful completion messages
+
+### Terminal Output Integration
+- Use `#terminalLastCommand` to understand what was attempted previously
+- Analyze exit codes: 0 (success), 1 (failure), other codes (specific errors)
+- Parse error messages from terminal output to guide problem resolution
+- Include 10-20 lines of relevant terminal output in continuation summary
+- **Never ignore terminal warnings** - address before proceeding
+
+### Decision Making Based on Terminal Output
+- **Exit Code 0**: Proceed with confidence, previous step succeeded
+- **Exit Code 1**: Investigate failure reason before continuing
+- **Build Errors**: Must resolve before making additional changes
+- **Test Failures**: Analyze failure patterns to inform implementation strategy
 
 ## Commit Policy
 - Do not commit unless:
@@ -130,13 +187,30 @@ Continuation work cannot proceed until analyzers and lints are green, unless exp
 
 ## Output & Approval Flow
 Summaries must include:
-- What was resumed and why
-- Files updated
-- Analyzer/linter results
-- Tests updated and their current state
-- Terminal Evidence
+- **Continuation Context**: What was resumed and why (based on terminal analysis)
+- **Terminal State Analysis**: 
+  - Previous command results and exit codes
+  - Current working directory and environment state
+  - Any error conditions discovered in terminal output
+- **Files Updated**: List with rationale based on terminal feedback
+- **Analyzer/Linter Results**: 
+  - Terminal output showing build success/failure
+  - Linting results with specific error counts
+  - Resolution of any terminal-reported issues
+- **Tests Updated**: Current state with terminal evidence
+  - Test execution output (pass/fail counts)
+  - Any test failures with terminal error details
+  - Performance metrics from terminal (execution time)
+- **Terminal Evidence**: 
+  - Before: Initial terminal state
+  - During: Key command outputs during implementation
+  - After: Final clean terminal state
+  - Command sequence that led to current state
 
-Approval:
+### Approval Requirements
+- All terminal outputs show successful completion (exit code 0)
+- No unresolved errors or warnings in terminal history
+- Clean analyzer/linter/test results confirmed via terminal evidence
 
 ## Guardrails
 

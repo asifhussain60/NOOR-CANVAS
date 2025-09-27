@@ -88,12 +88,20 @@ When user input contains `---` separators, treat each section as a separate todo
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-- **Never** use `dotnet run` or any variant.
+
+### For Development Work
+- **Never** use `dotnet run` or any variant for development.
 - Launch only via:
   - `./Workspaces/Global/nc.ps1`  (launch only)
   - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)
 - If you stop or restart the app, self-attribute in logs:  
   `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+
+### For Playwright Testing (when mode: test)
+- **Use Playwright's webServer configuration** for automatic app lifecycle management
+- **Set `PW_MODE=standalone`** to enable webServer startup
+- **Never** use PowerShell scripts during test execution
+- Playwright handles `dotnet run` via webServer config in `config/testing/playwright.config.cjs`
 
 ## Debug Logging Rules
 - Marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
@@ -112,10 +120,20 @@ If analyzers or lints fail, stop and fix violations before proceeding.
 ## Testing & Node.js Context
 - App: ASP.NET Core 8.0 + Blazor Server + SignalR
 - Node.js: **test-only**, used exclusively for Playwright E2E
-- Tests run against the .NET app at `https://localhost:9091`
+- **Playwright manages .NET app lifecycle** via webServer configuration
+- Tests run against auto-started app at `https://localhost:9091`
+- **Always use**: `$env:PW_MODE="standalone"` for automatic app management
 - Config: `config/testing/playwright.config.cjs`  
 - Setup: `PlayWright/tests/global-setup.ts`  
 - Specs: `Tests/*.spec.ts`
+
+### Correct Test Execution Pattern
+```powershell
+# Set standalone mode for webServer management
+$env:PW_MODE="standalone"
+# Run tests - Playwright starts/stops app automatically
+npx playwright test --config=config/testing/playwright.config.cjs
+```
 
 ## Implementation Protocol
 - Commit the smallest viable increment

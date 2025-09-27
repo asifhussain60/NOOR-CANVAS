@@ -68,11 +68,19 @@ Workspaces/Copilot/
 - **Never use project root** for any temporary or analysis files
 
 ## Absolute Runtime Rules
+
+### For .NET Application Development
 - **Never** launch with `dotnet run` or any variant.  
 - Launch only via PowerShell scripts:  
   - `./Workspaces/Global/nc.ps1`  (launch only)  
   - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)  
 - If the agent initiates a stop/restart, **self-attribute** in logs and summaries.
+
+### For Playwright Testing
+- **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for test execution
+- Playwright manages application lifecycle via `webServer` configuration in `config/testing/playwright.config.cjs`
+- Use `PW_MODE=standalone` to enable automatic app startup and shutdown
+- Tests run entirely in Node.js context with Playwright managing the .NET app as a subprocess
 
 ## Debug Logging Rules
 - All debug lines must use the consistent marker:  
@@ -190,8 +198,9 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 
 #### IIS Express & Port Management
 - Default app port: 9091 (avoid system reserved)
-- Use nc.ps1/ncb.ps1 for port cleanup and dynamic assignment
-- Always check for orphaned IIS Express processes before launch
+- **For Development**: Use nc.ps1/ncb.ps1 for port cleanup and dynamic assignment
+- **For Playwright Tests**: Use webServer configuration (`PW_MODE=standalone`) for automatic management
+- Always check for orphaned IIS Express processes before launch (development only)
 
 #### Entity Framework
 - Use retry logic for DbContext initialization
@@ -200,6 +209,10 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 #### Playwright Test Infrastructure
 - Centralized under PlayWright/ (tests, reports, results, artifacts)
 - **Main config**: `config/testing/playwright.config.cjs` (centralized configuration)
+- **webServer Configuration**: Handles automatic .NET app startup/shutdown for tests
+- **Usage Context**:
+  - **Development/Implementation**: Use PowerShell scripts (nc.ps1/ncb.ps1)
+  - **Playwright Testing**: Use webServer (`PW_MODE=standalone`) - never PowerShell scripts
 - Legacy configs: PlayWright/config/ and root (for backward compatibility)
 - All npm scripts reference the centralized config location
 
