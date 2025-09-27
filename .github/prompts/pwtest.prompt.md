@@ -1,6 +1,5 @@
 ---
 mode: agent
----
 title: pwtest — Playwright Test Agent
 version: 2.9.0
 appliesTo: /pwtest
@@ -104,7 +103,47 @@ Provide a summary containing:
 - After a fully green run, prompt for one manual verification pass
 - Then request approval to mark the `/pwtest` task complete
 
+## Key Test Patterns (Migrated from IssueTracker)
+
+### Authentication & Routing Tests
+- **Token Validation**: Test both valid and invalid token scenarios with appropriate error handling
+- **Route Conflicts**: Verify no ambiguous route exceptions during app startup
+- **Authentication Flows**: Test complete workflows from landing → authentication → session access
+- **Multi-route Support**: Validate all supported route patterns for each component
+
+### Infrastructure & Integration Tests
+- **Port Binding**: Validate app starts successfully on dynamically assigned ports
+- **Database Connectivity**: Test KSESSIONS integration with proper connection string validation
+- **SignalR Integration**: Test real-time features without connection drops or parsing errors
+- **Asset Loading**: Verify CSS, JS, and other static assets load correctly
+
+### UI Component Tests
+- **Responsive Design**: Test component rendering across different viewport sizes
+- **Visual Consistency**: Validate purple theme, Tailwind CSS classes, and spacing
+- **Animation Support**: Test smooth transitions and loading states
+- **Error States**: Validate user-friendly error messages for common failure scenarios
+
+### Session Management Tests
+- **Session Creation**: Test host provisioner workflow with proper GUID generation
+- **Participant Management**: Test real-time participant updates via SignalR
+- **Session Name Display**: Test both database lookup and fallback display patterns
+- **Token Consistency**: Validate token persistence throughout session workflows
+
+### Data Integration Tests
+- **Album & Category Loading**: Test dynamic data loading from KSESSIONS database
+- **Flag Display**: Test ISO2 country code mapping for participant countries
+- **Session Transcripts**: Test validation logic and proper storage
+- **Empty States**: Test graceful handling of empty or missing data
+
 ## Guardrails
 - Do not edit `Workspaces/Copilot/config/environments/appsettings.*.json` or secrets unless explicitly requested
 - Respect canonical layout: keep all `{key}`-scoped tests under `prompts.keys/{key}/tests/`
 - Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
+
+## Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches

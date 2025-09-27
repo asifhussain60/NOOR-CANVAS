@@ -1,6 +1,5 @@
 ---
 mode: agent
----
 title: imgreq — Image Request Agent
 version: 2.8.0
 appliesTo: /imgreq
@@ -77,3 +76,11 @@ Summaries must include:
 - Keep `{key}`-scoped images under `Workspaces/Copilot/artifacts/{key}/images/`
 - Do not alter requirements or tests except to link artifacts
 - Do not touch `appsettings.*.json` or secrets
+
+## Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches

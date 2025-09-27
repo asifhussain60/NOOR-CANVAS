@@ -1,6 +1,5 @@
 ---
 mode: agent
----
 title: refactor — Structural Integrity Agent
 version: 1.2.0
 appliesTo: /refactor
@@ -85,6 +84,25 @@ Summaries must include:
 - Request user confirmation before closing task
 
 ## Guardrails
+- Do not remove or alter requirement files unless explicitly instructed
+- Do not touch `appsettings.*.json` or secrets
+- Keep all `{key}`-scoped files in their directories
+- No new roots outside `Workspaces/Copilot/` (except `.github/`)
+
+## Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+## Database Guardrails
+- **Never use LocalDB for any database operations.**
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches.
 - Do not change `appsettings.*.json` or secrets
 - Do not alter requirements without explicit approval
 - Keep `{key}`-scoped work inside its directories

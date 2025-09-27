@@ -1,6 +1,5 @@
 ---
 mode: agent
----
 title: continue — Continuation Agent
 version: 2.8.0
 appliesTo: /continue
@@ -88,11 +87,13 @@ Summaries must include:
 - Terminal Evidence
 
 Approval:
-- Do not prompt user until analyzers, lints, and tests are green
-- After green run, request manual verification
-- Then request approval to finalize continuation
 
 ## Guardrails
-- No edits to `appsettings.*.json` or secrets unless explicitly told
-- Respect canonical layout: `{key}`-scoped work only in `workitem/` and `tests/`
-- No new directories outside `Workspaces/Copilot/` (except `.github/`)
+
+## Database Guardrails
+- **Never use LocalDB for any database operations.**
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches.

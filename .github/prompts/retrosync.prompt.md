@@ -1,6 +1,5 @@
 ---
 mode: agent
----
 title: retrosync — Requirements/Test Synchronization Agent
 version: 2.7.0
 appliesTo: /retrosync
@@ -85,8 +84,38 @@ Summaries must include:
 ## Guardrails
 - Do not edit or remove `Requirements-{key}.md` unless explicitly updating synced requirements
 - Do not alter `appsettings.*.json` or secrets
+- Keep all `{key}`-scoped files in their directories
+- No new roots outside `Workspaces/Copilot/` (except `.github/`)
+
+## Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
 - Keep all `{key}`-scoped requirements, self-reviews, and tests inside their respective directories
 - Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
+
+## Key Techstack Synchronization (Migrated from IssueTracker)
+
+### Infrastructure Monitoring
+- **Port Management**: Track changes to nc.ps1/ncb.ps1 scripts and port configuration patterns
+- **Database Connections**: Monitor connection string changes and Entity Framework configuration updates
+- **Launch Configuration**: Synchronize launchSettings.json updates and environment-specific settings
+- **Process Management**: Track IIS Express handling and cleanup procedures
+
+### Framework & Integration Updates
+- **Blazor Server**: Monitor SignalR integration changes and parsing error resolutions
+- **Authentication**: Track token validation patterns and API endpoint updates
+- **Playwright**: Synchronize test infrastructure changes and artifact management patterns
+- **CSS Framework**: Monitor Tailwind CSS integration and purple theme consistency
+
+### Development Workflow Changes
+- **Build Process**: Track analyzer and linter configuration changes
+- **Testing Strategy**: Monitor Playwright test organization and execution patterns
+- **Code Quality**: Track StyleCop suppressions and ESLint baseline changes
+- **Deployment**: Monitor any changes to build and deployment procedures
 
 # Additional Responsibilities
 - Detect and record newly introduced libraries, frameworks, or dependencies.

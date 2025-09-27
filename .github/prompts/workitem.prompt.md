@@ -1,13 +1,26 @@
 ---
 mode: agent
 ---
-title: workitem — Implementation Agent
-version: 2.10.0
-appliesTo: /workitem
-updated: 2025-09-27
+
+## Terminal Evidence (mandatory)
+- Capture short tail (10–20 lines) from `#getTerminalOutput` before/after major steps
+- Include this in summary under "Terminal Evidence"
+- If shutdown was agent-initiated, include attribution log
+
+## Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:  
+  `Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false`
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+
+## Commit Policy
+- Commit only after analyzers, lints, and tests pass
+- Include RUN_ID in commit messages for traceability
+- Respect `commit` parameter: `true`, `false`, or `force`
+
 ---
 
-# /workitem — Implementation Agent (v2.10.0)
+## /workitem — Implementation Agent (v2.10.0)
 
 Implements scoped changes for a given `{key}` and stabilizes them with analyzers, cumulative Playwright tests, structured debug logs, and terminal-grounded evidence.
 
@@ -30,10 +43,10 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
   - `./Workspaces/Copilot/Global/nc.ps1`  (launch only)
   - `./Workspaces/Copilot/Global/ncb.ps1` (clean, build, then launch)
 - If you stop or restart the app, self-attribute in logs:  
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Debug Logging Rules
-- Marker: [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
+- Marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
 - `{layer}` values: `impl`, `tests`, `pwtest`, `retrosync`, `refactor`, `cleanup`, `lifecycle`
 - `RUN_ID`: short unique id (timestamp + suffix)
 - Modes:
@@ -86,9 +99,28 @@ If analyzers or lints fail, stop and fix violations before proceeding.
   3. Add third change + spec → analyzers + lints → run spec1+spec2+spec3
   … continue until all pass
 
-## Terminal Evidence (mandatory)
-- Capture short tail (10–20 lines) from `#getTerminalOutput` before/after major steps
-- Include this in summary under “Terminal Evidence”
-- If shutdown was agent-initiated, include attribution log
+## Key Implementation Patterns (Migrated from IssueTracker)
 
-## Commit
+### Authentication & Routing Implementation
+- **Route Disambiguation**: Always verify @page directives don't create ambiguous routes
+- **Token Validation**: Use appropriate API endpoints based on token format (GUID vs friendly tokens)
+- **Error Handling**: Implement user-friendly error messages for authentication failures
+- **Multi-route Support**: Support multiple route patterns with proper parameter handling
+
+### Database Integration Standards
+- **Connection Strings**: Use standardized connection strings with proper timeout configuration
+- **Entity Framework**: Handle DbContext initialization issues with retry patterns
+- **KSESSIONS Integration**: Support both database lookup and fallback patterns for data display
+- **Foreign Key Constraints**: Implement proper validation for session and participant relationships
+
+### UI/UX Implementation Standards
+- **CSS Framework**: Use Tailwind CSS with consistent purple theme throughout
+- **Responsive Design**: Implement proper centering and sizing for all authentication components
+- **Animation Support**: Include smooth transitions and loading states where appropriate
+- **Visual Consistency**: Maintain consistent padding, spacing, and component sizing
+
+### SignalR & Real-time Features
+- **Message Serialization**: Handle InvalidDataException during data parsing appropriately
+- **Connection Management**: Implement proper connection lifecycle management
+- **Participant Updates**: Support real-time participant list updates without connection drops
+- **Error Recovery**: Implement graceful degradation for SignalR connection failures

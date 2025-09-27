@@ -9,7 +9,6 @@ updated: 2025-09-27
 
 # /cleanup — Cleanup Agent (v2.7.0)
 
-
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
 
@@ -24,7 +23,7 @@ updated: 2025-09-27
 - Only launch via:
   - `./Workspaces/Copilot/Global/nc.ps1`
   - `./Workspaces/Copilot/Global/ncb.ps1`
-  [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
+- Marker: `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Analyzer & Linter Enforcement
 Cleanup cannot complete until analyzers and lints are clean:
@@ -32,16 +31,16 @@ Cleanup cannot complete until analyzers and lints are clean:
 - Run `npm run lint` → must pass with 0 warnings
 - Run `npm run format:check` → must pass with 0 formatting issues
 
-- Use marker: [DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK
+- Use marker: `[DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK`
 - `RUN_ID`: short unique id (timestamp + suffix)
 - Respect `none`, `simple`, `trace` modes
 
 ## Cleanup Protocol
-2. Remove unused files, obsolete artifacts, and redundant snapshots
-3. Simplify duplicate/unreferenced code
-4. Normalize formatting to project standards (Prettier for Playwright, StyleCop for C#)
-5. Validate results with analyzers and lints
-6. Run cumulative test suite for `{key}` to ensure no regressions
+1. Remove unused files, obsolete artifacts, and redundant snapshots
+2. Simplify duplicate/unreferenced code
+3. Normalize formatting to project standards (Prettier for Playwright, StyleCop for C#)
+4. Validate results with analyzers and lints
+5. Run cumulative test suite for `{key}` to ensure no regressions
 
 ## Iterative Validation
 - After each cleanup pass:
@@ -66,26 +65,67 @@ Summaries must include:
 - Then finalize cleanup task
 
 ## Guardrails
-- Do not remove requirement or test files unless explicitly orphaned and confirmed
-- Do not modify `appsettings.*.json` or secrets
+- Never remove requirement or test files unless explicitly orphaned and confirmed
+- Never modify `appsettings.*.json` or secrets
 - Keep all `{key}`-scoped files in their directories
-- Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
+- Never create new roots outside `Workspaces/Copilot/` (except `.github/`)
 
-# Variable Cleanup
-- Remove unused variables and their references entirely.
-- Do not silence warnings by adding underscores.
+---
 
+## Variable Cleanup
+- Remove unused variables and their references entirely
+- Never silence warnings by adding underscores
 
-# TypeScript Cleanup
-- Replace all implicit or explicit `any` types with proper TypeScript types.
-- Prefer Node.js and Playwright native types (e.g., IncomingMessage, Page).
+## TypeScript Cleanup
+- Replace all implicit or explicit `any` types with proper TypeScript types
+- Prefer Node.js and Playwright native types (e.g., IncomingMessage, Page)
 
+## Import Rules
+- Enforce ES6 import/export syntax only
+- Remove all CommonJS `require()` usage
 
-# Import Rules
-- Enforce ES6 import/export syntax only.
-- Remove all CommonJS `require()` usage.
+## Cleanup Progress Tracking
+- Track cleanup in structured phases (warnings → errors → formatting → validation)
+- Report progress with counts of fixed vs remaining issues
 
+---
 
-# Cleanup Progress Tracking
-- Track cleanup in structured phases (warnings → errors → formatting → validation).
-- Report progress with counts of fixed vs remaining issues.
+## File Relocation Rules
+
+You are responsible for cleaning the repository of stray or misplaced files to keep the root and solution folders organized.
+
+### Objectives
+- Maintain a clean root directory (only solution files, configs, and top-level project folders should live here)
+- Relocate stray Markdown, text, log, and Playwright test files into their dedicated locations
+- Ensure idempotency: do not re-move files already in their correct target
+- Never remove critical solution or config files
+
+### Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+
+### File Relocation Rules (YAML)
+```yaml
+rules:
+  - match: "**/*.md"
+    exclude:
+      - "README.md"
+    action: move
+    target: "Workspaces/Documentation/MD-Reports"
+  - match: "**/*.txt"
+    action: move
+    target: "Workspaces/Documentation/MD-Reports"
+  - match: "**/*.log"
+    action: move
+    target: "Workspaces/Documentation/Logs"
+  - match: "**/*.spec.ts"
+    action: move
+    target: "PlayWright/tests"
+  - match: "**/*.test.ts"
+    action: move
+    target: "PlayWright/tests"
+```

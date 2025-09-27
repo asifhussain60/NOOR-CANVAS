@@ -1,6 +1,5 @@
 ---
 mode: agent
----
 title: migrate — Repo Folder Migration Agent
 version: 2.3.0
 appliesTo: /migrate
@@ -76,3 +75,11 @@ Summaries must include:
 - Do not discard test files or requirements
 - Only move files into canonical Copilot structure
 - No new roots outside `Workspaces/Copilot/` (except `.github/`)
+
+## Database Guardrails
+- Never use LocalDB for any database operations
+- Always use the specified SQL Server instance:
+```
+Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
+```
+- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
