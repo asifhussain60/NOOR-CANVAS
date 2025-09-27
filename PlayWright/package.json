@@ -4,8 +4,8 @@
     "description": "Playwright tests for NOOR Canvas with linting",
     "main": "index.js",
     "scripts": {
-        "lint": "eslint 'Tests/**/*.{ts,tsx}' --max-warnings=0",
-        "format": "prettier --write 'Tests/**/*.{ts,tsx}'",
+        "lint": "eslint 'tests/**/*.{ts,tsx}' --max-warnings=0",
+        "format": "prettier --write 'tests/**/*.{ts,tsx}'",
         "test": "playwright test"
     },
     "devDependencies": {

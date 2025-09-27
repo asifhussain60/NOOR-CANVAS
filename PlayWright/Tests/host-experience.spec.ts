@@ -409,10 +409,11 @@ test.describe('Host Experience - Sunshine Path', () => {
         try {
           const rules = Array.from(sheet.cssRules || sheet.rules || []);
           const hasKsTranscript = rules.some(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (rule: any) => rule.selectorText && rule.selectorText.includes('.ks-transcript'),
           );
           if (hasKsTranscript) return true;
-        } catch (e) {
+        } catch (_e) {
           // Cross-origin stylesheets may throw errors, skip them
           continue;
         }
@@ -517,7 +518,7 @@ test.describe('Host Experience - Rainy Day Scenarios', () => {
         try {
           await dateInput.fill('2025-09-22');
           console.log('✅ Date filled for validation test');
-        } catch (error) {
+        } catch {
           console.log('⚠️  Date input may have different format requirements');
         }
       }

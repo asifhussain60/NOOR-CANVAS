@@ -24,7 +24,7 @@ const TEST_CONFIG = {
 };
 
 // Verbose logging helper
-function log(message: string, data?: any) {
+function log(message: string, data?: unknown) {
   console.log(
     `[Q&A-TEST] ${new Date().toISOString()}: ${message}${data ? ` - ${JSON.stringify(data)}` : ''}`,
   );

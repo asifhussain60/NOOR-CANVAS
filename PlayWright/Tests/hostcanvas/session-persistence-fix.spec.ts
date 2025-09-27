@@ -203,12 +203,3 @@ test.describe('Session Persistence Fix', () => {
 });
 
 // Helper function to wait for session data to be available
-async function waitForSessionData(page: any, timeout = 10000) {
-  await page.waitForFunction(
-    () => {
-      const sessionState = window.localStorage.getItem('noorCanvas_sessionState');
-      return sessionState && JSON.parse(sessionState).SessionId > 0;
-    },
-    { timeout },
-  );
-}

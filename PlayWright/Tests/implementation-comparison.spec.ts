@@ -68,8 +68,6 @@ test.describe('SignalR vs HTTP Implementation Comparison', () => {
   test('HTTP API Implementation - Question Management', async ({ page }) => {
     console.log('🔍 Testing HTTP API Implementation for Question Management');
 
-    const _startTime = Date.now();
-
     try {
       // Test 1: Submit question via HTTP API
       await page.goto(testConfig.baseUrl);
@@ -288,11 +286,12 @@ test.describe('SignalR vs HTTP Implementation Comparison', () => {
         try {
           // Test SessionHub connection
           const sessionHubStart = Date.now();
-          const sessionConnection = new signalR.HubConnectionBuilder()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const hubConnection = new (window as any).signalR.HubConnectionBuilder()
             .withUrl('/hub/session')
             .build();
 
-          await sessionConnection.start();
+          await hubConnection.start();
           results.sessionHub.success = true;
           results.sessionHub.time = Date.now() - sessionHubStart;
 
@@ -479,16 +478,17 @@ test.describe('SignalR vs HTTP Implementation Comparison', () => {
   });
 });
 
-function calculateScore(results: any): number {
+function calculateScore(results: Record<string, unknown>): number {
   let score = 0;
   let total = 0;
 
-  Object.values(results).forEach((result: any) => {
+  Object.values(results).forEach((result) => {
+    const typedResult = result as { success: boolean; time: number };
     total += 25; // Each test is worth 25 points
-    if (result.success) {
+    if (typedResult.success) {
       score += 25;
       // Bonus points for good performance (under 1000ms)
-      if (result.time < 1000) {
+      if (typedResult.time < 1000) {
         score += 5;
       }
     }

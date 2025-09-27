@@ -13,7 +13,6 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** logging mode (`none`, `simple`, `trace`)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
@@ -37,7 +36,6 @@ Before and after refactor:
 
 If analyzers or lints fail, resolve violations as part of the refactor.
 
-## Debug Logging Rules
 - Marker: [DEBUG-WORKITEM:{key}:refactor:{RUN_ID}] message ;CLEANUP_OK
 - Respect `none`, `simple`, `trace` modes
 - `RUN_ID`: unique id (timestamp + suffix)
@@ -45,7 +43,6 @@ If analyzers or lints fail, resolve violations as part of the refactor.
 ## Refactor Protocol
 1. **Survey & Identify**  
    - Detect duplicate, dead, or bloated code
-   - Flag long methods, deeply nested logic, magic strings, and poor naming
 
 2. **Systematic Updates**  
    Apply industry-standard refactorizations:
@@ -55,14 +52,12 @@ If analyzers or lints fail, resolve violations as part of the refactor.
    - **Separation of concerns** → isolate UI, business, and data layers
    - **Naming conventions** → apply StyleCop and ESLint standards
    - **Formatting/consistency** → Prettier for Playwright, StyleCop for .NET
-   - **Error handling** → standardize exception/logging patterns
    - **Test improvements** → remove brittle waits, improve resilience
 
 3. **Validation Pass**  
    - Run analyzers
    - Run lints
    - Run full test suite
-   - Capture evidence logs
 
 4. **Iterative Refinement**  
    - Repeat until no violations or warnings remain
@@ -75,7 +70,6 @@ If analyzers or lints fail, resolve violations as part of the refactor.
 
 ## Terminal Evidence
 - Include 10–20 lines from `#getTerminalOutput` showing analyzers, lints, and test results
-- Add debug logs explaining major refactor steps
 
 ## Outputs
 Summaries must include:

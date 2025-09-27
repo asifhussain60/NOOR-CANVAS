@@ -24,27 +24,15 @@
  * ====================================================================
  */
 
-import { expect, Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { IncomingMessage } from 'http';
+import * as https from 'https';
+import { URL } from 'url';
 
 // Hard stop against accidental UI runs:
 test.use({ headless: true }); // prevents headed/--ui even if config drifts
 
 // INLINE HELPERS (Required by gentest.prompt.md)
-
-async function fillBlazorInput(page: Page, selector: string, value: string) {
-  const input = page.locator(selector);
-  await input.clear();
-  await input.fill(value);
-  await input.dispatchEvent('input');
-  await input.dispatchEvent('change');
-  await page.waitForTimeout(2000);
-}
-
-async function clickEnabledButton(page: Page, selector: string, timeout = 10000) {
-  const button = page.locator(selector);
-  await expect(button).toBeEnabled({ timeout });
-  await button.click();
-}
 
 function redact(v?: string) {
   if (!v) return v;
@@ -56,8 +44,7 @@ async function validateInfrastructure() {
   console.log('🔍 Validating infrastructure with SSL support...');
   try {
     // REGRESSION FIX: Use https module instead of fetch() for SSL bypass
-    const https = require('https');
-    const { URL } = require('url');
+
     const url = new URL('https://localhost:9091/healthz');
     const options = {
       hostname: url.hostname,
@@ -68,8 +55,9 @@ async function validateInfrastructure() {
       timeout: 10000,
     };
     const response = await new Promise<{ ok: boolean; status: number }>((resolve, reject) => {
-      const req = https.request(options, (res: any) => {
-        resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode });
+      const req = https.request(options, (res: IncomingMessage) => {
+        const status = res.statusCode || 500;
+        resolve({ ok: status >= 200 && status < 300, status });
       });
       req.on('error', reject);
       req.on('timeout', () => {
@@ -86,17 +74,6 @@ async function validateInfrastructure() {
 }
 
 // REGRESSION PREVENTION: Use exact placeholders from Blazor components
-class BlazorSelectors {
-  static HOST_TOKEN_INPUT = 'input[placeholder*="Enter Host Token" i]';
-  static ALBUM_SELECT = 'select[id*="album" i]';
-  static CATEGORY_SELECT = 'select[id*="category" i]';
-  static SESSION_SELECT = 'select[id*="session" i]';
-  static OPEN_SESSION_BUTTON = 'button:has-text("Open Session")';
-  static PARTICIPANT_NAME_INPUT = 'input[placeholder="Enter your name"]';
-  static PARTICIPANT_EMAIL_INPUT = 'input[placeholder="Enter your email"]';
-  static PARTICIPANT_TOKEN_INPUT = 'input[placeholder="Enter your Unique User Token"]';
-  static JOIN_WAITING_ROOM_BUTTON = 'button:has-text("Join Waiting Room")';
-}
 
 // TEST FIXTURES AND SETUP
 let testConfig = {
@@ -144,7 +121,7 @@ test.beforeEach(async ({ page }) => {
   console.log('✅ Application health check passed');
 
   // Setup test participants for cleanup testing
-  await setupTestParticipants(page);
+  await setupTestParticipants();
 
   console.log('📊 Test configuration:');
   console.log(`  - Headless: true`);
@@ -154,7 +131,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 // HELPER: Setup test participants via direct API call
-async function setupTestParticipants(page: Page) {
+async function setupTestParticipants() {
   console.log('👥 Setting up test participants via API...');
 
   for (let i = 0; i < testConfig.testParticipants.length; i++) {
@@ -190,9 +167,6 @@ async function registerParticipantAPI(participant: {
   email: string;
   country: string;
 }): Promise<{ success: boolean; message: string }> {
-  const https = require('https');
-  const { URL } = require('url');
-
   return new Promise((resolve, reject) => {
     const url = new URL(`https://localhost:9091/api/participant/register-with-token`);
     const postData = JSON.stringify({
@@ -244,9 +218,6 @@ async function registerParticipantAPI(participant: {
 
 // HELPER: Verify participants count via API
 async function getParticipantsCount(userToken: string): Promise<number> {
-  const https = require('https');
-  const { URL } = require('url');
-
   return new Promise((resolve, reject) => {
     const url = new URL(`https://localhost:9091/api/participant/session/${userToken}/participants`);
     const options = {
@@ -284,9 +255,6 @@ async function getParticipantsCount(userToken: string): Promise<number> {
 async function deleteParticipants(
   userToken: string,
 ): Promise<{ deletedCount: number; message: string }> {
-  const https = require('https');
-  const { URL } = require('url');
-
   return new Promise((resolve, reject) => {
     const url = new URL(`https://localhost:9091/api/participant/session/${userToken}/participants`);
     const options = {

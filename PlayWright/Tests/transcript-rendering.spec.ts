@@ -18,7 +18,7 @@ declare global {
 
 test.describe('Host Canvas - Session Transcript Rendering', () => {
   test('should diagnose transcript rendering issues @hostcanvas', async ({ page }) => {
-    // [DEBUG-WORKITEM:hostcanvas:continue] Starting headless diagnostic test ;CLEANUP_OK
+    // Starting headless diagnostic test
 
     console.log('[PLAYWRIGHT] Starting transcript rendering diagnostic');
 

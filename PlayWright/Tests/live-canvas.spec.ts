@@ -27,20 +27,12 @@
  */
 
 import { expect, Page, test } from '@playwright/test';
+import * as net from 'net';
 
 // Hard stop against accidental UI runs:
 test.use({ headless: true }); // prevents headed/--ui even if config drifts
 
 // INLINE HELPERS (Required by gentest.prompt.md)
-
-  const _fillBlazorInput = async (selector: string, value: string) => {
-  const input = page.locator(selector);
-  await input.clear();
-  await input.fill(value);
-  await input.dispatchEvent('input');
-  await input.dispatchEvent('change');
-  await page.waitForTimeout(2000);
-}
 
 async function clickEnabledButton(page: Page, selector: string, timeout = 10000) {
   const button = page.locator(selector);
@@ -58,7 +50,6 @@ async function validateInfrastructure() {
   console.log('🔍 Validating infrastructure with SSL support...');
   try {
     // Simple port check - if port 9091 is listening, the app is running
-    const net = require('net');
     await new Promise<void>((resolve, reject) => {
       const socket = new net.Socket();
       socket.setTimeout(5000);
@@ -159,9 +150,6 @@ test.describe('Live Canvas Flow', () => {
     await page.waitForTimeout(5000); // Allow SignalR to sync participant count
 
     // EVIDENCE: Capture participant count and details
-    const participantCountElement = page
-      .locator('text=participant')
-      .or(page.locator(':has-text("participant")'));
     // Continue regardless of specific element visibility to collect evidence
 
     // Extract and log participant count for evidence

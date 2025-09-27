@@ -13,7 +13,6 @@ Keeps requirements, implementation, and tests synchronized for a given `{key}`, 
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
@@ -28,7 +27,6 @@ Keeps requirements, implementation, and tests synchronized for a given `{key}`, 
 - Launch via:
   - `./Workspaces/Copilot/Global/nc.ps1`
   - `./Workspaces/Copilot/Global/ncb.ps1`
-- If restarting/stopping, self-attribute in logs:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
@@ -39,7 +37,6 @@ Before reconciling requirements/tests:
 
 Retrosync cannot proceed until analyzers and lints are clean.
 
-## Debug Logging Rules
 - Use marker: [DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK
 - `{layer}` values: `retrosync`, `tests`, `impl`, `lifecycle`
 - `RUN_ID`: unique id (timestamp + suffix)
@@ -90,3 +87,8 @@ Summaries must include:
 - Do not alter `appsettings.*.json` or secrets
 - Keep all `{key}`-scoped requirements, self-reviews, and tests inside their respective directories
 - Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
+
+# Additional Responsibilities
+- Detect and record newly introduced libraries, frameworks, or dependencies.
+- Identify changes in the technology stack or infrastructure.
+- Sync these updates into **SelfAwareness.instructions.md** so Copilot has the latest context.

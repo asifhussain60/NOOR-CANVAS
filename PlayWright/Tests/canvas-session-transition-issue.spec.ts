@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Canvas Session Transition Issue', () => {
   test('should successfully transition from SessionWaiting to SessionCanvas', async ({ page }) => {
@@ -90,7 +90,7 @@ test.describe('Canvas Session Transition Issue', () => {
     expect(response.status()).toBeDefined();
   });
 
-  test('should test complete session flow from waiting to canvas', async ({ page, context: _context }) => {
+  test('should test complete session flow from waiting to canvas', async ({ page }) => {
     // This test will simulate the complete flow that users experience
 
     // Step 1: Create a new session (as host)

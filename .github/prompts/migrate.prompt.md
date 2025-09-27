@@ -13,7 +13,6 @@ Performs one-time repo reorganizations into the `Workspaces/Copilot/` structure.
 
 ## Parameters
 - **key:** identifier for migration scope (if applicable)
-- **log:** logging mode (`none`, `simple`, `trace`)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
@@ -25,7 +24,6 @@ Performs one-time repo reorganizations into the `Workspaces/Copilot/` structure.
 - Launch migrated app only via:
   - `./Workspaces/Copilot/Global/nc.ps1`
   - `./Workspaces/Copilot/Global/ncb.ps1`
-- If restart required, self-attribute in logs:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
@@ -36,7 +34,6 @@ After migration, validate:
 
 Migration cannot be declared complete until analyzers, lints, and tests are clean.
 
-## Debug Logging Rules
 - Marker: [DEBUG-WORKITEM:{key}:migrate:{RUN_ID}] message ;CLEANUP_OK
 - `RUN_ID`: short unique id (timestamp + suffix)
 - Respect `none`, `simple`, `trace` modes

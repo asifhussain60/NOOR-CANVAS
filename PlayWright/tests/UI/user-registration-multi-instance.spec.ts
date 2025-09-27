@@ -1,5 +1,5 @@
 // Test: User Registration Multi-Instance Synchronization
-// Target: UserLanding.razor component
+//   const ____clickEnabledButton = async (selector: string) => {arget: UserLanding.razor component
 // Validates: 5 concurrent browser instances registering participants and verifying cross-instance synchronization
 
 import { BrowserContext, expect, Page, test } from '@playwright/test';
@@ -59,11 +59,6 @@ async function fillBlazorInput(page: Page, selector: string, value: string) {
 }
 
 // Helper function for Blazor-safe button clicking
-  const _clickEnabledButton = async (selector: string) => {
-  const button = page.locator(selector);
-  await expect(button).toBeEnabled();
-  await button.click();
-}
 
 test.describe('User Registration Multi-Instance Synchronization', () => {
   let contexts: BrowserContext[] = [];

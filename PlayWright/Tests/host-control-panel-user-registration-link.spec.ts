@@ -8,26 +8,15 @@
 // and Start Session button when valid UserToken is loaded from API
 // ================================================================================================
 
-import { expect, Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { IncomingMessage } from 'http';
+import * as https from 'https';
+import { URL } from 'url';
 
 // Hard stop against accidental UI runs:
 test.use({ headless: true }); // prevents headed/--ui even if config drifts
 
-// Inline helpers for Blazor-safe interactions
-  const _fillBlazorInput = async (selector: string, value: string) => {
-  const input = page.locator(selector);
-  await input.clear();
-  await input.fill(value);
-  await input.dispatchEvent('input');
-  await input.dispatchEvent('change');
-  await page.waitForTimeout(2000);
-}
-
-async function clickEnabledButton(page: Page, selector: string, timeout = 10000) {
-  const button = page.locator(selector);
-  await expect(button).toBeEnabled({ timeout });
-  await button.click();
-}
+// Inline helpers removed - unused functions
 
 function redact(v?: string) {
   if (!v) return v;
@@ -39,8 +28,7 @@ async function validateInfrastructure() {
   console.log('🔍 Validating infrastructure with SSL support...');
   try {
     // REGRESSION FIX: Use https module instead of fetch() for SSL bypass
-    const https = require('https');
-    const { URL } = require('url');
+
     const url = new URL('https://localhost:9091/healthz');
     const options = {
       hostname: url.hostname,
@@ -51,8 +39,9 @@ async function validateInfrastructure() {
       timeout: 10000,
     };
     const response = await new Promise<{ ok: boolean; status: number }>((resolve, reject) => {
-      const req = https.request(options, (res: any) => {
-        resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode });
+      const req = https.request(options, (res: IncomingMessage) => {
+        const status = res.statusCode || 500;
+        resolve({ ok: status >= 200 && status < 300, status });
       });
       req.on('error', reject);
       req.on('timeout', () => {
@@ -195,7 +184,7 @@ test.describe('Host Control Panel User Registration Link', () => {
 
       // Debug: Check console logs for UserToken loading
       const logs = await page.evaluate(() => {
-        return (window as any).__consoleLogs || [];
+        return (window as { __consoleLogs?: unknown[] }).__consoleLogs || [];
       });
       console.log('🔍 Browser console logs:', logs);
 

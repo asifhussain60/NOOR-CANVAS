@@ -74,7 +74,7 @@ test.describe('Database Broadcasting Functional Tests', () => {
     );
 
     // Verify our broadcast exists in the results
-    const ourBroadcast = broadcasts.find((b: any) => b.id === createResult.id);
+    const ourBroadcast = broadcasts.find((b: { id: string }) => b.id === createResult.id);
     expect(ourBroadcast).toBeTruthy();
     expect(ourBroadcast.title).toBe('API Test Broadcast');
     expect(ourBroadcast.sessionId).toBe(218);

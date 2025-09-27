@@ -1,72 +1,59 @@
+# issuetracker-migration.prompt.md
+
+## Purpose
+This prompt guides Copilot in migrating knowledge from legacy **IssueTracker** files into the active instruction ecosystem.  
+The migration process must be selective: only still-relevant fixes and lessons learned are preserved. Outdated or redundant issues must be ignored.
+
 ---
-mode: agent
----
-title: issuetracker-migration — One-Time Tracker Migration Agent
-version: 1.0.0
-appliesTo: /issuetracker-migration
-updated: 2025-09-27
----
-
-# /issuetracker-migration — One-Time Tracker Migration Agent (v1.0.0)
-
-Consumes legacy tracker archives (e.g., `IssueTracker.zip`) and permanently restructures relevant information into the canonical Copilot `{key}` format. This is a one-time migration; after completion the original tracker files may be deleted.
-
-## Scope
-- Input: `IssueTracker.zip` containing historical issue tracker files
-- Output: normalized key-based directories under `Workspaces/Copilot/prompts.keys/{key}/`
-
-## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
-- Legacy tracker archive (`IssueTracker.zip`)
-- Existing Copilot repo structure
-
-## Outputs (write)
-For each identified `{key}`:
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`  
-  → Acceptance criteria, goals, constraints
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`  
-  → Design notes, rationale, decisions
-- `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md`  
-  → TODOs, obsolete files, cleanup instructions
-- `Workspaces/Copilot/prompts.keys/{key}/tests/`  
-  → Playwright spec stubs or extracted test cases
 
 ## Migration Protocol
-1. Parse tracker entries:
-   - Extract IDs, titles, descriptions, comments, acceptance criteria
-   - Map related entries into a unified `{key}`
-2. Normalize under canonical structure:
-   - Requirements → `Requirements-{key}.md`
-   - Design/rationale → `SelfReview-{key}.md`
-   - Cleanup notes → `Cleanup-{key}.md`
-   - Test cases/specs → `tests/`
-3. Link requirements to associated tests
-4. Identify missing coverage (requirements with no test, or test with no requirement)
-5. Validate migration by running:
-   - `dotnet build --no-restore --warnaserror`
-   - `npm run lint`
-   - `npm run format:check`
-   - Cumulative Playwright suite
 
-## Debug Logging Rules
-- Marker: [DEBUG-WORKITEM:{key}:issuetracker-migration:{RUN_ID}] message ;CLEANUP_OK
-- Respect `none`, `simple`, `trace` modes
+### 1. Scope of Analysis
+- Only analyze files in the `COMPLETED/` directory.  
+- Ignore `AWAITING_CONFIRMATION` or any other folders.  
 
-## Terminal Evidence
-- Capture 10–20 lines from `#getTerminalOutput` showing analyzer/linter/test status
-- Include evidence in summary
+### 2. Relevance Test
+For each completed issue:
+- **Obsolete / Redundant** → Ignore.  
+  - Criteria: fix refers to code paths, APIs, or components removed by architectural changes, or conflicts solved permanently by later redesigns.  
+- **Still Valid** → Preserve.  
+  - Criteria: fix encodes a durable requirement, a safeguard, a reusable testing pattern, or infrastructure knowledge that remains applicable to the current architecture.  
 
-## Outputs
-Migration summary must include:
-- Keys created/updated
-- Requirements extracted
-- SelfReviews generated
-- Cleanup notes created
-- Tests linked/added
-- Analyzer/linter/test results
-- Terminal Evidence tail
+### 3. Transformation
+For every issue deemed still valid, extract the durable knowledge and restructure it into one of the following key types:
 
-## Approval Workflow
-- Do not commit until analyzers, lints, and tests are green
-- Present structured summary of `{key}` migrations
-- After confirmation, mark `/issuetracker-migration` complete and original tracker files may be deleted
+- **key-requirements**  
+  - Enduring product or system requirements identified through the issue resolution.  
+  - Example: routing rules, validation constraints, UX invariants, error-handling contracts.  
+
+- **key-tests**  
+  - Durable test structures or coverage gaps identified and solved.  
+  - Example: Playwright suite reorganization, test directory conventions, validation flows that must always be tested.  
+
+- **key-infrastructure / key-techstack**  
+  - Architectural, deployment, or environment lessons.  
+  - Example: IIS port conflicts, SignalR behavior, IIS Express quirks, dependency management fixes.  
+
+### 4. Folding Into System
+- Transformed keys are injected into the active instruction ecosystem:  
+  - Requirements → `workitem.prompt.md` and `SelfAwareness.instructions.md`.  
+  - Tests → `pwtest.prompt.md`.  
+  - Infrastructure / Techstack → `retrosync.prompt.md` (and synced into `SelfAwareness`).  
+
+### 5. Exclusions
+- Do not duplicate trivial bug fixes (e.g., typo corrections, single-line patches).  
+- Do not migrate redundant fixes already covered in existing keys.  
+- Do not keep history for its own sake — only preserve enduring lessons.  
+
+---
+
+## Compliance
+- Document each migrated issue with a short justification for **why it was preserved** (or why it was discarded).  
+- Maintain transparency by logging counts: total completed issues analyzed, preserved vs. ignored.  
+- Ensure migrated knowledge is immediately usable in the target prompts without manual editing.
+
+---
+
+## Outcome
+After migration, the IssueTracker markdown files can be safely deleted.  
+All surviving, still-applicable knowledge is absorbed into the structured key system, keeping the instruction set lean, current, and authoritative.

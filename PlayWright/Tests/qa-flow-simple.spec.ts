@@ -62,23 +62,6 @@ async function waitForElementWithLogging(
 /**
  * Fill Blazor input with proper event handling
  */
-async function fillBlazorInput(
-  page: Page,
-  selector: string,
-  value: string,
-  description?: string,
-): Promise<void> {
-  const desc = description || `input ${selector}`;
-  console.log(`📝 Filling ${desc} with: ${value}`);
-
-  const input = page.locator(selector);
-  await input.click();
-  await input.fill('');
-  await input.type(value);
-  await input.blur(); // Trigger Blazor change events
-
-  console.log(`✅ Filled ${desc}`);
-}
 
 /**
  * Monitor network requests for API calls

@@ -10,9 +10,7 @@
  * Purpose: Clean test environment after authentication tests
  */
 
-import { FullConfig } from '@playwright/test';
-
-async function globalTeardown(_config: FullConfig) {
+async function globalTeardown() {
   console.log('');
   console.log('🧹 Cleaning up after Authentication Tests...');
 

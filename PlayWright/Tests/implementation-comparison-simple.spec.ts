@@ -210,7 +210,7 @@ test.describe('Implementation Comparison: SignalR vs HTTP', () => {
     // Test real-time messaging
     const messagingTest = await page1.evaluate(async () => {
       return new Promise((resolve) => {
-        let _messageReceived = false;
+        let __messageReceived = false;
         const timeout = setTimeout(() => resolve(false), 5000);
 
         const connection = new (window as any).signalR.HubConnectionBuilder()
@@ -221,8 +221,8 @@ test.describe('Implementation Comparison: SignalR vs HTTP', () => {
           .start()
           .then(() => {
             // Listen for user joined events
-            connection.on('UserJoined', () => {
-              _messageReceived = true;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            connection.on('UserJoined', (data: any) => {
               clearTimeout(timeout);
               resolve(true);
             });

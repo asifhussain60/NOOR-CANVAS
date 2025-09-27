@@ -343,7 +343,7 @@ test.describe('Q&A Flow End-to-End Tests', () => {
           console.log(`✅ Question found using selector: ${selector}`);
           questionFound = true;
           break;
-        } catch (error) {
+        } catch (_error) {
           console.log(`❌ Question not found using selector: ${selector}`);
         }
       }

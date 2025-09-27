@@ -13,7 +13,6 @@ Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a gi
 
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
-- **log:** logging mode (`none`, `simple`, `trace`) controlling verbosity
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
@@ -25,7 +24,6 @@ Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a gi
 - Launch only via:
   - `./Workspaces/Copilot/Global/nc.ps1`
   - `./Workspaces/Copilot/Global/ncb.ps1`
-- If stopping/restarting, self-attribute lifecycle event in logs:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
@@ -36,7 +34,6 @@ Before or after generating image-related artifacts:
 
 If analyzers or lints fail, stop and fix violations before finalizing image tasks.
 
-## Debug Logging Rules
 - Marker: [DEBUG-WORKITEM:{key}:imgreq:{RUN_ID}] message ;CLEANUP_OK
 - `RUN_ID`: unique id (timestamp + suffix)
 - Modes: respect `none`, `simple`, `trace`
