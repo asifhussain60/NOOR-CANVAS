@@ -1,6 +1,6 @@
 {
   "config": {
-    "configFile": "D:\\PROJECTS\\NOOR CANVAS\\playwright.config.js",
+    "configFile": "D:\\PROJECTS\\NOOR CANVAS\\config\\testing\\playwright.config.cjs",
     "rootDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
     "forbidOnly": false,
     "fullyParallel": false,
@@ -52,18 +52,2157 @@
     "workers": 4,
     "webServer": null
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
-      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+      "title": "asset-sharing-harness.spec.ts",
+      "file": "asset-sharing-harness.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Asset Sharing via Simulation Harness",
+          "file": "asset-sharing-harness.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load simulation harness and detect asset sharing capability",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "f623a47e355b9a304dcf-9d0eb7638fb9a78119ff",
+              "file": "asset-sharing-harness.spec.ts",
+              "line": 46,
+              "column": 7
+            },
+            {
+              "title": "should access host iframe and locate TestShareAsset functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "f623a47e355b9a304dcf-4bdf9922f39485c6b9fd",
+              "file": "asset-sharing-harness.spec.ts",
+              "line": 71,
+              "column": 7
+            },
+            {
+              "title": "should verify participant frames can receive shared assets",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "f623a47e355b9a304dcf-f8fd0f4cbb1eb2a416f0",
+              "file": "asset-sharing-harness.spec.ts",
+              "line": 124,
+              "column": 7
+            },
+            {
+              "title": "should simulate asset sharing workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "f623a47e355b9a304dcf-fa7bf5a7446798f26c86",
+              "file": "asset-sharing-harness.spec.ts",
+              "line": 163,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "canvas-session-transition-issue.spec.ts",
+      "file": "canvas-session-transition-issue.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Canvas Session Transition Issue",
+          "file": "canvas-session-transition-issue.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should successfully transition from SessionWaiting to SessionCanvas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c49c7a2321c42c75a78a-9d6e6265f36e80194278",
+              "file": "canvas-session-transition-issue.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "should validate token API endpoint directly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c49c7a2321c42c75a78a-dc48feaee5f52d624ad4",
+              "file": "canvas-session-transition-issue.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "should test complete session flow from waiting to canvas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c49c7a2321c42c75a78a-8db9ab46c5f9599a53cb",
+              "file": "canvas-session-transition-issue.spec.ts",
+              "line": 93,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "cross-session-html-broadcast.spec.ts",
+      "file": "cross-session-html-broadcast.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Cross-Session HTML Broadcasting",
+          "file": "cross-session-html-broadcast.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should broadcast HTML content across sessions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "81da477c76a03cfaa97b-999be19cbd938b0786e2",
+              "file": "cross-session-html-broadcast.spec.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "should handle multiple rapid broadcasts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "81da477c76a03cfaa97b-927c956a1f10798060ed",
+              "file": "cross-session-html-broadcast.spec.ts",
+              "line": 146,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "database-broadcast-functional-test.spec.ts",
+      "file": "database-broadcast-functional-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Database Broadcasting Functional Tests",
+          "file": "database-broadcast-functional-test.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Host Control Panel - Simple HTML Broadcasting via Database",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b68efed2b086157908dd-a260d14d5a2a2158901b",
+              "file": "database-broadcast-functional-test.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "API Direct Database Verification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b68efed2b086157908dd-20fa487ed3886b75d922",
+              "file": "database-broadcast-functional-test.spec.ts",
+              "line": 48,
+              "column": 7
+            },
+            {
+              "title": "SessionCanvas Content Loading Test",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "b68efed2b086157908dd-7b1a2ee090e202ee3720",
+              "file": "database-broadcast-functional-test.spec.ts",
+              "line": 87,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "host-control-panel-user-registration-link.spec.ts",
+      "file": "host-control-panel-user-registration-link.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Host Control Panel User Registration Link",
+          "file": "host-control-panel-user-registration-link.spec.ts",
+          "line": 71,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display User Registration Link with valid token between SESSION CONTROLS and Start Session button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09e0156e4d0404d8687b-b2479dde40f6228dcf5f",
+              "file": "host-control-panel-user-registration-link.spec.ts",
+              "line": 114,
+              "column": 7
+            },
+            {
+              "title": "should handle copy functionality when clicking copy button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09e0156e4d0404d8687b-b52b76474868fdd98f3b",
+              "file": "host-control-panel-user-registration-link.spec.ts",
+              "line": 196,
+              "column": 7
+            },
+            {
+              "title": "should handle case when UserToken is not loaded (negative path)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09e0156e4d0404d8687b-2c4ad355fb697ff24964",
+              "file": "host-control-panel-user-registration-link.spec.ts",
+              "line": 225,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "host-experience.spec.ts",
+      "file": "host-experience.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Host Experience - Sunshine Path",
+          "file": "host-experience.spec.ts",
+          "line": 167,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should complete full host authentication and session opening flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d773aa85a86b93923662-6621d6472a4e7d7e62e3",
+              "file": "host-experience.spec.ts",
+              "line": 168,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Host Experience - Rainy Day Scenarios",
+          "file": "host-experience.spec.ts",
+          "line": 451,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle invalid host token gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d773aa85a86b93923662-398c397dbd2fe252091c",
+              "file": "host-experience.spec.ts",
+              "line": 452,
+              "column": 7
+            },
+            {
+              "title": "should require all fields before enabling Open Session button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d773aa85a86b93923662-7e11a657dff8d908835d",
+              "file": "host-experience.spec.ts",
+              "line": 484,
+              "column": 7
+            },
+            {
+              "title": "should handle empty dropdown states",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d773aa85a86b93923662-f8d709aedd8133e3e702",
+              "file": "host-experience.spec.ts",
+              "line": 533,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "CSS and Asset Verification",
+          "file": "host-experience.spec.ts",
+          "line": 579,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should verify all CSS assets are properly loaded and applied",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d773aa85a86b93923662-22b22f430a1f660d8549",
+              "file": "host-experience.spec.ts",
+              "line": 580,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "hostcanvas\\session-persistence-fix.spec.ts",
+      "file": "hostcanvas/session-persistence-fix.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Session Persistence Fix",
+          "file": "hostcanvas/session-persistence-fix.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Host Control Panel - Session ID available on initial load",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "409e1513070ec49faa46-2161a9fa209168654357",
+              "file": "hostcanvas/session-persistence-fix.spec.ts",
+              "line": 19,
+              "column": 7
+            },
+            {
+              "title": "Session Canvas - Session ID available on initial load",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "409e1513070ec49faa46-9615d83d2f3bdba62ce1",
+              "file": "hostcanvas/session-persistence-fix.spec.ts",
+              "line": 75,
+              "column": 7
+            },
+            {
+              "title": "Page refresh maintains session state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "409e1513070ec49faa46-d107701107f224bea2db",
+              "file": "hostcanvas/session-persistence-fix.spec.ts",
+              "line": 108,
+              "column": 7
+            },
+            {
+              "title": "Security verification - no tokens in localStorage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "409e1513070ec49faa46-ef5db00304a0e9cd95e1",
+              "file": "hostcanvas/session-persistence-fix.spec.ts",
+              "line": 148,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "hostcanvas\\signalr-integration.spec.ts",
+      "file": "hostcanvas/signalr-integration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SignalR Integration - HostCanvas",
+          "file": "hostcanvas/signalr-integration.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Phase 1: Token Length Validation Fix",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22842e830e8026fa518e-cdc78aa35796e54e33dc",
+              "file": "hostcanvas/signalr-integration.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "Phase 2: SignalR Connection Status",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22842e830e8026fa518e-b46b0f1f9dd70e3997bf",
+              "file": "hostcanvas/signalr-integration.spec.ts",
+              "line": 44,
+              "column": 7
+            },
+            {
+              "title": "Phase 3: Asset Sharing Integration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22842e830e8026fa518e-09f9614c3d09e09eae09",
+              "file": "hostcanvas/signalr-integration.spec.ts",
+              "line": 70,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "implementation-comparison-simple.spec.ts",
+      "file": "implementation-comparison-simple.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Implementation Comparison: SignalR vs HTTP",
+          "file": "implementation-comparison-simple.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "HTTP API - Participant Management",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "823dfcac300163983af2-0cb503d11eb49c0fe395",
+              "file": "implementation-comparison-simple.spec.ts",
+              "line": 20,
+              "column": 7
+            },
+            {
+              "title": "HTTP API - Question Management",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "823dfcac300163983af2-0967d64cd24158c48622",
+              "file": "implementation-comparison-simple.spec.ts",
+              "line": 56,
+              "column": 7
+            },
+            {
+              "title": "SignalR Hub Connectivity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "823dfcac300163983af2-c2177d7d5755d8c7584f",
+              "file": "implementation-comparison-simple.spec.ts",
+              "line": 125,
+              "column": 7
+            },
+            {
+              "title": "SignalR Real-time Messaging",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "823dfcac300163983af2-37b8f38d5acfc4cd5426",
+              "file": "implementation-comparison-simple.spec.ts",
+              "line": 192,
+              "column": 7
+            },
+            {
+              "title": "Implementation Comparison Summary",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "823dfcac300163983af2-404a99794f0d20d47d27",
+              "file": "implementation-comparison-simple.spec.ts",
+              "line": 247,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "implementation-comparison.spec.ts",
+      "file": "implementation-comparison.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SignalR vs HTTP Implementation Comparison",
+          "file": "implementation-comparison.spec.ts",
+          "line": 58,
+          "column": 6,
+          "specs": [
+            {
+              "title": "HTTP API Implementation - Question Management",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4bc6a37e9be70a113ea4-cbf69de2cd010e423730",
+              "file": "implementation-comparison.spec.ts",
+              "line": 68,
+              "column": 7
+            },
+            {
+              "title": "HTTP API Implementation - Participant Management",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4bc6a37e9be70a113ea4-0c1f2b04169b5c3001f2",
+              "file": "implementation-comparison.spec.ts",
+              "line": 169,
+              "column": 7
+            },
+            {
+              "title": "SignalR Implementation - Real-time Features",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4bc6a37e9be70a113ea4-36db351dad00845eb00b",
+              "file": "implementation-comparison.spec.ts",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "Performance and Reliability Comparison",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4bc6a37e9be70a113ea4-75f2e6fcb939a37c85f1",
+              "file": "implementation-comparison.spec.ts",
+              "line": 409,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "live-canvas.spec.ts",
+      "file": "live-canvas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Live Canvas Flow",
+          "file": "live-canvas.spec.ts",
+          "line": 91,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle complete live canvas flow with 50 participants",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "157dac79efc059defc8e-661cfb958006eb1168dd",
+              "file": "live-canvas.spec.ts",
+              "line": 124,
+              "column": 7
+            },
+            {
+              "title": "should handle invalid session token gracefully in SessionCanvas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "157dac79efc059defc8e-d9327bc4f2f535e357ac",
+              "file": "live-canvas.spec.ts",
+              "line": 282,
+              "column": 7
+            },
+            {
+              "title": "should handle network issues in waiting room gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "157dac79efc059defc8e-6b4270580f1bbc22d724",
+              "file": "live-canvas.spec.ts",
+              "line": 302,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "logo-replacement-verification.spec.ts",
+      "file": "logo-replacement-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Logo Replacement Verification",
+          "file": "logo-replacement-verification.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Host Landing page should use NoorCanvas.png logo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cb4228a1f702357fad8a-db904212c26f714c7bea",
+              "file": "logo-replacement-verification.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "UserLanding page should use NoorCanvas.png logo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cb4228a1f702357fad8a-0fa5cdae8b6b7619c5c4",
+              "file": "logo-replacement-verification.spec.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "All logo images should load successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cb4228a1f702357fad8a-5d91a37745ffdacb6643",
+              "file": "logo-replacement-verification.spec.ts",
+              "line": 54,
+              "column": 7
+            },
+            {
+              "title": "Old NC-Header.png references should be completely removed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cb4228a1f702357fad8a-2e19aac698f1745e3733",
+              "file": "logo-replacement-verification.spec.ts",
+              "line": 86,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "participants-cleanup-on-session-open.spec.ts",
+      "file": "participants-cleanup-on-session-open.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "should automatically delete participants when host opens session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e117053c0a4665c81a79-0c78a6f4c3ee38fba42c",
+          "file": "participants-cleanup-on-session-open.spec.ts",
+          "line": 295,
+          "column": 5
+        },
+        {
+          "title": "should handle invalid token gracefully in deletion endpoint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e117053c0a4665c81a79-3b2403f8fcd17eae2b82",
+          "file": "participants-cleanup-on-session-open.spec.ts",
+          "line": 383,
+          "column": 5
+        },
+        {
+          "title": "should handle empty token gracefully in deletion endpoint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "e117053c0a4665c81a79-e97b7a22a090d9793041",
+          "file": "participants-cleanup-on-session-open.spec.ts",
+          "line": 400,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "qa-flow-end-to-end.spec.ts",
+      "file": "qa-flow-end-to-end.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Q&A Flow End-to-End Tests",
+          "file": "qa-flow-end-to-end.spec.ts",
+          "line": 186,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete Q&A Flow: SessionCanvas → HostControlPanel",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a648a353e71e57c9c09-630652ed5d3ac3bd4fd7",
+              "file": "qa-flow-end-to-end.spec.ts",
+              "line": 194,
+              "column": 7
+            },
+            {
+              "title": "Q&A Flow Rainy Path: Submit without active session",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a648a353e71e57c9c09-8772a73878ab17b0e949",
+              "file": "qa-flow-end-to-end.spec.ts",
+              "line": 414,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "qa-flow-simple.spec.ts",
+      "file": "qa-flow-simple.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Q&A Flow End-to-End Tests (Database Driven)",
+          "file": "qa-flow-simple.spec.ts",
+          "line": 110,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete Q&A Flow: SessionCanvas → HostControlPanel (Using Database Session)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c4da77bc8c446188731d-949367e70599645703ab",
+              "file": "qa-flow-simple.spec.ts",
+              "line": 111,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "qa-functionality-multi-user.spec.ts",
+      "file": "qa-functionality-multi-user.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Q&A Functionality Multi-User Test",
+          "file": "qa-functionality-multi-user.spec.ts",
+          "line": 74,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should propagate questions between multiple connected user sessions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c02243bfb1b384681e20-b092ab2967279bd84ca5",
+              "file": "qa-functionality-multi-user.spec.ts",
+              "line": 119,
+              "column": 7
+            },
+            {
+              "title": "should handle invalid question submission gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c02243bfb1b384681e20-2b8f1e4eb7c1fa2cbd8f",
+              "file": "qa-functionality-multi-user.spec.ts",
+              "line": 312,
+              "column": 7
+            },
+            {
+              "title": "should display user identification for questions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c02243bfb1b384681e20-55ba111233e82872e029",
+              "file": "qa-functionality-multi-user.spec.ts",
+              "line": 361,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "qa-jsonfix-simple-verification.spec.ts",
+      "file": "qa-jsonfix-simple-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Q&A JsonElement Fix Verification",
+          "file": "qa-jsonfix-simple-verification.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should retrieve questions without JsonElement casting exceptions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "53a622de3f6b84be40bb-ac8df1407e8fb300a649",
+              "file": "qa-jsonfix-simple-verification.spec.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "should handle session validation without JsonElement issues",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "53a622de3f6b84be40bb-76450082b0166a6747b4",
+              "file": "qa-jsonfix-simple-verification.spec.ts",
+              "line": 81,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "qa-jsonfix-verification.spec.ts",
+      "file": "qa-jsonfix-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Q&A JsonElement Fix Verification",
+          "file": "qa-jsonfix-verification.spec.ts",
+          "line": 163,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load Q&A panel without JsonElement errors and propagate questions across multiple users",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "dcc217f2198c48909d1c-e4133b9f6b56fcb23108",
+              "file": "qa-jsonfix-verification.spec.ts",
+              "line": 209,
+              "column": 7
+            },
+            {
+              "title": "should load questions from API without JsonElement casting errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "dcc217f2198c48909d1c-b34bf22f61168265a9f0",
+              "file": "qa-jsonfix-verification.spec.ts",
+              "line": 274,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "session-title-ksessions-verification.spec.ts",
+      "file": "session-title-ksessions-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Session Title/Description KSESSIONS Integration Verification",
+          "file": "session-title-ksessions-verification.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "API: SessionController returns title from KSESSIONS.SessionName",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-34750c80f7042b0c851a",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "API: ParticipantController validation returns KSESSIONS title",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-59f5f4cfd4887bcda89a",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "API: HostController authentication returns KSESSIONS title",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-a63bd2a73a43ce9fde33",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 67,
+              "column": 7
+            },
+            {
+              "title": "UI: User Landing page displays KSESSIONS title",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-b682993bacafaebb4b98",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 86,
+              "column": 7
+            },
+            {
+              "title": "UI: Host Landing page displays KSESSIONS title",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-d40f93363a9767d338e4",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 118,
+              "column": 7
+            },
+            {
+              "title": "UI: Participant Registration shows KSESSIONS title",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-c7a1393e7a7d00cecae5",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 157,
+              "column": 7
+            },
+            {
+              "title": "Database: Verify canvas.Sessions no longer has Title column",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-f2249f1310125f31b576",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 181,
+              "column": 7
+            },
+            {
+              "title": "Integration: End-to-end title consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-375d3570190716d8dde5",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 200,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Session Description KSESSIONS Integration Verification",
+          "file": "session-title-ksessions-verification.spec.ts",
+          "line": 247,
+          "column": 6,
+          "specs": [
+            {
+              "title": "API: SessionController returns description from KSESSIONS.Description",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-9131567c82637dc0fe55",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 255,
+              "column": 7
+            },
+            {
+              "title": "API: ParticipantController returns KSESSIONS description",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "68d73dfc26f0bd579a1b-f9e339d59315477310dd",
+              "file": "session-title-ksessions-verification.spec.ts",
+              "line": 276,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "session-waiting-timer-fix-verification.spec.ts",
+      "file": "session-waiting-timer-fix-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SessionWaiting Timer Fix Verification",
+          "file": "session-waiting-timer-fix-verification.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Countdown display should be green color",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-dbb6f0ac5990fffc18f1",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 27,
+              "column": 7
+            },
+            {
+              "title": "Progress bar should be visible and functional",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-5e983a0dc6c4df059a8c",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 70,
+              "column": 7
+            },
+            {
+              "title": "Timer should update correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-b428ab43d462572ab346",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 105,
+              "column": 7
+            },
+            {
+              "title": "CSS styling should be properly applied",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-5eaca870c288ce9c7eb8",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 143,
+              "column": 7
+            },
+            {
+              "title": "Overall page functionality after CSS fixes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "243c619a1a7eebe07e2c-6e455b1941e5b1a78fc9",
+              "file": "session-waiting-timer-fix-verification.spec.ts",
+              "line": 172,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "signalcomm\\simple-ui-verification.spec.ts",
+      "file": "signalcomm/simple-ui-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Broadcast Template UI Verification - signalcomm",
+          "file": "signalcomm/simple-ui-verification.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Verify new template buttons and inline broadcast button are present",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22a8e762795af8cdff73-7fc2f523f12fa1dfed8e",
+              "file": "signalcomm/simple-ui-verification.spec.ts",
+              "line": 12,
+              "column": 7
+            },
+            {
+              "title": "Verify old buttons have been removed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22a8e762795af8cdff73-ca04229d22e136eee08a",
+              "file": "signalcomm/simple-ui-verification.spec.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "Verify Simple HTML template button functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22a8e762795af8cdff73-006f511a90ea0070fe8f",
+              "file": "signalcomm/simple-ui-verification.spec.ts",
+              "line": 69,
+              "column": 7
+            },
+            {
+              "title": "Verify Complex HTML template button functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "22a8e762795af8cdff73-dbd64dd96d520626aedd",
+              "file": "signalcomm/simple-ui-verification.spec.ts",
+              "line": 93,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "simple-host-test.spec.ts",
+      "file": "simple-host-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Simple Host Test",
+          "file": "simple-host-test.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load host page @hostcanvas",
+              "ok": true,
+              "tags": [
+                "hostcanvas"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "346c96d9a9ddabec04e7-cccef2484db5f7d03f0e",
+              "file": "simple-host-test.spec.ts",
+              "line": 4,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "transcript-rendering.spec.ts",
+      "file": "transcript-rendering.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Host Canvas - Session Transcript Rendering",
+          "file": "transcript-rendering.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should diagnose transcript rendering issues @hostcanvas",
+              "ok": true,
+              "tags": [
+                "hostcanvas"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5ce08d4b8db8eed9d652-e94db8e78fce5e6cbef9",
+              "file": "transcript-rendering.spec.ts",
+              "line": 20,
+              "column": 7
+            },
+            {
+              "title": "should check Enhanced Processor JavaScript integration @hostcanvas",
+              "ok": true,
+              "tags": [
+                "hostcanvas"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5ce08d4b8db8eed9d652-911389004f2f12d92abd",
+              "file": "transcript-rendering.spec.ts",
+              "line": 162,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "UI\\user-registration-multi-instance.spec.ts",
+      "file": "UI/user-registration-multi-instance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "User Registration Multi-Instance Synchronization",
+          "file": "UI/user-registration-multi-instance.spec.ts",
+          "line": 63,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should register 5 users concurrently and sync participants across all instances",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "90d1bd5b33ef1853d305-bc76d7c7750f5ca27ead",
+              "file": "UI/user-registration-multi-instance.spec.ts",
+              "line": 97,
+              "column": 7
+            },
+            {
+              "title": "should validate SignalR WebSocket connections are established",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "90d1bd5b33ef1853d305-a89fcd358648c9171128",
+              "file": "UI/user-registration-multi-instance.spec.ts",
+              "line": 252,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "user-registration-multi-instance.spec.ts",
+      "file": "user-registration-multi-instance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "User Registration Multi-Instance Synchronization",
+          "file": "user-registration-multi-instance.spec.ts",
+          "line": 151,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should register 10 users concurrently and sync participants across all instances",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5eca1ca6ef240afc07f1-70b9f6325a1c8fc8fe69",
+              "file": "user-registration-multi-instance.spec.ts",
+              "line": 185,
+              "column": 7
+            },
+            {
+              "title": "should validate SignalR WebSocket connections are established",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "5eca1ca6ef240afc07f1-7abefcdb0d00cf16f3f0",
+              "file": "user-registration-multi-instance.spec.ts",
+              "line": 378,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "visual-demo-verification.spec.ts",
+      "file": "visual-demo-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Visual Demo Verification",
+          "file": "visual-demo-verification.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should successfully complete user registration flow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9795d914075877294895-cebc12a835c9b7e97e84",
+              "file": "visual-demo-verification.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "should load visual demo page without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9795d914075877294895-42a6151c989bcf921e74",
+              "file": "visual-demo-verification.spec.ts",
+              "line": 64,
+              "column": 7
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-09-26T22:51:40.241Z",
-    "duration": 20.32899999999995,
+    "startTime": "2025-09-27T15:11:23.960Z",
+    "duration": 183.35799999999995,
     "expected": 0,
-    "skipped": 0,
+    "skipped": 84,
     "unexpected": 0,
     "flaky": 0
   }

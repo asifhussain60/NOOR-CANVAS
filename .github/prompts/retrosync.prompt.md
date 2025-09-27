@@ -28,8 +28,8 @@ Keeps requirements, implementation, and tests synchronized for a given `{key}`, 
 ## Analyzer & Linter Enforcement
 Before reconciling requirements/tests:
 - Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings
-- Run `npm run format:check` → must pass with 0 formatting issues
+- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
+- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 Retrosync cannot proceed until analyzers and lints are clean.
 

@@ -12,6 +12,31 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 - **Evidence-first**: factor terminal logs, analyzers, and artifacts into analysis and summaries.  
 - **Small steps**: change one thing at a time, accumulate tests, and stabilize before moving on.  
 
+## File Organization Rules
+**CRITICAL**: Never create analysis, summary, or documentation files in the project root.
+
+### Documentation & Analysis File Placement
+All agent-generated documentation must be placed in the designated directory structure:
+
+```
+Workspaces/Copilot/
+├── _DOCS/                    # All analysis and summary documents
+│   ├── summaries/           # Work completion summaries
+│   ├── analysis/            # Technical analysis documents
+│   ├── configs/             # Configuration documentation
+│   └── migrations/          # Migration and reorganization docs
+├── artifacts/               # Build and test artifacts
+├── config/                  # Agent configurations
+└── prompts.keys/           # Key-based prompt storage
+```
+
+**Enforcement:**
+- **Summaries**: `Workspaces/Copilot/_DOCS/summaries/`
+- **Analysis**: `Workspaces/Copilot/_DOCS/analysis/`
+- **Config Documentation**: `Workspaces/Copilot/_DOCS/configs/`
+- **Migration Reports**: `Workspaces/Copilot/_DOCS/migrations/`
+- **Never use project root** for any temporary or analysis files
+
 ## Absolute Runtime Rules
 - **Never** launch with `dotnet run` or any variant.  
 - Launch only via PowerShell scripts:  
@@ -44,8 +69,8 @@ All agents must enforce **industry-standard analyzers and linters** before decla
 - **Invariant**: Do **not** attempt to reintroduce suppressed rules unless explicitly instructed.
 
 ### ESLint Integration
-- Default config: `.eslintrc.js`  
-- Cleanup config: `.eslintrc.cleanup.js` (for complex patterns like SignalR globals, Playwright contexts).  
+- Main config: `config/testing/eslint.config.js` (centralized configuration)  
+- Legacy configs in PlayWright/ (`.eslintrc.js`, `.eslintrc.cleanup.js`) for specific patterns like SignalR globals, Playwright contexts.  
 - **Baseline Debt (Accepted)**:  
   - SignalR Browser Globals (20 errors) – acceptable.  
   - Playwright Dynamic Contexts (10 errors) – acceptable.  
@@ -53,12 +78,27 @@ All agents must enforce **industry-standard analyzers and linters** before decla
   - Catch Block Patterns (3 errors) – acceptable.  
 - Agents must **not** attempt to eliminate these debts unless explicitly instructed.
 
+### npm Script Enforcement (Updated Sept 27, 2025)
+All agents must use the centralized npm scripts for linting, formatting, and testing:
+
+- **Linting**: `npm run lint` (uses `config/testing/eslint.config.js`)
+- **Formatting Check**: `npm run format:check` (uses `config/testing/.prettierrc`)
+- **Formatting Fix**: `npm run format` (uses `config/testing/.prettierrc`)
+- **TypeScript Check**: `npm run build:tests` (uses `config/testing/tsconfig.json`)
+- **Playwright Tests**: All test commands use `config/testing/playwright.config.cjs`
+
+**Enforcement Rules:**
+- Run from repository root directory
+- All scripts automatically reference centralized config files
+- **Zero tolerance**: All linting and formatting must pass before declaring success
+- **Error Interpretation**: Distinguish between config issues vs. actual code problems
+
 ## Modernization Guardrails
 - **Imports**: All new code must use ES6 `import` syntax. Never reintroduce `require()`.  
 - **Typing**: Prefer explicit types over `any`. If unavoidable, document why.  
 - **Error Handling**: Use null coalescing (`??`) and safe defaults for resilience.  
 - **Code Hygiene**: Delete unused functions/variables instead of prefixing with `_`.  
-- **Formatting**: Always format with Prettier. Respect case sensitivity (`Tests` → `tests`).  
+- **Formatting**: Always format with Prettier using `config/testing/.prettierrc`. Respect case sensitivity (`Tests` → `tests`).  
 
 ## Memory of Failures & Prohibited Retries
 Agents must **record and respect failed approaches**:  
@@ -87,6 +127,25 @@ Agents must **record and respect failed approaches**:
 
 ## Key Infrastructure (Migrated from IssueTracker)
 
+### Configuration File Organization (Updated Sept 27, 2025)
+All JavaScript/JSON configuration files have been centralized for better organization:
+
+```
+config/
+└── testing/
+    ├── eslint.config.js          # ESLint configuration for TypeScript/Playwright tests
+    ├── playwright.config.cjs     # Playwright test configuration (CommonJS format)
+    ├── tsconfig.json            # TypeScript configuration for tests
+    └── .prettierrc             # Prettier formatting configuration
+```
+
+**Key Points:**
+- **Centralized Location**: All configs in `config/testing/` directory
+- **npm Scripts**: All package.json scripts reference the centralized config locations
+- **Backward Compatibility**: Legacy configs in PlayWright/ maintained for specific use cases
+- **CommonJS Format**: Playwright config uses `.cjs` extension for ES module compatibility
+- **Path Updates**: All relative paths correctly updated for new directory structure
+
 ### Port Management & Launch
 
 ### Database Connectivity
@@ -109,9 +168,10 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 - Connection string must match above for all .NET apps
 
 #### Playwright Test Infrastructure
-- Centralized under PlayWright/ (tests, reports, results, artifacts, config)
-- Main config: PlayWright/config/playwright.config.js
-- Proxy config: project root playwright.config.js
+- Centralized under PlayWright/ (tests, reports, results, artifacts)
+- **Main config**: `config/testing/playwright.config.cjs` (centralized configuration)
+- Legacy configs: PlayWright/config/ and root (for backward compatibility)
+- All npm scripts reference the centralized config location
 
 #### SignalR
 - Handle InvalidDataException during message parsing
@@ -160,7 +220,7 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 
 ---
 
-**Version:** 2.6.0  
-**Last Updated:** IssueTracker Migration – Sept 27, 2025  
+**Version:** 2.8.0  
+**Last Updated:** Documentation Organization & File Placement Rules – Sept 27, 2025  
 
 ```

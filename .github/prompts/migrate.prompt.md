@@ -25,8 +25,8 @@ Performs one-time repo reorganizations into the `Workspaces/Copilot/` structure.
 ## Analyzer & Linter Enforcement
 After migration, validate:
 - Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings
-- Run `npm run format:check` → must pass with 0 formatting issues
+- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
+- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 Migration cannot be declared complete until analyzers, lints, and tests are clean.
 

@@ -25,8 +25,8 @@ Generates or updates visual artifacts (diagrams, UI mockups, workflows) for a gi
 ## Analyzer & Linter Enforcement
 Before or after generating image-related artifacts:
 - Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings
-- Run `npm run format:check` → must pass with 0 formatting issues
+- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
+- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 If analyzers or lints fail, stop and fix violations before finalizing image tasks.
 

@@ -1,0 +1,61 @@
+{
+  "name": "noor-canvas",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test --config=../testing/playwright.config.js",
+    "test:headed": "playwright test --config=../testing/playwright.config.js --headed",
+    "test:debug": "playwright test --config=../testing/playwright.config.js --debug",
+    "test:host": "playwright test --config=../testing/playwright.config.js host-authentication.spec.ts",
+    "test:cascading": "playwright test --config=../testing/playwright.config.js cascading-dropdowns.spec.ts",
+    "test:user": "playwright test --config=../testing/playwright.config.js user-authentication.spec.ts",
+    "test:api": "playwright test --config=../testing/playwright.config.js api-integration.spec.ts",
+    "test:auth-flow": "playwright test --config=../testing/playwright.config.js ../../Tests/UI/host-authentication-flow-e2e.spec.ts --headed",
+    "test:session-opener": "playwright test --config=../testing/playwright.config.js ../../Tests/UI/session-opener-user-auth-flow.spec.ts --headed",
+    "test:simplified-auth": "playwright test --config=../testing/playwright.config.js ../../Tests/UI/host-authentication-flow-e2e.spec.ts ../../Tests/UI/session-opener-user-auth-flow.spec.ts --headed",
+    "test:auth-flow-debug": "playwright test --config=../testing/playwright.config.js ../../Tests/UI/host-authentication-flow-e2e.spec.ts --debug",
+    "test:session-opener-debug": "playwright test --config=../testing/playwright.config.js ../../Tests/UI/session-opener-user-auth-flow.spec.ts --debug",
+    "test:auth-config": "playwright test --config=../../Tests/playwright-auth.config.ts",
+    "test:auth-config-headed": "playwright test --config=../../Tests/playwright-auth.config.ts --headed",
+    "test:auth-config-debug": "playwright test --config=../../Tests/playwright-auth.config.ts --debug",
+    "test:report": "playwright show-report",
+    "test:install": "playwright install",
+    "test:codegen": "playwright codegen https://localhost:9091",
+    "test:ui-mode": "playwright test --config=../testing/playwright.config.js --ui",
+    "test:trace": "playwright show-trace",
+    "test:typescript": "playwright test --config=../testing/playwright.config.js",
+    "test:copilot-demo": "playwright codegen --target=typescript https://localhost:9091",
+    "build:tests": "tsc --noEmit --project ../testing/tsconfig.json",
+    "lint": "eslint '../../PlayWright/**/*.{ts,tsx}' --config=../testing/eslint.config.js --max-warnings=0",
+    "format": "prettier --write '../../PlayWright/**/*.{ts,tsx}' --config=../testing/.prettierrc",
+    "format:check": "prettier --check '../../PlayWright/**/*.{ts,tsx}' --config=../testing/.prettierrc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asifhussain60/NOOR-CANVAS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asifhussain60/NOOR-CANVAS/issues"
+  },
+  "homepage": "https://github.com/asifhussain60/NOOR-CANVAS#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/mssql": "^9.1.8",
+    "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.2.2",
+    "mssql": "^11.0.1",
+    "playwright": "^1.55.0",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

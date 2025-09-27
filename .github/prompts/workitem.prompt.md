@@ -7,6 +7,12 @@ mode: agent
 - Include this in summary under "Terminal Evidence"
 - If shutdown was agent-initiated, include attribution log
 
+## Documentation Placement (CRITICAL)
+- **NEVER** create analysis or summary files in project root
+- **ALL** documentation must go in: `Workspaces/Copilot/_DOCS/`
+- Use appropriate subdirectory: `/summaries/`, `/analysis/`, `/configs/`, `/migrations/`
+- Follow SelfAwareness.instructions.md File Organization Rules
+
 ## Database Guardrails
 - Never use LocalDB for any database operations
 - Always use the specified SQL Server instance:  
@@ -20,7 +26,7 @@ mode: agent
 
 ---
 
-## /workitem — Implementation Agent (v2.10.0)
+## /workitem — Implementation Agent (v2.11.0)
 
 Implements scoped changes for a given `{key}` and stabilizes them with analyzers, cumulative Playwright tests, structured debug logs, and terminal-grounded evidence.
 
@@ -67,8 +73,8 @@ Before tests, enforce analyzers and linters:
   - Must succeed with **zero warnings** (Roslyn + StyleCop analyzers)
 
 - **Playwright**  
-  - Run: `npm run lint` → must pass with 0 warnings  
-  - Run: `npm run format:check` → must pass with 0 formatting issues
+  - Run: `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)  
+  - Run: `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 If analyzers or lints fail, stop and fix violations before proceeding.
 
@@ -76,7 +82,7 @@ If analyzers or lints fail, stop and fix violations before proceeding.
 - App: ASP.NET Core 8.0 + Blazor Server + SignalR
 - Node.js: **test-only**, used exclusively for Playwright E2E
 - Tests run against the .NET app at `https://localhost:9091`
-- Config: `playwright.config.js`  
+- Config: `config/testing/playwright.config.cjs`  
 - Setup: `PlayWright/tests/global-setup.ts`  
 - Specs: `Tests/*.spec.ts`
 
@@ -84,7 +90,7 @@ If analyzers or lints fail, stop and fix violations before proceeding.
 - Commit the smallest viable increment
 - After each change:
   1. Run analyzers (`dotnet build --warnaserror`)
-  2. Run lints (`npm run lint`, `npm run format:check`)
+  2. Run lints (`npm run lint`, `npm run format:check`) using configs in `config/testing/`
   3. Run Playwright specs tied to this `{key}`
 - Insert only temporary diagnostics marked with ;CLEANUP_OK
 - Respect chosen logging mode
@@ -93,7 +99,7 @@ If analyzers or lints fail, stop and fix violations before proceeding.
 - Specs must live under:  
   `Workspaces/Copilot/prompts.keys/{key}/tests/`
 
-- Global config: `Workspaces/Copilot/config/playwright.config.ts` must set:
+- Global config: Use centralized `config/testing/playwright.config.cjs` or create specific config for key-based testing:
   - `testDir: "Workspaces/Copilot/prompts.keys/{key}/tests"`
   - `baseURL` from APP_URL (never hardcode)
   - HTML report → `Workspaces/Copilot/artifacts/playwright/report`

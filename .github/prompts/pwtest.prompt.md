@@ -29,7 +29,7 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 ## Analyzer & Linter Enforcement
 Before writing or executing tests:
 - **.NET analyzers** — run `dotnet build --no-restore --warnaserror` and require **zero warnings**.
-- **Playwright lints/format** — run `npm run lint` and `npm run format:check` and require **0 warnings / 0 formatting issues**.
+- **Playwright lints/format** — run `npm run lint` and `npm run format:check` and require **0 warnings / 0 formatting issues** (uses `config/testing/eslint.config.js` and `config/testing/.prettierrc`).
 If analyzers or lints fail, stop and fix violations before proceeding.
 
 ## Debug Logging Rules

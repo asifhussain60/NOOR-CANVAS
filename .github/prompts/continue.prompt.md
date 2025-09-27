@@ -37,8 +37,8 @@ Carries forward partially completed work for a given `{key}`, ensuring analyzers
 ## Analyzer & Linter Enforcement
 Before resuming:
 - Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings
-- Run `npm run format:check` → must pass with 0 formatting issues
+- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
+- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 Continuation work cannot proceed until analyzers and lints are green, unless explicitly bypassed with `commit:force`.
 
@@ -72,9 +72,9 @@ Continuation work cannot proceed until analyzers and lints are green, unless exp
 ## Commit Policy
 - Do not commit unless:
   - `dotnet build --no-restore --warnaserror` succeeds with 0 warnings, AND  
-  - `npm run lint` passes with 0 warnings, AND  
-  - `npm run format:check` passes with 0 formatting issues, AND  
-  - All relevant Playwright tests for `{key}` pass.  
+  - `npm run lint` passes with 0 warnings (using `config/testing/eslint.config.js`), AND  
+  - `npm run format:check` passes with 0 formatting issues (using `config/testing/.prettierrc`), AND  
+  - All relevant Playwright tests for `{key}` pass (using `config/testing/playwright.config.cjs`).  
 - Commits must be blocked if any analyzers, lints, or tests fail.  
 - Bypass is only allowed if user explicitly sets `commit:force`.  
 - All commit messages must reference the `{key}` they belong to.  

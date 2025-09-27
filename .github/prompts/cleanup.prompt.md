@@ -24,8 +24,8 @@ mode: agent
 ## Analyzer & Linter Enforcement
 Cleanup cannot complete until analyzers and lints are clean:
 - Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings
-- Run `npm run format:check` → must pass with 0 formatting issues
+- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
+- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 - Use marker: `[DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK`
 - `RUN_ID`: short unique id (timestamp + suffix)
@@ -111,13 +111,13 @@ rules:
     exclude:
       - "README.md"
     action: move
-    target: "Workspaces/Documentation/MD-Reports"
+    target: "Workspaces/Copilot/_DOCS/analysis"
   - match: "**/*.txt"
     action: move
-    target: "Workspaces/Documentation/MD-Reports"
+    target: "Workspaces/Copilot/_DOCS/analysis"
   - match: "**/*.log"
     action: move
-    target: "Workspaces/Documentation/Logs"
+    target: "Workspaces/Copilot/_DOCS/summaries"
   - match: "**/*.spec.ts"
     action: move
     target: "PlayWright/tests"

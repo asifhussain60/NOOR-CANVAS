@@ -7,14 +7,14 @@
  */
 const cfg = {
     timeout: 30 * 1000,
-    testDir: 'PlayWright/tests',
+    testDir: '../../PlayWright/tests',
     retries: 0,
     reporter: [
         ['list'],
         [
             'json',
             {
-                outputFile: path.resolve(__dirname, 'Workspaces', 'TEMP', 'playwright-report', 'report.json'),
+                outputFile: path.resolve(__dirname, '../../Workspaces', 'TEMP', 'playwright-report', 'report.json'),
             },
         ],
     ],
@@ -22,7 +22,7 @@ const cfg = {
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        outputDir: path.resolve(__dirname, 'Workspaces', 'TEMP', 'playwright-artifacts'),
+        outputDir: path.resolve(__dirname, '../../Workspaces', 'TEMP', 'playwright-artifacts'),
     },
     projects: [
         {
@@ -42,14 +42,14 @@ function applyModeOverrides(base) {
             workers: 1,
             webServer: {
                 command: 'dotnet run',
-                cwd: './SPA/NoorCanvas',
+                cwd: '../../SPA/NoorCanvas',
                 port: 9091,
                 reuseExistingServer: !process.env.CI,
                 timeout: 60000,
             },
             reporter: [
                 ['list'],
-                ['html', { open: 'never', outputFolder: path.resolve(__dirname, 'Workspaces', 'TEMP', 'playwright-report', 'standalone-html') }],
+                ['html', { open: 'never', outputFolder: path.resolve(__dirname, '../../Workspaces', 'TEMP', 'playwright-report', 'standalone-html') }],
             ],
             use: Object.assign({}, base.use, { headless: false, viewport: { width: 1280, height: 720 }, trace: 'retain-on-failure', video: 'retain-on-failure' }),
         });

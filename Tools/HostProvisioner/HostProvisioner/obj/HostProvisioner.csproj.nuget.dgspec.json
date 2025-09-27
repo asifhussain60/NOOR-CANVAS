@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj": {}
+    "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj": {}
   },
   "projects": {
-    "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
+    "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
+        "projectUniqueName": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
         "projectName": "NoorCanvas",
-        "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
+        "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj",
         "packagesPath": "C:\\Users\\asifh\\.nuget\\packages\\",
-        "outputPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\obj\\",
+        "outputPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -54,7 +54,17 @@
               "target": "Package",
               "version": "[1.0.7, )"
             },
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.12.3, )"
+            },
             "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.CodeAnalysis.NetAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.0, )"
             },
@@ -86,6 +96,12 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
+            "StyleCop.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.0-beta.507, )"
+            },
             "System.CommandLine": {
               "target": "Package",
               "version": "[2.0.0-beta4.22272.1, )"
@@ -114,14 +130,14 @@
         }
       }
     },
-    "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj": {
+    "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
+        "projectUniqueName": "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
         "projectName": "HostProvisioner",
-        "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
+        "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
         "packagesPath": "C:\\Users\\asifh\\.nuget\\packages\\",
-        "outputPath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\obj\\",
+        "outputPath": "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -142,8 +158,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
-                "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
+              "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
+                "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
               }
             }
           }

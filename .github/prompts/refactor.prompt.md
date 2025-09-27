@@ -27,8 +27,8 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 ## Analyzer & Linter Enforcement
 Before and after refactor:
 - Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings
-- Run `npm run format:check` → must pass with 0 formatting issues
+- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
+- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
 
 If analyzers or lints fail, resolve violations as part of the refactor.
 

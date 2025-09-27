@@ -9,21 +9,21 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
-    "outDir": "./TEMP/compiled-tests",
-    "rootDir": "./Tests",
+    "outDir": "../../TEMP/compiled-tests",
+    "rootDir": "../../PlayWright",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": false,
     "incremental": true,
-    "tsBuildInfoFile": "./TEMP/.tsbuildinfo",
+    "tsBuildInfoFile": "../../TEMP/.tsbuildinfo",
     "types": ["node", "@playwright/test"],
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
-      "@/*": ["./Tests/*"],
-      "@ui/*": ["./Tests/UI/*"]
+      "@/*": ["./PlayWright/*"],
+      "@ui/*": ["./PlayWright/tests/UI/*"]
     }
   },
-  "include": ["Tests/**/*"],
+  "include": ["../../PlayWright/**/*"],
   "exclude": [
     "node_modules",
     "TEMP",
