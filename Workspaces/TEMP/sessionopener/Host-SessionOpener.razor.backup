@@ -169,7 +169,7 @@
         <!-- Session URL Panel -->
         @if ((Model?.ShowSessionUrlPanel ?? false) && !string.IsNullOrEmpty(Model?.SessionUrl))
         {
-            <SessionUrlPanel Model="@Model" OnCopyUserUrl="CopyUserUrlAsync" OnLoadControlPanel="LoadControlPanelAsync" />
+            <SessionUrlPanel Model="@Model" OnCopyUrl="CopyUrlAsync" OnCopyUserUrl="CopyUserUrlAsync" OnLoadControlPanel="LoadControlPanelAsync" />
         }
     </div>
 </div>
@@ -245,6 +245,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var runId = DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_sessionopener_timing";
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Initializing Host-SessionOpener component with Token: {Token}", runId, Token ?? "None");
+        
         // Set host token if provided
         if (!string.IsNullOrEmpty(Token))
         {
@@ -257,8 +260,10 @@
         // If we have a token, auto-populate the dropdowns based on the associated session
         if (!string.IsNullOrEmpty(Token))
         {
-            await AutoPopulateDropdownsFromToken();
+            await AutoPopulateDropdownsFromToken(runId);
         }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Component initialization completed", runId);
     }
 
     private async Task LoadAlbumsAsync()
@@ -269,10 +274,11 @@
         try
         {
             Albums = await HostService.LoadAlbumsAsync(Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: Loaded {AlbumCount} albums", Albums.Count);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error loading albums");
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading albums");
             Model.ErrorMessage = "Failed to load albums. Please refresh the page.";
         }
         finally
@@ -283,58 +289,74 @@
         }
     }
 
-    private async Task AutoPopulateDropdownsFromToken()
+    private async Task AutoPopulateDropdownsFromToken(string runId)
     {
         try
         {
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Starting auto-population for token: {Token}", runId, Token);
+            
             // Step 1: Validate token and get SessionId
             if (string.IsNullOrEmpty(Token))
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Token is null or empty, cannot proceed with auto-population", runId);
                 return;
             }
             
             var validationResponse = await HostService.ValidateHostTokenAsync(Token);
             if (!validationResponse.Valid || validationResponse.SessionId <= 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Token validation failed or invalid SessionId: {SessionId}", runId, validationResponse.SessionId);
                 return;
             }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Token validated successfully - SessionId: {SessionId}", runId, validationResponse.SessionId);
 
             // Step 2: Get session details to find GroupId (AlbumId) and CategoryId
             var sessionDetails = await HostService.GetSessionDetailsAsync(validationResponse.SessionId, Token);
             if (sessionDetails == null)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Could not retrieve session details for SessionId: {SessionId}", runId, validationResponse.SessionId);
                 return;
             }
 
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Retrieved session details - GroupId: {GroupId}, CategoryId: {CategoryId}, SessionId: {SessionId}", 
+                runId, sessionDetails.GroupId, sessionDetails.CategoryId, sessionDetails.SessionId);
+
             // Step 3: Auto-populate dropdowns in sequence
-            await AutoPopulateSequence(sessionDetails.GroupId.ToString(), sessionDetails.CategoryId.ToString(), sessionDetails.SessionId.ToString());
+            await AutoPopulateSequence(runId, sessionDetails.GroupId.ToString(), sessionDetails.CategoryId.ToString(), sessionDetails.SessionId.ToString());
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error during auto-population for token: {Token}", Token);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Error during auto-population for token: {Token}", runId, Token);
             Model.ErrorMessage = "Failed to auto-populate session data. Please select manually.";
         }
     }
 
-    private async Task AutoPopulateSequence(string albumId, string categoryId, string sessionId)
+    private async Task AutoPopulateSequence(string runId, string albumId, string categoryId, string sessionId)
     {
         try
         {
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Starting auto-population sequence - Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}", 
+                runId, albumId, categoryId, sessionId);
+
             // Step 1: Wait for albums to be loaded, then set album
             var maxWait = 10; // 10 second timeout
             var waited = 0;
             while (Albums.Count == 0 && waited < maxWait)
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Waiting for albums to load... ({Waited}s)", runId, waited);
                 await Task.Delay(1000);
                 waited++;
             }
 
             if (Albums.Count == 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Albums not loaded within timeout", runId);
                 return;
             }
 
             // Set album and trigger cascade
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting album: {AlbumId}", runId, albumId);
             SelectedAlbum = albumId;
             StateHasChanged();
 
@@ -342,16 +364,19 @@
             waited = 0;
             while (Categories.Count == 0 && waited < maxWait)
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Waiting for categories to load... ({Waited}s)", runId, waited);
                 await Task.Delay(1000);
                 waited++;
             }
 
             if (Categories.Count == 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Categories not loaded within timeout", runId);
                 return;
             }
 
             // Set category and trigger cascade
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting category: {CategoryId}", runId, categoryId);
             SelectedCategory = categoryId;
             StateHasChanged();
 
@@ -359,25 +384,30 @@
             waited = 0;
             while (Sessions.Count == 0 && waited < maxWait)
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Waiting for sessions to load... ({Waited}s)", runId, waited);
                 await Task.Delay(1000);
                 waited++;
             }
 
             if (Sessions.Count == 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Sessions not loaded within timeout", runId);
                 return;
             }
 
             // Set session
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting session: {SessionId}", runId, sessionId);
             SelectedSession = sessionId;
             
             // Validate form after all fields are auto-populated
             ValidateForm();
             StateHasChanged();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Auto-population sequence completed successfully", runId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error during auto-population sequence");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Error during auto-population sequence", runId);
         }
     }
 
@@ -391,6 +421,8 @@
 
     private async Task OnAlbumChanged()
     {
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] OnAlbumChanged called - SelectedAlbum: {AlbumId}", Model?.SelectedAlbum ?? "null");
+        
         try
         {
             // Reset dependent selections when album changes
@@ -404,22 +436,26 @@
 
             if (string.IsNullOrEmpty(Model?.SelectedAlbum))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Album is null/empty - skipping category load");
                 ValidateForm();
                 StateHasChanged();
                 return;
             }
 
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Loading categories for album: {AlbumId}", Model.SelectedAlbum);
             await LoadCategoriesAsync();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error in OnAlbumChanged for album {AlbumId}", Model?.SelectedAlbum);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error in OnAlbumChanged for album {AlbumId}", Model?.SelectedAlbum);
             if (Model != null) Model.ErrorMessage = "Error loading categories. Please try again.";
         }
     }
 
     private async Task OnCategoryChanged()
     {
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] OnCategoryChanged called - SelectedCategory: {CategoryId}", Model?.SelectedCategory ?? "null");
+        
         try
         {
             // Reset dependent selection when category changes
@@ -428,16 +464,18 @@
 
             if (string.IsNullOrEmpty(Model?.SelectedCategory))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Category is null/empty - skipping session load");
                 ValidateForm();
                 StateHasChanged();
                 return;
             }
 
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Loading sessions for category: {CategoryId}", Model.SelectedCategory);
             await LoadSessionsAsync();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error in OnCategoryChanged for category {CategoryId}", Model?.SelectedCategory);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error in OnCategoryChanged for category {CategoryId}", Model?.SelectedCategory);
             if (Model != null) Model.ErrorMessage = "Error loading sessions. Please try again.";
         }
     }
@@ -456,10 +494,11 @@
         try
         {
             Categories = await HostService.LoadCategoriesAsync(Model.SelectedAlbum, Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: Loaded {CategoryCount} categories for album {AlbumId}", Categories.Count, Model.SelectedAlbum);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error loading categories for album {AlbumId}", Model.SelectedAlbum);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading categories for album {AlbumId}", Model.SelectedAlbum);
             Model.ErrorMessage = "Failed to load categories. Please try again.";
         }
         finally
@@ -484,11 +523,12 @@
             if (int.TryParse(Model.SelectedCategory, out int categoryId))
             {
                 Sessions = await HostService.LoadSessionsAsync(categoryId, Model.HostFriendlyToken);
+                Logger.LogInformation("NOOR-HOST-OPENER: Loaded {SessionCount} sessions for category {CategoryId}", Sessions.Count, categoryId);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error loading sessions for category {CategoryId}", Model.SelectedCategory);
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading sessions for category {CategoryId}", Model.SelectedCategory);
             Model.ErrorMessage = "Failed to load sessions. Please try again.";
         }
         finally
@@ -538,6 +578,9 @@
         
         try
         {
+            Logger.LogInformation("NOOR-HOST-OPENER: Creating session - Album: {Album}, Category: {Category}, Session: {Session}", 
+                Model.SelectedAlbum, Model.SelectedCategory, Model.SelectedSession);
+            
             var response = await HostService.CreateSessionAndGenerateTokensAsync(Model);
             
             if (response.Success)
@@ -548,15 +591,18 @@
                 Model.UserLandingUrl = $"{baseUrl}/user/landing/{response.UserToken}";
                 Model.ShowSessionUrlPanel = true;
                 Model.HasGeneratedToken = true;
+                
+                Logger.LogInformation("NOOR-HOST-OPENER: Session created successfully - ID: {SessionId}", response.SessionId);
             }
             else
             {
                 Model.ErrorMessage = response.Message ?? "Failed to create session. Please try again.";
+                Logger.LogError("NOOR-HOST-OPENER: Session creation failed: {Message}", response.Message);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error in OpenSessionAsync");
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error in OpenSessionAsync");
             Model.ErrorMessage = "An error occurred while creating the session. Please try again.";
         }
         finally
@@ -566,7 +612,23 @@
         }
     }
 
-
+    private async Task CopyUrlAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Model.SessionUrl);
+            Model.Copied = true;
+            StateHasChanged();
+            
+            await Task.Delay(3000);
+            Model.Copied = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying URL to clipboard");
+        }
+    }
 
     private async Task CopyUserUrlAsync()
     {
@@ -582,7 +644,7 @@
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error copying user URL to clipboard");
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying user URL to clipboard");
         }
     }
 
@@ -591,11 +653,12 @@
         try
         {
             var controlPanelUrl = Model.SessionUrl;
+            Logger.LogInformation("NOOR-HOST-OPENER: Navigating to control panel: {Url}", controlPanelUrl);
             Navigation.NavigateTo(controlPanelUrl);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error loading control panel");
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading control panel");
             Model.ErrorMessage = "Failed to load control panel. Please try again.";
         }
         return Task.CompletedTask;

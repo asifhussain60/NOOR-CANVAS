@@ -59,17 +59,17 @@ namespace NoorCanvas.Services
                 var httpsUrl = _configuration["Kestrel:Endpoints:Https:Url"];
                 if (!string.IsNullOrEmpty(httpsUrl))
                 {
-
+                    _logger.LogInformation("NOOR-HOST-SERVICE: Using HTTPS URL from configuration: {Url}", httpsUrl);
                     return httpsUrl;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Ignore configuration errors and use fallback
+                _logger.LogWarning(ex, "NOOR-HOST-SERVICE: Could not read Kestrel configuration, using default");
             }
 
             var fallbackUrl = "https://localhost:7242";
-
+            _logger.LogInformation("NOOR-HOST-SERVICE: Using fallback HTTPS URL: {Url}", fallbackUrl);
             return fallbackUrl;
         }
 
@@ -96,16 +96,16 @@ namespace NoorCanvas.Services
                     albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
-                    }) ?? new List<NoorCanvas.Controllers.AlbumData>();
+                    }) ?? new List<NoorCanvas.Controllers.AlbumData>();                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {AlbumCount} albums", albums.Count);
                 }
                 else
                 {
-
+                    _logger.LogWarning("NOOR-HOST-SERVICE: Failed to load albums - HTTP {StatusCode}", response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading albums");
+                _logger.LogError(ex, "NOOR-HOST-SERVICE: Error loading albums");
             }
             
             return albums;
@@ -134,16 +134,16 @@ namespace NoorCanvas.Services
                     categories = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.CategoryData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
-                    }) ?? new List<NoorCanvas.Controllers.CategoryData>();
+                    }) ?? new List<NoorCanvas.Controllers.CategoryData>();                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {CategoryCount} categories for album {AlbumId}", categories.Count, albumId);
                 }
                 else
                 {
-
+                    _logger.LogWarning("NOOR-HOST-SERVICE: Failed to load categories - HTTP {StatusCode}", response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading categories for album {AlbumId}", albumId);
+                _logger.LogError(ex, "NOOR-HOST-SERVICE: Error loading categories for album {AlbumId}", albumId);
             }
             
             return categories;
@@ -173,14 +173,17 @@ namespace NoorCanvas.Services
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<HostSessionData>();
+                    
+                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {SessionCount} sessions for category {CategoryId}", sessions.Count, categoryId);
                 }
                 else
                 {
+                    _logger.LogWarning("NOOR-HOST-SERVICE: Failed to load sessions - HTTP {StatusCode}", response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading sessions for category {CategoryId}", categoryId);
+                _logger.LogError(ex, "NOOR-HOST-SERVICE: Error loading sessions for category {CategoryId}", categoryId);
             }
             
             return sessions;
@@ -214,6 +217,7 @@ namespace NoorCanvas.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogInformation("NOOR-HOST-SERVICE: Raw API response: {Response}", jsonContent);
                     
                     // Deserialize the actual API response type (CreateSessionResponse)
                     var apiResult = JsonSerializer.Deserialize<NoorCanvas.Controllers.CreateSessionResponse>(jsonContent, new JsonSerializerOptions
@@ -223,6 +227,8 @@ namespace NoorCanvas.Services
                     
                     if (apiResult != null)
                     {
+                        _logger.LogInformation("NOOR-HOST-SERVICE: Session created successfully - ID: {SessionId}, JoinLink: {JoinLink}", 
+                            apiResult.SessionId, apiResult.JoinLink);
                         
                         // Convert to the expected frontend response format
                         return new SessionCreationResponse 
@@ -236,13 +242,15 @@ namespace NoorCanvas.Services
                     }
                     else
                     {
-
+                        _logger.LogError("NOOR-HOST-SERVICE: Failed to deserialize API response");
                         return new SessionCreationResponse { Success = false, Message = "Invalid response format" };
                     }
                 }
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("NOOR-HOST-SERVICE: Failed to create session - HTTP {StatusCode}: {Error}", 
+                        response.StatusCode, errorContent);
                     
                     return new SessionCreationResponse 
                     { 
@@ -253,7 +261,7 @@ namespace NoorCanvas.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating session");
+                _logger.LogError(ex, "NOOR-HOST-SERVICE: Error creating session");
                 return new SessionCreationResponse 
                 { 
                     Success = false, 
@@ -291,6 +299,9 @@ namespace NoorCanvas.Services
             {
                 var httpClient = CreateHttpClient();
                 var url = $"/api/Host/token/{Uri.EscapeDataString(token)}/validate";
+                
+                _logger.LogInformation("NOOR-HOST-SERVICE: Validating host token: {Token}", token?.Substring(0, Math.Min(8, token?.Length ?? 0)) + "...");
+                
                 var response = await httpClient.GetAsync(url);
                 
                 if (response.IsSuccessStatusCode)
@@ -314,6 +325,7 @@ namespace NoorCanvas.Services
                     }
                 }
                 
+                _logger.LogWarning("NOOR-HOST-SERVICE: Token validation failed - Status: {StatusCode}", response.StatusCode);
                 return new HostTokenValidationResult { Valid = false, SessionId = 0 };
             }
             catch (Exception ex)

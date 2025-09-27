@@ -52,7 +52,6 @@ namespace NoorCanvas.ViewModels
         public string UserLandingUrl { get; set; } = string.Empty;
         
         // UI Interaction State
-        public bool Copied { get; set; } = false;
         public bool UserCopied { get; set; } = false;
         
         /// <summary>
@@ -83,7 +82,6 @@ namespace NoorCanvas.ViewModels
             ShowSessionUrlPanel = false;
             SessionUrl = "";
             UserLandingUrl = "";
-            Copied = false;
             UserCopied = false;
         }
         
