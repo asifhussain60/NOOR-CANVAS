@@ -4,19 +4,18 @@ mode: agent
 
 # /retrosync — Requirements/Test Synchronization Agent (v3.0.0)
 
-Synchronizes requirements, implementation, and tests for `{key}` while maintaining quality gates.
+Synchronizes requirements, implementation, and tests across the entire project while maintaining quality gates.
 
 **Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
-- **key:** Work stream identifier - auto-inferred if not provided
-- **notes:** Synchronization scope (requirements/tests, drift details)
+- **notes:** Synchronization scope (requirements/tests, drift details, specific areas to focus)
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
 - **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD` (architectural reference)
 - Current git history and changes
-- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
+- Current codebase and implementation status
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Operating Protocols
@@ -24,7 +23,7 @@ Synchronizes requirements, implementation, and tests for `{key}` while maintaini
 
 ### Quality Gates
 - Synchronization complete only when: analyzers green, linters clean, tests passing
-- Debug marker: `[DEBUG-WORKITEM:{key}:retrosync:{RUN_ID}] message ;CLEANUP_OK`
+- Debug marker: `[DEBUG-WORKITEM:retrosync:{RUN_ID}] message ;CLEANUP_OK`
 - Layers: `retrosync`, `tests`, `impl`, `lifecycle`
 
 ## Execution Protocol
@@ -66,17 +65,17 @@ Synchronizes requirements, implementation, and tests for `{key}` while maintaini
 
 ## Outputs
 Summaries must include:
-- Requirements analyzed
-- Specs added/updated/removed
-- **Architecture document changes:**
+- Requirements synchronization status
+- Architecture document changes:
   - **APIs/endpoints added/removed/modified**
-  - **Services added/removed/updated**
+  - **Services added/removed/updated** 
   - **Components and pages added/removed/modified**
   - **Database schema changes**
   - **Deprecated functionality removed from documentation**
+- Test coverage gaps identified and addressed
 - Analyzer/linter results
 - Test suite status (pass/fail counts)
-- Terminal Evidence tail
+- Terminal evidence tail
 - Notes on any uncovered gaps or manual review needs
 
 ## Approval Workflow
@@ -85,14 +84,14 @@ Summaries must include:
 - Then request approval to mark retrosync task complete
 
 ## Guardrails
-- Do not edit or remove `Requirements-{key}.md` unless explicitly updating synced requirements
-- Do not alter `appsettings.*.json` or secrets
-- Keep all `{key}`-scoped files in their directories
+- Do not alter `appsettings.*.json` or secrets unless explicitly required for synchronization
+- Maintain proper file organization as per SelfAwareness.instructions.md
 - No new roots outside `Workspaces/Copilot/` (except `.github/`)
+- Focus on architectural accuracy and test/requirement alignment
 
 ## Database Guardrails
-**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**
-- Keep all `{key}`-scoped requirements, self-reviews, and tests inside their respective directories
+**Reference:** SelfAwareness.instructions.md for complete database connectivity and port management protocols.
+- Maintain proper file organization structure
 - Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
 
 ## Key Techstack Synchronization (Migrated from IssueTracker)

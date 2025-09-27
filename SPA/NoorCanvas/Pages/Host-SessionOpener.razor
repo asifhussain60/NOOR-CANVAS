@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using NoorCanvas.ViewModels
 @using NoorCanvas.Models
+@using NoorCanvas.Controllers
 @using NoorCanvas.Services
 @using NoorCanvas.Components
 @using System.ComponentModel.DataAnnotations
@@ -177,8 +178,8 @@
     [Parameter] public string? Token { get; set; }
     
     private HostSessionOpenerViewModel Model { get; set; } = new();
-    private List<AlbumData> Albums { get; set; } = new();
-    private List<CategoryData> Categories { get; set; } = new();
+    private List<NoorCanvas.Controllers.AlbumData> Albums { get; set; } = new();
+    private List<NoorCanvas.Controllers.CategoryData> Categories { get; set; } = new();
     private List<HostSessionData> Sessions { get; set; } = new();
 
     // Property wrappers for binding with cascading logic
@@ -295,6 +296,12 @@
             Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Starting auto-population for token: {Token}", runId, Token);
             
             // Step 1: Validate token and get SessionId
+            if (string.IsNullOrEmpty(Token))
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Token is null or empty, cannot proceed with auto-population", runId);
+                return;
+            }
+            
             var validationResponse = await HostService.ValidateHostTokenAsync(Token);
             if (!validationResponse.Valid || validationResponse.SessionId <= 0)
             {
@@ -391,6 +398,9 @@
             // Set session
             Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting session: {SessionId}", runId, sessionId);
             SelectedSession = sessionId;
+            
+            // Validate form after all fields are auto-populated
+            ValidateForm();
             StateHasChanged();
 
             Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Auto-population sequence completed successfully", runId);

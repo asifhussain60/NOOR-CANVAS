@@ -252,7 +252,7 @@ namespace NoorCanvas.Controllers
             try
             {
                 _logger.LogInformation("NOOR-INFO: Creating new session for Host GUID: {HostGuid}, Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}",
-                    request.HostGuid?.Substring(0, 8) + "...", request.AlbumId, request.CategoryId, request.SessionId);
+                    request.HostGuid?.Length > 8 ? request.HostGuid.Substring(0, 8) + "..." : request.HostGuid ?? "null", request.AlbumId, request.CategoryId, request.SessionId);
 
                 // Validate required fields
                 if (string.IsNullOrEmpty(request.HostGuid))

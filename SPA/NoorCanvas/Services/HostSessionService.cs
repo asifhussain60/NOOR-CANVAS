@@ -76,10 +76,10 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Loads albums from the API
         /// </summary>
-        public async Task<List<AlbumData>> LoadAlbumsAsync(string? hostToken = null)
+        public async Task<List<NoorCanvas.Controllers.AlbumData>> LoadAlbumsAsync(string? hostToken = null)
         {
-            var albums = new List<AlbumData>();
-            
+            var albums = new List<NoorCanvas.Controllers.AlbumData>();
+
             try
             {
                 var httpClient = CreateHttpClient();
@@ -89,16 +89,14 @@ namespace NoorCanvas.Services
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
                 var response = await httpClient.GetAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    albums = JsonSerializer.Deserialize<List<AlbumData>>(jsonContent, new JsonSerializerOptions
+                    albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
-                    }) ?? new List<AlbumData>();
-                    
-                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {AlbumCount} albums", albums.Count);
+                    }) ?? new List<NoorCanvas.Controllers.AlbumData>();                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {AlbumCount} albums", albums.Count);
                 }
                 else
                 {
@@ -116,10 +114,10 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Loads categories for a specific album
         /// </summary>
-        public async Task<List<CategoryData>> LoadCategoriesAsync(string albumId, string? hostToken = null)
+        public async Task<List<NoorCanvas.Controllers.CategoryData>> LoadCategoriesAsync(string albumId, string? hostToken = null)
         {
-            var categories = new List<CategoryData>();
-            
+            var categories = new List<NoorCanvas.Controllers.CategoryData>();
+
             try
             {
                 var httpClient = CreateHttpClient();
@@ -129,16 +127,14 @@ namespace NoorCanvas.Services
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
                 var response = await httpClient.GetAsync(url);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    categories = JsonSerializer.Deserialize<List<CategoryData>>(jsonContent, new JsonSerializerOptions
+                    categories = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.CategoryData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
-                    }) ?? new List<CategoryData>();
-                    
-                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {CategoryCount} categories for album {AlbumId}", categories.Count, albumId);
+                    }) ?? new List<NoorCanvas.Controllers.CategoryData>();                    _logger.LogInformation("NOOR-HOST-SERVICE: Loaded {CategoryCount} categories for album {AlbumId}", categories.Count, albumId);
                 }
                 else
                 {
@@ -204,10 +200,10 @@ namespace NoorCanvas.Services
                 
                 var sessionData = new
                 {
-                    HostFriendlyToken = model.HostFriendlyToken,
-                    SelectedSession = model.SelectedSession,
-                    SelectedCategory = model.SelectedCategory,
-                    SelectedAlbum = model.SelectedAlbum,
+                    HostGuid = model.HostFriendlyToken,  // Fixed: Changed from HostFriendlyToken to HostGuid to match CreateSessionRequest
+                    SessionId = int.TryParse(model.SelectedSession, out var sessionId) ? sessionId : 0,
+                    AlbumId = int.TryParse(model.SelectedAlbum, out var albumId) ? albumId : 0,
+                    CategoryId = int.TryParse(model.SelectedCategory, out var categoryId) ? categoryId : 0,
                     SessionDate = model.SessionDate.ToString("yyyy-MM-dd"),
                     SessionTime = model.SessionTime,
                     SessionDuration = model.SessionDuration
@@ -216,18 +212,39 @@ namespace NoorCanvas.Services
                 _logger.LogInformation("NOOR-HOST-SERVICE: Creating session with data: {SessionData}", 
                     JsonSerializer.Serialize(sessionData));
 
-                var response = await httpClient.PostAsJsonAsync("/api/Host/create-session", sessionData);
+                var response = await httpClient.PostAsJsonAsync("/api/Host/session/create", sessionData);
                 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    var result = JsonSerializer.Deserialize<SessionCreationResponse>(jsonContent, new JsonSerializerOptions
+                    _logger.LogInformation("NOOR-HOST-SERVICE: Raw API response: {Response}", jsonContent);
+                    
+                    // Deserialize the actual API response type (CreateSessionResponse)
+                    var apiResult = JsonSerializer.Deserialize<NoorCanvas.Controllers.CreateSessionResponse>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
                     
-                    _logger.LogInformation("NOOR-HOST-SERVICE: Session created successfully - ID: {SessionId}", result?.SessionId);
-                    return result ?? new SessionCreationResponse { Success = false, Message = "Invalid response format" };
+                    if (apiResult != null)
+                    {
+                        _logger.LogInformation("NOOR-HOST-SERVICE: Session created successfully - ID: {SessionId}, JoinLink: {JoinLink}", 
+                            apiResult.SessionId, apiResult.JoinLink);
+                        
+                        // Convert to the expected frontend response format
+                        return new SessionCreationResponse 
+                        { 
+                            Success = apiResult.Status == "Success",
+                            SessionId = apiResult.SessionId,
+                            UserToken = ExtractUserTokenFromJoinLink(apiResult.JoinLink),
+                            HostToken = apiResult.SessionGuid,
+                            Message = apiResult.Status
+                        };
+                    }
+                    else
+                    {
+                        _logger.LogError("NOOR-HOST-SERVICE: Failed to deserialize API response");
+                        return new SessionCreationResponse { Success = false, Message = "Invalid response format" };
+                    }
                 }
                 else
                 {
@@ -254,6 +271,26 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
+        /// Extracts user token from join link URL
+        /// </summary>
+        private string? ExtractUserTokenFromJoinLink(string? joinLink)
+        {
+            if (string.IsNullOrEmpty(joinLink))
+                return null;
+
+            try
+            {
+                var uri = new Uri(joinLink);
+                var segments = uri.AbsolutePath.Split('/');
+                return segments.Length > 0 ? segments[segments.Length - 1] : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Validates a host token and returns session information
         /// </summary>
         public async Task<HostTokenValidationResult> ValidateHostTokenAsync(string token)
@@ -270,7 +307,7 @@ namespace NoorCanvas.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
-                    var validationResponse = JsonSerializer.Deserialize<HostSessionValidationResponse>(jsonContent, new JsonSerializerOptions
+                    var validationResponse = JsonSerializer.Deserialize<NoorCanvas.Controllers.HostSessionValidationResponse>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });

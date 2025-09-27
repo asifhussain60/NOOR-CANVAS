@@ -349,7 +349,7 @@ test.describe('Host Experience - Sunshine Path', () => {
           console.log(`✅ Found Session URL panel with selector: ${selector}`);
           break;
         }
-      } catch (e) {
+      } catch {
         // Continue to next selector
       }
     }
@@ -413,7 +413,7 @@ test.describe('Host Experience - Sunshine Path', () => {
             (rule: any) => rule.selectorText && rule.selectorText.includes('.ks-transcript'),
           );
           if (hasKsTranscript) return true;
-        } catch (_e) {
+        } catch {
           // Cross-origin stylesheets may throw errors, skip them
           continue;
         }

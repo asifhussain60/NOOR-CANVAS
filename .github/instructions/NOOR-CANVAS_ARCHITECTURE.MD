@@ -79,11 +79,11 @@ User participation and registration.
 
 | Method | Endpoint | Purpose | Returns |
 |--------|----------|---------|---------|
-| GET | `/validate/{token}` | Validate session token | Validation result |
-| POST | `/register` | Register participant | Registration result |
-| GET | `/{token}/guid` | Get user GUID | User GUID |
-| GET | `/{token}/participants` | Get participants | Participant list |
-| DELETE | `/{userToken}` | Remove participant | Success response |
+| GET | `/session/{token}/validate` | Validate session token | Validation result |
+| POST | `/register-with-token` | Register participant | Registration result |
+| GET | `/session/{token}/user-guid` | Get user GUID | User GUID |
+| GET | `/session/{token}/participants` | Get participants list | Participant list |
+| DELETE | `/session/{userToken}/participants` | Clear session participants | Delete count |
 
 ### Question Controller (`/api/question`)
 Q&A functionality for sessions.
@@ -227,10 +227,14 @@ Browser log collection.
 
 | Service | Purpose | Key Methods |
 |---------|---------|-------------|
-| `HostSessionService` | Host session operations | `LoadAlbumsAsync()`, `LoadCategoriesAsync()`, `CreateSessionAsync()` |
-| `SimplifiedTokenService` | Token validation/generation | `ValidateTokenAsync()`, `GenerateTokenPairAsync()` |
-| `SessionStateService` | Session state management | `GetSessionStateAsync()`, `UpdateSessionAsync()` |
-| `AnnotationService` | Annotation CRUD operations | `CreateAnnotationAsync()`, `GetAnnotationsAsync()` |
+| `HostSessionService` | Host session operations | `LoadAlbumsAsync()`, `LoadCategoriesAsync()`, `CreateSessionAndGenerateTokensAsync()`, `ValidateHostTokenAsync()` |
+| `SimplifiedTokenService` | Token validation/generation | `ValidateTokenAsync()`, `GenerateTokenPairForSessionAsync()`, `GetSessionByTokenAsync()` |
+| `SessionStateService` | Session state management | Session state persistence and management |
+| `AnnotationService` | Annotation CRUD operations | Implements `IAnnotationService` interface |
+| `DebugService` | Enhanced debug logging | Development and debugging functionality |
+| `AssetDetectorService` | Asset detection logic | Asset detection and validation |
+| `DialogService` | Dialog management | User interface dialog operations |
+| `FlagService` | Flag/country utilities | Geographic flag functionality |
 
 ### Utility Services
 
@@ -261,28 +265,26 @@ Browser log collection.
 
 ## 📡 SignalR Hubs (`/Hubs`)
 
+### Hub Infrastructure
+**Available Hubs:** `SessionHub`, `AnnotationHub`, `QAHub`, `TestHub`
+
 ### SessionHub
 **Purpose:** Real-time session coordination and participant communication
+**File:** `/Hubs/SessionHub.cs`
 
-| Method | Purpose | Parameters |
-|--------|---------|------------|
-| `JoinSession(token)` | Join session group | `string token` |
-| `LeaveSession(token)` | Leave session group | `string token` |
-| `ShareAsset(request)` | Share asset with participants | `ShareAssetRequest` |
-| `SendMessage(message)` | Send chat message | `string message` |
-| `UpdateParticipant(data)` | Update participant info | `object data` |
-
-**Client Events:** `ParticipantJoined`, `ParticipantLeft`, `AssetShared`, `MessageReceived`, `SessionStarted`, `SessionEnded`
-
-### AnnotationHub
+### AnnotationHub  
 **Purpose:** Real-time annotation synchronization
+**File:** `/Hubs/AnnotationHub.cs`
 
-| Method | Purpose | Parameters |
-|--------|---------|------------|
-| `JoinAnnotationGroup(sessionId)` | Join annotation group | `long sessionId` |
-| `CreateAnnotation(request)` | Create new annotation | `CreateAnnotationRequest` |
-| `UpdateAnnotation(id, data)` | Update annotation | `long id, object data` |
-| `DeleteAnnotation(id)` | Delete annotation | `long id` |
+### QAHub
+**Purpose:** Real-time Q&A functionality
+**File:** `/Hubs/QAHub.cs`
+
+### TestHub
+**Purpose:** Development and testing support
+**File:** `/Hubs/TestHub.cs`
+
+**Note:** Specific hub methods and client events require code analysis for accurate documentation.
 
 **Client Events:** `AnnotationCreated`, `AnnotationUpdated`, `AnnotationDeleted`
 
