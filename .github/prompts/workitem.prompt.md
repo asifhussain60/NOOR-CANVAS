@@ -34,6 +34,9 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
 - **key:** identifier for this work stream (e.g., `vault`)
 - **log:** controls debug logging behavior (`none`, `simple`, `trace`)
 - **commit:** whether changes should be committed automatically (subject to Commit Policy)
+  - `true` → commit after analyzers, lints, and tests succeed  
+  - `false` → do not commit  
+  - `force` → bypass analyzer/linter/test checks (manual override only)
 - **mode:** operation mode (`analyze`, `apply`, `test`)
   - **analyze** → analyze requested work and document in MD file
   - **apply** → (default) perform the work without docs

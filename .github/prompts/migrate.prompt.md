@@ -2,24 +2,35 @@
 mode: agent
 ---
 
-# /migrate — Repo Folder Migration Agent (v2.3.0)
+# /migrate — Repo Folder Migration Agent (v2.4.0)
 
-Performs one-time repo reorganizations into the `Workspaces/Copilot/` structure. Ensures analyzers, lints, and test suites are healthy after migration.
+Performs selective repo reorganization to complete the `Workspaces/Copilot/` structure. Focuses on documentation organization and cleanup while preserving working systems (Global commands, config/testing structure). Ensures analyzers, lints, and test suites remain healthy.
 
 ## Parameters
 - **key:** identifier for migration scope (if applicable)
+- **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
+- **commit:** controls whether changes are committed
+  - `true` → commit after analyzers, lints, and tests succeed  
+  - `false` → do not commit  
+  - `force` → bypass analyzer/linter/test checks (manual override only)
 - **notes:** freeform description of the migration task (folders to move, paths to update, constraints)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
+- `.github/instructions/SelfAwareness.instructions.md`
 - Current repo file/folder structure
 - `#getTerminalOutput` for runtime validation
+
+## Current State Assessment
+- ✅ **Configs already migrated**: `config/testing/` structure in place and working
+- ✅ **Global commands functional**: `Workspaces/Global/` with PATH integration
+- ✅ **Copilot structure exists**: `Workspaces/Copilot/_DOCS/` hierarchy established
+- 🔄 **Remaining work**: Documentation organization and cleanup of scattered files
 
 ## Launch Policy
 - **Never** use `dotnet run`
 - Launch migrated app only via:
-  - `./Workspaces/Copilot/Global/nc.ps1`
-  - `./Workspaces/Copilot/Global/ncb.ps1`
+  - `./Workspaces/Global/nc.ps1`
+  - `./Workspaces/Global/ncb.ps1`
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
@@ -35,15 +46,24 @@ Migration cannot be declared complete until analyzers, lints, and tests are clea
 - Respect `none`, `simple`, `trace` modes
 
 ## Migration Protocol
-1. Move existing prompt files to:
-   - `.github/prompts/` → canonical prompts
-   - `Workspaces/Copilot/prompts.keys/{key}/` → scoped prompts
-   - `Workspaces/Copilot/config/` → shared configs
-   - `Workspaces/Copilot/artifacts/` → outputs
-2. Update references to new paths
-3. Ensure `.github/workflows/build.yml` points to correct locations
-4. Remove obsolete folders or duplicates
-5. Run analyzers, lints, and tests to confirm nothing broken
+1. **Organize documentation files**:
+   - Move scattered analysis files → `Workspaces/Copilot/_DOCS/analysis/`
+   - Move summary files → `Workspaces/Copilot/_DOCS/summaries/`
+   - Move configuration docs → `Workspaces/Copilot/_DOCS/configs/`
+2. **Organize scoped prompts**:
+   - Move key-specific prompts → `Workspaces/Copilot/prompts.keys/{key}/`
+   - Keep canonical prompts in `.github/prompts/` (already correct)
+3. **Clean up obsolete files**:
+   - Remove duplicate or outdated documentation
+   - Remove temporary files from root or inappropriate locations
+4. **Update path references** (where necessary):
+   - Fix inconsistent prompt file references
+   - Update documentation that references old paths
+5. **Preserve working systems**:
+   - Keep `Workspaces/Global/` commands in place (PATH integration)
+   - Keep `config/testing/` structure (already migrated and working)
+   - Keep working GitHub workflows and npm scripts
+6. Run analyzers, lints, and tests to confirm nothing broken
 
 ## Iterative Validation
 - Run analyzers and lints after each stage
@@ -68,10 +88,20 @@ Summaries must include:
 - Request confirmation to finalize
 
 ## Guardrails
-- Do not touch secrets (`appsettings.*.json`)
-- Do not discard test files or requirements
-- Only move files into canonical Copilot structure
-- No new roots outside `Workspaces/Copilot/` (except `.github/`)
+- **Do not move working systems**:
+  - Keep `Workspaces/Global/` commands (PATH integration dependency)
+  - Keep `config/testing/` structure (already migrated and working)
+  - Keep working npm scripts and GitHub workflows
+- **Do not touch**:
+  - Secrets (`appsettings.*.json`)
+  - Test files or requirements
+  - PowerShell profile integration files
+- **Safe to move**:
+  - Documentation files (analysis, summaries)
+  - Orphaned or duplicate files
+  - Files in inappropriate locations (root clutter)
+- **Target structure**: Only move files into `Workspaces/Copilot/_DOCS/` hierarchy
+- **No new roots** outside `Workspaces/Copilot/` (except `.github/`)
 
 ## Database Guardrails
 - Never use LocalDB for any database operations

@@ -9,15 +9,15 @@ Carries forward partially completed work for a given `{key}`, ensuring analyzers
 ## Parameters
 - **key:** identifier for this work stream (e.g., `vault`)
 - **log:** logging mode (`none`, `simple`, `trace`) controlling debug verbosity
-- **commit:** controls whether changes are committed  
+- **commit:** controls whether changes are committed
+  - `true` → commit after analyzers, lints, and tests succeed  
+  - `false` → do not commit  
+  - `force` → bypass analyzer/linter/test checks (manual override only)
 - **mode:** operation mode (`analyze`, `apply`, `test`)
   - **analyze** → analyze continuation plan and document in MD file
   - **apply** → (default) continue work without docs
   - **test** → apply + generate Playwright test
 - **notes:** freeform description of the requested continuation (context, files, details, edge cases)
-  - `true` → commit after analyzers, lints, and tests succeed  
-  - `false` → do not commit  
-  - `force` → bypass analyzer/linter/test checks (manual override only)
 
 ## Inputs (read)
 - `.github/prompts/SelfAwareness.instructions.md`
