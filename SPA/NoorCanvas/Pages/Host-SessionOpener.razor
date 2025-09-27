@@ -3,16 +3,17 @@
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using NoorCanvas.ViewModels
+@using NoorCanvas.Models
+@using NoorCanvas.Services
+@using NoorCanvas.Components
 @using System.ComponentModel.DataAnnotations
-@using System.Net.Http.Json
 @using System.Text.Json
-@using System.Text.Json.Serialization
-@using System.Text.RegularExpressions
-@inject IHttpClientFactory HttpClientFactory
+@inject HostSessionService HostService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<Host_SessionOpener> Logger
-@inject IConfiguration Configuration
 
 <PageTitle>NOOR Canvas - Host Session Opener</PageTitle>
 
@@ -44,9 +45,9 @@
             <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:0 2.5rem;">
                 
                 <!-- Error message container -->
-                @if (!string.IsNullOrEmpty(ErrorMessage))
+                @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
                 {
-                    <div style="color:#ef4444;font-size:0.875rem;font-family:'Poppins',sans-serif;margin-bottom:1rem;">@ErrorMessage</div>
+                    <div style="color:#ef4444;font-size:0.875rem;font-family:'Poppins',sans-serif;margin-bottom:1rem;">@Model.ErrorMessage</div>
                 }
                 
                 <!-- Microphone Icon -->
@@ -63,8 +64,8 @@
                         <!-- Album Selection -->
                         <div style="width:100%;">
                             <label for="album-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Album</label>
-                            <select id="album-select" @bind="SelectedAlbum" @bind:after="ValidateForm" required 
-                                    style="@(SelectedAlbum == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                            <select id="album-select" @bind="SelectedAlbum" @bind:after="ValidateForm" required autocomplete="off"
+                                    style="@(Model?.SelectedAlbum == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
                                     disabled="@(Model?.IsLoadingAlbums ?? false)">
                                 <option value="">@((Model?.IsLoadingAlbums ?? false) ? "Loading albums..." : "Select Album")</option>
                                 @if (!(Model?.IsLoadingAlbums ?? false))
@@ -80,10 +81,10 @@
                         <!-- Category Selection -->
                         <div style="width:100%;">
                             <label for="category-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Category</label>
-                            <select id="category-select" @bind="SelectedCategory" @bind:after="ValidateForm" required 
-                                    style="@(SelectedCategory == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
-                                    disabled="@((Model?.IsLoadingCategories ?? false) || string.IsNullOrEmpty(SelectedAlbum))">
-                                <option value="">@((Model?.IsLoadingCategories ?? false) ? "Loading categories..." : string.IsNullOrEmpty(SelectedAlbum) ? "Select Album First" : "Select Category")</option>
+                            <select id="category-select" @bind="SelectedCategory" @bind:after="ValidateForm" required autocomplete="off"
+                                    style="@(Model?.SelectedCategory == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    disabled="@((Model?.IsLoadingCategories ?? false) || string.IsNullOrEmpty(Model?.SelectedAlbum))">
+                                <option value="">@((Model?.IsLoadingCategories ?? false) ? "Loading categories..." : string.IsNullOrEmpty(Model?.SelectedAlbum) ? "Select Album First" : "Select Category")</option>
                                 @if (!(Model?.IsLoadingCategories ?? false))
                                 {
                                     @foreach (var category in Categories)
@@ -97,10 +98,10 @@
                         <!-- Session Selection -->
                         <div style="width:100%;">
                             <label for="session-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Session</label>
-                            <select id="session-select" @bind="SelectedSession" @bind:after="ValidateForm" required 
-                                    style="@(SelectedSession == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
-                                    disabled="@((Model?.IsLoadingSessions ?? false) || string.IsNullOrEmpty(SelectedCategory))">
-                                <option value="">@((Model?.IsLoadingSessions ?? false) ? "Loading sessions..." : string.IsNullOrEmpty(SelectedCategory) ? "Select Category First" : "Select Session")</option>
+                            <select id="session-select" @bind="SelectedSession" @bind:after="OnFormFieldChanged" required autocomplete="off"
+                                    style="@(Model?.SelectedSession == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    disabled="@((Model?.IsLoadingSessions ?? false) || string.IsNullOrEmpty(Model?.SelectedCategory))">
+                                <option value="">@((Model?.IsLoadingSessions ?? false) ? "Loading sessions..." : string.IsNullOrEmpty(Model?.SelectedCategory) ? "Select Category First" : "Select Session")</option>
                                 @if (!(Model?.IsLoadingSessions ?? false))
                                 {
                                     @foreach (var session in Sessions)
@@ -110,8 +111,6 @@
                                 }
                             </select>
                         </div>
-
-
                     </div>
 
                     <!-- Host Inputs (Right Column) -->
@@ -120,14 +119,14 @@
                         <!-- Date Input -->
                         <div style="width:100%;">
                             <label for="session-date" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Date</label>
-                            <input type="date" id="session-date" @bind="SessionDate" @bind:after="ValidateForm" required 
+                            <input type="date" id="session-date" @bind="SessionDate" @bind:after="OnFormFieldChanged" required autocomplete="off"
                                    style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
                         </div>
                         
                         <!-- Time Input -->
                         <div style="width:100%;">
                             <label for="session-time" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Start Time (EST)</label>
-                            <input type="text" id="session-time" @bind="SessionTime" @oninput="FormatTime" @bind:after="ValidateForm" required 
+                            <input type="text" id="session-time" @bind="SessionTime" @oninput="OnTimeInput" @bind:after="OnFormFieldChanged" required autocomplete="off"
                                    placeholder="HH:MM AM/PM" 
                                    style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
                         </div>
@@ -135,8 +134,8 @@
                         <!-- Duration Input -->
                         <div style="width:100%;">
                             <label for="session-duration" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Duration (minutes)</label>
-                            <input type="number" id="session-duration" @bind="SessionDuration" @bind:after="ValidateForm" required 
-                                   placeholder="Enter duration" 
+                            <input type="number" id="session-duration" @bind="SessionDuration" @bind:after="OnFormFieldChanged" required autocomplete="off"
+                                   placeholder="Enter duration" min="1" max="480"
                                    style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
                         </div>
                     </div>
@@ -144,58 +143,32 @@
 
                 <!-- Open Session Button -->
                 <div style="display:flex;justify-content:center;width:100%;margin-top:1.5rem;">
-                    <button id="openSessionBtn" @onclick="() => OpenSession()" disabled="@(!IsFormValid)" 
-                            style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;@(IsFormValid ? "background-color:#006400;cursor:pointer;" : "background-color:#9ca3af;cursor:not-allowed;") color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-                        <i class="fa-solid fa-arrow-right"></i>
-                        <span>Open Session</span>
+                    <button id="openSessionBtn" @onclick="OpenSessionAsync" disabled="@(!(Model?.IsFormValid ?? false) || (Model?.IsProcessingSession ?? false) || (Model?.HasGeneratedToken ?? false))" 
+                            style="@GetButtonStyle()">
+                        @if (Model?.IsProcessingSession ?? false)
+                        {
+                            <i class="fa-solid fa-spinner fa-spin" style="margin-right:0.5rem;"></i>
+                            <span>Processing...</span>
+                        }
+                        else if (Model?.HasGeneratedToken ?? false)
+                        {
+                            <i class="fa-solid fa-check" style="margin-right:0.5rem;"></i>
+                            <span>Token Generated</span>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-key" style="margin-right:0.5rem;"></i>
+                            <span>Generate User Token</span>
+                        }
                     </button>
                 </div>
             </div>
         </div>
-        
-        <!-- Link Panel - Hidden by default, shown after session is opened -->
-        @if (ShowSessionUrlPanel)
-        {
-            <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);margin-top:1.5rem;">
-                
-                <!-- Session URLs Title -->
-                <h3 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.25rem;color:#006400;margin-bottom:1rem;">Session URLs</h3>
-            
-                <!-- User Landing URL -->
-                <div style="margin-bottom:1.5rem;">
-                    <h4 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;color:#374151;margin-bottom:0.5rem;">📱 User Landing URL</h4>
-                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0.5rem;">
-                        <span id="userUrl" style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#1f2937;word-break:break-all;text-align:center;">@UserLandingUrl</span>
-                        <button id="copyUserButton" @onclick="CopyUserUrl" 
-                                style="font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1rem;border-radius:50px;@(UserCopied ? "background-color:#006400;" : "background-color:#D4AF37;") color:#FFFFFF;border:none;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
-                            <i class="fa-solid @(UserCopied ? "fa-check" : "fa-copy")"></i>
-                            <span>@(UserCopied ? "Copied!" : "Copy User Link")</span>
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Host Session Opener URL -->
-                <div style="margin-bottom:1.5rem;">
-                    <h4 style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;color:#374151;margin-bottom:0.5rem;">🎛️ Host Session Opener URL</h4>
-                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:0.5rem;">
-                        <span id="hostUrl" style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;color:#1f2937;word-break:break-all;text-align:center;">@HostSessionUrl</span>
-                        <button id="copyHostButton" @onclick="CopyHostUrl" 
-                                style="font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1rem;border-radius:50px;@(HostCopied ? "background-color:#006400;" : "background-color:#C5B358;") color:#FFFFFF;border:none;display:flex;align-items:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
-                            <i class="fa-solid @(HostCopied ? "fa-check" : "fa-copy")"></i>
-                            <span>@(HostCopied ? "Copied!" : "Copy Host Link")</span>
-                        </button>
-                    </div>
-                </div>
-            
-                <!-- Load Control Panel Button -->
-                <div style="display:flex;justify-content:center;margin-top:1rem;margin-top:1.5rem;">
-                    <button id="loadControlPanelBtn" @onclick="LoadControlPanel" 
-                            style="width:100%;max-width:18rem;font-family:'Inter',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:50px;background-color:#006400;color:#FFFFFF;border:none;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.2s;">
-                        <i class="fa-solid fa-gear"></i>
-                        <span>Load Control Panel</span>
-                    </button>
-                </div>
-            </div>
+        <!-- Session URL Panel -->
+        @if ((Model?.ShowSessionUrlPanel ?? false) && !string.IsNullOrEmpty(Model?.SessionUrl))
+        {
+            <SessionUrlPanel Model="@Model" OnCopyUrl="CopyUrlAsync" OnCopyUserUrl="CopyUserUrlAsync" OnLoadControlPanel="LoadControlPanelAsync" />
         }
     </div>
 </div>
@@ -203,434 +176,320 @@
 @code {
     [Parameter] public string? Token { get; set; }
     
-    public class HostSessionOpenerViewModel
-    {
-        public string? LogoText { get; set; } = "NOOR Canvas";
-        public string? HostFriendlyToken { get; set; }
-        // Using cascading dropdown loading
-        public string? SelectedAlbum { get; set; }
-        public string? SelectedCategory { get; set; }
-        public string? SelectedSession { get; set; }
-        public DateTime SessionDate { get; set; } = DateTime.Today;
-        public string SessionTime { get; set; } = DateTime.Now.ToString("h:mm tt"); // Dynamic default based on current time
-        public int? SessionDuration { get; set; } = 60; // Default duration
-        public string ErrorMessage { get; set; } = "";
-        public bool IsFormValid { get; set; }
-        public bool Copied { get; set; }
-        public string SessionUrl { get; set; } = string.Empty; // Will be set dynamically from configuration
-        public string UserLandingUrl { get; set; } = string.Empty; // User landing URL
-        public string HostSessionUrl { get; set; } = string.Empty; // Host session opener URL  
-        public bool UserCopied { get; set; } = false; // Track user URL copy state
-        public bool HostCopied { get; set; } = false; // Track host URL copy state
-        public bool IsLoadingAlbums { get; set; }
-        public bool IsLoadingCategories { get; set; }
-        public bool IsLoadingSessions { get; set; }
-        public bool ShowSessionUrlPanel { get; set; } = false; // Hidden by default
-    }
-
-    // API Models matching HostController
-    public class AlbumData
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Image { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public int? SpeakerID { get; set; }
-        public bool IsActive { get; set; }
-        public bool IsCompleted { get; set; }
-    }
-
-    public class CategoryData
-    {
-        public int CategoryID { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
-        public int GroupID { get; set; }
-        public int SortOrder { get; set; }
-        public DateTime? CreatedDate { get; set; }
-    }
-
-    public class SessionData
-    {
-        public int SessionID { get; set; }
-        public string SessionName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public DateTime? SessionDate { get; set; }
-        public int CategoryID { get; set; }
-        public bool IsActive { get; set; }
-    }
-
-    public class SessionDetailsResponse
-    {
-        public int SessionId { get; set; }
-        public int GroupId { get; set; }        // Album ID
-        public int CategoryId { get; set; }     // Category ID
-        public string SessionName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-    }
-
-    public class HostSessionValidationResponse
-    {
-        public bool Valid { get; set; }
-        public int SessionId { get; set; }
-        public string? HostGuid { get; set; }
-        public HostSessionInfo? Session { get; set; }
-        public string? RequestId { get; set; }
-    }
-
-    public class CreateSessionResponse
-    {
-        public long SessionId { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public string JoinLink { get; set; } = string.Empty;
-        public string SessionGuid { get; set; } = string.Empty;
-    }
-
-    public class HostSessionInfo
-    {
-        public int SessionId { get; set; }
-        public long? KSessionsId { get; set; }
-        public string? Title { get; set; }
-        public string? Description { get; set; }
-        public string? Status { get; set; }
-        public int ParticipantCount { get; set; }
-        public int? MaxParticipants { get; set; }
-        public DateTime? StartedAt { get; set; }
-        public DateTime? CreatedAt { get; set; }
-    }
-
-
-
     private HostSessionOpenerViewModel Model { get; set; } = new();
-    
-
-    
     private List<AlbumData> Albums { get; set; } = new();
     private List<CategoryData> Categories { get; set; } = new();
-    private List<SessionData> Sessions { get; set; } = new();
+    private List<HostSessionData> Sessions { get; set; } = new();
 
-    private HttpClient HttpClient { get; set; } = null!;
-    
-    // Helper method to get base URL from configuration
-    private string GetBaseUrl()
-    {
-        // Try to get HTTPS URL from Kestrel configuration, fallback to HTTPS default
-        var httpsUrl = Configuration["Kestrel:Endpoints:Https:Url"];
-        if (!string.IsNullOrEmpty(httpsUrl))
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: Using configured HTTPS URL: {HttpsUrl}", httpsUrl);
-            return httpsUrl;
-        }
-        
-        // Fallback to default HTTPS port
-        Logger.LogWarning("NOOR-HOST-OPENER: No HTTPS configuration found, using default https://localhost:9091");
-        return "https://localhost:9091";
-    }
-    
-    // Properties for direct binding (from mock)
+    // Property wrappers for binding with cascading logic
     private string? SelectedAlbum
     {
-        get => Model.SelectedAlbum;
+        get => Model?.SelectedAlbum;
         set
         {
-            if (Model.SelectedAlbum != value)
+            if (Model != null && Model.SelectedAlbum != value)
             {
                 Model.SelectedAlbum = value;
-                _ = OnAlbumChanged();
+                // Use InvokeAsync to properly handle async cascading
+                InvokeAsync(async () => await OnAlbumChanged());
             }
         }
     }
     
     private string? SelectedCategory
     {
-        get => Model.SelectedCategory;
+        get => Model?.SelectedCategory;
         set
         {
-            if (Model.SelectedCategory != value)
+            if (Model != null && Model.SelectedCategory != value)
             {
                 Model.SelectedCategory = value;
-                _ = OnCategoryChanged();
+                // Use InvokeAsync to properly handle async cascading
+                InvokeAsync(async () => await OnCategoryChanged());
             }
         }
     }
     
     private string? SelectedSession
     {
-        get => Model.SelectedSession;
-        set => Model.SelectedSession = value;
+        get => Model?.SelectedSession;
+        set => SetModelProperty(m => m.SelectedSession = value);
     }
-    
-
     
     private DateTime SessionDate
     {
-        get => Model.SessionDate;
-        set => Model.SessionDate = value;
+        get => Model?.SessionDate ?? DateTime.Today;
+        set => SetModelProperty(m => m.SessionDate = value);
     }
     
     private string SessionTime
     {
-        get => Model.SessionTime;
-        set => Model.SessionTime = value;
+        get => Model?.SessionTime ?? "6:00 AM";
+        set => SetModelProperty(m => m.SessionTime = value);
     }
     
     private int? SessionDuration
     {
-        get => Model.SessionDuration;
-        set => Model.SessionDuration = value;
+        get => Model?.SessionDuration;
+        set => SetModelProperty(m => m.SessionDuration = value);
     }
-    
-    private string ErrorMessage
+
+    private void SetModelProperty(Action<HostSessionOpenerViewModel> setter)
     {
-        get => Model.ErrorMessage;
-        set => Model.ErrorMessage = value;
-    }
-    
-    private bool IsFormValid
-    {
-        get => Model.IsFormValid;
-        set => Model.IsFormValid = value;
-    }
-    
-    private bool Copied
-    {
-        get => Model.Copied;
-        set => Model.Copied = value;
-    }
-    
-    private string SessionUrl
-    {
-        get => Model.SessionUrl;
-        set => Model.SessionUrl = value;
-    }
-    
-    private bool ShowSessionUrlPanel
-    {
-        get => Model.ShowSessionUrlPanel;
-        set => Model.ShowSessionUrlPanel = value;
-    }
-    
-    private string UserLandingUrl
-    {
-        get => Model.UserLandingUrl;
-        set => Model.UserLandingUrl = value;
-    }
-    
-    private string HostSessionUrl
-    {
-        get => Model.HostSessionUrl;
-        set => Model.HostSessionUrl = value;
-    }
-    
-    private bool UserCopied
-    {
-        get => Model.UserCopied;
-        set => Model.UserCopied = value;
-    }
-    
-    private bool HostCopied
-    {
-        get => Model.HostCopied;
-        set => Model.HostCopied = value;
+        if (Model != null)
+        {
+            setter(Model);
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        Logger.LogInformation("NOOR-HOST-OPENER: Initializing Host-SessionOpener component with Token: {Token}", Token ?? "None");
+        var runId = DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_sessionopener_timing";
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Initializing Host-SessionOpener component with Token: {Token}", runId, Token ?? "None");
         
-        // Initialize HTTP client with dynamic base URL
-        var baseUrl = GetBaseUrl();
-        HttpClient = HttpClientFactory.CreateClient();
-        HttpClient.BaseAddress = new Uri(baseUrl);
-        Logger.LogInformation("NOOR-HOST-OPENER: HttpClient BaseAddress set to: {BaseAddress}", HttpClient.BaseAddress);
-        
-        // CRITICAL: No token provided - redirect to authentication
+        // Set host token if provided
         if (!string.IsNullOrEmpty(Token))
         {
             Model.HostFriendlyToken = Token;
-            Logger.LogInformation("NOOR-HOST-OPENER: Host friendly token set: {Token}", Token);
         }
-        else
-        {
-            Logger.LogCritical("NOOR-SECURITY-CRITICAL: Host-SessionOpener accessed without authentication token. Redirecting to host login.");
-            Navigation.NavigateTo("/host/landing", forceLoad: true);
-            return;
-        }
-        
-        // Initialize with dynamic data for immediate functionality
-        Model.LogoText = "NOOR Canvas - Host Session Management";
-        // SessionUrl will be set after session creation with actual UserToken
-        Model.SessionUrl = string.Empty;
-        Logger.LogInformation("NOOR-HOST-OPENER: [DEBUG-URL-INIT] SessionUrl initialized to empty: '{SessionUrl}'", Model.SessionUrl);
-        
-        // Load albums for user selection
+
+        // Load initial data
         await LoadAlbumsAsync();
         
-        // NEW: Auto-load dropdowns based on current session if we have a sessionId
-        await SetCascadingDefaultValuesFromSessionAsync();
+        // If we have a token, auto-populate the dropdowns based on the associated session
+        if (!string.IsNullOrEmpty(Token))
+        {
+            await AutoPopulateDropdownsFromToken(runId);
+        }
         
-        ValidateForm();
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Component initialization completed", runId);
     }
 
     private async Task LoadAlbumsAsync()
     {
+        Model.IsLoadingAlbums = true;
+        StateHasChanged();
+        
         try
         {
-            Model.IsLoadingAlbums = true;
-            StateHasChanged();
-            
-            var response = await HttpClient.GetAsync($"api/host/albums?guid={Model.HostFriendlyToken}");
-            if (response.IsSuccessStatusCode)
-            {
-                Albums = await response.Content.ReadFromJsonAsync<List<AlbumData>>() ?? new List<AlbumData>();
-                Logger.LogInformation("NOOR-HOST-OPENER: Loaded {AlbumCount} albums", Albums.Count);
-            }
-            else
-            {
-                Logger.LogWarning("NOOR-HOST-OPENER: Failed to load albums - HTTP {StatusCode}", response.StatusCode);
-                Model.ErrorMessage = "Failed to load albums from database.";
-            }
+            Albums = await HostService.LoadAlbumsAsync(Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: Loaded {AlbumCount} albums", Albums.Count);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading albums");
-            Model.ErrorMessage = "Error loading albums. Please refresh the page.";
+            Model.ErrorMessage = "Failed to load albums. Please refresh the page.";
         }
         finally
         {
             Model.IsLoadingAlbums = false;
+            ValidateForm();
             StateHasChanged();
         }
     }
 
-    /// <summary>
-    /// NEW: Auto-load cascading dropdowns based on current session's KSESSIONS data
-    /// Traces sessionId back to get GroupId (Album) and CategoryId, then populates dropdowns with 1-second delays
-    /// </summary>
-    private async Task SetCascadingDefaultValuesFromSessionAsync()
+    private async Task AutoPopulateDropdownsFromToken(string runId)
     {
         try
         {
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Starting session tracing and auto-population...");
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Starting auto-population for token: {Token}", runId, Token);
             
-            // Get the current session's KSessionsId from the host's session in canvas.Sessions table
-            // We need to find the session associated with this host token and check if it has KSessionsId set
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Checking for existing session with KSessionsId for host token: {Token}", Model.HostFriendlyToken);
-            
-            // First, validate the host token and get session info
-            var tokenValidationResponse = await HttpClient.GetAsync($"api/host/token/{Model.HostFriendlyToken}/validate");
-            if (!tokenValidationResponse.IsSuccessStatusCode)
+            // Step 1: Validate token and get SessionId
+            var validationResponse = await HostService.ValidateHostTokenAsync(Token);
+            if (!validationResponse.Valid || validationResponse.SessionId <= 0)
             {
-                Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Host token validation failed - skipping auto-population");
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Token validation failed or invalid SessionId: {SessionId}", runId, validationResponse.SessionId);
                 return;
             }
-            
-            var tokenInfo = await tokenValidationResponse.Content.ReadFromJsonAsync<HostSessionValidationResponse>();
-            if (tokenInfo?.Valid != true || tokenInfo.Session?.KSessionsId == null)
-            {
-                Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] No session with KSessionsId found for host token - this is normal for new sessions");
-                return;
-            }
-            
-            int kSessionsId = (int)tokenInfo.Session.KSessionsId.Value;
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Found existing session with KSessionsId: {KSessionsId}", kSessionsId);
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Tracing session details for KSessionsId: {KSessionsId}", kSessionsId);
-            
-            // Get session details (GroupId, CategoryId) from KSESSIONS database
-            var detailsResponse = await HttpClient.GetAsync($"api/host/session-details/{kSessionsId}?guid={Model.HostFriendlyToken}");
-            if (!detailsResponse.IsSuccessStatusCode)
-            {
-                Logger.LogWarning("NOOR-HOST-OPENER: [AUTO-LOAD] Failed to get session details for KSessionsId: {KSessionsId}", kSessionsId);
-                return;
-            }
-            
-            var sessionDetails = await detailsResponse.Content.ReadFromJsonAsync<SessionDetailsResponse>();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Token validated successfully - SessionId: {SessionId}", runId, validationResponse.SessionId);
+
+            // Step 2: Get session details to find GroupId (AlbumId) and CategoryId
+            var sessionDetails = await HostService.GetSessionDetailsAsync(validationResponse.SessionId, Token);
             if (sessionDetails == null)
             {
-                Logger.LogWarning("NOOR-HOST-OPENER: [AUTO-LOAD] Null session details response");
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Could not retrieve session details for SessionId: {SessionId}", runId, validationResponse.SessionId);
                 return;
             }
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Found session details - GroupId: {GroupId}, CategoryId: {CategoryId}, SessionId: {SessionId}", 
-                sessionDetails.GroupId, sessionDetails.CategoryId, sessionDetails.SessionId);
-            
-            // Step 1: Auto-select Album (GroupId) → wait 1 second → load categories
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Step 1: Setting Album to GroupId {GroupId}", sessionDetails.GroupId);
-            Model.SelectedAlbum = sessionDetails.GroupId.ToString();
-            StateHasChanged();
-            await Task.Delay(1000);
-            
-            // Load categories for the selected album
-            await OnAlbumChanged();
-            await Task.Delay(1000);
-            
-            // Step 2: Auto-select Category (CategoryId) → wait 1 second → load sessions  
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Step 2: Setting Category to CategoryId {CategoryId}", sessionDetails.CategoryId);
-            Model.SelectedCategory = sessionDetails.CategoryId.ToString();
-            StateHasChanged();
-            await Task.Delay(1000);
-            
-            // Load sessions for the selected category
-            await OnCategoryChanged();
-            await Task.Delay(1000);
-            
-            // Step 3: Auto-select Session (SessionId)
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Step 3: Setting Session to SessionId {SessionId}", sessionDetails.SessionId);
-            Model.SelectedSession = sessionDetails.SessionId.ToString();
-            StateHasChanged();
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [AUTO-LOAD] Cascading auto-population completed successfully");
-            ValidateForm();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Retrieved session details - GroupId: {GroupId}, CategoryId: {CategoryId}, SessionId: {SessionId}", 
+                runId, sessionDetails.GroupId, sessionDetails.CategoryId, sessionDetails.SessionId);
+
+            // Step 3: Auto-populate dropdowns in sequence
+            await AutoPopulateSequence(runId, sessionDetails.GroupId.ToString(), sessionDetails.CategoryId.ToString(), sessionDetails.SessionId.ToString());
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: [AUTO-LOAD] Error during cascading auto-population");
-            // Don't show error to user - auto-population is optional enhancement
+            Logger.LogError(ex, "[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Error during auto-population for token: {Token}", runId, Token);
+            Model.ErrorMessage = "Failed to auto-populate session data. Please select manually.";
         }
     }
 
-
-
-
-
-    private async Task OnAlbumChanged()
+    private async Task AutoPopulateSequence(string runId, string albumId, string categoryId, string sessionId)
     {
         try
         {
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Starting auto-population sequence - Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}", 
+                runId, albumId, categoryId, sessionId);
+
+            // Step 1: Wait for albums to be loaded, then set album
+            var maxWait = 10; // 10 second timeout
+            var waited = 0;
+            while (Albums.Count == 0 && waited < maxWait)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Waiting for albums to load... ({Waited}s)", runId, waited);
+                await Task.Delay(1000);
+                waited++;
+            }
+
+            if (Albums.Count == 0)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Albums not loaded within timeout", runId);
+                return;
+            }
+
+            // Set album and trigger cascade
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting album: {AlbumId}", runId, albumId);
+            SelectedAlbum = albumId;
+            StateHasChanged();
+
+            // Step 2: Wait for categories to load, then set category
+            waited = 0;
+            while (Categories.Count == 0 && waited < maxWait)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Waiting for categories to load... ({Waited}s)", runId, waited);
+                await Task.Delay(1000);
+                waited++;
+            }
+
+            if (Categories.Count == 0)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Categories not loaded within timeout", runId);
+                return;
+            }
+
+            // Set category and trigger cascade
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting category: {CategoryId}", runId, categoryId);
+            SelectedCategory = categoryId;
+            StateHasChanged();
+
+            // Step 3: Wait for sessions to load, then set session
+            waited = 0;
+            while (Sessions.Count == 0 && waited < maxWait)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Waiting for sessions to load... ({Waited}s)", runId, waited);
+                await Task.Delay(1000);
+                waited++;
+            }
+
+            if (Sessions.Count == 0)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Sessions not loaded within timeout", runId);
+                return;
+            }
+
+            // Set session
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Setting session: {SessionId}", runId, sessionId);
+            SelectedSession = sessionId;
+            StateHasChanged();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Auto-population sequence completed successfully", runId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:sessionopener:impl:{RunId}] Error during auto-population sequence", runId);
+        }
+    }
+
+    private void OnFormFieldChanged()
+    {
+        // Reset form state when any field changes
+        Model.ResetFormState();
+        ValidateForm();
+        StateHasChanged();
+    }
+
+    private async Task OnAlbumChanged()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] OnAlbumChanged called - SelectedAlbum: {AlbumId}", Model?.SelectedAlbum ?? "null");
+        
+        try
+        {
             // Reset dependent selections when album changes
-            Model.SelectedCategory = null;
-            Model.SelectedSession = null;
+            if (Model != null)
+            {
+                Model.SelectedCategory = null;
+                Model.SelectedSession = null;
+            }
             Categories.Clear();
             Sessions.Clear();
-            
-            if (string.IsNullOrEmpty(Model.SelectedAlbum) || !int.TryParse(Model.SelectedAlbum, out int albumId))
+
+            if (string.IsNullOrEmpty(Model?.SelectedAlbum))
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Album is null/empty - skipping category load");
                 ValidateForm();
                 StateHasChanged();
                 return;
             }
-            
-            Model.IsLoadingCategories = true;
-            StateHasChanged();
-            
-            var response = await HttpClient.GetAsync($"api/host/categories/{albumId}?guid={Model.HostFriendlyToken}");
-            if (response.IsSuccessStatusCode)
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Loading categories for album: {AlbumId}", Model.SelectedAlbum);
+            await LoadCategoriesAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error in OnAlbumChanged for album {AlbumId}", Model?.SelectedAlbum);
+            if (Model != null) Model.ErrorMessage = "Error loading categories. Please try again.";
+        }
+    }
+
+    private async Task OnCategoryChanged()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] OnCategoryChanged called - SelectedCategory: {CategoryId}", Model?.SelectedCategory ?? "null");
+        
+        try
+        {
+            // Reset dependent selection when category changes
+            if (Model != null) Model.SelectedSession = null;
+            Sessions.Clear();
+
+            if (string.IsNullOrEmpty(Model?.SelectedCategory))
             {
-                Categories = await response.Content.ReadFromJsonAsync<List<CategoryData>>() ?? new List<CategoryData>();
-                Logger.LogInformation("NOOR-HOST-OPENER: Loaded {CategoryCount} categories for album {AlbumId}", Categories.Count, albumId);
+                Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Category is null/empty - skipping session load");
+                ValidateForm();
+                StateHasChanged();
+                return;
             }
-            else
-            {
-                Logger.LogWarning("NOOR-HOST-OPENER: Failed to load categories - HTTP {StatusCode}", response.StatusCode);
-                Model.ErrorMessage = "Failed to load categories.";
-            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:sessionopener:impl:{RUN_ID}] Loading sessions for category: {CategoryId}", Model.SelectedCategory);
+            await LoadSessionsAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error in OnCategoryChanged for category {CategoryId}", Model?.SelectedCategory);
+            if (Model != null) Model.ErrorMessage = "Error loading sessions. Please try again.";
+        }
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        if (string.IsNullOrEmpty(Model.SelectedAlbum)) return;
+        
+        Model.IsLoadingCategories = true;
+        Model.SelectedCategory = null;
+        Categories.Clear();
+        Sessions.Clear();
+        Model.SelectedSession = null;
+        StateHasChanged();
+        
+        try
+        {
+            Categories = await HostService.LoadCategoriesAsync(Model.SelectedAlbum, Model.HostFriendlyToken);
+            Logger.LogInformation("NOOR-HOST-OPENER: Loaded {CategoryCount} categories for album {AlbumId}", Categories.Count, Model.SelectedAlbum);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading categories for album {AlbumId}", Model.SelectedAlbum);
-            Model.ErrorMessage = "Error loading categories. Please try again.";
+            Model.ErrorMessage = "Failed to load categories. Please try again.";
         }
         finally
         {
@@ -640,40 +499,27 @@
         }
     }
 
-    private async Task OnCategoryChanged()
+    private async Task LoadSessionsAsync()
     {
+        if (string.IsNullOrEmpty(Model.SelectedCategory)) return;
+        
+        Model.IsLoadingSessions = true;
+        Model.SelectedSession = null;
+        Sessions.Clear();
+        StateHasChanged();
+        
         try
         {
-            // Reset dependent selection when category changes
-            Model.SelectedSession = null;
-            Sessions.Clear();
-            
-            if (string.IsNullOrEmpty(Model.SelectedCategory) || !int.TryParse(Model.SelectedCategory, out int categoryId))
+            if (int.TryParse(Model.SelectedCategory, out int categoryId))
             {
-                ValidateForm();
-                StateHasChanged();
-                return;
-            }
-            
-            Model.IsLoadingSessions = true;
-            StateHasChanged();
-            
-            var response = await HttpClient.GetAsync($"api/host/sessions/{categoryId}?guid={Model.HostFriendlyToken}");
-            if (response.IsSuccessStatusCode)
-            {
-                Sessions = await response.Content.ReadFromJsonAsync<List<SessionData>>() ?? new List<SessionData>();
+                Sessions = await HostService.LoadSessionsAsync(categoryId, Model.HostFriendlyToken);
                 Logger.LogInformation("NOOR-HOST-OPENER: Loaded {SessionCount} sessions for category {CategoryId}", Sessions.Count, categoryId);
-            }
-            else
-            {
-                Logger.LogWarning("NOOR-HOST-OPENER: Failed to load sessions - HTTP {StatusCode}", response.StatusCode);
-                Model.ErrorMessage = "Failed to load sessions.";
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading sessions for category {CategoryId}", Model.SelectedCategory);
-            Model.ErrorMessage = "Error loading sessions. Please try again.";
+            Model.ErrorMessage = "Failed to load sessions. Please try again.";
         }
         finally
         {
@@ -683,452 +529,140 @@
         }
     }
 
-    private void ValidateForm()
+    private void OnTimeInput(ChangeEventArgs e)
     {
-        // ISSUE FIX: Hide session URL panel when form changes to invalidate existing URLs
-        if (ShowSessionUrlPanel)
-        {
-            ShowSessionUrlPanel = false;
-            SessionUrl = ""; // Clear the URL as well
-            UserLandingUrl = ""; // Clear user landing URL
-            HostSessionUrl = ""; // Clear host session URL
-            UserCopied = false; // Reset user copy state
-            HostCopied = false; // Reset host copy state
-        }
-
-        IsFormValid = !string.IsNullOrEmpty(SelectedAlbum) &&
-                      !string.IsNullOrEmpty(SelectedCategory) &&
-                      !string.IsNullOrEmpty(SelectedSession) &&
-                      SessionDate != default &&
-                      !string.IsNullOrEmpty(SessionTime) &&
-                      SessionDuration.HasValue;
-
-        if (IsFormValid && !ValidateTime(SessionTime))
-        {
-            IsFormValid = false;
-            ErrorMessage = "Please enter a valid time in HH:MM AM/PM format.";
-        }
-        else
-        {
-            ErrorMessage = IsFormValid ? "" : "Please fill out all fields.";
-        }
-        
-        StateHasChanged();
-    }
-
-    private bool ValidateTime(string time)
-    {
-        if (string.IsNullOrEmpty(time)) return false;
-        var timeRegex = new Regex(@"^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$", RegexOptions.IgnoreCase);
-        return timeRegex.IsMatch(time);
-    }
-    
-    private void FormatTime(ChangeEventArgs e)
-    {
-        SessionTime = e.Value?.ToString() ?? "";
-        var value = SessionTime.ToUpper().Trim();
-        if (value.Length > 2 && (value.EndsWith("AM") || value.EndsWith("PM")) && value[value.Length - 3] != ' ')
-        {
-            SessionTime = value.Insert(value.Length - 2, " ");
-        }
+        var input = e.Value?.ToString() ?? "";
+        Model.SessionTime = HostService.FormatTimeInput(input);
         ValidateForm();
     }
 
-    private async Task CopyUrl()
+    private void ValidateForm()
+    {
+        // Reset form state flags
+        Model.ResetFormState();
+        
+        // Validate required fields
+        Model.IsFormValid = Model.ValidateRequiredFields();
+        
+        // Validate time format if form is otherwise valid
+        if (Model.IsFormValid && !HostService.ValidateTimeFormat(Model.SessionTime))
+        {
+            Model.IsFormValid = false;
+            Model.ErrorMessage = "Please enter a valid time in HH:MM AM/PM format.";
+        }
+        else
+        {
+            // Only show "Please fill out all fields" if user has attempted to submit
+            Model.ErrorMessage = Model.IsFormValid ? "" : (Model.HasAttemptedSubmit ? "Please fill out all fields." : "");
+        }
+        StateHasChanged();
+    }
+
+    private async Task OpenSessionAsync()
+    {
+        // Mark that user has attempted to submit
+        Model.HasAttemptedSubmit = true;
+        Model.IsProcessingSession = true;
+        Model.ErrorMessage = "";
+        StateHasChanged();
+        
+        try
+        {
+            Logger.LogInformation("NOOR-HOST-OPENER: Creating session - Album: {Album}, Category: {Category}, Session: {Session}", 
+                Model.SelectedAlbum, Model.SelectedCategory, Model.SelectedSession);
+            
+            var response = await HostService.CreateSessionAndGenerateTokensAsync(Model);
+            
+            if (response.Success)
+            {
+                // Set URLs and show panel
+                var baseUrl = HostService.GetBaseUrl();
+                Model.SessionUrl = $"{baseUrl}/host/control-panel/{response.HostToken}";
+                Model.UserLandingUrl = $"{baseUrl}/user/landing/{response.UserToken}";
+                Model.ShowSessionUrlPanel = true;
+                Model.HasGeneratedToken = true;
+                
+                Logger.LogInformation("NOOR-HOST-OPENER: Session created successfully - ID: {SessionId}", response.SessionId);
+            }
+            else
+            {
+                Model.ErrorMessage = response.Message ?? "Failed to create session. Please try again.";
+                Logger.LogError("NOOR-HOST-OPENER: Session creation failed: {Message}", response.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-HOST-OPENER: Error in OpenSessionAsync");
+            Model.ErrorMessage = "An error occurred while creating the session. Please try again.";
+        }
+        finally
+        {
+            Model.IsProcessingSession = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CopyUrlAsync()
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", SessionUrl);
-            Copied = true;
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Model.SessionUrl);
+            Model.Copied = true;
             StateHasChanged();
             
-            Logger.LogInformation("NOOR-HOST-OPENER: Session URL copied to clipboard: {Url}", SessionUrl);
-            
-            // Reset after 2 seconds
-            await Task.Delay(2000);
-            Copied = false;
+            await Task.Delay(3000);
+            Model.Copied = false;
             StateHasChanged();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying URL to clipboard");
-            ErrorMessage = "Failed to copy URL. Please copy manually.";
         }
     }
 
-    private async Task CopyUserUrl()
+    private async Task CopyUserUrlAsync()
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", UserLandingUrl);
-            UserCopied = true;
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Model.UserLandingUrl);
+            Model.UserCopied = true;
             StateHasChanged();
             
-            Logger.LogInformation("NOOR-HOST-OPENER: User landing URL copied to clipboard: {Url}", UserLandingUrl);
-            
-            // Reset after 2 seconds
-            await Task.Delay(2000);
-            UserCopied = false;
+            await Task.Delay(3000);
+            Model.UserCopied = false;
             StateHasChanged();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying user URL to clipboard");
-            ErrorMessage = "Failed to copy user URL. Please copy manually.";
         }
     }
 
-    private async Task CopyHostUrl()
+    private Task LoadControlPanelAsync()
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", HostSessionUrl);
-            HostCopied = true;
-            StateHasChanged();
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: Host session URL copied to clipboard: {Url}", HostSessionUrl);
-            
-            // Reset after 2 seconds
-            await Task.Delay(2000);
-            HostCopied = false;
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: Error copying host URL to clipboard");
-            ErrorMessage = "Failed to copy host URL. Please copy manually.";
-        }
-    }
-
-    private async Task OpenSession()
-    {
-        Logger.LogInformation("NOOR-HOST-OPENER: *** ENTERING OpenSession Method ***");
-        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Initial state - ShowSessionUrlPanel: {PanelVisible}, SessionUrl: {CurrentUrl}", ShowSessionUrlPanel, SessionUrl);
-        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Host Token: {HostToken}", Model.HostFriendlyToken);
-        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Form validation state - IsFormValid: {IsValid}", IsFormValid);
-        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Selected values - Album: {Album}, Category: {Category}, Session: {Session}", SelectedAlbum, SelectedCategory, SelectedSession);
-        
-        // Clear any existing error messages
-        ErrorMessage = "";
-        StateHasChanged();
-        
-        try
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: Opening session - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration}", 
-                SelectedAlbum, SelectedCategory, SelectedSession, SessionDate, SessionTime, SessionDuration);
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] About to call CreateSessionAndGenerateTokens...");
-            
-            // Step 1: Save session information to canvas.Sessions and generate tokens
-            await CreateSessionAndGenerateTokens();
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] CreateSessionAndGenerateTokens completed successfully, calling SaveSessionToLocalStorage...");
-            
-            // Step 2: Save to localStorage
-            await SaveSessionToLocalStorage();
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] SaveSessionToLocalStorage completed, showing URL panel...");
-            
-            // ISSUE-106 FIX: Show the Session URL panel with enhanced debug logging
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-FIX] About to set ShowSessionUrlPanel = true (was: {PreviousValue})", ShowSessionUrlPanel);
-            ShowSessionUrlPanel = true;
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-FIX] ShowSessionUrlPanel set to: {CurrentValue}", ShowSessionUrlPanel);
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Current SessionUrl: {SessionUrl}", SessionUrl);
-            
-            // Trigger UI update
-            StateHasChanged();
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-FIX] StateHasChanged() called - UI should now show session URL panel");
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-SUCCESS] Session opened successfully - URL Panel visibility: {IsVisible}, URL: {Url}", ShowSessionUrlPanel, SessionUrl);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-ERROR] *** EXCEPTION in OpenSession: {Message} ***", ex.Message);
-            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-ERROR] *** FULL EXCEPTION: {Exception} ***", ex);
-            Logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-ERROR] *** STACK TRACE: {StackTrace} ***", ex.StackTrace);
-            Logger.LogError("NOOR-HOST-OPENER: [ISSUE-106-ERROR] Exception occurred - ShowSessionUrlPanel remains: {PanelState}", ShowSessionUrlPanel);
-            Logger.LogError("NOOR-HOST-OPENER: [ISSUE-106-ERROR] Host Token was: {Token}", Model.HostFriendlyToken);
-            
-            // TODO: ISSUE-106-CASCADING - Display actual API error instead of generic message
-            // User requested: "Display the actual error in the error panel so user knows what's exactly happening"
-            ErrorMessage = $"API Error: {ex.Message}";
-            
-            // TODO: ISSUE-106-CASCADING - Force show Session URL panel as requested
-            // User said: "just make the Session URL panel visible when I click on Open Session button"
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-CASCADING] Forcing Session URL panel to show despite error as requested");
-            ShowSessionUrlPanel = true;
-            StateHasChanged();
-        }
-    }
-
-    /// <summary>
-    /// Create session in canvas.Sessions table and generate 8-character user token
-    /// </summary>
-    private async Task CreateSessionAndGenerateTokens()
-    {
-        try
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: *** ENTERING CreateSessionAndGenerateTokens ***");
-            Logger.LogInformation("NOOR-HOST-OPENER: Creating session and generating tokens...");
-
-            Logger.LogInformation("NOOR-HOST-OPENER: Creating HTTP client...");
-            var baseUrl = GetBaseUrl();
-            using var httpClient = HttpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(baseUrl);
-            Logger.LogInformation("NOOR-HOST-OPENER: HttpClient BaseAddress set to: {BaseAddress}", httpClient.BaseAddress);
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: Preparing session data payload...");
-            // Prepare session data payload
-            var sessionData = new
-            {
-                HostFriendlyToken = Model.HostFriendlyToken,
-                SelectedSession = SelectedSession,
-                SelectedCategory = SelectedCategory,
-                SelectedAlbum = SelectedAlbum,
-                SessionDate = SessionDate.ToString("yyyy-MM-dd"),
-                SessionTime = SessionTime,
-                SessionDuration = SessionDuration
-            };
-
-            Logger.LogInformation("NOOR-HOST-OPENER: Session data prepared: {SessionData}", 
-                System.Text.Json.JsonSerializer.Serialize(sessionData));
-            Logger.LogInformation("NOOR-HOST-OPENER: Individual values - HostToken: {HostToken}, Session: {Session}, Category: {Category}, Album: {Album}, Date: {Date}, Time: {Time}, Duration: {Duration}",
-                Model.HostFriendlyToken, SelectedSession, SelectedCategory, SelectedAlbum, SessionDate.ToString("yyyy-MM-dd"), SessionTime, SessionDuration);
-                
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Pre-API validation - SelectedAlbum null/empty: {AlbumEmpty}, SelectedCategory null/empty: {CategoryEmpty}, SelectedSession null/empty: {SessionEmpty}",
-                string.IsNullOrEmpty(SelectedAlbum), string.IsNullOrEmpty(SelectedCategory), string.IsNullOrEmpty(SelectedSession));
-
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Calling session creation API at api/host/session/create...");
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Full API URL: {BaseAddress}api/host/session/create", httpClient.BaseAddress);
-            
-            // Prepare CreateSessionRequest payload for the non-deprecated endpoint
-            var createSessionRequest = new
-            {
-                HostGuid = Model.HostFriendlyToken,
-                SessionId = int.Parse(SelectedSession ?? "0"),
-                AlbumId = int.Parse(SelectedAlbum ?? "0"),
-                CategoryId = int.Parse(SelectedCategory ?? "0"),
-                Title = "Host Session", // Default title
-                Description = "Session created by host", // Default description
-                MaxParticipants = (int?)null // Use default from backend
-            };
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] CreateSessionRequest payload: {Request}", System.Text.Json.JsonSerializer.Serialize(createSessionRequest));
-            
-            // Call the API to create session and generate tokens
-            var response = await httpClient.PostAsJsonAsync("api/host/session/create", createSessionRequest);
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] API call completed with status: {StatusCode} ({StatusCodeNumber})", response.StatusCode, (int)response.StatusCode);
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Response headers: {Headers}", response.Headers.ToString());
-            
-            // Read response content for detailed logging regardless of success/failure
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Raw API response content length: {Length}", responseContent?.Length ?? 0);
-            Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Raw API response content: {ResponseContent}", responseContent);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                Logger.LogInformation("NOOR-HOST-OPENER: Parsing successful API response...");
-                
-                try
-                {
-                    var result = !string.IsNullOrEmpty(responseContent) 
-                        ? System.Text.Json.JsonSerializer.Deserialize<CreateSessionResponse>(responseContent, 
-                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                        : null;
-                    
-                    Logger.LogInformation("NOOR-HOST-OPENER: API response parsed: {Result}", result == null ? "NULL" : System.Text.Json.JsonSerializer.Serialize(result));
-                    
-                    if (result != null && !string.IsNullOrEmpty(result.JoinLink))
-                    {
-                        // ISSUE-104 FIX: Use the JoinLink directly from the API response 
-                        SessionUrl = result.JoinLink;
-                        UserLandingUrl = result.JoinLink; // Set user landing URL
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] Session created successfully - Session ID: {SessionId}", result.SessionId);
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-FIX] User landing URL set from API JoinLink: {UserLandingUrl}", UserLandingUrl);
-                        Logger.LogInformation("NOOR-HOST-OPENER: [ISSUE-104-DEBUG] Using proper /user/landing/{token} format from API response");
-                        
-                        // TOKEN-CONSISTENCY FIX: Update host token from API response to maintain consistency
-                        if (!string.IsNullOrEmpty(result.SessionGuid))
-                        {
-                            var originalHostToken = Model.HostFriendlyToken;
-                            Model.HostFriendlyToken = result.SessionGuid;
-                            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Host token updated from API response - Original: {OriginalToken}, New: {NewToken}", 
-                                originalHostToken, result.SessionGuid);
-                            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] This ensures LoadControlPanel() uses the same token that validates in HostControlPanel");
-                            
-                            // WORKITEM-HOSTCANVAS: Generate host session opener URL
-                            var hostBaseUrl = GetBaseUrl();
-                            HostSessionUrl = $"{hostBaseUrl}/host/session-opener/{result.SessionGuid}";
-                            Logger.LogInformation("NOOR-HOST-OPENER: [WORKITEM-HOSTCANVAS] Host session opener URL generated: {HostSessionUrl}", HostSessionUrl);
-                        }
-                        else
-                        {
-                            Logger.LogWarning("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-WARNING] API response missing SessionGuid - keeping original: {OriginalToken}", Model.HostFriendlyToken);
-                            
-                            // WORKITEM-HOSTCANVAS: Generate host URL with current token as fallback
-                            var hostBaseUrl = GetBaseUrl();
-                            HostSessionUrl = $"{hostBaseUrl}/host/session-opener/{Model.HostFriendlyToken}";
-                            Logger.LogInformation("NOOR-HOST-OPENER: [WORKITEM-HOSTCANVAS] Host session opener URL generated with fallback token: {HostSessionUrl}", HostSessionUrl);
-                        }
-                        
-                        // NEW FEATURE: Clear existing participants when host opens session
-                        // This ensures a fresh start for each session by removing any previously registered participants
-                        // Extract user token from JoinLink (format: https://localhost:9091/user/landing/{userToken})
-                        var userToken = result.JoinLink.Split('/').LastOrDefault();
-                        if (!string.IsNullOrEmpty(userToken))
-                        {
-                            await ClearExistingParticipants(userToken);
-                        }
-                    }
-                    else
-                    {
-                        Logger.LogError("NOOR-HOST-OPENER: [ISSUE-104-ERROR] Invalid response from session creation API - Result: {Result}, JoinLink: {JoinLink}", 
-                            result?.ToString() ?? "NULL", result?.JoinLink ?? "NULL");
-                        throw new Exception("Invalid response from session creation API - missing JoinLink");
-                    }
-                }
-                catch (JsonException jsonEx)
-                {
-                    Logger.LogError(jsonEx, "NOOR-HOST-OPENER: Failed to parse API response JSON: {ResponseContent}", responseContent);
-                    throw new Exception($"Failed to parse API response: {jsonEx.Message}");
-                }
-            }
-            else
-            {
-                Logger.LogError("NOOR-HOST-OPENER: Session creation API failed - Status: {StatusCode}, Error: {Error}", 
-                    response.StatusCode, responseContent);
-                
-                // TODO: ISSUE-106-CASCADING - Provide detailed API error message instead of generic status code
-                string detailedError = $"HTTP {(int)response.StatusCode} {response.StatusCode}";
-                if (!string.IsNullOrEmpty(responseContent))
-                {
-                    detailedError += $" - {responseContent}";
-                }
-                throw new Exception(detailedError);
-            }
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: *** EXITING CreateSessionAndGenerateTokens SUCCESSFULLY ***");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: *** ERROR in CreateSessionAndGenerateTokens: {Message} ***", ex.Message);
-            Logger.LogError(ex, "NOOR-HOST-OPENER: *** FULL EXCEPTION in CreateSessionAndGenerateTokens: {Exception} ***", ex);
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// Clear existing participants from canvas.Participants table when host opens session
-    /// This ensures a fresh start for each session by removing any previously registered participants
-    /// </summary>
-    private async Task ClearExistingParticipants(string userToken)
-    {
-        try
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Starting participant cleanup for UserToken: {UserToken}", userToken);
-            
-            if (string.IsNullOrEmpty(userToken))
-            {
-                Logger.LogWarning("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] UserToken is null or empty, skipping participant cleanup");
-                return;
-            }
-
-            var baseUrl = GetBaseUrl();
-            using var httpClient = HttpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(baseUrl);
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Calling DELETE endpoint for UserToken: {UserToken}", userToken);
-            
-            // Call the DELETE API endpoint to remove all participants for this UserToken
-            var deleteResponse = await httpClient.DeleteAsync($"api/participant/session/{userToken}/participants");
-            
-            if (deleteResponse.IsSuccessStatusCode)
-            {
-                var deleteContent = await deleteResponse.Content.ReadAsStringAsync();
-                Logger.LogInformation("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Successfully cleared participants for UserToken: {UserToken}, Response: {Response}", 
-                    userToken, deleteContent);
-            }
-            else
-            {
-                var errorContent = await deleteResponse.Content.ReadAsStringAsync();
-                Logger.LogWarning("NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Failed to clear participants for UserToken: {UserToken}, Status: {StatusCode}, Error: {Error}", 
-                    userToken, deleteResponse.StatusCode, errorContent);
-                
-                // Don't throw exception here - participant cleanup failure shouldn't block session creation
-                // This is a "nice to have" feature that improves user experience but isn't critical
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: [PARTICIPANTS-CLEANUP] Error during participant cleanup for UserToken: {UserToken}", userToken);
-            // Don't throw exception here - participant cleanup failure shouldn't block session creation
-        }
-    }
-
-    /// <summary>
-    /// Save session data to browser localStorage for host state management
-    /// </summary>
-    private async Task SaveSessionToLocalStorage()
-    {
-        try
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: Saving session data to localStorage...");
-
-            var sessionData = new
-            {
-                HostFriendlyToken = Model.HostFriendlyToken,
-                SelectedSession = SelectedSession,
-                SelectedCategory = SelectedCategory,
-                SelectedAlbum = SelectedAlbum,
-                SessionDate = SessionDate.ToString("yyyy-MM-dd"),
-                SessionTime = SessionTime,
-                SessionDuration = SessionDuration,
-                SessionUrl = SessionUrl,
-                CreatedAt = DateTime.UtcNow.ToString("O")
-            };
-
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noorCanvas_hostSession", System.Text.Json.JsonSerializer.Serialize(sessionData));
-            Logger.LogInformation("NOOR-HOST-OPENER: Session data saved to localStorage successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "NOOR-HOST-OPENER: Error saving to localStorage");
-            // Don't throw - localStorage failure shouldn't block the session creation
-        }
-    }
-
-    private void LoadControlPanel()
-    {
-        try
-        {
-            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Loading control panel for token: {Token}", Model.HostFriendlyToken);
-            
-            // Navigate to host control panel with host token (now using updated token from API response)
-            var hostToken = Model.HostFriendlyToken ?? "demo-session";
-            var controlPanelUrl = $"/host/control-panel/{hostToken}";
-            
-            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] Navigating to: {Url}", controlPanelUrl);
-            Logger.LogInformation("NOOR-HOST-OPENER: [TOKEN-CONSISTENCY-FIX] This token should now match what HostControlPanel expects for validation");
-            
+            var controlPanelUrl = Model.SessionUrl;
+            Logger.LogInformation("NOOR-HOST-OPENER: Navigating to control panel: {Url}", controlPanelUrl);
             Navigation.NavigateTo(controlPanelUrl);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "NOOR-HOST-OPENER: Error loading control panel");
-            ErrorMessage = "Failed to load control panel. Please try again.";
+            Model.ErrorMessage = "Failed to load control panel. Please try again.";
         }
+        return Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Response model for session creation API
-    /// </summary>
-    public class SessionCreationResponse
+    private string GetButtonStyle()
     {
-        public bool Success { get; set; }
-        public string? UserToken { get; set; }
-        public string? HostToken { get; set; }
-        public long SessionId { get; set; }
-        public string? Message { get; set; }
+        var baseStyle = "display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;padding:0.875rem 2rem;border-radius:0.5rem;border:none;cursor:pointer;transition:all 0.2s;min-width:200px;";
+        
+        if (!Model.IsFormValid || Model.IsProcessingSession || Model.HasGeneratedToken)
+        {
+            return baseStyle + "background-color:#9ca3af;color:#ffffff;cursor:not-allowed;";
+        }
+        
+        return baseStyle + "background-color:#006400;color:#ffffff;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);";
     }
 }

@@ -254,6 +254,7 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 - **Host Provisioner**: Single GUID per session ID with proper foreign key constraints
 - **Validation Logic**: Implement comprehensive SessionTranscripts validation
 - **Real-time Updates**: SignalR must handle participant updates without connection drops
+- **UI-Database Mapping**: In UI layer, `albumID` corresponds to `GroupID` in SQL table `dbo.Sessions.Groups`
 
 ### Data Management
 - **Album & Category Data**: Support dynamic loading from KSESSIONS database

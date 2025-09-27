@@ -3,6 +3,7 @@ using NoorCanvas.Configuration;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
 using NoorCanvas.Services;
+using NoorCanvas.Services.Development;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -139,6 +140,7 @@ builder.Services.AddScoped<HttpClient>(provider =>
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
+builder.Services.AddScoped<HostSessionService>(); // Host session management service
 
 // Development services - Only available in development builds
 builder.Services.AddScoped<NoorCanvas.Services.Development.IDevModeService, NoorCanvas.Services.Development.DevModeService>();

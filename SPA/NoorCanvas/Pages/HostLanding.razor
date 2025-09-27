@@ -3,6 +3,7 @@
 @page "/host/landing"
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
@@ -80,6 +81,7 @@
                                autocomplete="off"
                                maxlength="8"
                                @oninput="OnTokenInput"
+                               @onkeypress="OnKeyPress"
                                style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;text-align:center;text-transform:uppercase;"
                                @onfocus="@(() => SetFocusStyle(true))"
                                @onblur="@(() => SetFocusStyle(false))" />
@@ -459,6 +461,14 @@
             {
                 Model.FriendlyToken = input.Substring(0, 8).ToUpperInvariant();
             }
+        }
+    }
+
+    private async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !isLoading && !string.IsNullOrWhiteSpace(Model?.FriendlyToken))
+        {
+            await HandleAuthentication();
         }
     }
 

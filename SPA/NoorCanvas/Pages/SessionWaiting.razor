@@ -912,7 +912,7 @@ background-color: #effff9;
         StateHasChanged();
     }
 
-    private void UpdateSessionData(SessionData session)
+    private void UpdateSessionData(SessionWaitingData session)
     {
         if (Model == null) return;
 
@@ -1457,12 +1457,12 @@ background-color: #effff9;
         public int SessionId { get; set; }
         public string? Token { get; set; }
         public DateTime? ExpiresAt { get; set; }
-        public SessionData? Session { get; set; }
+        public SessionWaitingData? Session { get; set; }
         public ParticipantInfo? Participant { get; set; }
         public string? RequestId { get; set; }
     }
 
-    public class SessionData
+    public class SessionWaitingData
     {
         public int SessionId { get; set; }
         public string? Title { get; set; }

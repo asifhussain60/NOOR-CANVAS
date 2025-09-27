@@ -597,7 +597,7 @@
         }
     }
 
-    private async Task UpdateSessionData(SessionData session)
+    private async Task UpdateSessionData(SessionCanvasData session)
     {
         if (Model == null) return;
 
@@ -898,12 +898,12 @@
         public int SessionId { get; set; }
         public string? Token { get; set; }
         public DateTime? ExpiresAt { get; set; }
-        public SessionData? Session { get; set; }
+        public SessionCanvasData? Session { get; set; }
         public ParticipantInfo? Participant { get; set; }
         public string? RequestId { get; set; }
     }
 
-    public class SessionData
+    public class SessionCanvasData
     {
         public int SessionId { get; set; }
         public string? Title { get; set; }

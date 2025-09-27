@@ -17,7 +17,7 @@ public class SimplifiedCanvasDbContext : DbContext
     // Simplified Schema Tables (4 total - 75% reduction from original 15 tables)
     public DbSet<Models.Simplified.Session> Sessions { get; set; }
     public DbSet<Participant> Participants { get; set; }
-    public DbSet<SessionData> SessionData { get; set; }
+    public DbSet<Models.Simplified.SessionData> SessionData { get; set; }
     public DbSet<AssetLookup> AssetLookup { get; set; } // Global asset definitions for share button injection
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,15 +48,15 @@ public class SimplifiedCanvasDbContext : DbContext
             .HasIndex(p => new { p.SessionId, p.UserGuid })
             .HasDatabaseName("IX_Participants_SessionUser");
 
-        modelBuilder.Entity<SessionData>()
+        modelBuilder.Entity<Models.Simplified.SessionData>()
             .HasIndex(sd => sd.SessionId)
             .HasDatabaseName("IX_SessionData_SessionId");
 
-        modelBuilder.Entity<SessionData>()
+        modelBuilder.Entity<Models.Simplified.SessionData>()
             .HasIndex(sd => new { sd.SessionId, sd.DataType })
             .HasDatabaseName("IX_SessionData_Session_Type");
 
-        modelBuilder.Entity<SessionData>()
+        modelBuilder.Entity<Models.Simplified.SessionData>()
             .HasIndex(sd => new { sd.SessionId, sd.DataType, sd.IsDeleted, sd.CreatedAt })
             .HasDatabaseName("IX_SessionData_Query_Optimized");
 
@@ -67,7 +67,7 @@ public class SimplifiedCanvasDbContext : DbContext
             .HasForeignKey(p => p.SessionId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<SessionData>()
+        modelBuilder.Entity<Models.Simplified.SessionData>()
             .HasOne(sd => sd.Session)
             .WithMany(s => s.SessionData)
             .HasForeignKey(sd => sd.SessionId)

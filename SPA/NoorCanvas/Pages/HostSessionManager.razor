@@ -274,7 +274,7 @@
     // Component State
     private List<NoorCanvas.Controllers.AlbumData>? albums;
     private List<NoorCanvas.Controllers.CategoryData>? categories;
-    private List<NoorCanvas.Controllers.SessionData>? sessions;
+    private List<NoorCanvas.Models.HostSessionData>? sessions;
     private SessionStatusData? currentSessionStatus;
     
     private int? selectedAlbumId;
@@ -471,7 +471,7 @@
                 var response = await httpClient.GetAsync($"/api/host/sessions/{selectedCategoryId}?guid={Guid}");
                 if (response.IsSuccessStatusCode)
                 {
-                    sessions = await response.Content.ReadFromJsonAsync<List<NoorCanvas.Controllers.SessionData>>();
+                    sessions = await response.Content.ReadFromJsonAsync<List<NoorCanvas.Models.HostSessionData>>();
                     Logger.LogInformation("NOOR-SUCCESS: Loaded {SessionCount} sessions", sessions?.Count ?? 0);
                 }
             }

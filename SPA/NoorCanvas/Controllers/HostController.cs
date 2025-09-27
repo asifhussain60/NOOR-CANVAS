@@ -315,223 +315,6 @@ namespace NoorCanvas.Controllers
             }
         }
 
-        /*
-        /// <summary>
-        /// DEPRECATED: Duplicate of CreateSession - use POST /api/host/session/create instead
-        /// Create session for Host-SessionOpener with friendly token generation
-        /// Commented out per hostcanvas duplicate elimination - can be restored if Host-SessionOpener specific behavior needed
-        /// </summary>
-        [HttpPost("create-session")]
-        public async Task<IActionResult> CreateSessionWithTokens([FromQuery] string token, [FromBody] JsonElement sessionData)
-        {
-            try
-            {
-                _logger.LogInformation("NOOR-HOST-OPENER: Creating session for host token: {Token}", token);
-
-                // Validate the host token
-                var session = await _simplifiedTokenService.ValidateTokenAsync(token, isHostToken: true);
-                if (session == null)
-                {
-                    _logger.LogWarning("NOOR-HOST-OPENER: Invalid host token: {Token}", token);
-                    return BadRequest(new { error = "Invalid host token" });
-                }
-
-                var sessionId = session.SessionId;
-
-                // Extract session data from the JsonElement payload with proper error handling
-                _logger.LogInformation("NOOR-HOST-OPENER: Attempting to parse session data from payload");
-                if (sessionData.ValueKind != JsonValueKind.Undefined && sessionData.ValueKind != JsonValueKind.Null)
-                {
-                    _logger.LogInformation("NOOR-HOST-OPENER: Raw sessionData type: JsonElement, Kind: {Kind}", sessionData.ValueKind);
-                    _logger.LogInformation("NOOR-HOST-OPENER: Raw sessionData value: {Value}", sessionData.GetRawText());
-                }
-                else
-                {
-                    _logger.LogWarning("NOOR-HOST-OPENER: sessionData is null or undefined");
-                }
-
-                string? selectedSession = null;
-                string? selectedCategory = null;
-                string? selectedAlbum = null;
-                // Issue-112: selectedCountry removed from UI per design spec
-                string? sessionDate = null;
-                string? sessionTime = null;
-                int sessionDuration = 60;
-
-                try
-                {
-                    // Extract properties directly from the JsonElement parameter
-                    _logger.LogInformation("NOOR-HOST-OPENER: sessionData ValueKind: {Kind}, extracting properties...", sessionData.ValueKind);
-
-                    // ISSUE-107 FIX: Use correct camelCase property names that match frontend payload
-                    if (sessionData.TryGetProperty("selectedSession", out var sessionProp))
-                    {
-                        selectedSession = sessionProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedSession: '{Value}'", selectedSession);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedSession property");
-                    }
-
-                    if (sessionData.TryGetProperty("selectedCategory", out var categoryProp))
-                    {
-                        selectedCategory = categoryProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedCategory: '{Value}'", selectedCategory);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedCategory property");
-                    }
-
-                    if (sessionData.TryGetProperty("selectedAlbum", out var albumProp))
-                    {
-                        selectedAlbum = albumProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted selectedAlbum: '{Value}'", selectedAlbum);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract selectedAlbum property");
-                    }
-
-                    // Issue-112: selectedCountry extraction removed per design spec
-
-                    if (sessionData.TryGetProperty("sessionDate", out var dateProp))
-                    {
-                        sessionDate = dateProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted sessionDate: '{Value}'", sessionDate);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract sessionDate property");
-                    }
-
-                    if (sessionData.TryGetProperty("sessionTime", out var timeProp))
-                    {
-                        sessionTime = timeProp.GetString() ?? "";
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted sessionTime: '{Value}'", sessionTime);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: Failed to extract sessionTime property");
-                    }
-
-                    // ISSUE-107 FIX: Use correct camelCase property name for sessionDuration
-                    if (sessionData.TryGetProperty("sessionDuration", out var durationProp) && durationProp.TryGetInt32(out int duration))
-                    {
-                        sessionDuration = duration;
-                        _logger.LogInformation("NOOR-HOST-OPENER: Successfully extracted sessionDuration: {Value}", sessionDuration);
-                    }
-                    else
-                    {
-                        _logger.LogInformation("NOOR-HOST-OPENER: Using default sessionDuration: {Value}", sessionDuration);
-                    }
-
-                    // Log all available properties in the JsonElement for debugging
-                    _logger.LogInformation("NOOR-HOST-OPENER: Available properties in JsonElement:");
-                    foreach (var property in sessionData.EnumerateObject())
-                    {
-                        _logger.LogInformation("NOOR-HOST-OPENER: Property '{Name}' = '{Value}' (ValueKind: {Kind})",
-                            property.Name, property.Value.ToString(), property.Value.ValueKind);
-                    }
-
-                    _logger.LogInformation("NOOR-HOST-OPENER: Parsed session data - Album: {Album}, Category: {Category}, Session: {Session}, Date: {Date}, Time: {Time}, Duration: {Duration} (Issue-112: Country field removed)",
-                        selectedAlbum, selectedCategory, selectedSession, sessionDate, sessionTime, sessionDuration);
-                }
-                catch (Exception parseEx)
-                {
-                    _logger.LogError(parseEx, "NOOR-HOST-OPENER: Error parsing session data from payload");
-                    return BadRequest(new { error = "Invalid session data format", details = parseEx.Message });
-                }
-
-                // Validate required fields (Issue-112: Country field removed from UI per design spec)
-                _logger.LogInformation("NOOR-HOST-OPENER: Validating required fields - Session: '{Session}', Category: '{Category}', Album: '{Album}'",
-                    selectedSession, selectedCategory, selectedAlbum);
-
-                if (string.IsNullOrEmpty(selectedSession) || string.IsNullOrEmpty(selectedCategory) || string.IsNullOrEmpty(selectedAlbum))
-                {
-                    _logger.LogWarning("NOOR-HOST-OPENER: Validation failed - Session: '{Session}', Category: '{Category}', Album: '{Album}'",
-                        selectedSession ?? "NULL", selectedCategory ?? "NULL", selectedAlbum ?? "NULL");
-                    return BadRequest(new
-                    {
-                        error = "Selected session, category, and album are required",
-                        received = new
-                        {
-                            selectedSession = selectedSession ?? "NULL",
-                            selectedCategory = selectedCategory ?? "NULL",
-                            selectedAlbum = selectedAlbum ?? "NULL"
-                        }
-                    });
-                }
-
-                // Lookup actual session name from KSESSIONS database
-                string sessionTitle = $"Session {selectedSession}"; // fallback
-                if (int.TryParse(selectedSession, out int ksessionId))
-                {
-                    var ksession = await _kSessionsContext.Sessions
-                        .Where(s => s.SessionId == ksessionId)
-                        .Select(s => s.SessionName)
-                        .FirstOrDefaultAsync();
-
-                    if (!string.IsNullOrEmpty(ksession))
-                    {
-                        sessionTitle = ksession;
-                        _logger.LogInformation("NOOR-HOST-OPENER: Found session name '{SessionName}' for SessionID {SessionId}", ksession, ksessionId);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("NOOR-HOST-OPENER: No session name found for SessionID {SessionId}, using fallback", ksessionId);
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("NOOR-HOST-OPENER: Could not parse selectedSession '{SelectedSession}' as integer", selectedSession);
-                }
-
-                // Update canvas.Sessions with the selected session information
-                // Title removed - will be fetched from KSESSIONS_DEV.dbo.Sessions.SessionName via SessionId lookup
-                // Description removed - will be fetched from KSESSIONS_DEV.dbo.Sessions.Description via SessionId lookup
-                session.Status = "Configured";
-                session.ModifiedAt = DateTime.UtcNow;
-
-                // Parse the session date and time for StartedAt (future implementation)
-                if (DateTime.TryParse($"{sessionDate} {sessionTime}", out DateTime scheduledStart))
-                {
-                    session.StartedAt = scheduledStart;
-                }
-
-                await _context.SaveChangesAsync();
-
-                // Generate a new user token for participants
-                var (hostToken, userToken) = await _simplifiedTokenService.GenerateTokenPairForSessionAsync(
-                    sessionId,
-                    validHours: 24,
-                    clientIp: HttpContext.Connection.RemoteIpAddress?.ToString()
-                );
-
-                _logger.LogInformation("NOOR-HOST-OPENER: Session configured successfully - SessionId: {SessionId}, UserToken: {UserToken}",
-                    sessionId, userToken);
-
-                return Ok(new
-                {
-                    Success = true,
-                    SessionId = sessionId,
-                    UserToken = userToken,
-                    HostToken = hostToken,
-                    Message = "Session created and configured successfully"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Error creating session with tokens - Message: {Message}", ex.Message);
-                _logger.LogError(ex, "NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Full Exception: {Exception}", ex);
-                _logger.LogError("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Stack trace: {StackTrace}", ex.StackTrace);
-                _logger.LogError("NOOR-HOST-OPENER: [ISSUE-106-DEBUG] Inner exception: {InnerException}", ex.InnerException?.ToString() ?? "None");
-                return StatusCode(500, new { error = "Failed to create session", details = ex.Message, stackTrace = ex.StackTrace });
-            }
-        }
-        */
-
         [HttpPost("session/{sessionId}/start")]
         public async Task<IActionResult> StartSession(long sessionId)
         {
@@ -612,16 +395,14 @@ namespace NoorCanvas.Controllers
         // NEW: Cascading Dropdown API Endpoints for Issue-17 Implementation
 
         [HttpGet("albums")]
-        public async Task<IActionResult> GetAlbums([FromQuery] string guid)
+        public async Task<IActionResult> GetAlbums([FromQuery] string? guid = null)
         {
             try
             {
                 _logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS database for host token: {Token}", guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
-                if (string.IsNullOrWhiteSpace(guid))
-                {
-                    return BadRequest(new { error = "Host token is required" });
-                }
+                // KSESSIONS data is read-only and publicly accessible - no GUID validation required for albums
+                // All authenticated hosts can access Islamic content albums
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required
                 // Groups (Albums) are Islamic content available to all authenticated hosts
@@ -642,16 +423,14 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpGet("categories/{albumId}")]
-        public async Task<IActionResult> GetCategories(int albumId, [FromQuery] string guid)
+        public async Task<IActionResult> GetCategories(int albumId, [FromQuery] string? guid = null)
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Loading categories from KSESSIONS database for album: {AlbumId}", albumId);
+                _logger.LogInformation("NOOR-INFO: Loading categories from KSESSIONS database for album: {AlbumId}, host token: {Token}", albumId, guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
-                if (string.IsNullOrWhiteSpace(guid))
-                {
-                    return BadRequest(new { error = "Host token is required" });
-                }
+                // KSESSIONS data is read-only and publicly accessible - no GUID validation required for categories
+                // All authenticated hosts can access Islamic content categories
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required
 
@@ -671,23 +450,21 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpGet("sessions/{categoryId}")]
-        public async Task<IActionResult> GetSessions(int categoryId, [FromQuery] string guid)
+        public async Task<IActionResult> GetSessions(int categoryId, [FromQuery] string? guid = null)
         {
             try
             {
-                _logger.LogInformation("NOOR-INFO: Loading sessions from KSESSIONS database for category: {CategoryId}", categoryId);
+                _logger.LogInformation("NOOR-INFO: Loading sessions from KSESSIONS database for category: {CategoryId}, host token: {Token}", categoryId, guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
-                if (string.IsNullOrWhiteSpace(guid))
-                {
-                    return BadRequest(new { error = "Host token is required" });
-                }
+                // KSESSIONS data is read-only and publicly accessible - no GUID validation required for sessions
+                // All authenticated hosts can access Islamic content sessions
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required
 
                 // Query sessions for the specified category directly (no stored procedure needed)
                 var sessions = await _kSessionsContext.Sessions
                     .Where(s => s.CategoryId == categoryId && s.IsActive == true)
-                    .Select(s => new SessionData
+                    .Select(s => new HostSessionData
                     {
                         SessionID = s.SessionId,
                         SessionName = s.SessionName,
@@ -1230,15 +1007,6 @@ namespace NoorCanvas.Controllers
         public int GroupID { get; set; }
         public int SortOrder { get; set; }
         public DateTime? CreatedDate { get; set; }
-    }
-
-    public class SessionData
-    {
-        public int SessionID { get; set; }
-        public string SessionName { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public int CategoryID { get; set; }
-        public bool IsActive { get; set; }
     }
 
     public class CountryData

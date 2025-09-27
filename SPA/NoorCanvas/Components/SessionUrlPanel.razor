@@ -1,0 +1,88 @@
+@using NoorCanvas.ViewModels
+@using Microsoft.AspNetCore.Components
+
+<!-- Session URL Panel -->
+<div style="margin-top:1.5rem;width:100%;background-color:#f9fafb;border-radius:1rem;border:2px solid #10b981;padding:1.5rem 2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <h2 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:1.5rem;color:#059669;margin-bottom:0.5rem;">
+            <i class="fa-solid fa-check-circle" style="color:#10b981;margin-right:0.5rem;"></i>
+            Session Created Successfully!
+        </h2>
+        <p style="color:#6b7280;font-size:0.875rem;">Your session has been created. Use the links below to access your session.</p>
+    </div>
+
+    <!-- Host Control Panel Section -->
+    <div style="background-color:#ffffff;border-radius:0.75rem;border:1px solid #d1d5db;padding:1.25rem;margin-bottom:1rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:600;color:#374151;margin-bottom:0.75rem;display:flex;align-items:center;">
+            <i class="fa-solid fa-user-tie" style="color:#006400;margin-right:0.5rem;"></i>
+            Host Control Panel
+        </h3>
+        
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;">
+            <input type="text" readonly value="@Model.SessionUrl" 
+                   style="flex:1;padding:0.75rem;border:1px solid #d1d5db;border-radius:0.375rem;background-color:#f9fafb;font-family:monospace;font-size:0.875rem;color:#4b5563;">
+            
+            <button @onclick="OnCopyUrl" style="@GetCopyButtonStyle(Model.Copied)">
+                <i class="@GetCopyIcon(Model.Copied)" style="margin-right:0.25rem;"></i>
+                @GetCopyText(Model.Copied)
+            </button>
+        </div>
+        
+        <button @onclick="OnLoadControlPanel" 
+                style="width:100%;background-color:#006400;color:#ffffff;font-family:'Poppins',sans-serif;font-weight:600;padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+            <i class="fa-solid fa-external-link-alt"></i>
+            Open Control Panel
+        </button>
+    </div>
+
+    <!-- User Landing Page Section -->
+    <div style="background-color:#ffffff;border-radius:0.75rem;border:1px solid #d1d5db;padding:1.25rem;">
+        <h3 style="font-family:'Poppins',sans-serif;font-weight:600;color:#374151;margin-bottom:0.75rem;display:flex;align-items:center;">
+            <i class="fa-solid fa-users" style="color:#3b82f6;margin-right:0.5rem;"></i>
+            Share with Participants
+        </h3>
+        
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+            <input type="text" readonly value="@Model.UserLandingUrl" 
+                   style="flex:1;padding:0.75rem;border:1px solid #d1d5db;border-radius:0.375rem;background-color:#f9fafb;font-family:monospace;font-size:0.875rem;color:#4b5563;">
+            
+            <button @onclick="OnCopyUserUrl" style="@GetCopyButtonStyle(Model.UserCopied)">
+                <i class="@GetCopyIcon(Model.UserCopied)" style="margin-right:0.25rem;"></i>
+                @GetCopyText(Model.UserCopied)
+            </button>
+        </div>
+        
+        <p style="color:#6b7280;font-size:0.75rem;margin-top:0.5rem;text-align:center;">
+            Share this link with participants so they can join your session
+        </p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public HostSessionOpenerViewModel Model { get; set; } = null!;
+    [Parameter] public EventCallback OnCopyUrl { get; set; }
+    [Parameter] public EventCallback OnCopyUserUrl { get; set; }
+    [Parameter] public EventCallback OnLoadControlPanel { get; set; }
+
+    private string GetCopyButtonStyle(bool copied)
+    {
+        var baseStyle = "padding:0.75rem 1rem;border-radius:0.375rem;border:none;cursor:pointer;transition:all 0.2s;font-family:'Poppins',sans-serif;font-weight:500;font-size:0.875rem;display:flex;align-items:center;white-space:nowrap;";
+        
+        if (copied)
+        {
+            return baseStyle + "background-color:#10b981;color:#ffffff;";
+        }
+        
+        return baseStyle + "background-color:#3b82f6;color:#ffffff;";
+    }
+
+    private string GetCopyIcon(bool copied)
+    {
+        return copied ? "fa-solid fa-check" : "fa-solid fa-copy";
+    }
+
+    private string GetCopyText(bool copied)
+    {
+        return copied ? "Copied!" : "Copy";
+    }
+}
