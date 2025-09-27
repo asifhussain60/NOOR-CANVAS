@@ -14,10 +14,7 @@ mode: agent
 - Follow SelfAwareness.instructions.md File Organization Rules
 
 ## Database Guardrails
-- Never use LocalDB for any database operations
-- Always use the specified SQL Server instance:  
-  `Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false`
-- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**
 
 ## Commit Policy
 - Commit only after analyzers, lints, and tests pass
@@ -44,7 +41,7 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
 - **notes:** freeform description of the requested work (scope, files, details, edge cases)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
+- `.github/instructions/SelfAwareness.instructions.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (optional overrides)
@@ -54,8 +51,8 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
 ## Launch Policy
 - **Never** use `dotnet run` or any variant.
 - Launch only via:
-  - `./Workspaces/Copilot/Global/nc.ps1`  (launch only)
-  - `./Workspaces/Copilot/Global/ncb.ps1` (clean, build, then launch)
+  - `./Workspaces/Global/nc.ps1`  (launch only)
+  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)
 - If you stop or restart the app, self-attribute in logs:  
   `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
@@ -69,15 +66,7 @@ Implements scoped changes for a given `{key}` and stabilizes them with analyzers
   - **trace**: logs for every step, including intermediate calculations and branching
 
 ## Analyzer & Linter Enforcement
-Before tests, enforce analyzers and linters:
-
-- **.NET**  
-  - Run: `dotnet build --no-restore --warnaserror`  
-  - Must succeed with **zero warnings** (Roslyn + StyleCop analyzers)
-
-- **Playwright**  
-  - Run: `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)  
-  - Run: `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
+**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
 If analyzers or lints fail, stop and fix violations before proceeding.
 

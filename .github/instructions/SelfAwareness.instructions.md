@@ -40,8 +40,8 @@ Workspaces/Copilot/
 ## Absolute Runtime Rules
 - **Never** launch with `dotnet run` or any variant.  
 - Launch only via PowerShell scripts:  
-  - `./Workspaces/Copilot/Global/nc.ps1`  (launch only)  
-  - `./Workspaces/Copilot/Global/ncb.ps1` (clean, build, then launch)  
+  - `./Workspaces/Global/nc.ps1`  (launch only)  
+  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)  
 - If the agent initiates a stop/restart, **self-attribute** in logs and summaries.
 
 ## Debug Logging Rules

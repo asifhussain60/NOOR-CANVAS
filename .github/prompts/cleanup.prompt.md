@@ -9,23 +9,24 @@ mode: agent
 - **notes:** freeform description of the cleanup task (scope, files to clean, details, edge cases)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
+## Inputs (read)
+- `.github/instructions/SelfAwareness.instructions.md`
+- Current codebase and file organization
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Cleanup-{key}.md` (if exists)
 - Requirements, self-review, and test files for `{key}`
 - `#getTerminalOutput` and `#terminalLastCommand`
 
 ## Launch Policy
 - **Never** use `dotnet run`
-- Only launch via:
-  - `./Workspaces/Copilot/Global/nc.ps1`
-  - `./Workspaces/Copilot/Global/ncb.ps1`
+- Launch only via:
+  - `./Workspaces/Global/nc.ps1`
+  - `./Workspaces/Global/ncb.ps1`
 - Marker: `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
 ## Analyzer & Linter Enforcement
-Cleanup cannot complete until analyzers and lints are clean:
-- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
-- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
+**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+
+Cleanup cannot be declared complete until analyzers, lints, and tests are clean.
 
 - Use marker: `[DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK`
 - `RUN_ID`: short unique id (timestamp + suffix)
@@ -97,12 +98,7 @@ You are responsible for cleaning the repository of stray or misplaced files to k
 - Never remove critical solution or config files
 
 ### Database Guardrails
-- Never use LocalDB for any database operations
-- Always use the specified SQL Server instance:
-```
-Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
-```
-- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**
 
 ### File Relocation Rules (YAML)
 ```yaml

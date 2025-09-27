@@ -12,7 +12,9 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 - **notes:** freeform description of the test work (scenarios, files under test, considerations)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
+## Inputs (read)
+- `.github/instructions/SelfAwareness.instructions.md`
+- Current test structure and coverage
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
 - Existing specs under `Workspaces/Copilot/prompts.keys/{key}/tests/`
@@ -20,17 +22,16 @@ Creates and maintains Playwright tests for a given `{key}`. Validates implementa
 
 ## Launch Policy
 - **Never** use `dotnet run` or any variant.
-- Launch the .NET app only via:
-  - `./Workspaces/Copilot/Global/nc.ps1`  (launch only)
-  - `./Workspaces/Copilot/Global/ncb.ps1` (clean, build, then launch)
+- Launch only via:
+  - `./Workspaces/Global/nc.ps1`  (launch only)
+  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)
 - If you stop or restart the app, self-attribute the lifecycle event in logs:
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
-Before writing or executing tests:
-- **.NET analyzers** — run `dotnet build --no-restore --warnaserror` and require **zero warnings**.
-- **Playwright lints/format** — run `npm run lint` and `npm run format:check` and require **0 warnings / 0 formatting issues** (uses `config/testing/eslint.config.js` and `config/testing/.prettierrc`).
-If analyzers or lints fail, stop and fix violations before proceeding.
+**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
+
+Test creation cannot be marked complete until analyzers, lints, and tests are green.
 
 ## Debug Logging Rules
 - Use the marker: [DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK
@@ -138,9 +139,4 @@ Provide a summary containing:
 - Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
 
 ## Database Guardrails
-- Never use LocalDB for any database operations
-- Always use the specified SQL Server instance:
-```
-Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
-```
-- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**

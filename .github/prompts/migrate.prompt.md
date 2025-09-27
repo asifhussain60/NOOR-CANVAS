@@ -34,10 +34,7 @@ Performs selective repo reorganization to complete the `Workspaces/Copilot/` str
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
-After migration, validate:
-- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
-- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
+**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
 Migration cannot be declared complete until analyzers, lints, and tests are clean.
 
@@ -104,9 +101,4 @@ Summaries must include:
 - **No new roots** outside `Workspaces/Copilot/` (except `.github/`)
 
 ## Database Guardrails
-- Never use LocalDB for any database operations
-- Always use the specified SQL Server instance:
-```
-Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
-```
-- Follow port management protocols (nc.ps1/ncb.ps1) for all launches
+**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**

@@ -20,7 +20,7 @@ Carries forward partially completed work for a given `{key}`, ensuring analyzers
 - **notes:** freeform description of the requested continuation (context, files, details, edge cases)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
+- `.github/instructions/SelfAwareness.instructions.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/Requirements-{key}.md`
 - `Workspaces/Copilot/prompts.keys/{key}/workitem/SelfReview-{key}.md`
 - Existing code and tests under `Workspaces/Copilot/prompts.keys/{key}/`
@@ -29,16 +29,13 @@ Carries forward partially completed work for a given `{key}`, ensuring analyzers
 ## Launch Policy
 - **Never** use `dotnet run`
 - Launch only via:
-  - `./Workspaces/Copilot/Global/nc.ps1`
-  - `./Workspaces/Copilot/Global/ncb.ps1`
+  - `./Workspaces/Global/nc.ps1`
+  - `./Workspaces/Global/ncb.ps1`
 - If stopping/restarting the app, log attribution:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
-Before resuming:
-- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
-- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
+**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
 Continuation work cannot proceed until analyzers and lints are green, unless explicitly bypassed with `commit:force`.
 
@@ -92,9 +89,4 @@ Approval:
 ## Guardrails
 
 ## Database Guardrails
-- **Never use LocalDB for any database operations.**
-- Always use the specified SQL Server instance:
-```
-Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
-```
-- Follow port management protocols (nc.ps1/ncb.ps1) for all launches.
+**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**

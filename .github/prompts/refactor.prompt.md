@@ -11,7 +11,9 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 - **notes:** freeform description of the refactor task (areas to target, files/modules, rationale)
 
 ## Inputs (read)
-- `.github/prompts/SelfAwareness.instructions.md`
+## Inputs (read)
+- `.github/instructions/SelfAwareness.instructions.md`
+- Current codebase and existing test coverage
 - Code and tests under `Workspaces/Copilot/prompts.keys/{key}/`
 - Requirements and self-review files for `{key}`
 - `#getTerminalOutput` for evidence
@@ -19,18 +21,15 @@ Performs holistic refactors of `{key}` to reduce duplication, remove unused code
 ## Launch Policy
 - **Never** use `dotnet run`
 - Launch only via:
-  - `./Workspaces/Copilot/Global/nc.ps1`
-  - `./Workspaces/Copilot/Global/ncb.ps1`
+  - `./Workspaces/Global/nc.ps1`
+  - `./Workspaces/Global/ncb.ps1`
 - If restart occurs, self-attribute:  
   [DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK
 
 ## Analyzer & Linter Enforcement
-Before and after refactor:
-- Run `dotnet build --no-restore --warnaserror` → must succeed with 0 warnings
-- Run `npm run lint` → must pass with 0 warnings (uses `config/testing/eslint.config.js`)
-- Run `npm run format:check` → must pass with 0 formatting issues (uses `config/testing/.prettierrc`)
+**See SelfAwareness.instructions.md for complete analyzer and linter rules.**
 
-If analyzers or lints fail, resolve violations as part of the refactor.
+Refactoring cannot be marked complete until analyzers, lints, and tests are green.
 
 - Marker: [DEBUG-WORKITEM:{key}:refactor:{RUN_ID}] message ;CLEANUP_OK
 - Respect `none`, `simple`, `trace` modes
@@ -94,12 +93,7 @@ Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;
 ```
 - Follow port management protocols (nc.ps1/ncb.ps1) for all launches
 ## Database Guardrails
-- **Never use LocalDB for any database operations.**
-- Always use the specified SQL Server instance:
-```
-Data Source=AHHOME;Initial Catalog=KSESSIONS_DEV;User Id=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=true;Encrypt=false
-```
-- Follow port management protocols (nc.ps1/ncb.ps1) for all launches.
+**See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**
 - Do not change `appsettings.*.json` or secrets
 - Do not alter requirements without explicit approval
 - Keep `{key}`-scoped work inside its directories
