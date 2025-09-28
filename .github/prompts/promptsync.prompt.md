@@ -60,3 +60,8 @@ When sync completes:
 - Summarize changes (resolved conflicts, merged priorities, normalized structures)
 - If conflicts were resolved interactively, include a log of each Q&A exchange
 - Emit a `SYNC_COMPLETED` status line with timestamp and details of adjustments
+
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

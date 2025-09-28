@@ -50,6 +50,16 @@ public class Session
     public int? MaxParticipants { get; set; }
     public int? ParticipantCount { get; set; }
 
+    // Host Session Opener custom scheduling fields - Issue sessionopener
+    [MaxLength(20)]
+    public string? ScheduledDate { get; set; }    // Date: 09/28/2025 (stored as string from form)
+    
+    [MaxLength(20)] 
+    public string? ScheduledTime { get; set; }    // Time: 6:00 AM (stored as string from form)
+    
+    [MaxLength(10)]
+    public string? ScheduledDuration { get; set; } // Duration: 60 (minutes, stored as string from form)
+
     // REMOVED: Token-related columns that were unused in business logic
     // - TokenExpiresAt (separate from ExpiresAt, all null in data)
     // - TokenAccessCount (not referenced in API logic)  

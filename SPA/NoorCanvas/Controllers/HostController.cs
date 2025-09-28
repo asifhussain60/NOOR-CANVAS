@@ -249,6 +249,17 @@ namespace NoorCanvas.Controllers
         [HttpPost("session/create")]
         public async Task<IActionResult> CreateSession([FromBody] CreateSessionRequest request)
         {
+            // [RUN_ID:1229-1712-304] Add validation debugging for workitem sessionopener  
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("NOOR-WORKITEM-DEBUG[1229-1712-304]: Model validation failed. Errors: {ValidationErrors}", 
+                    string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+                return BadRequest(ModelState);
+            }
+            
+            _logger.LogInformation("NOOR-WORKITEM-DEBUG[1229-1712-304]: Received CreateSession request: {RequestData}", 
+                System.Text.Json.JsonSerializer.Serialize(request));
+                
             try
             {
                 _logger.LogInformation("NOOR-INFO: Creating new session for Host GUID: {HostGuid}, Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}",
@@ -295,10 +306,35 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { error = "Session found but UserToken is missing. Host Provisioner configuration issue." });
                 }
 
+                // Store Host Session Opener scheduling information - Issue sessionopener
+                // This makes the custom date/time/duration accessible to SessionWaiting.razor
+                if (!string.IsNullOrEmpty(request.SessionDate))
+                {
+                    session.ScheduledDate = request.SessionDate;
+                    _logger.LogInformation("NOOR-HOST-CREATE: Updated scheduled date: {ScheduledDate}", request.SessionDate);
+                }
+
+                if (!string.IsNullOrEmpty(request.SessionTime))
+                {
+                    session.ScheduledTime = request.SessionTime;
+                    _logger.LogInformation("NOOR-HOST-CREATE: Updated scheduled time: {ScheduledTime}", request.SessionTime);
+                }
+
+                if (!string.IsNullOrEmpty(request.SessionDuration))
+                {
+                    session.ScheduledDuration = request.SessionDuration;
+                    _logger.LogInformation("NOOR-HOST-CREATE: Updated scheduled duration: {ScheduledDuration}", request.SessionDuration);
+                }
+
+                // Save scheduling information changes to database
+                session.ModifiedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("NOOR-HOST-CREATE: Saved scheduling information to database for session {SessionId}", request.SessionId);
+
                 var joinLink = $"https://localhost:9091/user/landing/{session.UserToken}";
 
-                _logger.LogInformation("NOOR-SUCCESS: Session fetched with ID: {SessionId}, Join Link: {JoinLink}",
-                    session.SessionId, joinLink);
+                _logger.LogInformation("NOOR-SUCCESS: Session updated with scheduling info - SessionId: {SessionId}, Date: {Date}, Time: {Time}, Duration: {Duration}, Join Link: {JoinLink}",
+                    session.SessionId, request.SessionDate, request.SessionTime, request.SessionDuration, joinLink);
 
                 return Ok(new CreateSessionResponse
                 {
@@ -966,6 +1002,11 @@ namespace NoorCanvas.Controllers
         public string Title { get; set; } = "New Session";
         public string Description { get; set; } = string.Empty;
         public int? MaxParticipants { get; set; }
+
+        // Host Session Opener scheduling fields
+        public string SessionDate { get; set; } = string.Empty;    // Date: 09/28/2025
+        public string SessionTime { get; set; } = string.Empty;    // Time: 6:00 AM  
+        public string SessionDuration { get; set; } = string.Empty; // Duration: 60 (minutes)
     }
 
     public class SessionResponse

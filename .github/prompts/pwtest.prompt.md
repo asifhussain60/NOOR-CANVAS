@@ -143,3 +143,7 @@ Provide a summary containing:
 
 ## Database Guardrails
 **See SelfAwareness.instructions.md for complete database connectivity and port management protocols.**
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

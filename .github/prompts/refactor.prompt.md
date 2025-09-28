@@ -127,3 +127,8 @@ Copilot must perform a **cross-layer comparison** to ensure data coherence acros
 ## Logging
 Lifecycle events must include:  
 `[DEBUG-WORKITEM:{key}:refactor:{RUN_ID}] message ;CLEANUP_OK`
+
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

@@ -140,7 +140,13 @@ namespace NoorCanvas.Controllers
                         InstructorName = speakerName, // Database-driven instructor name from KSESSIONS.Speakers
                         // Real session timing from KSESSIONS database
                         StartTime = realSessionDate ?? session.CreatedAt.AddMinutes(5), // Use real scheduled date or fallback
-                        Duration = TimeSpan.FromHours(1) // Keep 1 hour default for now - can be enhanced later
+                        Duration = TimeSpan.FromHours(1), // Keep 1 hour default for now - can be enhanced later
+
+                        // Host Session Opener custom scheduling fields - Issue sessionopener
+                        // These make the host form data (Date: 09/28/2025, Time: 6:00 AM, Duration: 60) accessible to SessionWaiting.razor
+                        ScheduledDate = session.ScheduledDate,    // Custom date from Host Session Opener form
+                        ScheduledTime = session.ScheduledTime,    // Custom time from Host Session Opener form  
+                        ScheduledDuration = session.ScheduledDuration // Custom duration from Host Session Opener form
                     },
                     Participant = new
                     {

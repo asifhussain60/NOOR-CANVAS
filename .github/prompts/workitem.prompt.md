@@ -179,3 +179,7 @@ When user input contains `---` separators, treat each section as a separate todo
 - **Connection Management**: Implement proper connection lifecycle management
 - **Participant Updates**: Support real-time participant list updates without connection drops
 - **Error Recovery**: Implement graceful degradation for SignalR connection failures
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

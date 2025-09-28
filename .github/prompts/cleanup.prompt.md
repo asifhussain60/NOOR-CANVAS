@@ -112,3 +112,7 @@ rules:
     action: move
     target: "PlayWright/tests"
 ```
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

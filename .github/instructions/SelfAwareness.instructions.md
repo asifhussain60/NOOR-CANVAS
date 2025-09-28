@@ -281,3 +281,8 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 **Last Updated:** Documentation Organization & File Placement Rules – Sept 27, 2025  
 
 ```
+
+---
+
+## Reference: System Structure Summary
+This instruction set references the central `SystemStructureSummary.md`. Any structural changes must be reflected there.

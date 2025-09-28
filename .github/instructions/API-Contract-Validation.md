@@ -156,3 +156,7 @@ These guidelines should be referenced in:
 - Testing protocols
 
 Regular validation of API contracts prevents silent failures and reduces debugging time during development.
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

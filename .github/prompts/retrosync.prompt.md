@@ -169,3 +169,7 @@ Summaries must include:
 - **Completeness:** No significant APIs, services, or components should be undocumented
 - **Currency:** Remove obsolete information immediately upon detection
 - **Consistency:** Maintain consistent formatting and structure throughout the document
+
+---
+
+_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._

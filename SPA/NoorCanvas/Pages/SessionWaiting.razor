@@ -189,7 +189,7 @@ background-color: #effff9;
     border-radius: 1.5rem;
     border: 2px solid #006400;
     padding: 2rem 3rem;
-    margin: 0rem auto 3rem auto;
+    margin: 1.5rem auto 3rem auto;
     max-width: 50rem;
     box-shadow: 0 10px 25px -12px rgba(0, 0, 0, 0.15);
     text-align: center;
@@ -499,26 +499,6 @@ background-color: #effff9;
             box-shadow: 0 4px 6px rgba(245,158,11,0.3);
         }
 
-        .test-button {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 1rem;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(220,38,38,0.3);
-            font-size: 0.875rem;
-        }
-
-        .test-button:hover {
-            background: linear-gradient(135deg, #b91c1c, #991b1b);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px rgba(220,38,38,0.4);
-        }
-
         @@keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -585,10 +565,9 @@ background-color: #effff9;
             
             <!-- Logo -->
             <div class="session-header">
-                <div class="logo-container">
+                <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
                     <img src="/images/NoorCanvas.png?v=20250924" 
-                         alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                         class="logo-img" />
+                         alt="@(Model?.LogoText ?? "NOOR Canvas")" />
                 </div>
             </div>
 
@@ -736,26 +715,14 @@ background-color: #effff9;
                 </div>
             }
 
-            <!-- Development Testing Panel -->
-            <DevPanel Title="Test Panel" 
-                      Description="Volume testing tools for UI validation with large participant counts" 
-                      IsExpandedDefault="false">
-                <div style="text-align: center;">
-                    <button @onclick="FloodParticipantList" class="test-button">
-                        <i class="fa-solid fa-users" style="margin-right:0.5rem;"></i>
-                        Add 50 Random Participants
-                    </button>
-                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;">
-                        Tests UI performance and layout with high participant volume
-                    </p>
-                </div>
-            </DevPanel>
+
         </div>
         }
     </div>
 </div>
 
-
+@* Debug Panel - Development Only *@
+<DebugPanel CurrentViewName="SessionWaiting" OnEnterTestData="HandleEnterTestData" />
 
 @implements IAsyncDisposable
 
@@ -1267,6 +1234,31 @@ background-color: #effff9;
         Navigation.NavigateTo("/");
     }
 
+    /// <summary>
+    /// Handles test data entry for debug panel - Development only
+    /// </summary>
+    private Task HandleEnterTestData()
+    {
+        if (Model == null) return Task.CompletedTask;
+
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        try
+        {
+            Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Entering test data for SessionWaiting - Adding 50 random participants", requestId);
+            
+            FloodParticipantList();
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Test data populated - Added 50 random participants for volume testing", requestId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error populating test data for SessionWaiting");
+            throw;
+        }
+        
+        return Task.CompletedTask;
+    }
+
     private void FloodParticipantList()
     {
         if (Model?.Participants == null) return;
@@ -1477,6 +1469,11 @@ background-color: #effff9;
         // PHASE 2 FIX: Real API properties for KSESSIONS data
         public DateTime? StartTime { get; set; } // Real SessionDate from KSESSIONS database
         public TimeSpan? Duration { get; set; } // Real duration from API (not hard-coded "1 hour")
+
+        // Host Session Opener custom scheduling fields - Issue sessionopener
+        public string? ScheduledDate { get; set; }    // Date: 09/28/2025 (custom from host form)
+        public string? ScheduledTime { get; set; }    // Time: 6:00 AM (custom from host form)  
+        public string? ScheduledDuration { get; set; } // Duration: 60 minutes (custom from host form)
     }
 
     public class ParticipantInfo

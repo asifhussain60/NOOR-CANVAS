@@ -203,7 +203,7 @@ namespace NoorCanvas.Services
                     CategoryId = int.TryParse(model.SelectedCategory, out var categoryId) ? categoryId : 0,
                     SessionDate = model.SessionDate.ToString("yyyy-MM-dd"),
                     SessionTime = model.SessionTime,
-                    SessionDuration = model.SessionDuration
+                    SessionDuration = model.SessionDuration?.ToString() ?? "60"  // Convert int? to string for API compatibility
                 };
 
                 _logger.LogInformation("NOOR-HOST-SERVICE: Creating session with data: {SessionData}", 
