@@ -302,14 +302,28 @@
                         Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated Model.SessionName to: {SessionName}, SessionDescription to: {SessionDescription}", 
                             requestId, Model.SessionName, Model.SessionDescription);
 
-                        // NEW REQUIREMENT: Check if session has already started and route directly to canvas
+                        // AUTHENTICATION GATE: Check if session has already started AND user is registered
                         var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
                         if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
                         {
-                            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - routing directly to SessionCanvas", 
+                            // Check if user is already registered as participant before allowing direct access
+                            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - checking participant registration status", 
                                 requestId, validationResult.Session?.Status);
-                            Navigation.NavigateTo($"/session/canvas/{token}");
-                            return;
+                            
+                            var isRegistered = await CheckParticipantRegistrationAsync(token, requestId);
+                            if (isRegistered)
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
+                                    Guid.NewGuid().ToString("N")[..8]);
+                                Navigation.NavigateTo($"/session/canvas/{token}");
+                                return;
+                            }
+                            else
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User not registered - must complete registration first ;CLEANUP_OK", 
+                                    Guid.NewGuid().ToString("N")[..8]);
+                                // Continue to registration panel instead of direct navigation
+                            }
                         }
 
                         // ISSUE-114 FIX: For URL-based tokens, automatically switch to registration panel and load countries
@@ -491,14 +505,28 @@
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated session name to: {SessionName}, description to: {SessionDescription}", 
                         requestId, Model.SessionName, Model.SessionDescription);
 
-                    // NEW REQUIREMENT: Check if session has already started and route directly to canvas
+                    // AUTHENTICATION GATE: Check if session has already started AND user is registered  
                     var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
                     if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
                     {
-                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - routing directly to SessionCanvas", 
+                        // Check if user is already registered as participant before allowing direct access
+                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - checking participant registration status", 
                             requestId, validationResult.Session?.Status);
-                        Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
-                        return;
+                        
+                        var isRegistered = await CheckParticipantRegistrationAsync(Model.TokenInput, requestId);
+                        if (isRegistered)
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
+                                Guid.NewGuid().ToString("N")[..8]);
+                            Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                            return;
+                        }
+                        else
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User not registered - must complete registration first ;CLEANUP_OK", 
+                                Guid.NewGuid().ToString("N")[..8]);
+                            // Continue to registration panel instead of direct navigation
+                        }
                     }
 
                     // Switch to registration panel
@@ -699,6 +727,58 @@
         }
     }
 
+    /// <summary>
+    /// AUTHENTICATION GATE: Verify if user is registered as participant before allowing session access
+    /// Fixes bug where unregistered users could bypass registration requirement
+    /// </summary>
+    private async Task<bool> CheckParticipantRegistrationAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Checking participant registration status for token: {1} ;CLEANUP_OK", 
+                requestId, token);
+
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var participantsUrl = $"/api/participant/session/{token}/participants";
+            var response = await httpClient.GetAsync(participantsUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Participant check API failed: {1} ;CLEANUP_OK", 
+                    requestId, response.StatusCode);
+                return false;
+            }
+
+            var participantsContent = await response.Content.ReadAsStringAsync();
+            var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsCheckResponse>(participantsContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            // Check if any participant matches current browser session (via stored UserGuid)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
+            {
+                var isRegistered = participantsData.Participants.Any(p => 
+                    string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Registration check result: {1} (UserGuid: {2}) ;CLEANUP_OK", 
+                    requestId, isRegistered, storedUserGuid);
+                
+                return isRegistered;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] No stored UserGuid found - user not registered ;CLEANUP_OK", 
+                requestId);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:impl:{0}] Exception during participant registration check ;CLEANUP_OK", 
+                requestId);
+            return false;
+        }
+    }
+
     private async Task LoadCountriesAsync()
     {
         try
@@ -867,6 +947,26 @@
         public string? JoinUrl { get; set; }
         public int AccessCount { get; set; }
         public DateTime? LastAccessedAt { get; set; }
+    }
+
+    /// <summary>
+    /// Response model for participant registration check - used by authentication gate
+    /// </summary>
+    public class ParticipantsCheckResponse
+    {
+        public int SessionId { get; set; }
+        public string? Token { get; set; }
+        public int ParticipantCount { get; set; }
+        public List<ParticipantCheckData>? Participants { get; set; }
+        public string? RequestId { get; set; }
+    }
+
+    public class ParticipantCheckData
+    {
+        public string UserId { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Country { get; set; } = "";
+        public string Flag { get; set; } = "";
     }
 
 
