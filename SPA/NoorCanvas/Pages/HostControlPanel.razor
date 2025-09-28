@@ -637,7 +637,8 @@
             hubConnection.On<object>("HostQuestionAlert", async (questionData) =>
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] HostQuestionAlert received in HostControlPanel - ConnectionId: {ConnectionId}, SessionId: {SessionId}", 
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= HOST RECEIVES Q&A SIGNALR ======= ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 1: HostQuestionAlert received - ConnectionId: {ConnectionId}, SessionId: {SessionId} ;CLEANUP_OK", 
                     requestId, hubConnection?.ConnectionId ?? "null", SessionId);
                 
                 try
@@ -645,13 +646,13 @@
                     // Validate question data
                     if (questionData == null)
                     {
-                        Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Received null questionData", requestId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST ERROR: Received null questionData ;CLEANUP_OK", requestId);
                         return;
                     }
 
                     // Parse the questionData object from SignalR
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Question data received: {JsonData}", requestId, jsonString);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 2: Question data received: {JsonData} ;CLEANUP_OK", requestId, jsonString);
                     
                     using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDocument.RootElement;
@@ -675,13 +676,13 @@
                         VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0
                     };
                     
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Creating QuestionItem - Text: '{QuestionText}', VoteCount: {VoteCount}", 
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 3: QuestionItem created - Text: '{QuestionText}', VoteCount: {VoteCount} ;CLEANUP_OK", 
                         requestId, newQuestion.Text, newQuestion.VoteCount);
                     
                     // Ensure Questions list is initialized
                     if (Model?.Questions == null)
                     {
-                        Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] Model.Questions is null, initializing", requestId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 4A: Model.Questions is null, initializing list ;CLEANUP_OK", requestId);
                         if (Model != null)
                         {
                             Model.Questions = new List<QuestionItem>();
@@ -689,15 +690,18 @@
                     }
                     
                     Model?.Questions?.Add(newQuestion);
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Question added to Model.Questions. Total questions: {Count}", 
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 4B: Question added to Model.Questions. Total questions: {Count} ;CLEANUP_OK", 
                         requestId, Model?.Questions?.Count ?? 0);
                     
                     // Show toast notification to host about new question
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 5A: Triggering toast notification ;CLEANUP_OK", requestId);
                     await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Toast notification triggered", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 5B: Toast notification triggered successfully ;CLEANUP_OK", requestId);
                     
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 6A: Invoking StateHasChanged ;CLEANUP_OK", requestId);
                     await InvokeAsync(StateHasChanged);
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] UI StateHasChanged invoked successfully", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] HOST STEP 6B: UI StateHasChanged completed - Question visible in UI ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= HOST Q&A PROCESSING COMPLETE ======= ;CLEANUP_OK", requestId);
                 }
                 catch (Exception ex)
                 {

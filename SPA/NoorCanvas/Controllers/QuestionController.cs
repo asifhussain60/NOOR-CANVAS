@@ -70,9 +70,11 @@ namespace NoorCanvas.Controllers
             var requestId = Guid.NewGuid().ToString("N")[..8];
             var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-            _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Question submission started", requestId);
-            _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Token: {Token}, ClientIP: {ClientIp}", 
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= SERVER QUESTION PROCESSING START ======= ;CLEANUP_OK", requestId);
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 1: Question submission started - Token: {Token}, ClientIP: {ClientIp} ;CLEANUP_OK", 
                 requestId, request.SessionToken, clientIp);
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 2: Request payload - QuestionText: '{QuestionText}', UserGuid: {UserGuid} ;CLEANUP_OK", 
+                requestId, request.QuestionText, request.UserGuid);
 
             try
             {
@@ -143,35 +145,37 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Question saved successfully, DataId: {DataId}", 
                     requestId, sessionData.DataId);
 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 7: Question saved to database, DataId: {DataId} ;CLEANUP_OK", 
+                    requestId, sessionData.DataId);
+
                 // Broadcast via SignalR to all session participants
                 var sessionGroup = $"session_{session.SessionId}";
                 var hostGroup = $"Host_{session.SessionId}";
                 
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Broadcasting question to SignalR groups - SessionId: {SessionId}, SessionGroup: {SessionGroup}, HostGroup: {HostGroup}", 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 8: Preparing SignalR broadcast - SessionId: {SessionId}, SessionGroup: {SessionGroup}, HostGroup: {HostGroup} ;CLEANUP_OK", 
                     requestId, session.SessionId, sessionGroup, hostGroup);
                 
                 var questionJson = JsonSerializer.Serialize(questionData);
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Question data being broadcast: {QuestionData}", requestId, questionJson);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 9: Question data for broadcast: {QuestionData} ;CLEANUP_OK", requestId, questionJson);
                 
                 try
                 {
-                    _logger.LogDebug("COPILOT-DEBUG: [{RequestId}] Sending QuestionReceived to group {SessionGroup}", requestId, sessionGroup);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 10A: Broadcasting QuestionReceived to session group {SessionGroup} ;CLEANUP_OK", requestId, sessionGroup);
                     await _sessionHub.Clients.Group(sessionGroup)
                         .SendAsync("QuestionReceived", questionData);
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] QuestionReceived sent successfully to {SessionGroup}", requestId, sessionGroup);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 10B: QuestionReceived sent successfully to {SessionGroup} ;CLEANUP_OK", requestId, sessionGroup);
 
                     // Special notification for hosts
-                    _logger.LogDebug("COPILOT-DEBUG: [{RequestId}] Sending HostQuestionAlert to group {HostGroup}", requestId, hostGroup);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 11A: Broadcasting HostQuestionAlert to host group {HostGroup} ;CLEANUP_OK", requestId, hostGroup);
                     await _sessionHub.Clients.Group(hostGroup)
                         .SendAsync("HostQuestionAlert", questionData);
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] HostQuestionAlert sent successfully to {HostGroup}", requestId, hostGroup);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 11B: HostQuestionAlert sent successfully to {HostGroup} ;CLEANUP_OK", requestId, hostGroup);
 
-                    _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] SignalR notifications sent successfully to groups {SessionGroup} and {HostGroup}", 
-                        requestId, sessionGroup, hostGroup);
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 12: ALL SignalR notifications sent successfully ;CLEANUP_OK", requestId);
                 }
                 catch (Exception signalREx)
                 {
-                    _logger.LogError(signalREx, "COPILOT-DEBUG: [{RequestId}] Error broadcasting question via SignalR", requestId);
+                    _logger.LogError(signalREx, "[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP ERROR: SignalR broadcast failed - {Error} ;CLEANUP_OK", requestId, signalREx.Message);
                     // Continue execution - don't fail the API call if SignalR fails
                 }
 
