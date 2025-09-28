@@ -1,0 +1,3 @@
+# Python dependencies for Copilot Manager
+# The backend scripts (migrate.py, cli.py, db.py) rely only on the Python standard library.
+# If you extend the CLI or migration scripts to use additional packages, list them here.
