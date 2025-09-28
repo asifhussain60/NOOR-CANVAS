@@ -4,14 +4,23 @@ mode: agent
 
 # /continue — Continuation Agent (v3.0.0)
 
+## Role
+Use `/continue` when a Copilot task was stopped before completion.
+This may happen because:
+- The process was interrupted.
+- The user provided clarification.
+- The user supplied additional details after the original request.
+
+`/continue` resumes the unfinished work for the same `key`, incorporating any new context or instructions.
+
 Resumes partially completed work for `{key}`, ensuring quality gates pass before proceeding.
 
 **Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.
 
 ## Parameters
 - **key:** Work stream identifier - auto-inferred if not provided
-- **log:** Debug verbosity (`none`, `simple`, `trace`) - default: `simple`
-- **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
+- **debug-level:** Debug behavior (`none`, `simple`, `trace`) - default: `simple`
+- **mode:** Operation mode (`analyze`, `apply`, `test`, `rollback`) - default: `apply`
 - **notes:** Continuation description (context, files, constraints)
 
 ## Operation Modes
@@ -205,3 +214,23 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._
+
+## Change Tracking
+- Resume or append structured log entries under the same ChangeID when continuing work.
+- Record key, files, APIs, SQL objects, timestamp, and commit hash.
+- Ensure undo path is maintained for surgical rollback.
+
+## Undo Tracking Behavior
+- Do not create a new log; always extend the one tied to the key.
+
+### Rollback Mode (`mode: rollback`)
+- Identify the active key (use last open workitem if none provided).
+- Retrieve undo logs for that key from the database.
+- Reset repository to last backup commit with `git reset --hard <hash>`.
+- Summarize rollback actions.
+- Keep the key open for further work.
+
+## Git Backup Discipline
+- In apply/test modes, always run:
+  `git add -A && git commit -m "Backup before continue <key>"`
+- Record commit hash in undo log.

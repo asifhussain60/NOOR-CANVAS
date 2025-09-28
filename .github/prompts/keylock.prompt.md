@@ -55,6 +55,12 @@ If I approve, then:
 - `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
 - Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
 
+## Undo Tracking Behavior
+- On closure, locate and delete the associated undo log at `Workspaces/Copilot/change_log/<key>.log`.
+- Ensure no undo data persists once a key is finalized.
 
-## Notes
-Closure status is audited by `/inventory`.
+## Git Auto-Squash
+- On closing a key, squash all "backup before ..." commits into a single final commit:
+  `git reset --soft <first-backup-commit>`
+  `git commit -m "Finalize <key> task"`
+- Mark key closed in DB and update notes.

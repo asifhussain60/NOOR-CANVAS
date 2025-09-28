@@ -490,4 +490,28 @@ public class SessionHub : Hub
             throw;
         }
     }
+
+    /// <summary>
+    /// WORKITEM-WAITINGROOM: Broadcast test participant to token group for debug panel functionality
+    /// Sends ParticipantJoined event to all users sharing the same token
+    /// </summary>
+    public async Task BroadcastTestParticipant(string userToken, object participantData)
+    {
+        var tokenGroup = $"usertoken_{userToken}";
+
+        try
+        {
+            // Broadcast ParticipantJoined event to all clients in the token group
+            await Clients.Group(tokenGroup).SendAsync("ParticipantJoined", participantData);
+            
+            // Only log errors, not every successful broadcast (reduces 100 logs to ~0 for success case)
+        }
+        catch (Exception ex)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            _logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] BroadcastTestParticipant failed for token group '{TokenGroup}': {Error}", 
+                requestId, tokenGroup, ex.Message);
+            throw;
+        }
+    }
 }

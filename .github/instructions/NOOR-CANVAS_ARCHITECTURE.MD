@@ -36,6 +36,3 @@ It serves as the authoritative reference for developers and Copilot when a deep 
 ## Update Rules
 - Whenever the system architecture changes (new API, altered DTO, schema migration, or new component), update this file.  
 - Ensure **SystemStructureSummary.md** contains a summarized snapshot of changes for quick access.  
-
-### Inventory Agent
-- `/inventory`: Audits key closure status against `/keylock`.

@@ -10,7 +10,7 @@ Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and 
 
 ## Parameters
 - **key:** Work stream identifier - auto-inferred if not provided
-- **log:** Debug behavior (`none`, `simple`, `trace`) - default: `simple`
+- **debug-level:** Debug behavior (`none`, `simple`, `trace`) - default: `simple`
 - **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
 - **notes:** Work description (scope, files, constraints)
 
@@ -201,3 +201,17 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._
+
+## Change Tracking
+- Before applying modifications, create a structured log entry in `Workspaces/Copilot/change_log/`.
+- Include key, files, APIs, SQL objects, timestamp, and commit hash.
+- Append updates if multiple passes occur.
+- Ensure undo path (commit hash or backup) is recorded.
+
+## Undo Tracking Behavior
+- All changes are logged under this file until the key is closed by `/keylock`.
+
+## Git Backup Discipline
+- Before applying changes, always run:
+  `git add -A && git commit -m "Backup before workitem <key>"`
+- Record the commit hash in the undo log for rollback.

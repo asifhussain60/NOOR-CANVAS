@@ -122,5 +122,3 @@ It is the **single source of truth** for system usage and must be updated if the
 ---
 
 *Last updated: September 28, 2025 - Comprehensive architectural reference for key-based prompts.*  
-
-- `inventory.prompt.md` → key = `inventory`

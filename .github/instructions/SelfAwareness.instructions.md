@@ -4,8 +4,6 @@
 > Everything else lives under **Workspaces/Copilot/**.
 
 ## Scope
-Governs `/inventory` as well.
-
 Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
 ## Required Reading
@@ -289,3 +287,10 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 
 ## Reference: System Structure Summary
 This instruction set references the central `SystemStructureSummary.md`. Any structural changes must be reflected there.
+
+
+## Git Backup & Rollback Discipline
+- Every /workitem and /continue must begin by creating a backup commit.
+- Undo logs must store commit hashes for rollback.
+- Rollback uses `git reset --hard <hash>`.
+- On /keylock, squash backup commits into one final commit.

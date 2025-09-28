@@ -815,7 +815,7 @@ background-color: #effff9;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Fatal error during session initialization", requestId);
+            Logger.LogError(ex, "[{RequestId}] Fatal error during session initialization", requestId);
             Model!.CurrentState = SessionWaitingState.CriticalError;
             Model.ErrorMessage = "A critical error occurred while loading the session.";
             StateHasChanged();
@@ -871,7 +871,7 @@ background-color: #effff9;
             }
             else
             {
-                Logger.LogError("NOOR-DEBUG: [{RequestId}] Session validation failed with status: {StatusCode}", 
+                Logger.LogError("[{RequestId}] Session validation failed with status: {StatusCode}", 
                     requestId, response.StatusCode);
                 Model.CurrentState = SessionWaitingState.ApiError;
                 Model.ErrorMessage = $"Server error ({response.StatusCode}). Please try again later.";
@@ -879,19 +879,19 @@ background-color: #effff9;
         }
         catch (HttpRequestException ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Network error during session validation", requestId);
+            Logger.LogError(ex, "[{RequestId}] Network error during session validation", requestId);
             Model!.CurrentState = SessionWaitingState.NetworkError;
             Model.ErrorMessage = "Network error. Please check your internet connection.";
         }
         catch (TaskCanceledException ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Request timeout during session validation", requestId);
+            Logger.LogError(ex, "[{RequestId}] Request timeout during session validation", requestId);
             Model!.CurrentState = SessionWaitingState.Timeout;
             Model.ErrorMessage = "Request timed out. Please try again.";
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Unexpected error during session validation", requestId);
+            Logger.LogError(ex, "[{RequestId}] Unexpected error during session validation", requestId);
             Model!.CurrentState = SessionWaitingState.CriticalError;
             Model.ErrorMessage = "An unexpected error occurred. Please try again.";
         }
@@ -929,8 +929,8 @@ background-color: #effff9;
         Model.SessionName = session.Title ?? "Unknown Session";
         Model.SessionDescription = session.Description ?? "";
         
-        // WORKITEM-WAITINGROOM: Use actual scheduled values instead of computed values
-        Model.SessionDate = session.ScheduledDate ?? FormatDate(DateTime.Now);
+        // WORKITEM-WAITINGROOM: Use actual scheduled values and format database date properly
+        Model.SessionDate = FormatDatabaseDate(session.ScheduledDate) ?? FormatDate(DateTime.Now);
         Model.StartTime = session.ScheduledTime ?? FormatTime(calculatedStartTime);
         Model.SessionDuration = session.ScheduledDuration ?? FormatDuration(session.Duration);
         Model.InstructorName = session.InstructorName ?? "Loading...";
@@ -1080,18 +1080,18 @@ background-color: #effff9;
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("NOOR-DEBUG: [{RequestId}] Failed to load participants: {StatusCode} - {ErrorContent}", 
+                Logger.LogError("[{RequestId}] Failed to load participants: {StatusCode} - {ErrorContent}", 
                     requestId, response.StatusCode, errorContent);
                 
                 // Only use real data - no fallback to demo data
                 Model!.Participants = new List<ParticipantData>();
-                Logger.LogError("NOOR-DEBUG: [{RequestId}] Participants API call failed - Token: {Token}, URL: {Url}, Status: {Status} - NO FALLBACK USED", 
+                Logger.LogWarning("[{RequestId}] Participants API call failed - Token: {Token}, URL: {Url}, Status: {Status}", 
                     requestId, SessionToken, $"api/participant/session/{SessionToken}/participants", response.StatusCode);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG: [{RequestId}] Error loading participants - NO FALLBACK USED", requestId);
+            Logger.LogError(ex, "[{RequestId}] Error loading participants", requestId);
             // Only use real data - no fallback to demo data
             Model!.Participants = new List<ParticipantData>();
         }
@@ -1270,7 +1270,7 @@ background-color: #effff9;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG-TIME: Error updating countdown timer");
+            Logger.LogError(ex, "Error updating countdown timer");
         }
     }
 
@@ -1314,29 +1314,115 @@ background-color: #effff9;
 
     /// <summary>
     /// Handles test data entry for debug panel - Development only
+    /// WORKITEM-WAITINGROOM: Phase 2 - Broadcast test participants via SignalR to all users with same token
     /// </summary>
-    private Task HandleEnterTestData()
+    private async Task HandleEnterTestData()
     {
-        if (Model == null) return Task.CompletedTask;
+        if (Model == null) return;
 
         var requestId = Guid.NewGuid().ToString("N")[..8];
         try
         {
-            Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Entering test data for SessionWaiting - Adding 50 random participants", requestId);
+            Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Broadcasting test data via SignalR to all users with token {Token}", requestId, SessionToken);
             
-            FloodParticipantList();
+            // WORKITEM-WAITINGROOM: Instead of local FloodParticipantList, broadcast via SignalR
+            await BroadcastTestParticipants(requestId);
             
-            Logger.LogInformation("NOOR-DEBUG-PANEL: [{RequestId}] Test data populated - Added 50 random participants for volume testing", requestId);
+            Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Broadcasted 50 test participants via SignalR", requestId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error populating test data for SessionWaiting");
+            Logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] Failed to broadcast test data via SignalR", requestId);
             throw;
         }
-        
-        return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// WORKITEM-WAITINGROOM: Phase 2 - Broadcast test participants via SignalR to all users sharing the same token
+    /// This replaces the local-only FloodParticipantList approach
+    /// </summary>
+    private async Task BroadcastTestParticipants(string requestId)
+    {
+        if (_hubConnection?.State != HubConnectionState.Connected)
+        {
+            Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - SignalR not connected, cannot broadcast test participants", requestId);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(SessionToken) || _sessionId == null)
+        {
+            Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - SessionToken or SessionId missing, cannot broadcast", requestId);
+            return;
+        }
+
+        var random = new Random();
+        var firstNames = new[] { "Mohammed", "Ahmed", "Ali", "Omar", "Khalid", "Hassan", "Ibrahim", "Yusuf", "Abdullah", "Ameer", 
+                                "Sarah", "Fatima", "Aisha", "Khadija", "Maryam", "Zeinab", "Layla", "Noor", "Amina", "Yasmin",
+                                "John", "David", "Michael", "James", "Robert", "William", "Richard", "Joseph", "Thomas", "Christopher",
+                                "Maria", "Elizabeth", "Jennifer", "Linda", "Patricia", "Susan", "Jessica", "Ashley", "Emily", "Samantha",
+                                "Chen", "Wang", "Li", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou" };
+        
+        var lastNames = new[] { "Al-Rashid", "Al-Mahmoud", "Al-Zahra", "Al-Nouri", "Al-Sabah", "Al-Hashemi", "Al-Farisi", "Al-Tamimi",
+                               "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+                               "Lee", "Kim", "Kim", "Park", "Choi", "Jung", "Kang", "Cho", "Yoon", "Jang", "Lim",
+                               "Singh", "Kumar", "Sharma", "Gupta", "Verma", "Agarwal", "Mishra", "Tiwari", "Yadav", "Jain" };
+
+        var countries = new[] { "US", "CA", "GB", "DE", "FR", "IT", "ES", "AU", "NZ", "JP", "KR", "CN", "IN", "PK", "BD", 
+                               "EG", "SA", "AE", "TR", "MA", "NG", "ZA", "BR", "MX", "AR", "RU", "SE", "NO", "DK", "NL" };
+
+        var countryFlags = new[] { "us", "ca", "gb", "de", "fr", "it", "es", "au", "nz", "jp", "kr", "cn", "in", "pk", "bd",
+                                  "eg", "sa", "ae", "tr", "ma", "ng", "za", "br", "mx", "ar", "ru", "se", "no", "dk", "nl" };
+
+        // WORKITEM-WAITINGROOM: Broadcast 50 test participants via SignalR ParticipantJoined events
+        var successCount = 0;
+        var errorCount = 0;
+        
+        for (int i = 0; i < 50; i++)
+        {
+            var firstName = firstNames[random.Next(firstNames.Length)];
+            var lastName = lastNames[random.Next(lastNames.Length)];
+            var countryIndex = random.Next(countries.Length);
+            var testParticipantId = $"test-{Guid.NewGuid().ToString("N")[..8]}";
+            
+            // Create participant data matching ParticipantJoined event structure
+            var participantData = new
+            {
+                sessionId = _sessionId,
+                participantId = testParticipantId,
+                displayName = $"{firstName} {lastName}",
+                country = countries[countryIndex],
+                joinedAt = DateTime.UtcNow,
+                timestamp = DateTime.UtcNow,
+                userToken = SessionToken // Include token for validation
+            };
+
+            try
+            {
+                // WORKITEM-WAITINGROOM: Broadcast test participant via new SessionHub method
+                // This sends to all users in the token group (usertoken_{token})
+                await _hubConnection.SendAsync("BroadcastTestParticipant", SessionToken, participantData);
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - Failed to broadcast test participant {ParticipantName}", 
+                    requestId, participantData.displayName);
+                errorCount++;
+            }
+
+            // Small delay to avoid overwhelming SignalR
+            await Task.Delay(50);
+        }
+        
+        // Single summary log instead of 50 individual logs
+        Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - Broadcasted {SuccessCount}/50 test participants via SignalR to usertoken_{Token} ({ErrorCount} errors)", 
+            requestId, successCount, SessionToken, errorCount);
+    }
+
+    /// <summary>
+    /// DEPRECATED: Legacy local-only participant flooding (replaced by SignalR in Phase 2)
+    /// WORKITEM-WAITINGROOM: This method is superseded by BroadcastTestParticipants() for proper SignalR propagation
+    /// </summary>
     private void FloodParticipantList()
     {
         if (Model?.Participants == null) return;
@@ -1403,6 +1489,27 @@ background-color: #effff9;
         }
     }
 
+    private static string? FormatDatabaseDate(string? scheduledDate)
+    {
+        // WORKITEM-WAITINGROOM: Parse database date string and format as "Sept 9, 2025"
+        if (string.IsNullOrEmpty(scheduledDate)) return null;
+        
+        // Try to parse the date string from database (expecting formats like "09/28/2025" or "2025-09-28")
+        if (DateTime.TryParse(scheduledDate, out DateTime parsedDate))
+        {
+            var today = DateTime.Today;
+            
+            if (parsedDate.Date == today) return "Today";
+            if (parsedDate.Date == today.AddDays(1)) return "Tomorrow";
+            
+            // Format as "Sept 9, 2025"
+            return parsedDate.ToString("MMM d, yyyy");
+        }
+        
+        // If parsing fails, return the original string as fallback
+        return scheduledDate;
+    }
+
     private static string FormatDate(DateTime? dateTime)
     {
         if (!dateTime.HasValue) return "Today";
@@ -1413,7 +1520,8 @@ background-color: #effff9;
         if (date == today) return "Today";
         if (date == today.AddDays(1)) return "Tomorrow";
         
-        return date.ToString("MMM dd, yyyy");
+        // WORKITEM-WAITINGROOM: Format date as "Sept 9, 2025" based on database value
+        return date.ToString("MMM d, yyyy");
     }
 
     private static string FormatTime(DateTime? dateTime)
