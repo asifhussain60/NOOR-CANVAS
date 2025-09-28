@@ -88,18 +88,11 @@ Write-Host "Building NOOR Canvas application..." -ForegroundColor Cyan
 Push-Location $project
 
 try {
-    # First try building without restore to avoid unnecessary package downloads
-    Write-Host "Attempting build without restore..." -ForegroundColor Gray
-    dotnet build --configuration Release --verbosity minimal --no-restore
+    dotnet build --configuration Release --verbosity minimal
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Build without restore failed, trying with restore..." -ForegroundColor Yellow
-        dotnet build --configuration Release --verbosity minimal
-        
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Build failed!" -ForegroundColor Red
-            exit 1
-        }
+        Write-Host "Build failed!" -ForegroundColor Red
+        exit 1
     }
     
     Write-Host "Build completed successfully!" -ForegroundColor Green
@@ -118,9 +111,7 @@ if (Test-Path $ncPath) {
     Push-Location $project
     try {
         $env:ASPNETCORE_URLS = "https://localhost:9091;http://localhost:9090"
-        # Since we just built, we can skip both build and restore
-        # Use --no-launch-profile to avoid browser auto-launch which can cause issues in background execution
-        dotnet run --configuration Release --no-build --no-restore --no-launch-profile --urls "https://localhost:9091;http://localhost:9090"
+        dotnet run --configuration Release --no-build --urls "https://localhost:9091;http://localhost:9090"
     } finally {
         Pop-Location
     }

@@ -85,37 +85,8 @@ try {
     # Set environment variable for URLs
     $env:ASPNETCORE_URLS = "$httpsUrl;$httpUrl"
     
-    # Launch the ASP.NET Core application  
-    # Use --no-launch-profile to avoid browser auto-launch which can cause issues in background execution
-    Write-Host "Starting application..." -ForegroundColor Green
-    
-    # Optimized approach: Always try without restore first
-    # This avoids Norton antivirus issues when packages are already restored
-    Write-Host "Attempting launch without package restore (Norton-friendly)..." -ForegroundColor Gray
-    
-    # Start a background job to try --no-restore first
-    $job = Start-Job -ScriptBlock {
-        param($projectPath, $urls)
-        Set-Location $projectPath
-        & dotnet run --no-restore --no-launch-profile --urls $urls
-    } -ArgumentList $project, "$httpsUrl;$httpUrl"
-    
-    # Wait briefly to see if it starts successfully
-    Start-Sleep -Seconds 3
-    
-    if ($job.State -eq "Running") {
-        Write-Host "✅ Application started successfully without package restore!" -ForegroundColor Green
-        Write-Host "   (Norton antivirus avoided)" -ForegroundColor Gray
-        # Wait for the job to complete (i.e., until Ctrl+C is pressed)
-        Wait-Job $job | Out-Null
-        Remove-Job $job -Force
-    } else {
-        Write-Host "⚠️  Launch without restore failed, trying with restore..." -ForegroundColor Yellow
-        Write-Host "   (Package restore may trigger Norton antivirus briefly)" -ForegroundColor Gray
-        Remove-Job $job -Force
-        # Fallback to normal dotnet run which includes restore
-        dotnet run --no-launch-profile --urls "$httpsUrl;$httpUrl"
-    }
+    # Launch the ASP.NET Core application
+    dotnet run --urls "$httpsUrl;$httpUrl"
 } finally {
     Pop-Location
 }
