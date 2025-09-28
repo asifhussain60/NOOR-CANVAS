@@ -11,7 +11,6 @@ Resumes partially completed work for `{key}`, ensuring quality gates pass before
 ## Parameters
 - **key:** Work stream identifier - auto-inferred if not provided
 - **log:** Debug verbosity (`none`, `simple`, `trace`) - default: `simple`
-- **commit:** Commit control (`true`, `false`, `force`)
 - **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
 - **notes:** Continuation description (context, files, constraints)
 
@@ -43,6 +42,7 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
 - **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - **Terminal State Analysis:**
@@ -52,6 +52,7 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ## Operating Protocols
 **Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
+**Reference:** SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
 
 ### Quality Gates
 - Continuation proceeds only when: analyzers green, linters clean, tests passing
@@ -60,7 +61,8 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ## Continuation Protocol
 1. **Load Context**: Read requirements, self-review, and prior changes
-2. **Analyze Terminal State**: Use `#getTerminalOutput` and `#terminalLastCommand` to assess:
+2. **Load Architectural Context**: Use `SystemStructureSummary.md` to understand component relationships and API mappings for the `{key}`
+3. **Analyze Terminal State**: Use `#getTerminalOutput` and `#terminalLastCommand` to assess:
    - Last command executed and its exit code
    - Current working directory context
    - Any error messages or warnings in recent output
@@ -187,3 +189,19 @@ Summaries must include:
 ---
 
 _Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+
+
+---
+
+_Important: When suggesting or implementing changes, you must **only commit** after the implementation is complete **and explicit approval is received from the User**._
+
+
+---
+
+### Approval Checklist (required before commit)
+- [ ] User has reviewed the proposed changes
+- [ ] User has explicitly approved the commit
+- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] No conflicts remain with other prompts or instruction files
+
+_Do not commit until all items are checked and explicit approval is confirmed._

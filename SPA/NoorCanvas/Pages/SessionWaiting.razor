@@ -398,31 +398,45 @@ background-color: #effff9;
         .participants-list {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
+            gap: 1rem;
             max-height: 12rem;
             overflow-y: auto;
             padding-right: 0.5rem;
+            align-items: start;
         }
 
         /* Responsive grid columns */
         @@media (min-width: 1200px) {
             .participants-list {
                 grid-template-columns: repeat(4, 1fr);
+                gap: 1.25rem;
             }
         }
 
         @@media (max-width: 768px) {
             .participants-list {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
             }
         }
 
         .participant-item {
             display: flex;
             align-items: center;
+            justify-content: flex-start;
             gap: 0.75rem;
             color: #706357;
-            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(112, 99, 87, 0.1);
+            transition: background-color 0.2s ease;
+            text-align: left;
+        }
+
+        .participant-item:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-color: rgba(112, 99, 87, 0.2);
         }
 
         .participant-flag {
@@ -434,8 +448,14 @@ background-color: #effff9;
 
         .participant-name {
             font-family: 'Inter', sans-serif;
-            font-size: 1.125rem;
+            font-size: 0.875rem;
             font-weight: 500;
+            line-height: 1.25;
+            word-break: break-word;
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+            justify-self: start;
         }
 
         .no-participants {
@@ -885,8 +905,7 @@ background-color: #effff9;
 
         var requestId = Guid.NewGuid().ToString("N")[..8];
 
-        // ISSUE-FIXED: Use current time + offset for waiting room timer instead of historical KSESSIONS date
-        // For waiting rooms, we want a countdown based on current time, not historical session data
+        // WORKITEM-WAITINGROOM: Use actual scheduled session data instead of hardcoded countdown
         DateTime calculatedStartTime;
         
         // Check if session has actually started (status check)
@@ -901,18 +920,19 @@ background-color: #effff9;
         }
         else
         {
-            // Waiting room: Use current time + 5 minutes for demonstration countdown
-            calculatedStartTime = DateTime.Now.AddMinutes(5);
-            Logger.LogInformation("NOOR-DEBUG-TIME: [{RequestId}] Waiting room mode - using current time + 5 minutes: {StartTime}", requestId, calculatedStartTime);
+            // WORKITEM-WAITINGROOM: Parse actual scheduled date/time from database
+            calculatedStartTime = ParseScheduledDateTime(session, requestId);
+            Logger.LogInformation("NOOR-DEBUG-TIME: [{RequestId}] Using parsed scheduled time: {StartTime}", requestId, calculatedStartTime);
         }
         
-        // Now that we have calculatedStartTime, update the model
+        // Update model with actual session data
         Model.SessionName = session.Title ?? "Unknown Session";
         Model.SessionDescription = session.Description ?? "";
-        // ISSUE-FIXED: Show current date for waiting rooms instead of historical KSESSIONS date
-        Model.SessionDate = FormatDate(DateTime.Now); // Use current date for waiting room display
-        Model.StartTime = FormatTime(calculatedStartTime); // Use calculated start time
-        Model.SessionDuration = FormatDuration(session.Duration);
+        
+        // WORKITEM-WAITINGROOM: Use actual scheduled values instead of computed values
+        Model.SessionDate = session.ScheduledDate ?? FormatDate(DateTime.Now);
+        Model.StartTime = session.ScheduledTime ?? FormatTime(calculatedStartTime);
+        Model.SessionDuration = session.ScheduledDuration ?? FormatDuration(session.Duration);
         Model.InstructorName = session.InstructorName ?? "Loading...";
         
         _sessionStartTime = calculatedStartTime;
@@ -924,6 +944,64 @@ background-color: #effff9;
             Model.SessionStarted = true;
             Model.StatusMessage = "Session is ready to begin!";
         }
+    }
+
+    private DateTime ParseScheduledDateTime(SessionWaitingData session, string requestId)
+    {
+        // WORKITEM-WAITINGROOM: Parse actual scheduled date and time from database
+        try
+        {
+            // If scheduled date and time are provided, parse them
+            if (!string.IsNullOrEmpty(session.ScheduledDate) && !string.IsNullOrEmpty(session.ScheduledTime))
+            {
+                // Parse the scheduled date (expecting format like "09/28/2025")
+                if (DateTime.TryParse(session.ScheduledDate, out DateTime scheduleDate))
+                {
+                    // Parse the scheduled time (expecting format like "6:00 AM")
+                    if (DateTime.TryParse(session.ScheduledTime, out DateTime scheduleTime))
+                    {
+                        // Combine date and time
+                        var combinedDateTime = new DateTime(
+                            scheduleDate.Year, 
+                            scheduleDate.Month, 
+                            scheduleDate.Day,
+                            scheduleTime.Hour,
+                            scheduleTime.Minute,
+                            scheduleTime.Second
+                        );
+                        
+                        Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Parsed scheduled DateTime: {DateTime} from date '{Date}' and time '{Time}'", 
+                            requestId, combinedDateTime, session.ScheduledDate, session.ScheduledTime);
+                        
+                        return combinedDateTime;
+                    }
+                    else
+                    {
+                        Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Failed to parse ScheduledTime '{Time}', using fallback", 
+                            requestId, session.ScheduledTime);
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Failed to parse ScheduledDate '{Date}', using fallback", 
+                        requestId, session.ScheduledDate);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] ScheduledDate or ScheduledTime is null/empty, using fallback. Date='{Date}', Time='{Time}'", 
+                    requestId, session.ScheduledDate ?? "null", session.ScheduledTime ?? "null");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] Error parsing scheduled datetime, using fallback", requestId);
+        }
+        
+        // Fallback: Use current time + 5 minutes for demonstration
+        var fallbackTime = DateTime.Now.AddMinutes(5);
+        Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Using fallback time: {DateTime}", requestId, fallbackTime);
+        return fallbackTime;
     }
 
     private async Task LoadParticipantsAsync(string requestId)
