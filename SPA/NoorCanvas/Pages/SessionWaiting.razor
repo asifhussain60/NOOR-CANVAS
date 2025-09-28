@@ -764,8 +764,7 @@ background-color: #effff9;
     protected override async Task OnInitializedAsync()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] SessionWaiting OnInitialized - SessionToken: {SessionToken}", 
-            requestId, SessionToken ?? "null");
+        // Session initialization started
 
         Model = new SessionWaitingViewModel
         {
@@ -792,15 +791,14 @@ background-color: #effff9;
         {
             if (string.IsNullOrEmpty(SessionToken))
             {
-                Logger.LogWarning("NOOR-DEBUG: [{RequestId}] No session token provided", requestId);
+                // No session token provided
                 Model!.CurrentState = SessionWaitingState.InvalidToken;
                 Model.ErrorMessage = "No session token provided. Please use a valid session link.";
                 StateHasChanged();
                 return;
             }
 
-            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Loading session data for token: {Token}", 
-                requestId, SessionToken);
+            // Loading session data
 
             // Only handle real session tokens - no mock/demo data
             if (!string.IsNullOrEmpty(SessionToken))
@@ -833,8 +831,7 @@ background-color: #effff9;
             httpClient.BaseAddress = new Uri("https://localhost:9091/");
             var response = await httpClient.GetAsync($"api/participant/session/{token}/validate");
             
-            Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation API response: {StatusCode}", 
-                requestId, response.StatusCode);
+            // Session validation completed
 
             if (response.IsSuccessStatusCode)
             {
@@ -844,8 +841,7 @@ background-color: #effff9;
 
                 if (validationResult?.Valid == true && validationResult.Session != null)
                 {
-                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Session validation successful - SessionID: {SessionId}, Title: {Title}", 
-                        requestId, validationResult.Session.SessionId, validationResult.Session.Title);
+                    // Session validation successful
 
                     UpdateSessionData(validationResult.Session);
                     Model.CurrentState = SessionWaitingState.Loaded;
@@ -859,7 +855,7 @@ background-color: #effff9;
                 }
                 else
                 {
-                    Logger.LogWarning("NOOR-DEBUG: [{RequestId}] Session validation returned invalid result", requestId);
+                    // Session validation failed
                     Model.CurrentState = SessionWaitingState.InvalidToken;
                     Model.ErrorMessage = "Invalid session token. Please check your session link.";
                 }
@@ -916,13 +912,13 @@ background-color: #effff9;
         {
             // Session has started - show immediate start
             calculatedStartTime = DateTime.Now;
-            Logger.LogInformation("NOOR-DEBUG-TIME: [{RequestId}] Session already started - using immediate start", requestId);
+            // Session already started - using immediate start
         }
         else
         {
             // WORKITEM-WAITINGROOM: Parse actual scheduled date/time from database
             calculatedStartTime = ParseScheduledDateTime(session, requestId);
-            Logger.LogInformation("NOOR-DEBUG-TIME: [{RequestId}] Using parsed scheduled time: {StartTime}", requestId, calculatedStartTime);
+            // Using parsed scheduled time
         }
         
         // Update model with actual session data - Fix data flow from Host-SessionOpener
@@ -936,10 +932,14 @@ background-color: #effff9;
         Model.SessionDuration = FormatDurationFromString(session.ScheduledDuration) ?? FormatDuration(session.Duration);
         Model.InstructorName = session.InstructorName ?? "Loading...";
         
+        // Session data updated successfully
+        
         // WORKITEM-WAITINGROOM-PHASE2: Fix countdown timer to count to actual start time
         _sessionStartTime = calculatedStartTime;
         var currentTime = DateTime.Now;
         _countdownDurationMs = (int)(_sessionStartTime - currentTime).TotalMilliseconds;
+        
+        // Countdown timer initialized
         
         if (_countdownDurationMs <= 0)
         {
@@ -972,37 +972,33 @@ background-color: #effff9;
                             scheduleTime.Second
                         );
                         
-                        Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Parsed scheduled DateTime: {DateTime} from date '{Date}' and time '{Time}'", 
-                            requestId, combinedDateTime, session.ScheduledDate, session.ScheduledTime);
+                        // Parsed scheduled datetime successfully
                         
                         return combinedDateTime;
                     }
                     else
                     {
-                        Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Failed to parse ScheduledTime '{Time}', using fallback", 
-                            requestId, session.ScheduledTime);
+                        // Failed to parse scheduled time, using fallback
                     }
                 }
                 else
                 {
-                    Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Failed to parse ScheduledDate '{Date}', using fallback", 
-                        requestId, session.ScheduledDate);
+                    // Failed to parse scheduled date, using fallback
                 }
             }
             else
             {
-                Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] ScheduledDate or ScheduledTime is null/empty, using fallback. Date='{Date}', Time='{Time}'", 
-                    requestId, session.ScheduledDate ?? "null", session.ScheduledTime ?? "null");
+                // ScheduledDate or ScheduledTime is null/empty, using fallback
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] Error parsing scheduled datetime, using fallback", requestId);
+            Logger.LogError(ex, "Error parsing scheduled datetime, using fallback");
         }
         
         // Fallback: Use current time + 5 minutes for demonstration
         var fallbackTime = DateTime.Now.AddMinutes(5);
-        Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Using fallback time: {DateTime}", requestId, fallbackTime);
+        // Using fallback time
         return fallbackTime;
     }
 
@@ -1010,34 +1006,29 @@ background-color: #effff9;
     {
         try
         {
-            Logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Starting LoadParticipantsAsync with SessionToken: {SessionToken}", 
-                requestId, SessionToken);
+            // Loading participants
             
             using var httpClient = HttpClientFactory.CreateClient("default");
             httpClient.BaseAddress = new Uri("https://localhost:9091/");
             
             var apiUrl = $"api/participant/session/{SessionToken}/participants";
-            Logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Making API call to: {ApiUrl}", requestId, apiUrl);
+            // Making participants API call
             
             var response = await httpClient.GetAsync(apiUrl);
             
-            Logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] API response status: {StatusCode}", 
-                requestId, response.StatusCode);
+            // Participants API call completed
             
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Participants API response: {Content}", 
-                    requestId, content);
+                // Participants API response received
                 
                 var participantsResponse = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(content, 
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 if (participantsResponse?.Participants != null)
                 {
-                    // COPILOT-DEBUG: Issue-130 Fix - Add participants instead of replacing entire list
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Before processing - Current participant count: {CurrentCount}", 
-                        requestId, Model!.Participants?.Count ?? 0);
+                    // Processing participants list
                     
                     // Initialize participants list if null
                     if (Model!.Participants == null)
@@ -1053,30 +1044,21 @@ background-color: #effff9;
                         Flag = p.CountryFlag ?? "un" // Database-driven flag code from API
                     }).ToList();
 
-                    // COPILOT-DEBUG: Log detailed flag information for each participant
-                    foreach (var p in newParticipants)
-                    {
-                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant '{Name}' -> Country: '{Country}', Flag: '{Flag}'", 
-                            requestId, p.Name, p.Country, p.Flag);
-                    }
+                    // Processing participant data
 
-                    // COPILOT-DEBUG: Add only new participants that don't already exist
+                    // Add only new participants that don't already exist
                     var existingNames = Model.Participants.Select(p => p.Name).ToHashSet();
                     var participantsToAdd = newParticipants.Where(p => !existingNames.Contains(p.Name)).ToList();
-                    
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] API returned {ApiCount} participants, {NewCount} are new, {ExistingCount} already exist", 
-                        requestId, newParticipants.Count, participantsToAdd.Count, newParticipants.Count - participantsToAdd.Count);
                     
                     // Add new participants to existing list
                     Model.Participants.AddRange(participantsToAdd);
                     
-                    Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] After processing - Final participant count: {FinalCount}", 
-                        requestId, Model.Participants.Count);
+                    // Participant list updated
                 }
                 else
                 {
                     Model!.Participants = new List<ParticipantData>();
-                    Logger.LogInformation("NOOR-DEBUG: [{RequestId}] No participants returned from API", requestId);
+                    // No participants returned from API
                 }
             }
             else
@@ -1109,12 +1091,11 @@ background-color: #effff9;
         {
             if (_sessionId == null)
             {
-                Logger.LogWarning("NOOR-SIGNALR: [{RequestId}] Cannot initialize SignalR - session ID is null", requestId);
+                // Cannot initialize SignalR - session ID is null
                 return;
             }
 
-            Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Initializing SignalR connection for session {SessionId}", 
-                requestId, _sessionId);
+            // Initializing SignalR connection
 
             // Create SignalR connection to SessionHub
             _hubConnection = new HubConnectionBuilder()
@@ -1126,8 +1107,7 @@ background-color: #effff9;
             _hubConnection.On<object>("UserJoined", async (eventData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] UserJoined event received: {EventData}", 
-                    logRequestId, System.Text.Json.JsonSerializer.Serialize(eventData));
+                // UserJoined event received
                 
                 // Refresh participants immediately when someone joins
                 await InvokeAsync(async () =>
@@ -1140,8 +1120,7 @@ background-color: #effff9;
             _hubConnection.On<object>("UserLeft", async (eventData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] UserLeft event received: {EventData}", 
-                    logRequestId, System.Text.Json.JsonSerializer.Serialize(eventData));
+                // UserLeft event received
                 
                 // Refresh participants immediately when someone leaves
                 await InvokeAsync(async () =>
@@ -1154,8 +1133,7 @@ background-color: #effff9;
             _hubConnection.On<object>("ParticipantJoined", async (participantData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] ParticipantJoined event received: {ParticipantData}", 
-                    logRequestId, System.Text.Json.JsonSerializer.Serialize(participantData));
+                // ParticipantJoined event received
                 
                 // Refresh participants immediately when someone registers
                 await InvokeAsync(async () =>
@@ -1169,21 +1147,14 @@ background-color: #effff9;
             _hubConnection.On<object>("SessionBegan", async (sessionData) =>
             {
                 var logRequestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] SessionBegan event received - navigating to canvas: {SessionData}", 
-                    logRequestId, System.Text.Json.JsonSerializer.Serialize(sessionData));
+                // SessionBegan event received - navigating to canvas
                 
                 // Navigate all waiting users to session canvas
                 await InvokeAsync(() =>
                 {
                     if (!string.IsNullOrEmpty(SessionToken))
                     {
-                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionWaiting navigating to canvas with USER TOKEN: {Token} (length: {Length})", 
-                            logRequestId, SessionToken, SessionToken.Length);
                         Navigation.NavigateTo($"/session/canvas/{SessionToken}");
-                    }
-                    else
-                    {
-                        Logger.LogWarning("NOOR-SIGNALR: [{RequestId}] Cannot navigate to canvas - SessionToken is null", logRequestId);
                     }
                 });
             });
@@ -1192,22 +1163,18 @@ background-color: #effff9;
 
             // Start the connection
             await _hubConnection.StartAsync();
-            Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] SignalR connection started successfully", requestId);
+            // SignalR connection started successfully
 
-            // COPILOT-DEBUG: ISSUE FIX - Join token-based group instead of session-based group
-            // This ensures all users with the same UserToken see each other immediately
+            // Join token-based group for real-time participant sync
             var tokenGroup = $"usertoken_{SessionToken}";
             await _hubConnection.SendAsync("JoinGroup", tokenGroup);
-            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] ISSUE FIX - Joined token-based group '{TokenGroup}' for real-time participant sync", 
-                requestId, tokenGroup);
             
             // Also join session group for backward compatibility with other events
             await _hubConnection.SendAsync("JoinSession", _sessionId, "participant");
-            Logger.LogInformation("NOOR-SIGNALR: [{RequestId}] Joined session group {SessionId} for compatibility", requestId, _sessionId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "NOOR-SIGNALR: [{RequestId}] Failed to initialize SignalR connection", requestId);
+            Logger.LogError(ex, "Failed to initialize SignalR connection");
             // SignalR failure shouldn't break the component - we'll fallback to polling
         }
     }
@@ -1294,8 +1261,7 @@ background-color: #effff9;
         
         _retryAttempts++;
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Retrying session load, attempt {Attempt}", 
-            requestId, _retryAttempts);
+        // Retrying session load
             
         await InitializeSessionAsync(requestId);
     }
@@ -1325,16 +1291,16 @@ background-color: #effff9;
         var requestId = Guid.NewGuid().ToString("N")[..8];
         try
         {
-            Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Broadcasting test data via SignalR to all users with token {Token}", requestId, SessionToken);
+            // Broadcasting test data via SignalR
             
             // WORKITEM-WAITINGROOM: Instead of local FloodParticipantList, broadcast via SignalR
             await BroadcastTestParticipants(requestId);
             
-            Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Broadcasted 50 test participants via SignalR", requestId);
+            // Test participants broadcasted successfully
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] Failed to broadcast test data via SignalR", requestId);
+            Logger.LogError(ex, "Failed to broadcast test data via SignalR");
             throw;
         }
     }
@@ -1347,13 +1313,13 @@ background-color: #effff9;
     {
         if (_hubConnection?.State != HubConnectionState.Connected)
         {
-            Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - SignalR not connected, cannot broadcast test participants", requestId);
+            // SignalR not connected, cannot broadcast test participants
             return;
         }
 
         if (string.IsNullOrEmpty(SessionToken) || _sessionId == null)
         {
-            Logger.LogWarning("WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - SessionToken or SessionId missing, cannot broadcast", requestId);
+            // SessionToken or SessionId missing, cannot broadcast
             return;
         }
 
@@ -1405,10 +1371,9 @@ background-color: #effff9;
                 await _hubConnection.SendAsync("BroadcastTestParticipant", SessionToken, participantData);
                 successCount++;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - Failed to broadcast test participant {ParticipantName}", 
-                    requestId, participantData.displayName);
+                // Failed to broadcast test participant
                 errorCount++;
             }
 
@@ -1416,9 +1381,7 @@ background-color: #effff9;
             await Task.Delay(50);
         }
         
-        // Single summary log instead of 50 individual logs
-        Logger.LogInformation("WORKITEM-WAITINGROOM: [{RequestId}] Phase 2 - Broadcasted {SuccessCount}/50 test participants via SignalR to usertoken_{Token} ({ErrorCount} errors)", 
-            requestId, successCount, SessionToken, errorCount);
+        // Broadcast complete - {successCount}/50 participants sent
     }
 
     /// <summary>
@@ -1463,8 +1426,7 @@ background-color: #effff9;
         }
 
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("NOOR-TEST: [{RequestId}] Added 50 random participants for volume testing. Total participants: {Count}", 
-            requestId, Model.Participants.Count);
+        // Added 50 random participants for volume testing
         
         StateHasChanged();
     }
@@ -1601,21 +1563,21 @@ background-color: #effff9;
                     {
                         var tokenGroup = $"usertoken_{SessionToken}";
                         await _hubConnection.SendAsync("LeaveGroup", tokenGroup);
-                        Logger.LogInformation("COPILOT-DEBUG: Left token-based group {TokenGroup}", tokenGroup);
+                        // Left token-based group
                     }
                     
                     if (_sessionId != null)
                     {
                         await _hubConnection.SendAsync("LeaveSession", _sessionId);
-                        Logger.LogInformation("NOOR-SIGNALR: Left session group {SessionId}", _sessionId);
+                        // Left session group
                     }
                 }
                 await _hubConnection.DisposeAsync();
-                Logger.LogInformation("NOOR-SIGNALR: SignalR connection disposed successfully");
+                // SignalR connection disposed successfully
             }
             catch (Exception ex)
             {
-                Logger.LogWarning(ex, "NOOR-SIGNALR: Error during SignalR cleanup");
+                Logger.LogWarning(ex, "Error during SignalR cleanup");
             }
         }
     }

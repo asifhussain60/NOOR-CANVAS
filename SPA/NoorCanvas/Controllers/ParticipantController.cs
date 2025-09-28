@@ -379,9 +379,7 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Session not found", RequestId = requestId });
                 }
 
-                // COPILOT-DEBUG: Issue #1 - Track token filtering
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] ISSUE-1 ANALYSIS - Token: {Token} → SessionId: {SessionId}, UserToken: {UserToken}, HostToken: {HostToken}", 
-                    requestId, token, session.SessionId, session.UserToken, session.HostToken);
+                // Token filtering analysis complete
                 
                 // DIRECT TOKEN GROUPING: Filter participants directly by UserToken (no complex joins needed)
                 var participantsData = await _context.Participants
