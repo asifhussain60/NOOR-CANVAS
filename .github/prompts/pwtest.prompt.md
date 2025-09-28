@@ -25,13 +25,10 @@ Creates and maintains Playwright tests for `{key}` with iterative validation via
 **Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
 ### Playwright Launch Protocol
-- **CRITICAL:** Playwright manages app lifecycle via webServer configuration
-- Use `PW_MODE=standalone` for automatic app startup/shutdown
-- **Never** use PowerShell scripts (nc.ps1/ncb.ps1) for test execution
-- webServer config in `config/testing/playwright.config.cjs` handles .NET app lifecycle
+**Reference:** SelfAwareness.instructions.md for complete Playwright and launch protocols.
 
 ### Quality Gates
-- Test creation complete only when: analyzers green, linters clean, tests passing
+- **Completion Criteria:** Quality gates complete only when: analyzers green, linters clean, tests passing
 - Debug marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
 - Layers: `pwtest`, `tests`, `lifecycle`
 

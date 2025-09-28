@@ -11,6 +11,9 @@ namespace NoorCanvas.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    /// <summary>
+    /// Handles Q&A functionality including question submission, voting, and session management.
+    /// </summary>
     public class QuestionController : ControllerBase
     {
         private readonly SimplifiedCanvasDbContext _context;
@@ -18,6 +21,13 @@ namespace NoorCanvas.Controllers
         private readonly SimplifiedTokenService _tokenService;
         private readonly IHubContext<SessionHub> _sessionHub;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QuestionController"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="tokenService">The token validation service.</param>
+        /// <param name="sessionHub">The SignalR hub context for real-time communication.</param>
         public QuestionController(
             SimplifiedCanvasDbContext context,
             ILogger<QuestionController> logger,
@@ -31,7 +41,7 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Helper method to safely convert JsonElement to int
+        /// Helper method to safely convert JsonElement to int.
         /// </summary>
         private static int GetIntFromJsonElement(object jsonElement)
         {
@@ -43,7 +53,7 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Helper method to safely convert JsonElement to bool
+        /// Helper method to safely convert JsonElement to bool.
         /// </summary>
         private static bool GetBoolFromJsonElement(object jsonElement)
         {
@@ -62,19 +72,17 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Submit a new question to a session using user token authorization
+        /// Submit a new question to a session using user token authorization.
         /// </summary>
+        /// <param name="request">The question submission request containing session token, question text, and user GUID.</param>
+        /// <returns>The result of the question submission operation.</returns>
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitQuestion([FromBody] SubmitQuestionRequest request)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
             var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-            _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= SERVER QUESTION PROCESSING START ======= ;CLEANUP_OK", requestId);
-            _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 1: Question submission started - Token: {Token}, ClientIP: {ClientIp} ;CLEANUP_OK", 
-                requestId, request.SessionToken, clientIp);
-            _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 2: Request payload - QuestionText: '{QuestionText}', UserGuid: {UserGuid} ;CLEANUP_OK", 
-                requestId, request.QuestionText, request.UserGuid);
+            // Process question submission request
 
             try
             {
@@ -145,37 +153,25 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Question saved successfully, DataId: {DataId}", 
                     requestId, sessionData.DataId);
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 7: Question saved to database, DataId: {DataId} ;CLEANUP_OK", 
-                    requestId, sessionData.DataId);
+                // Question saved to database successfully
 
                 // Broadcast via SignalR to all session participants
                 var sessionGroup = $"session_{session.SessionId}";
                 var hostGroup = $"Host_{session.SessionId}";
                 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 8: Preparing SignalR broadcast - SessionId: {SessionId}, SessionGroup: {SessionGroup}, HostGroup: {HostGroup} ;CLEANUP_OK", 
-                    requestId, session.SessionId, sessionGroup, hostGroup);
-                
-                var questionJson = JsonSerializer.Serialize(questionData);
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 9: Question data for broadcast: {QuestionData} ;CLEANUP_OK", requestId, questionJson);
-                
+                // Broadcast via SignalR to all session participants
                 try
                 {
-                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 10A: Broadcasting QuestionReceived to session group {SessionGroup} ;CLEANUP_OK", requestId, sessionGroup);
                     await _sessionHub.Clients.Group(sessionGroup)
                         .SendAsync("QuestionReceived", questionData);
-                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 10B: QuestionReceived sent successfully to {SessionGroup} ;CLEANUP_OK", requestId, sessionGroup);
 
                     // Special notification for hosts
-                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 11A: Broadcasting HostQuestionAlert to host group {HostGroup} ;CLEANUP_OK", requestId, hostGroup);
                     await _sessionHub.Clients.Group(hostGroup)
                         .SendAsync("HostQuestionAlert", questionData);
-                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 11B: HostQuestionAlert sent successfully to {HostGroup} ;CLEANUP_OK", requestId, hostGroup);
-
-                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP 12: ALL SignalR notifications sent successfully ;CLEANUP_OK", requestId);
                 }
                 catch (Exception signalREx)
                 {
-                    _logger.LogError(signalREx, "[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] SERVER STEP ERROR: SignalR broadcast failed - {Error} ;CLEANUP_OK", requestId, signalREx.Message);
+                    _logger.LogError(signalREx, "SignalR broadcast failed: {Error}", signalREx.Message);
                     // Continue execution - don't fail the API call if SignalR fails
                 }
 
@@ -197,8 +193,11 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Vote on a question using user token authorization
+        /// Vote on a question using user token authorization.
         /// </summary>
+        /// <param name="questionId">The ID of the question to vote on.</param>
+        /// <param name="request">The vote request containing session token, direction, and user GUID.</param>
+        /// <returns>The result of the vote operation.</returns>
         [HttpPost("{questionId}/vote")]
         public async Task<IActionResult> VoteQuestion(string questionId, [FromBody] VoteQuestionRequest request)
         {
@@ -324,8 +323,10 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Get all questions for a session using user token authorization
+        /// Get all questions for a session using user token authorization.
         /// </summary>
+        /// <param name="sessionToken">The session token for authentication and session identification.</param>
+        /// <returns>The list of questions for the specified session.</returns>
         [HttpGet("session/{sessionToken}")]
         public async Task<IActionResult> GetQuestions(string sessionToken)
         {
@@ -400,8 +401,11 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Delete a question (only the user who created it can delete)
+        /// Delete a question (only the user who created it can delete).
         /// </summary>
+        /// <param name="questionId">The ID of the question to delete.</param>
+        /// <param name="request">The delete request containing session token and user GUID.</param>
+        /// <returns>The result of the delete operation.</returns>
         [HttpPost("{questionId}/delete")]
         public async Task<IActionResult> DeleteQuestion(int questionId, [FromBody] DeleteQuestionRequest request)
         {
@@ -483,38 +487,109 @@ namespace NoorCanvas.Controllers
     }
 
     // Request/Response Models
+
+    /// <summary>
+    /// Request model for submitting a new question to a session.
+    /// </summary>
     public class SubmitQuestionRequest
     {
+        /// <summary>
+        /// Gets or sets the session token for authentication.
+        /// </summary>
         public string SessionToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the text of the question to be submitted.
+        /// </summary>
         public string QuestionText { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the user submitting the question.
+        /// </summary>
         public string UserGuid { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Request model for voting on a question.
+    /// </summary>
     public class VoteQuestionRequest
     {
+        /// <summary>
+        /// Gets or sets the session token for authentication.
+        /// </summary>
         public string SessionToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the direction of the vote (up or down).
+        /// </summary>
         public string Direction { get; set; } = string.Empty; // "up" or "down"
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the user casting the vote.
+        /// </summary>
         public string UserGuid { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Request model for deleting a question.
+    /// </summary>
     public class DeleteQuestionRequest
     {
+        /// <summary>
+        /// Gets or sets the session token for authentication.
+        /// </summary>
         public string SessionToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the user requesting deletion.
+        /// </summary>
         public string UserGuid { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Response model for question submission operations.
+    /// </summary>
     public class SubmitQuestionResponse
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the operation was successful.
+        /// </summary>
         public bool Success { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique identifier of the submitted question.
+        /// </summary>
         public Guid QuestionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response message describing the operation result.
+        /// </summary>
         public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for tracking this request.
+        /// </summary>
         public string RequestId { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Response model for question deletion operations.
+    /// </summary>
     public class DeleteQuestionResponse
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the deletion was successful.
+        /// </summary>
         public bool Success { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response message describing the deletion result.
+        /// </summary>
         public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for tracking this request.
+        /// </summary>
         public string RequestId { get; set; } = string.Empty;
     }
 }

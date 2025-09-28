@@ -87,9 +87,7 @@ Proceed with implementation? (Y/N)
 **Reference:** SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
 
 ### Documentation Placement
-- **CRITICAL:** All documentation in `Workspaces/Copilot/_DOCS/` subdirectories
-- **NEVER** create analysis/summary files in project root
-- Follow SelfAwareness File Organization Rules
+**Reference:** SelfAwareness.instructions.md File Organization Rules for complete documentation placement protocols.
 
 ## Operation Modes
 
@@ -146,28 +144,12 @@ When user input contains `---` separators, treat each section as a separate todo
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
+**Reference:** SelfAwareness.instructions.md for complete launch protocols, database connectivity, and port management rules.
 
-### For Development Work
-- **Never** use `dotnet run` or any variant for development.
-- Launch only via:
-  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch - preferred for final step)
-  - `./Workspaces/Global/nc.ps1`  (launch only - for quick restarts)
-- **Always use `ncb.ps1` as the final step** to ensure application is ready for manual testing
-- If you stop or restart the app, self-attribute in logs:  
-  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
-
-### For Playwright Testing (when mode: test)
-- **Use Playwright's webServer configuration** for automatic app lifecycle management
-- **Set `PW_MODE=standalone`** to enable webServer startup
-- **NEVER** use `dotnet run`, `dotnet build`, `nc`, or `ncb` commands during test execution
-- **NEVER** use PowerShell scripts during test execution
-- **ALWAYS** use sleep timer before test execution: `Start-Sleep -Seconds 15`
-- **ALWAYS** check port availability: `netstat -an | findstr :9091`
-- Playwright handles `dotnet run` via webServer config in `config/testing/playwright.config.cjs`
-- Proper test execution format:
-  ```powershell
-  Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "test-file.spec.ts"
-  ```
+### Key Points for Implementation Work
+- **Development:** Use `ncb.ps1` for final builds, `nc.ps1` for quick restarts
+- **Testing:** Playwright webServer manages app lifecycle via `PW_MODE=standalone`
+- **Never mix:** Don't use PowerShell scripts during test execution
 
 ## Debug Logging Rules
 - Marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
@@ -179,8 +161,8 @@ When user input contains `---` separators, treat each section as a separate todo
   - **trace**: logs for every step, including intermediate calculations and branching
 
 ### Quality Gates
-- **Stop on violations:** Analyzers or linters must pass before proceeding
-- **Reference:** SelfAwareness.instructions.md for complete rules
+- **Completion Criteria:** Quality gates complete only when: analyzers green, linters clean, tests passing
+- **Reference:** SelfAwareness.instructions.md for complete analyzer and linter rules
 
 ### Application Context
 - **NOOR Canvas:** ASP.NET Core 8.0 + Blazor Server + SignalR

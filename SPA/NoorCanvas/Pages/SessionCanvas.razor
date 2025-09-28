@@ -876,11 +876,6 @@
             return;
 
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= Q&A SUBMISSION FLOW START ======= ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 1: SubmitQuestion called - SessionToken: {SessionToken}, QuestionLength: {Length}, UserGuid: {UserGuid} ;CLEANUP_OK", 
-            requestId, SessionToken, QuestionInput.Trim().Length, CurrentUserGuid);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 2: SessionCanvas SignalR State: {State}, ConnectionId: {ConnectionId} ;CLEANUP_OK", 
-            requestId, hubConnection?.State.ToString() ?? "NULL", hubConnection?.ConnectionId ?? "NULL");
 
         try
         {
@@ -891,32 +886,26 @@
                 UserGuid = CurrentUserGuid
             };
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 3: Payload prepared for API: {Payload} ;CLEANUP_OK", 
-                requestId, System.Text.Json.JsonSerializer.Serialize(requestPayload));
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 4: Sending HTTP POST to /api/Question/Submit ;CLEANUP_OK", requestId);
+
 
             var response = await Http.PostAsJsonAsync("/api/Question/Submit", requestPayload);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 5: HTTP Response received - Status: {StatusCode} ;CLEANUP_OK", 
-                requestId, response.StatusCode);
+
 
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 6A: SUCCESS - Question submitted successfully: {Response} ;CLEANUP_OK", 
-                    requestId, responseContent);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] STEP 7A: Clearing QuestionInput and triggering StateHasChanged ;CLEANUP_OK", requestId);
+                // Question submitted successfully - clear input
                     
                 QuestionInput = "";
                 await InvokeAsync(StateHasChanged);
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= Q&A SUBMISSION FLOW SUCCESS END ======= ;CLEANUP_OK", requestId);
+
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogWarning("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] User not registered for session (401 Unauthorized): {Error} - Redirecting to UserLanding for authentication", 
-                    requestId, errorContent);
+                // User not authenticated - redirect to registration
                 
                 // Redirect to UserLanding.razor with session token for proper authentication
                 // UserLanding.razor will handle session status check and route user to appropriate page after authentication
@@ -926,13 +915,12 @@
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", 
-                    requestId, response.StatusCode, errorContent);
+                Logger.LogError("Question submission failed: {StatusCode} - {Error}", response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Exception during question submission ;CLEANUP_OK", requestId);
+            Logger.LogError(ex, "Exception during question submission. RequestId: {RequestId}", requestId);
             Console.WriteLine($"Error submitting question: {ex.Message}");
         }
     }
@@ -1066,24 +1054,15 @@
             // Question events - Handle questions received from other participants
             hubConnection.On<object>("QuestionReceived", async (questionData) =>
             {
-                var requestId = Guid.NewGuid().ToString("N")[..8];
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= SESSIONCANVAS RECEIVES Q&A SIGNALR ======= ;CLEANUP_OK", requestId);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 1: QuestionReceived event from SignalR - ConnectionId: {ConnectionId} ;CLEANUP_OK", 
-                    requestId, hubConnection?.ConnectionId ?? "NULL");
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 2: Raw question data: {QuestionData} ;CLEANUP_OK", 
-                    requestId, System.Text.Json.JsonSerializer.Serialize(questionData));
-                    
                 if (Model?.Questions != null && questionData != null)
                 {
                     try
                     {
                         // Parse the question data from SignalR
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 3: Parsing question data from SignalR ;CLEANUP_OK", requestId);
                         var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
                         using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
                         var root = jsonDoc.RootElement;
                         
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 4: Creating QuestionData object ;CLEANUP_OK", requestId);
                         var question = new QuestionData
                         {
                             QuestionId = root.TryGetProperty("questionId", out var qIdProp) ? 
@@ -1098,31 +1077,17 @@
                                 (myUserIdProp.GetString() == CurrentUserGuid) : false
                         };
                         
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 5: QuestionData created - ID: {QuestionId}, Text: '{Text}', UserName: {UserName} ;CLEANUP_OK", 
-                            requestId, question.QuestionId, question.Text, question.UserName);
-                        
                         // Only add if not already in the list (prevent duplicates)
                         if (!Model.Questions.Any(q => q.QuestionId == question.QuestionId))
                         {
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 6A: Adding question to UI list (not duplicate) ;CLEANUP_OK", requestId);
                             Model.Questions.Add(question);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 6B: Question added successfully. Total questions: {Count} ;CLEANUP_OK", 
-                                requestId, Model.Questions.Count);
-                        }
-                        else
-                        {
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 6C: Question already exists, skipping duplicate: ID={QuestionId} ;CLEANUP_OK", 
-                                requestId, question.QuestionId);
                         }
                         
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 7A: Invoking StateHasChanged ;CLEANUP_OK", requestId);
                         await InvokeAsync(StateHasChanged);
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] CANVAS STEP 7B: StateHasChanged completed - Question visible in UI ;CLEANUP_OK", requestId);
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:trace:{RequestId}] ======= SESSIONCANVAS Q&A PROCESSING COMPLETE ======= ;CLEANUP_OK", requestId);
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Error processing QuestionReceived event ;CLEANUP_OK", requestId);
+                        Logger.LogError(ex, "Error processing QuestionReceived event");
                     }
                 }
             });
@@ -1436,19 +1401,17 @@
             if (!string.IsNullOrEmpty(storedUserGuid))
             {
                 CurrentUserGuid = storedUserGuid;
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Using stored UserGuid: {UserGuid}", requestId, CurrentUserGuid);
             }
             else
             {
                 // Generate new GUID and store it for consistency
                 CurrentUserGuid = Guid.NewGuid().ToString();
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{SessionToken}", CurrentUserGuid);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Generated new UserGuid: {UserGuid}", requestId, CurrentUserGuid);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Error initializing UserGuid, using fallback", requestId);
+            Logger.LogError(ex, "Error initializing UserGuid, using fallback");
             CurrentUserGuid = Guid.NewGuid().ToString();
         }
     }

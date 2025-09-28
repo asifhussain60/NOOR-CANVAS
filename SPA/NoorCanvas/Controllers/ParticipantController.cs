@@ -10,6 +10,9 @@ namespace NoorCanvas.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    /// <summary>
+    /// Handles participant registration, validation, and session management operations.
+    /// </summary>
     public class ParticipantController : ControllerBase
     {
         private readonly SimplifiedCanvasDbContext _context;
@@ -18,6 +21,14 @@ namespace NoorCanvas.Controllers
         private readonly SimplifiedTokenService _tokenService;
         private readonly IHubContext<SessionHub> _sessionHub;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParticipantController"/> class.
+        /// </summary>
+        /// <param name="context">The simplified canvas database context.</param>
+        /// <param name="kSessionsContext">The KSESSIONS database context.</param>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="tokenService">The token service for session validation.</param>
+        /// <param name="sessionHub">The SignalR session hub.</param>
         public ParticipantController(
             SimplifiedCanvasDbContext context,
             KSessionsDbContext kSessionsContext,
@@ -32,6 +43,11 @@ namespace NoorCanvas.Controllers
             _sessionHub = sessionHub;
         }
 
+        /// <summary>
+        /// Validates a session token and returns session details if valid.
+        /// </summary>
+        /// <param name="token">The session token to validate.</param>
+        /// <returns>Session validation result with details.</returns>
         [HttpGet("session/{token}/validate")]
         public async Task<IActionResult> ValidateSessionToken(string token)
         {
@@ -444,7 +460,11 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// Delete all participants for a specific UserToken when host opens session
-        /// This clears the waiting room participants for a fresh session start
+        /// <summary>
+        /// This clears the waiting room participants for a fresh session start.
+        /// </summary>
+        /// <param name="userToken">The user token for authentication.</param>
+        /// <returns>The result of the delete operation.</returns>
         /// </summary>
         [HttpDelete("session/{userToken}/participants")]
         public async Task<IActionResult> DeleteParticipantsByToken(string userToken)

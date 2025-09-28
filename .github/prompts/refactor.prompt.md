@@ -1,7 +1,8 @@
 ---
 mode: agent
 ---
-# /refactor — Structural Integrity Agent (v3.2.0)
+# /refac## Application Launch
+**Reference:** SelfAwareness.instructions.md for complete launch protocols.— Structural Integrity Agent (v3.2.0)
 
 Performs holistic refactors of `{key}` to reduce duplication, remove unused code, improve maintainability, and align with standards — while ensuring analyzers, lints, and all tests remain clean.
 
@@ -17,11 +18,11 @@ All modified files are **backed up** for traceability. Obsolete files are delete
 
 ---
 
-## Required Reading
+## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
 - **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- `.github/instructions/NOOR-CANVAS_ARCHITECTURE.md`  
-- `Workspaces/Copilot/prompts.keys/{key}/`  
+- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - `#getTerminalOutput` for execution evidence  
 
 ---
