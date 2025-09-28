@@ -1039,14 +1039,55 @@
                 }
             };
 
-            // Question events
-            hubConnection.On<QuestionData>("QuestionAdded", async (question) =>
+            // Question events - Handle questions received from other participants
+            hubConnection.On<object>("QuestionReceived", async (questionData) =>
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Question added via SignalR: {QuestionText}", question?.Text ?? "null");
-                if (Model?.Questions != null && question != null)
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] QuestionReceived event from SignalR: {QuestionData} ;CLEANUP_OK", 
+                    requestId, System.Text.Json.JsonSerializer.Serialize(questionData));
+                    
+                if (Model?.Questions != null && questionData != null)
                 {
-                    Model.Questions.Add(question);
-                    await InvokeAsync(StateHasChanged);
+                    try
+                    {
+                        // Parse the question data from SignalR
+                        var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        var root = jsonDoc.RootElement;
+                        
+                        var question = new QuestionData
+                        {
+                            QuestionId = root.TryGetProperty("questionId", out var qIdProp) ? 
+                                (qIdProp.ValueKind == JsonValueKind.String ? qIdProp.GetString()?.GetHashCode() ?? 0 : qIdProp.GetInt32()) : 0,
+                            Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : "",
+                            UserName = root.TryGetProperty("userName", out var userProp) ? userProp.GetString() ?? "Anonymous" : "Anonymous",
+                            CreatedBy = root.TryGetProperty("userId", out var userIdProp) ? userIdProp.GetString() ?? "" : "",
+                            Votes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0,
+                            CreatedAt = root.TryGetProperty("submittedAt", out var dateProp) ? dateProp.GetDateTime() : DateTime.UtcNow,
+                            IsAnswered = root.TryGetProperty("isAnswered", out var answeredProp) ? answeredProp.GetBoolean() : false,
+                            IsMyQuestion = root.TryGetProperty("userId", out var myUserIdProp) ? 
+                                (myUserIdProp.GetString() == CurrentUserGuid) : false
+                        };
+                        
+                        // Only add if not already in the list (prevent duplicates)
+                        if (!Model.Questions.Any(q => q.QuestionId == question.QuestionId))
+                        {
+                            Model.Questions.Add(question);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Question added to UI: ID={QuestionId}, Text='{Text}' ;CLEANUP_OK", 
+                                requestId, question.QuestionId, question.Text);
+                        }
+                        else
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Question already exists, skipping duplicate: ID={QuestionId} ;CLEANUP_OK", 
+                                requestId, question.QuestionId);
+                        }
+                        
+                        await InvokeAsync(StateHasChanged);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Error processing QuestionReceived event ;CLEANUP_OK", requestId);
+                    }
                 }
             });
 
