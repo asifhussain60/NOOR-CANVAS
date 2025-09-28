@@ -118,6 +118,24 @@
                         }
                     </div>
                     
+                    <!-- SignalR Connection Status -->
+                    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
+                        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background-color:@GetSignalRStatusBackgroundColor();border:2px solid @GetSignalRStatusBorderColor();border-radius:0.75rem;font-family:'Lato',sans-serif;font-size:0.875rem;font-weight:600;min-width:140px;">
+                            <i class="@GetSignalRStatusIcon()" style="color:@GetSignalRStatusColor();font-size:1.125rem;"></i>
+                            <span style="color:@GetSignalRStatusColor();">@GetSignalRStatusText()</span>
+                        </div>
+                        
+                        @if (hubConnection?.State == HubConnectionState.Disconnected)
+                        {
+                            <button @onclick="RetrySignalRConnection" 
+                                    style="padding:0.5rem 1rem;background-color:#3B82F6;color:white;border:none;border-radius:0.5rem;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);"
+                                    onmouseover="this.style.backgroundColor='#2563EB'"
+                                    onmouseout="this.style.backgroundColor='#3B82F6'">
+                                <i class="fa-solid fa-arrow-rotate-right" style="margin-right:0.5rem;"></i>
+                                Retry Connection
+                            </button>
+                        }
+                    </div>
 
                 </div>
             </div>
@@ -323,8 +341,8 @@
             requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
 
-        // Initialize HttpClient
-        Http = HttpClientFactory.CreateClient();
+        // Initialize HttpClient with proper base address
+        Http = HttpClientFactory.CreateClient("default");
 
         Model = new SessionCanvasViewModel
         {
