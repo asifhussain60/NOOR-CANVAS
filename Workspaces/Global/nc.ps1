@@ -85,8 +85,8 @@ try {
     # Set environment variable for URLs
     $env:ASPNETCORE_URLS = "$httpsUrl;$httpUrl"
     
-    # Launch the ASP.NET Core application
-    dotnet run --urls "$httpsUrl;$httpUrl"
+    # Launch the ASP.NET Core application (no restore - ncb handles that)
+    dotnet run --no-restore --urls "$httpsUrl;$httpUrl"
 } finally {
     Pop-Location
 }
