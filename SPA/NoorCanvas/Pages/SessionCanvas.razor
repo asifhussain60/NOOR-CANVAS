@@ -899,6 +899,17 @@
                 QuestionInput = "";
                 await InvokeAsync(StateHasChanged);
             }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] User not registered for session (401 Unauthorized): {Error} - Redirecting to UserLanding for authentication", 
+                    requestId, errorContent);
+                
+                // Redirect to UserLanding.razor with session token for proper authentication
+                // UserLanding.razor will handle session status check and route user to appropriate page after authentication
+                Navigation.NavigateTo($"/user/landing/{SessionToken}");
+                return;
+            }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
