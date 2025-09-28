@@ -2,7 +2,11 @@
 mode: agent
 ---
 
-# /retrosync5. **Implementation Drift:** Compare requirements vs implementation notes
+---
+mode: agent
+---
+
+# /retrosync — Requirements/Test Synchronization Agent (v3.0.0) **Implementation Drift:** Compare requirements vs implementation notes
 6. **Architecture Synchronization:** Audit NOOR-CANVAS_ARCHITECTURE.MD against codebase Requirements/Test Synchronization Agent (v3.0.0)
 
 Synchronizes requirements, implementation, and tests across the entire project while maintaining quality gates.
