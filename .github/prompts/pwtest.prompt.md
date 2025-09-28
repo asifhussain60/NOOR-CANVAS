@@ -15,6 +15,7 @@ Creates and maintains Playwright tests for `{key}` with iterative validation via
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
 - **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
 - Current test structure and coverage
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
@@ -40,6 +41,11 @@ Creates and maintains Playwright tests for `{key}` with iterative validation via
 - **Lifecycle Management:** Playwright webServer controls .NET app (port 9091)
 - Tests run against Playwright-managed app at `https://localhost:9091`
 - **Use `PW_MODE=standalone`** to enable webServer automatic management
+
+## Test Creation Protocol
+1. **Load Architectural Context**: Use `SystemStructureSummary.md` to understand Razor view mappings, APIs, and database relationships for the `{key}`
+2. **Create Tests**: Based on architectural context and test scenarios
+3. **Validate**: Run through quality gates (analyzers, linters, test execution)
 
 ## Playwright Configuration (expected rails)
 - **Primary config**: `config/testing/playwright.config.cjs` (centralized configuration)
@@ -147,3 +153,17 @@ Provide a summary containing:
 ---
 
 _Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+
+---
+
+_Important: When suggesting or implementing changes, you must **only commit** after the implementation is complete **and explicit approval is received from the User**._
+
+---
+
+### Approval Checklist (required before commit)
+- [ ] User has reviewed the proposed changes
+- [ ] User has explicitly approved the commit
+- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] No conflicts remain with other prompts or instruction files
+
+_Do not commit until all items are checked and explicit approval is confirmed._

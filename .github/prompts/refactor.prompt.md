@@ -18,7 +18,8 @@ All modified files are **backed up** for traceability. Obsolete files are delete
 ---
 
 ## Required Reading
-- `.github/instructions/SelfAwareness.instructions.md`  
+- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
 - `.github/instructions/NOOR-CANVAS_ARCHITECTURE.md`  
 - `Workspaces/Copilot/prompts.keys/{key}/`  
 - `#getTerminalOutput` for execution evidence  
@@ -132,3 +133,38 @@ Lifecycle events must include:
 ---
 
 _Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+
+
+---
+
+## Integration with Summary and Architecture
+
+- Always read `SystemStructureSummary.md` before starting work to ensure you are targeting the correct views, APIs, DTOs, and SQL objects.  
+- If more detail is needed, consult `NOOR-CANVAS_ARCHITECTURE.MD` for the authoritative system design.  
+- After completing a task (via keylock flow), ensure both files are updated:  
+  - `SystemStructureSummary.md` with a concise snapshot of the latest state.  
+  - `NOOR-CANVAS_ARCHITECTURE.MD` with detailed architectural changes.  
+- Do not commit or push without explicit user approval.
+
+
+---
+
+## API Contract Validation Integration
+
+- When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
+- `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
+- Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
+
+---
+
+_Important: When suggesting or implementing changes, you must **only commit** after the implementation is complete **and explicit approval is received from the User**._
+
+---
+
+### Approval Checklist (required before commit)
+- [ ] User has reviewed the proposed changes
+- [ ] User has explicitly approved the commit
+- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] No conflicts remain with other prompts or instruction files
+
+_Do not commit until all items are checked and explicit approval is confirmed._

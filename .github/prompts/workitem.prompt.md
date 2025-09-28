@@ -73,7 +73,7 @@ When user input contains `---` separators, treat each section as a separate todo
    - Never use `dotnet run`, `nc`, or `ncb` commands during test execution
    - Always use sleep timer and netstat check before test execution
    - Follow proper Playwright structure for permanent tests as per config files
-   - Clean up temporary tests after all phases complete (unless `commit:false`)
+   - Clean up temporary tests after all phases complete (unless explicitly deferred)
 4. **Completion**: After all phases complete, run full analyzer/linter/test suite before final commit
 
 ## Inputs (read)

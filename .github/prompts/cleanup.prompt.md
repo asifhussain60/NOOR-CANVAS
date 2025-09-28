@@ -14,6 +14,7 @@ Removes unused files, simplifies duplicate code, normalizes formatting, and vali
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
+- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
 - **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
 - Current codebase and file organization
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
@@ -116,3 +117,26 @@ rules:
 ---
 
 _Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+
+
+---
+
+## API Contract Validation Integration
+
+- When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
+- `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
+- Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
+
+---
+
+_Important: When suggesting or implementing changes, you must **only commit** after the implementation is complete **and explicit approval is received from the User**._
+
+---
+
+### Approval Checklist (required before commit)
+- [ ] User has reviewed the proposed changes
+- [ ] User has explicitly approved the commit
+- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] No conflicts remain with other prompts or instruction files
+
+_Do not commit until all items are checked and explicit approval is confirmed._

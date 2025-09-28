@@ -38,7 +38,7 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
   Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "Workspaces/TEMP/phase-{N}-{key}-{RUN_ID}.spec.ts"
   ```
 - **NEVER** use `dotnet run`, `dotnet build`, `nc`, or `ncb` during test execution
-- Cleanup after all phases complete (unless `commit:false`)
+- Cleanup after all phases complete (unless explicitly deferred)
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
@@ -56,7 +56,7 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ### Quality Gates
 - Continuation proceeds only when: analyzers green, linters clean, tests passing
-- Override available via `commit:force` (manual use only)
+- Override available via explicit user request (manual use only)
 - Debug marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
 
 ## Continuation Protocol
@@ -79,8 +79,8 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
    - Factor terminal results into next decision
 6. **Record Evidence**: Include terminal output snippets in debug logs
 
-## Cleanup Protocol (when `commit:true` or `commit:force`)
-1. **Pre-commit validation**: Ensure all checks pass (unless `force`)
+## Cleanup Protocol (when explicit approval received)
+1. **Pre-commit validation**: Ensure all checks pass (unless explicitly overridden)
 2. **Stage relevant changes**: `git add .` for all continuation work
 3. **Handle uncommitted artifacts**:
    - Progress logs → Keep in `Workspaces/Copilot/continue/{key}/`
@@ -146,9 +146,9 @@ $env:PW_MODE="standalone"; npx playwright test --config=config/testing/playwrigh
   - `npm run format:check` passes with 0 formatting issues (using `config/testing/.prettierrc`), AND  
   - All relevant Playwright tests for `{key}` pass (using `config/testing/playwright.config.cjs`).  
 - Commits must be blocked if any analyzers, lints, or tests fail.  
-- Bypass is only allowed if user explicitly sets `commit:force`.  
+- Bypass is only allowed if user explicitly requests it.  
 - All commit messages must reference the `{key}` they belong to.
-- **When `commit:true` or `commit:force`**: Clean up uncommitted files:
+- **When committing after explicit approval**: Clean up uncommitted files:
   - Add all relevant modified files: `git add .`
   - Reset/ignore untracked files that shouldn't be committed
   - Ensure clean working tree after commit: `git status --porcelain` should be empty
