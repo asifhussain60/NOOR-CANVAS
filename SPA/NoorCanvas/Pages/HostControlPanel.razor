@@ -92,6 +92,22 @@
             background-color: #b91c1c;
             transform: scale(1.05);
         }
+        
+        /* Custom scrollbar for Q&A panel */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #C5B358;
+        }
     </style>
 </HeadContent>
 
@@ -324,41 +340,61 @@
                     <span>Questions & Answers</span>
                 </h3>
                 
-                <!-- Questions List with Independent Scrolling -->
-                <div style="flex:1;overflow-y:auto;padding-right:0.5rem;">
+                <!-- Questions List with Independent Scrolling and Enhanced Styling -->
+                <div style="flex:1;overflow-y:auto;padding-right:0.5rem;max-height:500px;" class="custom-scrollbar">
                     @if (Model?.Questions != null && Model.Questions.Any())
                     {
-                        @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered))
+                        @for (int i = 0; i < Model.Questions.Count; i++)
                         {
-                            <div style="padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;color:#374151;border-bottom:1px solid #E5E7EB;margin-bottom:0.5rem;border-radius:0.5rem;@(question.IsAnswered ? "color:#9CA3AF;background-color:#F9FAFB;" : "background-color:#FFFFFF;")">
-                                <div style="display:flex;align-items:flex-start;gap:0.5rem;">
-                                    <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");margin-top:0.25rem;flex-shrink:0;"></i>
+                            var question = Model.Questions.OrderBy(q => q.IsAnswered).ToList()[i];
+                            var isEvenCard = i % 2 == 0;
+                            var cardBgColor = question.IsAnswered ? "#F9FAFB" : (isEvenCard ? "#FEFEFE" : "#F8F9FA");
+                            var borderColor = question.IsAnswered ? "#E5E7EB" : "#E1E5E9";
+                            
+                            <div style="padding:1rem;margin-bottom:0.75rem;border-radius:0.75rem;border:1px solid @borderColor;background-color:@cardBgColor;box-shadow:0 2px 4px rgba(0,0,0,0.05);transition:all 0.2s ease;position:relative;"
+                                 onmouseover="this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)'; this.style.transform='translateY(-1px)'"
+                                 onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'; this.style.transform='translateY(0)'">
+                                <!-- Status Icon and Question Text -->
+                                <div style="display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;">
+                                    <div style="flex-shrink:0;margin-top:0.125rem;">
+                                        <i class="@(question.IsAnswered ? "fa-solid fa-circle-check" : "fa-solid fa-circle-question")" 
+                                           style="color:@(question.IsAnswered ? "#10B981" : "#3B82F6");font-size:1.125rem;"></i>
+                                    </div>
                                     <div style="flex:1;">
-                                        <span style="font-size:0.875rem;line-height:1.4;">@question.Text</span>
-                                        <!-- Host sees username who asked the question -->
-                                        <div style="margin-top:0.25rem;font-size:0.75rem;color:#6B7280;font-style:italic;">
-                                            Asked by: @(string.IsNullOrEmpty(question.UserName) ? "Anonymous" : question.UserName)
-                                        </div>
+                                        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:#374151;font-weight:500;">
+                                            @question.Text
+                                        </p>
                                     </div>
                                 </div>
-                                <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.25rem;">
-                                    @if (!question.IsAnswered)
-                                    {
-                                        <button @onclick="() => MarkQuestionAnswered(question.Id)" 
-                                                style="color:#10B981;background:none;border:none;cursor:pointer;padding:0.375rem;border-radius:0.25rem;transition:all 0.2s;"
-                                                onmouseover="this.style.backgroundColor='rgba(16, 185, 129, 0.1)'"
-                                                onmouseout="this.style.backgroundColor='transparent'"
-                                                title="Mark as answered">
-                                            <i class="fa-solid fa-check"></i>
+                                
+                                <!-- User Badge and Action Buttons Row -->
+                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                    <!-- User Badge -->
+                                    <div style="display:inline-flex;align-items:center;background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:white;padding:0.375rem 0.75rem;border-radius:1rem;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(59,130,246,0.3);">
+                                        <i class="fa-solid fa-user" style="margin-right:0.375rem;font-size:0.625rem;"></i>
+                                        @(string.IsNullOrEmpty(question.UserName) ? "Anonymous" : question.UserName)
+                                    </div>
+                                    
+                                    <!-- Action Buttons -->
+                                    <div style="display:flex;gap:0.5rem;">
+                                        @if (!question.IsAnswered)
+                                        {
+                                            <button @onclick="() => MarkQuestionAnswered(question.Id)" 
+                                                    style="display:flex;align-items:center;justify-content:center;width:2rem;height:2rem;background:#10B981;color:white;border:none;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(16,185,129,0.3);"
+                                                    onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
+                                                    onmouseout="this.style.backgroundColor='#10B981'; this.style.transform='scale(1)'"
+                                                    title="Mark as answered">
+                                                <i class="fa-solid fa-check" style="font-size:0.875rem;"></i>
+                                            </button>
+                                        }
+                                        <button @onclick="() => ShowDeleteModal(question.Id)" 
+                                                style="display:flex;align-items:center;justify-content:center;width:2rem;height:2rem;background:#EF4444;color:white;border:none;border-radius:0.5rem;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(239,68,68,0.3);"
+                                                onmouseover="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1.05)'"
+                                                onmouseout="this.style.backgroundColor='#EF4444'; this.style.transform='scale(1)'"
+                                                title="Delete question">
+                                            <i class="fa-solid fa-trash-can" style="font-size:0.875rem;"></i>
                                         </button>
-                                    }
-                                    <button @onclick="() => ShowDeleteModal(question.Id)" 
-                                            style="color:#EF4444;background:none;border:none;cursor:pointer;padding:0.375rem;border-radius:0.25rem;transition:all 0.2s;"
-                                            onmouseover="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'"
-                                            onmouseout="this.style.backgroundColor='transparent'"
-                                            title="Delete question">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -366,8 +402,11 @@
                     else
                     {
                         <div style="text-align:center;color:#6B7280;padding:2rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <i class="fa-solid fa-clipboard-question" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
-                            <p style="margin:0;font-size:0.875rem;line-height:1.4;">No questions submitted yet. Questions will appear here during the session.</p>
+                            <div style="background:linear-gradient(135deg,#F3F4F6,#E5E7EB);border-radius:50%;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+                                <i class="fa-solid fa-clipboard-question" style="font-size:1.5rem;color:#9CA3AF;"></i>
+                            </div>
+                            <h4 style="margin:0 0 0.5rem 0;font-size:1rem;font-weight:600;color:#4B5563;">No Questions Yet</h4>
+                            <p style="margin:0;font-size:0.875rem;line-height:1.4;color:#6B7280;">Questions will appear here when participants submit them during the session.</p>
                         </div>
                     }
                 </div>

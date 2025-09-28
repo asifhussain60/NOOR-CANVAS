@@ -851,26 +851,46 @@
     // Q&A Methods
     private async Task SubmitQuestion()
     {
-        if (string.IsNullOrWhiteSpace(QuestionInput) || Model?.SessionId == 0 || Http == null)
+        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
             return;
+
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] SubmitQuestion called - SessionToken: {SessionToken}, QuestionLength: {Length} ;CLEANUP_OK", 
+            requestId, SessionToken, QuestionInput.Trim().Length);
 
         try
         {
-            var response = await Http.PostAsJsonAsync("/api/Question/Submit", new
+            var requestPayload = new
             {
-                SessionId = Model!.SessionId,
-                Question = QuestionInput.Trim(),
+                SessionToken = SessionToken,
+                QuestionText = QuestionInput.Trim(),
                 UserGuid = CurrentUserGuid
-            });
+            };
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Sending question to API: {Payload} ;CLEANUP_OK", 
+                requestId, System.Text.Json.JsonSerializer.Serialize(requestPayload));
+
+            var response = await Http.PostAsJsonAsync("/api/Question/Submit", requestPayload);
 
             if (response.IsSuccessStatusCode)
             {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Question submitted successfully: {Response} ;CLEANUP_OK", 
+                    requestId, responseContent);
+                    
                 QuestionInput = "";
                 await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", 
+                    requestId, response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-qa:impl:{RequestId}] Exception during question submission ;CLEANUP_OK", requestId);
             Console.WriteLine($"Error submitting question: {ex.Message}");
         }
     }
