@@ -37,16 +37,19 @@ It is the **single source of truth** for system usage and must be updated if the
 - **Performance**: Optimized debug logging removal completed (90% log volume reduction)
 - **Purpose**: Pre-session waiting room with participant list and countdown timer
 
-#### hostcanvas (`HostControlPanel.razor`)
+#### hostcanvas (`HostControlPanel.razor`) - **RECENTLY UPDATED**
 - **APIs**: 
   - `GET /api/question/session/{userToken}` - fetch session Q&A
   - `POST /api/host/session/{sessionId}/start` - start session
   - `GET /api/host/sessions/{sessionId}/assets` - fetch available assets
   - `POST /api/host/share-asset` - broadcast content to participants
-- **Tables**: `canvas.Sessions`, `canvas.Questions`, `canvas.AssetLookup`, `KSESSIONS.Sessions`, `KSESSIONS.SessionTranscripts`, `KSESSIONS.Countries`
+  - `GET /api/participant/session/{token}/participants` - fetch participant list with country flags
+- **Tables**: `canvas.Sessions` (ScheduledDate, ScheduledTime, ScheduledDuration fields), `canvas.Questions`, `canvas.AssetLookup`, `KSESSIONS.Sessions`, `KSESSIONS.SessionTranscripts`, `KSESSIONS.Countries`
 - **Direct DB**: SimplifiedCanvasDb, KSessionsDb contexts (bypasses API layer)
 - **SignalR**: SessionHub, QAHub, AnnotationHub - groups: `session_{sessionId}`, `host_{hostToken}`
-- **Purpose**: Host session management, Q&A moderation, and real-time content broadcasting
+- **Key Features**: Enhanced UI with session timing cards, centered session name/description styling, clean borderless transcript display, real-time participant management
+- **UI Enhancements**: Session time/duration cards in SESSION CONTROLS panel, improved typography, removed dotted borders for cleaner appearance
+- **Purpose**: Host session management, Q&A moderation, real-time content broadcasting, and enhanced session timing display
 
 #### canvas (`SessionCanvas.razor`)
 - **APIs**: 
