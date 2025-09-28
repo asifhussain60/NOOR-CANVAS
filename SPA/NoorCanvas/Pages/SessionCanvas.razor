@@ -321,7 +321,7 @@
     private long? _sessionId;
     private HubConnection? hubConnection;
     private HttpClient? Http;
-    private string CurrentUserGuid { get; set; } = Guid.NewGuid().ToString();
+    private string CurrentUserGuid { get; set; } = string.Empty;
 
 
 
@@ -362,6 +362,9 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas ViewModel initialized, starting session data load", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
+        
+        // Initialize consistent UserGuid for Q&A authentication
+        await InitializeUserGuidAsync(requestId);
         
         // Check for persisted session state first (for page refresh/navigation scenarios)
         await LoadPersistedSessionStateAsync(requestId);
@@ -1422,6 +1425,33 @@
     }
 
     private DateTime? lastConnectionTime;
+
+    private async Task InitializeUserGuidAsync(string requestId)
+    {
+        try
+        {
+            // Try to get UserGuid from localStorage first (persisted from UserLanding registration)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", $"noor_user_guid_{SessionToken}");
+            
+            if (!string.IsNullOrEmpty(storedUserGuid))
+            {
+                CurrentUserGuid = storedUserGuid;
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Using stored UserGuid: {UserGuid}", requestId, CurrentUserGuid);
+            }
+            else
+            {
+                // Generate new GUID and store it for consistency
+                CurrentUserGuid = Guid.NewGuid().ToString();
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{SessionToken}", CurrentUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Generated new UserGuid: {UserGuid}", requestId, CurrentUserGuid);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Error initializing UserGuid, using fallback", requestId);
+            CurrentUserGuid = Guid.NewGuid().ToString();
+        }
+    }
 
     private string GetSignalRStatusIconStyle()
     {

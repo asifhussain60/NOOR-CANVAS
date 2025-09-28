@@ -292,10 +292,15 @@ namespace NoorCanvas.Controllers
                     // Don't fail the registration if SignalR fails
                 }
 
+                // Get the final participant record to return consistent UserGuid
+                var finalParticipant = existingParticipant ?? await _context.Participants
+                    .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.Email == request.Email);
+                
                 return Ok(new
                 {
                     success = true,
                     sessionId = session.SessionId,
+                    userGuid = finalParticipant?.UserGuid,
                     waitingRoomUrl = $"/session/waiting/{request.Token}",
                     requestId
                 });

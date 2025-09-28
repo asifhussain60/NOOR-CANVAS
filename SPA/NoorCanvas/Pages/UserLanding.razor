@@ -7,6 +7,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
+@using System.Text.Json
 @using System.Text.Json.Serialization
 
 @inject IHttpClientFactory HttpClientFactory
@@ -619,8 +620,31 @@
                 return;
             }
 
-            var registrationResult = await registrationResponse.Content.ReadFromJsonAsync<dynamic>();
-            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Registration successful - checking session status for routing", requestId);
+            var registrationResult = await registrationResponse.Content.ReadFromJsonAsync<JsonElement>();
+            Logger.LogInformation("NOOR-USER-LANDING: [{RequestId}] Registration successful - storing UserGuid for Q&A authentication", requestId);
+            
+            // Store UserGuid from registration response for SessionCanvas Q&A authentication consistency
+            try
+            {
+                if (registrationResult.TryGetProperty("userGuid", out var userGuidElement) && 
+                    userGuidElement.ValueKind != JsonValueKind.Null)
+                {
+                    var userGuidValue = userGuidElement.GetString();
+                    if (!string.IsNullOrEmpty(userGuidValue))
+                    {
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{Model.TokenInput}", userGuidValue);
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Stored UserGuid for Q&A: {UserGuid}", requestId, userGuidValue);
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] UserGuid not found or null in registration response", requestId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "[DEBUG-WORKITEM:canvas-qa:auth:{RequestId}] Failed to extract UserGuid from registration response", requestId);
+            }
 
             // [DEBUG-WORKITEM:user:API] Check session status after registration to determine routing
             Logger.LogInformation("[DEBUG-WORKITEM:user:API] Re-validating session status post-registration for proper routing");
