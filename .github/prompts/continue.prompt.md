@@ -220,7 +220,8 @@ $env:PW_MODE="standalone"; npx playwright test --config=config/testing/playwrigh
   - Add all relevant modified files: `git add .`
   - Reset/ignore untracked files that shouldn't be committed
   - Ensure clean working tree after commit: `git status --porcelain` should be empty
-  - If conflicts arise, resolve by either committing or explicitly ignoring via `.gitignore`  
+  - If conflicts arise, resolve by either committing or explicitly ignoring via `.gitignore`
+- **Final Step**: Run `./Workspaces/Global/ncb.ps1` to ensure application is clean, built, and ready for manual testing  
 
 ## Output & Approval Flow
 Summaries must include:

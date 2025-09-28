@@ -370,7 +370,8 @@ background-color: #effff9;
 
         .participants-icon {
             font-size: 1.5rem;
-            color: #706357;
+            color: #006400;
+            margin-right: 0.5rem;
         }
 
         .sort-buttons {
@@ -685,7 +686,6 @@ background-color: #effff9;
                 <div class="participants-header">
                     <div class="participants-title-container">
                         <h2 class="participants-title">Participants (@(Model?.Participants?.Count ?? 0))</h2>
-                        <i class="fa-solid fa-users participants-icon"></i>
                     </div>
                     <div class="sort-buttons">
                         <button @onclick="SortByName" class="sort-button">Sort by Name</button>

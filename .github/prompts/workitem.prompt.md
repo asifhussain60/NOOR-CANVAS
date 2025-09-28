@@ -32,19 +32,26 @@ Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and 
   - Dependencies on previous phases
 - **Execution Order**: Confirm the logical sequence of phase execution
 
-### 3. Pre-Work Summary
+### 3. Requested Work Analysis
 **Present to user in this format:**
 ```
-📋 WORKITEM ANALYSIS
+📋 REQUESTED WORK ANALYSIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Key: {key}
 Mode: {mode}
 Request: {brief_description}
 
-🎯 SCOPE ANALYSIS
+🎯 WORK REQUEST UNDERSTANDING
+• Primary objective: {main_feature_or_change_requested}
+• User requirements: {specific_requirements_identified}
+• Expected outcome: {what_user_wants_to_achieve}
+• Context provided: {any_context_or_constraints_given}
+
+📊 SCOPE ANALYSIS
 • Files to modify: {file_list}
 • Components affected: {component_list}
 • Estimated complexity: {low/medium/high}
+• Impact assessment: {areas_of_codebase_affected}
 
 📝 TASK BREAKDOWN
 {single_task_description OR phase_by_phase_list}
@@ -52,11 +59,13 @@ Request: {brief_description}
 ⚠️  DEPENDENCIES & RISKS
 • Prerequisites: {any_requirements}
 • Potential issues: {risk_assessment}
+• Architectural considerations: {alignment_with_existing_patterns}
 
 🚀 EXECUTION PLAN
 • Quality gates: {analyzer/linter/test_strategy}
 • Testing approach: {test_strategy_if_mode_test}
 • Commit strategy: {commit_approach}
+• Validation criteria: {how_success_will_be_measured}
 
 Proceed with implementation? (Y/N)
 ```
@@ -141,8 +150,9 @@ When user input contains `---` separators, treat each section as a separate todo
 ### For Development Work
 - **Never** use `dotnet run` or any variant for development.
 - Launch only via:
-  - `./Workspaces/Global/nc.ps1`  (launch only)
-  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)
+  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch - preferred for final step)
+  - `./Workspaces/Global/nc.ps1`  (launch only - for quick restarts)
+- **Always use `ncb.ps1` as the final step** to ensure application is ready for manual testing
 - If you stop or restart the app, self-attribute in logs:  
   `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
 
@@ -201,6 +211,7 @@ When user input contains `---` separators, treat each section as a separate todo
 - Clean git status (if applicable)
 - Documentation properly placed in `Workspaces/Copilot/_DOCS/`
   - HTML report → `Workspaces/Copilot/artifacts/playwright/report`
+- **Final Step**: Run `./Workspaces/Global/ncb.ps1` to ensure application is clean, built, and ready for manual testing
 
 - Follow incremental accumulation:
   1. Implement change + spec → analyzers + lints → run spec1
