@@ -4,6 +4,8 @@
 > Everything else lives under **Workspaces/Copilot/**.
 
 ## Scope
+Governs `/inventory` as well.
+
 Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 
 ## Required Reading

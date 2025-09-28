@@ -54,3 +54,7 @@ If I approve, then:
 - When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
 - `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
 - Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
+
+
+## Notes
+Closure status is audited by `/inventory`.
