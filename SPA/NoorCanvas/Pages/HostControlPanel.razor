@@ -278,7 +278,7 @@
                     }
                     else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
                     {
-                        <div style="flex:1;overflow-y:auto;border:2px dashed #9CA3AF;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
+                        <div style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
                             <div class="html-viewer-content session-transcript-content" data-islamic-content>
                                 @* [DEBUG-WORKITEM:hostcanvas:continue] Safe HTML rendering inspired by KSESSIONS $sce.trustAsHtml() ;CLEANUP_OK *@
                                 @SafeHtmlRenderer.RenderSafeHtml(Model?.TransformedTranscript ?? "")
@@ -2443,7 +2443,6 @@
     private void ToggleDebugPanel()
     {
         _isDebugExpanded = !_isDebugExpanded;
-        Logger.LogDebug("[DEBUG-WORKITEM:hostcontrolpanel:debug] Debug panel toggled: {IsExpanded}", _isDebugExpanded);
     }
     
     private void ToggleDebugDetails()
@@ -2524,8 +2523,6 @@
                 await Task.Delay(3000);
                 Model.UserCopied = false;
                 StateHasChanged();
-                
-                Logger.LogDebug("[DEBUG-WORKITEM:hostcontrolpanel:copy] User link copied to clipboard: {UserLink}", userLink);
             }
         }
         catch (Exception ex)

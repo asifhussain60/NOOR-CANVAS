@@ -14,6 +14,58 @@ Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and 
 - **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
 - **notes:** Work description (scope, files, constraints)
 
+## Task Analysis & Planning
+**MANDATORY:** Before beginning any work, agents must:
+
+### 1. Parse and Summarize User Request
+- **Parse Input**: Identify if user input contains `---` delimited phases or is a single task
+- **Extract Requirements**: Clearly identify what changes/features are being requested
+- **Identify Scope**: Determine files, components, and systems that will be affected
+- **Assess Complexity**: Estimate effort level and potential risks
+
+### 2. Phase Breakdown (if `---` delimited input)
+- **Phase Count**: Report total number of phases detected
+- **Phase Summary**: For each phase, provide:
+  - Phase number and brief description
+  - Expected files to be modified
+  - Key technical changes required
+  - Dependencies on previous phases
+- **Execution Order**: Confirm the logical sequence of phase execution
+
+### 3. Pre-Work Summary
+**Present to user in this format:**
+```
+📋 WORKITEM ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Key: {key}
+Mode: {mode}
+Request: {brief_description}
+
+🎯 SCOPE ANALYSIS
+• Files to modify: {file_list}
+• Components affected: {component_list}
+• Estimated complexity: {low/medium/high}
+
+📝 TASK BREAKDOWN
+{single_task_description OR phase_by_phase_list}
+
+⚠️  DEPENDENCIES & RISKS
+• Prerequisites: {any_requirements}
+• Potential issues: {risk_assessment}
+
+🚀 EXECUTION PLAN
+• Quality gates: {analyzer/linter/test_strategy}
+• Testing approach: {test_strategy_if_mode_test}
+• Commit strategy: {commit_approach}
+
+Proceed with implementation? (Y/N)
+```
+
+### 4. User Confirmation
+- **Wait for Approval**: Do not begin implementation until user confirms
+- **Handle Modifications**: If user requests changes to the plan, update and re-summarize
+- **Document Changes**: Record any plan modifications in debug logs
+
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
 - **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)

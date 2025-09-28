@@ -23,6 +23,65 @@ Resumes partially completed work for `{key}`, ensuring quality gates pass before
 - **mode:** Operation mode (`analyze`, `apply`, `test`, `rollback`) - default: `apply`
 - **notes:** Continuation description (context, files, constraints)
 
+## Task Analysis & Planning
+**MANDATORY:** Before resuming any work, agents must:
+
+### 1. Parse and Analyze Continuation Request
+- **Parse Input**: Identify if continuation contains `---` delimited phases or single continuation task
+- **Review Context**: Analyze what was completed vs. what remains
+- **Extract New Requirements**: Clearly identify additional/modified changes being requested
+- **Assess Current State**: Review terminal output and working directory state
+
+### 2. Phase Breakdown (if `---` delimited input)
+- **Phase Count**: Report total number of continuation phases detected
+- **Phase Summary**: For each phase, provide:
+  - Phase number and brief description
+  - Expected files to be modified
+  - Key technical changes required
+  - Relationship to previous work
+- **Continuation Strategy**: Explain how phases build on existing work
+
+### 3. Pre-Continuation Summary
+**Present to user in this format:**
+```
+🔄 CONTINUATION ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Key: {key}
+Mode: {mode}
+Request: {brief_description}
+
+📊 CURRENT STATE
+• Last completed: {previous_work_summary}
+• Terminal state: {exit_codes_and_status}
+• Working directory: {current_location}
+
+🎯 CONTINUATION SCOPE
+• Files to modify: {file_list}
+• Components affected: {component_list}
+• New vs. existing work: {continuation_analysis}
+
+📝 CONTINUATION BREAKDOWN
+{single_task_description OR phase_by_phase_list}
+
+⚠️  DEPENDENCIES & RISKS
+• Prerequisites: {any_requirements}
+• Potential conflicts: {risk_assessment}
+• Quality gate status: {current_analyzer_linter_test_state}
+
+🚀 RESUMPTION PLAN
+• Resume point: {where_to_start}
+• Quality gates: {analyzer/linter/test_strategy}
+• Testing approach: {test_strategy_if_mode_test}
+• Commit strategy: {commit_approach}
+
+Proceed with continuation? (Y/N)
+```
+
+### 4. User Confirmation
+- **Wait for Approval**: Do not begin continuation until user confirms
+- **Handle Modifications**: If user requests changes to the plan, update and re-summarize
+- **Document Changes**: Record any plan modifications in debug logs
+
 ## Operation Modes
 
 ### Test Mode (`mode: test`)
