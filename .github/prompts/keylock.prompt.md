@@ -64,3 +64,13 @@ If I approve, then:
   `git reset --soft <first-backup-commit>`
   `git commit -m "Finalize <key> task"`
 - Mark key closed in DB and update notes.
+
+## Debug Logging Cleanup
+- Before finalizing the commit, remove all debug logging added during development using the marker pattern.
+- Search for and remove all lines containing: `[DEBUG-{AGENT}:{key}:` or `[DEBUG-CONTINUE:{key}:`
+- Example markers to remove:
+  - `[DEBUG-WORKITEM:waitingroom:trace:RUN_ID]`
+  - `[DEBUG-CONTINUE:waitingroom:trace:RUN_ID]` 
+  - Console.WriteLine statements added for debugging
+- Keep only essential logging that provides operational value in production.
+- Ensure removal doesn't break functionality or introduce compilation errors.
