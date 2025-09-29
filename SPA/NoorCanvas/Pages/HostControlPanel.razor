@@ -2087,39 +2087,16 @@
             var htmlPreview = html.Length > 500 ? html.Substring(0, 500) + "..." : html;
             Logger.LogDebug("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] HTML Preview: {HtmlPreview} ;CLEANUP_OK", runId, htmlPreview);
 
-            // Get active asset types from AssetLookup table
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Querying AssetLookup table for active asset types ;CLEANUP_OK", runId);
+            // Get active asset types from AssetLookup API
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] Calling AssetLookup API for active asset types ;CLEANUP_OK", runId);
             
-            var assetLookups = await SimplifiedCanvasDb.AssetLookup
-                .Where(a => a.IsActive && !string.IsNullOrEmpty(a.CssSelector))
-                .OrderBy(a => a.AssetIdentifier)
-                .ToListAsync();
+            var assetLookups = await GetAssetLookupsFromApiAsync(runId);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] AssetLookup query completed - found {Count} records ;CLEANUP_OK", runId, assetLookups.Count);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] AssetLookup API call completed - found {Count} records ;CLEANUP_OK", runId, assetLookups.Count);
 
             if (!assetLookups.Any())
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] No active asset lookups found in database - checking table existence ;CLEANUP_OK", runId);
-                
-                // Debug: Check if table exists and has any records at all
-                try
-                {
-                    var totalRecords = await SimplifiedCanvasDb.AssetLookup.CountAsync();
-                    var activeRecords = await SimplifiedCanvasDb.AssetLookup.Where(a => a.IsActive).CountAsync();
-                    Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] AssetLookup table stats - Total: {Total}, Active: {Active} ;CLEANUP_OK", runId, totalRecords, activeRecords);
-                    
-                    var allRecords = await SimplifiedCanvasDb.AssetLookup.ToListAsync();
-                    foreach (var record in allRecords)
-                    {
-                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Record: {Id} - {Identifier} - Active: {IsActive} - Selector: '{Selector}' ;CLEANUP_OK", 
-                            runId, record.LookupId, record.AssetIdentifier, record.IsActive, record.CssSelector);
-                    }
-                }
-                catch (Exception dbEx)
-                {
-                    Logger.LogError(dbEx, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Error checking AssetLookup table ;CLEANUP_OK", runId);
-                }
-                
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] No active asset lookups found from API ;CLEANUP_OK", runId);
                 return html;
             }
 
@@ -2965,6 +2942,72 @@
     private string GetCopyText()
     {
         return Model?.UserCopied == true ? "Copied!" : "Copy";
+    }
+    
+    /// <summary>
+    /// Get AssetLookup definitions from API instead of direct database access
+    /// </summary>
+    private async Task<List<AssetLookupDto>> GetAssetLookupsFromApiAsync(string runId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] Calling AssetLookup API... ;CLEANUP_OK", runId);
+            
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync($"/api/host/asset-lookup?hostToken={HostToken}");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] API call failed with status: {StatusCode} ;CLEANUP_OK", runId, response.StatusCode);
+                return new List<AssetLookupDto>();
+            }
+            
+            var apiResponse = await response.Content.ReadFromJsonAsync<AssetLookupApiResponse>();
+            
+            if (apiResponse?.Success == true && apiResponse.AssetLookups != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] Successfully retrieved {Count} asset lookups from API ;CLEANUP_OK", runId, apiResponse.AssetLookups.Count);
+                
+                // Filter out any entries with empty CSS selectors
+                var validAssetLookups = apiResponse.AssetLookups
+                    .Where(a => !string.IsNullOrEmpty(a.CssSelector))
+                    .ToList();
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] Filtered to {Count} valid asset lookups with CSS selectors ;CLEANUP_OK", runId, validAssetLookups.Count);
+                
+                return validAssetLookups;
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] API response was null or unsuccessful ;CLEANUP_OK", runId);
+                return new List<AssetLookupDto>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:api:{RunId}] [ASSETSHARE-API] Exception calling AssetLookup API ;CLEANUP_OK", runId);
+            return new List<AssetLookupDto>();
+        }
+    }
+    
+    // AssetLookup API models for Blazor client
+    public class AssetLookupDto
+    {
+        public long AssetId { get; set; }
+        public string AssetIdentifier { get; set; } = string.Empty;
+        public string AssetType { get; set; } = string.Empty;
+        public string? CssSelector { get; set; }
+        public string? DisplayName { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class AssetLookupApiResponse
+    {
+        public bool Success { get; set; }
+        public List<AssetLookupDto> AssetLookups { get; set; } = new();
+        public int TotalCount { get; set; }
+        public string RequestId { get; set; } = string.Empty;
     }
 }
 

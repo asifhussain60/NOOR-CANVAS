@@ -844,6 +844,54 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
+        /// Get all active AssetLookup definitions for asset detection
+        /// Used by HostControlPanel for database-driven asset detection
+        /// </summary>
+        [HttpGet("asset-lookup")]
+        public async Task<IActionResult> GetAssetLookup([FromQuery] string? hostToken = null)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:api] GetAssetLookup called with hostToken: {Token}", 
+                    hostToken?.Substring(0, Math.Min(8, hostToken?.Length ?? 0)) + "...");
+
+                // Get all active asset lookup definitions
+                var assetLookups = await _context.AssetLookup
+                    .Where(a => a.IsActive)
+                    .OrderBy(a => a.AssetIdentifier)
+                    .Select(a => new AssetLookupDto
+                    {
+                        AssetId = a.AssetId,
+                        AssetIdentifier = a.AssetIdentifier,
+                        AssetType = a.AssetType,
+                        CssSelector = a.CssSelector,
+                        DisplayName = a.DisplayName,
+                        IsActive = a.IsActive,
+                        CreatedAt = a.CreatedAt
+                    })
+                    .ToListAsync();
+
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:api] Found {Count} active asset lookup definitions", 
+                    assetLookups.Count);
+
+                var response = new AssetLookupResponse
+                {
+                    Success = true,
+                    AssetLookups = assetLookups,
+                    TotalCount = assetLookups.Count,
+                    RequestId = HttpContext.TraceIdentifier
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:api] Failed to get AssetLookup data");
+                return StatusCode(500, new { error = "Failed to get asset lookup data", requestId = HttpContext.TraceIdentifier });
+            }
+        }
+
+        /// <summary>
         /// Get all assets for a session from the SessionAssets lookup table
         /// Used by HostControlPanel transform function to inject share buttons
         /// </summary>
@@ -1266,5 +1314,25 @@ namespace NoorCanvas.Controllers
         public string TextContent { get; set; } = string.Empty;
         public Dictionary<string, object> Metadata { get; set; } = new();
         public DateTime ExtractedAt { get; set; }
+    }
+
+    // AssetLookup API models
+    public class AssetLookupDto
+    {
+        public long AssetId { get; set; }
+        public string AssetIdentifier { get; set; } = string.Empty;
+        public string AssetType { get; set; } = string.Empty;
+        public string? CssSelector { get; set; }
+        public string? DisplayName { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class AssetLookupResponse
+    {
+        public bool Success { get; set; }
+        public List<AssetLookupDto> AssetLookups { get; set; } = new();
+        public int TotalCount { get; set; }
+        public string RequestId { get; set; } = string.Empty;
     }
 }
