@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
+using NoorCanvas.Models.DTOs;
 using NoorCanvas.Services;
 using NoorCanvas.Models.Simplified;
 
@@ -20,6 +21,7 @@ namespace NoorCanvas.Controllers
         private readonly ILogger<ParticipantController> _logger;
         private readonly SimplifiedTokenService _tokenService;
         private readonly IHubContext<SessionHub> _sessionHub;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParticipantController"/> class.
@@ -29,18 +31,21 @@ namespace NoorCanvas.Controllers
         /// <param name="logger">The logger instance.</param>
         /// <param name="tokenService">The token service for session validation.</param>
         /// <param name="sessionHub">The SignalR session hub.</param>
+        /// <param name="httpClientFactory">The HTTP client factory for API calls.</param>
         public ParticipantController(
             SimplifiedCanvasDbContext context,
             KSessionsDbContext kSessionsContext,
             ILogger<ParticipantController> logger,
             SimplifiedTokenService tokenService,
-            IHubContext<SessionHub> sessionHub)
+            IHubContext<SessionHub> sessionHub,
+            IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
             _logger = logger;
             _tokenService = tokenService;
             _sessionHub = sessionHub;
+            _httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
@@ -415,13 +420,11 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant countries in database: {Countries}", 
                     requestId, string.Join(", ", participantCountries.Select(c => $"'{c}'")));
 
-                // Get country flags from KSESSIONS database - match against ISO2 field
-                var countryFlags = await _kSessionsContext.Countries
-                    .Where(c => c.ISO2 != null && participantsData.Select(p => p.Country).Contains(c.ISO2))
-                    .ToDictionaryAsync(c => c.ISO2!, c => (c.ISO2 ?? "UN").ToLower());
+                // [DEBUG-WORKITEM:api:impl:09291900-api] Get country flags from KSESSIONS API instead of direct database access
+                var countryFlags = await GetCountryFlagsFromApiAsync(participantCountries.Where(c => !string.IsNullOrEmpty(c)).Cast<string>().ToArray(), requestId);
 
                 // COPILOT-DEBUG: Log country mapping results
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Country flag mappings found: {Mappings}", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Country flag mappings found via API: {Mappings}", 
                     requestId, string.Join(", ", countryFlags.Select(kv => $"'{kv.Key}' -> '{kv.Value}'")));
 
                 // Combine participant data with flag codes
@@ -546,6 +549,54 @@ namespace NoorCanvas.Controllers
                 _logger.LogError(ex, "NOOR-PARTICIPANT-DELETE: [{RequestId}] Error deleting participants for UserToken: {UserToken}",
                     requestId, userToken);
                 return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
+            }
+        }
+
+        /// <summary>
+        /// [DEBUG-WORKITEM:api:impl:09291900-api] Get country flags from KSESSIONS API instead of direct database access
+        /// </summary>
+        /// <param name="countryCodes">Array of ISO2 country codes to get flags for</param>
+        /// <param name="requestId">Request ID for logging</param>
+        /// <returns>Dictionary mapping ISO2 codes to lowercase flag codes</returns>
+        private async Task<Dictionary<string, string>> GetCountryFlagsFromApiAsync(string[] countryCodes, string requestId)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] [COUNTRY-FLAGS-API] Calling country flags API for {Count} countries: {Countries} ;CLEANUP_OK",
+                    requestId, countryCodes.Length, string.Join(", ", countryCodes));
+
+                using var httpClient = _httpClientFactory.CreateClient();
+                
+                // Build query string for country codes
+                var queryParams = string.Join("&", countryCodes.Select(c => $"countryCodes={Uri.EscapeDataString(c)}"));
+                var response = await httpClient.GetAsync($"/api/host/ksessions/countries/flags?{queryParams}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("[DEBUG-WORKITEM:api:impl:{RequestId}] [COUNTRY-FLAGS-API] API call failed with status: {StatusCode} ;CLEANUP_OK",
+                        requestId, response.StatusCode);
+                    return new Dictionary<string, string>();
+                }
+
+                var apiResponse = await response.Content.ReadFromJsonAsync<CountryFlagsResponse>();
+
+                if (apiResponse?.Success == true && apiResponse.CountryFlags != null)
+                {
+                    _logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] [COUNTRY-FLAGS-API] Successfully retrieved {Count} country flag mappings from API ;CLEANUP_OK",
+                        requestId, apiResponse.CountryFlags.Count);
+                    return apiResponse.CountryFlags;
+                }
+                else
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:api:impl:{RequestId}] [COUNTRY-FLAGS-API] API response was null or unsuccessful - Message: {Message} ;CLEANUP_OK",
+                        requestId, apiResponse?.Message);
+                    return new Dictionary<string, string>();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:api:impl:{RequestId}] [COUNTRY-FLAGS-API] Exception calling country flags API ;CLEANUP_OK", requestId);
+                return new Dictionary<string, string>();
             }
         }
     }

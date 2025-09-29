@@ -6,6 +6,7 @@ using NoorCanvas.Configuration;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
 using NoorCanvas.Models;
+using NoorCanvas.Models.DTOs;
 using NoorCanvas.Models.KSESSIONS;
 using NoorCanvas.Services;
 using System.Text.Json;
@@ -888,6 +889,157 @@ namespace NoorCanvas.Controllers
             {
                 _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:api] Failed to get AssetLookup data");
                 return StatusCode(500, new { error = "Failed to get asset lookup data", requestId = HttpContext.TraceIdentifier });
+            }
+        }
+
+        /// <summary>
+        /// [DEBUG-WORKITEM:api:impl:09291900-api] Get enhanced session details with transcript from KSESSIONS database
+        /// Used by HostControlPanel to replace direct database access with API calls
+        /// </summary>
+        [HttpGet("ksessions/session/{sessionId}/details")]
+        public async Task<IActionResult> GetKSessionsSessionDetails(int sessionId, [FromQuery] string? hostToken = null)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:api:impl:09291900-api] GetKSessionsSessionDetails called for sessionId: {SessionId} with hostToken: {Token}",
+                    sessionId, hostToken?.Substring(0, Math.Min(8, hostToken?.Length ?? 0)) + "...");
+
+                // Query KSESSIONS database to get complete session details including transcript and navigation data
+                var session = await _kSessionsContext.Sessions
+                    .Include(s => s.Group)
+                    .Include(s => s.Category)
+                    .Include(s => s.Speaker)
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+                if (session == null)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:api:impl:09291900-api] Session not found for SessionId: {SessionId}", sessionId);
+                    return NotFound(new EnhancedSessionDetailsResponse
+                    {
+                        Success = false,
+                        Message = $"Session with ID {sessionId} not found",
+                        Session = null,
+                        TotalCount = 0
+                    });
+                }
+
+                // Get transcript separately to avoid complex joins
+                var transcript = await _kSessionsContext.SessionTranscripts
+                    .FirstOrDefaultAsync(t => t.SessionId == sessionId);
+
+                var sessionDetails = new SessionDetailsDto
+                {
+                    SessionId = session.SessionId,
+                    GroupId = session.GroupId,
+                    CategoryId = session.CategoryId,
+                    SessionName = session.SessionName,
+                    Description = session.Description,
+                    SessionDate = session.SessionDate,
+                    MediaPath = session.MediaPath,
+                    SpeakerId = session.SpeakerId,
+                    IsActive = session.IsActive,
+                    Transcript = transcript?.Transcript,
+                    CreatedDate = session.CreatedDate,
+                    ChangedDate = session.ChangedDate,
+                    GroupName = session.Group?.GroupName,
+                    CategoryName = session.Category?.CategoryName,
+                    SpeakerName = session.Speaker?.SpeakerName
+                };
+
+
+
+                // Log transcript details for debugging
+                var transcriptLength = sessionDetails.Transcript?.Length ?? 0;
+                _logger.LogInformation("[DEBUG-WORKITEM:api:impl:09291900-api] Found session details - SessionId: {SessionId}, SessionName: {SessionName}, GroupName: {GroupName}, TranscriptLength: {TranscriptLength}",
+                    sessionDetails.SessionId, sessionDetails.SessionName, sessionDetails.GroupName, transcriptLength);
+
+                var response = new EnhancedSessionDetailsResponse
+                {
+                    Success = true,
+                    Message = "Session details retrieved successfully",
+                    Session = sessionDetails,
+                    TotalCount = 1
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:api:impl:09291900-api] Failed to get session details for SessionId: {SessionId}", sessionId);
+                return StatusCode(500, new EnhancedSessionDetailsResponse
+                {
+                    Success = false,
+                    Message = $"Failed to get session details: {ex.Message}",
+                    Session = null,
+                    TotalCount = 0
+                });
+            }
+        }
+
+        /// <summary>
+        /// [DEBUG-WORKITEM:api:impl:09291900-api] Get country flag mappings from KSESSIONS database
+        /// Used by ParticipantController to replace direct database access with API calls
+        /// </summary>
+        [HttpGet("ksessions/countries/flags")]
+        public async Task<IActionResult> GetKSessionsCountryFlags([FromQuery] string[]? countryCodes = null)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:api:impl:09291900-api] GetKSessionsCountryFlags called for countries: {Countries}",
+                    countryCodes != null ? string.Join(", ", countryCodes) : "ALL");
+
+                // Query KSESSIONS database for country flag mappings
+                var countryQuery = _kSessionsContext.Countries.AsQueryable();
+                
+                // Filter by specific country codes if provided
+                if (countryCodes != null && countryCodes.Length > 0)
+                {
+                    countryQuery = countryQuery.Where(c => c.ISO2 != null && countryCodes.Contains(c.ISO2));
+                }
+                else
+                {
+                    // Get all active countries if no filter provided
+                    countryQuery = countryQuery.Where(c => c.ISO2 != null && c.IsActive == true);
+                }
+
+                var countries = await countryQuery
+                    .Select(c => new CountryFlagDto
+                    {
+                        ISO2 = c.ISO2!,
+                        FlagCode = (c.ISO2 ?? "UN").ToLower(),
+                        CountryName = c.CountryName,
+                        IsActive = c.IsActive
+                    })
+                    .ToListAsync();
+
+                // Create dictionary for quick lookup (matches original ParticipantController pattern)
+                var countryFlags = countries.ToDictionary(c => c.ISO2, c => c.FlagCode);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:api:impl:09291900-api] Found {Count} country flag mappings: {Mappings}",
+                    countries.Count, string.Join(", ", countryFlags.Select(kv => $"'{kv.Key}' -> '{kv.Value}'")));
+
+                var response = new CountryFlagsResponse
+                {
+                    Success = true,
+                    Message = "Country flags retrieved successfully",
+                    CountryFlags = countryFlags,
+                    Countries = countries,
+                    TotalCount = countries.Count
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:api:impl:09291900-api] Failed to get country flags");
+                return StatusCode(500, new CountryFlagsResponse
+                {
+                    Success = false,
+                    Message = $"Failed to get country flags: {ex.Message}",
+                    CountryFlags = new Dictionary<string, string>(),
+                    Countries = null,
+                    TotalCount = 0
+                });
             }
         }
 

@@ -931,27 +931,22 @@
                     return;
                 }
                 
-                // Query session details from KSessions database
-                var ksession = await KSessionsDb.Sessions
-                    .FirstOrDefaultAsync(s => s.SessionId == sessionIdLong);
+                // [DEBUG-WORKITEM:api:impl:09291900-api] Get session details from KSESSIONS API instead of direct database access
+                var sessionDetails = await GetSessionDetailsFromApiAsync(sessionIdLong, requestId);
                 
-                // Query transcript from KSessions database  
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] Loading transcript from KSESSIONS_DEV dbo.SessionTranscripts for SessionId: {SessionId}", sessionIdLong);
-                var transcript = await KSessionsDb.SessionTranscripts
-                    .FirstOrDefaultAsync(t => t.SessionId == (int)sessionIdLong);
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] ✅ Transcript query completed. Found: {TranscriptFound}, Length: {TranscriptLength} ;CLEANUP_OK", 
-                    transcript != null, transcript?.Transcript?.Length ?? 0);
-                
-                if (ksession != null && Model != null)
+                if (sessionDetails != null && Model != null)
                 {
-                    Model.SessionName = ksession.SessionName ?? "Unknown Session";
-                    Model.SessionDescription = ksession.Description ?? "No description available";
+                    Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] [SESSION-DETAILS-API] Successfully loaded session details from API - SessionName: {SessionName}, TranscriptLength: {TranscriptLength} ;CLEANUP_OK", 
+                        requestId, sessionDetails.SessionName, sessionDetails.Transcript?.Length ?? 0);
+                        
+                    Model.SessionName = sessionDetails.SessionName ?? "Unknown Session";
+                    Model.SessionDescription = sessionDetails.Description ?? "No description available";
                     Model.SessionStatus = "Waiting"; // Default status for new sessions
                     
-                    // Get transcript from KSessions database with detailed logging
-                    var transcriptContent = transcript?.Transcript ?? string.Empty;
-                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TRANSCRIPT] Setting Model.SessionTranscript from KSESSIONS_DEV. Original length: {OriginalLength}, IsEmpty: {IsEmpty} ;CLEANUP_OK", 
-                        transcriptContent.Length, string.IsNullOrEmpty(transcriptContent));
+                    // Get transcript from API response with detailed logging
+                    var transcriptContent = sessionDetails.Transcript ?? string.Empty;
+                    Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] [SESSION-DETAILS-API] Setting Model.SessionTranscript from API response. Original length: {OriginalLength}, IsEmpty: {IsEmpty} ;CLEANUP_OK", 
+                        requestId, transcriptContent.Length, string.IsNullOrEmpty(transcriptContent));
                     Model.SessionTranscript = transcriptContent;
                     
                     // Transform transcript with asset detection and share buttons
@@ -968,8 +963,8 @@
                         Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] No transcript content to transform - SessionTranscript is empty ;CLEANUP_OK");
                     }
                     
-                    Logger.LogInformation("Session data loaded from database - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength}", 
-                        sessionId, ksession.SessionName, Model.SessionTranscript?.Length ?? 0);
+                    Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] Session data loaded from API - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength} ;CLEANUP_OK", 
+                        requestId, sessionId, sessionDetails.SessionName, Model.SessionTranscript?.Length ?? 0);
                     
                     // Load scheduling fields from canvas.Sessions table
                     try
@@ -1008,13 +1003,13 @@
                 }
                 else
                 {
-                    Logger.LogWarning("No session found in database or Model is null - Session: {SessionFound}, Model: {ModelNull}", 
-                        ksession != null, Model == null);
+                    Logger.LogWarning("[DEBUG-WORKITEM:api:impl:{RequestId}] No session found via API or Model is null - Session: {SessionFound}, Model: {ModelNull} ;CLEANUP_OK", 
+                        requestId, sessionDetails != null, Model == null);
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error querying KSessions database for sessionId: {SessionId}", sessionId);
+                Logger.LogError(ex, "[DEBUG-WORKITEM:api:impl:{RequestId}] Error getting session details from API for sessionId: {SessionId} ;CLEANUP_OK", requestId, sessionId);
             }
             
             // Load existing questions from database
@@ -3008,6 +3003,74 @@
         public List<AssetLookupDto> AssetLookups { get; set; } = new();
         public int TotalCount { get; set; }
         public string RequestId { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:api:impl:09291900-api] Get session details from KSESSIONS API instead of direct database access
+    /// </summary>
+    private async Task<SessionDetailsDto?> GetSessionDetailsFromApiAsync(long sessionId, string runId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RunId}] [SESSION-DETAILS-API] Calling KSESSIONS session details API for sessionId: {SessionId} ;CLEANUP_OK", runId, sessionId);
+            
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync($"/api/host/ksessions/session/{sessionId}/details?hostToken={HostToken}");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("[DEBUG-WORKITEM:api:impl:{RunId}] [SESSION-DETAILS-API] API call failed with status: {StatusCode} ;CLEANUP_OK", runId, response.StatusCode);
+                return null;
+            }
+            
+            var apiResponse = await response.Content.ReadFromJsonAsync<EnhancedSessionDetailsApiResponse>();
+            
+            if (apiResponse?.Success == true && apiResponse.Session != null)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RunId}] [SESSION-DETAILS-API] Successfully retrieved session details from API - SessionName: {SessionName}, TranscriptLength: {TranscriptLength} ;CLEANUP_OK", 
+                    runId, apiResponse.Session.SessionName, apiResponse.Session.Transcript?.Length ?? 0);
+                
+                return apiResponse.Session;
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:api:impl:{RunId}] [SESSION-DETAILS-API] API response was null or unsuccessful - Message: {Message} ;CLEANUP_OK", runId, apiResponse?.Message);
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:api:impl:{RunId}] [SESSION-DETAILS-API] Exception calling session details API for sessionId: {SessionId} ;CLEANUP_OK", runId, sessionId);
+            return null;
+        }
+    }
+
+    // Session Details API models for Blazor client
+    public class SessionDetailsDto
+    {
+        public int SessionId { get; set; }
+        public int GroupId { get; set; }
+        public int CategoryId { get; set; }
+        public string SessionName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public DateTime? SessionDate { get; set; }
+        public string? MediaPath { get; set; }
+        public int? SpeakerId { get; set; }
+        public bool? IsActive { get; set; }
+        public string? Transcript { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ChangedDate { get; set; }
+        public string? GroupName { get; set; }
+        public string? CategoryName { get; set; }
+        public string? SpeakerName { get; set; }
+    }
+
+    public class EnhancedSessionDetailsApiResponse
+    {
+        public bool Success { get; set; }
+        public string? Message { get; set; }
+        public SessionDetailsDto? Session { get; set; }
+        public int TotalCount { get; set; }
     }
 }
 
