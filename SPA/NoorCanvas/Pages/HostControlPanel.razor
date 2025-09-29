@@ -20,9 +20,6 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<HostControlPanel> Logger
-@inject NoorCanvas.Data.CanvasDbContext CanvasDb
-@inject NoorCanvas.Data.SimplifiedCanvasDbContext SimplifiedCanvasDb
-@inject NoorCanvas.Data.KSessionsDbContext KSessionsDb
 @inject NoorCanvas.Services.SessionStateService SessionStateService
 @inject NoorCanvas.Services.SafeHtmlRenderingService SafeHtmlRenderer
 @inject NoorCanvas.Services.AssetHtmlProcessingService AssetHtmlProcessor
@@ -835,24 +832,53 @@
                 HostToken = hostToken; // Set the property with trimmed value
                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Processing as HOST TOKEN: '{HostToken}' (Length: {Length})", requestId, hostToken, hostToken?.Length ?? 0);
                 
-                // First, check if this token exists in the current database
-                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Checking if token exists in database...", requestId);
-                var allTokens = await SimplifiedCanvasDb.Sessions
-                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.Status, s.ExpiresAt })
-                    .ToListAsync();
-                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Found {TokenCount} total sessions in database", requestId, allTokens.Count);
+                // [API-MIGRATION:09291900-api] Check if this token exists using API call
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Checking if token exists via API...", requestId);
+                
+                using var sessionsHttpClient = HttpClientFactory.CreateClient("default");
+                var response = await sessionsHttpClient.GetAsync($"/api/host/sessions/list?hostToken={Uri.EscapeDataString(hostToken ?? string.Empty)}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] API call failed: {StatusCode}", requestId, response.StatusCode);
+                    return;
+                }
+                
+                var jsonContent = await response.Content.ReadAsStringAsync();
+                using var document = JsonDocument.Parse(jsonContent);
+                var sessionsElement = document.RootElement.GetProperty("Sessions");
+                
+                var allTokens = new List<dynamic>();
+                foreach (var sessionElement in sessionsElement.EnumerateArray())
+                {
+                    allTokens.Add(new
+                    {
+                        SessionId = sessionElement.GetProperty("SessionId").GetInt64(),
+                        HostToken = sessionElement.TryGetProperty("HostToken", out var hostTokenProp) ? hostTokenProp.GetString() : null,
+                        UserToken = sessionElement.TryGetProperty("UserToken", out var userTokenProp) ? userTokenProp.GetString() : null,
+                        Status = sessionElement.TryGetProperty("Status", out var statusProp) ? statusProp.GetString() : null,
+                        ExpiresAt = sessionElement.TryGetProperty("ExpiresAt", out var expiresProp) ? expiresProp.GetDateTime() : (DateTime?)null
+                    });
+                }
+                
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Found {TokenCount} total sessions via API", requestId, allTokens.Count);
                 
                 foreach (var tokenRecord in allTokens)
                 {
-                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] DB Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
-                        requestId, tokenRecord.SessionId, tokenRecord.HostToken ?? "NULL", tokenRecord.UserToken ?? "NULL", 
-                        tokenRecord.Status ?? "NULL", tokenRecord.ExpiresAt?.ToString() ?? "NULL");
+                    var tokenSessionId = (long)tokenRecord.SessionId;
+                    var hostTokenValue = (string?)tokenRecord.HostToken ?? "NULL";
+                    var userTokenValue = (string?)tokenRecord.UserToken ?? "NULL";
+                    var statusValue = (string?)tokenRecord.Status ?? "NULL";
+                    var expiresAtValue = (tokenRecord.ExpiresAt as DateTime?)?.ToString() ?? "NULL";
+                    
+                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] API Session {SessionId}: HostToken='{HostToken}', UserToken='{UserToken}', Status='{Status}', ExpiresAt={ExpiresAt}", 
+                        requestId, tokenSessionId, hostTokenValue, userTokenValue, statusValue, expiresAtValue);
                 }
                 
                 var tokenExists = allTokens.Any(t => t.HostToken == hostToken);
-                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token '{HostToken}' exists in database: {TokenExists}", requestId, hostToken, tokenExists);
+                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] Token '{HostToken}' exists via API: {TokenExists}", requestId, hostToken, tokenExists);
                 
-                // Extract UserToken and HostAuthToken directly from database query result
+                // Extract UserToken from API response
                 var matchingTokenRecord = allTokens.FirstOrDefault(t => t.HostToken == hostToken);
                 if (matchingTokenRecord != null)
                 {
@@ -966,25 +992,35 @@
                     Logger.LogInformation("[DEBUG-WORKITEM:api:impl:{RequestId}] Session data loaded from API - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength} ;CLEANUP_OK", 
                         requestId, sessionId, sessionDetails.SessionName, Model.SessionTranscript?.Length ?? 0);
                     
-                    // Load scheduling fields from canvas.Sessions table
+                    // [API-MIGRATION:09291900-api] Load scheduling fields via API
                     try
                     {
-                        var canvasSession = await SimplifiedCanvasDb.Sessions
-                            .Where(s => s.SessionId == sessionIdLong)
-                            .Select(s => new { s.ScheduledDate, s.ScheduledTime, s.ScheduledDuration })
-                            .FirstOrDefaultAsync();
-                            
-                        if (canvasSession != null && Model != null)
+                        using var scheduleHttpClient = HttpClientFactory.CreateClient("default");
+                        var scheduleResponse = await scheduleHttpClient.GetAsync($"/api/host/sessions/{sessionIdLong}/details");
+                        
+                        if (scheduleResponse.IsSuccessStatusCode)
                         {
-                            Model.ScheduledDate = canvasSession.ScheduledDate;
-                            Model.ScheduledTime = canvasSession.ScheduledTime;
-                            Model.ScheduledDuration = canvasSession.ScheduledDuration;
-                            Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ Scheduling fields loaded: Date={Date}, Time={Time}, Duration={Duration}mins", 
-                                requestId, Model.ScheduledDate ?? "NULL", Model.ScheduledTime ?? "NULL", Model.ScheduledDuration ?? "NULL");
+                            var scheduleContent = await scheduleResponse.Content.ReadAsStringAsync();
+                            using var document = JsonDocument.Parse(scheduleContent);
+                            var sessionElement = document.RootElement.GetProperty("Session");
+                            
+                            if (sessionElement.ValueKind != JsonValueKind.Null && Model != null)
+                            {
+                                Model.ScheduledDate = sessionElement.TryGetProperty("ScheduledDate", out var dateProp) && dateProp.ValueKind != JsonValueKind.Null ? dateProp.GetString() : null;
+                                Model.ScheduledTime = sessionElement.TryGetProperty("ScheduledTime", out var timeProp) && timeProp.ValueKind != JsonValueKind.Null ? timeProp.GetString() : null;
+                                Model.ScheduledDuration = sessionElement.TryGetProperty("ScheduledDuration", out var durationProp) && durationProp.ValueKind != JsonValueKind.Null ? durationProp.GetString() : null;
+                                
+                                Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ Scheduling fields loaded via API: Date={Date}, Time={Time}, Duration={Duration}mins", 
+                                    requestId, Model.ScheduledDate ?? "NULL", Model.ScheduledTime ?? "NULL", Model.ScheduledDuration ?? "NULL");
+                            }
+                            else
+                            {
+                                Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ No canvas session found or scheduling fields empty for SessionId: {SessionId}", requestId, sessionIdLong);
+                            }
                         }
                         else
                         {
-                            Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ No canvas session found or scheduling fields empty for SessionId: {SessionId}", requestId, sessionIdLong);
+                            Logger.LogWarning("NOOR-HOST-PANEL: [{RequestId}] ⚠️ Schedule API call failed for SessionId: {SessionId}, Status: {StatusCode}", requestId, sessionIdLong, scheduleResponse.StatusCode);
                         }
                     }
                     catch (Exception ex)
@@ -1077,15 +1113,22 @@
     {
         try
         {
-            // Direct database query: Map host token to session ID using canvas.Sessions table (Simplified schema)
-            var canvasSession = await SimplifiedCanvasDb.Sessions
-                .FirstOrDefaultAsync(s => s.HostToken == hostToken);
-                
-            if (canvasSession != null)
+            // [API-MIGRATION:09291900-api] Map host token to session ID using API
+            using var tokenHttpClient = HttpClientFactory.CreateClient("default");
+            var response = await tokenHttpClient.GetAsync($"/api/host/token/{Uri.EscapeDataString(hostToken)}/session-id");
+            
+            if (response.IsSuccessStatusCode)
             {
-                Logger.LogInformation("Found session mapping for token {Token} -> SessionId {SessionId}", 
-                    hostToken, canvasSession.SessionId);
-                return canvasSession.SessionId.ToString();
+                var jsonContent = await response.Content.ReadAsStringAsync();
+                using var document = JsonDocument.Parse(jsonContent);
+                var sessionId = document.RootElement.GetProperty("SessionId").GetString();
+                
+                if (!string.IsNullOrEmpty(sessionId))
+                {
+                    Logger.LogInformation("Found session mapping for token {Token} -> SessionId {SessionId}", 
+                        hostToken, sessionId);
+                    return sessionId;
+                }
             }
             
             Logger.LogWarning("No session mapping found for token: {Token}", hostToken);
@@ -1198,25 +1241,35 @@
     {
         try 
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Extracting SessionId from HostToken: '{HostToken}' (Length: {Length})", 
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Extracting SessionId from HostToken via API: '{HostToken}' (Length: {Length})", 
                 requestId, hostToken, hostToken?.Length ?? 0);
             
-            // Quick lookup to get SessionId from token without loading full session data
-            var canvasSession = await SimplifiedCanvasDb.Sessions
-                .Where(s => s.HostToken == hostToken)
-                .Select(s => s.SessionId)
-                .FirstOrDefaultAsync();
-                
-            if (canvasSession > 0)
+            // [API-MIGRATION:09291900-api] Quick lookup to get SessionId from token using API
+            using var extractHttpClient = HttpClientFactory.CreateClient("default");
+            var response = await extractHttpClient.GetAsync($"/api/host/sessions/by-token/{Uri.EscapeDataString(hostToken)}");
+            
+            if (response.IsSuccessStatusCode)
             {
-                SessionId = (int)canvasSession;
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ✅ SessionId extracted: {SessionId}", 
-                    requestId, SessionId);
+                var jsonContent = await response.Content.ReadAsStringAsync();
+                using var document = JsonDocument.Parse(jsonContent);
+                var canvasSession = document.RootElement.GetProperty("SessionId").GetInt64();
+                
+                if (canvasSession > 0)
+                {
+                    SessionId = (int)canvasSession;
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ✅ SessionId extracted via API: {SessionId}", 
+                        requestId, SessionId);
+                }
+                else
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ⚠️ No SessionId found for HostToken: {HostToken}", 
+                        requestId, hostToken);
+                }
             }
             else
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ⚠️ No SessionId found for HostToken: {HostToken}", 
-                    requestId, hostToken);
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ⚠️ API call failed for HostToken: {HostToken}, Status: {StatusCode}", 
+                    requestId, hostToken, response.StatusCode);
             }
         }
         catch (Exception ex)

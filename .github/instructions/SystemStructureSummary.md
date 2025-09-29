@@ -41,8 +41,11 @@ It is the **single source of truth** for system usage and must be updated if the
   - `POST /api/host/session/{sessionId}/start` - start session
   - `GET /api/host/sessions/{sessionId}/assets` - fetch available assets
   - `POST /api/host/share-asset` - broadcast content to participants
+  - `GET /api/host/asset-lookup` - fetch asset lookup definitions (database-driven asset detection)
+  - `GET /api/host/ksessions/session/{sessionId}/details` - enhanced session details with transcript from KSESSIONS
+  - `GET /api/host/ksessions/countries/flags` - country flag mappings from KSESSIONS database
 - **Tables**: `canvas.Sessions`, `canvas.Questions`, `canvas.AssetLookup`, `KSESSIONS.Sessions`, `KSESSIONS.SessionTranscripts`, `KSESSIONS.Countries`
-- **Direct DB**: SimplifiedCanvasDb, KSessionsDb contexts (bypasses API layer)
+- **Architecture**: ✅ **API-First** - All database access via HTTP APIs (no direct DbContext injection)
 - **SignalR**: SessionHub, QAHub, AnnotationHub - groups: `session_{sessionId}`, `host_{hostToken}`
 - **Purpose**: Host session management, Q&A moderation, and real-time content broadcasting
 

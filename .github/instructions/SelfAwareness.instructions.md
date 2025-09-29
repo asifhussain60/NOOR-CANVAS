@@ -90,6 +90,14 @@ Workspaces/Copilot/
   - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)  
 - If the agent initiates a stop/restart, **self-attribute** in logs and summaries.
 
+### For Database Access Architecture
+- **CRITICAL RULE**: Database data MUST ONLY be accessed via HTTP APIs, NEVER directly through DbContext injection in UI components
+- **UI Layer Prohibition**: Razor pages and components must NOT inject `SimplifiedCanvasDbContext` or `KSessionsDbContext`
+- **Required Pattern**: UI → HTTP API → Controller → DbContext → Database
+- **API-First**: All database operations must go through properly designed API endpoints with DTOs
+- **No Direct Queries**: Never use Entity Framework queries directly in UI layer (Pages/, Components/)
+- **Enforcement**: Controllers may use DbContext internally, but UI components must use HttpClientFactory for all data access
+
 ### For Playwright Testing
 - **Never** use PowerShell scripts (`nc.ps1`/`ncb.ps1`) for test execution
 - Playwright manages application lifecycle via `webServer` configuration in `config/testing/playwright.config.cjs`

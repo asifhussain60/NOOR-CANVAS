@@ -532,18 +532,15 @@ namespace NoorCanvas.Controllers
 
             try
             {
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Countries request started", requestId);
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Token: {Token}, ClientIP: {ClientIp}, UserAgent: {UserAgent}",
-                    requestId, guid, clientIp, userAgent);
+                _logger.LogInformation("[API-CLEANED:09291900-api] [{RequestId}] Countries request started for token: {Token}", requestId, guid);
 
                 if (string.IsNullOrWhiteSpace(guid))
                 {
-                    _logger.LogWarning("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Missing guid parameter", requestId);
+                    _logger.LogWarning("[API-CLEANED:09291900-api] [{RequestId}] Missing guid parameter", requestId);
                     return BadRequest(new { error = "Host token is required", requestId });
                 }
 
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Querying Countries from KSESSIONS DbSet", requestId);
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] UseShortlistedCountries setting: {UseShortlisted}", requestId, _countriesOptions.UseShortlistedCountries);
+                _logger.LogDebug("[API-CLEANED:09291900-api] [{RequestId}] UseShortlistedCountries setting: {UseShortlisted}", requestId, _countriesOptions.UseShortlistedCountries);
 
                 // Query countries from KSESSIONS database using DbSet
                 // Apply IsShortListed filter based on configuration
@@ -553,11 +550,11 @@ namespace NoorCanvas.Controllers
                 if (_countriesOptions.UseShortlistedCountries)
                 {
                     countriesQuery = countriesQuery.Where(c => c.IsShortListed);
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Applying IsShortListed=1 filter", requestId);
+                    _logger.LogDebug("[API-CLEANED:09291900-api] [{RequestId}] Applying IsShortListed filter", requestId);
                 }
                 else
                 {
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Returning all active countries (IsShortListed filter disabled)", requestId);
+                    _logger.LogDebug("[API-CLEANED:09291900-api] [{RequestId}] Returning all active countries", requestId);
                 }
 
                 countriesQuery = countriesQuery
@@ -576,22 +573,13 @@ namespace NoorCanvas.Controllers
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Countries query completed successfully", requestId);
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Loaded {CountryCount} countries from KSESSIONS database", requestId, countries.Count);
-
-                if (countries.Count > 0)
-                {
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Sample countries: {Sample}",
-                        requestId, string.Join(", ", countries.Take(3).Select(c => $"{c.CountryName} ({c.ISO2})")));
-                }
+                _logger.LogInformation("[API-CLEANED:09291900-api] [{RequestId}] Countries loaded successfully: {CountryCount} countries", requestId, countries.Count);
 
                 return Ok(countries);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] EXCEPTION during countries loading", requestId);
-                _logger.LogError("COPILOT-DEBUG: [{RequestId}] [COUNTRIES-API] Exception Type: {ExceptionType}, Message: {Message}",
-                    requestId, ex.GetType().Name, ex.Message);
+                _logger.LogError(ex, "[API-CLEANED:09291900-api] [{RequestId}] Error loading countries", requestId);
                 return StatusCode(500, new { error = "Failed to load countries", requestId });
             }
         }
@@ -1289,6 +1277,167 @@ namespace NoorCanvas.Controllers
                 return false;
             }
         }
+
+        /// <summary>
+        /// [API-MIGRATION:09291900-api] Get all sessions with token information for HostControlPanel token validation
+        /// </summary>
+        [HttpGet("sessions/list")]
+        public async Task<IActionResult> GetSessionsList(string? hostToken = null)
+        {
+            try
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Sessions list request started. HostToken: {HostToken}",
+                    requestId, hostToken ?? "NULL");
+
+                var sessionsQuery = _context.Sessions.AsQueryable();
+
+                if (!string.IsNullOrEmpty(hostToken))
+                {
+                    sessionsQuery = sessionsQuery.Where(s => s.HostToken == hostToken);
+                }
+
+                var sessions = await sessionsQuery
+                    .Select(s => new { s.SessionId, s.HostToken, s.UserToken, s.Status, s.ExpiresAt })
+                    .ToListAsync();
+
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Found {SessionCount} sessions",
+                    requestId, sessions.Count);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Sessions = sessions,
+                    TotalCount = sessions.Count,
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[API-MIGRATION:09291900-api] Error retrieving sessions list");
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// [API-MIGRATION:09291900-api] Get session with scheduling information by session ID
+        /// </summary>
+        [HttpGet("sessions/{sessionId}/details")]
+        public async Task<IActionResult> GetSessionWithScheduling(long sessionId)
+        {
+            try
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Session details request for SessionId: {SessionId}",
+                    requestId, sessionId);
+
+                var session = await _context.Sessions
+                    .Where(s => s.SessionId == sessionId)
+                    .Select(s => new { s.ScheduledDate, s.ScheduledTime, s.ScheduledDuration, s.SessionId, s.HostToken, s.UserToken, s.Status })
+                    .FirstOrDefaultAsync();
+
+                if (session == null)
+                {
+                    _logger.LogWarning("[API-MIGRATION:09291900-api] [{RequestId}] Session not found: {SessionId}", requestId, sessionId);
+                    return NotFound(new { error = "Session not found", sessionId });
+                }
+
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Session details retrieved successfully", requestId);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Session = session,
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[API-MIGRATION:09291900-api] Error retrieving session details for SessionId: {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// [API-MIGRATION:09291900-api] Map host token to session ID
+        /// </summary>
+        [HttpGet("token/{hostToken}/session-id")]
+        public async Task<IActionResult> GetSessionIdByToken(string hostToken)
+        {
+            try
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Token mapping request for HostToken: {HostToken}",
+                    requestId, hostToken);
+
+                var session = await _context.Sessions
+                    .Where(s => s.HostToken == hostToken)
+                    .Select(s => new { s.SessionId, s.HostToken })
+                    .FirstOrDefaultAsync();
+
+                if (session == null)
+                {
+                    _logger.LogWarning("[API-MIGRATION:09291900-api] [{RequestId}] No session mapping found for token: {HostToken}", requestId, hostToken);
+                    return NotFound(new { error = "No session mapping found for token", hostToken });
+                }
+
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Token mapped successfully: {HostToken} -> SessionId {SessionId}",
+                    requestId, hostToken, session.SessionId);
+
+                return Ok(new
+                {
+                    Success = true,
+                    SessionId = session.SessionId.ToString(),
+                    HostToken = session.HostToken,
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[API-MIGRATION:09291900-api] Error mapping token to session ID for HostToken: {HostToken}", hostToken);
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// [API-MIGRATION:09291900-api] Quick session ID extraction from host token
+        /// </summary>
+        [HttpGet("sessions/by-token/{hostToken}")]
+        public async Task<IActionResult> GetSessionByToken(string hostToken)
+        {
+            try
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Session lookup by token: {HostToken}",
+                    requestId, hostToken);
+
+                var sessionId = await _context.Sessions
+                    .Where(s => s.HostToken == hostToken)
+                    .Select(s => s.SessionId)
+                    .FirstOrDefaultAsync();
+
+                if (sessionId == 0)
+                {
+                    _logger.LogWarning("[API-MIGRATION:09291900-api] [{RequestId}] Session not found for token: {HostToken}", requestId, hostToken);
+                    return NotFound(new { error = "Session not found for token", hostToken });
+                }
+
+                _logger.LogInformation("[API-MIGRATION:09291900-api] [{RequestId}] Session found: {HostToken} -> SessionId {SessionId}",
+                    requestId, hostToken, sessionId);
+
+                return Ok(new
+                {
+                    Success = true,
+                    SessionId = sessionId,
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[API-MIGRATION:09291900-api] Error retrieving session by token: {HostToken}", hostToken);
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
+            }
+        }
     }
 
     // Request/Response Models
@@ -1479,6 +1628,8 @@ namespace NoorCanvas.Controllers
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+
 
     public class AssetLookupResponse
     {
