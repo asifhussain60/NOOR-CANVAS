@@ -1,0 +1,154 @@
+@* Configuration Examples for NOOR Canvas Loading Spinner *@
+@page "/spinner-examples"
+@using Microsoft.AspNetCore.Components.Web
+@using NoorCanvas.Services
+@inject LoadingService LoadingService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Spinner Configuration Examples</PageTitle>
+
+<div class="container mt-4">
+    <h2>🎛️ Loading Spinner Configuration Examples</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Basic Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" @onclick="ShowBasicSpinner">
+                        Show Basic Spinner
+                    </button>
+                    <p class="mt-2 text-muted">
+                        Default spinner with custom message
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>File Upload Example</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-success" @onclick="ShowFileUploadSpinner">
+                        Simulate File Upload
+                    </button>
+                    <p class="mt-2 text-muted">
+                        Longer operation with progress indication
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>API Call Example</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-info" @onclick="ShowApiCallSpinner">
+                        Simulate API Call
+                    </button>
+                    <p class="mt-2 text-muted">
+                        Quick operation with minimum display time
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Session Loading Example</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-warning" @onclick="ShowSessionLoadingSpinner">
+                        Load Session Data
+                    </button>
+                    <p class="mt-2 text-muted">
+                        Context-specific loading for sessions
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🎨 CSS Theme Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <p>Add this CSS to customize the spinner appearance:</p>
+                    <pre><code class="language-css">/* Custom Brand Colors */
+:root {
+  --noor-primary-color: #YOUR_BRAND_COLOR;
+  --noor-secondary-color: #YOUR_ACCENT_COLOR;
+  --noor-logo-size: 120px; /* Larger logo */
+  --noor-animation-duration: 1.5s; /* Faster animation */
+}
+
+/* Minimal Theme */
+.noor-loading-overlay.minimal {
+  --noor-logo-size: 60px;
+  --noor-backdrop-blur: 6px;
+}
+</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task ShowBasicSpinner()
+    {
+        LoadingService.Show("Loading Content", "Please wait a moment");
+        await Task.Delay(2000); // Simulate work
+        LoadingService.Hide();
+    }
+    
+    private async Task ShowFileUploadSpinner()
+    {
+        await LoadingService.ExecuteWithLoading(
+            async () => {
+                // Simulate file upload with progress
+                await Task.Delay(3000);
+            },
+            "Uploading Files", 
+            "Processing your documents",
+            minimumMs: 1000
+        );
+    }
+    
+    private async Task ShowApiCallSpinner()
+    {
+        var result = await LoadingService.ExecuteWithLoading(
+            async () => {
+                // Simulate API call
+                await Task.Delay(800);
+                return "API Response Data";
+            },
+            "Connecting to Server",
+            "Retrieving latest data",
+            minimumMs: 500
+        );
+    }
+    
+    private async Task ShowSessionLoadingSpinner()
+    {
+        await LoadingService.ExecuteWithLoading(
+            async () => {
+                // Simulate session initialization
+                await Task.Delay(2500);
+            },
+            "Initializing Session",
+            "Preparing your interactive canvas",
+            minimumMs: 800
+        );
+    }
+}

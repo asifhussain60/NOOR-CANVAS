@@ -1,0 +1,43 @@
+@* Enhanced Loading Spinner Component with Service Integration *@
+@using NoorCanvas.Services
+@inject LoadingService LoadingService
+@implements IDisposable
+
+@if (LoadingService.IsLoading)
+{
+    <div class="noor-loading-overlay" @onclick:preventDefault="true" @onclick:stopPropagation="true">
+        <div class="noor-loading-backdrop"></div>
+        <div class="noor-loading-content">
+            <div class="noor-logo-wrapper">
+                <img src="images/NC-Logo.png" alt="NOOR Canvas" class="noor-loading-logo" />
+                <div class="noor-logo-ring"></div>
+            </div>
+            
+            <!-- Elegant CSS-only Spinner -->
+            <div class="noor-elegant-spinner">
+                <div class="noor-spinner-dot noor-dot-1"></div>
+                <div class="noor-spinner-dot noor-dot-2"></div>
+                <div class="noor-spinner-dot noor-dot-3"></div>
+                <div class="noor-spinner-dot noor-dot-4"></div>
+                <div class="noor-spinner-dot noor-dot-5"></div>
+            </div>
+            
+            <div class="noor-loading-text">
+                <h3>@LoadingService.LoadingMessage</h3>
+                <p>@LoadingService.LoadingSubMessage</p>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        LoadingService.OnLoadingStateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LoadingService.OnLoadingStateChanged -= StateHasChanged;
+    }
+}

@@ -1,0 +1,164 @@
+/* Global Spinner Styles for Route Transitions */
+.noor-global-spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.noor-spinner-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(139, 69, 19, 0.1) 0%, 
+        rgba(205, 133, 63, 0.1) 50%, 
+        rgba(139, 69, 19, 0.1) 100%);
+}
+
+.noor-spinner-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 10;
+}
+
+.noor-logo-container {
+    margin-bottom: 2rem;
+}
+
+.noor-spinner-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(139, 69, 19, 0.3);
+    animation: noor-logo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes noor-logo-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* SpinKit Wandering Cubes Animation */
+.sk-wandering-cubes {
+    margin: 2rem 0;
+    width: 60px;
+    height: 60px;
+    position: relative;
+}
+
+.sk-wandering-cubes .sk-cube {
+    background-color: #8B4513;
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: sk-wandering-cubes 1.8s ease-in-out -1.8s infinite both;
+}
+
+.sk-wandering-cubes .sk-cube2 {
+    animation-delay: -0.9s;
+}
+
+@keyframes sk-wandering-cubes {
+    0% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: translateX(42px) rotate(-90deg) scale(0.5);
+    }
+    50% {
+        transform: translateX(42px) translateY(42px) rotate(-180deg);
+    }
+    75% {
+        transform: translateX(0px) translateY(42px) rotate(-270deg) scale(0.5);
+    }
+    100% {
+        transform: rotate(-360deg);
+    }
+}
+
+.noor-spinner-text {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.noor-spinner-text h3 {
+    color: #4B3C2B;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 0.5px;
+}
+
+.noor-spinner-text p {
+    color: #706357;
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.8;
+    animation: noor-text-fade 1.5s ease-in-out infinite;
+}
+
+@keyframes noor-text-fade {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .noor-spinner-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .sk-wandering-cubes {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .sk-wandering-cubes .sk-cube {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .noor-spinner-text h3 {
+        font-size: 1.25rem;
+    }
+    
+    .noor-spinner-text p {
+        font-size: 0.875rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .noor-global-spinner-overlay {
+        background: rgba(30, 30, 30, 0.95);
+    }
+    
+    .noor-spinner-text h3 {
+        color: #F5F5F5;
+    }
+    
+    .noor-spinner-text p {
+        color: #D1D1D1;
+    }
+    
+    .sk-wandering-cubes .sk-cube {
+        background-color: #CD853F;
+    }
+}

@@ -141,6 +141,7 @@ builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<DebugService>(); // NOOR_DEBUG: Enhanced debug service registration v2.0
 builder.Services.AddScoped<HostSessionService>(); // Host session management service
+builder.Services.AddScoped<LoadingService>(); // Global loading state management service
 
 // Development services - Only available in development builds
 builder.Services.AddScoped<NoorCanvas.Services.Development.IDevModeService, NoorCanvas.Services.Development.DevModeService>();

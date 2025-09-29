@@ -1,0 +1,58 @@
+@* NOOR Canvas Global Route Spinner Component *@
+@using Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@if (isNavigating)
+{
+    <div class="noor-global-spinner-overlay" @onclick:preventDefault="true" @onclick:stopPropagation="true">
+        <div class="noor-spinner-backdrop"></div>
+        <div class="noor-spinner-content">
+            <div class="noor-logo-container">
+                <img src="images/NC-Logo.png" alt="NOOR Canvas" class="noor-spinner-logo" />
+            </div>
+            <div class="sk-wandering-cubes">
+                <div class="sk-cube sk-cube1"></div>
+                <div class="sk-cube sk-cube2"></div>
+            </div>
+            <div class="noor-spinner-text">
+                <h3>Loading...</h3>
+                <p>Preparing your content</p>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isNavigating = false;
+    private Timer? hideTimer;
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Show spinner immediately when navigation starts
+        isNavigating = true;
+        InvokeAsync(StateHasChanged);
+
+        // Hide spinner after minimum display time for better UX
+        hideTimer?.Dispose();
+        hideTimer = new Timer(HideSpinner, null, TimeSpan.FromMilliseconds(800), Timeout.InfiniteTimeSpan);
+    }
+
+    private void HideSpinner(object? state)
+    {
+        isNavigating = false;
+        InvokeAsync(StateHasChanged);
+        hideTimer?.Dispose();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        hideTimer?.Dispose();
+    }
+}

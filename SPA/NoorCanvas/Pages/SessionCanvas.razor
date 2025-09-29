@@ -13,6 +13,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
+@inject LoadingService LoadingService
 @inject ILogger<SessionCanvas> Logger
 @inject NoorCanvas.Services.SimplifiedTokenService TokenService
 @inject NoorCanvas.Services.SessionStateService SessionStateService
@@ -74,25 +75,8 @@
     <!-- Main content container -->
     <div class="session-canvas-container">
 
-        @if (Model?.CurrentState == SessionCanvasState.Loading)
-    {
-        <!-- Loading State -->
-        <div style="width:100%;max-width:56rem;margin:0 auto;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
-            
-            <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="width:200px;height:200px;object-fit:contain;" />
-            </div>
-            
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <i class="fa-solid fa-circle-notch fa-spin" style="font-size:2rem;color:#D4AF37;"></i>
-            </div>
-            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0;">Loading session canvas...</p>
-        </div>
-    }
-    else if (Model?.CurrentState == SessionCanvasState.SessionNotFound)
+        @* Loading state is now handled by the global LoadingService via EnhancedSpinner *@
+        @if (Model?.CurrentState == SessionCanvasState.SessionNotFound)
     {
         <!-- Error State -->
         <div style="width:100%;max-width:56rem;margin:0 auto;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fecaca;">
@@ -387,13 +371,16 @@
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
 
+        // Show elegant loading spinner during initialization
+        LoadingService.Show("Loading Session Canvas", "Preparing your interactive session");
+
         Model = new SessionCanvasViewModel
         {
             LogoText = "NOOR Canvas",
-            CurrentState = SessionCanvasState.Loading,
-            SessionName = "Loading Session...",
+            CurrentState = SessionCanvasState.Loaded, // Skip Loading state - use service-based loading
+            SessionName = "NOOR Canvas Session",
             SessionDate = "Today",
-            StartTime = "Loading...",
+            StartTime = DateTime.Now.ToString("HH:mm"),
             Topic = "Session Content",
             ParticipantCount = 0,
             Participants = new List<ParticipantData>(),
@@ -528,6 +515,10 @@
                 await LoadParticipantsAsync(requestId);
                 
                 Model!.CurrentState = SessionCanvasState.Loaded;
+                
+                // Hide loading spinner after successful load
+                LoadingService.Hide();
+                
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas rendering with NOOR Canvas branding - NC-Header.png logo", requestId);
                 Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session canvas loaded successfully with SignalR Q&A integration", requestId);
             }
@@ -535,6 +526,9 @@
             {
                 Logger.LogWarning("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation failed - Valid: {Valid}, Session null: {SessionNull}", 
                     requestId, sessionResponse?.Valid, sessionResponse?.Session == null);
+                
+                // Hide loading spinner on error
+                LoadingService.Hide();
                 Model!.CurrentState = SessionCanvasState.SessionNotFound;
                 Model.ErrorMessage = "Session not found or invalid token.";
             }

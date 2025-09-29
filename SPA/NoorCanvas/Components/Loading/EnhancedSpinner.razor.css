@@ -1,0 +1,234 @@
+/* Enhanced Loading Spinner Styles */
+.noor-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.noor-loading-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(248, 250, 252, 0.98) 50%, 
+        rgba(255, 255, 255, 0.98) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.noor-loading-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 10;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+/* Logo with Ring Animation */
+.noor-logo-wrapper {
+    position: relative;
+    margin-bottom: 2.5rem;
+}
+
+.noor-loading-logo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    box-shadow: 0 12px 40px rgba(139, 69, 19, 0.25);
+    animation: noor-logo-float 3s ease-in-out infinite;
+    z-index: 2;
+    position: relative;
+}
+
+.noor-logo-ring {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 110px;
+    height: 110px;
+    border: 3px solid transparent;
+    border-top: 3px solid var(--noor-secondary-color);
+    border-right: 3px solid var(--noor-secondary-color);
+    border-radius: 50%;
+    animation: noor-ring-rotate 2s linear infinite;
+}
+
+@keyframes noor-logo-float {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-8px) scale(1.05); }
+}
+
+@keyframes noor-ring-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Elegant Dot Spinner */
+.noor-elegant-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 1.5rem 0;
+}
+
+.noor-spinner-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--noor-primary-color) 0%, var(--noor-secondary-color) 100%);
+    animation: noor-dot-bounce 1.4s ease-in-out infinite both;
+}
+
+.noor-dot-1 { animation-delay: -0.32s; }
+.noor-dot-2 { animation-delay: -0.16s; }
+.noor-dot-3 { animation-delay: 0s; }
+.noor-dot-4 { animation-delay: 0.16s; }
+.noor-dot-5 { animation-delay: 0.32s; }
+
+@keyframes noor-dot-bounce {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Loading Text */
+.noor-loading-text {
+    animation: noor-text-entrance 0.8s ease-out;
+}
+
+.noor-loading-text h3 {
+    color: var(--noor-text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.noor-loading-text p {
+    color: var(--noor-text-secondary);
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.9;
+    animation: noor-text-pulse 2s ease-in-out infinite;
+}
+
+@keyframes noor-text-entrance {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes noor-text-pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .noor-loading-content {
+        padding: 1.5rem;
+        max-width: 300px;
+    }
+    
+    .noor-loading-logo {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .noor-logo-ring {
+        top: -8px;
+        left: -8px;
+        width: 86px;
+        height: 86px;
+    }
+    
+    .noor-spinner-dot {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .noor-loading-text h3 {
+        font-size: 1.25rem;
+    }
+    
+    .noor-loading-text p {
+        font-size: 0.875rem;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .noor-loading-logo,
+    .noor-logo-ring,
+    .noor-spinner-dot,
+    .noor-loading-text p {
+        animation: none;
+    }
+    
+    .noor-spinner-dot {
+        opacity: 0.8;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .noor-loading-backdrop {
+        background: linear-gradient(135deg, 
+            rgba(30, 30, 30, 0.98) 0%, 
+            rgba(20, 20, 20, 0.98) 50%, 
+            rgba(30, 30, 30, 0.98) 100%);
+    }
+    
+    .noor-loading-text h3 {
+        color: #F5F5F5;
+    }
+    
+    .noor-loading-text p {
+        color: #D1D1D1;
+    }
+    
+    .noor-logo-ring {
+        border-top-color: var(--noor-accent-color);
+        border-right-color: var(--noor-accent-color);
+    }
+    
+    .noor-spinner-dot {
+        background: linear-gradient(135deg, var(--noor-secondary-color) 0%, var(--noor-accent-color) 100%);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .noor-loading-text h3 {
+        color: #000;
+        text-shadow: none;
+    }
+    
+    .noor-loading-text p {
+        color: #333;
+    }
+    
+    .noor-spinner-dot {
+        background: var(--noor-primary-color);
+    }
+}

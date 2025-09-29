@@ -1,4 +1,6 @@
-﻿<Router AppAssembly="@typeof(Program).Assembly">
+﻿@using NoorCanvas.Components.Loading
+
+<Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>
@@ -8,3 +10,6 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@* Global Loading Spinner for Route Transitions *@
+<GlobalSpinner />
