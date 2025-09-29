@@ -398,7 +398,7 @@
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionCanvas OnInitialized - SessionToken: '{SessionToken}' (Length: {Length})", 
             requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
+        Logger.LogInformation("SessionCanvas component initializing with NOOR Canvas branding for RequestId: {RequestId}", requestId);
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("NoorCanvasApi");
@@ -418,9 +418,8 @@
             SharedAssetContent = null
         };
 
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas ViewModel initialized, starting session data load", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
+        Logger.LogInformation("SessionCanvas ViewModel initialized for RequestId: {RequestId}, starting session data load", requestId);
+        Logger.LogInformation("Loading session data first, then initializing SignalR for RequestId: {RequestId}", requestId);
         
         // Initialize consistent UserGuid for Q&A authentication
         await InitializeUserGuidAsync(requestId);
@@ -446,17 +445,17 @@
                 return;
             }
 
-            // [DEBUG-WORKITEM:userlanding:impl] AUTHENTICATION GATE: Verify user has valid token AND is registered
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] SessionCanvas - Starting authentication gate check ;CLEANUP_OK", requestId);
+            // AUTHENTICATION GATE: Verify user has valid token AND is registered
+            Logger.LogInformation("SessionCanvas - Starting authentication gate check for RequestId: {0}", requestId);
             
             var authResult = await VerifyUserAuthenticationAsync(SessionToken, requestId);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication result: IsAuthenticated={1}, SessionStatus={2} ;CLEANUP_OK", 
+            Logger.LogInformation("Authentication result for RequestId {0}: IsAuthenticated={1}, SessionStatus={2}", 
                 requestId, authResult.IsAuthenticated, authResult.SessionStatus ?? "null");
                 
             if (!authResult.IsAuthenticated)
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication FAILED - user not registered, showing authentication required state ;CLEANUP_OK", requestId);
+                Logger.LogWarning("Authentication FAILED for RequestId {0} - user not registered, showing authentication required state", requestId);
                 
                 // Set the authentication required state instead of immediate redirect
                 // This provides better UX and prevents any potential race conditions
@@ -466,12 +465,12 @@
                 return;
             }
             
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication PASSED - user is registered ;CLEANUP_OK", requestId);
+            Logger.LogInformation("Authentication PASSED for RequestId {0} - user is registered", requestId);
 
             // Check if session status is 'Created' (case insensitive) - if so, redirect to waiting room
             if (authResult.SessionStatus != null && string.Equals(authResult.SessionStatus, "created", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status 'Created' - redirecting to SessionWaiting ;CLEANUP_OK", requestId);
+                Logger.LogInformation("Session status 'Created' for RequestId {0} - redirecting to SessionWaiting", requestId);
                 Navigation.NavigateTo($"/session/waiting/{SessionToken}");
                 return;
             }
@@ -479,7 +478,7 @@
             // Additional security check: Verify session status is appropriate for canvas access
             if (authResult.SessionStatus != null && !string.Equals(authResult.SessionStatus, "active", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status '{1}' not active - redirecting to SessionWaiting ;CLEANUP_OK", requestId, authResult.SessionStatus);
+                Logger.LogInformation("Session status '{1}' not active for RequestId {0} - redirecting to SessionWaiting", requestId, authResult.SessionStatus);
                 Navigation.NavigateTo($"/session/waiting/{SessionToken}");
                 return;
             }
@@ -511,8 +510,8 @@
                 using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
                 var apiUrl = $"api/participant/session/{token}/validate";
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Attempt {Attempt}/{MaxRetries} - Validating UserToken via participant API: {ApiUrl}", 
-                    requestId, attempt, maxRetries, apiUrl);
+                Logger.LogInformation("Attempt {Attempt}/{MaxRetries} - Validating UserToken via participant API for RequestId {RequestId}: {ApiUrl}", 
+                    attempt, maxRetries, requestId, apiUrl);
                 Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Fixed API endpoint - using participant validation instead of host validation", requestId);
 
                 var response = await httpClient.GetAsync(apiUrl);
@@ -564,7 +563,7 @@
         try
         {
             var content = await response.Content.ReadAsStringAsync();
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Raw API response: {Content}", requestId, content);
+            Logger.LogInformation("Raw API response for RequestId {RequestId}: {Content}", requestId, content);
 
             var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(content, 
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -574,7 +573,7 @@
 
             if (sessionResponse?.Valid == true && sessionResponse.Session != null)
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Validation successful - updating session data", requestId);
+                Logger.LogInformation("Validation successful for RequestId {RequestId} - updating session data", requestId);
                 await UpdateSessionData(sessionResponse.Session);
                 _sessionId = sessionResponse.Session.SessionId;
                 
@@ -582,7 +581,7 @@
                 await LoadParticipantsAsync(requestId);
                 
                 Model!.CurrentState = SessionCanvasState.Loaded;
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas rendering with NOOR Canvas branding - NC-Header.png logo", requestId);
+                Logger.LogInformation("SessionCanvas rendering with NOOR Canvas branding - NC-Header.png logo for RequestId: {RequestId}", requestId);
                 Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session canvas loaded successfully with SignalR Q&A integration", requestId);
             }
             else
