@@ -278,10 +278,13 @@ finally
 /// <summary>
 /// NOOR CANVAS STARTUP CONFIGURATION VALIDATION
 /// Prevents configuration-related issues like Issue-62 from reaching production
+/// Enhanced with error aggregation and fail-fast behavior for critical issues
 /// </summary>
 static void ValidateStartupConfiguration(IServiceProvider services)
 {
     var logger = services.GetRequiredService<ILogger<Program>>();
+    var criticalErrors = new List<string>();
+    var warnings = new List<string>();
 
     try
     {
@@ -290,35 +293,67 @@ static void ValidateStartupConfiguration(IServiceProvider services)
         {
             var httpClientFactory = services.GetRequiredService<IHttpClientFactory>();
             var defaultClient = httpClientFactory.CreateClient("default");
+            var noorCanvasApiClient = httpClientFactory.CreateClient("NoorCanvasApi");
 
             if (defaultClient.BaseAddress == null)
             {
-                logger.LogWarning("⚠️ NOOR-WARNING: HttpClient 'default' BaseAddress not configured. This may cause API authentication issues.");
+                var error = "HttpClient 'default' BaseAddress not configured. This will cause API authentication failures.";
+                criticalErrors.Add(error);
+                logger.LogError("❌ NOOR-CRITICAL: {Error}", error);
             }
             else
             {
                 logger.LogInformation("✅ NOOR-VALIDATION: HttpClient BaseAddress configured: {BaseAddress}", defaultClient.BaseAddress);
             }
+
+            if (noorCanvasApiClient.BaseAddress == null)
+            {
+                var error = "HttpClient 'NoorCanvasApi' BaseAddress not configured. This will cause API communication failures.";
+                criticalErrors.Add(error);
+                logger.LogError("❌ NOOR-CRITICAL: {Error}", error);
+            }
+            else
+            {
+                logger.LogInformation("✅ NOOR-VALIDATION: NoorCanvasApi HttpClient BaseAddress configured: {BaseAddress}", noorCanvasApiClient.BaseAddress);
+            }
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "⚠️ NOOR-WARNING: HttpClient validation failed: {Message}", ex.Message);
+            var error = $"HttpClient validation failed: {ex.Message}";
+            criticalErrors.Add(error);
+            logger.LogError(ex, "❌ NOOR-CRITICAL: {Error}", error);
         }
 
-        // Database Connection Validation and ContentBroadcasts table setup (non-blocking)
+        // Database Connection Validation with fail-fast for critical database issues
         try
         {
             using var scope = services.CreateScope();
             var canvasDbContext = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
-            var canConnect = canvasDbContext.Database.CanConnect();
+            var kSessionsDbContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
+            
+            var canvasCanConnect = canvasDbContext.Database.CanConnect();
+            var kSessionsCanConnect = kSessionsDbContext.Database.CanConnect();
 
-            if (!canConnect)
+            if (!canvasCanConnect)
             {
-                logger.LogWarning("⚠️ NOOR-WARNING: Canvas database connection failed during startup validation");
+                var error = "Canvas database connection failed. Application cannot function without canvas database.";
+                criticalErrors.Add(error);
+                logger.LogError("❌ NOOR-CRITICAL: {Error}", error);
             }
             else
             {
                 logger.LogInformation("✅ NOOR-VALIDATION: Canvas database connection verified");
+            }
+
+            if (!kSessionsCanConnect)
+            {
+                var warning = "KSESSIONS database connection failed. Some features may be limited.";
+                warnings.Add(warning);
+                logger.LogWarning("⚠️ NOOR-WARNING: {Warning}", warning);
+            }
+            else
+            {
+                logger.LogInformation("✅ NOOR-VALIDATION: KSESSIONS database connection verified");
                 
                 // [DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table will be created on first access ;CLEANUP_OK
                 logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table migration will run on first broadcast ;CLEANUP_OK");
@@ -326,15 +361,41 @@ static void ValidateStartupConfiguration(IServiceProvider services)
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "⚠️ NOOR-WARNING: Database connection validation failed: {Message}", ex.Message);
+            var error = $"Database connection validation failed: {ex.Message}";
+            criticalErrors.Add(error);
+            logger.LogError(ex, "❌ NOOR-CRITICAL: {Error}", error);
         }
 
-        logger.LogInformation("✅ NOOR-VALIDATION: Startup configuration validation completed (non-blocking mode)");
+        // FAIL-FAST: If critical errors exist, halt application startup
+        if (criticalErrors.Any())
+        {
+            logger.LogError("❌ NOOR-FATAL: Application startup halted due to {CriticalErrorCount} critical configuration errors:", criticalErrors.Count);
+            foreach (var error in criticalErrors)
+            {
+                logger.LogError("   - {Error}", error);
+            }
+            
+            throw new ApplicationException($"Application startup failed due to {criticalErrors.Count} critical configuration errors. " +
+                "See logs for details. Fix configuration issues before restarting.");
+        }
+
+        // Report warnings but continue startup
+        if (warnings.Any())
+        {
+            logger.LogWarning("⚠️ NOOR-STARTUP: Application starting with {WarningCount} configuration warnings:", warnings.Count);
+            foreach (var warning in warnings)
+            {
+                logger.LogWarning("   - {Warning}", warning);
+            }
+        }
+
+        logger.LogInformation("✅ NOOR-VALIDATION: Startup configuration validation completed - {CriticalErrors} critical errors, {Warnings} warnings",
+            criticalErrors.Count, warnings.Count);
     }
-    catch (Exception ex)
+    catch (Exception ex) when (!(ex is ApplicationException))
     {
         logger.LogError(ex, "❌ NOOR-ERROR: Startup configuration validation encountered unexpected error: {Message}", ex.Message);
-        // Don't throw - allow application to continue starting
+        throw new ApplicationException("Startup configuration validation failed unexpectedly. See logs for details.", ex);
     }
 }
 

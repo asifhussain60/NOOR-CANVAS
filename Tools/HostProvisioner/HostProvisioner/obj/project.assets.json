@@ -5437,11 +5437,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
+      "projectUniqueName": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
       "projectName": "HostProvisioner",
-      "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
+      "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\HostProvisioner.csproj",
       "packagesPath": "C:\\Users\\asifh\\.nuget\\packages\\",
-      "outputPath": "d:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\obj\\",
+      "outputPath": "D:\\PROJECTS\\NOOR CANVAS\\Tools\\HostProvisioner\\HostProvisioner\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -5462,8 +5462,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
-              "projectPath": "d:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
+            "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj": {
+              "projectPath": "D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\NoorCanvas.csproj"
             }
           }
         }

@@ -9,11 +9,72 @@ public class SessionHub : Hub
 {
     private readonly ILogger<SessionHub> _logger;
     private readonly SimplifiedCanvasDbContext _context;
+    private static readonly Dictionary<string, (long sessionId, string role, DateTime joinedAt)> _connections = new();
+    private static readonly object _connectionsLock = new object();
 
     public SessionHub(ILogger<SessionHub> logger, SimplifiedCanvasDbContext context)
     {
         _logger = logger;
         _context = context;
+    }
+
+    /// <summary>
+    /// Handle connection lifecycle - called when client connects
+    /// </summary>
+    public override async Task OnConnectedAsync()
+    {
+        _logger.LogInformation("NOOR-HUB-LIFECYCLE: Client {ConnectionId} connected", Context.ConnectionId);
+        await base.OnConnectedAsync();
+    }
+
+    /// <summary>
+    /// Handle connection lifecycle - called when client disconnects
+    /// </summary>
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        lock (_connectionsLock)
+        {
+            if (_connections.TryGetValue(Context.ConnectionId, out var connectionInfo))
+            {
+                _connections.Remove(Context.ConnectionId);
+                
+                _logger.LogInformation("NOOR-HUB-LIFECYCLE: Connection {ConnectionId} removed from session {SessionId} (role: {Role}) - Duration: {Duration}ms", 
+                    Context.ConnectionId, connectionInfo.sessionId, connectionInfo.role, 
+                    (DateTime.UtcNow - connectionInfo.joinedAt).TotalMilliseconds);
+
+                // Notify session group of user departure
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var groupName = $"session_{connectionInfo.sessionId}";
+                        await Clients.Group(groupName).SendAsync("UserLeft", new
+                        {
+                            connectionId = Context.ConnectionId,
+                            role = connectionInfo.role,
+                            timestamp = DateTime.UtcNow,
+                            reason = exception?.Message ?? "disconnected"
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "NOOR-HUB-LIFECYCLE: Failed to notify group of user departure");
+                    }
+                });
+            }
+        }
+
+        if (exception != null)
+        {
+            _logger.LogWarning("NOOR-HUB-LIFECYCLE: Client {ConnectionId} disconnected with exception: {Error}", 
+                Context.ConnectionId, exception.Message);
+        }
+        else
+        {
+            _logger.LogInformation("NOOR-HUB-LIFECYCLE: Client {ConnectionId} disconnected normally", Context.ConnectionId);
+        }
+
+        await base.OnDisconnectedAsync(exception);
     }
 
     public async Task JoinSession(long sessionId, string role = "user")
@@ -22,6 +83,12 @@ public class SessionHub : Hub
         
         _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}", 
             Context.ConnectionId, groupName);
+
+        // Track connection with thread safety
+        lock (_connectionsLock)
+        {
+            _connections[Context.ConnectionId] = (sessionId, role, DateTime.UtcNow);
+        }
             
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
@@ -436,25 +503,7 @@ public class SessionHub : Hub
         _logger.LogInformation("NOOR-HUB: ParticipantLeft broadcast completed for session {SessionId}", sessionId);
     }
 
-    public override async Task OnConnectedAsync()
-    {
-        _logger.LogDebug("NOOR-HUB: Connection established: {ConnectionId}", Context.ConnectionId);
-        await base.OnConnectedAsync();
-    }
 
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        if (exception != null)
-        {
-            _logger.LogWarning(exception, "NOOR-HUB: Connection {ConnectionId} disconnected with error", Context.ConnectionId);
-        }
-        else
-        {
-            _logger.LogDebug("NOOR-HUB: Connection {ConnectionId} disconnected normally", Context.ConnectionId);
-        }
-
-        await base.OnDisconnectedAsync(exception);
-    }
 
     // Test methods for SignalR functionality verification
     public async Task BroadcastToAll(string message)

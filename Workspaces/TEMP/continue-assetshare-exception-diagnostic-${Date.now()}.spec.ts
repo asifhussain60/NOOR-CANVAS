@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * [DEBUG-WORKITEM:assetshare:continue] Diagnostic test to identify the appendChild exception
@@ -12,7 +12,7 @@ test.describe('Share Button Exception Diagnostics', () => {
         // Capture console errors
         const consoleErrors: string[] = [];
         const consoleMessages: string[] = [];
-        
+
         page.on('console', msg => {
             const text = msg.text();
             if (msg.type() === 'error') {
@@ -33,7 +33,7 @@ test.describe('Share Button Exception Diagnostics', () => {
         // Navigate to session 212
         await page.goto('https://localhost:9091/host?sessionId=212');
         await expect(page.locator('.host-control-panel')).toBeVisible({ timeout: 15000 });
-        
+
         console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] Host Control Panel loaded`);
 
         // Wait for processing to complete  
@@ -45,15 +45,15 @@ test.describe('Share Button Exception Diagnostics', () => {
 
         if (shareButtons === 0) {
             console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] ⚠️ No share buttons found - checking for assets`);
-            
+
             const ayahCards = await page.locator('.ayah-card').count();
             console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] Ayah cards found: ${ayahCards}`);
-            
+
             // If no share buttons but assets exist, the injection failed
             if (ayahCards > 0) {
                 console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] ❌ ISSUE IDENTIFIED: Assets present but no share buttons injected`);
             }
-            
+
             // Exit early since there's nothing to click
             expect(true).toBe(true);
             return;
@@ -61,13 +61,13 @@ test.describe('Share Button Exception Diagnostics', () => {
 
         // Click the first share button to trigger the exception
         console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] 🖱️ Clicking first share button to trigger exception`);
-        
+
         try {
             await page.click('.ks-share-btn:first-of-type, .ks-share-button:first-of-type', { timeout: 5000 });
-            
+
             // Wait for any async operations to complete
             await page.waitForTimeout(3000);
-            
+
             console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] ✅ Share button click completed without immediate exception`);
         } catch (error) {
             console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] 🚨 Click failed with error: ${error}`);
@@ -78,14 +78,14 @@ test.describe('Share Button Exception Diagnostics', () => {
             // Look for any SignalR activity indicators in the DOM or console
             const elements = document.querySelectorAll('*');
             let signalRActivity = [];
-            
+
             // Check for any elements that might have been modified by SignalR
             for (let elem of Array.from(elements).slice(0, 100)) { // Check first 100 elements
                 if (elem.innerHTML && elem.innerHTML.includes('ShareAsset')) {
                     signalRActivity.push(`Element ${elem.tagName} contains ShareAsset reference`);
                 }
             }
-            
+
             return {
                 totalElements: elements.length,
                 signalRActivity: signalRActivity,
@@ -99,7 +99,7 @@ test.describe('Share Button Exception Diagnostics', () => {
         console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] === EXCEPTION DIAGNOSTIC SUMMARY ===`);
         console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] Console errors captured: ${consoleErrors.length}`);
         console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] Relevant messages: ${consoleMessages.length}`);
-        
+
         if (consoleErrors.length > 0) {
             console.log(`[EXCEPTION-DIAGNOSTIC:${trackingId}] 🚨 ERRORS DETECTED:`);
             consoleErrors.forEach((error, idx) => {
@@ -115,7 +115,7 @@ test.describe('Share Button Exception Diagnostics', () => {
         }
 
         // Check if the appendChild error specifically occurred
-        const hasAppendChildError = consoleErrors.some(error => 
+        const hasAppendChildError = consoleErrors.some(error =>
             error.includes('appendChild') && error.includes('Unexpected end of input')
         );
 

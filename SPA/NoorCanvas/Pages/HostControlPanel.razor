@@ -12,6 +12,7 @@
 @using Microsoft.AspNetCore.SignalR
 @using Microsoft.EntityFrameworkCore
 @using NoorCanvas.Models
+@using NoorCanvas.Models.Simplified
 @using AngleSharp.Dom
 @using AngleSharp.Html.Parser
 @using System.Web
@@ -486,7 +487,7 @@
                 </div>
                 
                 @* Debug Actions *@
-                <div style="margin-bottom: 0.75rem;">
+                <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-direction: column;">
                     @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
                     {
                         <button @onclick="TestShareAsset" 
@@ -503,6 +504,23 @@
                             {
                                 <i class="fas fa-share" style="margin-right: 0.5rem;"></i>
                                 <span>Test Share Asset</span>
+                            }
+                        </button>
+                        
+                        <button @onclick="TestAssetDetectionAsync" 
+                                disabled="@isLoading"
+                                style="width: 100%; background-color: #DC2626; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; border: none; cursor: @(isLoading ? "not-allowed" : "pointer"); opacity: @(isLoading ? "0.6" : "1");"
+                                onmouseover="this.style.backgroundColor='#B91C1C'"
+                                onmouseout="this.style.backgroundColor='#DC2626'">
+                            @if (isLoading)
+                            {
+                                <i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>
+                                <span>Testing...</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                                <span>Test Ayah Detection</span>
                             }
                         </button>
                     }
@@ -621,7 +639,7 @@
         // Transform the initial transcript
         if (!string.IsNullOrEmpty(Model.SessionTranscript))
         {
-            Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
+            Model.TransformedTranscript = await TransformTranscriptHtmlAsync(Model.SessionTranscript);
         }
         
         await InvokeAsync(StateHasChanged);
@@ -707,7 +725,7 @@
                 if (Model != null)
                 {
                     Model.SessionTranscript = transcript;
-                    Model.TransformedTranscript = await TransformTranscriptHtml(transcript);
+                    Model.TransformedTranscript = await TransformTranscriptHtmlAsync(transcript);
                     await InvokeAsync(StateHasChanged);
                 }
             });
@@ -939,7 +957,15 @@
                     // Transform transcript with asset detection and share buttons
                     if (!string.IsNullOrEmpty(Model.SessionTranscript))
                     {
-                        Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
+                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] CALLING TransformTranscriptHtmlAsync with {Length} chars, SessionStatus: {SessionStatus} ;CLEANUP_OK", 
+                            Model.SessionTranscript.Length, Model.SessionStatus);
+                        Model.TransformedTranscript = await TransformTranscriptHtmlAsync(Model.SessionTranscript);
+                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] TransformTranscriptHtmlAsync COMPLETED, output length: {OutputLength} ;CLEANUP_OK", 
+                            Model.TransformedTranscript?.Length ?? 0);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] No transcript content to transform - SessionTranscript is empty ;CLEANUP_OK");
                     }
                     
                     Logger.LogInformation("Session data loaded from database - SessionId: {SessionId}, Name: {SessionName}, TranscriptLength: {TranscriptLength}", 
@@ -1258,7 +1284,7 @@
                 if (!string.IsNullOrEmpty(Model.SessionTranscript))
                 {
                     Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:StartSession] Session now active - re-transforming transcript to inject share buttons");
-                    Model.TransformedTranscript = await TransformTranscriptHtml(Model.SessionTranscript);
+                    Model.TransformedTranscript = await TransformTranscriptHtmlAsync(Model.SessionTranscript);
                 }
                 
                 await ShowMessageAsync("Session started successfully! Session is now active.");
@@ -1333,9 +1359,10 @@
     public async Task ShareAsset(string shareId, string assetType, int instanceNumber)
     {
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 PHASE1 SHAREBUTTON: ShareAsset method called from JavaScript, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀🚀🚀 SHAREBUTTON CLICKED - C# METHOD CALLED! broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
         Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📦 PHASE1 INPUT: ShareId={ShareId}, AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, assetType, instanceNumber, broadcastId);
         Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎯 PHASE1 STEP 1/7: ShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔍 DEBUGGING: Method successfully invoked from JavaScript! This proves the click handler is working! ;CLEANUP_OK");
         
         if (SessionId == null || hubConnection == null)
         {
@@ -1678,6 +1705,10 @@
                 var dotNetRef = DotNetObjectReference.Create(this);
                 await JSRuntime.InvokeVoidAsync("setupShareButtonHandlers", dotNetRef);
                 Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Share button handlers initialized ;CLEANUP_OK");
+                
+                // Check if share buttons exist in the DOM
+                var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('[data-share-button=\"asset\"]').length");
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Found {ButtonCount} share buttons in DOM after initialization ;CLEANUP_OK", buttonCount);
             }
             catch (Exception ex)
             {
@@ -1941,7 +1972,7 @@
     /// Transforms the transcript HTML by removing delete buttons and adding SHARE buttons for each asset
     /// Share buttons are only injected when session status is "Active"
     /// </summary>
-    private async Task<string> TransformTranscriptHtml(string originalHtml)
+    private async Task<string> TransformTranscriptHtmlAsync(string originalHtml)
     {
         if (string.IsNullOrEmpty(originalHtml))
         {
@@ -1959,19 +1990,31 @@
             // Sanitize incoming HTML to remove dangerous elements/attributes before we touch it
             var sanitizedInput = SanitizeHtml(htmlWithoutDeletes);
 
-            // Only inject share buttons if session is active; inject into sanitized HTML so our injection won't be stripped
+            // [DEBUG-WORKITEM:assetshare:continue] Inject share buttons when session is loaded with transcript (not just Active)
             string finalHtml;
-            if (Model?.SessionStatus == "Active")
+            bool shouldInjectButtons = !string.IsNullOrEmpty(sanitizedInput) && SessionId.HasValue && 
+                                     (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Waiting");
+            
+            var transformRunId = DateTime.Now.ToString("HHmmss") + "-" + Random.Shared.Next(1000, 9999);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{TransformRunId}] TRANSFORM DECISION: SessionId={SessionId}, Status='{SessionStatus}', HasHTML={HasHTML}chars, ShouldInject={ShouldInject} ;CLEANUP_OK", 
+                transformRunId, SessionId, Model?.SessionStatus, sanitizedInput?.Length ?? 0, shouldInjectButtons);
+            
+            if (shouldInjectButtons)
             {
-                Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session is Active - injecting share buttons for SessionId {SessionId}", SessionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{TransformRunId}] ✅ CALLING InjectAssetShareButtonsDatabaseAsync - Session {SessionId} status '{SessionStatus}' ;CLEANUP_OK", 
+                    transformRunId, SessionId, Model?.SessionStatus);
                 
-                // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Enhanced asset processing using HtmlAgilityPack ;CLEANUP_OK
-                finalHtml = await InjectAssetShareButtonsWithEnhancedProcessing(sanitizedInput);
+                // [ASSETSHARE-DATABASE] Use AssetLookup table for asset detection and red share button injection
+                finalHtml = await InjectAssetShareButtonsDatabaseAsync(sanitizedInput);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{TransformRunId}] ✅ InjectAssetShareButtonsDatabaseAsync COMPLETED - Output length: {OutputLength} ;CLEANUP_OK", 
+                    transformRunId, finalHtml?.Length ?? 0);
             }
             else
             {
-                Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session status '{SessionStatus}' - skipping share button injection for SessionId {SessionId}", 
-                    Model?.SessionStatus, SessionId);
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{TransformRunId}] ❌ SKIPPING share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars) ;CLEANUP_OK", 
+                    transformRunId, SessionId, Model?.SessionStatus, sanitizedInput?.Length ?? 0);
                 finalHtml = sanitizedInput;
             }
             
@@ -2021,113 +2064,260 @@
     }
 
     /// <summary>
-    /// NEW SIMPLIFIED APPROACH: Inject share buttons using AssetLookup database table
-    /// Replaces complex DetectAndTrackAssetsAsync + InjectAssetShareButtonsAsync approach
+    /// [ASSETSHARE-DATABASE] Database-driven asset detection using canvas.AssetLookup table
+    /// Detects assets based on CSS selectors from AssetLookup table and injects red share buttons
     /// </summary>
-    private async Task<string> InjectAssetShareButtonsFromDatabase(string html)
+    private async Task<string> InjectAssetShareButtonsDatabaseAsync(string html)
     {
+        var runId = DateTime.Now.ToString("HHmmss") + "-" + Random.Shared.Next(1000, 9999);
+        
         try
         {
-            Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Loading asset definitions from database");
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] === STARTING ASSET DETECTION === Processing HTML using AssetLookup table ;CLEANUP_OK", runId);
             
-            // Load all active asset definitions from AssetLookup table
-            var assetDefinitions = await SimplifiedCanvasDb.AssetLookup
-                .Where(a => a.IsActive)
-                .ToListAsync();
-                
-            Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Found {Count} active asset definitions", assetDefinitions.Count);
-            
-            if (assetDefinitions.Count == 0)
+            if (string.IsNullOrEmpty(html))
             {
-                Logger.LogWarning("SIMPLIFIED-ASSET-INJECTION: No active asset definitions found, skipping injection");
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Empty HTML provided, skipping injection ;CLEANUP_OK", runId);
+                return html;
+            }
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Input HTML length: {Length} characters ;CLEANUP_OK", html.Length, runId);
+            
+            // Debug: Log first 500 characters of HTML to verify content
+            var htmlPreview = html.Length > 500 ? html.Substring(0, 500) + "..." : html;
+            Logger.LogDebug("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] HTML Preview: {HtmlPreview} ;CLEANUP_OK", runId, htmlPreview);
+
+            // Get active asset types from AssetLookup table
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Querying AssetLookup table for active asset types ;CLEANUP_OK", runId);
+            
+            var assetLookups = await SimplifiedCanvasDb.AssetLookup
+                .Where(a => a.IsActive && !string.IsNullOrEmpty(a.CssSelector))
+                .OrderBy(a => a.AssetIdentifier)
+                .ToListAsync();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] AssetLookup query completed - found {Count} records ;CLEANUP_OK", runId, assetLookups.Count);
+
+            if (!assetLookups.Any())
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] No active asset lookups found in database - checking table existence ;CLEANUP_OK", runId);
+                
+                // Debug: Check if table exists and has any records at all
+                try
+                {
+                    var totalRecords = await SimplifiedCanvasDb.AssetLookup.CountAsync();
+                    var activeRecords = await SimplifiedCanvasDb.AssetLookup.Where(a => a.IsActive).CountAsync();
+                    Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] AssetLookup table stats - Total: {Total}, Active: {Active} ;CLEANUP_OK", runId, totalRecords, activeRecords);
+                    
+                    var allRecords = await SimplifiedCanvasDb.AssetLookup.ToListAsync();
+                    foreach (var record in allRecords)
+                    {
+                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Record: {Id} - {Identifier} - Active: {IsActive} - Selector: '{Selector}' ;CLEANUP_OK", 
+                            runId, record.LookupId, record.AssetIdentifier, record.IsActive, record.CssSelector);
+                    }
+                }
+                catch (Exception dbEx)
+                {
+                    Logger.LogError(dbEx, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Error checking AssetLookup table ;CLEANUP_OK", runId);
+                }
+                
                 return html;
             }
 
-            var modifiedHtml = html;
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Found {Count} active asset types - listing all ;CLEANUP_OK", runId, assetLookups.Count);
+            
+            foreach (var lookup in assetLookups)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Asset Type: {Identifier} - Selector: '{Selector}' - Display: '{Display}' ;CLEANUP_OK", 
+                    runId, lookup.AssetIdentifier, lookup.CssSelector, lookup.DisplayName);
+            }
+
+            // Parse HTML document for CSS selector matching
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Parsing HTML document with AngleSharp ;CLEANUP_OK", runId);
+            var parser = new HtmlParser();
+            var document = parser.ParseDocument(html);
             var totalMatches = 0;
 
-            // Process each asset type from the database
-            foreach (var assetDef in assetDefinitions)
-            {
-                if (string.IsNullOrEmpty(assetDef.CssSelector))
-                {
-                    Logger.LogDebug("SIMPLIFIED-ASSET-INJECTION: Skipping {AssetType} - no CSS selector defined", assetDef.AssetType);
-                    continue;
-                }
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Document parsed - Body length: {BodyLength}, Title: '{Title}' ;CLEANUP_OK", 
+                runId, document.Body?.InnerHtml?.Length ?? 0, document.Title);
 
-                // Convert CSS selector to regex pattern for matching
-                var regexPattern = ConvertCssSelectorToRegex(assetDef.CssSelector);
-                
-                var matches = System.Text.RegularExpressions.Regex.Matches(modifiedHtml, regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                
-                if (matches.Count > 0)
+            // Process each asset type from database (reverse order to maintain positions)
+            foreach (var assetLookup in assetLookups.AsEnumerable().Reverse())
+            {
+                try
                 {
-                    Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Found {Count} instances of {AssetType}", matches.Count, assetDef.AssetType);
+                    Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Processing asset type '{AssetType}' with CSS selector '{Selector}' ;CLEANUP_OK", 
+                        runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
                     
-                    // Inject share buttons for each match (in reverse order to preserve positions)
-                    for (int i = matches.Count - 1; i >= 0; i--)
+                    // Use CSS selector to find matching elements
+                    var elements = document.QuerySelectorAll(assetLookup.CssSelector ?? string.Empty);
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] CSS Query completed - found {ElementCount} elements for selector '{Selector}' ;CLEANUP_OK", 
+                        runId, elements.Length, assetLookup.CssSelector);
+                    
+                    if (elements.Length > 0)
                     {
-                        var match = matches[i];
-                        var shareId = GenerateShareId();
-                        var shareButton = CreateShareButtonHtml(assetDef.AssetType, assetDef.DisplayName ?? assetDef.AssetType, shareId, i + 1);
+                        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] ✅ FOUND {Count} instances of {AssetType} using selector '{Selector}' ;CLEANUP_OK", 
+                            runId, elements.Length, assetLookup.AssetIdentifier, assetLookup.CssSelector);
                         
-                        // Insert share button before the matched element
-                        modifiedHtml = modifiedHtml.Insert(match.Index, shareButton);
-                        totalMatches++;
+                        // Debug: Log details of found elements
+                        for (int j = 0; j < Math.Min(elements.Length, 3); j++) // Log first 3 matches
+                        {
+                            var elem = elements[j];
+                            var elementPreview = elem.OuterHtml.Length > 200 ? elem.OuterHtml.Substring(0, 200) + "..." : elem.OuterHtml;
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Element {Index}: {ElementPreview} ;CLEANUP_OK", 
+                                runId, j + 1, elementPreview);
+                        }
+                        
+                        // Process elements in reverse order to preserve positions
+                        for (int i = elements.Length - 1; i >= 0; i--)
+                        {
+                            var element = elements[i];
+                            var shareId = $"asset-{assetLookup.AssetIdentifier}-{i + 1}";
+                            
+                            Logger.LogDebug("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Injecting share button for element {Index} with shareId: {ShareId} ;CLEANUP_OK", 
+                                runId, i + 1, shareId);
+                            
+                            // Add data-asset-id to the element for JavaScript matching
+                            element.SetAttribute("data-asset-id", shareId);
+                            
+                            // Create red share button HTML
+                            var shareButton = CreateRedShareButtonHtml(
+                                assetLookup.AssetIdentifier, 
+                                assetLookup.DisplayName ?? assetLookup.AssetIdentifier, 
+                                shareId, 
+                                i + 1
+                            );
+                            
+                            // Parse share button and insert before the asset element
+                            if (element.ParentElement != null)
+                            {
+                                var buttonDoc = parser.ParseFragment(shareButton, element.ParentElement);
+                                foreach (var buttonNode in buttonDoc)
+                                {
+                                    element.ParentElement.InsertBefore(buttonNode, element);
+                                }
+                                Logger.LogDebug("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Share button injected successfully for {ShareId} ;CLEANUP_OK", 
+                                    runId, shareId);
+                            }
+                            else
+                            {
+                                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Element has no parent - cannot inject button for {ShareId} ;CLEANUP_OK", 
+                                    runId, shareId);
+                            }
+                            
+                            totalMatches++;
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] ❌ NO MATCHES found for {AssetType} with selector '{Selector}' ;CLEANUP_OK", 
+                            runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
+                        
+                        // Debug: Try to find similar elements
+                        if (assetLookup.CssSelector == ".ayah-card")
+                        {
+                            var classElements = document.QuerySelectorAll("[class*='ayah']");
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] DEBUG: Found {Count} elements with 'ayah' in class ;CLEANUP_OK", 
+                                runId, classElements.Length);
+                                
+                            var idElements = document.QuerySelectorAll("[id*='ayah']");
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] DEBUG: Found {Count} elements with 'ayah' in id ;CLEANUP_OK", 
+                                runId, idElements.Length);
+                                
+                            var divElements = document.QuerySelectorAll("div");
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] DEBUG: Found {Count} total div elements ;CLEANUP_OK", 
+                                runId, divElements.Length);
+                        }
                     }
                 }
-                else
+                catch (Exception selectorEx)
                 {
-                    Logger.LogDebug("SIMPLIFIED-ASSET-INJECTION: No matches found for {AssetType} with selector '{CssSelector}'", 
-                        assetDef.AssetType, assetDef.CssSelector);
+                    Logger.LogError(selectorEx, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Failed to process asset type {AssetType} with selector '{Selector}' ;CLEANUP_OK", 
+                        runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
                 }
             }
             
-            Logger.LogInformation("SIMPLIFIED-ASSET-INJECTION: Successfully injected {TotalMatches} share buttons", totalMatches);
-            return modifiedHtml;
+            var finalHtml = document.Body?.InnerHtml ?? html;
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] === ASSET DETECTION COMPLETE === Successfully injected {TotalMatches} red share buttons using AssetLookup table ;CLEANUP_OK", 
+                runId, totalMatches);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] Final HTML length: {FinalLength} (was {OriginalLength}) ;CLEANUP_OK", 
+                runId, finalHtml.Length, html.Length);
+                
+            return finalHtml;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "SIMPLIFIED-ASSET-INJECTION: Failed to inject share buttons, returning original HTML");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] [ASSETSHARE-DB] ❌ CRITICAL ERROR: Failed to inject share buttons using database, returning original HTML ;CLEANUP_OK", runId);
             return html;
         }
     }
 
     /// <summary>
-    /// Convert CSS selector to regex pattern for HTML matching
+    /// Debug method to test AssetLookup table and ayah-card detection
     /// </summary>
-    private string ConvertCssSelectorToRegex(string cssSelector)
+    private async Task TestAssetDetectionAsync()
     {
-        if (cssSelector.StartsWith("table[") && cssSelector.Contains("style="))
+        var runId = DateTime.Now.ToString("HHmmss") + "-TEST";
+        try
         {
-            // Handle table[style="width: 100%;"] selector
-            return @"<table[^>]*style=""[^""]*width:\s*100%[^""]*""[^>]*>";
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] === TESTING ASSET DETECTION === ;CLEANUP_OK", runId);
+            
+            // Test HTML with ayah-card from user's attachment
+            var testHtml = @"<div class=""ayah-card"" id=""ayah-card-14-34"">
+                <div class=""golden-surah-header clickable-ayah-header"" data-ayats=""34"" data-original-token=""Q|14:34"" data-surah=""14"" id=""ayah-header-14-34"">
+                    <span>Abraham (14:34)</span>
+                </div>
+                <p class=""ayah-arabic"">Test Arabic text</p>
+                <div class=""translation-header"">Translation:</div>
+                <p class=""ayah-translation"">Test translation text</p>
+            </div>";
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] Testing with sample ayah-card HTML ;CLEANUP_OK", runId);
+            
+            var result = await InjectAssetShareButtonsDatabaseAsync(testHtml);
+            
+            var hasShareButton = result.Contains("ks-share-button");
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] TEST RESULT: Share button injected = {HasButton}, Original length = {OrigLen}, Result length = {ResLen} ;CLEANUP_OK", 
+                runId, hasShareButton, testHtml.Length, result.Length);
         }
-        else if (cssSelector.StartsWith("."))
+        catch (Exception ex)
         {
-            // Handle class selectors like .ayah-card
-            var className = cssSelector.Substring(1); // Remove the dot
-            return $@"<[^>]*class=""[^""]*{System.Text.RegularExpressions.Regex.Escape(className)}[^""]*""[^>]*>";
-        }
-        else
-        {
-            // Default pattern - treat as element name
-            return $@"<{System.Text.RegularExpressions.Regex.Escape(cssSelector)}[^>]*>";
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] TEST FAILED with exception ;CLEANUP_OK", runId);
         }
     }
 
     /// <summary>
-    /// Create HTML for a share button (FIXED: Proper HTML encoding for Blazor MarkupString)
+    /// Hub-based fallback method - kept for backward compatibility
     /// </summary>
-    private string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    private string InjectAssetShareButtonsHubBased(string html)
     {
-        // ISSUE FIX: HTML-encode all user-provided values to prevent parsing errors
+        Logger.LogWarning("[ASSETSHARE-HUB] Hub-based method called - this should be replaced with database approach");
+        return html; // Return original HTML without modification
+    }
+
+
+
+    /// <summary>
+    /// Create HTML for a red share button based on AssetLookup data
+    /// </summary>
+    private string CreateRedShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    {
+        // HTML-encode all user-provided values to prevent parsing errors
         var encodedAssetType = System.Web.HttpUtility.HtmlEncode(assetType);
         var encodedDisplayName = System.Web.HttpUtility.HtmlEncode(displayName);
         var encodedShareId = System.Web.HttpUtility.HtmlEncode(shareId);
         
         return $@"<div class=""ks-share-wrapper"">" +
-               $@"<button class=""ks-share-button"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"">📤 SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+               $@"<button class=""ks-share-button ks-share-red"" data-share-button=""asset"" data-share-id=""{encodedShareId}"" data-asset-type=""{encodedAssetType}"" data-instance-number=""{instanceNumber}"" type=""button"" style=""background-color: #dc3545; color: white; border: 1px solid #dc3545; padding: 4px 8px; font-size: 12px; border-radius: 3px; cursor: pointer;"">� SHARE {encodedDisplayName.ToUpper()} #{instanceNumber}</button></div>";
+    }
+
+    /// <summary>
+    /// Create HTML for a share button (LEGACY: kept for backward compatibility)
+    /// </summary>
+    private string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
+    {
+        // Redirect to red share button for consistency
+        return CreateRedShareButtonHtml(assetType, displayName, shareId, instanceNumber);
     }
 
     /// <summary>
@@ -2207,113 +2397,7 @@
         }
     }
 
-    /// <summary>
-    /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Enhanced asset share button injection using HtmlAgilityPack ;CLEANUP_OK
-    /// Combines traditional database-driven approach with advanced HTML processing capabilities
-    /// </summary>
-    private async Task<string> InjectAssetShareButtonsWithEnhancedProcessing(string html)
-    {
-        try
-        {
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Starting enhanced asset processing for SessionId: {SessionId} ;CLEANUP_OK", SessionId);
 
-            if (SessionId == null)
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] SessionId is null, falling back to traditional processing ;CLEANUP_OK");
-                return await InjectAssetShareButtonsFromDatabase(html);
-            }
-
-            // Use the new enhanced method that injects share buttons directly during HTML processing
-            var assetProcessingResult = AssetHtmlProcessor.ProcessHtmlForAssetSharingWithButtons(html, SessionId.Value, Model?.SessionStatus ?? "Unknown", true);
-
-            if (!assetProcessingResult.ProcessingMetadata.Success)
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack processing with buttons failed: {Message}, falling back to traditional method ;CLEANUP_OK", 
-                    assetProcessingResult.ProcessingMetadata.Message);
-                return await InjectAssetShareButtonsFromDatabase(html);
-            }
-
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack processed {AssetCount} assets successfully with integrated share button injection ;CLEANUP_OK", 
-                assetProcessingResult.DetectedAssets.Count);
-
-            // Return the processed HTML which already contains share buttons if session is active
-            if (assetProcessingResult.DetectedAssets.Count > 0)
-            {
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Successfully processed {AssetCount} assets with integrated share button injection - returning enhanced HTML ;CLEANUP_OK", 
-                    assetProcessingResult.DetectedAssets.Count);
-                
-                return assetProcessingResult.ProcessedHtml;
-            }
-            else
-            {
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] No assets detected by HtmlAgilityPack, falling back to traditional database method ;CLEANUP_OK");
-                return await InjectAssetShareButtonsFromDatabase(html);
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error in enhanced asset processing, falling back to traditional method ;CLEANUP_OK");
-            return await InjectAssetShareButtonsFromDatabase(html);
-        }
-    }
-
-    /// <summary>
-    /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Add share buttons to HTML processed by HtmlAgilityPack ;CLEANUP_OK
-    /// </summary>
-    private Task<string> AddShareButtonsToProcessedHtml(string processedHtml, List<NoorCanvas.Services.DetectedAsset> detectedAssets)
-    {
-        try
-        {
-            var htmlWithButtons = processedHtml;
-            
-            // Process assets in reverse order to maintain positions during HTML insertion
-            var sortedAssets = detectedAssets.OrderByDescending(a => a.Position).ToList();
-            
-            foreach (var asset in sortedAssets)
-            {
-                try
-                {
-                    // Generate share button HTML using existing method
-                    var shareId = GenerateShareId();
-                    var shareButton = CreateShareButtonHtml(asset.AssetType, asset.DisplayName, shareId, 1);
-                    
-                    // Find the element with the data-asset-id and inject button before it
-                    var assetPattern = $@"<[^>]*data-asset-id=""{System.Text.RegularExpressions.Regex.Escape(asset.AssetId)}""[^>]*>";
-                    var match = System.Text.RegularExpressions.Regex.Match(htmlWithButtons, assetPattern);
-                    
-                    if (match.Success)
-                    {
-                        htmlWithButtons = htmlWithButtons.Insert(match.Index, shareButton);
-                        Logger.LogDebug("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Added share button for asset: {AssetId} ({AssetType}) ;CLEANUP_OK", 
-                            asset.AssetId, asset.AssetType);
-                    }
-                    else
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Could not find asset element for ID: {AssetId} ;CLEANUP_OK", asset.AssetId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error adding share button for asset: {AssetId} ;CLEANUP_OK", asset.AssetId);
-                }
-            }
-            
-            return Task.FromResult(htmlWithButtons);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error adding share buttons to processed HTML ;CLEANUP_OK");
-            return Task.FromResult(processedHtml); // Return processed HTML without buttons as fallback
-        }
-    }
-
-    /// <summary>
-    /// Generate a unique share ID for asset sharing
-    /// </summary>
-    private string GenerateShareId()
-    {
-        return Guid.NewGuid().ToString("N")[..8].ToUpper();
-    }
 
     /// <summary>
     /// Removes any button elements that have 'delete' in their id or class attributes
@@ -3179,6 +3263,67 @@
         }, 5000);
     };
 
+    // Debug Share Toast Function - shows comprehensive debugging info
+    window.showShareDebugToast = function(message, data, type = 'info') {
+        const colors = {
+            info: { bg: '#3B82F6', icon: '🔍' },
+            success: { bg: '#10B981', icon: '✅' },
+            error: { bg: '#DC2626', icon: '❌' },
+            warning: { bg: '#F59E0B', icon: '⚠️' },
+            payload: { bg: '#8B5CF6', icon: '📦' }
+        };
+        
+        const config = colors[type] || colors.info;
+        
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                <span style="font-size: 1.5rem;">${config.icon}</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem;">${message}</div>
+                    ${data ? `<pre style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; max-height: 200px; overflow-y: auto; margin: 0; white-space: pre-wrap; word-break: break-all;">${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}</pre>` : ''}
+                </div>
+            </div>
+        `;
+        
+        toast.style.cssText = `
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: ${config.bg};
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 10001;
+            font-family: 'Consolas', 'Monaco', monospace;
+            max-width: 500px;
+            word-wrap: break-word;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Auto-hide after 8 seconds for debug messages
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
+        }, 8000);
+    };
+
     // Simplified clipboard handling - Blazor will handle copy operations directly via JSRuntime
 
     // Copy User Landing Link Function (Legacy - keeping for compatibility)
@@ -3320,24 +3465,84 @@ Please share this report with the development team for debugging.`;
     
     // [DEBUG-WORKITEM:assetshare:continue] Share button handler setup ;CLEANUP_OK
     function setupShareButtonHandlers(dotNetObjectRef) {
-        console.log('[DEBUG-WORKITEM:assetshare:continue] Setting up share button handlers');
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🚀 Setting up share button handlers...');
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 DotNet reference received:', dotNetObjectRef);
         
         // Remove existing listeners to prevent duplicates
         document.removeEventListener('click', handleShareButtonClick);
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🗑️  Removed existing click listener');
         
         // Store reference for cleanup
         window.dotNetRef = dotNetObjectRef;
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 💾 Stored DotNet reference to window.dotNetRef');
+        
+        // Check for existing share buttons
+        const existingButtons = document.querySelectorAll('.ks-share-button');
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 Found existing share buttons:', {
+            count: existingButtons.length,
+            buttons: Array.from(existingButtons).map(btn => ({
+                shareId: btn.getAttribute('data-share-id'),
+                assetType: btn.getAttribute('data-asset-type'),
+                innerHTML: btn.innerHTML.substring(0, 50)
+            }))
+        });
         
         // Add event listener for share button clicks using event delegation
         document.addEventListener('click', handleShareButtonClick);
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 👂 Added new click event listener');
         
-        console.log('[DEBUG-WORKITEM:assetshare:continue] Share button handlers setup completed');
+        // Test click handler by simulating a click
+        if (existingButtons.length > 0) {
+            console.log('[DEBUG-WORKITEM:assetshare:continue] 🧪 Testing click handler with first button...');
+            // Don't actually click, just log that we could
+            const firstButton = existingButtons[0];
+            console.log('[DEBUG-WORKITEM:assetshare:continue] 🎯 First button details:', {
+                tagName: firstButton.tagName,
+                className: firstButton.className,
+                attributes: Array.from(firstButton.attributes).map(attr => `${attr.name}="${attr.value}"`).join(', ')
+            });
+        }
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ Share button handlers setup completed successfully!');
     }
     
     function handleShareButtonClick(event) {
+        // [DEBUG-WORKITEM:assetshare:continue] Enhanced click debugging - log ALL clicks first
+        const clickData = {
+            target: event.target,
+            tagName: event.target.tagName,
+            className: event.target.className,
+            hasClosest: !!event.target.closest,
+            allClasses: Array.from(event.target.classList || [])
+        };
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 CLICK DETECTED:', clickData);
+        
+        // TOAST: Show click detection
+        showShareDebugToast('🔍 CLICK DETECTED!', clickData, 'info');
+        
         // Check if clicked element is a share button
         const shareButton = event.target.closest('.ks-share-button');
-        if (!shareButton) return;
+        
+        const shareButtonCheck = {
+            foundShareButton: !!shareButton,
+            shareButtonElement: shareButton,
+            shareButtonClasses: shareButton ? Array.from(shareButton.classList) : null
+        };
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON CHECK:', shareButtonCheck);
+        
+        // TOAST: Show share button detection result
+        if (shareButton) {
+            showShareDebugToast('✅ SHARE BUTTON FOUND!', shareButtonCheck, 'success');
+        } else {
+            showShareDebugToast('❌ Not a share button click', shareButtonCheck, 'warning');
+        }
+        
+        if (!shareButton) {
+            console.log('[DEBUG-WORKITEM:assetshare:continue] ❌ Not a share button click, ignoring');
+            return;
+        }
         
         event.preventDefault();
         
@@ -3345,36 +3550,107 @@ Please share this report with the development team for debugging.`;
         const assetType = shareButton.getAttribute('data-asset-type');
         const instanceNumber = parseInt(shareButton.getAttribute('data-instance-number')) || 1;
         
+        const attributesData = {
+            shareId,
+            assetType,
+            instanceNumber,
+            allAttributes: Array.from(shareButton.attributes).map(attr => ({
+                name: attr.name,
+                value: attr.value
+            }))
+        };
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON ATTRIBUTES:', attributesData);
+        
+        // TOAST: Show extracted attributes
+        showShareDebugToast('📋 SHARE BUTTON ATTRIBUTES', attributesData, 'info');
+        
         if (!shareId || !assetType) {
-            console.error('[DEBUG-WORKITEM:assetshare:continue] Missing data attributes:', { shareId, assetType, instanceNumber });
+            const errorData = { shareId, assetType, instanceNumber };
+            console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ Missing data attributes:', errorData);
+            showShareDebugToast('❌ MISSING DATA ATTRIBUTES', errorData, 'error');
+            alert(`Missing data attributes: shareId=${shareId}, assetType=${assetType}`);
             return;
         }
         
-        console.log('[DEBUG-WORKITEM:assetshare:continue] Share button clicked:', { shareId, assetType, instanceNumber });
+        // Find and display the HTML payload that would be shared
+        const assetElement = document.querySelector(`[data-asset-id="${shareId}"]`);
+        if (assetElement) {
+            const htmlPayload = {
+                outerHTML: assetElement.outerHTML.substring(0, 500) + (assetElement.outerHTML.length > 500 ? '...' : ''),
+                textContent: assetElement.textContent?.substring(0, 200) || '',
+                className: assetElement.className || '',
+                elementFound: true
+            };
+            showShareDebugToast('📦 HTML PAYLOAD TO BE SHARED', htmlPayload, 'payload');
+        } else {
+            showShareDebugToast('❌ ASSET ELEMENT NOT FOUND', { shareId, selector: `[data-asset-id="${shareId}"]` }, 'error');
+        }
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ Share button clicked - processing:', { shareId, assetType, instanceNumber });
         
         // Disable button during processing
         const originalContent = shareButton.innerHTML;
         shareButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SHARING...';
         shareButton.disabled = true;
+        shareButton.style.backgroundColor = '#f59e0b';
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔄 Calling DotNet method ShareAsset...');
+        
+        // TOAST: Show method call initiation
+        showShareDebugToast('🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber }, 'info');
         
         // Call C# method via DotNet interop
         if (window.dotNetRef) {
+            console.log('[DEBUG-WORKITEM:assetshare:continue] 📞 DotNet reference available, invoking ShareAsset...');
+            
+            // TOAST: Show DotNet reference status
+            showShareDebugToast('📞 DOTNET REFERENCE FOUND', { hasReference: true, method: 'ShareAsset' }, 'success');
+            
             window.dotNetRef.invokeMethodAsync('ShareAsset', shareId, assetType, instanceNumber)
-                .then(() => {
-                    console.log('[DEBUG-WORKITEM:assetshare:continue] ShareAsset completed successfully');
-                    // Restore button after success
-                    shareButton.innerHTML = originalContent;
-                    shareButton.disabled = false;
+                .then((result) => {
+                    console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ ShareAsset completed successfully:', result);
+                    
+                    // TOAST: Show success result
+                    showShareDebugToast('🎉 SHARE SUCCESS!', result, 'success');
+                    
+                    // Success feedback
+                    shareButton.innerHTML = '✅ SHARED!';
+                    shareButton.style.backgroundColor = '#059669';
+                    
+                    // Restore button after 3 seconds
+                    setTimeout(() => {
+                        shareButton.innerHTML = originalContent;
+                        shareButton.style.backgroundColor = '';
+                        shareButton.disabled = false;
+                    }, 3000);
                 })
                 .catch((error) => {
-                    console.error('[DEBUG-WORKITEM:assetshare:continue] ShareAsset failed:', error);
+                    console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ ShareAsset failed:', error);
+                    
+                    // TOAST: Show error details
+                    showShareDebugToast('💥 SHARE FAILED!', { error: error.toString(), shareId, assetType }, 'error');
+                    
+                    // Error feedback
+                    shareButton.innerHTML = '❌ ERROR';
+                    shareButton.style.backgroundColor = '#dc2626';
+                    
                     // Restore button after error
-                    shareButton.innerHTML = originalContent;
-                    shareButton.disabled = false;
+                    setTimeout(() => {
+                        shareButton.innerHTML = originalContent;
+                        shareButton.style.backgroundColor = '';
+                        shareButton.disabled = false;
+                    }, 3000);
                 });
         } else {
-            console.error('[DEBUG-WORKITEM:assetshare:continue] DotNet reference not available');
+            console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ DotNet reference not available');
+            
+            // TOAST: Show DotNet reference error
+            showShareDebugToast('❌ NO DOTNET REFERENCE', { hasReference: false, windowDotNetRef: !!window.dotNetRef }, 'error');
+            
+            alert('DotNet reference not available. Please refresh the page.');
             shareButton.innerHTML = originalContent;
+            shareButton.style.backgroundColor = '';
             shareButton.disabled = false;
         }
     }

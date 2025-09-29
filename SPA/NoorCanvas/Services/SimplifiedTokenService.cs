@@ -242,9 +242,26 @@ public class SimplifiedTokenService
             attempts++;
 
             if (attempts > maxAttempts)
-                throw new InvalidOperationException("Unable to generate unique token after maximum attempts");
+            {
+                _logger.LogError("NOOR-SIMPLIFIED-TOKEN: Failed to generate unique token after {MaxAttempts} attempts. Database may be saturated.", maxAttempts);
+                throw new InvalidOperationException($"Unable to generate unique token after {maxAttempts} attempts. Consider increasing token length or cleaning expired tokens.");
+            }
+
+            // Add exponential backoff for collision retries
+            if (attempts > 10)
+            {
+                var delayMs = Math.Min(1000, attempts * 10);
+                await Task.Delay(delayMs);
+                _logger.LogWarning("NOOR-SIMPLIFIED-TOKEN: Token collision detected, attempt {Attempt}/{MaxAttempts}, backing off {DelayMs}ms", 
+                    attempts, maxAttempts, delayMs);
+            }
 
         } while (await TokenExistsAsync(token));
+
+        if (attempts > 1)
+        {
+            _logger.LogInformation("NOOR-SIMPLIFIED-TOKEN: Generated unique token after {Attempts} attempts", attempts);
+        }
 
         return token;
     }
@@ -266,7 +283,22 @@ public class SimplifiedTokenService
 
     private async Task<bool> TokenExistsAsync(string token)
     {
-        return await _context.Sessions
-            .AnyAsync(s => s.HostToken == token || s.UserToken == token);
+        // Check for global uniqueness across both host and user tokens
+        // including expired sessions to prevent immediate reuse
+        var hostTokenExists = await _context.Sessions
+            .AnyAsync(s => s.HostToken == token);
+            
+        var userTokenExists = await _context.Sessions
+            .AnyAsync(s => s.UserToken == token);
+            
+        var tokenExists = hostTokenExists || userTokenExists;
+        
+        if (tokenExists)
+        {
+            _logger.LogDebug("NOOR-SIMPLIFIED-TOKEN: Token collision detected - Token: {Token}, HostToken: {HostExists}, UserToken: {UserExists}", 
+                token, hostTokenExists, userTokenExists);
+        }
+        
+        return tokenExists;
     }
 }

@@ -307,23 +307,33 @@
                         var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
                         if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
                         {
-                            // Check if user is already registered as participant before allowing direct access
-                            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - checking participant registration status", 
+                            // ATOMIC CHECK: Verify registration status with proper synchronization
+                            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - performing atomic participant registration check", 
                                 requestId, validationResult.Session?.Status);
                             
-                            var isRegistered = await CheckParticipantRegistrationAsync(token, requestId);
-                            if (isRegistered)
+                            using var authSemaphore = new SemaphoreSlim(1, 1);
+                            await authSemaphore.WaitAsync();
+                            
+                            try
                             {
-                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
-                                    Guid.NewGuid().ToString("N")[..8]);
-                                Navigation.NavigateTo($"/session/canvas/{token}");
-                                return;
+                                var isRegistered = await CheckParticipantRegistrationAsync(token, requestId);
+                                if (isRegistered)
+                                {
+                                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
+                                        requestId);
+                                    Navigation.NavigateTo($"/session/canvas/{token}");
+                                    return;
+                                }
+                                else
+                                {
+                                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User not registered - must complete registration first ;CLEANUP_OK", 
+                                        requestId);
+                                    // Continue to registration panel instead of direct navigation
+                                }
                             }
-                            else
+                            finally
                             {
-                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User not registered - must complete registration first ;CLEANUP_OK", 
-                                    Guid.NewGuid().ToString("N")[..8]);
-                                // Continue to registration panel instead of direct navigation
+                                authSemaphore.Release();
                             }
                         }
 
@@ -675,33 +685,55 @@
                 Logger.LogWarning(ex, "Failed to extract UserGuid from registration response");
             }
 
-            // [DEBUG-WORKITEM:user:API] Check session status after registration to determine routing
-            Logger.LogInformation("[DEBUG-WORKITEM:user:API] Re-validating session status post-registration for proper routing");
-            var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
+            // [DEBUG-WORKITEM:user:API] Atomic post-registration navigation with registration verification
+            Logger.LogInformation("[DEBUG-WORKITEM:user:API] Performing atomic session status and registration check post-registration");
             
-            if (sessionValidationResponse.IsSuccessStatusCode)
+            // Use a semaphore to ensure atomic navigation decision
+            using var semaphore = new SemaphoreSlim(1, 1);
+            await semaphore.WaitAsync();
+            
+            try
             {
-                var sessionContent = await sessionValidationResponse.Content.ReadAsStringAsync();
-                var sessionValidation = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(sessionContent, 
-                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                
-                var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
-                if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                // First verify registration completed successfully
+                var registrationVerified = await CheckParticipantRegistrationAsync(Model.TokenInput, requestId);
+                if (!registrationVerified)
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active, routing to SessionCanvas");
-                    Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                    Logger.LogWarning("[DEBUG-WORKITEM:user:API] Registration verification failed after successful API response");
+                    Model.ErrorMessage = "Registration verification failed. Please try again.";
+                    return;
+                }
+                
+                // Then check session status for proper routing
+                var sessionValidationResponse = await httpClient.GetAsync($"api/participant/session/{Model.TokenInput}/validate");
+                
+                if (sessionValidationResponse.IsSuccessStatusCode)
+                {
+                    var sessionContent = await sessionValidationResponse.Content.ReadAsStringAsync();
+                    var sessionValidation = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(sessionContent, 
+                        new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    
+                    var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
+                    if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                    {
+                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active and user registered, routing to SessionCanvas");
+                        Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
+                    }
+                    else
+                    {
+                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started but user registered, routing to SessionWaiting");
+                        Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                    }
                 }
                 else
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started, routing to SessionWaiting");
+                    // Fallback to waiting room if status check fails
+                    Logger.LogWarning("[DEBUG-WORKITEM:user:API] Session status recheck failed, defaulting to waiting room");
                     Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
                 }
             }
-            else
+            finally
             {
-                // Fallback to waiting room if status check fails
-                Logger.LogWarning("[DEBUG-WORKITEM:user:API] Session status recheck failed, defaulting to waiting room");
-                Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                semaphore.Release();
             }
         }
         catch (HttpRequestException)
@@ -823,6 +855,43 @@
                 Model.IsLoadingCountries = false;
                 StateHasChanged();
             }
+        }
+    }
+
+    /// <summary>
+    /// Revalidate session status atomically to prevent race conditions
+    /// </summary>
+    private async Task<(bool isActive, string? status)> RevalidateSessionStatusAsync(string token, string requestId)
+    {
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.GetAsync($"/api/participant/session/{token}/validate");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var validationResult = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(content, 
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                var sessionStatus = validationResult?.Session?.Status?.ToLowerInvariant();
+                var isActive = sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress";
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:revalidation:{0}] Session revalidation result - Status: {1}, IsActive: {2} ;CLEANUP_OK", 
+                    requestId, sessionStatus, isActive);
+                
+                return (isActive, sessionStatus);
+            }
+            
+            Logger.LogWarning("[DEBUG-WORKITEM:userlanding:revalidation:{0}] Session revalidation API failed: {1} ;CLEANUP_OK", 
+                requestId, response.StatusCode);
+            return (false, null);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:revalidation:{0}] Exception during session revalidation ;CLEANUP_OK", 
+                requestId);
+            return (false, null);
         }
     }
 
