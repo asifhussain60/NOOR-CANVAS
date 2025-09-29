@@ -160,3 +160,9 @@ Regular validation of API contracts prevents silent failures and reduces debuggi
 ---
 
 _Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+
+
+---
+### Patch: Ensure consistency
+- Added explicit guidance to integrate Acceptance Criteria updates when keylocks are applied.
+- Added clarification that sync processes must respect contract locks.

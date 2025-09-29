@@ -375,3 +375,9 @@ SessionTranscripts -- Session content and transcripts
 **Document Version**: 1.0.0  
 **Last Sync**: September 28, 2025  
 **Next Review**: December 2025 or after major feature releases  
+
+
+---
+### Patch: Architecture Guidance
+- Ensure all prompt workflows follow naming conventions.
+- Added requirement for centralized error handling in sync/migrate operations.

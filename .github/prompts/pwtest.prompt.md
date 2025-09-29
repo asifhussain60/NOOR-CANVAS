@@ -164,3 +164,9 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._
+
+
+---
+### Patch: Naming Consistency
+- Ensure pwtest follows naming and reporting conventions.
+- Log outcomes in retrosync for lessons learned.

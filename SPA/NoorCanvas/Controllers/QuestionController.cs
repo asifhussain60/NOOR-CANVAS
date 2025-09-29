@@ -9,11 +9,11 @@ using System.Text.Json;
 
 namespace NoorCanvas.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     /// <summary>
     /// Handles Q&A functionality including question submission, voting, and session management.
     /// </summary>
+    [Route("api/[controller]")]
+    [ApiController]
     public class QuestionController : ControllerBase
     {
         private readonly SimplifiedCanvasDbContext _context;
@@ -125,12 +125,13 @@ namespace NoorCanvas.Controllers
                     return Unauthorized(new { Error = "User not registered for this session", RequestId = requestId });
                 }
 
-                // Create question data
+                // Create question data with improved name handling
+                var participantName = !string.IsNullOrWhiteSpace(participant.Name) ? participant.Name.Trim() : "Anonymous";
                 var questionData = new
                 {
                     questionId = Guid.NewGuid(),
                     text = request.QuestionText,
-                    userName = participant.Name ?? "Anonymous",
+                    userName = participantName,
                     userId = participant.UserGuid,
                     submittedAt = DateTime.UtcNow,
                     votes = 0,
@@ -369,12 +370,23 @@ namespace NoorCanvas.Controllers
                     var data = string.IsNullOrWhiteSpace(q.Content) ? null : 
                         JsonSerializer.Deserialize<Dictionary<string, object>>(q.Content);
                     
+                    // Improved userName handling with fallback logic
+                    var userName = "Anonymous";
+                    if (data?.ContainsKey("userName") == true)
+                    {
+                        var storedUserName = data["userName"]?.ToString();
+                        if (!string.IsNullOrWhiteSpace(storedUserName))
+                        {
+                            userName = storedUserName.Trim();
+                        }
+                    }
+                    
                     return new
                     {
                         QuestionId = data?.ContainsKey("questionId") == true ? data["questionId"]?.ToString() : "",
                         Id = q.DataId,
                         Text = data?.ContainsKey("text") == true ? data["text"]?.ToString() : "",
-                        UserName = data?.ContainsKey("userName") == true ? data["userName"]?.ToString() : "Anonymous",
+                        UserName = userName,
                         CreatedBy = q.CreatedBy ?? "", // Include the CreatedBy field for ownership checking
                         Votes = data?.ContainsKey("votes") == true ? GetIntFromJsonElement(data["votes"]) : 0,
                         IsAnswered = data?.ContainsKey("isAnswered") == true ? GetBoolFromJsonElement(data["isAnswered"]) : false,

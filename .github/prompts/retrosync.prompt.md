@@ -222,3 +222,18 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 
 _Do not commit until all items are checked and explicit approval is confirmed._
 - After analysis, apply updates where needed, then regenerate all files in-place so the repo is consistent and up to date.  
+
+
+---
+### Patch: Retrosync Approval Workflow
+- Retrosync now performs a **detailed analysis phase** before making changes.
+- It outputs a structured report with headings and bullet points for each file:
+  • **File Name**
+    - Planned Change: description of modification.
+    - Reasoning: why the change is needed.
+    - Impact: low / medium / high effect on workflows.
+- After the report, Retrosync **asks for user approval or edits** before proceeding.
+- Execution halts until the user explicitly approves.
+- If approved, Retrosync applies changes, updates the key data stream, and logs provenance.
+- If denied or modified, it adapts accordingly.
+- After applying, Retrosync performs a **final integrity check** and generates a GPT image-generator prompt for a mind map of the new design.

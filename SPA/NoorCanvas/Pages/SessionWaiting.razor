@@ -798,7 +798,16 @@ background-color: #effff9;
                 return;
             }
 
-            // Loading session data
+            // [DEBUG-WORKITEM:userlanding:impl] AUTHENTICATION GATE: Verify user has valid token AND is registered
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] SessionWaiting - Verifying user authentication and registration ;CLEANUP_OK", requestId);
+            
+            var isValidAndRegistered = await VerifyUserAuthenticationAsync(SessionToken, requestId);
+            if (!isValidAndRegistered)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication failed - redirecting to UserLanding ;CLEANUP_OK", requestId);
+                Navigation.NavigateTo($"/user/landing/{SessionToken}");
+                return;
+            }
 
             // Only handle real session tokens - no mock/demo data
             if (!string.IsNullOrEmpty(SessionToken))
@@ -827,8 +836,7 @@ background-color: #effff9;
             Model!.CurrentState = SessionWaitingState.Loading;
             StateHasChanged();
 
-            using var httpClient = HttpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
             var response = await httpClient.GetAsync($"api/participant/session/{token}/validate");
             
             // Session validation completed
@@ -1008,8 +1016,7 @@ background-color: #effff9;
         {
             // Loading participants
             
-            using var httpClient = HttpClientFactory.CreateClient("default");
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
             
             var apiUrl = $"api/participant/session/{SessionToken}/participants";
             // Making participants API call
@@ -1579,6 +1586,61 @@ background-color: #effff9;
             {
                 Logger.LogWarning(ex, "Error during SignalR cleanup");
             }
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:userlanding:impl] AUTHENTICATION GATE: Verify user has valid UserToken AND is registered in canvas.Participants
+    /// </summary>
+    private async Task<bool> VerifyUserAuthenticationAsync(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] SessionWaiting - Verifying token validity and participant registration ;CLEANUP_OK", requestId);
+
+            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
+            
+            // First validate the token
+            var tokenValidationResponse = await httpClient.GetAsync($"/api/participant/session/{token}/validate");
+            if (!tokenValidationResponse.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Token validation failed: {1} ;CLEANUP_OK", requestId, tokenValidationResponse.StatusCode);
+                return false;
+            }
+
+            // Then check if user is registered as participant
+            var participantsResponse = await httpClient.GetAsync($"/api/participant/session/{token}/participants");
+            if (!participantsResponse.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Participant check failed: {1} ;CLEANUP_OK", requestId, participantsResponse.StatusCode);
+                return false;
+            }
+
+            var participantsContent = await participantsResponse.Content.ReadAsStringAsync();
+            var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(participantsContent,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            // Check if current user is in participant list (using stored UserGuid)
+            var storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
+            
+            if (!string.IsNullOrEmpty(storedUserGuid) && participantsData?.Participants != null)
+            {
+                var isRegistered = participantsData.Participants.Any(p => 
+                    string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User registration status: {1} (UserGuid: {2}) ;CLEANUP_OK", 
+                    requestId, isRegistered, storedUserGuid?.Substring(0, 8) + "...");
+                
+                return isRegistered;
+            }
+
+            Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] No stored UserGuid found or no participants data ;CLEANUP_OK", requestId);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:impl:{0}] Exception during authentication verification ;CLEANUP_OK", requestId);
+            return false;
         }
     }
 

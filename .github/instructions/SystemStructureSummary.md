@@ -19,6 +19,7 @@ It is the **single source of truth** for system usage and must be updated if the
 ### Key-to-View Mappings
 - **waitingroom** = `SessionWaiting.razor`
 - **hostcanvas** = `HostControlPanel.razor`, `SessionCanvas.razor`
+- **hostcontrolpanel** = `HostControlPanel.razor`
 - **canvas** = `SessionCanvas.razor`
 - **debug** = Debug panel used on `UserLanding.razor`
 - **userauth** = `UserLanding.razor`
@@ -130,3 +131,9 @@ It is the **single source of truth** for system usage and must be updated if the
 ---
 
 *Last updated: September 28, 2025 - Architecture synchronized via retrosync.prompt.md. Instruction and prompt files optimized via promptsync.prompt.md. Key closures completed: userlanding (authentication gate security), canvas-qa (Q&A bidirectional communication). Canvas-QA authentication fixes completed, comprehensive API documentation updated, SignalR Q&A bidirectional flow operational.*  
+
+
+---
+### Patch: Structure Summary
+- Added stronger ties to Keylock for ensuring locked resources remain consistent.
+- Clarified role of retrosync as main driver of structural updates.

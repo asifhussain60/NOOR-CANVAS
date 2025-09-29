@@ -42,23 +42,15 @@
         0%, 100% { opacity: 1; }
         50% { opacity: .8; }
     }
-    .animate-content-fade { animation: contentFade 3s ease-in-out infinite; }
-    @@keyframes contentFade {
-        0%, 100% { opacity: 0.7; transform: translateY(0px); }
-        50% { opacity: 1; transform: translateY(-2px); }
-    }
     .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
     @@media (max-width: 1024px) {
         .main-grid { grid-template-columns: 1fr; }
     }
 </style>
 
-<!-- Root container with NOOR Canvas background -->
-<div style="background-color:#F8F5F1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1rem;font-family:'Inter',sans-serif;">
+<div style="background-color:#F8F5F1;display:flex;flex-direction:column;min-height:100vh;padding:1rem;">
 
-    <div data-testid="session-canvas" style="width:95%;background-color:white;border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);padding:2rem;display:flex;flex-direction:column;gap:1.5rem;">
-
-        @if (Model?.CurrentState == SessionCanvasState.Loading)
+    @if (Model?.CurrentState == SessionCanvasState.Loading)
     {
         <!-- Loading State -->
         <div style="width:100%;max-width:56rem;margin:0 auto;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
@@ -101,37 +93,6 @@
             </div>
         </div>
     }
-    else if (Model?.CurrentState == SessionCanvasState.AuthenticationRequired)
-    {
-        <!-- Authentication Required State -->
-        <div style="width:100%;max-width:56rem;margin:0 auto;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fbbf24;">
-            
-            <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
-                <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="width:200px;height:200px;object-fit:contain;" />
-            </div>
-            
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <i class="fa-solid fa-lock" style="font-size:2rem;color:#F59E0B;"></i>
-                <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:1.875rem;color:#F59E0B;margin:0;">Authentication Required</h1>
-            </div>
-            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">Please register first to access the session canvas.</p>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <button @onclick="NavigateToRegistration" 
-                        style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:white;background-color:#F59E0B;padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;cursor:pointer;transition:background-color 0.2s;">
-                    <i class="fa-solid fa-user-plus" style="margin-right:0.5rem;"></i>
-                    Register for Session
-                </button>
-                <button @onclick="NavigateHome" 
-                        style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:#706357;background-color:#F3F4F6;padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;cursor:pointer;transition:background-color 0.2s;">
-                    <i class="fa-solid fa-home" style="margin-right:0.5rem;"></i>
-                    Return Home
-                </button>
-            </div>
-        </div>
-    }
     else if (Model?.CurrentState == SessionCanvasState.Loaded)
     {
         <!-- Session Canvas Content -->
@@ -159,8 +120,9 @@
                     
                     <!-- SignalR Connection Status -->
                     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
-                        <div style="display:flex;align-items:center;padding:0.75rem;background-color:@GetSignalRStatusBackgroundColor();border:2px solid @GetSignalRStatusBorderColor();border-radius:50%;margin-right:1rem;">
-                            <i class="@GetSignalRStatusIcon()" style="color:@GetSignalRStatusColor();font-size:1.25rem;" title="@GetSignalRStatusText()"></i>
+                        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background-color:@GetSignalRStatusBackgroundColor();border:2px solid @GetSignalRStatusBorderColor();border-radius:0.75rem;font-family:'Lato',sans-serif;font-size:0.875rem;font-weight:600;min-width:140px;">
+                            <i class="@GetSignalRStatusIcon()" style="color:@GetSignalRStatusColor();font-size:1.125rem;"></i>
+                            <span style="color:@GetSignalRStatusColor();">@GetSignalRStatusText()</span>
                         </div>
                         
                         @if (hubConnection?.State == HubConnectionState.Disconnected)
@@ -178,13 +140,13 @@
                 </div>
             </div>
             
-            <!-- Welcome Message - Left Aligned -->
+            <!-- Simple Welcome Message -->
             @if (!string.IsNullOrEmpty(GetCurrentParticipantName()))
             {
-                <div data-testid="welcome-message" style="text-align:left;margin-bottom:1.5rem;padding:1rem;background-color:white;">
-                    <p style="color:#006400;font-size:1.25rem;font-weight:700;margin:0;display:flex;align-items:center;gap:0.75rem;">
-                        <i class="fa-solid fa-hand-wave" style="color:#D4AF37;font-size:1.125rem;"></i>
-                        <span>@GetCurrentParticipantName(), Welcome to the Session</span>
+                <div style="text-align:center;margin-bottom:1rem;padding:0.75rem;background:rgba(212,175,55,0.05);border-radius:0.75rem;border:1px solid rgba(212,175,55,0.2);">
+                    <p style="color:#006400;font-size:1.125rem;font-weight:600;margin:0;">
+                        <i class="fa-solid fa-hand-wave" style="margin-right:0.5rem;color:#D4AF37;"></i>
+                        @GetCurrentParticipantName(), Welcome to the Session
                     </p>
                 </div>
             }
@@ -208,30 +170,24 @@
                         }
                         else
                         {
-                            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;font-weight:300;" class="animate-content-fade">Content from the session will appear here.</p>
+                            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;font-weight:300;" class="animate-pulse-subtle">Content from the session will appear here.</p>
                         }
                     </div>
 
                     <!-- Ask a Question Panel -->
                     <div style="background-color:#FDFBEB;border-radius:0.75rem;transition:all 0.3s;overflow:hidden;border:1px solid #D4AF37;margin-top:auto;margin:10px;">
-                        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem;text-align:left;">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.5rem;">
                             <i class="fa-solid fa-hand-raised" style="color:#006400;font-size:1rem;"></i>
-                            <h4 style="font-family:'Poppins',sans-serif;font-size:0.875rem;font-weight:600;color:#4B3C2B;margin:0;">Ask A Question</h4>
+                            <h4 style="font-family:'Poppins',sans-serif;font-size:0.875rem;font-weight:600;color:#4B3C2B;margin:0;">Ask a question</h4>
                         </div>
-                        <div style="padding:0 0.75rem;margin-bottom:0.5rem;">
-                            <p style="font-size:0.75rem;color:#666;margin:0;font-style:italic;">Your questions will remain anonymous</p>
-                        </div>
-                        <div style="display:flex;align-items:stretch;gap:0.75rem;padding:0 0.75rem 0.75rem 0.75rem;">
+                        <div style="display:flex;align-items:stretch;gap:0.5rem;padding:0 0.75rem 0.75rem 0.75rem;">
                             <textarea @bind="QuestionInput" 
-                                      data-testid="question-input"
-                                      style="flex:4;padding:0.75rem;border-radius:0.5rem;border:1px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
-                                      placeholder="Ask a question..." rows="4"></textarea>
+                                      style="flex:3;padding:0.75rem;border-radius:0.5rem;border:1px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
+                                      placeholder="Ask a question..." rows="2"></textarea>
                             <button @onclick="SubmitQuestion" 
-                                    data-testid="submit-question-btn"
-                                    style="flex:1;min-width:80px;padding:0.5rem;border-radius:0.5rem;color:white;font-weight:600;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;border:1px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
+                                    style="flex:1;padding:0.5rem 1rem;border-radius:0.5rem;color:white;font-weight:600;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.25rem;border:1px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
                                     class="shadow-golden">
-                                <i class="fa-solid fa-paper-plane" style="font-size:0.875rem;"></i>
-                                <span style="font-size:1rem;color:white;">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
+                                <span style="font-size:0.875rem;color:white;">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
                             </button>
         </div>
                     </div>
@@ -241,18 +197,16 @@
                 <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;display:flex;flex-direction:column;height:100%;">
                     
                     <!-- Tabs -->
-                    <div style="display:flex;margin-bottom:1rem;background:rgba(212,175,55,0.1);border-radius:0.75rem;padding:0.25rem;">
+                    <div style="display:flex;margin-bottom:1rem;border-bottom:2px solid #E5E7EB;">
                         <button @onclick="() => ActiveTab = Tab.QA" 
-                                style="flex:1;padding:0.75rem 1rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;transition:all 0.3s;cursor:pointer;border:none;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(ActiveTab == Tab.QA ? "background-color:#D4AF37;color:white;box-shadow:0 2px 8px rgba(212,175,55,0.3);" : "background:none;hover:background-color:rgba(212,175,55,0.2);")"
+                                style="flex:1;padding:0.75rem 0.5rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:2px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border:none;@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;" : "")"
                                 class="tab-button @(ActiveTab == Tab.QA ? "active" : "")">
-                            <i class="fa-solid fa-question-circle" style="font-size:0.875rem;"></i>
-                            <span>Q&A</span>
+                            Q&A
                         </button>
                         <button @onclick="() => ActiveTab = Tab.Participants" 
-                                style="flex:1;padding:0.75rem 1rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;transition:all 0.3s;cursor:pointer;border:none;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;@(ActiveTab == Tab.Participants ? "background-color:#D4AF37;color:white;box-shadow:0 2px 8px rgba(212,175,55,0.3);" : "background:none;hover:background-color:rgba(212,175,55,0.2);")"
+                                style="flex:1;padding:0.75rem 0.5rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:2px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border:none;@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;" : "")"
                                 class="tab-button @(ActiveTab == Tab.Participants ? "active" : "")">
-                            <i class="fa-solid fa-users" style="font-size:0.875rem;"></i>
-                            <span>Participants</span>
+                            Participants
                         </button>
                     </div>
 
@@ -344,8 +298,6 @@
             </div>
         </div>
     }
-
-    </div>
 </div>
 
 
@@ -401,7 +353,7 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
 
         // Initialize HttpClient with proper base address
-        Http = HttpClientFactory.CreateClient("NoorCanvasApi");
+        Http = HttpClientFactory.CreateClient("default");
 
         Model = new SessionCanvasViewModel
         {
@@ -443,44 +395,6 @@
             {
                 Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] No session token provided, redirecting to home", requestId);
                 Navigation.NavigateTo("/");
-                return;
-            }
-
-            // [DEBUG-WORKITEM:userlanding:impl] AUTHENTICATION GATE: Verify user has valid token AND is registered
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] SessionCanvas - Starting authentication gate check ;CLEANUP_OK", requestId);
-            
-            var authResult = await VerifyUserAuthenticationAsync(SessionToken, requestId);
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication result: IsAuthenticated={1}, SessionStatus={2} ;CLEANUP_OK", 
-                requestId, authResult.IsAuthenticated, authResult.SessionStatus ?? "null");
-                
-            if (!authResult.IsAuthenticated)
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication FAILED - user not registered, showing authentication required state ;CLEANUP_OK", requestId);
-                
-                // Set the authentication required state instead of immediate redirect
-                // This provides better UX and prevents any potential race conditions
-                Model!.CurrentState = SessionCanvasState.AuthenticationRequired;
-                Model.ErrorMessage = "Please register to access this session.";
-                StateHasChanged();
-                return;
-            }
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Authentication PASSED - user is registered ;CLEANUP_OK", requestId);
-
-            // Check if session status is 'Created' (case insensitive) - if so, redirect to waiting room
-            if (authResult.SessionStatus != null && string.Equals(authResult.SessionStatus, "created", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status 'Created' - redirecting to SessionWaiting ;CLEANUP_OK", requestId);
-                Navigation.NavigateTo($"/session/waiting/{SessionToken}");
-                return;
-            }
-
-            // Additional security check: Verify session status is appropriate for canvas access
-            if (authResult.SessionStatus != null && !string.Equals(authResult.SessionStatus, "active", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status '{1}' not active - redirecting to SessionWaiting ;CLEANUP_OK", requestId, authResult.SessionStatus);
-                Navigation.NavigateTo($"/session/waiting/{SessionToken}");
                 return;
             }
 
@@ -789,18 +703,6 @@
         Navigation.NavigateTo("/");
     }
 
-    private void NavigateToRegistration()
-    {
-        if (!string.IsNullOrEmpty(SessionToken))
-        {
-            Navigation.NavigateTo($"/user/landing/{SessionToken}");
-        }
-        else
-        {
-            Navigation.NavigateTo("/");
-        }
-    }
-
     private void NavigateToWaitingRoom()
     {
         if (!string.IsNullOrEmpty(SessionToken))
@@ -888,8 +790,7 @@
     {
         Loading,
         Loaded,
-        SessionNotFound,
-        AuthenticationRequired
+        SessionNotFound
     }
 
     public class ParticipantData
@@ -1540,98 +1441,6 @@
     }
 
     /// <summary>
-    /// [DEBUG-WORKITEM:userlanding:impl] AUTHENTICATION GATE: Verify user has valid UserToken AND is registered in canvas.Participants
-    /// Also check session status for routing decisions
-    /// </summary>
-    private async Task<UserAuthenticationResult> VerifyUserAuthenticationAsync(string token, string requestId)
-    {
-        try
-        {
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] SessionCanvas - Verifying token validity and participant registration ;CLEANUP_OK", requestId);
-
-            using var httpClient = HttpClientFactory.CreateClient("NoorCanvasApi");
-            
-            // First validate the token and get session status
-            var tokenValidationResponse = await httpClient.GetAsync($"/api/participant/session/{token}/validate");
-            if (!tokenValidationResponse.IsSuccessStatusCode)
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Token validation failed: {1} ;CLEANUP_OK", requestId, tokenValidationResponse.StatusCode);
-                return new UserAuthenticationResult { IsAuthenticated = false };
-            }
-
-            var tokenContent = await tokenValidationResponse.Content.ReadAsStringAsync();
-            var tokenValidation = System.Text.Json.JsonSerializer.Deserialize<SessionValidationResponse>(tokenContent,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            var sessionStatus = tokenValidation?.Session?.Status;
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status from validation: '{1}' ;CLEANUP_OK", requestId, sessionStatus);
-
-            // Then check if user is registered as participant
-            var participantsResponse = await httpClient.GetAsync($"/api/participant/session/{token}/participants");
-            if (!participantsResponse.IsSuccessStatusCode)
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] Participant check failed: {1} ;CLEANUP_OK", requestId, participantsResponse.StatusCode);
-                return new UserAuthenticationResult { IsAuthenticated = false, SessionStatus = sessionStatus };
-            }
-
-            var participantsContent = await participantsResponse.Content.ReadAsStringAsync();
-            var participantsData = System.Text.Json.JsonSerializer.Deserialize<ParticipantsResponse>(participantsContent,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            // Check if current user is in participant list (using stored UserGuid)
-            string? storedUserGuid = null;
-            try
-            {
-                storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_user_guid_{token}");
-                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Retrieved UserGuid from localStorage: {1} ;CLEANUP_OK", 
-                    requestId, storedUserGuid?.Substring(0, 8) + "..." ?? "null");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex, "[DEBUG-WORKITEM:userlanding:impl:{0}] Failed to retrieve UserGuid from localStorage ;CLEANUP_OK", requestId);
-                return new UserAuthenticationResult { IsAuthenticated = false, SessionStatus = sessionStatus };
-            }
-            
-            // If no UserGuid stored, user is definitely not registered
-            if (string.IsNullOrEmpty(storedUserGuid))
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] No UserGuid found in localStorage - user not registered ;CLEANUP_OK", requestId);
-                return new UserAuthenticationResult { IsAuthenticated = false, SessionStatus = sessionStatus };
-            }
-
-            // Check if participants data is available
-            if (participantsData?.Participants == null || !participantsData.Participants.Any())
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:userlanding:impl:{0}] No participants data available - treating as not registered ;CLEANUP_OK", requestId);
-                return new UserAuthenticationResult { IsAuthenticated = false, SessionStatus = sessionStatus };
-            }
-
-            // Check if user is in participant list
-            var isRegistered = participantsData.Participants.Any(p => 
-                string.Equals(p.UserId, storedUserGuid, StringComparison.OrdinalIgnoreCase));
-            
-            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User registration check: UserGuid={1}, Registered={2}, ParticipantCount={3} ;CLEANUP_OK", 
-                requestId, storedUserGuid?.Substring(0, 8) + "...", isRegistered, participantsData.Participants.Count);
-                
-            return new UserAuthenticationResult { IsAuthenticated = isRegistered, SessionStatus = sessionStatus };
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:userlanding:impl:{0}] Exception during authentication verification ;CLEANUP_OK", requestId);
-            return new UserAuthenticationResult { IsAuthenticated = false };
-        }
-    }
-
-    /// <summary>
-    /// Result class for user authentication verification
-    /// </summary>
-    public class UserAuthenticationResult
-    {
-        public bool IsAuthenticated { get; set; }
-        public string? SessionStatus { get; set; }
-    }
-
-    /// <summary>
     /// Safely process HTML content using advanced parsing service to replace Blazor DOM parser limitations
     /// [DEBUG-WORKITEM:signalcomm:impl] Enhanced with HtmlParsingService for robust parsing ;CLEANUP_OK
     /// </summary>
@@ -1710,7 +1519,7 @@
             }
             
             Logger.LogWarning("[DEBUG-CANVAS-WELCOME] No participants with names found. Available: {Participants}", 
-                "[Participant list - debug information omitted for clarity]");
+                string.Join(", ", Model.Participants.Select(p => $"{p.UserId}:{p.Name ?? "NULL"}")).Substring(0, Math.Min(200, string.Join(", ", Model.Participants.Select(p => $"{p.UserId}:{p.Name ?? "NULL"})).Length)));
         }
         else
         {

@@ -294,3 +294,8 @@ This instruction set references the central `SystemStructureSummary.md`. Any str
 - Undo logs must store commit hashes for rollback.
 - Rollback uses `git reset --hard <hash>`.
 - On /keylock, squash backup commits into one final commit.
+
+---
+### Patch: Self-Awareness Scope
+- Clarify that self-awareness must not interfere with deterministic workflows.
+- Added explicit instructions to document feedback loops in retrosync only.

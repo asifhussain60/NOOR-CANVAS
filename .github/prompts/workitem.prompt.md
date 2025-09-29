@@ -35,7 +35,8 @@ Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and 
 ### 3. Requested Work Analysis
 **Present to user in this format:**
 ```
-📋 REQUESTED WORK ANALYSIS
+
+📋 REQUESTED WORK Analysis
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Key: {key}
 Mode: {mode}
@@ -46,12 +47,6 @@ Request: {brief_description}
 • User requirements: {specific_requirements_identified}
 • Expected outcome: {what_user_wants_to_achieve}
 • Context provided: {any_context_or_constraints_given}
-
-📊 SCOPE ANALYSIS
-• Files to modify: {file_list}
-• Components affected: {component_list}
-• Estimated complexity: {low/medium/high}
-• Impact assessment: {areas_of_codebase_affected}
 
 📝 TASK BREAKDOWN
 {single_task_description OR phase_by_phase_list}
@@ -260,3 +255,11 @@ _Do not commit until all items are checked and explicit approval is confirmed._
 - Before applying changes, always run:
   `git add -A && git commit -m "Backup before workitem <key>"`
 - Record the commit hash in the undo log for rollback.
+
+---
+### Patch: Workitem Dual Integrity Design
+- Begin with full key data stream audit (structure, consistency, quality, alignment, timeliness).
+- Report audit results before any analysis.
+- Output in structured bullet format under sections: Current State, Work Request Understanding, Task Breakdown, Dependencies & Risks, Execution Plan.
+- Update key data stream with verified results.
+- End with targeted integrity check (only modified/added tasks) to confirm no duplicates or contradictions.

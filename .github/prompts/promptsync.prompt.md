@@ -80,3 +80,9 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._
+
+
+---
+### Patch: PromptSync Guardrails
+- Must check for keylock states before applying changes.
+- Added fallback summary logging if sync cannot complete.

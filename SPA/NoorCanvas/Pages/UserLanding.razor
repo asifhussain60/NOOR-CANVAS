@@ -1,6 +1,7 @@
 @page "/user/landing"
 @page "/user/landing/{sessionToken?}"
 @page "/landing"
+@page "/session/{sessionToken}"
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
@@ -302,36 +303,18 @@
                         Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated Model.SessionName to: {SessionName}, SessionDescription to: {SessionDescription}", 
                             requestId, Model.SessionName, Model.SessionDescription);
 
-                        // AUTHENTICATION GATE: Check if session has already started AND user is registered
-                        var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
-                        if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
-                        {
-                            // Check if user is already registered as participant before allowing direct access
-                            Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - checking participant registration status", 
-                                requestId, validationResult.Session?.Status);
-                            
-                            var isRegistered = await CheckParticipantRegistrationAsync(token, requestId);
-                            if (isRegistered)
-                            {
-                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
-                                    Guid.NewGuid().ToString("N")[..8]);
-                                Navigation.NavigateTo($"/session/canvas/{token}");
-                                return;
-                            }
-                            else
-                            {
-                                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User not registered - must complete registration first ;CLEANUP_OK", 
-                                    Guid.NewGuid().ToString("N")[..8]);
-                                // Continue to registration panel instead of direct navigation
-                            }
-                        }
+                        // [DEBUG-WORKITEM:userlanding:impl] FORCE REGISTRATION: All users must register regardless of session status
+                        // After registration, routing will be determined by session status: Created->Waiting, Active->Canvas
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Token validated - forcing registration regardless of session status: {1} ;CLEANUP_OK", 
+                            requestId, validationResult.Session?.Status);
 
                         // ISSUE-114 FIX: For URL-based tokens, automatically switch to registration panel and load countries
                         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] URL token validated successfully - switching to registration panel", requestId);
                         Model.ShowTokenPanel = false;
                         
-                        // [DEBUG-WORKITEM:user:UI] Set button text based on session status
-                        if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                        // [DEBUG-WORKITEM:user:UI] Set button text - default to 'Join Waiting Room' since all users must register first
+                        var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
+                        if (string.Equals(sessionStatus, "active", StringComparison.OrdinalIgnoreCase))
                         {
                             Model.ButtonText = "Join Live Canvas";
                             Model.ButtonIconClass = "fa-solid fa-play";
@@ -341,7 +324,7 @@
                         {
                             Model.ButtonText = "Join Waiting Room";
                             Model.ButtonIconClass = "fa-solid fa-hourglass-start";
-                            Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for inactive session", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for created/inactive session", requestId);
                         }
                         Model.ErrorMessage = string.Empty;
                         
@@ -505,35 +488,17 @@
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated session name to: {SessionName}, description to: {SessionDescription}", 
                         requestId, Model.SessionName, Model.SessionDescription);
 
-                    // AUTHENTICATION GATE: Check if session has already started AND user is registered  
-                    var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
-                    if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
-                    {
-                        // Check if user is already registered as participant before allowing direct access
-                        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Session already started (Status: {Status}) - checking participant registration status", 
-                            requestId, validationResult.Session?.Status);
-                        
-                        var isRegistered = await CheckParticipantRegistrationAsync(Model.TokenInput, requestId);
-                        if (isRegistered)
-                        {
-                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User already registered - routing to SessionCanvas ;CLEANUP_OK", 
-                                Guid.NewGuid().ToString("N")[..8]);
-                            Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
-                            return;
-                        }
-                        else
-                        {
-                            Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] User not registered - must complete registration first ;CLEANUP_OK", 
-                                Guid.NewGuid().ToString("N")[..8]);
-                            // Continue to registration panel instead of direct navigation
-                        }
-                    }
+                    // [DEBUG-WORKITEM:userlanding:impl] FORCE REGISTRATION: All users must register regardless of session status
+                    // After registration, routing will be determined by session status: Created->Waiting, Active->Canvas
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Manual token validated - forcing registration regardless of session status: {1} ;CLEANUP_OK", 
+                        requestId, validationResult.Session?.Status);
 
                     // Switch to registration panel
                     Model.ShowTokenPanel = false;
                     
-                    // [DEBUG-WORKITEM:user:UI] Set button text based on session status
-                    if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                    // [DEBUG-WORKITEM:user:UI] Set button text - default to 'Join Waiting Room' since all users must register first
+                    var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
+                    if (string.Equals(sessionStatus, "active", StringComparison.OrdinalIgnoreCase))
                     {
                         Model.ButtonText = "Join Live Canvas";
                         Model.ButtonIconClass = "fa-solid fa-play";
@@ -543,7 +508,7 @@
                     {
                         Model.ButtonText = "Join Waiting Room";
                         Model.ButtonIconClass = "fa-solid fa-hourglass-start";
-                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for inactive session");
+                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for created/inactive session");
                     }
                     Model.ErrorMessage = string.Empty;
                     
@@ -685,14 +650,22 @@
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 
                 var sessionStatus = sessionValidation?.Session?.Status?.ToLowerInvariant();
-                if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
+                Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Post-registration routing: Session status is '{1}' ;CLEANUP_OK", 
+                    requestId, sessionStatus);
+                
+                if (string.Equals(sessionStatus, "created", StringComparison.OrdinalIgnoreCase))
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session is active, routing to SessionCanvas");
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status 'Created' - routing to SessionWaiting ;CLEANUP_OK", requestId);
+                    Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
+                }
+                else if (string.Equals(sessionStatus, "active", StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status 'Active' - routing to SessionCanvas ;CLEANUP_OK", requestId);
                     Navigation.NavigateTo($"/session/canvas/{Model.TokenInput}");
                 }
                 else
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Session not started, routing to SessionWaiting");
+                    Logger.LogInformation("[DEBUG-WORKITEM:userlanding:impl:{0}] Session status '{1}' - defaulting to SessionWaiting ;CLEANUP_OK", requestId, sessionStatus);
                     Navigation.NavigateTo($"/session/waiting/{Model.TokenInput}");
                 }
             }

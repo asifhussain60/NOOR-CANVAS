@@ -74,3 +74,9 @@ If I approve, then:
   - Console.WriteLine statements added for debugging
 - Keep only essential logging that provides operational value in production.
 - Ensure removal doesn't break functionality or introduce compilation errors.
+
+
+---
+### Patch: Keylock Integration
+- Keylock now triggers automatic AC generation, subject to user approval.
+- Clarify interaction: Retrosync integrates ACs into instructions.

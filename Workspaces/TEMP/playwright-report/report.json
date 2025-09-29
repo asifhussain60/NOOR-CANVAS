@@ -58,20 +58,20 @@
   },
   "suites": [
     {
-      "title": "qa-trace-logging-verification.spec.ts",
-      "file": "qa-trace-logging-verification.spec.ts",
+      "title": "registration-flow-test.spec.ts",
+      "file": "registration-flow-test.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Q&A Bidirectional Trace Logging Verification",
-          "file": "qa-trace-logging-verification.spec.ts",
-          "line": 110,
+          "title": "Registration Flow Validation",
+          "file": "registration-flow-test.spec.ts",
+          "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should verify SessionCanvas SubmitQuestion trace logging",
+              "title": "Complete registration flow should navigate to waiting room",
               "ok": false,
               "tags": [],
               "tests": [
@@ -86,406 +86,62 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 13,
+                      "duration": 3074,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m5\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m5\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:126:35",
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\registration-flow-test.spec.ts:6:16",
                         "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                          "column": 35,
-                          "line": 126
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\registration-flow-test.spec.ts",
+                          "column": 16,
+                          "line": 6
                         },
-                        "snippet": "\u001b[0m \u001b[90m 124 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 125 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 126 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m5\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 127 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 128 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m   \u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 4 |\u001b[39m   test(\u001b[32m'Complete registration flow should navigate to waiting room'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     \u001b[90m// Navigate to the user landing page with test token\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/user/landing/KJAHA99L'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m     \n \u001b[90m 8 |\u001b[39m     \u001b[90m// Wait for the page to load and token validation to complete\u001b[39m\n \u001b[90m 9 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'input[name=\"fullName\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                            "column": 35,
-                            "line": 126
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\registration-flow-test.spec.ts",
+                            "column": 16,
+                            "line": 6
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m5\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 124 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 125 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 126 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m5\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 127 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 128 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 129 |\u001b[39m   \u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:126:35\u001b[22m"
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 4 |\u001b[39m   test(\u001b[32m'Complete registration flow should navigate to waiting room'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     \u001b[90m// Navigate to the user landing page with test token\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/user/landing/KJAHA99L'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m     \n \u001b[90m 8 |\u001b[39m     \u001b[90m// Wait for the page to load and token validation to complete\u001b[39m\n \u001b[90m 9 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'input[name=\"fullName\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\registration-flow-test.spec.ts:6:16\u001b[22m"
                         }
                       ],
-                      "stdout": [
-                        {
-                          "text": "🔍 VERIFYING: SessionCanvas SubmitQuestion trace logging...\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\SessionCanvas.razor\n"
-                        },
-                        {
-                          "text": "📊 RESULT: SessionCanvas-SubmitQuestion\n"
-                        },
-                        {
-                          "text": "   • Trace logs found: 0\n"
-                        },
-                        {
-                          "text": "   • Key steps: \n"
-                        },
-                        {
-                          "text": "   • Status: ❌ INVALID\n"
-                        },
-                        {
-                          "text": "   • Details: Missing key SubmitQuestion steps\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-28T21:06:01.261Z",
+                      "startTime": "2025-09-29T10:33:59.298Z",
                       "annotations": [],
-                      "attachments": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\registration-flow-test-Reg-c7a7c-ld-navigate-to-waiting-room-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\registration-flow-test-Reg-c7a7c-ld-navigate-to-waiting-room-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\registration-flow-test-Reg-c7a7c-ld-navigate-to-waiting-room-chromium\\error-context.md"
+                        }
+                      ],
                       "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                        "column": 35,
-                        "line": 126
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\registration-flow-test.spec.ts",
+                        "column": 16,
+                        "line": 6
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "002a5b32db7fe9b22aa9-d4f4550444dab9054404",
-              "file": "qa-trace-logging-verification.spec.ts",
-              "line": 112,
-              "column": 7
-            },
-            {
-              "title": "should verify QuestionController server processing trace logging",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 15,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m8\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m8\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:144:35",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                          "column": 35,
-                          "line": 144
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 142 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 143 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 144 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m8\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 145 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 146 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 147 |\u001b[39m   \u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                            "column": 35,
-                            "line": 144
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m8\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 142 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 143 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 144 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m8\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 145 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 146 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 147 |\u001b[39m   \u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:144:35\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔍 VERIFYING: QuestionController server processing trace logging...\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Controllers\\QuestionController.cs\n"
-                        },
-                        {
-                          "text": "📊 RESULT: QuestionController\n"
-                        },
-                        {
-                          "text": "   • Trace logs found: 0\n"
-                        },
-                        {
-                          "text": "   • Key steps: \n"
-                        },
-                        {
-                          "text": "   • Status: ❌ INVALID\n"
-                        },
-                        {
-                          "text": "   • Details: Missing key server processing steps\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-28T21:06:02.413Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                        "column": 35,
-                        "line": 144
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "002a5b32db7fe9b22aa9-61506201f12da07bb93d",
-              "file": "qa-trace-logging-verification.spec.ts",
-              "line": 130,
-              "column": 7
-            },
-            {
-              "title": "should verify HostControlPanel SignalR reception trace logging",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 14,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m6\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m6\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:162:35",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                          "column": 35,
-                          "line": 162
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 160 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 161 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 162 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m6\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 163 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 164 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 165 |\u001b[39m   \u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                            "column": 35,
-                            "line": 162
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m6\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 160 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 161 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 162 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m6\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 163 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 164 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 165 |\u001b[39m   \u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:162:35\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔍 VERIFYING: HostControlPanel SignalR reception trace logging...\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\HostControlPanel.razor\n"
-                        },
-                        {
-                          "text": "📊 RESULT: HostControlPanel-SignalR\n"
-                        },
-                        {
-                          "text": "   • Trace logs found: 0\n"
-                        },
-                        {
-                          "text": "   • Key steps: \n"
-                        },
-                        {
-                          "text": "   • Status: ❌ INVALID\n"
-                        },
-                        {
-                          "text": "   • Details: Missing key host reception steps\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-28T21:06:03.578Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                        "column": 35,
-                        "line": 162
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "002a5b32db7fe9b22aa9-5593aa6f32f19938df41",
-              "file": "qa-trace-logging-verification.spec.ts",
-              "line": 148,
-              "column": 7
-            },
-            {
-              "title": "should verify SessionCanvas QuestionReceived event trace logging",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 26,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m10\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m10\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:180:35",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                          "column": 35,
-                          "line": 180
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 178 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 179 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 180 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m10\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 181 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 182 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 183 |\u001b[39m   \u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                            "column": 35,
-                            "line": 180
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m10\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 178 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m`   • Details: ${result.details}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 179 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 180 |\u001b[39m     expect(result\u001b[33m.\u001b[39mtraceLogsFound)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m10\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 181 |\u001b[39m     expect(result\u001b[33m.\u001b[39misValid)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 182 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 183 |\u001b[39m   \u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:180:35\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔍 VERIFYING: SessionCanvas QuestionReceived event trace logging...\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\SessionCanvas.razor\n"
-                        },
-                        {
-                          "text": "📊 RESULT: SessionCanvas-QuestionReceived\n"
-                        },
-                        {
-                          "text": "   • Trace logs found: 0\n"
-                        },
-                        {
-                          "text": "   • Key steps: \n"
-                        },
-                        {
-                          "text": "   • Status: ❌ INVALID\n"
-                        },
-                        {
-                          "text": "   • Details: Missing key canvas reception steps\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-28T21:06:04.909Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                        "column": 35,
-                        "line": 180
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "002a5b32db7fe9b22aa9-3c0c8b903707c733472b",
-              "file": "qa-trace-logging-verification.spec.ts",
-              "line": 166,
-              "column": 7
-            },
-            {
-              "title": "should validate complete bidirectional flow trace coverage",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 4,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 14,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:213:28",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                          "column": 28,
-                          "line": 213
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 211 |\u001b[39m     \n \u001b[90m 212 |\u001b[39m     \u001b[90m// Verify comprehensive coverage\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 213 |\u001b[39m     expect(totalTraceLogs)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m30\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Expect substantial trace logging\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 214 |\u001b[39m     expect(validComponents)\u001b[33m.\u001b[39mtoBe(components\u001b[33m.\u001b[39mlength)\u001b[33m;\u001b[39m \u001b[90m// All components must be valid\u001b[39m\n \u001b[90m 215 |\u001b[39m     \n \u001b[90m 216 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ BIDIRECTIONAL FLOW TRACE LOGGING FULLY VALIDATED'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                            "column": 28,
-                            "line": 213
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m30\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 211 |\u001b[39m     \n \u001b[90m 212 |\u001b[39m     \u001b[90m// Verify comprehensive coverage\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 213 |\u001b[39m     expect(totalTraceLogs)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m30\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Expect substantial trace logging\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 214 |\u001b[39m     expect(validComponents)\u001b[33m.\u001b[39mtoBe(components\u001b[33m.\u001b[39mlength)\u001b[33m;\u001b[39m \u001b[90m// All components must be valid\u001b[39m\n \u001b[90m 215 |\u001b[39m     \n \u001b[90m 216 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ BIDIRECTIONAL FLOW TRACE LOGGING FULLY VALIDATED'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts:213:28\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔍 COMPREHENSIVE VALIDATION: Complete bidirectional flow trace coverage...\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\SessionCanvas.razor\n"
-                        },
-                        {
-                          "text": "📈 SessionCanvas-SubmitQuestion: 0 logs, INVALID\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Controllers\\QuestionController.cs\n"
-                        },
-                        {
-                          "text": "📈 QuestionController: 0 logs, INVALID\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\HostControlPanel.razor\n"
-                        },
-                        {
-                          "text": "📈 HostControlPanel-SignalR: 0 logs, INVALID\n"
-                        },
-                        {
-                          "text": "📂 Attempting to read file: D:\\PROJECTS\\NOOR CANVAS\\D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas\\Pages\\SessionCanvas.razor\n"
-                        },
-                        {
-                          "text": "📈 SessionCanvas-QuestionReceived: 0 logs, INVALID\n"
-                        },
-                        {
-                          "text": "\n🎯 SUMMARY:\n"
-                        },
-                        {
-                          "text": "   • Total trace logs across all components: 0\n"
-                        },
-                        {
-                          "text": "   • Valid components: 0/4\n"
-                        },
-                        {
-                          "text": "   • Coverage: 0%\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-28T21:06:06.123Z",
-                      "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-trace-logging-verification.spec.ts",
-                        "column": 28,
-                        "line": 213
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "002a5b32db7fe9b22aa9-3aa77359756da39ec863",
-              "file": "qa-trace-logging-verification.spec.ts",
-              "line": 184,
+              "id": "edace1bf8b61b0559af8-4a8b5cccb1a2ce3656ee",
+              "file": "registration-flow-test.spec.ts",
+              "line": 4,
               "column": 7
             }
           ]
@@ -495,11 +151,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-28T21:05:59.892Z",
-    "duration": 6315.677,
+    "startTime": "2025-09-29T10:33:57.952Z",
+    "duration": 4964.913,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 5,
+    "unexpected": 1,
     "flaky": 0
   }
 }

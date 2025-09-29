@@ -10,6 +10,7 @@ This may happen because:
 - The process was interrupted.
 - The user provided clarification.
 - The user supplied additional details after the original request.
+- To stop copilot from hallucinating or going off-track.
 
 `/continue` resumes the unfinished work for the same `key`, incorporating any new context or instructions.
 
@@ -62,11 +63,6 @@ Request: {brief_description}
 
 📝 CONTINUATION BREAKDOWN
 {single_task_description OR phase_by_phase_list}
-
-⚠️  DEPENDENCIES & RISKS
-• Prerequisites: {any_requirements}
-• Potential conflicts: {risk_assessment}
-• Quality gate status: {current_analyzer_linter_test_state}
 
 🚀 RESUMPTION PLAN
 • Resume point: {where_to_start}
@@ -294,3 +290,11 @@ _Do not commit until all items are checked and explicit approval is confirmed._
 - In apply/test modes, always run:
   `git add -A && git commit -m "Backup before continue <key>"`
 - Record commit hash in undo log.
+
+---
+### Patch: Continue Dual Integrity Design
+- Begin with full key data stream audit (validate unfinished tasks, structure, consistency, metadata freshness).
+- Report audit results before continuation analysis.
+- Output in structured bullet format under sections: Current State, Continuation Scope, Continuation Breakdown, Resumption Plan.
+- Update key data stream with verified results.
+- End with targeted integrity check (only resumed/modified tasks) to confirm consistency.
