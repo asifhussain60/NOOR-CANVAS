@@ -1333,9 +1333,9 @@
     public async Task ShareAsset(string shareId, string assetType, int instanceNumber)
     {
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 ShareAsset method called from JavaScript");
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📦 ShareId: {ShareId}, AssetType: {AssetType}, Instance: {InstanceNumber}", shareId, assetType, instanceNumber);
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎯 STEP 1/7: ShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 PHASE1 SHAREBUTTON: ShareAsset method called from JavaScript, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📦 PHASE1 INPUT: ShareId={ShareId}, AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, assetType, instanceNumber, broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎯 PHASE1 STEP 1/7: ShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
         
         if (SessionId == null || hubConnection == null)
         {
@@ -1366,21 +1366,21 @@
                 return;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 STEP 2/7: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId} ;CLEANUP_OK", rawAssetHtml.Length, broadcastId);
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📄 Raw HTML content: {HtmlPreview}", rawAssetHtml.Substring(0, Math.Min(200, rawAssetHtml.Length)));
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 PHASE1 STEP 2/7: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId} ;CLEANUP_OK", rawAssetHtml.Length, broadcastId);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📄 PHASE1 HTML PREVIEW: {HtmlPreview}, broadcastId={BroadcastId} ;CLEANUP_OK", rawAssetHtml.Substring(0, Math.Min(200, rawAssetHtml.Length)), broadcastId);
 
-            // [FIX] Create clean asset data object (KSessions pattern) - no complex HTML processing
+            // [PHASE1] Create clean asset data object with rawHtmlContent property (fixed naming)
             var assetData = new
             {
                 shareId = shareId,
                 assetType = assetType,
                 instanceNumber = instanceNumber,
-                rawHtmlContent = rawAssetHtml,  // Send raw HTML for client-side processing
+                rawHtmlContent = rawAssetHtml,  // PHASE1 FIX: Use rawHtmlContent property name
                 sharedAt = DateTime.UtcNow,
                 sessionId = SessionId.Value
             };
 
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 STEP 3/7: Clean asset data object created, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 PHASE1 STEP 3/7: Asset data object created with rawHtmlContent property, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
 
             Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 STEP 4/7: Broadcasting asset via SignalR ShareAsset, target=session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
             

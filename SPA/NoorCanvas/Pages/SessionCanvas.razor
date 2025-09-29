@@ -1236,32 +1236,50 @@
                             Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] ⚠️ STRUCTURE: No asset wrapper found, using root, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                         }
 
-                        // DIRECT: Look for testContent property (from TestShareAsset)
-                        if (actualAsset.TryGetProperty("testContent", out var contentElement))
+                        // ENHANCED: Look for rawHtmlContent (from ShareAsset) OR testContent (from TestShareAsset) 
+                        JsonElement contentElement;
+                        var htmlContent = string.Empty;
+                        var contentSourceProperty = string.Empty;
+                        
+                        if (actualAsset.TryGetProperty("rawHtmlContent", out contentElement))
                         {
-                            var htmlContent = contentElement.GetString();
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Extracted testContent: {ContentLength} chars", htmlContent?.Length ?? 0);
-                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🎨 CONTENT EXTRACTED: testContent found, length={ContentLength}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                            htmlContent = contentElement.GetString();
+                            contentSourceProperty = "rawHtmlContent";
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ PHASE1 SUCCESS: rawHtmlContent property found, length={ContentLength} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
                                 htmlContent?.Length ?? 0, canvasTrackingId);
+                        }
+                        else if (actualAsset.TryGetProperty("testContent", out contentElement))
+                        {
+                            htmlContent = contentElement.GetString();
+                            contentSourceProperty = "testContent";
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ PHASE1 FALLBACK: testContent property found (backward compatibility), length={ContentLength} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                                htmlContent?.Length ?? 0, canvasTrackingId);
+                        }
+                        
+                        if (!string.IsNullOrEmpty(htmlContent))
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Extracted {PropertyName}: {ContentLength} chars", contentSourceProperty, htmlContent?.Length ?? 0);
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎨 PHASE1 CONTENT EXTRACTED: {PropertyName} found, length={ContentLength}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                                contentSourceProperty, htmlContent?.Length ?? 0, canvasTrackingId);
 
-                            // DIRECT: Set content and update UI (KSESSIONS pattern)
+                            // ENHANCED: Set content and update UI with detailed phase tracking
                             Model.SharedAssetContent = htmlContent;
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Updating UI with new content");
-                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🔄 UI UPDATE: SharedAssetContent set, calling StateHasChanged, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Updating UI with new content from {PropertyName}", contentSourceProperty);
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔄 PHASE1 UI UPDATE: SharedAssetContent set from {PropertyName}, calling StateHasChanged, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", contentSourceProperty, canvasTrackingId);
                             
                             await InvokeAsync(StateHasChanged);
                             
                             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Content rendered - should be visible in canvas");
-                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] ✅ RENDER SUCCESS: UI updated, content should be visible, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ PHASE1 RENDER SUCCESS: UI updated with {PropertyName}, content should be visible, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", contentSourceProperty, canvasTrackingId);
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] ⚠️ No testContent property found in asset data");
-                            Logger.LogWarning("[DEBUG-WORKITEM:hub:continue] ⚠️ PARSE WARNING: testContent property not found in asset, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] ⚠️ No rawHtmlContent or testContent property found in asset data");
+                            Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] ❌ PHASE1 FAILURE: Neither rawHtmlContent nor testContent property found in asset, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
                             
                             // Log all available properties for debugging
                             var availableProps = string.Join(", ", actualAsset.EnumerateObject().Select(p => p.Name));
-                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🔍 AVAILABLE PROPERTIES: [{Properties}], canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
+                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔍 PHASE1 DEBUG: Available properties: [{Properties}], canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
                                 availableProps, canvasTrackingId);
                         }
                     }
