@@ -4,10 +4,10 @@
 - **key:** Task identifier (maps directly to the prompt key system)
 - **notes:** Additional context, details, or scope related to the task
 
-## Context & Inputs
+## Required Reading
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
 - **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD` (detailed architecture)
 
 ---
 

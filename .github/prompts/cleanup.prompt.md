@@ -24,7 +24,7 @@ Removes unused files, simplifies duplicate code, normalizes formatting, and vali
 **Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
 ### Quality Gates
-- **Completion Criteria:** Quality gates complete only when: analyzers green, linters clean, tests passing
+- Cleanup complete only when: analyzers green, linters clean, tests passing
 - Debug marker: `[DEBUG-WORKITEM:{key}:cleanup:{RUN_ID}] message ;CLEANUP_OK`
 - Logging modes: `none`, `simple`, `trace`
 

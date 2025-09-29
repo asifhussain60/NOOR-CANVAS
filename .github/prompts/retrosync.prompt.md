@@ -24,7 +24,7 @@ Synchronizes requirements, implementation, and tests across the entire project w
 **Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
 
 ### Quality Gates
-- **Completion Criteria:** Quality gates complete only when: analyzers green, linters clean, tests passing
+- Synchronization complete only when: analyzers green, linters clean, tests passing
 - Debug marker: `[DEBUG-WORKITEM:retrosync:{RUN_ID}] message ;CLEANUP_OK`
 - Layers: `retrosync`, `tests`, `impl`, `lifecycle`
 
@@ -87,9 +87,15 @@ Summaries must include:
 - Then request approval to mark retrosync task complete
 
 ## Guardrails
-**Reference:** SelfAwareness.instructions.md for complete file organization, database connectivity, and port management protocols.
-- Focus on architectural accuracy and test/requirement alignment
 - Do not alter `appsettings.*.json` or secrets unless explicitly required for synchronization
+- Maintain proper file organization as per SelfAwareness.instructions.md
+- No new roots outside `Workspaces/Copilot/` (except `.github/`)
+- Focus on architectural accuracy and test/requirement alignment
+
+## Database Guardrails
+**Reference:** SelfAwareness.instructions.md for complete database connectivity and port management protocols.
+- Maintain proper file organization structure
+- Do not create new roots outside `Workspaces/Copilot/` (except `.github/`)
 
 ## Key Techstack Synchronization (Migrated from IssueTracker)
 

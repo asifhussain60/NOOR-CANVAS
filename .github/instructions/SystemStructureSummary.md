@@ -27,31 +27,26 @@ It is the **single source of truth** for system usage and must be updated if the
 
 ### API & Database Architecture
 
-#### waitingroom (`SessionWaiting.razor`) - **RECENTLY UPDATED**
+#### waitingroom (`SessionWaiting.razor`)
 - **APIs**: 
-  - `GET /api/participant/session/{token}/validate` - validates session token and returns session details
-  - `GET /api/participant/session/{token}/participants` - fetches participant list with country flag integration
+  - `GET /api/participant/session/{token}/validate` - validates session token
+  - `GET /api/participant/session/{token}/participants` - fetches participant list
 - **Tables**: `canvas.Sessions`, `canvas.Participants`, `dbo.Countries` (flag lookup via ISO2)
 - **SignalR**: SessionHub (`/hub/session`) - real-time participant updates, group: `usertoken_{token}`
-- **Key Features**: Real-time participant list, countdown timer, session details display, country flag service integration
-- **Performance**: Optimized debug logging removal completed (90% log volume reduction)
 - **Purpose**: Pre-session waiting room with participant list and countdown timer
 
-#### hostcanvas (`HostControlPanel.razor`) - **RECENTLY UPDATED**
+#### hostcanvas (`HostControlPanel.razor`)
 - **APIs**: 
   - `GET /api/question/session/{userToken}` - fetch session Q&A
   - `POST /api/host/session/{sessionId}/start` - start session
   - `GET /api/host/sessions/{sessionId}/assets` - fetch available assets
   - `POST /api/host/share-asset` - broadcast content to participants
-  - `GET /api/participant/session/{token}/participants` - fetch participant list with country flags
-- **Tables**: `canvas.Sessions` (ScheduledDate, ScheduledTime, ScheduledDuration fields), `canvas.Questions`, `canvas.AssetLookup`, `KSESSIONS.Sessions`, `KSESSIONS.SessionTranscripts`, `KSESSIONS.Countries`
+- **Tables**: `canvas.Sessions`, `canvas.Questions`, `canvas.AssetLookup`, `KSESSIONS.Sessions`, `KSESSIONS.SessionTranscripts`, `KSESSIONS.Countries`
 - **Direct DB**: SimplifiedCanvasDb, KSessionsDb contexts (bypasses API layer)
 - **SignalR**: SessionHub, QAHub, AnnotationHub - groups: `session_{sessionId}`, `host_{hostToken}`
-- **Key Features**: Enhanced UI with session timing cards, centered session name/description styling, clean borderless transcript display, real-time participant management
-- **UI Enhancements**: Session time/duration cards in SESSION CONTROLS panel, improved typography, removed dotted borders for cleaner appearance
-- **Purpose**: Host session management, Q&A moderation, real-time content broadcasting, and enhanced session timing display
+- **Purpose**: Host session management, Q&A moderation, and real-time content broadcasting
 
-#### canvas (`SessionCanvas.razor`) - **RECENTLY UPDATED**
+#### canvas (`SessionCanvas.razor`)
 - **APIs**: 
   - `GET /api/participant/session/{token}/validate` - validate participant session
   - `GET /api/participant/session/{token}/participants` - fetch session participants  
@@ -60,9 +55,6 @@ It is the **single source of truth** for system usage and must be updated if the
   - `DELETE /api/Question/Delete/{questionId}?userGuid={guid}` - delete own question
 - **Tables**: `canvas.Sessions`, `canvas.Participants`, `canvas.Questions`, `canvas.QuestionVotes`
 - **SignalR**: SessionHub (`/hub/session`), QAHub (`/hub/qa`) - groups: `session_{sessionId}`, `usertoken_{token}`
-- **Key Features**: Enhanced UI with reduced header padding (10px), session description display with Lato font, removed metadata cards for cleaner interface
-- **UI Enhancements**: Optimized header layout, standardized 200px logo sizing, enhanced canvas height (75vh-150px), maintained pulse animation for placeholder text
-- **Data Model**: Extended SessionCanvasViewModel with SessionDescription property for enhanced session information display
 - **Purpose**: Main participant session interface with Q&A, voting, and real-time content reception
 
 #### userauth (`UserLanding.razor`)
@@ -129,4 +121,4 @@ It is the **single source of truth** for system usage and must be updated if the
 
 ---
 
-*Last updated: September 28, 2025 - Architecture synchronized via retrosync.prompt.md. Instruction and prompt files optimized via promptsync.prompt.md. Key closures completed: userlanding (authentication gate security), canvas-qa (Q&A bidirectional communication). Canvas-QA authentication fixes completed, comprehensive API documentation updated, SignalR Q&A bidirectional flow operational.*  
+*Last updated: September 28, 2025 - Comprehensive architectural reference for key-based prompts.*  

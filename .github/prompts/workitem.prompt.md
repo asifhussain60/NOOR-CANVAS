@@ -14,67 +14,6 @@ Implements scoped changes for `{key}` and stabilizes with analyzers, tests, and 
 - **mode:** Operation mode (`analyze`, `apply`, `test`) - default: `apply`
 - **notes:** Work description (scope, files, constraints)
 
-## Task Analysis & Planning
-**MANDATORY:** Before beginning any work, agents must:
-
-### 1. Parse and Summarize User Request
-- **Parse Input**: Identify if user input contains `---` delimited phases or is a single task
-- **Extract Requirements**: Clearly identify what changes/features are being requested
-- **Identify Scope**: Determine files, components, and systems that will be affected
-- **Assess Complexity**: Estimate effort level and potential risks
-
-### 2. Phase Breakdown (if `---` delimited input)
-- **Phase Count**: Report total number of phases detected
-- **Phase Summary**: For each phase, provide:
-  - Phase number and brief description
-  - Expected files to be modified
-  - Key technical changes required
-  - Dependencies on previous phases
-- **Execution Order**: Confirm the logical sequence of phase execution
-
-### 3. Requested Work Analysis
-**Present to user in this format:**
-```
-📋 REQUESTED WORK ANALYSIS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Key: {key}
-Mode: {mode}
-Request: {brief_description}
-
-🎯 WORK REQUEST UNDERSTANDING
-• Primary objective: {main_feature_or_change_requested}
-• User requirements: {specific_requirements_identified}
-• Expected outcome: {what_user_wants_to_achieve}
-• Context provided: {any_context_or_constraints_given}
-
-📊 SCOPE ANALYSIS
-• Files to modify: {file_list}
-• Components affected: {component_list}
-• Estimated complexity: {low/medium/high}
-• Impact assessment: {areas_of_codebase_affected}
-
-📝 TASK BREAKDOWN
-{single_task_description OR phase_by_phase_list}
-
-⚠️  DEPENDENCIES & RISKS
-• Prerequisites: {any_requirements}
-• Potential issues: {risk_assessment}
-• Architectural considerations: {alignment_with_existing_patterns}
-
-🚀 EXECUTION PLAN
-• Quality gates: {analyzer/linter/test_strategy}
-• Testing approach: {test_strategy_if_mode_test}
-• Commit strategy: {commit_approach}
-• Validation criteria: {how_success_will_be_measured}
-
-Proceed with implementation? (Y/N)
-```
-
-### 4. User Confirmation
-- **Wait for Approval**: Do not begin implementation until user confirms
-- **Handle Modifications**: If user requests changes to the plan, update and re-summarize
-- **Document Changes**: Record any plan modifications in debug logs
-
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
 - **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
@@ -87,7 +26,9 @@ Proceed with implementation? (Y/N)
 **Reference:** SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
 
 ### Documentation Placement
-**Reference:** SelfAwareness.instructions.md File Organization Rules for complete documentation placement protocols.
+- **CRITICAL:** All documentation in `Workspaces/Copilot/_DOCS/` subdirectories
+- **NEVER** create analysis/summary files in project root
+- Follow SelfAwareness File Organization Rules
 
 ## Operation Modes
 
@@ -144,12 +85,27 @@ When user input contains `---` separators, treat each section as a separate todo
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
 
 ## Launch Policy
-**Reference:** SelfAwareness.instructions.md for complete launch protocols, database connectivity, and port management rules.
 
-### Key Points for Implementation Work
-- **Development:** Use `ncb.ps1` for final builds, `nc.ps1` for quick restarts
-- **Testing:** Playwright webServer manages app lifecycle via `PW_MODE=standalone`
-- **Never mix:** Don't use PowerShell scripts during test execution
+### For Development Work
+- **Never** use `dotnet run` or any variant for development.
+- Launch only via:
+  - `./Workspaces/Global/nc.ps1`  (launch only)
+  - `./Workspaces/Global/ncb.ps1` (clean, build, then launch)
+- If you stop or restart the app, self-attribute in logs:  
+  `[DEBUG-WORKITEM:{key}:lifecycle:{RUN_ID}] agent_initiated_shutdown=true reason=<text> ;CLEANUP_OK`
+
+### For Playwright Testing (when mode: test)
+- **Use Playwright's webServer configuration** for automatic app lifecycle management
+- **Set `PW_MODE=standalone`** to enable webServer startup
+- **NEVER** use `dotnet run`, `dotnet build`, `nc`, or `ncb` commands during test execution
+- **NEVER** use PowerShell scripts during test execution
+- **ALWAYS** use sleep timer before test execution: `Start-Sleep -Seconds 15`
+- **ALWAYS** check port availability: `netstat -an | findstr :9091`
+- Playwright handles `dotnet run` via webServer config in `config/testing/playwright.config.cjs`
+- Proper test execution format:
+  ```powershell
+  Start-Sleep -Seconds 15; netstat -an | findstr :9091; $env:PW_MODE="standalone"; npx playwright test "test-file.spec.ts"
+  ```
 
 ## Debug Logging Rules
 - Marker: `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`
@@ -161,8 +117,8 @@ When user input contains `---` separators, treat each section as a separate todo
   - **trace**: logs for every step, including intermediate calculations and branching
 
 ### Quality Gates
-- **Completion Criteria:** Quality gates complete only when: analyzers green, linters clean, tests passing
-- **Reference:** SelfAwareness.instructions.md for complete analyzer and linter rules
+- **Stop on violations:** Analyzers or linters must pass before proceeding
+- **Reference:** SelfAwareness.instructions.md for complete rules
 
 ### Application Context
 - **NOOR Canvas:** ASP.NET Core 8.0 + Blazor Server + SignalR
@@ -193,7 +149,6 @@ When user input contains `---` separators, treat each section as a separate todo
 - Clean git status (if applicable)
 - Documentation properly placed in `Workspaces/Copilot/_DOCS/`
   - HTML report → `Workspaces/Copilot/artifacts/playwright/report`
-- **Final Step**: Run `./Workspaces/Global/ncb.ps1` to ensure application is clean, built, and ready for manual testing
 
 - Follow incremental accumulation:
   1. Implement change + spec → analyzers + lints → run spec1

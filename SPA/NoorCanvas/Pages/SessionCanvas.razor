@@ -46,11 +46,35 @@
     @@media (max-width: 1024px) {
         .main-grid { grid-template-columns: 1fr; }
     }
+    
+    .session-canvas-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .session-canvas-container {
+        width: 95%;
+        max-width: 85rem;
+        background-color: #FFFFFF;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border: 1px solid #E5E7EB;
+    }
 </style>
 
-<div style="background-color:#F8F5F1;display:flex;flex-direction:column;min-height:100vh;padding:1rem;">
+<!-- Root container matching SessionWaiting.razor structure -->
+<div class="session-canvas-root">
+    
+    <!-- Main content container -->
+    <div class="session-canvas-container">
 
-    @if (Model?.CurrentState == SessionCanvasState.Loading)
+        @if (Model?.CurrentState == SessionCanvasState.Loading)
     {
         <!-- Loading State -->
         <div style="width:100%;max-width:56rem;margin:0 auto;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
@@ -111,7 +135,7 @@
                     
                     <!-- Session Info -->
                     <div style="flex:1;text-align:center;">
-                        <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.5rem;color:#006400;margin:0;">@(Model?.SessionName ?? "Session Canvas")</h1>
+                        <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.5rem;color:#816611;margin:0;">@(Model?.SessionName ?? "Session Canvas")</h1>
                         @if (!string.IsNullOrEmpty(Model?.SessionDescription))
                         {
                             <p style="font-family:'Lato',sans-serif;font-size:1rem;color:#333;margin:0.5rem 0 0 0;text-align:center;text-transform:capitalize;">@Model.SessionDescription</p>
@@ -120,9 +144,8 @@
                     
                     <!-- SignalR Connection Status -->
                     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
-                        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background-color:@GetSignalRStatusBackgroundColor();border:2px solid @GetSignalRStatusBorderColor();border-radius:0.75rem;font-family:'Lato',sans-serif;font-size:0.875rem;font-weight:600;min-width:140px;">
-                            <i class="@GetSignalRStatusIcon()" style="color:@GetSignalRStatusColor();font-size:1.125rem;"></i>
-                            <span style="color:@GetSignalRStatusColor();">@GetSignalRStatusText()</span>
+                        <div style="display:flex;align-items:center;justify-content:center;width:48px;height:48px;background-color:@GetSignalRStatusBackgroundColor();border:2px solid @GetSignalRStatusBorderColor();border-radius:50%;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                            <i class="@GetSignalRStatusIcon()" style="color:@GetSignalRStatusColor();font-size:1.5rem;"></i>
                         </div>
                         
                         @if (hubConnection?.State == HubConnectionState.Disconnected)
@@ -137,6 +160,22 @@
                         }
                     </div>
 
+                </div>
+            </div>
+            
+            <!-- Welcome Message Panel -->
+            <div style="background-color:#ffffff;border-radius:1.5rem;padding:1.5rem 2rem;margin:1rem auto;max-width:50rem;text-align:center;">
+                <div style="display:flex;align-items:center;justify-content:center;">
+                    <span style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:600;color:#006400;">
+                        @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
+                        {
+                            @($"{Model.CurrentParticipantName}, Welcome To The Session")
+                        }
+                        else
+                        {
+                            @("Welcome To The Session")
+                        }
+                    </span>
                 </div>
             </div>
             
@@ -169,14 +208,15 @@
                             <i class="fa-solid fa-hand-raised" style="color:#006400;font-size:1rem;"></i>
                             <h4 style="font-family:'Poppins',sans-serif;font-size:0.875rem;font-weight:600;color:#4B3C2B;margin:0;">Ask a question</h4>
                         </div>
-                        <div style="display:flex;align-items:stretch;gap:0.5rem;padding:0 0.75rem 0.75rem 0.75rem;">
+                        <div style="display:flex;align-items:stretch;gap:0.75rem;padding:0 0.75rem 0.75rem 0.75rem;">
                             <textarea @bind="QuestionInput" 
-                                      style="flex:3;padding:0.75rem;border-radius:0.5rem;border:1px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
+                                      style="flex:5;padding:0.75rem;border-radius:0.5rem;border:1px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
                                       placeholder="Ask a question..." rows="2"></textarea>
                             <button @onclick="SubmitQuestion" 
-                                    style="flex:1;padding:0.5rem 1rem;border-radius:0.5rem;color:white;font-weight:600;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.25rem;border:1px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
+                                    style="flex:1;min-width:80px;padding:0.5rem;border-radius:0.5rem;color:white;font-weight:600;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;border:1px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
                                     class="shadow-golden">
-                                <span style="font-size:0.875rem;color:white;">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
+                                <i class="fa-solid fa-paper-plane" style="font-size:1.25rem;color:white;"></i>
+                                <span style="font-size:1rem;color:white;">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
                             </button>
         </div>
                     </div>
@@ -186,15 +226,17 @@
                 <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;display:flex;flex-direction:column;height:100%;">
                     
                     <!-- Tabs -->
-                    <div style="display:flex;margin-bottom:1rem;border-bottom:2px solid #E5E7EB;">
+                    <div style="display:flex;margin-bottom:1rem;border-bottom:2px solid #E5E7EB;background-color:#F8F5F1;border-radius:0.75rem 0.75rem 0 0;">
                         <button @onclick="() => ActiveTab = Tab.QA" 
-                                style="flex:1;padding:0.75rem 0.5rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:2px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border:none;@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;" : "")"
+                                style="flex:1;padding:0.75rem 1rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:3px solid transparent;transition:all 0.2s;cursor:pointer;background:@(ActiveTab == Tab.QA ? "#FFFFFF" : "transparent");border:none;border-radius:0.75rem 0 0 0;@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")"
                                 class="tab-button @(ActiveTab == Tab.QA ? "active" : "")">
+                            <i class="fa-solid fa-question-circle" style="margin-right:0.5rem;font-size:1rem;"></i>
                             Q&A
                         </button>
                         <button @onclick="() => ActiveTab = Tab.Participants" 
-                                style="flex:1;padding:0.75rem 0.5rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:2px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border:none;@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;" : "")"
+                                style="flex:1;padding:0.75rem 1rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:3px solid transparent;transition:all 0.2s;cursor:pointer;background:@(ActiveTab == Tab.Participants ? "#FFFFFF" : "transparent");border:none;border-radius:0 0.75rem 0 0;@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")"
                                 class="tab-button @(ActiveTab == Tab.Participants ? "active" : "")">
+                            <i class="fa-solid fa-users" style="margin-right:0.5rem;font-size:1rem;"></i>
                             Participants
                         </button>
                     </div>
@@ -287,6 +329,7 @@
             </div>
         </div>
     }
+    </div>
 </div>
 
 
@@ -574,10 +617,15 @@
                         // Convert API participants to display participants
                         Model!.Participants = participantsResponse.Participants.Select(p => new ParticipantData
                         {
+                            UserId = p.UserId,
                             Name = p.DisplayName,
                             Country = p.Country ?? "Unknown",
                             Flag = p.CountryFlag?.ToLower() ?? ""
                         }).ToList();
+                        
+                        // Find the current participant's name based on CurrentUserGuid
+                        var currentParticipant = Model.Participants.FirstOrDefault(p => p.UserId == CurrentUserGuid);
+                        Model.CurrentParticipantName = currentParticipant?.Name;
                         
                         Model.ParticipantCount = Model.Participants.Count;
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Loaded {Count} participants for session canvas", 
@@ -772,6 +820,7 @@
         public TimeSpan Duration { get; set; }
         public DateTime? SessionStartTime { get; set; }
         public string? SharedAssetContent { get; set; }
+        public string? CurrentParticipantName { get; set; }
     }
 
     public enum SessionCanvasState
