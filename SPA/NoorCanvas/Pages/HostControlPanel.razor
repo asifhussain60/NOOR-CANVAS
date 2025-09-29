@@ -23,6 +23,7 @@
 @inject NoorCanvas.Data.KSessionsDbContext KSessionsDb
 @inject NoorCanvas.Services.SessionStateService SessionStateService
 @inject NoorCanvas.Services.SafeHtmlRenderingService SafeHtmlRenderer
+@inject NoorCanvas.Services.AssetHtmlProcessingService AssetHtmlProcessor
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
 
@@ -1761,7 +1762,9 @@
             if (Model?.SessionStatus == "Active")
             {
                 Logger.LogDebug("COPILOT-DEBUG: [HostControlPanel:TransformTranscriptHtml] Session is Active - injecting share buttons for SessionId {SessionId}", SessionId);
-                finalHtml = await InjectAssetShareButtonsFromDatabase(sanitizedInput);
+                
+                // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Enhanced asset processing using HtmlAgilityPack ;CLEANUP_OK
+                finalHtml = await InjectAssetShareButtonsWithEnhancedProcessing(sanitizedInput);
             }
             else
             {
@@ -1999,6 +2002,109 @@
         {
             Logger.LogWarning(ex, "SanitizeHtml: failing open - returning original HTML as fallback");
             return html; // Fallback: return original if sanitizer fails (better than throwing)
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Enhanced asset share button injection using HtmlAgilityPack ;CLEANUP_OK
+    /// Combines traditional database-driven approach with advanced HTML processing capabilities
+    /// </summary>
+    private async Task<string> InjectAssetShareButtonsWithEnhancedProcessing(string html)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Starting enhanced asset processing for SessionId: {SessionId} ;CLEANUP_OK", SessionId);
+
+            if (SessionId == null)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] SessionId is null, falling back to traditional processing ;CLEANUP_OK");
+                return await InjectAssetShareButtonsFromDatabase(html);
+            }
+
+            // First, use HtmlAgilityPack to process and identify assets
+            var assetProcessingResult = AssetHtmlProcessor.ProcessHtmlForAssetSharing(html, SessionId.Value);
+
+            if (!assetProcessingResult.ProcessingMetadata.Success)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack processing failed: {Message}, falling back to traditional method ;CLEANUP_OK", 
+                    assetProcessingResult.ProcessingMetadata.Message);
+                return await InjectAssetShareButtonsFromDatabase(html);
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack detected {AssetCount} assets successfully ;CLEANUP_OK", 
+                assetProcessingResult.DetectedAssets.Count);
+
+            // If HtmlAgilityPack found assets, use the enhanced processed HTML
+            if (assetProcessingResult.DetectedAssets.Count > 0)
+            {
+                // Add share buttons to the processed HTML
+                var htmlWithButtons = await AddShareButtonsToProcessedHtml(assetProcessingResult.ProcessedHtml, assetProcessingResult.DetectedAssets);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Successfully enhanced {AssetCount} assets with share buttons ;CLEANUP_OK", 
+                    assetProcessingResult.DetectedAssets.Count);
+                
+                return htmlWithButtons;
+            }
+            else
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] No assets detected by HtmlAgilityPack, falling back to traditional database method ;CLEANUP_OK");
+                return await InjectAssetShareButtonsFromDatabase(html);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error in enhanced asset processing, falling back to traditional method ;CLEANUP_OK");
+            return await InjectAssetShareButtonsFromDatabase(html);
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Add share buttons to HTML processed by HtmlAgilityPack ;CLEANUP_OK
+    /// </summary>
+    private Task<string> AddShareButtonsToProcessedHtml(string processedHtml, List<NoorCanvas.Services.DetectedAsset> detectedAssets)
+    {
+        try
+        {
+            var htmlWithButtons = processedHtml;
+            
+            // Process assets in reverse order to maintain positions during HTML insertion
+            var sortedAssets = detectedAssets.OrderByDescending(a => a.Position).ToList();
+            
+            foreach (var asset in sortedAssets)
+            {
+                try
+                {
+                    // Generate share button HTML using existing method
+                    var shareId = GenerateShareId();
+                    var shareButton = CreateShareButtonHtml(asset.AssetType, asset.DisplayName, shareId, 1);
+                    
+                    // Find the element with the data-asset-id and inject button before it
+                    var assetPattern = $@"<[^>]*data-asset-id=""{System.Text.RegularExpressions.Regex.Escape(asset.AssetId)}""[^>]*>";
+                    var match = System.Text.RegularExpressions.Regex.Match(htmlWithButtons, assetPattern);
+                    
+                    if (match.Success)
+                    {
+                        htmlWithButtons = htmlWithButtons.Insert(match.Index, shareButton);
+                        Logger.LogDebug("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Added share button for asset: {AssetId} ({AssetType}) ;CLEANUP_OK", 
+                            asset.AssetId, asset.AssetType);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Could not find asset element for ID: {AssetId} ;CLEANUP_OK", asset.AssetId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error adding share button for asset: {AssetId} ;CLEANUP_OK", asset.AssetId);
+                }
+            }
+            
+            return Task.FromResult(htmlWithButtons);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error adding share buttons to processed HTML ;CLEANUP_OK");
+            return Task.FromResult(processedHtml); // Return processed HTML without buttons as fallback
         }
     }
 

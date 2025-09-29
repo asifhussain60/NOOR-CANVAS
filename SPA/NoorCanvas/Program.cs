@@ -154,6 +154,9 @@ builder.Services.AddScoped<SessionStateService>(); // Session state persistence 
 // [DEBUG-WORKITEM:hostcanvas:continue] HTML rendering service for safe transcript display ;CLEANUP_OK
 builder.Services.AddScoped<SafeHtmlRenderingService>(); // Safe HTML rendering inspired by KSESSIONS $sce.trustAsHtml
 
+// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Enhanced asset HTML processing service using HtmlAgilityPack ;CLEANUP_OK
+builder.Services.AddScoped<AssetHtmlProcessingService>(); // Advanced asset detection, extraction, and processing for host sharing
+
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks

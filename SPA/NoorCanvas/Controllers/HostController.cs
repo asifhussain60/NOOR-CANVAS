@@ -23,8 +23,9 @@ namespace NoorCanvas.Controllers
         private readonly IHubContext<SessionHub> _sessionHub;
         private readonly SimplifiedTokenService _simplifiedTokenService;
         private readonly CountriesOptions _countriesOptions;
+        private readonly AssetHtmlProcessingService _assetHtmlProcessingService; // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack asset processing ;CLEANUP_OK
 
-        public HostController(SimplifiedCanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SimplifiedTokenService simplifiedTokenService, IOptions<CountriesOptions> countriesOptions)
+        public HostController(SimplifiedCanvasDbContext context, KSessionsDbContext kSessionsContext, ILogger<HostController> logger, IHubContext<SessionHub> sessionHub, SimplifiedTokenService simplifiedTokenService, IOptions<CountriesOptions> countriesOptions, AssetHtmlProcessingService assetHtmlProcessingService)
         {
             _context = context;
             _kSessionsContext = kSessionsContext;
@@ -32,6 +33,7 @@ namespace NoorCanvas.Controllers
             _sessionHub = sessionHub;
             _simplifiedTokenService = simplifiedTokenService;
             _countriesOptions = countriesOptions.Value;
+            _assetHtmlProcessingService = assetHtmlProcessingService; // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Initialize asset processing service ;CLEANUP_OK
         }
 
         [HttpPost("authenticate")]
@@ -935,6 +937,142 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        /// <summary>
+        /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Process HTML content for asset sharing using HtmlAgilityPack ;CLEANUP_OK
+        /// </summary>
+        /// <param name="request">HTML processing request containing content and session information</param>
+        /// <returns>Processed HTML with detected assets and metadata</returns>
+        [HttpPost("process-html-assets")]
+        public IActionResult ProcessHtmlAssets([FromBody] ProcessHtmlAssetsRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Processing HTML assets for session {SessionId}, content length: {Length} ;CLEANUP_OK",
+                    request.SessionId, request.HtmlContent?.Length ?? 0);
+
+                if (request.SessionId <= 0)
+                {
+                    return BadRequest(new { error = "Valid session ID is required" });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.HtmlContent))
+                {
+                    return BadRequest(new { error = "HTML content is required" });
+                }
+
+                // Validate HTML is suitable for asset processing
+                if (!_assetHtmlProcessingService.ValidateHtmlForAssetProcessing(request.HtmlContent))
+                {
+                    _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] No shareable assets found in HTML content for session {SessionId} ;CLEANUP_OK", request.SessionId);
+                    return Ok(new ProcessHtmlAssetsResponse
+                    {
+                        Success = true,
+                        ProcessedHtml = request.HtmlContent,
+                        DetectedAssets = new List<ProcessedAssetInfo>(),
+                        AssetCount = 0,
+                        Message = "HTML processed but no shareable assets detected"
+                    });
+                }
+
+                // Process HTML using AssetHtmlProcessingService
+                var processingResult = _assetHtmlProcessingService.ProcessHtmlForAssetSharing(request.HtmlContent, request.SessionId);
+
+                if (!processingResult.ProcessingMetadata.Success)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HTML processing failed for session {SessionId}: {Message} ;CLEANUP_OK",
+                        request.SessionId, processingResult.ProcessingMetadata.Message);
+                    return BadRequest(new { error = processingResult.ProcessingMetadata.Message });
+                }
+
+                // Convert detected assets to API response format
+                var processedAssets = processingResult.DetectedAssets.Select(asset => new ProcessedAssetInfo
+                {
+                    AssetId = asset.AssetId,
+                    AssetType = asset.AssetType,
+                    DisplayName = asset.DisplayName,
+                    CssSelector = asset.CssSelector,
+                    Position = asset.Position,
+                    TextContent = asset.Metadata.TryGetValue("textContent", out var textContent) 
+                        ? textContent.ToString() ?? string.Empty 
+                        : string.Empty,
+                    Metadata = asset.Metadata
+                }).ToList();
+
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Successfully processed {AssetCount} assets for session {SessionId} ;CLEANUP_OK",
+                    processedAssets.Count, request.SessionId);
+
+                return Ok(new ProcessHtmlAssetsResponse
+                {
+                    Success = true,
+                    ProcessedHtml = processingResult.ProcessedHtml,
+                    DetectedAssets = processedAssets,
+                    AssetCount = processedAssets.Count,
+                    Message = $"Successfully processed {processedAssets.Count} shareable assets"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error processing HTML assets for session {SessionId} ;CLEANUP_OK", request?.SessionId);
+                return StatusCode(500, new { error = "Failed to process HTML assets", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Extract specific asset content by asset ID ;CLEANUP_OK
+        /// </summary>
+        /// <param name="request">Asset extraction request with HTML content and asset ID</param>
+        /// <returns>Extracted asset content with metadata</returns>
+        [HttpPost("extract-asset")]
+        public IActionResult ExtractAsset([FromBody] ExtractAssetRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Extracting asset {AssetId} for session {SessionId} ;CLEANUP_OK",
+                    request.AssetId, request.SessionId);
+
+                if (request.SessionId <= 0 || string.IsNullOrWhiteSpace(request.AssetId))
+                {
+                    return BadRequest(new { error = "Valid session ID and asset ID are required" });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.HtmlContent))
+                {
+                    return BadRequest(new { error = "HTML content is required" });
+                }
+
+                // Extract asset using AssetHtmlProcessingService
+                var extractedAsset = _assetHtmlProcessingService.ExtractAssetById(request.HtmlContent, request.AssetId);
+
+                if (extractedAsset == null)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Asset {AssetId} not found in HTML content for session {SessionId} ;CLEANUP_OK",
+                        request.AssetId, request.SessionId);
+                    return NotFound(new { error = $"Asset {request.AssetId} not found in the provided HTML content" });
+                }
+
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Successfully extracted asset {AssetId}, type: {AssetType}, content length: {Length} ;CLEANUP_OK",
+                    request.AssetId, extractedAsset.AssetType, extractedAsset.HtmlContent.Length);
+
+                return Ok(new ExtractAssetResponse
+                {
+                    Success = true,
+                    AssetId = extractedAsset.AssetId,
+                    AssetType = extractedAsset.AssetType,
+                    HtmlContent = extractedAsset.HtmlContent,
+                    SafeHtmlContent = extractedAsset.SafeHtmlContent.Value,
+                    TextContent = extractedAsset.TextContent,
+                    Metadata = extractedAsset.Metadata,
+                    ExtractedAt = extractedAsset.ExtractedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error extracting asset {AssetId} for session {SessionId} ;CLEANUP_OK", 
+                    request?.AssetId, request?.SessionId);
+                return StatusCode(500, new { error = "Failed to extract asset", details = ex.Message });
+            }
+        }
+
         private static bool IsBase64String(string s)
         {
             if (string.IsNullOrWhiteSpace(s)) return false;
@@ -1080,5 +1218,53 @@ namespace NoorCanvas.Controllers
         public string Type { get; set; } = string.Empty;
         public string Selector { get; set; } = string.Empty;
         public Dictionary<string, object> Metadata { get; set; } = new();
+    }
+
+    // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack asset processing models ;CLEANUP_OK
+    public class ProcessHtmlAssetsRequest
+    {
+        public long SessionId { get; set; }
+        public string HtmlContent { get; set; } = string.Empty;
+        public string? HostToken { get; set; }
+    }
+
+    public class ProcessHtmlAssetsResponse
+    {
+        public bool Success { get; set; }
+        public string ProcessedHtml { get; set; } = string.Empty;
+        public List<ProcessedAssetInfo> DetectedAssets { get; set; } = new();
+        public int AssetCount { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
+
+    public class ProcessedAssetInfo
+    {
+        public string AssetId { get; set; } = string.Empty;
+        public string AssetType { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string CssSelector { get; set; } = string.Empty;
+        public int Position { get; set; }
+        public string TextContent { get; set; } = string.Empty;
+        public Dictionary<string, object> Metadata { get; set; } = new();
+    }
+
+    public class ExtractAssetRequest
+    {
+        public long SessionId { get; set; }
+        public string AssetId { get; set; } = string.Empty;
+        public string HtmlContent { get; set; } = string.Empty;
+        public string? HostToken { get; set; }
+    }
+
+    public class ExtractAssetResponse
+    {
+        public bool Success { get; set; }
+        public string AssetId { get; set; } = string.Empty;
+        public string AssetType { get; set; } = string.Empty;
+        public string HtmlContent { get; set; } = string.Empty;
+        public string SafeHtmlContent { get; set; } = string.Empty;
+        public string TextContent { get; set; } = string.Empty;
+        public Dictionary<string, object> Metadata { get; set; } = new();
+        public DateTime ExtractedAt { get; set; }
     }
 }
