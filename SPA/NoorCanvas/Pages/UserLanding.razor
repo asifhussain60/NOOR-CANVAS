@@ -39,6 +39,16 @@
             <div style="display:flex;flex-direction:column;gap:0.25rem;margin-top:-0.5rem;">
                 <p data-testid="session-name" style="font-family:'Inter',sans-serif;font-size:2rem;color:#D4AF37;font-weight:600;margin:0;">@(Model?.SessionName ?? "[Session Name]")</p>
                 <p style="font-family:'Inter',sans-serif;font-size:12px;color:grey;font-weight:normal;margin:0;">@(Model?.SessionDescription ?? "[Session Desc]")</p>
+                
+                @if (!string.IsNullOrEmpty(Model?.SessionStatusMessage))
+                {
+                    <div style="margin-top:0.75rem;padding:0.75rem;background-color:#F3F4F6;border-radius:0.5rem;border-left:4px solid #D4AF37;">
+                        <p style="font-family:'Inter',sans-serif;font-size:14px;color:#374151;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                            <i class="@Model.SessionStatusIcon" style="color:#D4AF37;"></i>
+                            @Model.SessionStatusMessage
+                        </p>
+                    </div>
+                }
             </div>
 
             <!-- User Authentication Form -->
@@ -85,7 +95,8 @@
                             </div>
                             <InputText id="name-input"
                                       @bind-Value="Model!.NameInput" 
-                                      @onfocus="ClearError" 
+                                      @onfocus="ClearError"
+                                      @oninput="@(async (e) => await SaveFormDataToLocalStorage("name", e.Value?.ToString()))"
                                       placeholder="Enter your name" 
                                       style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
                                       autocomplete="off" />
@@ -97,7 +108,8 @@
                                 <i class="fa-solid fa-envelope" style="color:#706357;"></i>
                             </div>
                             <InputText @bind-Value="Model!.EmailInput" 
-                                      @onfocus="ClearError" 
+                                      @onfocus="ClearError"
+                                      @oninput="@(async (e) => await SaveFormDataToLocalStorage("email", e.Value?.ToString()))"
                                       placeholder="Enter your email" 
                                       style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
                                       autocomplete="off" />
@@ -109,7 +121,8 @@
                                 <i class="fa-solid fa-globe" style="color:#706357;"></i>
                             </div>
                             <InputSelect @bind-Value="Model!.CountrySelect" 
-                                        @onfocus="ClearError" 
+                                        @onfocus="ClearError"
+                                        @onchange="@(async (e) => await SaveFormDataToLocalStorage("country", e.Value?.ToString()))"
                                         disabled="@(Model?.IsLoadingCountries ?? false)"
                                         style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
                                         autocomplete="off">
@@ -312,18 +325,22 @@
                         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] URL token validated successfully - switching to registration panel", requestId);
                         Model.ShowTokenPanel = false;
                         
-                        // [DEBUG-WORKITEM:user:UI] Set button text - default to 'Join Waiting Room' since all users must register first
+                        // [DEBUG-WORKITEM:user:UI] Set button text based on session status
                         var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
                         if (string.Equals(sessionStatus, "active", StringComparison.OrdinalIgnoreCase))
                         {
-                            Model.ButtonText = "Join Live Canvas";
+                            Model.ButtonText = "Join Session";
                             Model.ButtonIconClass = "fa-solid fa-play";
-                            Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Live Canvas' for active session", requestId);
+                            Model.SessionStatusMessage = "Session has already started - you can join immediately.";
+                            Model.SessionStatusIcon = "fa-solid fa-circle-play";
+                            Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Session' for active session", requestId);
                         }
                         else
                         {
                             Model.ButtonText = "Join Waiting Room";
                             Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                            Model.SessionStatusMessage = "Session hasn't started yet - you'll wait in the waiting room.";
+                            Model.SessionStatusIcon = "fa-solid fa-clock";
                             Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for created/inactive session", requestId);
                         }
                         Model.ErrorMessage = string.Empty;
@@ -333,6 +350,9 @@
                         
                         // CRITICAL: Force UI update after panel switch during initialization
                         StateHasChanged();
+                        
+                        // Load saved form data from localStorage
+                        await LoadFormDataFromLocalStorage(Model.TokenInput, requestId);
                         
                         // Load countries dropdown after successful URL token validation
                         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Loading countries dropdown after URL token validation...", requestId);
@@ -496,24 +516,31 @@
                     // Switch to registration panel
                     Model.ShowTokenPanel = false;
                     
-                    // [DEBUG-WORKITEM:user:UI] Set button text - default to 'Join Waiting Room' since all users must register first
+                    // [DEBUG-WORKITEM:user:UI] Set button text based on session status
                     var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
                     if (string.Equals(sessionStatus, "active", StringComparison.OrdinalIgnoreCase))
                     {
-                        Model.ButtonText = "Join Live Canvas";
+                        Model.ButtonText = "Join Session";
                         Model.ButtonIconClass = "fa-solid fa-play";
-                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Live Canvas' for active session");
+                        Model.SessionStatusMessage = "Session has already started - you can join immediately.";
+                        Model.SessionStatusIcon = "fa-solid fa-circle-play";
+                        Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Session' for active session");
                     }
                     else
                     {
                         Model.ButtonText = "Join Waiting Room";
                         Model.ButtonIconClass = "fa-solid fa-hourglass-start";
+                        Model.SessionStatusMessage = "Session hasn't started yet - you'll wait in the waiting room.";
+                        Model.SessionStatusIcon = "fa-solid fa-clock";
                         Logger.LogInformation("[DEBUG-WORKITEM:user:UI] Button set to 'Join Waiting Room' for created/inactive session");
                     }
                     Model.ErrorMessage = string.Empty;
                     
                     Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Successfully switched to registration panel", requestId);
 
+                    // Load saved form data from localStorage
+                    await LoadFormDataFromLocalStorage(Model.TokenInput, requestId);
+                    
                     // ISSUE-114 FIX: Load countries ONLY after successful token validation
                     Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Loading countries dropdown after token validation...", requestId);
                     await LoadCountriesAsync();
@@ -861,6 +888,96 @@
         }
     }
 
+    /// <summary>
+    /// Load previously saved form data from localStorage
+    /// </summary>
+    private async Task LoadFormDataFromLocalStorage(string token, string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:userauth:localStorage:{0}] Loading form data from localStorage for token: {1} ;CLEANUP_OK", 
+                requestId, token);
+                
+            var storedFormData = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_form_data_{token}");
+            
+            if (!string.IsNullOrEmpty(storedFormData))
+            {
+                var formData = System.Text.Json.JsonSerializer.Deserialize<FormData>(storedFormData);
+                
+                if (formData != null && Model != null)
+                {
+                    Model.NameInput = formData.Name ?? string.Empty;
+                    Model.EmailInput = formData.Email ?? string.Empty;
+                    Model.CountrySelect = formData.Country ?? string.Empty;
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:userauth:localStorage:{0}] Form data loaded - Name: {1}, Email: {2}, Country: {3} ;CLEANUP_OK", 
+                        requestId, !string.IsNullOrEmpty(formData.Name), !string.IsNullOrEmpty(formData.Email), !string.IsNullOrEmpty(formData.Country));
+                }
+            }
+            else
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:userauth:localStorage:{0}] No stored form data found ;CLEANUP_OK", requestId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:userauth:localStorage:{0}] Error loading form data from localStorage ;CLEANUP_OK", requestId);
+        }
+    }
+
+    /// <summary>
+    /// Save form field data to localStorage with debouncing
+    /// </summary>
+    private async Task SaveFormDataToLocalStorage(string field, string? value)
+    {
+        if (Model == null || string.IsNullOrEmpty(Model.TokenInput)) return;
+        
+        try
+        {
+            // Get current stored data
+            var storedFormData = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", $"noor_form_data_{Model.TokenInput}");
+            
+            FormData formData;
+            if (!string.IsNullOrEmpty(storedFormData))
+            {
+                formData = System.Text.Json.JsonSerializer.Deserialize<FormData>(storedFormData) ?? new FormData();
+            }
+            else
+            {
+                formData = new FormData();
+            }
+            
+            // Update the specific field
+            switch (field.ToLower())
+            {
+                case "name":
+                    formData.Name = value;
+                    break;
+                case "email":
+                    formData.Email = value;
+                    break;
+                case "country":
+                    formData.Country = value;
+                    break;
+            }
+            
+            // Save back to localStorage
+            var serializedData = System.Text.Json.JsonSerializer.Serialize(formData);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_form_data_{Model.TokenInput}", serializedData);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error saving form data to localStorage for field: {Field}", field);
+        }
+    }
+
+    public class FormData
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? Country { get; set; }
+    }
+
     public class UserLandingViewModel
     {
         public string? LogoText { get; set; }
@@ -874,6 +991,8 @@
         public string ErrorMessage { get; set; } = string.Empty;
         public string ButtonText { get; set; } = "Submit";
         public string ButtonIconClass { get; set; } = "fa-solid fa-arrow-right-to-bracket";
+        public string? SessionStatusMessage { get; set; }
+        public string? SessionStatusIcon { get; set; }
         public bool IsLoading { get; set; }
         public bool IsLoadingCountries { get; set; }
     }

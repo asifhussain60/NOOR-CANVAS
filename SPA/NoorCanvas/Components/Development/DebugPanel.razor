@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject IDevModeService DevModeService
 @inject ILogger<DebugPanel> Logger
+@inject IJSRuntime JSRuntime
 
 @* Only render debug panel in development mode *@
 @if (DevModeService.ShowDevPanels)
@@ -69,6 +70,51 @@
                     }
                 </div>
                 
+                @* localStorage Debug Section *@
+                <div class="debug-localstorage mt-3 pt-3 border-t border-gray-200">
+                    <button @onclick="ToggleLocalStorage" 
+                            class="w-full text-left text-xs text-gray-600 hover:text-gray-800 flex items-center justify-between">
+                        <span><i class="fas fa-database mr-2"></i>localStorage Data</span>
+                        <i class="fas @(_showLocalStorage ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                    </button>
+                    
+                    @if (_showLocalStorage)
+                    {
+                        <div class="mt-2 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <button @onclick="RefreshLocalStorage" 
+                                        class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded">
+                                    <i class="fas fa-sync-alt mr-1"></i>Refresh
+                                </button>
+                                <button @onclick="ClearNoorLocalStorage" 
+                                        class="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded">
+                                    <i class="fas fa-trash mr-1"></i>Clear All
+                                </button>
+                            </div>
+                            
+                            <div class="max-h-32 overflow-y-auto bg-gray-50 rounded p-2">
+                                @if (_localStorageData?.Any() == true)
+                                {
+                                    @foreach (var item in _localStorageData)
+                                    {
+                                        <div class="text-xs border-b border-gray-200 pb-1 mb-1">
+                                            <div class="font-semibold text-gray-700 truncate" title="@item.Key">@item.Key</div>
+                                            <div class="text-gray-500 mt-1 break-all" style="max-height: 40px; overflow-y: auto;" title="@item.Value">@item.Value</div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-xs text-gray-400 text-center py-2">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        No NOOR localStorage data found
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
                 @* Success/Error Messages *@
                 @if (!string.IsNullOrEmpty(_message))
                 {
@@ -110,6 +156,8 @@
     private string _message = string.Empty;
     private bool _isSuccess = false;
     private string _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+    private bool _showLocalStorage = false;
+    private List<LocalStorageItem> _localStorageData = new();
     
     protected override void OnInitialized()
     {
@@ -171,6 +219,87 @@
         }
     }
     
+    private void ToggleLocalStorage()
+    {
+        _showLocalStorage = !_showLocalStorage;
+        if (_showLocalStorage)
+        {
+            _ = Task.Run(async () => await RefreshLocalStorage());
+        }
+    }
+
+    private async Task RefreshLocalStorage()
+    {
+        try
+        {
+            var allKeys = await JSRuntime.InvokeAsync<string[]>("Object.keys", "localStorage");
+            var noorKeys = allKeys.Where(key => key.StartsWith("noor_", StringComparison.OrdinalIgnoreCase)).ToList();
+            
+            _localStorageData.Clear();
+            
+            foreach (var key in noorKeys)
+            {
+                var value = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", key);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // Truncate long values for display
+                    var displayValue = value.Length > 100 ? value[..100] + "..." : value;
+                    _localStorageData.Add(new LocalStorageItem { Key = key, Value = displayValue, FullValue = value });
+                }
+            }
+            
+            await InvokeAsync(StateHasChanged);
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Refreshed localStorage data - found {Count} items", _localStorageData.Count);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error refreshing localStorage data");
+            _message = "Error refreshing localStorage data";
+            _isSuccess = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ClearNoorLocalStorage()
+    {
+        try
+        {
+            var allKeys = await JSRuntime.InvokeAsync<string[]>("Object.keys", "localStorage");
+            var noorKeys = allKeys.Where(key => key.StartsWith("noor_", StringComparison.OrdinalIgnoreCase)).ToList();
+            
+            foreach (var key in noorKeys)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+            }
+            
+            _localStorageData.Clear();
+            await InvokeAsync(StateHasChanged);
+            
+            _message = $"Cleared {noorKeys.Count} NOOR localStorage items";
+            _isSuccess = true;
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Cleared {Count} localStorage items", noorKeys.Count);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error clearing localStorage data");
+            _message = "Error clearing localStorage data";
+            _isSuccess = false;
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public class LocalStorageItem
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public string FullValue { get; set; } = string.Empty;
+    }
+
     public void Dispose()
     {
         // Cleanup if needed

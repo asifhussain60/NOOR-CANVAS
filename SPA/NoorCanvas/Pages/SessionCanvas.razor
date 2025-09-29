@@ -455,13 +455,11 @@
                 
             if (!authResult.IsAuthenticated)
             {
-                Logger.LogWarning("Authentication FAILED for RequestId {0} - user not registered, showing authentication required state", requestId);
+                Logger.LogWarning("Authentication FAILED for RequestId {0} - user not registered, redirecting to UserLanding for registration", requestId);
                 
-                // Set the authentication required state instead of immediate redirect
-                // This provides better UX and prevents any potential race conditions
-                Model!.CurrentState = SessionCanvasState.AuthenticationRequired;
-                Model.ErrorMessage = "Please register to access this session.";
-                StateHasChanged();
+                // Redirect unregistered users directly to UserLanding.razor with session token
+                // This ensures they go through the proper registration flow instead of seeing error state
+                Navigation.NavigateTo($"/user/landing/{SessionToken}");
                 return;
             }
             
