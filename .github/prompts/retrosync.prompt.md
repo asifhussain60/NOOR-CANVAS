@@ -3,7 +3,7 @@ mode: agent
 ---
 
 # /retrosync5. **Implementation Drift:** Compare requirements vs implementation notes
-6. **Architecture Synchronization:** Audit NOOR-CANVAS_ARCHITECTURE.MD against codebase Requirements/Test Synchronization Agent (v3.0.0)
+6. **Architecture Synchronization:** Audit Ref/NOOR-CANVAS_ARCHITECTURE.MD against codebase Requirements/Test Synchronization Agent (v3.0.0)
 
 Synchronizes requirements, implementation, and tests across the entire project while maintaining quality gates.
 
@@ -14,8 +14,8 @@ Synchronizes requirements, implementation, and tests across the entire project w
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD` (architectural reference)
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **Architecture:** `.github/instructions/Ref/NOOR-CANVAS_ARCHITECTURE.MD` (architectural reference)
 - Current git history and changes
 - Current codebase and implementation status
 - `#getTerminalOutput` and `#terminalLastCommand` for runtime evidence
@@ -29,11 +29,11 @@ Synchronizes requirements, implementation, and tests across the entire project w
 - Layers: `retrosync`, `tests`, `impl`, `lifecycle`
 
 ## Execution Protocol
-1. **Load Architectural Context**: Use `SystemStructureSummary.md` to understand current component relationships and API mappings
+1. **Load Architectural Context**: Use `Ref/SystemStructureSummary.md` to understand current component relationships and API mappings
 2. **Requirements Analysis:** Parse requirements and extract acceptance criteria
 3. **Test Spec Comparison:** Flag missing, outdated, or redundant specs
 4. **Implementation Drift:** Compare requirements vs implementation notes
-4. **Architecture Synchronization:** Audit NOOR-CANVAS_ARCHITECTURE.MD against codebase
+4. **Architecture Synchronization:** Audit Ref/NOOR-CANVAS_ARCHITECTURE.MD against codebase
    - API endpoint inventory (52 endpoints, 11 controllers)
    - Service architecture updates (15+ services)
    - Component catalog maintenance (15+ pages, 10+ components)
@@ -114,7 +114,7 @@ Summaries must include:
 # Additional Responsibilities
 
 ## Architecture Document Maintenance
-**CRITICAL:** Maintain `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD` as the single source of truth for system architecture.
+**CRITICAL:** Maintain `.github/instructions/Ref/NOOR-CANVAS_ARCHITECTURE.MD` as the single source of truth for system architecture.
 
 ### Architecture Synchronization Tasks
 1. **API Endpoint Auditing:**
@@ -169,18 +169,18 @@ Summaries must include:
 
 ---
 
-_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+_Note: This file depends on the central `Ref/SystemStructureSummary.md`. If structural changes are made, update that summary._
 
 
 ---
 
 ## Integration with Summary and Architecture
 
-- Always read `SystemStructureSummary.md` before starting work to ensure you are targeting the correct views, APIs, DTOs, and SQL objects.  
-- If more detail is needed, consult `NOOR-CANVAS_ARCHITECTURE.MD` for the authoritative system design.  
-- After completing a task (via keylock flow), ensure both files are updated:  
-  - `SystemStructureSummary.md` with a concise snapshot of the latest state.  
-  - `NOOR-CANVAS_ARCHITECTURE.MD` with detailed architectural changes.  
+- Always read `Ref/SystemStructureSummary.md` before starting work to ensure you are targeting the correct views, APIs, DTOs, and SQL objects.  
+- If more detail is needed, consult `Ref/NOOR-CANVAS_ARCHITECTURE.MD` for the authoritative system design.  
+- When making changes, always update both files:  
+  - `Ref/SystemStructureSummary.md` with a concise snapshot of the latest state.  
+  - `Ref/NOOR-CANVAS_ARCHITECTURE.MD` with detailed architectural changes.  
 - Do not commit or push without explicit user approval.
 
 
@@ -190,7 +190,7 @@ _Note: This file depends on the central `SystemStructureSummary.md`. If structur
 
 - When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
 - `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
-- Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
+- Alongside this, update `Ref/SystemStructureSummary.md` (snapshot) and `Ref/NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
 
 
 ---
@@ -200,12 +200,12 @@ _Note: This file depends on the central `SystemStructureSummary.md`. If structur
 When invoked in full sync mode:
 
 - Analyze the entire `.github` folder, including all instruction and prompt files.  
-- Ensure `SelfAwareness.instructions.md` references `SystemStructureSummary.md`.  
-- Verify `SystemStructureSummary.md` is up to date, concise, and consistent with the key-based architecture.  
-- Ensure `NOOR-CANVAS_ARCHITECTURE.MD` contains the detailed system design and is consistent with the summary.  
-- Confirm `continue.prompt.md` and `workitem.prompt.md` always read `SystemStructureSummary.md` before doing work and include the explicit approval + checklist for commits.  
-- Ensure `keylock.prompt.md` correctly stages, summarizes, and commits after explicit approval, updating both `SystemStructureSummary.md` and `NOOR-CANVAS_ARCHITECTURE.MD`.  
-- Align all prompts to reference `SystemStructureSummary.md` for structural consistency.  
+- Ensure `SelfAwareness.instructions.md` references `Ref/SystemStructureSummary.md`.  
+- Verify `Ref/SystemStructureSummary.md` is up to date, concise, and consistent with the key-based architecture.  
+- Ensure `Ref/NOOR-CANVAS_ARCHITECTURE.MD` contains the detailed system design and is consistent with the summary.  
+- Confirm `continue.prompt.md` and `workitem.prompt.md` always read `Ref/SystemStructureSummary.md` before doing work and include the explicit approval + checklist for commits.  
+- Ensure `keylock.prompt.md` correctly stages, summarizes, and commits after explicit approval, updating both `Ref/SystemStructureSummary.md` and `Ref/NOOR-CANVAS_ARCHITECTURE.MD`.  
+- Align all prompts to reference `Ref/SystemStructureSummary.md` for structural consistency.  
 - Normalize formatting and remove outdated parameters (e.g., commit arguments).  
 
 ---
@@ -217,7 +217,7 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 ### Approval Checklist (required before commit)
 - [ ] User has reviewed the proposed changes
 - [ ] User has explicitly approved the commit
-- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] All instructions in Ref/SystemStructureSummary.md are respected
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._

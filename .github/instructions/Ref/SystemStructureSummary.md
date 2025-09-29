@@ -92,6 +92,28 @@ It is the **single source of truth** for system usage and must be updated if the
 - **Tables**: `KSESSIONS.Groups` (Albums), `KSESSIONS.Categories`, `KSESSIONS.Sessions`, `canvas.Sessions` (token storage)
 - **Purpose**: Host session creation with cascading dropdowns (Album→Category→Session) and custom scheduling
 
+### Core Service Architecture
+
+#### Authentication & Token Services
+- **SecureTokenService**: Core token validation for `/api/token/validate/{token}` endpoint
+  - Method: `ValidateTokenAsync(string token, bool isHost)` - validates friendly tokens
+  - Integration: Used by TokenController with comprehensive request tracking and logging
+  - Database: Direct canvas.Sessions table access for token lookup
+- **SimplifiedTokenService**: Token validation and session management for simplified schema
+- **SessionStateService**: Client-side state persistence via localStorage
+
+#### UI & Content Services  
+- **SafeHtmlRenderingService**: HTML sanitization and XSS prevention
+- **FlagService**: Country flag integration for participant display
+- **DialogService**: UI dialog management and user interactions
+- **HtmlParsingService**: HTML content processing and parsing
+
+#### Integration Services
+- **HostSessionService**: Host operations and KSESSIONS integration
+- **AnnotationService**: Real-time annotation management
+- **AssetDetectorService**: Asset detection and content management
+- **DebugService**: Development debugging and testing utilities
+
 ---
 
 ## File Locations
@@ -118,6 +140,27 @@ It is the **single source of truth** for system usage and must be updated if the
 2. **Locate by Task Key**  
    - When the user requests a task (e.g. "refactor services"), Copilot should map the task → key → file in `/prompts`.  
    - Use the Razor View Architecture Mapping to understand component relationships.
+
+---
+
+## Core Service Architecture
+
+### Authentication & Token Services
+- **SimplifiedTokenService**: Core token validation, session management
+- **SecureTokenService**: Secure token operations and generation  
+- **SessionStateService**: Client-side state persistence via localStorage
+
+### UI & Content Services  
+- **SafeHtmlRenderingService**: HTML sanitization and XSS prevention
+- **FlagService**: Country flag integration for participant display
+- **DialogService**: UI dialog management and user interactions
+- **HtmlParsingService**: HTML content processing and parsing
+
+### Integration Services
+- **HostSessionService**: Host operations and KSESSIONS integration
+- **AnnotationService**: Real-time annotation management
+- **AssetDetectorService**: Asset detection and content management
+- **DebugService**: Development debugging and testing utilities
 
 3. **Combine with Layer Rules**  
    - When reviewing across layers (razor views, services, API contracts, SQL), Copilot should pull in `retrosync.prompt.md` or `refactor.prompt.md` plus any supporting instruction files.  

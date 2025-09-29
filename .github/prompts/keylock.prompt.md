@@ -6,8 +6,8 @@
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **Architecture:** `.github/instructions/Ref/NOOR-CANVAS_ARCHITECTURE.MD`
 
 ---
 
@@ -22,8 +22,8 @@ For the specified key, follow this process:
 
 If I approve, then:  
 - Commit with the message: "Complete <KEY_NAME> task" and push to origin/main.  
-- Update all relevant prompts, especially `NOOR-CANVAS_ARCHITECTURE.MD` and `SystemStructureSummary.md`.  
-- Ensure `SystemStructureSummary.md` always maintains a **summarized snapshot** of:  
+- Update all relevant prompts, especially `Ref/NOOR-CANVAS_ARCHITECTURE.MD` and `Ref/SystemStructureSummary.md`.  
+- Ensure `Ref/SystemStructureSummary.md` always maintains a **summarized snapshot** of:  
   - Latest contracts for APIs  
   - Data Transfer Objects (DTOs)  
   - SQL tables, stored procedures, and database objects involved  
@@ -33,8 +33,8 @@ If I approve, then:
 
 ## Integration Notes
 
-- **Load Architectural Context**: Always use `SystemStructureSummary.md` to understand component relationships and API mappings for the `{key}` before starting work
-- The `continue.prompt.md` and `workitem.prompt.md` must always **read `SystemStructureSummary.md` before doing any work** to ensure they target the correct views and objects.  
+- **Load Architectural Context**: Always use `Ref/SystemStructureSummary.md` to understand component relationships and API mappings for the `{key}` before starting work
+- The `continue.prompt.md` and `workitem.prompt.md` must always **read `Ref/SystemStructureSummary.md` before doing any work** to ensure they target the correct views and objects.  
 - Do not commit or push without my confirmation.  
 - Ensure the commit message matches the key and scope.  
 
@@ -42,7 +42,7 @@ If I approve, then:
 
 ## Efficiency Recommendations
 
-- Automatically flag stale or missing entries in `SystemStructureSummary.md` and recommend updates.  
+- Automatically flag stale or missing entries in `Ref/SystemStructureSummary.md` and recommend updates.  
 - Cross-check DTOs and API contracts against SQL schema for mismatches before finalizing commit.  
 - Suggest pruning or merging redundant notes for better clarity and maintenance.  
 
@@ -53,7 +53,7 @@ If I approve, then:
 
 - When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
 - `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
-- Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
+- Alongside this, update `Ref/SystemStructureSummary.md` (snapshot) and `Ref/NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
 
 ## Undo Tracking Behavior
 - On closure, locate and delete the associated undo log at `Workspaces/Copilot/change_log/<key>.log`.

@@ -4,9 +4,11 @@
 This document contains the **complete system architecture** for the NOOR Canvas application.  
 It serves as the authoritative reference for developers and Copilot when implementing features or understanding system behavior.
 
-**Last Updated**: September 28, 2025  
-**Build Status**: ✅ Passing (5.5s)  
+**Last Updated**: September 29, 2025  
+**Build Status**: ✅ Passing (Clean build)  
 **Framework**: ASP.NET Core 8.0 + Blazor Server + SignalR
+**Controllers**: 11 operational controllers
+**API Endpoints**: 40+ endpoints across all controllers
 
 ---
 
@@ -53,6 +55,24 @@ It serves as the authoritative reference for developers and Copilot when impleme
 ## 1.6 Host Provisioner Controller (`/api/hostprovisioner`)
 - **POST /api/hostprovisioner/generate** - Generate host provisioning data
 - **GET /api/hostprovisioner/status** - Get provisioner status
+
+## 1.7 Token Controller (`/api/token`)
+- **GET /api/token/validate/{token}** - Validate friendly tokens (host/user) with comprehensive logging
+  - Query Parameter: `isHost` (boolean) - Specify if validating host token
+  - Returns: Token validation result with session details and expiration
+  - Features: Request tracking, IP logging, comprehensive error handling
+
+## 1.8 Health Controller (`/health`)
+- **GET /health** - System health check with database connectivity validation
+  - Returns: Health status, database connectivity, canvas schema validation
+  - Features: Environment detection, table count verification, error logging
+  - Purpose: Monitoring, DevOps integration, system diagnostics
+
+## 1.9 Logs Controller (`/api/logs`)
+- **POST /api/logs** - Receive and process browser-side log entries
+  - Body: JsonElement with browser log data (level, component, message, sessionId, userId, url, data)
+  - Features: Structured logging, session correlation, user tracking
+  - Purpose: Client-side error tracking and debugging support
 
 ---
 
@@ -253,23 +273,69 @@ SessionTranscripts -- Session content and transcripts
 # 5. SERVICES ARCHITECTURE
 
 ## 5.1 Core Services
-- **SimplifiedTokenService** - Token validation and management for 4-table schema
-- **SecureTokenService** - Legacy token service for 15-table schema  
-- **SecureSessionTokenService** - Advanced session token management
-- **SessionStateService** - Session lifecycle and state management
-- **HostSessionService** - Host session creation and management (wraps KSESSIONS APIs)
+### SecureTokenService
+- **Purpose**: Core token validation and session management for TokenController
+- **Key Methods**: `ValidateTokenAsync(string token, bool isHost)` - validates friendly tokens
+- **Database**: Direct access to canvas.Sessions table for token lookup
+- **Integration**: Used by TokenController API for authentication flows
+- **Features**: Request tracking, comprehensive logging, error handling
 
-## 5.2 Content & HTML Services
-- **SafeHtmlRenderingService** - Safe HTML rendering for transcript content
-- **HtmlParsingService** - Advanced HTML parsing with safety validation
-- **AssetDetectionService** - Content asset detection and classification
-- **AssetDetectorService** - Legacy asset detection implementation
+### SimplifiedTokenService
+- **Purpose**: Token validation and management for 4-table simplified schema
+- **Key Methods**: Token validation, session lookup, expiration handling
+- **Database**: Simplified canvas schema integration
 
-## 5.3 Utility Services
-- **FlagService** - Country flag resolution and caching
-- **AnnotationService** - Annotation creation and management
-- **DialogService** - Modal dialog management
-- **DebugService** - Development environment debugging utilities
+### SessionStateService
+- **Purpose**: Client-side session state persistence via localStorage
+- **Key Methods**: Session state save/load, cross-component state management
+- **Integration**: Used by HostControlPanel and SessionCanvas for state persistence
+
+### HostSessionService
+- **Purpose**: Host session creation with KSESSIONS integration APIs
+- **Key Methods**: `LoadAlbumsAsync()`, `CreateSessionAndGenerateTokensAsync()`
+- **Database**: KSESSIONS integration for album/category/session hierarchies
+- **Features**: Cascading dropdown support, custom scheduling
+
+## 5.2 Content & Security Services
+### SafeHtmlRenderingService
+- **Purpose**: Secure HTML content processing and XSS prevention
+- **Key Methods**: HTML sanitization, Blazor-safe content wrapping
+- **Security**: Prevents malicious script injection in dynamic content
+- **Integration**: Used by transcript display and content broadcasting
+
+### HtmlParsingService
+- **Purpose**: Advanced HTML parsing with safety validation
+- **Key Methods**: Content parsing, asset detection, safety checks
+- **Integration**: Works with AssetDetectionService for content analysis
+
+### AssetDetectionService / AssetDetectorService
+- **Purpose**: Content asset detection and classification
+- **Key Methods**: Asset type detection, CSS selector matching
+- **Database**: AssetLookup table for asset definitions
+- **Features**: Video/audio/hadith content recognition
+
+## 5.3 Integration & Utility Services
+### FlagService
+- **Purpose**: Country flag integration for participant display
+- **Key Methods**: ISO2 to flag mapping, country flag resolution
+- **Database**: Integration with Countries table for flag lookup
+- **Performance**: Caching for optimal flag resolution
+
+### AnnotationService
+- **Purpose**: Annotation creation and management
+- **Key Methods**: Create, update, delete annotations
+- **SignalR**: Integration with AnnotationHub for real-time updates
+- **Database**: Annotations table management
+
+### DialogService
+- **Purpose**: Modal dialog management across Blazor components
+- **Key Methods**: Show/hide dialogs, confirmation dialogs
+- **Integration**: Cross-component dialog coordination
+
+### DebugService
+- **Purpose**: Development environment debugging utilities
+- **Key Methods**: Debug logging, development diagnostics
+- **Environment**: Development-only functionality
 
 ---
 
@@ -372,8 +438,8 @@ SessionTranscripts -- Session content and transcripts
 
 ---
 
-**Document Version**: 1.0.0  
-**Last Sync**: September 28, 2025  
+**Document Version**: 1.1.0  
+**Last Sync**: September 29, 2025  
 **Next Review**: December 2025 or after major feature releases  
 
 

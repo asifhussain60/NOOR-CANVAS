@@ -72,14 +72,14 @@ Proceed with implementation? (Y/N)
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **Architecture:** `.github/instructions/Ref/NOOR-CANVAS_ARCHITECTURE.MD`
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - `#getTerminalOutput` for execution evidence
 
 ## Operating Protocols
 **Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, linter, and commit rules.
-**Reference:** SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
+**Reference:** Ref/SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
 
 ### Documentation Placement
 **Reference:** SelfAwareness.instructions.md File Organization Rules for complete documentation placement protocols.
@@ -166,7 +166,7 @@ When user input contains `---` separators, treat each section as a separate todo
 - **Config:** `config/testing/playwright.config.cjs`
 
 ## Execution Protocol
-1. **Load Architectural Context:** Use `SystemStructureSummary.md` to understand Razor view mappings, APIs, and database relationships for the `{key}`
+1. **Load Architectural Context:** Use `Ref/SystemStructureSummary.md` to understand Razor view mappings, APIs, and database relationships for the `{key}`
 2. **Incremental Implementation:** Smallest viable changes with validation cycles
 3. **Quality Validation:** Analyzer → Linter → Playwright test execution per change
 4. **Debug Markers:** Temporary diagnostics marked with `;CLEANUP_OK`
@@ -224,7 +224,7 @@ When user input contains `---` separators, treat each section as a separate todo
 
 ---
 
-_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+_Note: This file depends on the central `Ref/SystemStructureSummary.md`. If structural changes are made, update that summary._
 
 
 ---
@@ -237,7 +237,7 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 ### Approval Checklist (required before commit)
 - [ ] User has reviewed the proposed changes
 - [ ] User has explicitly approved the commit
-- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] All instructions in Ref/SystemStructureSummary.md are respected
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._

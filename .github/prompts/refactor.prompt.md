@@ -20,8 +20,8 @@ All modified files are **backed up** for traceability. Obsolete files are delete
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **Architecture:** `.github/instructions/Ref/NOOR-CANVAS_ARCHITECTURE.MD`
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - `#getTerminalOutput` for execution evidence  
 
@@ -105,7 +105,7 @@ All modified files are **backed up** for traceability. Obsolete files are delete
 
 ## CRITICAL: API Contract & Cross-Layer Validation
 
-**⚠️ REQUIRED READING:** `.github/instructions/API-Contract-Validation.md`
+**⚠️ REQUIRED READING:** `.github/instructions/Ref/API-Contract-Validation.md`
 
 ### API Contract Validation
 - Response model type consistency between controllers and services.  
@@ -133,18 +133,17 @@ Lifecycle events must include:
 
 ---
 
-_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+_Note: This file depends on the central `Ref/SystemStructureSummary.md`. If structural changes are made, update that summary._
 
 
 ---
 
 ## Integration with Summary and Architecture
 
-- Always read `SystemStructureSummary.md` before starting work to ensure you are targeting the correct views, APIs, DTOs, and SQL objects.  
-- If more detail is needed, consult `NOOR-CANVAS_ARCHITECTURE.MD` for the authoritative system design.  
-- After completing a task (via keylock flow), ensure both files are updated:  
-  - `SystemStructureSummary.md` with a concise snapshot of the latest state.  
-  - `NOOR-CANVAS_ARCHITECTURE.MD` with detailed architectural changes.  
+- Always read `Ref/SystemStructureSummary.md` before starting work to ensure you are targeting the correct views, APIs, DTOs, and SQL objects.  
+- If more detail is needed, consult `Ref/NOOR-CANVAS_ARCHITECTURE.MD` for the authoritative system design.  
+- When making changes, always update both files:  
+  - `Ref/SystemStructureSummary.md` with a concise snapshot of the latest state.
 - Do not commit or push without explicit user approval.
 
 
@@ -154,7 +153,7 @@ _Note: This file depends on the central `SystemStructureSummary.md`. If structur
 
 - When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
 - `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
-- Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
+- Alongside this, update `Ref/SystemStructureSummary.md` (snapshot) and `Ref/NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
 
 ---
 
@@ -165,7 +164,7 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 ### Approval Checklist (required before commit)
 - [ ] User has reviewed the proposed changes
 - [ ] User has explicitly approved the commit
-- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] All instructions in Ref/SystemStructureSummary.md are respected
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._

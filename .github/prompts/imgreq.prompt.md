@@ -14,7 +14,7 @@ Generates visual artifacts (diagrams, UI mockups, workflows) for `{key}` **and**
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
 - **Architecture:** `.github/instructions/NOOR‑CANVAS_ARCHITECTURE.MD`
 - Current implementation status and scope
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
@@ -83,7 +83,7 @@ Summaries must include:
 
 ---
 
-_Note: This file depends on the central `SystemStructureSummary.md`.  If structural changes are made, update that summary._
+_Note: This file depends on the central `Ref/SystemStructureSummary.md`.  If structural changes are made, update that summary._
 
 ---
 
@@ -94,7 +94,7 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 ### Approval Checklist (required before commit)
 - [ ] User has reviewed the interpreted annotations and requested artifacts
 - [ ] User has explicitly approved the plan and subsequent `/workitem` invocation
-- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] All instructions in Ref/SystemStructureSummary.md are respected
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._

@@ -106,8 +106,8 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- **Architecture:** `.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **Architecture:** `.github/instructions/Ref/NOOR-CANVAS_ARCHITECTURE.MD`
 - `Workspaces/Copilot/prompts.keys/{key}/` work stream files
 - **Terminal State Analysis:**
   - `#getTerminalOutput` for current buffer contents
@@ -116,7 +116,7 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ## Operating Protocols
 **Reference:** SelfAwareness.instructions.md for complete launch, database, analyzer, and linter rules.
-**Reference:** SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
+**Reference:** Ref/SystemStructureSummary.md for architectural mappings, component relationships, and API/database context.
 
 ### Quality Gates
 - Continuation proceeds only when: analyzers green, linters clean, tests passing
@@ -125,7 +125,7 @@ Perform `apply` mode work PLUS create temporary validation ONLY when `mode: test
 
 ## Continuation Protocol
 1. **Load Context**: Read requirements, self-review, and prior changes
-2. **Load Architectural Context**: Use `SystemStructureSummary.md` to understand component relationships and API mappings for the `{key}`
+2. **Load Architectural Context**: Use `Ref/SystemStructureSummary.md` to understand component relationships and API mappings for the `{key}`
 3. **Analyze Terminal State**: Use `#getTerminalOutput` and `#terminalLastCommand` to assess:
    - Last command executed and its exit code
    - Current working directory context
@@ -253,7 +253,7 @@ Summaries must include:
 
 ---
 
-_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+_Note: This file depends on the central `Ref/SystemStructureSummary.md`. If structural changes are made, update that summary._
 
 
 ---
@@ -266,7 +266,7 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 ### Approval Checklist (required before commit)
 - [ ] User has reviewed the proposed changes
 - [ ] User has explicitly approved the commit
-- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] All instructions in Ref/SystemStructureSummary.md are respected
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._

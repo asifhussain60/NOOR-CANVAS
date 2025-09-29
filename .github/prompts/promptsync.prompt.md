@@ -14,7 +14,7 @@ Synchronizes all instruction and prompt files within `.github` folder, reconcile
 
 ## Context & Inputs
 - **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
+- **MANDATORY:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings and structural orientation)
 - All `.github/**/*.instructions.md` and `.github/**/*.prompt.md` files
 - Repository structure for `.github` folder
 - `#getTerminalOutput` for validation evidence
@@ -65,7 +65,7 @@ When sync completes:
 
 ---
 
-_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
+_Note: This file depends on the central `Ref/SystemStructureSummary.md`. If structural changes are made, update that summary._
 
 ---
 
@@ -76,7 +76,7 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 ### Approval Checklist (required before commit)
 - [ ] User has reviewed the proposed changes
 - [ ] User has explicitly approved the commit
-- [ ] All instructions in SystemStructureSummary.md are respected
+- [ ] All instructions in Ref/SystemStructureSummary.md are respected
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._

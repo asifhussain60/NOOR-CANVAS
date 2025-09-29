@@ -8,7 +8,7 @@ Performs an audit of all keys in `NOOR-CANVAS/Workspaces/Copilot/prompts.keys`, 
 This agent identifies **pending/unresolved issues** for follow-up.
 
 **Core Mandate:** Follow `.github/instructions/SelfAwareness.instructions.md` for all operating guardrails.  
-**Required Reading:** `.github/instructions/SystemStructureSummary.md` (architectural mappings).
+**Required Reading:** `.github/instructions/Ref/SystemStructureSummary.md` (architectural mappings).
 
 ---
 
