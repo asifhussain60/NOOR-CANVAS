@@ -1,0 +1,158 @@
+﻿<div class="admin-data-container">
+    <!-- Full Name -->
+    <div class="form-group">
+        <label class="control-label col-md-3" for="firstName">Full Name</label>
+        <div class="col-md-9">
+            <input type="text" id="firstName"
+                   data-ng-model="vm.f.firstName"
+                   placeholder="First Name"
+                   tabindex="2"
+                   class="form-control">
+            <input type="text" id="lastName"
+                   data-ng-model="vm.f.lastName"
+                   placeholder="Last Name"
+                   tabindex="3"
+                   class="form-control">
+        </div>
+    </div>
+    <!-- Nick Name -->
+    <div class="form-group">
+        <label class="control-label col-md-3" for="nickname">Nick Name</label>
+        <div class="col-md-9">
+            <input type="text" id="nickname"
+                   data-ng-model="vm.f.nickName"
+                   tabindex="4"
+                   class="form-control">
+        </div>
+    </div>
+
+
+
+    <div class="form-group">
+        <label class="control-label col-md-3">Family Of</label>
+        <div class="col-md-9">
+            <select ng-model="vm.f.familyId"
+                    tabindex="1"
+                    class="form-control"
+                    ng-options="family.id as family.name for family in vm.cm.families | orderObjectBy:'name' ">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Gender -->
+    <div class="form-group">
+        <label class="control-label col-md-3">Gender</label>
+        <div class="col-md-2">
+            <input type="radio" name="gender" data-ng-model="vm.f.gender" value="M" tabindex="5"> Male
+        </div>
+        <div class="col-md-2">
+            <input type="radio" name="gender" data-ng-model="vm.f.gender" value="F" tabindex="6"> Female
+        </div>
+    </div>
+    <!-- Age and BirthYear -->
+    <div class="form-group">
+        <label class="control-label col-md-3">Age</label>
+        <div class="col-md-3">
+            <input type="number" class="form-control" data-ng-model="vm.f.age" ng-model-options="{ updateOn: 'blur' }" id="ageNumber" placeholder="Age" tabindex="7">
+        </div>
+        <label class="control-label col-md-3">Birth Year</label>
+        <div class="col-md-3">
+            <input type="number" class="form-control" data-ng-model="vm.f.birthYear" ng-model-options="{ updateOn: 'blur' }" id="ageYear" placeholder="Year of Birth" tabindex="8">
+        </div>
+    </div>
+    <!-- Email -->
+    <div class="form-group">
+        <label class="control-label col-md-3" for="email">Email</label>
+        <div class="col-md-9">
+            <input type="email" class="form-control" data-ng-model="vm.f.emailAddress" id="email" tabindex="9">
+        </div>
+    </div>
+    <!-- Residence -->
+    <div class="form-group">
+        <label class="control-label col-md-3">Residence</label>
+        <div class="col-md-9">
+            <select data-ng-model="vm.f.countryId"
+                    class="form-control"
+                    tabindex="10"
+                    ng-options="item.id as item.countryName for item in vm.countries | orderObjectBy:'countryName'">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Clone -->
+    <div class="form-group">
+        <label class="control-label col-md-3">Clone From</label>
+        <div class="col-md-9">
+            <select ng-model="vm.f.cloneMemberId"
+                    tabindex="1"
+                    class="form-control"
+                    ng-options="member.id as member.fullName for member in vm.cloneMemberList">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <!-- Access Controls -->
+    <div class="form-group">
+        <div class="col-md-9 col-md-offset-3">
+            <div class="col-md-4">
+                <input type="checkbox" data-ng-model="vm.f.isAdmin" tabindex="-1"> <span class="text-danger">Admin</span>
+            </div>
+            <div class="col-md-4">
+                {{vm.f.isActive}}
+                <input type="checkbox" data-ng-model="vm.f.isActive" tabindex="-1"> Active
+            </div>
+            <div class="col-md-4">
+                <input type="checkbox" data-ng-model="vm.f.isRegular" tabindex="-1">
+                <span>*Regular</span>
+                <input type="text" data-ng-if="vm.f.isRegular"
+                       data-ng-model="vm.f.expiresInDays"
+                       class="small-text" />
+            </div>
+            <div class="col-md-4">
+                <input type="checkbox" data-ng-model="vm.f.canViewText" tabindex="-1"> Summary
+            </div>
+            <div class="col-md-4">
+                <input type="checkbox" data-ng-model="vm.f.canViewMedia" tabindex="-1"> Media
+            </div>
+            <div class="col-md-4">
+                <input type="checkbox" data-ng-model="vm.f.mostRecentOnly" data-ng-click="vm.mostRecentClick()" tabindex="-1"> Recent Only
+            </div>
+            <div class="col-md-4">
+                <input type="checkbox" data-ng-model="vm.f.isPreviliged" tabindex="-1"> Previliged
+            </div>
+            <div class="col-md-8">
+                <input type="checkbox" data-ng-model="vm.f.isSubscribed" tabindex="-1"> Email when session is uploaded
+            </div>
+        </div>
+    </div>
+
+</div>

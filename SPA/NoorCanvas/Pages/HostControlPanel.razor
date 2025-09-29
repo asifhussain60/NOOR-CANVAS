@@ -8,6 +8,7 @@
 @using System.Text.Json.Serialization
 @using System.Text.Json
 @using Microsoft.AspNetCore.SignalR.Client
+@using HtmlAgilityPack
 @using Microsoft.AspNetCore.SignalR
 @using Microsoft.EntityFrameworkCore
 @using NoorCanvas.Models
@@ -1325,6 +1326,92 @@
         }
     }
 
+    /// <summary>
+    /// [DEBUG-WORKITEM:assetshare:continue] Handle share button clicks from JavaScript
+    /// </summary>
+    [JSInvokable]
+    public async Task ShareAsset(string shareId, string assetType, int instanceNumber)
+    {
+        var broadcastId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 ShareAsset method called from JavaScript");
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📦 ShareId: {ShareId}, AssetType: {AssetType}, Instance: {InstanceNumber}", shareId, assetType, instanceNumber);
+        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎯 STEP 1/7: ShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        
+        if (SessionId == null || hubConnection == null)
+        {
+            var errorMsg = "Cannot share asset: SignalR connection or session not available";
+            Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ Precondition failed: SessionId={SessionId}, hubConnection={HubConnectionExists}", SessionId, hubConnection != null);
+            await ShowErrorMessageAsync(errorMsg);
+            return;
+        }
+
+        if (hubConnection.State != HubConnectionState.Connected)
+        {
+            var errorMsg = $"SignalR connection is in state: {hubConnection.State}. Expected: Connected";
+            Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ SignalR not connected: State={State}", hubConnection.State);
+            await ShowErrorMessageAsync(errorMsg);
+            return;
+        }
+
+        try
+        {
+            // [FIX] Simplified approach inspired by KSessions - avoid multi-layered HTML processing
+            // Extract raw asset HTML directly from the source
+            var rawAssetHtml = await ExtractRawAssetHtml(shareId, assetType, instanceNumber);
+            
+            if (string.IsNullOrEmpty(rawAssetHtml))
+            {
+                Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ No HTML content found for shareId: {ShareId}", shareId);
+                await ShowErrorMessageAsync($"Asset content not found for {assetType} #{instanceNumber}");
+                return;
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 STEP 2/7: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId} ;CLEANUP_OK", rawAssetHtml.Length, broadcastId);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📄 Raw HTML content: {HtmlPreview}", rawAssetHtml.Substring(0, Math.Min(200, rawAssetHtml.Length)));
+
+            // [FIX] Create clean asset data object (KSessions pattern) - no complex HTML processing
+            var assetData = new
+            {
+                shareId = shareId,
+                assetType = assetType,
+                instanceNumber = instanceNumber,
+                rawHtmlContent = rawAssetHtml,  // Send raw HTML for client-side processing
+                sharedAt = DateTime.UtcNow,
+                sessionId = SessionId.Value
+            };
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 STEP 3/7: Clean asset data object created, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 STEP 4/7: Broadcasting asset via SignalR ShareAsset, target=session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
+            
+            // Broadcast via SignalR using the same mechanism as TestShareAsset
+            var shareTask = hubConnection.InvokeAsync("ShareAsset", SessionId.Value, assetData);
+            var timeoutTask = Task.Delay(5000);
+            
+            var completedTask = await Task.WhenAny(shareTask, timeoutTask);
+            
+            if (completedTask == timeoutTask)
+            {
+                Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ STEP 4 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+                await ShowErrorMessageAsync("Asset sharing timed out after 5 seconds");
+                return;
+            }
+
+            await shareTask; // Await the actual task to catch any exceptions
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ STEP 5/7: SignalR ShareAsset call completed successfully, SessionId={SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📡 STEP 6/7: Asset HTML broadcasted to SessionCanvas clients in group session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
+            
+            await ShowSuccessMessageAsync($"✅ {assetType} #{instanceNumber} shared successfully!");
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎉 STEP 7/7: Share operation completed successfully, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] ❌ Error sharing asset: {ShareId}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, broadcastId);
+            await ShowErrorMessageAsync($"Error sharing asset: {ex.Message}");
+        }
+    }
+    
     private async Task TestShareAsset()
     {
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
@@ -1586,6 +1673,11 @@
                 await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Set JavaScript window.currentSessionId = {SessionId}", SessionId.Value);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:impl] Successfully set window.currentSessionId = {SessionId} in JavaScript ;CLEANUP_OK", SessionId.Value);
+                
+                // [DEBUG-WORKITEM:assetshare:continue] Setup share button handlers and DotNet interop ;CLEANUP_OK
+                var dotNetRef = DotNetObjectReference.Create(this);
+                await JSRuntime.InvokeVoidAsync("setupShareButtonHandlers", dotNetRef);
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Share button handlers initialized ;CLEANUP_OK");
             }
             catch (Exception ex)
             {
@@ -1598,6 +1690,116 @@
             Logger.LogInformation("NOOR-HTML-VIEWER: Transcript rendered successfully ({Length} chars)", Model.TransformedTranscript.Length);
         }
         await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Extract HTML content for a specific asset using the shareId to locate it in the transcript
+    /// </summary>
+    /// <summary>
+    /// [FIX] Simplified raw HTML extraction inspired by KSessions pattern
+    /// Extracts asset HTML directly without complex processing to prevent appendChild errors
+    /// </summary>
+    private Task<string> ExtractRawAssetHtml(string shareId, string assetType, int instanceNumber)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(Model?.SessionTranscript))
+            {
+                Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] SessionTranscript is null or empty");
+                return Task.FromResult(string.Empty);
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Extracting raw asset HTML using simple pattern matching: {AssetType}", assetType);
+            
+            // [FIX] Use simple HTML parsing to extract asset content directly from original transcript
+            var htmlDoc = new HtmlAgilityPack.HtmlDocument();
+            htmlDoc.LoadHtml(Model.SessionTranscript);
+            
+            // Find ayah-card elements (or other asset types) directly
+            var assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card')]");
+            
+            if (assetElements != null && assetElements.Count > instanceNumber - 1)
+            {
+                var targetElement = assetElements[instanceNumber - 1];
+                var rawHtml = targetElement.OuterHtml;
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML: {Length} chars", rawHtml.Length);
+                return Task.FromResult(rawHtml);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] Asset element not found: {AssetType} instance {Instance}", assetType, instanceNumber);
+                return Task.FromResult(string.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] Error extracting raw asset HTML: {AssetType}", assetType);
+            return Task.FromResult(string.Empty);
+        }
+    }
+
+    private Task<string> ExtractAssetHtmlContent(string shareId, string assetType, int instanceNumber)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(Model?.TransformedTranscript))
+            {
+                Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] TransformedTranscript is null or empty");
+                return Task.FromResult(string.Empty);
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Extracting asset with AssetHtmlProcessingService: {ShareId}", shareId);
+            
+            // Use the service to extract the asset HTML
+            var extractResult = AssetHtmlProcessor.ExtractAssetById(Model.TransformedTranscript, shareId);
+            
+            if (extractResult != null && !string.IsNullOrEmpty(extractResult.HtmlContent))
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted asset HTML: {Length} chars", extractResult.HtmlContent.Length);
+                return Task.FromResult(extractResult.HtmlContent);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] AssetHtmlProcessor returned empty result for: {ShareId}", shareId);
+                return Task.FromResult(string.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] Error extracting asset HTML for shareId: {ShareId}", shareId);
+            return Task.FromResult(string.Empty);
+        }
+    }
+
+    /// <summary>
+    /// Process asset HTML for sharing using AssetHtmlProcessingService
+    /// </summary>
+    private Task<string> ProcessAssetForSharing(string assetHtml, string assetType)
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Processing asset HTML for sharing, type: {AssetType}", assetType);
+            
+            // Use AssetHtmlProcessingService to process the HTML for sharing
+            var processResult = AssetHtmlProcessor.ProcessHtmlForAssetSharing(assetHtml, SessionId ?? 0);
+            
+            if (processResult != null && !string.IsNullOrEmpty(processResult.ProcessedHtml))
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Asset HTML processed successfully: {Length} chars", processResult.ProcessedHtml.Length);
+                return Task.FromResult(processResult.ProcessedHtml);
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] AssetHtmlProcessor returned null or empty result, using original HTML");
+                return Task.FromResult(assetHtml);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] Error processing asset HTML, using original: {AssetType}", assetType);
+            return Task.FromResult(assetHtml);
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -2021,29 +2223,26 @@
                 return await InjectAssetShareButtonsFromDatabase(html);
             }
 
-            // First, use HtmlAgilityPack to process and identify assets
-            var assetProcessingResult = AssetHtmlProcessor.ProcessHtmlForAssetSharing(html, SessionId.Value);
+            // Use the new enhanced method that injects share buttons directly during HTML processing
+            var assetProcessingResult = AssetHtmlProcessor.ProcessHtmlForAssetSharingWithButtons(html, SessionId.Value, Model?.SessionStatus ?? "Unknown", true);
 
             if (!assetProcessingResult.ProcessingMetadata.Success)
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack processing failed: {Message}, falling back to traditional method ;CLEANUP_OK", 
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack processing with buttons failed: {Message}, falling back to traditional method ;CLEANUP_OK", 
                     assetProcessingResult.ProcessingMetadata.Message);
                 return await InjectAssetShareButtonsFromDatabase(html);
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack detected {AssetCount} assets successfully ;CLEANUP_OK", 
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack processed {AssetCount} assets successfully with integrated share button injection ;CLEANUP_OK", 
                 assetProcessingResult.DetectedAssets.Count);
 
-            // If HtmlAgilityPack found assets, use the enhanced processed HTML
+            // Return the processed HTML which already contains share buttons if session is active
             if (assetProcessingResult.DetectedAssets.Count > 0)
             {
-                // Add share buttons to the processed HTML
-                var htmlWithButtons = await AddShareButtonsToProcessedHtml(assetProcessingResult.ProcessedHtml, assetProcessingResult.DetectedAssets);
-                
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Successfully enhanced {AssetCount} assets with share buttons ;CLEANUP_OK", 
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Successfully processed {AssetCount} assets with integrated share button injection - returning enhanced HTML ;CLEANUP_OK", 
                     assetProcessingResult.DetectedAssets.Count);
                 
-                return htmlWithButtons;
+                return assetProcessingResult.ProcessedHtml;
             }
             else
             {
@@ -3118,5 +3317,68 @@ Please share this report with the development team for debugging.`;
     };
 
     console.log('[DEBUG-WORKITEM:hostcanvas:ui] Error display system initialized');
+    
+    // [DEBUG-WORKITEM:assetshare:continue] Share button handler setup ;CLEANUP_OK
+    function setupShareButtonHandlers(dotNetObjectRef) {
+        console.log('[DEBUG-WORKITEM:assetshare:continue] Setting up share button handlers');
+        
+        // Remove existing listeners to prevent duplicates
+        document.removeEventListener('click', handleShareButtonClick);
+        
+        // Store reference for cleanup
+        window.dotNetRef = dotNetObjectRef;
+        
+        // Add event listener for share button clicks using event delegation
+        document.addEventListener('click', handleShareButtonClick);
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] Share button handlers setup completed');
+    }
+    
+    function handleShareButtonClick(event) {
+        // Check if clicked element is a share button
+        const shareButton = event.target.closest('.ks-share-button');
+        if (!shareButton) return;
+        
+        event.preventDefault();
+        
+        const shareId = shareButton.getAttribute('data-share-id');
+        const assetType = shareButton.getAttribute('data-asset-type');
+        const instanceNumber = parseInt(shareButton.getAttribute('data-instance-number')) || 1;
+        
+        if (!shareId || !assetType) {
+            console.error('[DEBUG-WORKITEM:assetshare:continue] Missing data attributes:', { shareId, assetType, instanceNumber });
+            return;
+        }
+        
+        console.log('[DEBUG-WORKITEM:assetshare:continue] Share button clicked:', { shareId, assetType, instanceNumber });
+        
+        // Disable button during processing
+        const originalContent = shareButton.innerHTML;
+        shareButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SHARING...';
+        shareButton.disabled = true;
+        
+        // Call C# method via DotNet interop
+        if (window.dotNetRef) {
+            window.dotNetRef.invokeMethodAsync('ShareAsset', shareId, assetType, instanceNumber)
+                .then(() => {
+                    console.log('[DEBUG-WORKITEM:assetshare:continue] ShareAsset completed successfully');
+                    // Restore button after success
+                    shareButton.innerHTML = originalContent;
+                    shareButton.disabled = false;
+                })
+                .catch((error) => {
+                    console.error('[DEBUG-WORKITEM:assetshare:continue] ShareAsset failed:', error);
+                    // Restore button after error
+                    shareButton.innerHTML = originalContent;
+                    shareButton.disabled = false;
+                });
+        } else {
+            console.error('[DEBUG-WORKITEM:assetshare:continue] DotNet reference not available');
+            shareButton.innerHTML = originalContent;
+            shareButton.disabled = false;
+        }
+    }
+    
+    console.log('[DEBUG-WORKITEM:assetshare:continue] Share button JavaScript functions defined');
 </script>
 

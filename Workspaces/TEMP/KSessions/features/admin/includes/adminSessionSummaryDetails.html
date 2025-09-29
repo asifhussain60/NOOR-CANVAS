@@ -1,0 +1,422 @@
+﻿<div data-ng-if="!vm.cm.currentSession.summary.length">
+    A summary has not yet been created for this session
+</div>
+<div class="margin-top-10">
+    <div class="max-width text-center-sm text-center-xs margin-bottom-30">
+        <button class="btn btn-u btn-u-green"
+                data-ng-if="g.member.isAdmin"
+                data-ng-disabled="!vm.fSummary.sessionId"
+                data-ng-click="vm.addnewSummary(-1)">
+            <i class="fa fa-plus" aria-hidden="true"></i> Add New Summary
+        </button>
+    </div>
+
+    <div data-ng-if="vm.cm.currentSession.summary.length">
+        <div class="panel-group" id="accordion-summaries">
+            <div class="panel panel-default summary-accordion-item" 
+                 id="summary-item-{{summary.id}}"
+                 data-ng-repeat="summary in vm.cm.currentSession.summary | orderObjectBy:'sequence': false "
+                 ng-class="{
+                     'summary-item-inactive': summary.isActive === false, 
+                     'summary-item-active': summary.isActive !== false,
+                     'summary-item-expanded': summary.isExpanded,
+                     'summary-item-collapsed': !summary.isExpanded
+                 }">
+                
+                <div class="panel-heading summary-accordion-header" 
+                     id="summary-title-{{summary.id}}"
+                     ng-class="{
+                         'disabled': summary.itemDisabled, 
+                         'title-no-time': !(summary.jumpLocation > 0) && !summary.isPreviliged, 
+                         'title-previliged': summary.isPreviliged, 
+                         'title': summary.jumpLocation > 0,
+                         'expanded': summary.isExpanded
+                     }" 
+                     ng-click="vm.onSummaryClick(summary.id)">
+                    
+                    <h4 class="panel-title">
+                        <i class="fa" ng-class="summary.jumpLocation > 0 ? 'fa-microphone' : 'fa-info-circle'"></i>
+                        <span class="summary-title-text">{{summary.title || 'Untitled Summary'}}</span>
+                        <i class="fa accordion-toggle-icon pull-right" 
+                           ng-class="summary.isExpanded ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                    </h4>
+                </div>
+                
+                <div class="panel-collapse" ng-show="summary.isExpanded">
+                    <div class="panel-body summary-accordion-content">
+
+                <div class="padd form-horizontal summary-detail-border"
+                     data-ng-class="{'summary-inactive-content': summary.isActive === false}">
+                     
+                    <!-- Inactive Indicator -->
+                    <div class="alert alert-warning" data-ng-if="summary.isActive === false" style="margin-bottom: 15px;">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <strong>Inactive Summary:</strong> This summary is currently deactivated and not visible to users.
+                    </div>
+
+                    <!-- Summary Time, seconds, sequence -->
+                    <div class="form-group">
+                        <label class="col-md-12 col-sm-12 col-xs-12">
+                            Time | Seconds | Sequence
+                        </label>
+                        <div class="col-md-2 col-sm-4 col-xs-4">
+                            <input type="text"
+                                   data-ng-model="summary.time"
+                                   data-ng-disabled="!g.member.isAdmin"
+                                   placeholder="Time"
+                                   data-ng-blur="vm.calculateSecondsFromTime(summary)"
+                                   tabindex=""
+                                   class="form-control text-center-xs text-center-sm">
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-xs-4">
+                            <input type="text"
+                                   data-ng-model="summary.jumpLocation"
+                                   data-ng-blur="vm.calculateTimeFromSeconds(summary)"
+                                   data-ng-disabled="!g.member.isAdmin"
+                                   placeholder="Seconds"
+                                   tabindex="-1"
+                                   class="form-control text-center-xs text-center-sm">
+                        </div>
+                        <div class="col-md-1 col-sm-4 col-xs-4">
+                            <input type="text"
+                                   data-ng-model="summary.sequence"
+                                   ng-model-options="{ updateOn: 'blur' }"
+                                   placeholder="Sequence"
+                                   data-ng-disabled="true"
+                                   tabindex="-1"
+                                   class="form-control text-center-xs text-center-sm">
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-xs-4">
+                            <switch id="switch-isPreviliged"
+                                    data-ng-model="summary.isPreviliged"></switch>
+                            <span class="top-up top-up-10 margin-left-5">Is Previliged</span>
+                        </div>
+                        <div class="col-md-1"
+                             data-ng-show="vm.cm.currentSession && vm.fSummary.sessionId && vm.cm.currentSession.mediaPath && summary.jumpLocation">
+                            <button class="btn btn-u btn-u-blue"
+                                    data-ng-click="vm.jumpToLocation(summary.jumpLocation)">
+                                <i class="fa fa-microphone" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Summary Title -->
+                    <div class="form-group">
+                        <label class="col-md-12 col-sm-12 col-xs-12">
+                            Title
+                        </label>
+                        <div class="col-md-12  col-sm-12 col-xs-12">
+                            <input type="text" id="summaryTitle-{{summary.id}}"
+                                   data-ng-model="summary.title"
+                                   tabindex=""
+                                   class="form-control">
+                        </div>
+                    </div>
+                    <!-- Froala Editor -->
+                    <div class="form-group">
+                        <label class="col-md-12">Session Summary</label>
+                        <div class="col-md-12">
+                            <textarea class="form-control"
+                                      data-ng-model="summary.content"
+                                      data-froala="vm.froalaOptions"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="">
+                        <a href="" data-ng-click="vm.deleteSummary(summary)" data-ng-if="g.member.isAdmin">
+                            <i class="fa fa-trash text-danger fa-2x"></i>
+                        </a>
+                        <div class="pull-right">
+                            <a href="" data-ng-click="vm.submit(summary)" class="padding-left10">
+                                <i class="fa fa-floppy-o fa-2x"></i>
+                            </a>
+                            <a href="" data-ng-click="vm.cancelEdit(summary)" class="padding-left10">
+                                <i class="fa fa-refresh fa-2x"></i>
+                            </a>
+                            <a href="" data-ng-click="vm.gotoTop(summary)" class="padding-left10">
+                                <i class="fa fa-arrow-circle-up fa-2x"></i>
+                            </a>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-width text-center-sm text-center-xs" style="margin-top: 20px;" data-ng-if="vm.fSummary.sessionId">
+            <button class="btn btn-u btn-u-green"
+                    data-ng-click="vm.saveAllSummaries()">
+                <i class="fa fa-floppy-o" aria-hidden="true"></i> Save All Summaries
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Summary Accordion Styles - Bootstrap Panel Based - Light Blue Theme */
+.summary-accordion-item {
+    border: 1px solid #e0e6ed !important;
+    border-radius: 6px !important;
+    margin-bottom: 12px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: #ffffff !important;
+}
+
+/* COLLAPSED ITEMS - Light Blue Background by Default */
+.summary-item-collapsed .summary-accordion-header {
+    background: linear-gradient(135deg, #f3f9ff 0%, #e3f2fd 100%) !important;
+    color: #1565c0 !important;
+    border-bottom: 1px solid #bbdefb !important;
+    transition: all 0.3s ease !important;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    /* border-radius: 33px !important; */
+}
+
+.summary-item-collapsed .summary-accordion-header .summary-title-text {
+    color: #1565c0 !important;
+}
+
+.summary-item-collapsed .summary-accordion-header .fa {
+    color: #1565c0 !important;
+}
+
+/* EXPANDED ITEMS - Dark Blue Background */
+.summary-accordion-header.expanded {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
+    color: white !important;
+    border-bottom: 1px solid #0d47a1 !important;
+}
+
+.summary-accordion-header.expanded .summary-title-text {
+    color: white !important;
+}
+
+.summary-accordion-header.expanded .fa {
+    color: white !important;
+}
+
+/* HOVER EFFECTS - Zoom and Right Movement Instead of Color Change */
+.summary-accordion-header:hover {
+    transform: scale(1.02) translateX(5px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    z-index: 2 !important;
+    position: relative !important;
+    /* No background color change on hover */
+}
+
+/* Privileged Summary Headers */
+.summary-accordion-header.title-previliged {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%) !important;
+    color: #2e7d32 !important;
+    border-bottom: 1px solid #81c784 !important;
+}
+
+.summary-accordion-header.title-previliged.expanded {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%) !important;
+    color: white !important;
+}
+
+/* Inactive Summary Headers */
+.summary-accordion-header.disabled {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%) !important;
+    color: #e65100 !important;
+    opacity: 0.7 !important;
+}
+
+/* Content Area Padding */
+.summary-detail-border {
+    padding: 20px !important;
+    background-color: #fafafa !important;
+    border-radius: 0 0 6px 6px !important;
+}
+
+/* Remove left padding from form elements */
+.summary-detail-border .form-group {
+    margin-left: 0 !important;
+}
+
+.summary-detail-border .col-md-12 {
+    padding-left: 0 !important;
+}
+
+/* Panel Title Styling */
+.panel-title {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 15px 20px !important;
+}
+
+/* Icon Spacing */
+.panel-title .fa:first-child {
+    margin-right: 10px !important;
+}
+
+.panel-title .pull-right {
+    margin-left: 10px !important;
+}
+
+/* Enhanced accordion item transitions */
+.summary-accordion-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Smooth transitions for dynamic classes */
+.summary-item-collapsed,
+.summary-item-expanded {
+    transition: all 0.3s ease !important;
+}
+
+/* Additional enhancement for chevron rotation */
+.accordion-toggle-icon {
+    transition: transform 0.3s ease !important;
+}
+
+.summary-accordion-header.expanded .accordion-toggle-icon {
+    transform: rotate(90deg) !important;
+}
+
+/* Summary Accordion Styles - Bootstrap Panel Based - Light Blue Theme */
+.summary-accordion-item {
+    border: 1px solid #e0e6ed !important;
+    border-radius: 6px !important;
+    margin-bottom: 12px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: #ffffff !important;
+}
+
+/* COLLAPSED ITEMS - Light Blue Background by Default */
+.summary-item-collapsed .summary-accordion-header {
+    background: linear-gradient(135deg, #f3f9ff 0%, #e3f2fd 100%) !important;
+    color: #1565c0 !important;
+    border-bottom: 1px solid #bbdefb !important;
+    transition: all 0.3s ease !important;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    /* border-radius: 33px !important; */
+}
+
+.summary-item-collapsed .summary-accordion-header .summary-title-text {
+    color: #1565c0 !important;
+}
+
+.summary-item-collapsed .summary-accordion-header .fa {
+    color: #1565c0 !important;
+}
+
+/* EXPANDED ITEMS - Dark Blue Background */
+.summary-accordion-header.expanded {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
+    color: white !important;
+    border-bottom: 1px solid #0d47a1 !important;
+}
+
+.summary-accordion-header.expanded .summary-title-text {
+    color: white !important;
+}
+
+.summary-accordion-header.expanded .fa {
+    color: white !important;
+}
+
+/* HOVER EFFECTS - Zoom and Right Movement Instead of Color Change */
+.summary-accordion-header:hover {
+    transform: scale(1.02) translateX(5px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+    z-index: 2 !important;
+    position: relative !important;
+    /* No background color change on hover */
+}
+
+/* Privileged Summary Headers */
+.summary-accordion-header.title-previliged {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%) !important;
+    color: #2e7d32 !important;
+    border-bottom: 1px solid #81c784 !important;
+}
+
+.summary-accordion-header.title-previliged.expanded {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%) !important;
+    color: white !important;
+}
+
+/* Inactive Summary Headers */
+.summary-accordion-header.disabled {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%) !important;
+    color: #e65100 !important;
+    opacity: 0.7 !important;
+}
+
+/* Content Area Padding */
+.summary-detail-border {
+    padding: 20px !important;
+    background-color: #fafafa !important;
+    border-radius: 0 0 6px 6px !important;
+}
+
+/* Remove left padding from form elements */
+.summary-detail-border .form-group {
+    margin-left: 0 !important;
+}
+
+.summary-detail-border .col-md-12 {
+    padding-left: 0 !important;
+}
+
+/* Panel Title Styling */
+.panel-title {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 15px 20px !important;
+}
+
+/* Icon Spacing */
+.panel-title .fa:first-child {
+    margin-right: 10px !important;
+}
+
+.panel-title .pull-right {
+    margin-left: 10px !important;
+}
+
+/* Enhanced accordion item transitions */
+.summary-accordion-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Smooth transitions for dynamic classes */
+.summary-item-collapsed,
+.summary-item-expanded {
+    transition: all 0.3s ease !important;
+}
+
+/* Additional enhancement for chevron rotation */
+.accordion-toggle-icon {
+    transition: transform 0.3s ease !important;
+}
+
+.summary-accordion-header.expanded .accordion-toggle-icon {
+    transform: rotate(90deg) !important;
+}
+
+/* BASE STYLING ENHANCEMENTS - Cursor and Elegant Border */
+.summary-accordion-header {
+    cursor: pointer !important; /* Hand cursor for clickable headers */
+    border: 1px solid #e0e6ed !important; /* Elegant 1px border */
+    border-radius: 4px !important; /* Slight rounding for elegance */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important; /* Enhanced shadow */
+    transition: all 0.3s ease !important;
+}
+
+/* Ensure content areas also have elegant borders */
+.summary-detail-border {
+    border: 1px solid #e0e6ed !important;
+    border-top: none !important; /* Remove top border to connect with header */
+}
+</style>

@@ -1,0 +1,90 @@
+﻿<div class="modern-session-container" data-ng-controller="sessionCtl">
+    <div class="container-fluid" id="sessionView">
+
+        <!-- iPad Portrait Warning -->
+        <div class="row" data-ng-if="vm.mediaPort.isIpadInPortrait()">
+            <div class="col-12">
+                <div class="alert alert-warning text-center" role="alert">
+                    <i class="fas fa-tablet-alt fa-2x mb-2"></i>
+                    <h4><strong>Display Notice</strong></h4>
+                    <p>Please flip the iPad horizontally to view content</p>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-if="!vm.mediaPort.isIpadInPortrait()">
+            <!-- BREADCRUMB -->
+            <div data-zu-blank-row data-repeat="1"></div>
+            <div data-zu-breadcrumb-bar="" id="returnToAllAlbums-top"
+                 data-ng-click="vm.returnToAlbumView()"
+                 data-label="Return To {{vm.currentAlbum.name}}"
+                 data-border-position="top">
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="row session-content-area">
+                <div class="col-12">
+
+                    <!-- Audio Player Card -->
+                    <div class="ccard audio-player-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-play-circle" aria-hidden="true"></i>
+                                Audio Player
+                            </h3>
+                            <div class="card-toolbar no-border">
+                                <span class="card-toolbar-btn" title="Now Playing">
+                                    <i class="fas fa-music"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body audio-player-content">
+                            <!-- No Audio File Notice -->
+                            <div class="alert alert-info" data-ng-if="!vm.currentSession.mediaPath" style="margin-bottom: 15px;">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>No Audio File Available</strong>
+                                <p style="margin: 10px 0 5px 0;">This session does not have an audio file uploaded yet.</p>
+                                <!-- Debug info only shown in development mode -->
+                                <details ng-if="$root.config.isDev" style="margin-top: 10px;">
+                                    <summary style="cursor: pointer;"><strong>Debug Information</strong></summary>
+                                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
+                                        <li>Session: {{vm.currentSession.name || 'No session'}}</li>
+                                        <li>Session ID: {{vm.currentSession.id || 'No ID'}}</li>
+                                        <li>Media Path: {{vm.currentSession.mediaPath || 'No media path'}}</li>
+                                        <li>Is Active: {{vm.currentSession.isActive}}</li>
+                                        <li>Media Ready: {{vm.isMediaReadyToPlay}}</li>
+                                    </ul>
+                                </details>
+                                <p style="margin: 5px 0 0 0;"><em>To add an audio file, use the admin session management page.</em></p>
+                            </div>
+                            
+                            <!-- jPlayer Wrapper with Purple Theme -->
+                            <div class="jplayer-wrapper">
+                                <div data-jplayer-control=""
+                                     data-current-session="vm.currentSession"
+                                     data-is-media-ready-to-play="vm.isMediaReadyToPlay"
+                                     data-auto-play="true"
+                                     data-play-pause-delegate="vm.mediaEvent"
+                                     data-buffer-time="5000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Summary Content -->
+                    <div class="session-summary-wrapper">
+                        <div data-ng-include="'/app/features/session/session-summary.html'"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Breadcrumb -->
+            <div data-zu-breadcrumb-bar="" id="returnToAllAlbums-bottom"
+                 data-ng-click="vm.returnToAlbumView()"
+                 data-label="Return To {{vm.currentAlbum.name}}"
+                 data-border-position="bottom">
+            </div>
+            <div data-zu-blank-row data-repeat="1"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,562 @@
+<!-- Compact Styling for Git Commits Page -->
+<style>
+    /* 15% More Compact Styling - Page Specific */
+    .admin-git-commits-compact .panel {
+        margin-bottom: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact .widget-content {
+        padding: 17px !important; /* Reduced from 20px */
+    }
+    
+    .admin-git-commits-compact .row {
+        margin-bottom: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact .alert {
+        padding: 13px !important; /* Reduced from 15px */
+        margin-bottom: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact .panel-body {
+        padding: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact .panel-heading {
+        padding: 8px 13px !important; /* Reduced from 10px 15px */
+    }
+    
+    .admin-git-commits-compact .btn {
+        padding: 5px 10px !important; /* Reduced from 6px 12px */
+        margin-bottom: 4px !important; /* Reduced from 5px */
+    }
+    
+    .admin-git-commits-compact .form-group {
+        margin-bottom: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact .table {
+        margin-bottom: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact .table td {
+        padding: 6px !important; /* Reduced from 8px */
+    }
+    
+    .admin-git-commits-compact .table th {
+        padding: 6px !important; /* Reduced from 8px */
+    }
+    
+    .admin-git-commits-compact h4 {
+        margin-bottom: 8px !important; /* Reduced from 10px */
+        margin-top: 13px !important; /* Reduced from 15px */
+    }
+    
+    .admin-git-commits-compact h5 {
+        margin-bottom: 6px !important; /* Reduced from 8px */
+        margin-top: 10px !important; /* Reduced from 12px */
+    }
+</style>
+
+<div class="matter admin-utilities-container admin-utility-standard-font admin-git-commits-compact" data-ng-controller="adminGitCommitsCtl">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="widget wviolet">
+                    <div class="widget-head">
+                        <div class="pull-left">
+                            <i class="fa fa-git"></i> Git Version Control Manager
+                        </div>
+                        <div class="widget-icons pull-right">
+                            <a href="#" class="wminimize"><i class="fa fa-chevron-up"></i></a>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="widget-content">
+                        <!-- Development Environment Notice -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-info" style="border-left: 5px solid #3498db; margin-bottom: 17px;">
+                                    <h4><i class="fa fa-info-circle"></i> Git Utilities</h4>
+                                    <p><strong>ℹ️ Git utilities are active.</strong> Use with caution - these operations affect your repository directly.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Git Commands Section -->
+                        <div class="row" data-ng-if="vm.isDevelopmentSafe">
+                            <div class="col-md-12">
+                                <div class="panel panel-success" style="border-left: 5px solid #27ae60;">
+                                    <div class="panel-heading" style="background-color: #2ecc71; color: white;">
+                                        <h4><i class="fa fa-git"></i> Git Operations & Branch Management</h4>
+                                    </div>
+                                    <div class="panel-body" style="background-color: #f8fffe;">
+                                        <!-- Current Branch Display -->
+                                        <div class="row" style="margin-bottom: 17px;">
+                                            <div class="col-md-12">
+                                                <div class="well well-sm" style="background-color: #ecf0f1; border: 1px solid #bdc3c7; margin-bottom: 17px;">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5 style="margin: 0; color: #2c3e50;">
+                                                                <i class="fa fa-code-fork"></i> Current Branch:
+                                                            </h5>
+                                                            <div style="margin-top: 5px;">
+                                                                <span class="label label-primary" style="font-size: 12px; max-width: 100%; word-wrap: break-word; white-space: normal; display: inline-block; overflow-wrap: break-word;">
+                                                                    {{vm.gitStatus.currentBranch || 'Loading...'}}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 text-right">
+                                                            <button class="btn btn-sm btn-info" 
+                                                                    data-ng-click="vm.refreshGitStatus()"
+                                                                    data-ng-disabled="vm.isRefreshingGit">
+                                                                <i class="fa fa-refresh" data-ng-class="{'fa-spin': vm.isRefreshingGit}"></i>
+                                                                Refresh Status
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="margin-top: 10px;" data-ng-if="vm.gitStatus.hasUncommittedChanges">
+                                                        <div class="col-md-12">
+                                                            <small class="text-warning">
+                                                                <i class="fa fa-warning"></i>
+                                                                {{vm.gitStatus.uncommittedFilesCount}} uncommitted changes detected
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="margin-top: 5px;" data-ng-if="vm.gitStatus.hasLocalCommits">
+                                                        <div class="col-md-12">
+                                                            <small class="text-info">
+                                                                <i class="fa fa-cloud-upload"></i>
+                                                                {{vm.gitStatus.localCommitsCount}} local commits ready to push
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Git Commit Interface -->
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label for="gitCommitMessage" style="font-weight: 600; color: #2c3e50;">
+                                                        <i class="fa fa-comment"></i> Commit Message:
+                                                    </label>
+                                                    <textarea 
+                                                        id="gitCommitMessage"
+                                                        class="form-control" 
+                                                        rows="5" 
+                                                        data-ng-model="vm.gitCommitMessage" 
+                                                        placeholder="Enter your commit message here..."
+                                                        style="resize: vertical; min-height: 140px;"
+                                                        data-ng-disabled="vm.isProcessingGit">
+                                                    </textarea>
+                                                    <small class="text-muted">
+                                                        Be descriptive about the changes you made.
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label style="font-weight: 600; color: #2c3e50;">Actions:</label>
+                                                <div class="btn-group-vertical btn-block" role="group">
+                                                    <button 
+                                                        class="btn btn-primary" 
+                                                        data-ng-click="vm.commitToLocal()" 
+                                                        data-ng-disabled="!vm.gitCommitMessage || vm.isProcessingGit"
+                                                        style="margin-bottom: 8px;">
+                                                        <i class="fa fa-plus-circle" data-ng-if="!vm.isCommittingLocal"></i>
+                                                        <i class="fa fa-spinner fa-spin" data-ng-if="vm.isCommittingLocal"></i>
+                                                        Commit to Local [{{vm.gitStatus.currentBranch || 'unknown'}}]
+                                                    </button>
+                                                    <button 
+                                                        class="btn btn-success" 
+                                                        data-ng-click="vm.pushToRemote()" 
+                                                        data-ng-disabled="vm.isProcessingGit || !vm.gitStatus.hasLocalCommits"
+                                                        style="margin-bottom: 8px;">
+                                                        <i class="fa fa-cloud-upload" data-ng-if="!vm.isPushingRemote"></i>
+                                                        <i class="fa fa-spinner fa-spin" data-ng-if="vm.isPushingRemote"></i>
+                                                        Push [{{vm.gitStatus.currentBranch || 'unknown'}}] to Remote
+                                                    </button>
+                                                    <button 
+                                                        class="btn btn-warning" 
+                                                        data-ng-click="vm.commitAndPush()" 
+                                                        data-ng-disabled="!vm.gitCommitMessage || vm.isProcessingGit"
+                                                        style="margin-bottom: 8px;">
+                                                        <i class="fa fa-rocket" data-ng-if="!vm.isCommittingAndPushing"></i>
+                                                        <i class="fa fa-spinner fa-spin" data-ng-if="vm.isCommittingAndPushing"></i>
+                                                        Commit & Push [{{vm.gitStatus.currentBranch || 'unknown'}}]
+                                                    </button>
+                                                    <button 
+                                                        class="btn btn-danger" 
+                                                        data-ng-click="vm.killGitProcesses()" 
+                                                        data-ng-disabled="vm.isKillingGitProcesses"
+                                                        style="margin-bottom: 8px;"
+                                                        title="Kill any running Git processes and clear locks">
+                                                        <i class="fa fa-stop" data-ng-if="!vm.isKillingGitProcesses"></i>
+                                                        <i class="fa fa-spinner fa-spin" data-ng-if="vm.isKillingGitProcesses"></i>
+                                                        Stop Git Processes
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Last Git Operation Result -->
+                                        <div class="row" style="margin-top: 13px;" data-ng-if="vm.lastGitOperationResult">
+                                            <div class="col-md-12">
+                                                <div class="alert" 
+                                                     data-ng-class="{'alert-success': vm.lastGitOperationResult.success, 'alert-danger': !vm.lastGitOperationResult.success}"
+                                                     style="margin-bottom: 0;">
+                                                    <div class="row">
+                                                        <div class="col-md-10">
+                                                            <strong>
+                                                                <i class="fa" data-ng-class="{'fa-check-circle': vm.lastGitOperationResult.success, 'fa-times-circle': !vm.lastGitOperationResult.success}"></i>
+                                                                {{vm.lastGitOperationResult.operation}} - {{vm.lastGitOperationResult.success ? 'Success' : 'Failed'}}
+                                                            </strong>
+                                                            <p style="margin: 5px 0 0 0;">{{vm.lastGitOperationResult.message}}</p>
+                                                            <small class="text-muted">{{vm.lastGitOperationResult.timestamp | date:'MMM dd, yyyy - HH:mm:ss'}}</small>
+                                                        </div>
+                                                        <div class="col-md-2 text-right">
+                                                            <button class="btn btn-xs btn-default" 
+                                                                    data-ng-click="vm.lastGitOperationResult = null"
+                                                                    title="Dismiss">
+                                                                <i class="fa fa-times"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Files Section -->
+                        <div class="row" style="margin-top: 17px;" data-ng-if="vm.isDevelopmentSafe">
+                            <div class="col-md-12">
+                                <!-- Debug Information Panel -->
+                                <div class="alert alert-info" style="margin-bottom: 10px;">
+                                    <strong>🔧 DEBUG INFO:</strong> 
+                                    Pending Files: {{vm.pendingFiles ? vm.pendingFiles.length : 'undefined'}} | 
+                                    Loading: {{vm.isLoadingPendingFiles}} | 
+                                    Service Available: {{vm.refreshPendingFiles ? 'function' : 'undefined'}}
+                                    <button class="btn btn-xs btn-info pull-right" onclick="if(window.testPendingFiles) window.testPendingFiles(); else console.log('testPendingFiles not available')">Manual Test</button>
+                                    <button class="btn btn-xs btn-warning pull-right" style="margin-right: 5px;" onclick="console.log('VM State:', window.adminGitCommitsVm)">Log VM</button>
+                                </div>
+                                
+                                <div class="panel panel-warning" style="border-left: 5px solid #f39c12;">
+                                    <div class="panel-heading" style="background-color: #f39c12; color: white;">
+                                        <div class="row">
+                                            <div class="col-md-10">
+                                                <h4><i class="fa fa-file-text"></i> Files Pending Commit</h4>
+                                            </div>
+                                            <div class="col-md-2 text-right">
+                                                <button class="btn btn-sm btn-warning" 
+                                                        data-ng-click="vm.refreshPendingFiles()"
+                                                        data-ng-disabled="vm.isLoadingPendingFiles"
+                                                        style="background-color: #e67e22; border-color: #e67e22;">
+                                                    <i class="fa fa-refresh" data-ng-class="{'fa-spin': vm.isLoadingPendingFiles}"></i>
+                                                    Refresh Files
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body" style="background-color: #fefbf4;">
+                                        <div data-ng-if="vm.isLoadingPendingFiles" class="text-center" style="padding: 17px;">
+                                            <i class="fa fa-spinner fa-spin fa-2x" style="color: #f39c12;"></i>
+                                            <p style="margin-top: 10px; color: #d68910;">Loading pending files...</p>
+                                        </div>
+                                        
+                                        <div data-ng-if="!vm.isLoadingPendingFiles && vm.pendingFiles && vm.pendingFiles.length > 0">
+                                            <div class="alert alert-warning" style="border-left: 3px solid #f39c12; margin-bottom: 15px;">
+                                                <i class="fa fa-exclamation-triangle"></i>
+                                                <strong>{{vm.pendingFiles.length}} files</strong> have uncommitted changes
+                                                <span data-ng-if="vm.pendingFiles.length > vm.pendingFilesDisplay.maxDisplayCount && !vm.pendingFilesDisplay.showAll">
+                                                    (showing first {{vm.pendingFilesDisplay.maxDisplayCount}})
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- Pending Files Controls -->
+                                            <div class="row" style="margin-bottom: 15px;" data-ng-if="vm.pendingFiles.length > 20">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label style="font-size: 12px; font-weight: 600;">Filter files:</label>
+                                                        <input type="text" class="form-control input-sm" 
+                                                               placeholder="Search by filename or type..."
+                                                               data-ng-model="vm.pendingFilesDisplay.filterText"
+                                                               style="width: 100%; margin-top: 5px;">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label style="font-size: 12px; font-weight: 600;">Sort & Display:</label>
+                                                        <div style="margin-top: 5px;">
+                                                            <select class="form-control input-sm" style="width: auto; display: inline-block; margin-right: 10px;"
+                                                                    data-ng-model="vm.pendingFilesDisplay.sortBy">
+                                                                <option value="fileName">Sort by Name</option>
+                                                                <option value="fileType">Sort by Type</option>
+                                                                <option value="status">Sort by Status</option>
+                                                            </select>
+                                                            <button type="button" class="btn btn-xs btn-default"
+                                                                    data-ng-click="vm.pendingFilesDisplay.sortReverse = !vm.pendingFilesDisplay.sortReverse"
+                                                                    data-ng-class="{'active': vm.pendingFilesDisplay.sortReverse}">
+                                                                <i class="fa" data-ng-class="vm.pendingFilesDisplay.sortReverse ? 'fa-sort-desc' : 'fa-sort-asc'"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                                <table class="table table-striped table-condensed" style="margin-bottom: 0;">
+                                                    <thead style="background-color: #f8f9fa;">
+                                                        <tr>
+                                                            <th style="width: 100px; font-weight: 600; color: #2c3e50;">Status</th>
+                                                            <th style="font-weight: 600; color: #2c3e50;">File Path</th>
+                                                            <th style="width: 120px; font-weight: 600; color: #2c3e50; text-align: center;">File Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr data-ng-repeat="file in vm.getFilteredPendingFiles()" 
+                                                            style="border-left: 3px solid transparent;"
+                                                            data-ng-class="{
+                                                                'success': file.fileType === 'Added',
+                                                                'warning': file.fileType === 'Modified',
+                                                                'danger': file.fileType === 'Deleted'
+                                                            }">
+                                                            <td>
+                                                                <span class="label" 
+                                                                      data-ng-class="file.badgeClass"
+                                                                      style="font-size: 11px; padding: 4px 8px;">
+                                                                    <span data-ng-if="file.fileType === 'Added'">
+                                                                        <i class="fa fa-plus"></i> Added
+                                                                    </span>
+                                                                    <span data-ng-if="file.fileType === 'Modified'">
+                                                                        <i class="fa fa-pencil"></i> Modified
+                                                                    </span>
+                                                                    <span data-ng-if="file.fileType === 'Deleted'">
+                                                                        <i class="fa fa-trash"></i> Deleted
+                                                                    </span>
+                                                                    <span data-ng-if="file.fileType === 'Renamed'">
+                                                                        <i class="fa fa-arrow-right"></i> Renamed
+                                                                    </span>
+                                                                    <span data-ng-if="file.fileType === 'Untracked'">
+                                                                        <i class="fa fa-file-o"></i> Untracked
+                                                                    </span>
+                                                                    <span data-ng-if="!file.fileType || (file.fileType !== 'Added' && file.fileType !== 'Modified' && file.fileType !== 'Deleted' && file.fileType !== 'Renamed' && file.fileType !== 'Untracked')">
+                                                                        <i class="fa fa-question"></i> {{file.fileType || 'Unknown'}}
+                                                                    </span>
+                                                                </span>
+                                                            </td>
+                                                            <td style="font-family: 'Courier New', monospace; font-size: 12px; color: #2c3e50; word-break: break-all;">
+                                                                <span 
+                                                                    data-ng-style="{'color': (file.fileName.toLowerCase().indexOf('.html') !== -1) ? '#e74c3c' : 
+                                                                                             (file.fileName.toLowerCase().indexOf('.js') !== -1) ? '#f39c12' : 
+                                                                                             (file.fileName.toLowerCase().indexOf('.cs') !== -1) ? '#9b59b6' : '#2c3e50',
+                                                                                    'font-weight': (file.fileName.toLowerCase().indexOf('.html') !== -1 || 
+                                                                                                   file.fileName.toLowerCase().indexOf('.js') !== -1 || 
+                                                                                                   file.fileName.toLowerCase().indexOf('.cs') !== -1) ? '600' : 'normal'}">
+                                                                    {{file.fileName}}
+                                                                </span>
+                                                            </td>
+                                                            <td style="text-align: center;">
+                                                                <span class="label" data-ng-class="file.badgeClass" style="font-size: 10px; padding: 2px 6px;">
+                                                                    {{file.fileType}}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            
+                                            <!-- Show More/Less Controls -->
+                                            <div class="text-center" style="margin-top: 15px;" 
+                                                 data-ng-if="vm.pendingFiles.length > vm.pendingFilesDisplay.maxDisplayCount">
+                                                <button type="button" class="btn btn-primary btn-sm"
+                                                        data-ng-click="vm.toggleShowAllPendingFiles()"
+                                                        data-ng-if="!vm.pendingFilesDisplay.showAll">
+                                                    <i class="fa fa-plus"></i>
+                                                    Show All {{vm.pendingFiles.length}} Files
+                                                </button>
+                                                
+                                                <button type="button" class="btn btn-default btn-sm"
+                                                        data-ng-click="vm.toggleShowAllPendingFiles()"
+                                                        data-ng-if="vm.pendingFilesDisplay.showAll">
+                                                    <i class="fa fa-minus"></i>
+                                                    Show Only First {{vm.pendingFilesDisplay.maxDisplayCount}} Files
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="alert alert-info" style="margin-top: 13px; margin-bottom: 0; border-left: 3px solid #3498db;">
+                                                <small>
+                                                    <i class="fa fa-info-circle"></i>
+                                                    <strong>Tip:</strong> These files will be included when you commit your changes above.
+                                                    <span data-ng-if="vm.getFilteredPendingFiles().length !== vm.pendingFiles.length">
+                                                        Currently showing {{vm.getFilteredPendingFiles().length}} of {{vm.pendingFiles.length}} files.
+                                                    </span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div data-ng-if="!vm.isLoadingPendingFiles && (!vm.pendingFiles || vm.pendingFiles.length === 0)" 
+                                             class="text-center" style="padding: 25px;">
+                                            <i class="fa fa-check-circle fa-3x" style="color: #27ae60; margin-bottom: 15px;"></i>
+                                            <h5 style="color: #27ae60; font-weight: 600;">No Pending Files</h5>
+                                            <p style="color: #7f8c8d; margin-bottom: 0;">All files are committed or up to date.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Git Activity -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-default" style="border-left: 5px solid #95a5a6;">
+                                    <div class="panel-heading" style="background-color: #2ecc71; color: white;">
+                                        <h4><i class="fa fa-history"></i> Recent Git Activity
+                                            <span class="pull-right" style="font-size: 12px; font-weight: normal;">
+                                                <span data-ng-if="vm.commitPagination.totalCommits > 0">
+                                                    Showing {{vm.recentCommits.length}} of {{vm.commitPagination.totalCommits}} total commits
+                                                </span>
+                                            </span>
+                                        </h4>
+                                    </div>
+                                    <div class="panel-body" style="background-color: #fafafa;">
+                                        <!-- Commit Controls -->
+                                        <div class="row" style="margin-bottom: 15px;" data-ng-if="vm.recentCommits && vm.recentCommits.length > 0">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label style="font-size: 12px; font-weight: 600;">Commits per load:</label>
+                                                    <select class="form-control input-sm" style="width: auto; display: inline-block; margin-left: 10px;"
+                                                            data-ng-model="vm.commitPagination.currentLimit"
+                                                            data-ng-change="vm.changeCommitLimit(vm.commitPagination.currentLimit)"
+                                                            data-ng-disabled="vm.commitPagination.isLoading">
+                                                        <option data-ng-repeat="limit in vm.commitPagination.availableLimits" 
+                                                                value="{{limit}}">{{limit}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 text-right">
+                                                <div class="form-group">
+                                                    <label style="font-size: 12px; font-weight: 600;">Display options:</label>
+                                                    <div class="btn-group" style="margin-left: 10px;">
+                                                        <button type="button" class="btn btn-xs btn-default" 
+                                                                data-ng-click="vm.commitDisplayOptions.showFullHash = !vm.commitDisplayOptions.showFullHash"
+                                                                data-ng-class="{'active': vm.commitDisplayOptions.showFullHash}">
+                                                            Full Hash
+                                                        </button>
+                                                        <button type="button" class="btn btn-xs btn-default"
+                                                                data-ng-click="vm.commitDisplayOptions.showRelativeDate = !vm.commitDisplayOptions.showRelativeDate"
+                                                                data-ng-class="{'active': vm.commitDisplayOptions.showRelativeDate}">
+                                                            Relative Date
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div data-ng-if="vm.recentCommits && vm.recentCommits.length > 0">
+                                                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                                        <table class="table table-striped table-condensed">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width: 12%;">Date</th>
+                                                                    <th style="width: 18%;">Author</th>
+                                                                    <th style="width: 40%;">Message</th>
+                                                                    <th style="width: 15%;">Hash</th>
+                                                                    <th style="width: 15%;">Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr data-ng-repeat="commit in vm.recentCommits">
+                                                                    <td style="font-size: 11px;">
+                                                                        <div>{{commit.date}}</div>
+                                                                        <div data-ng-if="vm.commitDisplayOptions.showRelativeDate && commit.relativeDate" 
+                                                                             style="font-size: 10px; color: #777;">
+                                                                            {{commit.relativeDate}}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td style="font-size: 11px;">{{commit.author}}</td>
+                                                                    <td style="font-size: 11px;">{{commit.message}}</td>
+                                                                    <td style="font-size: 11px; font-family: monospace;">
+                                                                        <span data-ng-if="!vm.commitDisplayOptions.showFullHash">{{commit.shortHash || commit.hash.substring(0, 8)}}</span>
+                                                                        <span data-ng-if="vm.commitDisplayOptions.showFullHash">{{commit.hash}}</span>
+                                                                    </td>
+                                                                    <td style="font-size: 11px;">
+                                                                        <button type="button" 
+                                                                                class="btn btn-danger btn-xs" 
+                                                                                data-ng-click="vm.forceResetToCommit(commit)"
+                                                                                data-ng-disabled="vm.isProcessingGit || vm.isProductionEnvironment"
+                                                                                title="Force reset to this commit (WARNING: This will discard all changes after this commit)"
+                                                                                style="padding: 2px 6px;">
+                                                                            <i class="fa fa-history"></i> Reset
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    
+                                                    <!-- Pagination Controls -->
+                                                    <div class="text-center" style="margin-top: 15px;" data-ng-if="vm.commitPagination.hasMore || vm.commitPagination.currentSkip > 0">
+                                                        <button type="button" class="btn btn-primary btn-sm"
+                                                                data-ng-click="vm.loadMoreCommits()"
+                                                                data-ng-disabled="vm.commitPagination.isLoading || !vm.commitPagination.hasMore"
+                                                                data-ng-if="vm.commitPagination.hasMore">
+                                                            <i class="fa fa-plus" data-ng-class="{'fa-spin': vm.commitPagination.isLoading}"></i>
+                                                            Load More Commits
+                                                        </button>
+                                                        
+                                                        <button type="button" class="btn btn-default btn-sm" style="margin-left: 10px;"
+                                                                data-ng-click="vm.refreshCommits()"
+                                                                data-ng-disabled="vm.commitPagination.isLoading">
+                                                            <i class="fa fa-refresh" data-ng-class="{'fa-spin': vm.commitPagination.isLoading}"></i>
+                                                            Reset View
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div data-ng-if="vm.commitPagination.isLoading && (!vm.recentCommits || vm.recentCommits.length === 0)" 
+                                                     class="text-center text-muted" style="padding: 20px;">
+                                                    <i class="fa fa-spinner fa-spin"></i> Loading commit history...
+                                                </div>
+                                                
+                                                <div data-ng-if="!vm.commitPagination.isLoading && (!vm.recentCommits || vm.recentCommits.length === 0)" 
+                                                     class="text-center text-muted">
+                                                    <p><i class="fa fa-info-circle"></i> No recent commits available</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- End Development Environment Only Section -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Standard 18px font-size for all utility UI elements */
+.admin-utility-standard-font,
+.admin-utility-standard-font * {
+    font-size: 18px !important;
+}
+
+/* Maintain proportional sizing for specific elements */
+.admin-utility-standard-font h1 { font-size: 36px !important; }
+.admin-utility-standard-font h2 { font-size: 32px !important; }
+.admin-utility-standard-font h3 { font-size: 28px !important; }
+.admin-utility-standard-font h4 { font-size: 24px !important; }
+.admin-utility-standard-font h5 { font-size: 20px !important; }
+.admin-utility-standard-font h6 { font-size: 18px !important; }
+.admin-utility-standard-font small { font-size: 16px !important; }
+.admin-utility-standard-font .fa { font-size: 18px !important; }
+.admin-utility-standard-font .fa-lg { font-size: 22px !important; }
+.admin-utility-standard-font .fa-2x { font-size: 36px !important; }
+</style>

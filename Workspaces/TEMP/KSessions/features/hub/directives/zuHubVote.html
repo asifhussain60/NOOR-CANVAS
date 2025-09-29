@@ -1,0 +1,82 @@
+﻿<div>
+    <!-- Host -->
+    <div class="row" data-ng-if="hub.isHost">
+        <div class="col-md-8">
+            <div class="padding-topbottom-5">
+
+                <div class="form-horizontal">
+                    <!-- Voting Question -->
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <input type="text" id="voteQuestion"
+                                   data-ng-model="fVoter.voteCaption"
+                                   placeholder="Enter Voting Question"
+                                   class="form-control max-width">
+                        </div>
+                    </div>
+                    <!-- Up Vote Button text -->
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <input type="text"
+                                   data-ng-model="fVoter.upCountCaption"
+                                   placeholder="Up Vote Caption"
+                                   class="form-control max-width">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text"
+                                   data-ng-model="fVoter.downCountCaption"
+                                   placeholder="Down Vote Caption"
+                                   class="form-control max-width">
+                        </div>
+                    </div>
+                    <!-- Down Vote Button text -->
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <button class="btn btn-u" data-ng-click="addVoteToPreloader(fVoter)">Add To List</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4" data-ng-if="preloaderVotes && preloaderVotes.length">
+            <div>
+                <ul>
+                    <li data-ng-repeat="v in preloaderVotes">
+                        <a href="" class="margin-left-5" data-ng-click="activateVote(v)">
+                            {{v.voteCaption}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display Voting Results -->
+    <div class="row" data-ng-if="activeClientVote">
+        <div class="col-md-8">
+            <div class="vote-container text-center">
+                <div class="vote-title">
+                    <span>{{activeClientVote.voteCaption}}</span>
+                </div>
+                <div class="vote-result">
+                    <div class="btn btn-lg btn-up-vote text-center margin-right-30">
+                        <i class="fa fa-thumbs-up fa-3x text-success" aria-hidden="true"></i>
+                        <div class="vote-count-value">
+                            {{hub.host.electionResult.totals.up}}
+                        </div>
+                    </div>
+                    <div class="btn btn-lg btn-down-vote text-center">
+                        <i class="fa fa-thumbs-down fa-3x text-danger" aria-hidden="true"></i>
+                        <div class="vote-count-value">
+                            {{hub.host.electionResult.totals.down}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+

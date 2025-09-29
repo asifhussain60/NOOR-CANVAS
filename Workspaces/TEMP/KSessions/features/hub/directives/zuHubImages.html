@@ -1,0 +1,33 @@
+﻿<div>
+    <ang-accordion one-at-a-time="true"
+                   icon-position="right"
+                   close-icon-class="fa fa-chevron-right"
+                   open-icon-class="fa fa-chevron-down">
+
+        <collapsible-item item-id="{{session.id}}"
+                          item-title="{{session.name}}"
+                          item-icon="microphone"
+                          data-ng-click="sessionClick(session.id)"
+                          data-ng-repeat="session in sessions | orderObjectBy:'sequence' : true "
+                          is-open="session.isExpanded">
+
+            <div class="padd form-horizontal summary-detail-border ">
+
+                <div class="row" data-ng-if="imageList.length">
+                    <label style="padding-left: 16px;">Session Images</label><br />
+                    <div class="col-md-3" data-ng-repeat="img in imageList">
+                        <div data-ng-class="{'border-highlight': img.selected}">
+                            <img class="pointer center-div" style="width: 95%; height: auto; border: gray 1px solid;"
+                                 data-ng-click="publishImage(img)"
+                                 data-ng-src="{{img.imageUri}}"
+                                 alt="Loading..." />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </collapsible-item>
+
+    </ang-accordion>
+</div>

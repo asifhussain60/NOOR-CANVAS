@@ -1,0 +1,725 @@
+<!-- Ahadees Management Panel - Professional Production Version -->
+<div class="ahadees-management-panel" 
+     data-ng-show="vm.isVisible"
+    style="position: fixed; 
+          top: 60px; 
+          right: 20px; 
+          width: 520px; 
+          max-width: 90vw;
+          max-height: 85vh;
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+          border: 3px solid #bae6fd; 
+          border-radius: 16px; 
+          padding: 20px;
+          z-index: 99999; 
+          box-shadow: 0 20px 40px rgba(14,165,233,0.15);
+          overflow: hidden;
+          font-family: 'Segoe UI', Roboto, Arial, sans-serif;">
+    
+    <!-- Professional Header -->
+    <div style="display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                margin-bottom: 20px; 
+                background: linear-gradient(135deg, #0ea5e9, #0284c7); 
+                color: white; 
+                padding: 20px 24px; 
+                margin: -20px -20px 20px -20px; 
+                border-radius: 16px 16px 0 0; 
+                box-shadow: 0 4px 12px rgba(14,165,233,0.3);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <h4 style="margin: 0; font-weight: 600; font-size: 18px;">📚 Ahadees Management</h4>
+            <span style="background: rgba(255,255,255,0.2); 
+                         padding: 4px 8px; 
+                         border-radius: 12px; 
+                         font-size: 11px; 
+                         font-weight: 500;">
+                KQUR_DEV
+            </span>
+            <span style="background: rgba(255,255,255,0.15); 
+                         padding: 3px 6px; 
+                         border-radius: 8px; 
+                         font-size: 9px; 
+                         font-weight: 400;">
+                ⌨️ Ctrl+Shift+H
+            </span>
+        </div>
+        <button type="button" 
+                data-ng-click="vm.close()" 
+                style="background: rgba(244,67,54,0.9); 
+                       color: white; 
+                       border: none; 
+                       padding: 8px 12px; 
+                       border-radius: 6px; 
+                       cursor: pointer; 
+                       font-weight: 500; 
+                       font-size: 12px;
+                       transition: all 0.2s ease;"
+                onmouseover="this.style.background='rgba(244,67,54,1)'"
+                onmouseout="this.style.background='rgba(244,67,54,0.9)'">
+            ✕ Close
+        </button>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div style="background: rgba(255,255,255,0.8); 
+                padding: 16px; 
+                border-radius: 8px; 
+                margin-bottom: 16px; 
+                border-left: 4px solid #4caf50;">
+        <div style="display: flex; 
+                    gap: 12px; 
+                    margin-bottom: 14px; 
+                    align-items: center; 
+                    flex-wrap: wrap;">
+            <input type="text" 
+                   data-ng-model="vm.searchQuery" 
+                   data-ng-change="vm.searchAhadees()" 
+                   placeholder="Search ahadees by text, reference, or narrator..."
+                   autocomplete="off"
+                   style="flex: 1; 
+                          min-width: 250px; 
+                          padding: 10px 14px; 
+                          border: 2px solid #e0e0e0; 
+                          border-radius: 6px; 
+                          font-size: 14px; 
+                          outline: none; 
+                          transition: border-color 0.2s ease;
+                          box-sizing: border-box;"
+                   onfocus="this.style.borderColor='#1976d2'; this.style.boxShadow='0 0 0 2px rgba(25,118,210,0.2)'"
+                   onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'">
+            
+            <button type="button" 
+                    data-ng-click="vm.refreshAhadees()"
+                    style="background: linear-gradient(45deg, #4caf50, #66bb6a); 
+                           color: white; 
+                           border: none; 
+                           padding: 10px 14px; 
+                           border-radius: 6px; 
+                           cursor: pointer; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           white-space: nowrap;
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(76,175,80,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                🔄 Refresh
+            </button>
+            
+            <button type="button" 
+                    data-ng-click="vm.showAddForm = !vm.showAddForm"
+                    style="background: linear-gradient(45deg, #ff9800, #ffb74d); 
+                           color: white; 
+                           border: none; 
+                           padding: 10px 14px; 
+                           border-radius: 6px; 
+                           cursor: pointer; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           white-space: nowrap;
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(255,152,0,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                <span data-ng-if="!vm.showAddForm">➕ Add New</span>
+                <span data-ng-if="vm.showAddForm">📋 Back to Search</span>
+            </button>
+        </div>
+        
+        <!-- Category Filter Buttons - Updated for Normalized Categories -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+            <button type="button" 
+                    data-ng-click="vm.filterByCategory('aqeedah')"
+                    data-ng-class="{'active-filter': vm.activeFilter === 'aqeedah'}"
+                    style="background: linear-gradient(45deg, #673ab7, #9c27b0); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(103,58,183,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                🕌 Aqeedah
+            </button>
+            
+            <button type="button" 
+                    data-ng-click="vm.filterByCategory('ibadah')"
+                    data-ng-class="{'active-filter': vm.activeFilter === 'ibadah'}"
+                    style="background: linear-gradient(45deg, #4caf50, #66bb6a); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(76,175,80,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                � Ibadah
+            </button>
+            
+            <button type="button" 
+                    data-ng-click="vm.filterByCategory('akhlaq')"
+                    data-ng-class="{'active-filter': vm.activeFilter === 'akhlaq'}"
+                    style="background: linear-gradient(45deg, #ff9800, #ffb74d); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(255,152,0,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                ❤️ Akhlaq
+            </button>
+            
+            <button type="button" 
+                    data-ng-click="vm.filterByCategory('seerah')"
+                    data-ng-class="{'active-filter': vm.activeFilter === 'seerah'}"
+                    style="background: linear-gradient(45deg, #795548, #8d6e63); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(121,85,72,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                � Seerah
+            </button>
+            
+            <button type="button" 
+                    data-ng-click="vm.clearFilters()"
+                    style="background: linear-gradient(45deg, #607d8b, #78909c); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(96,125,139,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                🗑️ Clear
+            </button>
+        </div>
+
+        <!-- Narrator Filter -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" 
+                    data-ng-click="vm.filterByNarrator('prophet')"
+                    data-ng-class="{'active-filter': vm.activeNarratorFilter === 'prophet'}"
+                    style="background: linear-gradient(45deg, #e91e63, #f06292); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(233,30,99,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                ﷺ Prophet
+            </button>
+            
+            <button type="button" 
+                    data-ng-click="vm.filterByNarrator('ali')"
+                    data-ng-class="{'active-filter': vm.activeNarratorFilter === 'ali'}"
+                    style="background: linear-gradient(45deg, #3f51b5, #5c6bc0); 
+                           color: white; 
+                           border: none; 
+                           padding: 6px 12px; 
+                           border-radius: 15px; 
+                           font-size: 12px; 
+                           font-weight: 500; 
+                           cursor: pointer; 
+                           transition: all 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 3px 6px rgba(63,81,181,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                ع Imam Ali
+            </button>
+        </div>
+    </div>
+    
+    <!-- Add New Hadees Form -->
+    <div data-ng-if="vm.showAddForm && !vm.isLoading" 
+         style="background: rgba(255,255,255,0.9); 
+                padding: 16px; 
+                border-radius: 8px; 
+                margin-bottom: 16px; 
+                border-left: 4px solid #ff9800;
+                max-height: 420px;
+                overflow-y: auto;">
+        <h5 style="margin: 0 0 16px 0; color: #ff9800; font-weight: 600;">
+            ✨ Add New Hadees/Narration
+        </h5>
+        
+        <!-- Compact Add Form -->
+        <form>
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 12px; color: #333;">
+                    Narrator/Source *
+                </label>
+                <input type="text" 
+                       data-ng-model="vm.newAhadees.narrator"
+                       placeholder="Sahih Bukhari, Muhammad Ibn Abdullah (SWS)..."
+                       style="width: 100%; 
+                              padding: 8px 12px; 
+                              border: 1px solid #ddd; 
+                              border-radius: 4px; 
+                              font-size: 13px;
+                              box-sizing: border-box;"
+                       required>
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 12px; color: #333;">
+                    Subject/Topic
+                </label>
+                <input type="text" 
+                       data-ng-model="vm.newAhadees.subject"
+                       placeholder="Prayer, Fasting, Charity..."
+                       style="width: 100%; 
+                              padding: 8px 12px; 
+                              border: 1px solid #ddd; 
+                              border-radius: 4px; 
+                              font-size: 13px;
+                              box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 12px; color: #333;">
+                    Arabic Text *
+                </label>
+                <textarea data-ng-model="vm.newAhadees.ahadeesArabic"
+                          placeholder="قَالَ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ..."
+                          rows="3"
+                          style="width: 100%; 
+                                 padding: 8px 12px; 
+                                 border: 1px solid #ddd; 
+                                 border-radius: 4px; 
+                                 font-size: 14px;
+                                 font-family: 'Traditional Arabic', 'Arabic Typesetting', serif;
+                                 direction: rtl;
+                                 text-align: right;
+                                 resize: vertical;
+                                 box-sizing: border-box;"
+                          required></textarea>
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 12px; color: #333;">
+                    English Translation *
+                </label>
+                <textarea data-ng-model="vm.newAhadees.ahadeesEnglish"
+                          placeholder="Enter English translation..."
+                          rows="3"
+                          style="width: 100%; 
+                                 padding: 8px 12px; 
+                                 border: 1px solid #ddd; 
+                                 border-radius: 4px; 
+                                 font-size: 13px;
+                                 resize: vertical;
+                                 box-sizing: border-box;"
+                          required></textarea>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 500; margin-bottom: 4px; font-size: 12px; color: #333;">
+                    Reference
+                </label>
+                <input type="text" 
+                       data-ng-model="vm.newAhadees.reference"
+                       placeholder="Book 2, Hadees 123"
+                       style="width: 100%; 
+                              padding: 8px 12px; 
+                              border: 1px solid #ddd; 
+                              border-radius: 4px; 
+                              font-size: 13px;
+                              box-sizing: border-box;">
+            </div>
+            
+            <!-- Form Actions -->
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" 
+                        data-ng-click="vm.showAddForm = false"
+                        style="background: #6c757d; 
+                               color: white; 
+                               border: none; 
+                               padding: 8px 16px; 
+                               border-radius: 4px; 
+                               cursor: pointer; 
+                               font-size: 12px;
+                               transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#5a6268'"
+                        onmouseout="this.style.background='#6c757d'">
+                    Cancel
+                </button>
+                <button type="button" 
+                        data-ng-click="vm.saveNewAhadees()"
+                        data-ng-disabled="!vm.newAhadees.narrator || !vm.newAhadees.ahadeesArabic || !vm.newAhadees.ahadeesEnglish"
+                        style="background: #28a745; 
+                               color: white; 
+                               border: none; 
+                               padding: 8px 16px; 
+                               border-radius: 4px; 
+                               cursor: pointer; 
+                               font-size: 12px;
+                               transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#218838'"
+                        onmouseout="this.style.background='#28a745'">
+                    💾 Save & Insert
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Loading State -->
+    <div data-ng-if="vm.isLoading" 
+         style="text-align: center; 
+                padding: 40px; 
+                color: #1976d2;">
+        <div style="display: inline-block; 
+                    animation: spin 1.5s linear infinite; 
+                    font-size: 28px; 
+                    margin-bottom: 12px;">⏳</div>
+        <div style="font-weight: 500; font-size: 16px; margin-bottom: 6px;">Loading Ahadees...</div>
+        <div style="font-size: 13px; color: #666;">Connecting to KQUR_DEV database</div>
+    </div>
+    
+    <!-- Results Container -->
+    <div data-ng-if="!vm.isLoading && !vm.showAddForm" 
+         style="max-height: 420px; 
+                overflow-y: auto; 
+                padding-right: 6px;">
+        
+        <!-- Results Count -->
+        <div style="background: rgba(76,175,80,0.1); 
+                    padding: 10px 14px; 
+                    border-radius: 6px; 
+                    margin-bottom: 14px; 
+                    text-align: center; 
+                    font-size: 14px; 
+                    color: #2e7d32; 
+                    font-weight: 500;
+                    border: 1px solid rgba(76,175,80,0.3);">
+            📊 Found <strong>{{vm.ahadeesList.length || 0}} ahadees</strong>
+            <span data-ng-if="vm.searchQuery" style="color: #1976d2;"> for "{{vm.searchQuery}}"</span>
+            <span data-ng-if="vm.activeFilter" style="color: #9c27b0;"> in {{vm.activeFilter | uppercase}}</span>
+        </div>
+        
+        <!-- Empty State -->
+        <div data-ng-if="vm.ahadeesList.length === 0" 
+             style="text-align: center; 
+                    padding: 40px; 
+                    color: #757575;">
+            <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.3;">📚</div>
+            <div style="font-weight: 600; margin-bottom: 8px; font-size: 18px;">No Ahadees Found</div>
+            <div style="font-size: 14px; margin-bottom: 16px;">Try adjusting your search criteria or clearing filters</div>
+            <button type="button" 
+                    data-ng-click="vm.refreshAhadees()"
+                    style="background: #4caf50; 
+                           color: white; 
+                           border: none; 
+                           padding: 8px 16px; 
+                           border-radius: 20px; 
+                           font-size: 13px; 
+                           cursor: pointer;">
+                🔄 Refresh Data
+            </button>
+        </div>
+        
+        <!-- Ahadees Results -->
+        <div data-ng-repeat="hadees in vm.ahadeesList track by hadees.ahadeesId || $index" 
+             class="hadees-card"
+             style="background: rgba(255,255,255,0.95); 
+                    border: 1px solid #e0e0e0; 
+                    border-radius: 10px; 
+                    margin-bottom: 14px; 
+                    overflow: hidden; 
+                    transition: all 0.3s ease; 
+                    cursor: pointer; 
+                    position: relative;"
+             data-ng-mouseenter="$event.target.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'; $event.target.style.transform='translateY(-2px)'"
+             data-ng-mouseleave="$event.target.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'; $event.target.style.transform='translateY(0)'"
+             data-ng-click="vm.insertHadees(hadees)">
+            
+            <!-- Card Header -->
+            <div style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); 
+                        padding: 12px 16px; 
+                        border-bottom: 1px solid #e0e0e0;">
+                <div style="display: flex; 
+                            justify-content: space-between; 
+                            align-items: center;">
+                    <div style="font-weight: 600; 
+                                color: #1976d2; 
+                                font-size: 15px;">
+                        {{hadees.reference || hadees.narrator || hadees.book || 'Hadees Reference'}}
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <span data-ng-if="hadees.category || hadees.collection" 
+                              style="background: linear-gradient(45deg, #1976d2, #42a5f5); 
+                                     color: white; 
+                                     padding: 3px 8px; 
+                                     border-radius: 10px; 
+                                     font-size: 10px; 
+                                     font-weight: 500; 
+                                     text-transform: uppercase;">
+                            {{hadees.category || hadees.collection}}
+                        </span>
+                        <span data-ng-if="hadees.hadithNumber || hadees.number" 
+                              style="background: linear-gradient(45deg, #6a1b9a, #ba68c8); 
+                                     color: white; 
+                                     padding: 3px 8px; 
+                                     border-radius: 10px; 
+                                     font-size: 10px; 
+                                     font-weight: 500;">
+                            #{{hadees.hadithNumber || hadees.number}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card Content -->
+            <div style="padding: 16px;">
+                <!-- Arabic Text -->
+                <div data-ng-if="hadees.arabicText || hadees.ahadeesArabic || hadees.arabic" 
+                     style="font-family: 'Arabic Typesetting', 'Traditional Arabic', 'Amiri', serif; 
+                            font-size: 20px; 
+                            line-height: 2.2; 
+                            text-align: right; 
+                            color: #1a237e; 
+                            margin-bottom: 14px; 
+                            padding: 12px; 
+                            background: rgba(233,30,99,0.08); 
+                            border-radius: 8px; 
+                            border-right: 4px solid #e91e63; 
+                            direction: rtl;">
+                    {{hadees.arabicText || hadees.ahadeesArabic || hadees.arabic}}
+                </div>
+                
+                <!-- English Translation -->
+                <div data-ng-if="hadees.text || hadees.ahadeesEnglish || hadees.english || hadees.translation" 
+                     style="font-size: 15px; 
+                            line-height: 1.7; 
+                            color: #424242; 
+                            margin-bottom: 12px; 
+                            font-style: italic; 
+                            padding: 12px; 
+                            background: rgba(76,175,80,0.08); 
+                            border-radius: 8px; 
+                            border-left: 4px solid #4caf50;">
+                    "{{hadees.text || hadees.ahadeesEnglish || hadees.english || hadees.translation}}"
+                </div>
+                
+                <!-- Subject/Chapter -->
+                <div data-ng-if="hadees.subject || hadees.chapter || hadees.topic" 
+                     style="font-size: 12px; 
+                            color: #666; 
+                            margin-bottom: 10px; 
+                            padding: 6px 10px; 
+                            background: rgba(255,193,7,0.1); 
+                            border-radius: 4px; 
+                            border-left: 3px solid #ffc107;">
+                    <strong>Chapter:</strong> {{hadees.subject || hadees.chapter || hadees.topic}}
+                </div>
+                
+                <!-- Subject Tags from Normalized Database -->
+                <div data-ng-if="hadees.tagNames || hadees.tags" 
+                     style="margin-bottom: 10px;">
+                    <div style="font-size: 10px; 
+                               color: #777; 
+                               margin-bottom: 4px; 
+                               font-weight: 500;">
+                        📌 Tags:
+                    </div>
+                    <div style="display: flex; 
+                               flex-wrap: wrap; 
+                               gap: 4px;">
+                        <span data-ng-repeat="tag in (hadees.tagNames || hadees.tags).split(',') track by $index"
+                              data-ng-if="tag.trim()"
+                              style="background: linear-gradient(45deg, #e1f5fe, #b3e5fc); 
+                                     color: #0277bd; 
+                                     padding: 2px 6px; 
+                                     border-radius: 8px; 
+                                     font-size: 9px; 
+                                     font-weight: 500; 
+                                     border: 1px solid #81d4fa;">
+                            {{tag.trim()}}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Narrator Chain -->
+                <div data-ng-if="hadees.narrator && hadees.narrator !== hadees.reference" 
+                     style="font-size: 11px; 
+                            color: #888; 
+                            margin-bottom: 8px; 
+                            padding: 4px 8px; 
+                            background: rgba(158,158,158,0.1); 
+                            border-radius: 3px;">
+                    <strong>Narrator:</strong> {{hadees.narrator}}
+                </div>
+            </div>
+            
+            <!-- Insert Action Overlay -->
+            <div style="position: absolute; 
+                        top: 50%; 
+                        left: 50%; 
+                        transform: translate(-50%, -50%); 
+                        opacity: 0; 
+                        transition: opacity 0.3s ease; 
+                        background: rgba(25,118,210,0.95); 
+                        color: white; 
+                        padding: 10px 20px; 
+                        border-radius: 25px; 
+                        font-size: 13px; 
+                        font-weight: 600; 
+                        pointer-events: none;
+                        box-shadow: 0 4px 12px rgba(25,118,210,0.4);"
+                 class="insert-overlay">
+                ✨ Click to Insert into Editor
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer Info -->
+    <div style="margin-top: 16px; 
+                padding-top: 14px; 
+                border-top: 2px solid rgba(25,118,210,0.2); 
+                text-align: center;">
+        <div style="font-size: 11px; 
+                    color: #757575; 
+                    margin-bottom: 6px;">
+            💡 <strong>Tip:</strong> Click any hadees card to insert it into the Froala editor
+        </div>
+        <div style="font-size: 10px; 
+                    color: #9e9e9e;">
+            🔗 Connected to KQUR_DEV.vw_AhadeesComplete • Normalized Database • Real-time Islamic content
+        </div>
+        <div style="font-size: 10px; 
+                    color: #9e9e9e; 
+                    margin-top: 4px; 
+                    padding-top: 4px; 
+                    border-top: 1px dotted #ddd;">
+            ⌨️ <strong>Shortcuts:</strong> Ctrl+Shift+H or Ctrl+Alt+A to toggle • ESC to close
+        </div>
+    </div>
+</div>
+
+<!-- Professional CSS Animations and Styles -->
+<style>
+/* Spinning animation for loading */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced panel styles */
+.ahadees-management-panel {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Card hover effects */
+.hadees-card:hover .insert-overlay {
+    opacity: 1 !important;
+}
+
+.hadees-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+    transform: translateY(-3px) !important;
+}
+
+/* Button hover effects */
+.ahadees-management-panel button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* Active filter styling */
+.active-filter {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.5) !important;
+    transform: scale(1.05) !important;
+}
+
+/* Enhanced scrollbar styling */
+.ahadees-management-panel ::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ahadees-management-panel ::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 3px;
+}
+
+.ahadees-management-panel ::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #1976d2, #42a5f5);
+    border-radius: 3px;
+}
+
+.ahadees-management-panel ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #1565c0, #1976d2);
+}
+
+/* Input focus enhancement */
+.ahadees-management-panel input:focus {
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 3px rgba(25,118,210,0.2) !important;
+    outline: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .ahadees-management-panel {
+        width: 95% !important;
+        max-width: 95% !important;
+        left: 2.5% !important;
+        right: auto !important;
+        top: 10px !important;
+        max-height: 90vh !important;
+    }
+    
+    .ahadees-management-panel .hadees-card {
+        margin-bottom: 10px !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .ahadees-management-panel {
+        display: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .ahadees-management-panel {
+        border-width: 4px !important;
+    }
+    
+    .hadees-card {
+        border-width: 2px !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .ahadees-management-panel,
+    .ahadees-management-panel *,
+    .ahadees-management-panel *::before,
+    .ahadees-management-panel *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>

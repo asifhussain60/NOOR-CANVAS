@@ -1,0 +1,44 @@
+﻿<div class="admin-widget wred">
+    <div class="admin-widget-head">
+        Host Questions
+    </div>
+    <div class="admin-widget-content">
+        <div class="padding-topbottom-20 padding-left10">
+            <button class="btn btn-u" data-ng-click="vm.json.hostQuestions.push({})">
+                <i class="fa fa-plus" aria-hidden="true"></i> Add New Question
+            </button>
+        </div>
+        <div class="padding-left10 padding-right-10">
+            <table class="table table-bordered table-condensed" data-ng-show="vm.json.hostQuestions.length">
+                <tr>
+                    <th></th>
+                    <th>Question</th>
+                    <th></th>
+                </tr>
+                <tr data-ng-repeat="ques in vm.json.hostQuestions">
+                    <td class="text-center">
+                        <button class="btn btn-u btn-sm btn-u-red"
+                                data-ng-click="vm.json.hostQuestions.splice($index, 1)">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <input type="text" class="max-width" data-ng-model="ques.item" />
+                    </td>
+                    <td>
+                        <button class="btn btn-u btn-sm btn-u-green"
+                                data-ng-disabled="$first"
+                                data-ng-click="vm.json.hostQuestions.move($index, $index - 1)">
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-u btn-sm btn-u-green"
+                                data-ng-disabled="$last"
+                                data-ng-click="vm.json.hostQuestions.move($index, $index + 1)">
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

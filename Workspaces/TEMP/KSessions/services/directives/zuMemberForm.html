@@ -1,0 +1,376 @@
+﻿<style>
+    .zu-toggle {
+        font-size: 1em;
+        margin-left: 5px;
+        font-weight: bold;
+    }
+
+    /* Enhanced boolean field styling with larger icons */
+    .enhanced-access-controls {
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        border: 2px solid #dee2e6;
+    }
+
+    .enhanced-access-controls .form-group {
+        margin-bottom: 0;
+    }
+
+    .enhanced-access-title {
+        font-size: 1.4em;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 20px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .enhanced-toggle-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .enhanced-toggle-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .enhanced-toggle-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: #3498db;
+    }
+
+    .enhanced-toggle-card.active {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border-color: #2471a3;
+    }
+
+    .enhanced-toggle-card .toggle-icon {
+        font-size: 3em;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .enhanced-toggle-card:hover .toggle-icon {
+        transform: scale(1.1);
+    }
+
+    .enhanced-toggle-card .toggle-label {
+        font-weight: bold;
+        font-size: 1.1em;
+        letter-spacing: 0.5px;
+    }
+
+    /* Icon colors for different states */
+    .enhanced-toggle-card .toggle-icon.admin-icon {
+        color: #dc3545;
+    }
+
+    .enhanced-toggle-card .toggle-icon.active-icon {
+        color: #28a745;
+    }
+
+    .enhanced-toggle-card .toggle-icon.privileged-icon {
+        color: #ffc107;
+    }
+
+    .enhanced-toggle-card .toggle-icon.subscription-icon {
+        color: #17a2b8;
+    }
+
+    .enhanced-toggle-card.active .toggle-icon {
+        color: white !important;
+    }
+
+    /* Gender radio buttons enhancement */
+    .enhanced-gender-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border: 2px solid #e9ecef;
+    }
+
+    .enhanced-gender-options {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 15px;
+    }
+
+    .enhanced-gender-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        min-width: 100px;
+    }
+
+    .enhanced-gender-option:hover {
+        transform: translateY(-3px);
+        border-color: #3498db;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .enhanced-gender-option.selected {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border-color: #2471a3;
+    }
+
+    .enhanced-gender-option .gender-icon {
+        font-size: 3em;
+        margin-bottom: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .enhanced-gender-option:hover .gender-icon {
+        transform: scale(1.1);
+    }
+
+    .enhanced-gender-option input[type="radio"] {
+        display: none;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .enhanced-toggle-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .enhanced-gender-options {
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .enhanced-gender-option {
+            min-width: 150px;
+        }
+    }
+</style>
+
+<div class="admin-widget">
+    <div class="admin-widget-head">
+        <i class="fas fa-user"></i>
+        <span class="">{{member.fullName}}</span>
+        <span class="member-form-header-actions">
+            <button class="btn btn-lg btn-success" data-ng-click="newMember()">
+                <i class="fas fa-2x fa-user-plus"></i>
+            </button>
+        </span>
+    </div>
+    <div class="admin-widget-content">
+        <div class="admin-data-container">
+            <!-- Full Name -->
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="control-label col-md-3" for="firstName">Full Name</label>
+                    <div class="col-md-9">
+                        <input type="text" id="firstName"
+                               data-ng-model="member.firstName"
+                               placeholder="First Name"
+                               tabindex="1"
+                               class="form-control">
+                        <input type="text" id="lastName"
+                               data-ng-model="member.lastName"
+                               placeholder="Last Name"
+                               tabindex="2"
+                               class="form-control">
+                    </div>
+                </div>
+
+                <!-- Nick Name -->
+                <div class="form-group">
+                    <label class="control-label col-md-3" for="nickname">Nick Name</label>
+                    <div class="col-md-9">
+                        <input type="text" id="nickname"
+                               data-ng-model="member.nickName"
+                               tabindex="3"
+                               class="form-control">
+                    </div>
+                </div>
+                <!-- Families -->
+                <div class="form-group">
+                    <label class="control-label col-md-3">Family Of</label>
+                    <div class="col-md-9">
+                        <select ng-model="member.familyId"
+                                tabindex="4"
+                                class="form-control"
+                                ng-options="family.id as family.name for family in cm.families | orderObjectBy:'name' ">
+                            <option value="-1">UNASSIGNED</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Gender Selection -->
+                <div class="form-group">
+                    <label class="control-label col-md-3">Gender</label>
+                    <div class="col-md-9">
+                        <div class="enhanced-gender-container">
+                            <div class="enhanced-gender-options">
+                                <div class="enhanced-gender-option" 
+                                     data-ng-class="{'selected': member.gender === 'M'}"
+                                     data-ng-click="member.gender = 'M'">
+                                    <i class="fas fa-male gender-icon gender-icon-male"></i>
+                                    <span>Male</span>
+                                    <input type="radio" name="gender" data-ng-model="member.gender" value="M" tabindex="5">
+                                </div>
+                                <div class="enhanced-gender-option" 
+                                     data-ng-class="{'selected': member.gender === 'F'}"
+                                     data-ng-click="member.gender = 'F'">
+                                    <i class="fas fa-female gender-icon gender-icon-female"></i>
+                                    <span>Female</span>
+                                    <input type="radio" name="gender" data-ng-model="member.gender" value="F" tabindex="6">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Age and BirthYear -->
+                <div class="form-group">
+                    <label class="control-label col-md-3">Age</label>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" data-ng-model="member.age" ng-model-options="{ updateOn: 'blur' }" id="ageNumber" placeholder="Age" tabindex="7">
+                    </div>
+                    <label class="control-label col-md-3">Birth Year</label>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" data-ng-model="member.birthYear" ng-model-options="{ updateOn: 'blur' }" id="ageYear" placeholder="Year of Birth" tabindex="8">
+                    </div>
+                </div>
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="control-label col-md-3" for="email">Email</label>
+                    <div class="col-md-9">
+                        <input type="email" class="form-control" data-ng-model="member.emailAddress" id="email" tabindex="9">
+                    </div>
+                </div>
+                <!-- Residence -->
+                <div class="form-group">
+                    <label class="control-label col-md-3">Country</label>
+                    <div class="col-md-9">
+                        <select data-ng-model="member.countryId"
+                                class="form-control"
+                                tabindex="10"
+                                ng-options="item.id as item.countryName for item in countries | orderObjectBy:'countryName'">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Clone -->
+                <div class="form-group">
+                    <label class="control-label col-md-3">Clone From</label>
+                    <div class="col-md-9">
+                        <select ng-model="member.cloneMemberId"
+                                tabindex="-1"
+                                class="form-control"
+                                ng-options="member.id as member.fullName for member in cloneMemberList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Enhanced Access Controls with Larger Icons -->
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="enhanced-access-controls">
+                            <div class="enhanced-access-title">Access Controls & Permissions</div>
+                            <div class="enhanced-toggle-grid">
+                                <div class="enhanced-toggle-card" 
+                                     data-ng-class="{'active': member.isAdmin}"
+                                     data-ng-click="member.isAdmin = !member.isAdmin">
+                                    <i class="fas fa-user-shield toggle-icon admin-icon"></i>
+                                    <div class="toggle-label">Administrator</div>
+                                    <span data-zu-toggle="" data-toggle="member.isAdmin"
+                                          data-id="member.id"
+                                          data-caption="Admin"
+                                          zu-size="1" class="member-form-hidden">
+                                    </span>
+                                </div>
+                                <div class="enhanced-toggle-card" 
+                                     data-ng-class="{'active': member.isActive}"
+                                     data-ng-click="member.isActive = !member.isActive">
+                                    <i class="fas fa-user-check toggle-icon active-icon"></i>
+                                    <div class="toggle-label">Active Status</div>
+                                    <span data-zu-toggle="" data-toggle="member.isActive"
+                                          data-id="member.id"
+                                          data-caption="Active"
+                                          zu-size="1" class="member-form-hidden">
+                                    </span>
+                                </div>
+                                <div class="enhanced-toggle-card" 
+                                     data-ng-class="{'active': member.isPreviliged}"
+                                     data-ng-click="member.isPreviliged = !member.isPreviliged">
+                                    <i class="fas fa-crown toggle-icon privileged-icon"></i>
+                                    <div class="toggle-label">Privileged</div>
+                                    <span data-zu-toggle="" data-toggle="member.isPreviliged"
+                                          data-id="member.id"
+                                          data-caption="Previliged"
+                                          zu-size="1" class="member-form-hidden">
+                                    </span>
+                                </div>
+                                <div class="enhanced-toggle-card" 
+                                     data-ng-class="{'active': member.isSubscribed}"
+                                     data-ng-click="member.isSubscribed = !member.isSubscribed">
+                                    <i class="fas fa-envelope toggle-icon subscription-icon"></i>
+                                    <div class="toggle-label">Email Subscription</div>
+                                    <span data-zu-toggle="" data-toggle="member.isSubscribed"
+                                          data-id="member.id"
+                                          data-caption="Email Subscription"
+                                          zu-size="1" class="member-form-hidden">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12 text-right">
+                        <button class="btn btn-lg btn-success" data-ng-click="submit()">
+                            <i class="far fa-save"></i> {{submitCaption}}
+                        </button>
+                        <button class="btn btn-lg btn-danger" data-ng-click="cancel()">
+                            <i class="fas fa-ban"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+

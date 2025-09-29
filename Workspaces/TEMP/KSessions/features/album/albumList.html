@@ -1,0 +1,203 @@
+﻿<div class="modern-album-list-container" data-ng-controller="albumListCtl">
+
+    <!-- Main Container -->
+    <div class="container-fluid">
+
+        <!-- Recent Sessions Widget with Card Styling -->
+        <div class="row recent-sessions-spacing" data-ng-if="vm.recentUploadedCategories.length">
+            <div class="col-12">
+                <div class="recent-sessions-center-container">
+                    <div class="ccard recent-sessions-card"
+                         data-ng-class="{'card-expanded': vm.panelExpanded}">
+
+                        <div class="card-header card-header-sm recent-sessions-header"
+                             data-ng-click="vm.panelExpanded = !vm.panelExpanded">
+                            <h3 class="card-title">
+                                <i class="far fa-clock" aria-hidden="true"></i>
+                                Recent Sessions
+                            </h3>
+                            <div class="card-toolbar no-border">
+                                <i class="card-toolbar-btn fa fa-chevron-down"
+                                   data-ng-show="!vm.panelExpanded"
+                                   aria-hidden="true"></i>
+                                <i class="card-toolbar-btn fa fa-chevron-up"
+                                   data-ng-show="vm.panelExpanded"
+                                   aria-hidden="true"></i>
+                            </div>
+                        </div>
+
+                        <div class="card-body recent-sessions-content"
+                             data-ng-show="vm.panelExpanded">
+                            <div class="recent-sessions-list">
+                                <div class="bcard recent-session-item"
+                                     data-ng-repeat="item in vm.recentUploadedCategories"
+                                     data-ng-click="vm.selectSession(item)">
+                                    <div class="recent-session-image">
+                                        <img data-ng-src="/Content/images/ALBUMS/{{item.groupId}}.jpg"
+                                             alt="{{item.categoryName}}"
+                                             onerror="this.src='/Content/images/no-image-male.png'; this.onerror=null;" />
+                                    </div>
+                                    <div class="recent-session-info">
+                                        <span class="recent-session-name">
+                                            {{item.categoryName.capitalize(true, true)}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Albums Grid with Enhanced Card Styling -->
+        <div class="row albums-grid-spacing">
+            <div class="col-12">
+                <!-- Admin Sorting Controls - Same size as albums panel -->
+                <div class="album-sorting-controls" data-ng-if="g.member.isAdmin">
+                    <div class="ccard sorting-card">
+                        <div class="card-header card-header-sm">
+                            <h4 class="card-title sorting-title-anton">
+                                <i class="fa fa-sort" aria-hidden="true"></i>
+                                Sort Albums
+                            </h4>
+                        </div>
+                        <div class="card-body sorting-controls">
+                            <div class="sort-options-centered">
+                                <button class="bcard sort-btn"
+                                        data-ng-repeat="option in vm.sortOptions.available"
+                                        data-ng-click="vm.setSortOption(option.key)"
+                                        data-ng-class="{'sort-active': vm.sortOptions.currentSort === option.key}"
+                                        title="Sort by {{option.label}}">
+                                    <i class="fa {{option.icon}}" aria-hidden="true"></i>
+                                    {{option.label}}
+                                    <i class="fa fa-chevron-up sort-direction-prominent" 
+                                       data-ng-show="vm.sortOptions.currentSort === option.key && vm.sortOptions.currentDirection === 'asc'"
+                                       aria-hidden="true"></i>
+                                    <i class="fa fa-chevron-down sort-direction-prominent" 
+                                       data-ng-show="vm.sortOptions.currentSort === option.key && vm.sortOptions.currentDirection === 'desc'"
+                                       aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modern-albums-grid">
+
+                    <!-- Unified Album Layout with Card Design -->
+                    <div class="albums-grid-new" data-ng-class="{'single-album-grid': vm.getSortedAlbums().length === 1}">
+                        <div class="ccard album-card-enhanced"
+                             data-ng-repeat="album in vm.getSortedAlbums() | filterByName : vm.search.albumName"
+                             data-ng-show="album && album.id"
+                             data-ng-class="{
+                                 'single-album': vm.getSortedAlbums().length === 1,
+                                 'album-inactive': g.member.isAdmin && album.isActive === false
+                             }">
+
+                            <!-- Album Image Section -->
+                            <div class="album-image-container-enhanced">
+                                <img class="album-image-modern-enhanced"
+                                     data-ng-src="{{album.Image}}"
+                                     alt="{{album.name || 'Album'}}"
+                                     onerror="this.src='/Content/images/no-image-male.png'; this.onerror=null;" />
+                                <div class="album-image-overlay">
+                                    <div class="album-quick-stats">
+                                        <span class="stat-badge bcard">
+                                            <i class="fa fa-music"></i>
+                                            {{album.sessionCount || 0}}
+                                        </span>
+                                        <!-- Admin-only inactive indicator overlay -->
+                                        <span class="stat-badge album-inactive-overlay-badge" 
+                                              data-ng-if="g.member.isAdmin && album.isActive === false"
+                                              title="This album is inactive">
+                                            <i class="fa fa-eye-slash"></i>
+                                            INACTIVE
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-header album-card-header">
+                                <h2 class="card-title album-title-enhanced"
+                                    data-ng-if="vm.getSortedAlbums().length === 1">
+                                    <i class="fa fa-album" aria-hidden="true"></i>
+                                    {{(album.name || 'Unknown Album').capitalize(true, true)}}
+                                    <!-- Admin-only inactive indicator in title -->
+                                    <span class="album-inactive-badge" 
+                                          data-ng-if="g.member.isAdmin && album.isActive === false"
+                                          title="This album is inactive">
+                                        <i class="fa fa-exclamation-triangle album-warning-icon"></i>
+                                        INACTIVE
+                                    </span>
+                                </h2>
+                                <h3 class="card-title album-title-enhanced"
+                                    data-ng-if="vm.getSortedAlbums().length > 1">
+                                    <i class="fa fa-album" aria-hidden="true"></i>
+                                    {{(album.name || 'Unknown Album').capitalize(true, true)}}
+                                    <!-- Admin-only inactive indicator in title -->
+                                    <span class="album-inactive-badge" 
+                                          data-ng-if="g.member.isAdmin && album.isActive === false"
+                                          title="This album is inactive">
+                                        <i class="fa fa-exclamation-triangle album-warning-icon"></i>
+                                        INACTIVE
+                                    </span>
+                                </h3>
+                                <div class="card-toolbar">
+                                    <span class="card-toolbar-btn" title="Album sessions">
+                                        <i class="fa fa-list"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons with Card Body -->
+                            <div class="card-body album-actions-enhanced">
+                                <!-- Regular Action Buttons for Active Albums -->
+                                <div class="action-buttons-grid" data-ng-if="!g.member.isAdmin || album.isActive !== false">
+                                    <button class="bcard action-card audio-action"
+                                            data-ng-click="album && album.id && vm.navigateToAudio(album)"
+                                            data-ng-if="album && album.id"
+                                            data-ng-disabled="!album || !album.id"
+                                            title="Audio - Navigate to album sessions"
+                                            aria-label="Audio - Navigate to album sessions">
+                                        <div class="action-card-content">
+                                            <i class="fas fa-volume-up fa-5x" aria-hidden="true"></i>
+                                        </div>
+                                    </button>
+
+                                    <button class="bcard action-card transcript-action"
+                                            data-ng-disabled="!album || !album.id"
+                                            data-ng-click="album && album.id && vm.navigateToSessionReader(album)"
+                                            data-ng-if="album && album.id"
+                                            title="Transcript - View session transcripts"
+                                            aria-label="Transcript - View session transcripts">
+                                        <div class="action-card-content">
+                                            <i class="fas fa-book-open fa-5x" aria-hidden="true"></i>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <!-- Inactive Album Notice (replaces action buttons for uniform height) -->
+                                <div class="inactive-album-replacement" 
+                                     data-ng-if="g.member.isAdmin && album.isActive === false && album.id">
+                                    <div class="inactive-notice-simple">
+                                        <i class="fas fa-eye-slash inactive-icon" aria-hidden="true"></i>
+                                        <span class="inactive-text">Album Inactive</span>
+                                    </div>
+                                </div>
+
+                                <!-- Error State Card -->
+                                <div class="dcard album-error-card" data-ng-if="!album || !album.id">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mt-2">Album data unavailable</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

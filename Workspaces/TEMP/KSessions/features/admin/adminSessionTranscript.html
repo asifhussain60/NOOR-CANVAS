@@ -1,0 +1,202 @@
+﻿<div data-ng-controller="adminSessionTranscriptCtl">
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="admin-widget wred">
+                    <div class="admin-widget-head">
+                        <i class="fa fa-edit"></i>
+                        <span class="padding-left10">Session Transcripts</span>
+                    </div>
+                    <div class="admin-widget-content transcript-widget-content">
+                        <div class="padd form-horizontal">
+                            <div zu-session-selection=""
+                                 data-album-id-field="vm.fTranscript.albumId"
+                                 data-session-id-field="vm.fTranscript.sessionId"
+                                 data-category-id-field="vm.fTranscript.categoryId"
+                                 data-on-album-select="vm.onAlbumSelect"
+                                 data-on-session-select="vm.onSessionSelect"
+                                 data-on-album-toggle="vm.onAlbumToggle"
+                                 data-on-category-toggle="vm.onCategoryToggle"
+                                 data-on-session-toggle="vm.onSessionToggle"
+                                 data-delegate-delete="vm.deleteSession"
+                                 data-filter-by-category="true">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" data-ng-show="vm.fTranscript.albumId > 0 && vm.fTranscript.sessionId > 0">
+                <div class="admin-widget wred">
+                    <div class="admin-widget-head">
+                        <i class="fa fa-gear"></i>
+                        <span class="padding-left10">Metadata</span>
+                        
+                        <div class="pull-right">
+                            <button class="btn btn-success"
+                                    data-ng-click="vm.updateMetadata()"
+                                    style="padding: 8px 16px; font-size: 14px; margin-right: 8px;">
+                                <i class="fa fa-info-circle" aria-hidden="true" style="margin-right: 6px;"></i>
+                                <span>Update Metadata</span>
+                            </button>
+                            
+                            <!-- Legacy ahadees panel button removed - now handled by Froala plugin -->
+                            
+                            <!-- Audio file upload/delete button -->
+                            <button class="btn btn-primary" 
+                                    data-ng-if="!vm.cm.currentSession.mediaPath && !vm.isUploading"
+                                    data-ng-click="vm.uploadAudioFile()"
+                                    style="padding: 8px 16px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #007bff; border-color: #007bff; color: white;">
+                                <i class="fa fa-cloud-upload" aria-hidden="true" style="margin-right: 6px;"></i>
+                                <span>Upload Audio</span>
+                            </button>
+                            
+                            <!-- Upload spinner button -->
+                            <button class="btn btn-primary" 
+                                    data-ng-if="!vm.cm.currentSession.mediaPath && vm.isUploading"
+                                    disabled
+                                    style="padding: 8px 16px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #007bff; border-color: #007bff; color: white; opacity: 0.8;">
+                                <i class="fa fa-spinner fa-spin" aria-hidden="true" style="margin-right: 6px;"></i>
+                                <span>Uploading...</span>
+                            </button>
+                            
+                            <button class="btn btn-danger" 
+                                    data-ng-if="vm.cm.currentSession.mediaPath"
+                                    data-ng-click="vm.deleteAudioFile()"
+                                    style="padding: 8px 16px; font-size: 14px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #dc3545; border-color: #dc3545; color: white;">
+                                <i class="fa fa-trash-o" aria-hidden="true" style="margin-right: 6px;"></i>
+                                <span>Delete Media</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="admin-widget-content v-scroller metadata-widget-content">
+                        <div class="padd form-horizontal">
+                            <table class="table table-condensed" data-ng-show="vm.fTranscript.albumId > 0 && vm.fTranscript.sessionId > 0">
+                                <tr>
+                                    <td class="token-shortcut-style">Category</td>
+                                    <td>
+                                        <select class="form-control"
+                                                data-ng-model="vm.fUpdater.categoryId"
+                                                data-ng-init="null"
+                                                data-ng-options="c.categoryId as c.categoryName for c in vm.fUpdater.categories">
+                                            <option value="">-- Select Category --</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="token-shortcut-style">Session Name</td>
+                                    <td>
+                                        <input type="text"
+                                               class="form-control"
+                                               data-ng-model="vm.fUpdater.sessionName" />
+                                    </td>
+                                </tr>
+                                <tr data-ng-show="vm.cm.currentSession.mediaPath">
+                                    <td class="token-shortcut-style" style="vertical-align: top; padding-top: 15px;">Audio Player</td>
+                                    <td>
+                                        <!-- Audio Player Card -->
+                                        <div class="ccard audio-player-card" style="margin-bottom: 10px;">
+                                            <!-- Collapsed Header -->
+                                            <div class="card-header" style="padding: 8px 12px; cursor: pointer;" 
+                                                 data-ng-click="vm.toggleAudioPlayer()"
+                                                 title="{{vm.isAudioPlayerExpanded ? 'Collapse Audio Player' : 'Expand Audio Player'}}">
+                                                <h5 class="card-title" style="margin: 0; font-size: 14px; display: flex; align-items: center; justify-content: space-between;">
+                                                    <span>
+                                                        <i class="fas fa-play-circle" aria-hidden="true" style="margin-right: 6px;"></i>
+                                                        Audio Player
+                                                    </span>
+                                                    <span>
+                                                        <i class="fas fa-music" style="margin-right: 8px; color: #28a745;" title="Audio Available"></i>
+                                                        <i class="fas" 
+                                                           data-ng-class="vm.isAudioPlayerExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"
+                                                           style="font-size: 12px; color: #6c757d;"></i>
+                                                    </span>
+                                                </h5>
+                                            </div>
+                                            
+                                            <!-- Expandable Content -->
+                                            <div class="card-body audio-player-content" 
+                                                 style="padding: 10px;"
+                                                 data-ng-show="vm.isAudioPlayerExpanded">
+                                                <!-- jPlayer Wrapper with Purple Theme -->
+                                                <div class="jplayer-wrapper">
+                                                    <div data-jplayer-control=""
+                                                         data-current-session="vm.cm.currentSession"
+                                                         data-is-media-ready-to-play="vm.isMediaReadyToPlay"
+                                                         data-auto-play="false"
+                                                         data-play-pause-delegate="vm.mediaEvent"
+                                                         data-buffer-time="5000">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" data-ng-show="vm.fTranscript.albumId > 0 && vm.fTranscript.sessionId > 0">
+
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="admin-desc-widget">
+                    <strong>Description:<br></strong>
+                    <textarea class="form-control" style=" border-color: #206ba4; border-width: 2px; font-size:1.5rem;"
+                              rows="5"
+                              data-ng-model="vm.fUpdater.sessionDesc"
+                              data-ng-blur="vm.onDescriptionBlur()">
+                    </textarea>
+                </div>
+            </div>
+        </div>
+
+        <div data-zu-blank-row data-repeat="2"></div>
+
+        <div class="row" data-ng-show="vm.fTranscript.albumId > 0 && vm.fTranscript.sessionId > 0">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div>
+                    <div>
+                        <div class="margin-bottom-20 max-width">
+
+                            <div data-ng-include="'/app/features/admin/includes/admin-transcript-controls.html'"></div>
+
+                            <div data-zu-blank-row data-repeat="1"></div>
+                            <div style="float: right; margin-right: 10px;">
+                                <span>Total Words: {{vm.fTranscript.wordCount.format()}}</span>
+                                <span class="padding-left20">Minutes: {{vm.fTranscript.minutes.format(2)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <textarea class="form-control"
+                                  id="froalaTranscript"
+                                  data-ng-model="vm.fTranscript.transcript"
+                                  data-froala="vm.froalaOptions"></textarea>
+                    </div>
+
+                    <div data-zu-blank-row data-repeat="1"></div>
+                    <div class="margin-top-20 max-width">
+                        <div data-ng-include="'/app/features/admin/includes/admin-transcript-controls.html'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Token Panel -->
+    <div data-session-token-panel=""
+         data-session-id="vm.tokenPanelSessionId"
+         data-is-visible="vm.showTokenPanel"
+         data-on-close="vm.closeTokenPanel()"
+         data-froala-editor="vm.fEditor">
+    </div>
+
+
+
+    <div data-zu-blank-row data-repeat="2"></div>
+</div>

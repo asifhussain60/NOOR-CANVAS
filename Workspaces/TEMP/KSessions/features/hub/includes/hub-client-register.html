@@ -1,0 +1,28 @@
+﻿<form data-ng-submit="vm.hub.registerUser()" class="alert alert-success">
+    Welcome to today's session. Please enter your name and click the "Register" button in order to get started.<br /><br />
+    <label>Please enter your name:</label><br />
+    <div class="user-register">
+        <input id="userToRegister" type="text"
+               autocomplete="off"
+               data-ng-model="vm.hub.user.username"
+               data-ng-model-options="{debounce:200}"
+               uib-typeahead="member.FullName for member in vm.hub.user.memberList | filter:$viewValue | limitTo:8"
+               data-typeahead-no-results="vm.typeaheadOptions.noResult"
+               typeahead-is-open="vm.typeaheadOptions.isOpen"
+               data-typeahead-focus-first="true"
+               data-typeahead-min-length="3"
+               data-typeahead-on-select="vm.onTypeaheadSelect($item, $model, $label)"
+               placeholder="Full Name">
+
+        <button class="btn btn-u" data-ng-disabled="!vm.typeaheadOptions.okToRegister">
+            Register
+        </button>
+
+        <div data-ng-if="vm.typeaheadOptions.displayError">
+            <span class="text-danger">
+                Please select a name from the suggested list<br />
+                If I have misspelled your name, please send me a text on WhatsApp and I'll correct it.
+            </span>
+        </div>
+    </div>
+</form>

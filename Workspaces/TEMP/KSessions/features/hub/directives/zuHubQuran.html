@@ -1,0 +1,92 @@
+﻿<div>
+    <div class="row">
+        <div data-ng-class="{'col-md-12' : hub.isClient, 'col-md-8' : hub.isHost } ">
+            <!-- Surah Ayat Entry Form -->
+            <div data-ng-if="hub.isHost">
+                <div>
+                    <label>Quran Surah & Ayat Number</label><br />
+                    <input type="text"
+                           placeholder="Surah"
+                           data-ng-model="quranControls.surahNumber"
+                           data-ng-change="hub.user.quran.ayats = null"
+                           style="width: 100px; padding: 10px;"
+                           class="margin-bottom-15" />
+                    <input type="text"
+                           placeholder="Ayats"
+                           data-ng-model="quranControls.ayatNumbers"
+                           data-ng-change="hub.user.quran.translations = null"
+                           style="width: 150px; padding: 10px;"
+                           class="margin-bottom-15" />
+                    <button class="btn btn-u" data-ng-click="getQuranAyats()">Push To Clients</button>
+                </div>
+                <div data-ng-if="hub.user.published.quran.length" class="margin-bottom-20">
+                    <input type="text"
+                           data-ng-model="quranControls.highlightToken"
+                           style="direction: rtl;" class="inlineArabic width200 text-right" />
+                    <button class="btn btn-u" data-ng-click="onHighlightEnter()">Highlight</button>
+                    <button class="btn btn-u" data-ng-click="onClearCache()">Clear Cache</button>
+                </div>
+            </div>
+
+            <!-- Ayat Display -->
+            <div data-ng-if="hub.user.published.quran.length">
+                <div id="clientQuran"></div>
+                <div data-ng-repeat="q in hub.user.published.quran |  orderObjectBy:'Ordinal' : true">
+                    <div class="hq-container quranWidget margin-bottom-20"
+                         data-ng-class="{'border-highlight' : q.IsCurrent, 'img-display-border': !q.IsCurrent}">
+                        <div class="quran-surah inlineArabic">
+                            <div class="quran-english-name hidden-sm hidden-xs">
+                                {{q.SurahEnglishMeaning}}
+                            </div>
+                            <div style="display: inline-block; width: 50%;">
+                                <span class="hidden-xs hidden-sm">
+                                    [سورۃ {{q.SurahNumberArabic.trim()}}]
+                                </span>
+                                <span class="surah-header">
+                                    {{q.SurahNameUnicode}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="quran-hub-ayat-container">
+                            <span data-ng-repeat="ayat in q.Ayats">
+                                <span class="quran-ayats-hub" data-ng-bind-html="ayat.AyatUnicode"></span>
+                                <span class="ayatCircle-hub-arabic">{{ayat.AyatNumberArabic}}</span>
+                            </span>
+                        </div>
+                        <div class="quran-ayat-translation" style="direction: ltr;">
+                            <span data-ng-repeat="ayat in q.Ayats">
+                                <span>( {{ayat.AyatNumber}} )</span>
+                                <span data-ng-bind-html="ayat.AyatTranslationUnbraced"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Preloader Display -->
+        <div class="col-md-4" data-ng-if="preloaderQuran.length">
+            <div>
+                <h4 class="margin-left-30">Preloaders</h4>
+                <ul class="preloader-list">
+                    <li data-ng-repeat="quran in preloaderQuran">
+                        <a href="" class="" data-ng-click="loadQuranToken(quran)">
+                            <i class="fa"
+                               data-ng-class="{'fa-hand-pointer-o': !quran.isPublished, 'fa-check' : quran.isPublished}"
+                               aria-hidden="true"></i>
+                            &nbsp;
+                            {{quran.description}}
+                        </a>
+                        <ul data-ng-if="quran.highlights && quran.highlights.length">
+                            <li data-ng-repeat="h in quran.highlights | orderObjectBy:'ordinal'">
+                                <a href="" class="inlineArabic" style="font-size: 1.5em;"
+                                   data-ng-click="loadQuranWithHighlight(quran,h);">
+                                    {{h.item}}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

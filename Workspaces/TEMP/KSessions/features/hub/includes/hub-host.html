@@ -1,0 +1,157 @@
+﻿<div class="row margin-top-10">
+    <div class="col-md-6">
+        <div class="sidebar">
+            <div class="widget">
+                <h4>
+                    SESSION STATUS:
+                    <span class="green" data-ng-if="vm.hub.session.isOpen"><strong>OPEN</strong></span>
+                    <span class="red" data-ng-if="!vm.hub.session.isOpen"><strong>CLOSED</strong></span>
+                </h4>
+                <div>
+                    <div data-zu-hub-album-session-select=""></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTERED USER LIST -->
+    <div class="col-md-6">
+        <div zu-registered-users="vm.hub.host.registeredUsers" data-ng-show="vm.hub.session.isOpen"></div>
+    </div>
+
+</div>
+
+
+<div class="row" data-ng-if="vm.hub.session.isOpen">
+    <div class="col-md-12">
+        <div data-ng-show="vm.displayIsUserTyping" class="user-typing">
+            <!--{{vm.hub.host.isTyping}} is typing...-->
+            Member is typing a question....
+        </div>
+
+        <uib-tabset active="0">
+            <!-- SALAAM -->
+            <uib-tab index="0" heading="Salaam">
+                <div data-zu-hub-html="salaam"></div>
+            </uib-tab>
+            <uib-tab index="1">
+                <!-- QUESTIONS -->
+                <uib-tab-heading class="markRed">
+                    Questions
+                    <span class="badge purple ng-binding">{{(vm.hub.host.questions | filterOutAnswered).length}}</span>
+                </uib-tab-heading>
+                <div data-zu-hub-questions=""></div>
+            </uib-tab>
+            <!-- IMAGES -->
+            <uib-tab index="2" heading="Images">
+                <div data-zu-hub-images="vm.cm.currentAlbum.sessions"></div>
+            </uib-tab>
+            <!-- QURAN -->
+            <uib-tab index="3" heading="Quran">
+                <div data-zu-hub-quran=""></div>
+            </uib-tab>
+            <!-- ROOT WORDS -->
+            <uib-tab index="5" heading="Roots">
+                <div data-zu-hub-root-manager=""
+                     data-show-publish="true"
+                     data-is-signalr="true"></div>
+            </uib-tab>
+            <!-- WORD COMPARISON -->
+            <uib-tab index="6" heading="Compare">
+                <div data-zu-hub-compare=""></div>
+            </uib-tab>
+            <!-- Voter -->
+            <uib-tab index="7" heading="Voter">
+                <div data-zu-hub-vote=""></div>
+            </uib-tab>
+            <!-- Bullets -->
+            <uib-tab index="8" heading="List Data">
+                <div data-zu-hub-lists=""></div>
+            </uib-tab>
+        </uib-tabset>
+
+        <div data-zu-blank-row data-repe
+             at="10"></div>
+    </div>
+</div>
+
+
+<!--<div data-ng-if="vm.hub.host.showFeedbackResult" class="margin-top-30">
+
+    <div class="row">
+        <div class="col-md-12 text-left">
+            <h2>Member Feedback</h2>
+        </div>
+    </div>
+
+    <div class="row" data-ng-if="vm.hub.host.userFeedbacks.length">
+        <div class="col-md-8">
+            <div id="hostFeedback" class="feedback-container margin-bottom-20"
+                 data-ng-repeat="u in vm.hub.host.userFeedbacks | orderObjectBy:'reponseTime': true ">
+                <div class="feedback-header ">
+                    <h3>{{u.UserName}}</h3>
+                </div>
+                <div class="feedback-detail">
+                    <table class="table table-bordered table-condensed table-feedback max-width">
+                        <tr>
+                            <th>Questions</th>
+                            <th class="text-center"><strong>Score</strong></th>
+                        </tr>
+                        <tr data-ng-repeat="f in u.Feedback | filterSelectables">
+                            <td><span class="feedback-userQuestion">{{f.question}}</span></td>
+                            <td class="text-center">
+                                <span class="feedback-userResponse">{{f.userResponseDisplay}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">Score</td>
+                            <td class="text-center"
+                                data-ng-class="{ 'background-green' : {{u.FeedbackScorePercent >= 70}}  , 'background-red' : {{u.FeedbackScorePercent < 70}} }">
+                                {{u.FeedbackScorePercent.toFixed(0)}}%
+                            </td>
+                        </tr>
+                        <tfoot>
+                            <tr data-ng-repeat="f in u.Feedback | filterNonSelectables"
+                                data-ng-if="f.UserResponse">
+                                <td colspan="2">
+                                    <span class="feedback-userQuestion">{{f.question}}</span>
+                                    <br />
+                                    <span class="feedback-userResponse" data-ng-bind-html="f.userResponse"></span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="feedback-container">
+                <table class="table table-bordered table-condensed table-feedback max-width">
+                    <tr>
+                        <th>User</th>
+                        <th>Score</th>
+                    </tr>
+                    <tbody>
+                        <tr data-ng-repeat="u in vm.hub.host.userFeedbacks">
+                            <td style="width: 70%;">{{u.UserName}}</td>
+                            <td class="text-right">
+                                {{u.FeedbackScorePercent}}%
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                    <td colspan="2" class="text-right"
+                        data-ng-class="{ 'background-green' : {{vm.hub.host.feedbackAggScore >= 70}}  , 'background-red' : {{vm.hub.host.feedbackAggScore < 70}} }">
+                        {{vm.hub.host.feedbackAggScore.toFixed(0)}}%
+                    </td>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>-->
+
+<div data-zu-blank-row data-repeat="10"></div>
+

@@ -1,0 +1,208 @@
+﻿<div class="modern-album-container" data-ng-controller="groupCtlr" data-ng-class="vm.getResponsiveClasses()">
+    <div class="container-fluid" data-ng-show="vm.album">
+
+        <!-- Listening Banner - Centered and Theme Appropriate -->
+        <div class="listening-to-banner" data-ng-if="vm.currentlyListening">
+            <div class="listening-banner-content">
+                <div class="listening-banner-icon">
+                    <i class="fas fa-headphones" aria-hidden="true"></i>
+                </div>
+                <div class="listening-banner-text">
+                    <div class="listening-banner-label">You were listening to</div>
+                    <h4 class="listening-banner-session">{{vm.currentlyListening.sessionName}}</h4>
+                </div>
+                <div class="listening-banner-session-image" data-ng-if="vm.currentlyListening.albumImage">
+                    <img data-ng-src="{{vm.currentlyListening.albumImage}}"
+                         alt="{{vm.currentlyListening.albumName}}" />
+                </div>
+            </div>
+        </div>
+
+        <!-- iPad Portrait Warning -->
+        <div class="row" data-ng-if="vm.isIpadInPortraitMode()">
+            <div class="col-12">
+                <div class="alert alert-warning text-center" role="alert">
+                    <i class="fas fa-tablet-alt fa-2x mb-2"></i>
+                    <h4><strong>Display Notice</strong></h4>
+                    <p>Please rotate your iPad horizontally for the best viewing experience</p>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-if="!vm.isIpadInPortraitMode()">
+
+            <!-- BREADCRUMB -->
+            <div data-zu-blank-row data-repeat="1"></div>
+            <div data-zu-breadcrumb-bar="" id="returnToAllAlbums-bottom"
+                 data-ng-click="vm.returnToAlbumsView()"
+                 data-label="Return To Album List"
+                 data-border-position="top">
+            </div>
+
+            <!-- Main Content with proper spacing -->
+            <div class="row main-content-area">
+                <!-- Main Content -->
+                <div class="col-12 col-lg-8">
+
+                    <!-- Album Hero Section -->
+                    <div class="album-hero-section">
+                        <div class="album-hero-content">
+                            <!-- Image Container -->
+                            <div class="album-image-container">
+                                <img class="album-image-modern"
+                                     data-ng-src="{{vm.album.image}}"
+                                     data-err-src="images/png/avatar.png"
+                                     alt="{{vm.album.name}}" />
+                            </div>
+
+                            <!-- Album Details Container -->
+                            <div class="album-details-container">
+                                <div class="album-description-cursive"
+                                     data-ng-bind-html="vm.album.description"></div>
+
+                                <a class="syllabus-link"
+                                   data-ng-if="vm.album.syllabus"
+                                   href="{{vm.album.syllabus}}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   aria-label="View Course Outline (opens in new window)">
+                                    <i class="fas fa-file-alt" aria-hidden="true"></i>
+                                    View Course Outline
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sessions Container with Card-Based Design -->
+                    <div class="sessions-container content-spacing"
+                         data-ng-show="vm.album.sessions && vm.categorySessions">
+
+                        <!-- Individual Category Cards -->
+                        <div class="category-cards-container">
+                            <div data-ng-repeat="item in vm.categorySessions"
+                                 class="ccard category-individual-card"
+                                 data-ng-class="{
+                                     'category-card-expanded': !item.isCollapsed
+                                 }"
+                                 style="margin-bottom: 1rem;">
+
+                                <!-- Category Card Header with Category Title -->
+                                <div class="card-header category-individual-header"
+                                     data-ng-click="vm.toggleSessions(item)"
+                                     id="category-{{item.category.id}}"
+                                     role="button"
+                                     tabindex="0"
+                                     aria-expanded="{{!item.isCollapsed}}"
+                                     aria-controls="sessions-{{item.category.id}}"
+                                     data-ng-keydown="($event.keyCode === 13 || $event.keyCode === 32) && vm.toggleSessions(item)"
+                                     title="Click to expand {{item.category.name.titleize()}}">
+                                    <h3 class="card-title category-individual-title">
+                                        {{item.category.name.titleize()}}
+                                    </h3>
+                                    <div class="card-toolbar no-border">
+                                        <!-- Session count indicator -->
+                                        <span class="card-toolbar-btn" title="{{item.sessions.length}} sessions in this category">
+                                            <i class="fa fa-music"></i>
+                                            {{item.sessions.length}}
+                                        </span>
+                                        <!-- Expansion chevron -->
+                                        <i class="card-toolbar-btn category-chevron fa"
+                                           data-ng-class="{'fa-chevron-down': item.isCollapsed, 'fa-chevron-up': !item.isCollapsed}"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Sessions List (Expandable Content) -->
+                                <div class="card-body category-individual-sessions"
+                                     data-ng-if="!item.isCollapsed"
+                                     id="sessions-{{item.category.id}}"
+                                     style="padding: 0.75rem 1rem;">
+
+                                    <!-- Sessions List -->
+                                    <div class="category-sessions-list">
+                                        <div data-ng-repeat="session in item.sessions | filterOutExpired | orderObjectBy:'sequence' : false"
+                                             class="category-session-item"
+                                             data-ng-class="{'latest-session': session.isLatest}">
+
+                                            <a data-ng-click="vm.selectSession(session); $event.preventDefault();"
+                                               class="category-session-link"
+                                               role="button"
+                                               tabindex="0"
+                                               aria-label="Open session: {{session.name.capitalize(true, true)}}"
+                                               data-ng-keydown="($event.keyCode === 13 || $event.keyCode === 32) && vm.selectSession(session)"
+                                               style="cursor: pointer;">
+
+                                                <div class="session-main-content">
+                                                    <div class="session-number" aria-hidden="true">
+                                                        {{$index + 1}}
+                                                    </div>
+
+                                                    <div class="session-title-content">
+                                                        <span class="session-name">
+                                                            {{session.name.capitalize(true, true)}}
+                                                        </span>
+                                                        <span class="new-badge" data-ng-if="session.isLatest" aria-label="New session">
+                                                            New
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="session-meta-content" data-ng-show="vm.showSessionDeliveryDate()">
+                                                    <div class="session-date">
+                                                        {{session.deliveredOn | date:'shortDate'}}
+                                                    </div>
+
+                                                    <div class="expiry-notice"
+                                                         data-ng-if="session.hasExpirationDate"
+                                                         aria-label="Session expires in {{session.expiresInDays}} days">
+                                                        <i class="fas fa-clock" aria-hidden="true"></i>
+                                                        Expires in {{session.expiresInDays}} days
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- No sessions message -->
+                                    <div data-ng-if="!(item.sessions | filterOutExpired).length"
+                                         class="text-center" style="padding: 1rem;">
+                                        <small class="text-muted">
+                                            <i class="fa fa-info-circle"></i>
+                                            No sessions available in this category.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Members Sidebar (Admin Only) -->
+                <div class="col-12 col-lg-4" data-ng-if="g.member.isAdmin">
+                    <div class="members-sidebar">
+
+                        <div data-zu-members="{cols:1}"
+                             data-ng-if="vm.youngAdults.length"
+                             data-title="Young Adults"
+                             data-member-list="vm.youngAdults"></div>
+
+                        <div data-zu-members="{cols:1}"
+                             data-ng-if="vm.adults.length"
+                             data-title="Adults"
+                             data-member-list="vm.adults"></div>
+
+                        <div data-zu-members="{cols:1}"
+                             data-ng-if="vm.passiveMembers.length && g.member.isAdmin"
+                             data-title="Passive Members"
+                             data-member-list="vm.passiveMembers"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div data-zu-blank-row data-repeat="1"></div>
+            <div data-zu-breadcrumb-bar="" id="returnToAllAlbums-bottom"
+                 data-ng-click="vm.returnToAlbumsView()"
+                 data-label="Return To Album List"
+                 data-border-position="top"></div>
+        </div>
+    </div>
+</div>

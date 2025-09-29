@@ -1,0 +1,36 @@
+﻿<div class="row">
+    <div class="margin-top-20">
+        <div class="col-span-8">
+
+            <div class="audio-list-widget">
+                <div class="audio-list-header">
+                    <h4>
+                        Questions
+                        <span class="badge purple ng-binding">{{vm.questions.length}}</span>
+                    </h4>
+                </div>
+                <div class="audio-list-content">
+                    <table class="table table-bordered table-responsive table-striped" data-ng-if="vm.questions.length">
+                        <tr>
+                            <th style="width: 110px;"></th>
+                            <th>User</th>
+                            <th>Question</th>
+                            <!--<th style="width: 100px;">Ans</th>-->
+                        </tr>
+                        <tr data-ng-repeat="q in vm.questions | orderObjectBy:'user' ">
+                            <td class="text-center">
+                                <button class="btn btn-u btn-sm" data-ng-click="vm.questionResponse(q, 1)"><i class="fa fa-check"></i></button>
+                                &nbsp;
+                                <button class="btn btn-u btn-sm" data-ng-click="vm.questionResponse(q, 2)"><i class="fa fa-clock-o"></i></button>
+                            </td>
+                            <td>{{q.user}}</td>
+                            <td data-ng-bind-html="q.question"></td>
+                            <!--<td>{{q.isAnswered}}</td>-->
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

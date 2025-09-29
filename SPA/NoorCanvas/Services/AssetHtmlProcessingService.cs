@@ -89,6 +89,88 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
+        /// Process HTML content to identify and prepare assets for sharing, with optional share button injection
+        /// </summary>
+        /// <param name="htmlContent">Raw HTML content from session transcripts</param>
+        /// <param name="sessionId">Session ID for asset tracking</param>
+        /// <param name="sessionStatus">Session status - share buttons only injected if "Active"</param>
+        /// <param name="injectShareButtons">Whether to inject share buttons during processing</param>
+        /// <returns>Processed HTML with asset identifiers, optional share buttons, and metadata</returns>
+        public AssetProcessingResult ProcessHtmlForAssetSharingWithButtons(string htmlContent, long sessionId, string sessionStatus, bool injectShareButtons = true)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Processing HTML for asset sharing with buttons - SessionId: {SessionId}, Status: {Status}, InjectButtons: {InjectButtons}, ContentLength: {Length} ;CLEANUP_OK",
+                    sessionId, sessionStatus, injectShareButtons, htmlContent?.Length ?? 0);
+
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    return new AssetProcessingResult
+                    {
+                        ProcessedHtml = string.Empty,
+                        DetectedAssets = new List<DetectedAsset>(),
+                        ProcessingMetadata = new ProcessingMetadata { Success = false, Message = "Empty HTML content" }
+                    };
+                }
+
+                // Parse HTML using HtmlAgilityPack
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(htmlContent);
+
+                // Detect assets in the HTML
+                var detectedAssets = DetectAssetsInHtml(htmlDoc, sessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Detected {AssetCount} assets in HTML ;CLEANUP_OK", detectedAssets.Count);
+
+                // Add asset identifiers to HTML elements
+                AddAssetIdentifiersToHtmlDocument(htmlDoc, detectedAssets);
+
+                // Inject share buttons if requested and session is active
+                var shareButtonsInjected = 0;
+                if (injectShareButtons && sessionStatus == "Active" && detectedAssets.Count > 0)
+                {
+                    shareButtonsInjected = InjectShareButtonsIntoHtmlDocument(htmlDoc, detectedAssets);
+                    _logger.LogInformation("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Injected {ButtonCount} share buttons into HTML ;CLEANUP_OK", shareButtonsInjected);
+                }
+
+                // Get processed HTML
+                var processedHtml = htmlDoc.DocumentNode.OuterHtml;
+
+                // Sanitize the HTML using the existing SafeHtmlRenderingService
+                var safeProcessedHtml = _safeHtmlRenderer.RenderSafeHtml(processedHtml);
+
+                return new AssetProcessingResult
+                {
+                    ProcessedHtml = safeProcessedHtml.Value,
+                    DetectedAssets = detectedAssets,
+                    ProcessingMetadata = new ProcessingMetadata 
+                    { 
+                        Success = true, 
+                        Message = $"Successfully processed {detectedAssets.Count} assets, injected {shareButtonsInjected} share buttons",
+                        SessionId = sessionId,
+                        ProcessedAt = DateTime.UtcNow
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error processing HTML for asset sharing with buttons - SessionId: {SessionId} ;CLEANUP_OK", sessionId);
+                
+                return new AssetProcessingResult
+                {
+                    ProcessedHtml = htmlContent, // Return original content as fallback
+                    DetectedAssets = new List<DetectedAsset>(),
+                    ProcessingMetadata = new ProcessingMetadata 
+                    { 
+                        Success = false, 
+                        Message = $"Processing error: {ex.Message}",
+                        SessionId = sessionId,
+                        ProcessedAt = DateTime.UtcNow
+                    }
+                };
+            }
+        }
+
+        /// <summary>
         /// Process HTML content to identify and prepare assets for sharing
         /// </summary>
         /// <param name="htmlContent">Raw HTML content from session transcripts</param>
@@ -259,9 +341,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Add data-asset-id attributes to HTML elements for identified assets
+        /// Add data-asset-id attributes to HTML elements for identified assets.
         /// </summary>
-        private string AddAssetIdentifiersToHtml(HtmlDocument htmlDoc, List<DetectedAsset> assets)
+        private void AddAssetIdentifiersToHtmlDocument(HtmlDocument htmlDoc, List<DetectedAsset> assets)
         {
             foreach (var asset in assets)
             {
@@ -286,7 +368,81 @@ namespace NoorCanvas.Services
                     _logger.LogWarning(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error adding identifiers to asset: {AssetId} ;CLEANUP_OK", asset.AssetId);
                 }
             }
+        }
 
+        /// <summary>
+        /// Inject share buttons directly into HTML document before each asset.
+        /// </summary>
+        private int InjectShareButtonsIntoHtmlDocument(HtmlDocument htmlDoc, List<DetectedAsset> assets)
+        {
+            var injectedCount = 0;
+            
+            // Process assets in reverse order to maintain positions during HTML insertion
+            var sortedAssets = assets.OrderByDescending(a => a.Position).ToList();
+            
+            foreach (var asset in sortedAssets)
+            {
+                try
+                {
+                    // Generate share button HTML
+                    var shareId = GenerateShareId();
+                    var shareButtonHtml = CreateShareButtonHtml(asset.AssetType, asset.DisplayName, shareId);
+                    
+                    // Parse share button HTML and create node
+                    var shareButtonDoc = new HtmlDocument();
+                    shareButtonDoc.LoadHtml(shareButtonHtml);
+                    var shareButtonNode = shareButtonDoc.DocumentNode.FirstChild;
+                    
+                    if (shareButtonNode != null && asset.HtmlElement.ParentNode != null)
+                    {
+                        // Create a new button element in the main document
+                        var buttonElement = htmlDoc.CreateElement("button");
+                        buttonElement.SetAttributeValue("class", "ks-share-btn");
+                        buttonElement.SetAttributeValue("data-share-id", shareId);
+                        buttonElement.SetAttributeValue("data-asset-type", asset.AssetType);
+                        buttonElement.SetAttributeValue("onclick", $"shareAsset('{shareId}', '{asset.AssetType}')");
+                        buttonElement.InnerHtml = $"Share {asset.DisplayName}";
+                        
+                        // Insert share button before the asset element
+                        asset.HtmlElement.ParentNode.InsertBefore(buttonElement, asset.HtmlElement);
+                        injectedCount++;
+                        
+                        _logger.LogDebug("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Injected share button for asset: {AssetId} ({AssetType}) ;CLEANUP_OK", 
+                            asset.AssetId, asset.AssetType);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error injecting share button for asset: {AssetId} ;CLEANUP_OK", asset.AssetId);
+                }
+            }
+            
+            return injectedCount;
+        }
+
+        /// <summary>
+        /// Generate a unique share ID for asset sharing.
+        /// </summary>
+        private string GenerateShareId()
+        {
+            return Guid.NewGuid().ToString("N")[..8].ToUpper();
+        }
+
+        /// <summary>
+        /// Create share button HTML for an asset.
+        /// </summary>
+        private string CreateShareButtonHtml(string assetType, string displayName, string shareId)
+        {
+            var buttonText = $"Share {displayName}";
+            return $@"<button class=""ks-share-btn"" data-share-id=""{shareId}"" data-asset-type=""{assetType}"" onclick=""shareAsset('{shareId}', '{assetType}')"">{buttonText}</button>";
+        }
+
+        /// <summary>
+        /// Add data-asset-id attributes to HTML elements for identified assets.
+        /// </summary>
+        private string AddAssetIdentifiersToHtml(HtmlDocument htmlDoc, List<DetectedAsset> assets)
+        {
+            AddAssetIdentifiersToHtmlDocument(htmlDoc, assets);
             return htmlDoc.DocumentNode.OuterHtml;
         }
 

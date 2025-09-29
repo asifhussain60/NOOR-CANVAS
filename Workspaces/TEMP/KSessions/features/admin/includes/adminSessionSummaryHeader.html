@@ -1,0 +1,102 @@
+﻿<div class="padd form-horizontal">
+
+    <div zu-session-selection=""
+         data-album-id-field="vm.fSummary.albumId"
+         data-session-id-field="vm.fSummary.sessionId"
+         data-category-id-field="vm.fSummary.categoryId"
+         data-on-album-select="vm.onAlbumSelect"
+         data-on-album-toggle="vm.onAlbumToggle"
+         data-on-category-toggle="vm.onCategoryToggle"
+         data-on-session-select="vm.onSessionSelect"
+         data-on-session-toggle="vm.onSessionToggle"
+         data-filter-by-category="true">
+    </div>
+
+    <!-- Session Name -->
+    <div class="form-group">
+        <label class="control-label col-md-offset-2 col-md-1">Session</label>
+        <div class="col-md-7">
+            <input type="text"
+                   class="form-control"
+                   data-ng-class="{'session-inactive-input': vm.cm.currentSession && vm.cm.currentSession.isActive === false}"
+                   data-ng-disabled="!vm.fSummary.sessionId"
+                   data-ng-blur="vm.saveSessionMetadata()"
+                   data-ng-model="vm.fSummary.sessionName" />
+            <!-- Inactive Session Indicator -->
+            <div class="alert alert-warning" data-ng-if="vm.cm.currentSession && vm.cm.currentSession.isActive === false" style="margin-top: 5px; margin-bottom: 0; padding: 5px 10px;">
+                <i class="fa fa-exclamation-triangle"></i>
+                <small><strong>Inactive Session:</strong> This session is currently deactivated.</small>
+            </div>
+        </div>
+    </div>
+    <!-- Session Description -->
+    <div class="form-group">
+        <label class="control-label col-md-offset-2 col-md-1">Desciption</label>
+        <div class="col-md-7">
+            <textarea type="text" id=""
+                      data-ng-model="vm.fSummary.description"
+                      data-ng-class="{'session-inactive-input': vm.cm.currentSession && vm.cm.currentSession.isActive === false}"
+                      data-ng-disabled="!vm.fSummary.sessionId"
+                      data-ng-blur="vm.saveSessionMetadata()"
+                      tabindex=""
+                      rows="4"
+                      class="form-control"></textarea>
+        </div>
+    </div>
+    <!-- Session Date -->
+    <div class="form-group">
+        <label class="control-label col-md-offset-2 col-md-1">Date</label>
+        <div class="col-md-7">
+            <input type="date" id="sessionDate"
+                   placeholder="mm/dd/yyyy"
+                   data-ng-class="{'session-inactive-input': vm.cm.currentSession && vm.cm.currentSession.isActive === false}"
+                   data-ng-disabled="!vm.fSummary.sessionId"
+                   data-ng-model="vm.fSummary.sessionDate"
+                   data-ng-blur="vm.saveSessionMetadata()"
+                   tabindex=""
+                   class="form-control">
+        </div>
+    </div>
+
+    <!-- jPlayer Control -->
+    <div class="form-group"
+         data-ng-show="vm.cm.currentSession && vm.fSummary.sessionId && vm.cm.currentSession.mediaPath">
+        <label class="control-label col-md-3">&nbsp;</label>
+        <div class="col-md-7 col-sm-12 col-xs-12  text-center-sm text-center-xs">
+            <div data-jplayer-control=""
+                 data-current-session="vm.cm.currentSession"
+                 data-is-media-ready-to-play="vm.isMediaReadyToPlay"
+                 data-auto-play="false"
+                 data-buffer-time="0">
+            </div>
+            <div class="padding-left10" data-ng-if="vm.cm.currentSession.mediaPath">
+                <span><b>MP3:</b> {{vm.cm.currentSession.mediaPath}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional styling for inactive states */
+.session-inactive-input {
+    border-left: 3px solid #f39c12 !important;
+    background-color: #fdf6e3 !important;
+}
+
+.category-inactive-input {
+    border-left: 3px solid #f39c12 !important;
+    background-color: #fdf6e3 !important;
+}
+
+.album-toggle-btn.btn-secondary {
+    background-color: #7f8c8d;
+    border-color: #7f8c8d;
+    color: white;
+}
+
+.album-toggle-btn.btn-success {
+    background-color: #27ae60;
+    border-color: #27ae60;
+    color: white;
+}
+</style>

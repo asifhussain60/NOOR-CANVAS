@@ -1,0 +1,126 @@
+﻿<div class="wrap-container8040" data-ng-controller="loginCtl">
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-5 col-md-offset-3 col-sm-6 col-sm-offset-3">
+                <div class="login-div">
+                    <div class="login-header">
+                        <img data-ng-if="!vm.isMobileBrowser" src="/Content/images/LOGO.gif" class="app-logo img-rounded" />
+                    </div>
+
+                    <div class="row login-divider">
+                        <div class="col-md-12 checkbox text-center">
+                            <p>
+                                You can sign in using one of your existing social media accounts:
+                            </p>
+                            <p>
+                                <i class="icon-custom icon rounded-x icon-bg-blue fab fa-google"></i>
+                                <i class="icon-custom icon rounded-x icon-bg-orange fab fa-amazon"></i>
+                            </p>
+                            <div data-ng-if="!vm.signingIn">
+                                <a ng-click="vm.signIn()" class="btn btn-login">
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
+                                    Sign In
+                                </a>
+                            </div>
+
+                            <div data-ng-if="vm.signingIn" class="signingIn">
+                                <i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
+                                <span>
+                                    Signing In...
+                                </span>
+                            </div>
+
+                            <!-- Sign Up Link -->
+                            <div class="text-center login-signup-section" data-ng-if="!vm.signingIn">
+                                <p class="login-signup-text">
+                                    Don't have access yet?
+                                </p>
+                                <a ng-click="vm.toggleRequestForm()" class="btn btn-register">
+                                    <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                    Request Access
+                                </a>
+                            </div>
+
+                            <!-- Request Access Form -->
+                            <div class="request-access-form" data-ng-show="vm.showRequestForm">
+                                <form name="requestForm" novalidate>
+                                    <div class="form-group">
+                                        <label for="requestEmail" class="request-access-label">
+                                            Enter your email address:
+                                        </label>
+                                        <input type="email"
+                                               id="requestEmail"
+                                               name="requestEmail"
+                                               class="form-control request-form-input"
+                                               ng-model="vm.requestData.email"
+                                               ng-keypress="vm.handleKeyPress($event)"
+                                               placeholder="your.email@example.com"
+                                               required>
+                                        <small class="text-muted request-help-text">
+                                            <i class="fa fa-keyboard-o"></i> Press Enter to submit or use the button below
+                                        </small>
+                                        <div ng-show="requestForm.requestEmail.$touched && requestForm.requestEmail.$invalid"
+                                             class="text-danger request-error-message">
+                                            <div ng-show="requestForm.requestEmail.$error.required">Email address is required</div>
+                                            <div ng-show="requestForm.requestEmail.$error.email">Please enter a valid email address</div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button"
+                                                ng-click="vm.submitAccessRequest()"
+                                                ng-disabled="requestForm.$invalid || vm.submittingRequest"
+                                                class="btn btn-success request-form-submit">
+                                            <i class="fa fa-envelope" ng-show="!vm.submittingRequest"></i>
+                                            <i class="fa fa-spinner fa-spin" ng-show="vm.submittingRequest"></i>
+                                            {{ vm.submittingRequest ? 'Checking...' : 'Submit Request' }}
+                                        </button>
+                                        <button type="button"
+                                                ng-click="vm.cancelRequest()"
+                                                class="btn btn-default request-form-submit">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Success Message Display (Green) -->
+                            <div class="alert alert-success"
+                                 data-ng-show="vm.showSuccessMessage"
+                                 style="margin-top: 20px; text-align: center; border-radius: 5px;">
+                                <i class="fa fa-check-circle" style="margin-right: 8px;"></i>
+                                <strong>{{ vm.successMessage }}</strong>
+                                <button type="button"
+                                        class="btn btn-link pull-right"
+                                        ng-click="vm.showSuccessMessage = false"
+                                        style="padding: 0; margin-top: -2px; color: #3c763d;">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+
+                            <!-- Error Message Display (Red) -->
+                            <div class="alert alert-danger"
+                                 data-ng-show="vm.showErrorMessage"
+                                 style="margin-top: 20px; text-align: center; border-radius: 5px;">
+                                <i class="fa fa-exclamation-circle" style="margin-right: 8px;"></i>
+                                <strong>{{ vm.errorMessage }}</strong>
+                                <button type="button"
+                                        class="btn btn-link pull-right"
+                                        ng-click="vm.showErrorMessage = false"
+                                        style="padding: 0; margin-top: -2px; color: #a94442;">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <p class="small text-center">
+                        You will need to be setup by the administrator of this site before you are able to access the contents of this application.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

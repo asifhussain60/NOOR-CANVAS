@@ -1,0 +1,24 @@
+﻿<div>
+    <h2>Notes On the session</h2>
+    <p class="lead">
+        You can jump to the selected portion of the recording by clicking on the button next to it.
+    </p>
+    <div class="content-frame">
+        <div class="row" data-ng-repeat="bullet in vm.currentSession.summary">
+
+            <div data-ng-class="{'col-md-1': !vm.isMobileBrowser, 'col-sm-12 col-md-1' : vm.isMobileBrowser}">
+                <button class="btn btn-dgray"
+                        data-ng-click="vm.jumpTo(bullet)"
+                        data-ng-disabled="!vm.isMediaReadyToPlay">
+                    <i class="fa fa-play" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div data-ng-class="{'col-md-11 padding-bottom30': !vm.isMobileBrowser, 'col-sm-12 col-md-11 padding-bottom30': vm.isMobileBrowser}">
+                <h5 class="summary-title">{{bullet.title}}</h5>
+                <div class="fr-view text-justify" data-ng-bind-html="bullet.content"></div>
+            </div>
+
+        </div>
+    </div>
+</div>

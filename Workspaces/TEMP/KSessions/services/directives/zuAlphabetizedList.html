@@ -1,0 +1,100 @@
+<style>
+    /* Custom CSS to mimic Bootstrap's form-group and column behavior */
+
+    .form-group {
+        display: flex; /* Use flexbox for horizontal alignment */
+        align-items: center; /* Vertically align items in the center */
+        margin-bottom: 1rem; /* Standard margin below form groups */
+    }
+
+    .control-label {
+        flex: 0 0 25%; /* Mimics col-md-3: 25% width, no shrinking/growing */
+        max-width: 25%; /* Ensure it doesn't exceed 25% */
+        padding-right: 15px; /* Standard padding for labels */
+        text-align: right; /* Align label text to the right */
+    }
+
+    .col-md-9 {
+        flex: 0 0 75%; /* Mimics col-md-9: 75% width */
+        max-width: 75%; /* Ensure it doesn't exceed 75% */
+    }
+    /* Specific rule for col-md-3 when used directly on a div, if needed */
+    .col-md-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+
+    /* Responsive adjustments for smaller screens (e.g., mobile) */
+    @media (max-width: 767px) {
+        .form-group {
+            flex-direction: column; /* Stack items vertically */
+            align-items: flex-start; /* Align items to the start (left) */
+        }
+
+        .control-label, .col-md-9, .col-md-3 {
+            flex: 0 0 100%; /* Take full width on small screens */
+            max-width: 100%; /* Ensure it takes full width */
+            text-align: left; /* Align text to the left */
+            padding-right: 0; /* Remove right padding */
+        }
+
+        .control-label {
+            margin-bottom: 0.5rem; /* Add some space below the label */
+        }
+    }
+</style>
+
+<div class="p-4 bg-white rounded-lg shadow-md font-sans">
+    <!-- Alphabet Filter -->
+    <div class="mb-4 text-center">
+        <span ng-repeat="char in availableAlphabets"
+              ng-class="{'bg-blue-500 text-white': selectedAlphabet === char, 'bg-gray-200 text-gray-700': selectedAlphabet !== char}"
+              class="inline-block px-3 py-1 mx-1 my-1 rounded-full cursor-pointer text-sm font-medium transition-colors duration-200"
+              ng-click="filterByAlphabet(char)">
+            {{ char }}
+        </span>
+        <span ng-if="selectedAlphabet"
+              class="inline-block px-3 py-1 mx-1 my-1 rounded-full cursor-pointer text-sm font-medium bg-red-100 text-red-700 transition-colors duration-200"
+              ng-click="clearAlphabetFilter()">
+            Clear
+        </span>
+    </div>
+
+    <!-- Search Input -->
+    <div class="form-group mb-6">
+        <label class="control-label col-md-3 text-gray-700 font-semibold mb-2 block md:inline-block md:w-1/4">
+            Search:
+        </label>
+        <div class="col-md-9 md:inline-block md:w-3/4">
+            <input type="text"
+                   ng-model="searchText"
+                   class="form-control w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                   placeholder="Filter by display or popup text...">
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Display</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Popup</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr ng-repeat="item in filteredList = (data | filter:textFilter | filter:alphabetFilter | orderBy:'display')"
+                    class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.id }}</td>
+                    <!-- Added title attribute for tooltip -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" title="{{ item.popup }}">{{ item.display }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" title="{{ item.popup }}">{{ item.popup }}</td>
+                </tr>
+                <tr ng-if="filteredList.length === 0">
+                    <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">No items found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

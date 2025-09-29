@@ -1,0 +1,79 @@
+﻿<div class="transcript-controls clearfix">
+    <!-- existing controls -->
+    <button class="btn btn-lg zu-tooltip-container"
+            data-ng-click="vm.saveTranscript()"
+            data-ng-mouseenter="showTooltip = 'save'" 
+            data-ng-mouseleave="showTooltip = null"
+            style="background-color: #1e7e34; color: white; border-color: #1e7e34; padding: 15px 20px; border-radius: 8px;">
+        <i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i>
+        <div class="zu-custom-tooltip" data-ng-show="showTooltip === 'save'">
+            <div class="zu-tooltip-content">
+                <strong>Save Session Transcript</strong>
+            </div>
+            <div class="zu-tooltip-arrow"></div>
+        </div>
+    </button>
+    <button class="btn btn-lg zu-tooltip-container"
+            data-ng-click="vm.summarizeTranscript(true)"
+            data-ng-mouseenter="showTooltip = 'summarize'" 
+            data-ng-mouseleave="showTooltip = null"
+            style="background-color: #1e3a8a; color: white; border-color: #1e3a8a; margin-left: 5px; padding: 15px 20px; border-radius: 8px;">
+        <i class="fa fa-compress fa-2x" aria-hidden="true"></i>
+        <div class="zu-custom-tooltip" data-ng-show="showTooltip === 'summarize'">
+            <div class="zu-tooltip-content">
+                <strong>Summarize Session on H2</strong>
+            </div>
+            <div class="zu-tooltip-arrow"></div>
+        </div>
+    </button>
+    <button class="btn btn-lg zu-tooltip-container"
+            data-ng-click="vm.summarizeTranscript()"
+            data-ng-mouseenter="showTooltip = 'summarizeLoad'" 
+            data-ng-mouseleave="showTooltip = null"
+            style="background-color: #1e3a8a; color: white; border-color: #1e3a8a; margin-left: 5px; padding: 15px 20px; border-radius: 8px;">
+        <i class="fa fa-list-alt fa-2x" aria-hidden="true"></i>
+        <div class="zu-custom-tooltip" data-ng-show="showTooltip === 'summarizeLoad'">
+            <div class="zu-tooltip-content">
+                <strong>Summarize on H2 and Load Summary View</strong>
+            </div>
+            <div class="zu-tooltip-arrow"></div>
+        </div>
+    </button>
+
+    <!-- Session Token Panel button -->
+    <button class="btn btn-lg zu-tooltip-container"
+            data-ng-click="vm.toggleTokenPanel()"
+            data-ng-disabled="!vm.fTranscript.sessionId || vm.fTranscript.sessionId <= 0"
+            data-ng-mouseenter="showTooltip = 'tokens'" 
+            data-ng-mouseleave="showTooltip = null"
+            style="background-color: #5b2c6b; color: white; border-color: #5b2c6b; margin-left: 5px; padding: 15px 20px; border-radius: 8px; position: relative;">
+        <i class="fa fa-tags fa-2x" aria-hidden="true"></i>
+        <!-- Token count badge -->
+        <span class="badge" 
+              data-ng-if="vm.tokenCount > 0"
+              style="position: absolute; top: -8px; right: -8px; background-color: #dc3545; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 8px; min-width: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+            {{vm.tokenCount}}
+        </span>
+        <div class="zu-custom-tooltip" data-ng-show="showTooltip === 'tokens'">
+            <div class="zu-tooltip-content">
+                <strong>Toggle Search Token Panel</strong>
+            </div>
+            <div class="zu-tooltip-arrow"></div>
+        </div>
+    </button>
+
+    <!-- Right-justified buttons -->
+    <button class="btn btn-lg zu-tooltip-container pull-right"
+            data-ng-click="vm.breakIntoSessions()"
+            data-ng-mouseenter="showTooltip = 'breakSessions'" 
+            data-ng-mouseleave="showTooltip = null"
+            style="background-color: #dc3545; color: white; border-color: #dc3545; margin-left: 5px; padding: 15px 20px; border-radius: 8px;">
+        <i class="fa fa-scissors fa-2x" aria-hidden="true"></i>
+        <div class="zu-custom-tooltip" data-ng-show="showTooltip === 'breakSessions'">
+            <div class="zu-tooltip-content">
+                <strong>Break transcript at H1 tags into separate sessions</strong>
+            </div>
+            <div class="zu-tooltip-arrow"></div>
+        </div>
+    </button>
+</div>

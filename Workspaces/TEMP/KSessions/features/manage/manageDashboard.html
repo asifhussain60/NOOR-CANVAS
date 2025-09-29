@@ -1,0 +1,72 @@
+﻿<div data-ng-controller="manageDashboardCtl">
+
+
+    <div class="container">
+        <div class="block-header">
+            <h2>Dashboard</h2>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="card-header ch-alt m-b-20">
+                        <h2>
+                            Member Sign-Ins
+                            <small>
+                                Over past
+                                <input type="text"
+                                       data-ng-model="vm.auditDays"
+                                       ng-model-options="{ updateOn: 'blur' }"
+                                       style="width: 30px; text-align: center;"/> days
+                            </small>
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="list-group">
+                            <div class="list-group-item media"
+                                 data-ng-repeat="log in vm.auditLogs | filter:vm.filterAuditLogData | orderObjectBy:'sysCreatedDate' : true">
+                                <div class="pull-left">
+                                    <img class="lgi-img" data-ng-src="{{log.pictureUrl}}" alt="">
+                                </div>
+                                <div class="media-body border-bottom-gray">
+                                    <div class="lgi-heading">{{log.memberName}}</div>
+                                    <div>
+                                        <small class="col-xs-7 col-md-8" style="display: inline-block;" data-ng-bind-html="log.auditDesc"></small>
+                                        <small class="col-xs-4 col-md-3" style="display: inline-block; text-align: left;">
+                                            {{log.sessionEntry | date : 'MM/dd/yyyy'}} | {{log.duration}}
+                                        </small>
+                                        <small class="col-xs-1 col-md-1" style="display: inline-block; text-align: right;">
+                                            <a href="" data-ng-click="vm.deleteAuditLog(log)">
+                                                <i class="fa fa-trash fa-lg" style="color: #de3e3e;"></i>
+                                            </a>
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <span class="col-xs-6 col-sm-4 col-md-4" data-ng-repeat="ip in log.ipLogs">
+                                            <img data-ng-if="ip && ip.city"
+                                                 data-ng-src="https://resources.kashkole.com/Images/flags/large/{{ip.countryCode}}.svg"
+                                                 class="flag-icon-background flag-icon flag-small" />
+                                            <img data-ng-if="!ip || !ip.city"
+                                                 data-ng-src="https://resources.kashkole.com/Images/flags/NOFLAG.jpg"
+                                                 class="flag-icon-background flag-icon flag-small" />
+
+                                            <a data-ng-show="ip && ip.city" data-ng-href="http://ip-api.com/#{{ip.ipAddress}}" target="_blank">{{ip.city}}</a>
+                                            <a data-ng-show="!ip || !ip.city" target="_blank" class="text-danger" data-ng-href="http://ip-api.com/#{{ip.ipAddress}}">{{ip.ipAddress}}</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-ng-include="'/app/features/manage/inc/manageDashboard-counts.html'"></div>
+
+
+    </div>
+
+
+</div>

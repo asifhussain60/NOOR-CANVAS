@@ -1,0 +1,97 @@
+﻿<div class="admin-widget wred">
+    <div class="admin-widget-head">
+        Word Comparisons / Narrations
+    </div>
+    <div class="admin-widget-content">
+        <div class="padding-topbottom-20 padding-left10">
+            <button class="btn btn-u" data-ng-click="vm.addNewComparisonRow()">
+                <i class="fa fa-plus" aria-hidden="true"></i> Add New Row
+            </button>
+        </div>
+        <div class="padding-left10 padding-right-10">
+            <table class="table table-bordered table-condensed" data-ng-show="vm.json.wordComparisons.length">
+                <tr>
+                    <th></th>
+                    <th><i class="fa fa-comment" aria-hidden="true"></i></th>
+                    <th>Description</th>
+                    <th>Pari-1</th>
+                    <th>Pair-2</th>
+                    <th>Highlight</th>
+                    <th></th>
+                </tr>
+                <tr data-ng-repeat="r in vm.json.wordComparisons">
+                    <td class="text-center">
+                        <button class="btn btn-u btn-sm btn-u-red"
+                                data-ng-click="vm.removeComparisonRow(r, $index)">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="hidden" data-ng-checked="r.isNarration"
+                                   data-ng-click="vm.onIsNarrationClick(r)"/>
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text" class="input-text-150" data-ng-model="r.description"
+                               data-ng-blur="vm.onWordDescblur(r)"/>
+                    </td>
+                    <!-- Pair-1 -->
+                    <td class="width200">
+                        <input type="text" class="inlineArabic input-text-200" data-ng-model="r.arabic1" />
+                        <br />
+                        <input type="text" class="input-text-200" data-ng-model="r.english1" />
+                    </td>
+                    <!-- Pair-2 -->
+                    <td class="width200">
+                        <input type="text" class="inlineArabic input-text-200"
+                               data-ng-model="r.arabic2"
+                               data-ng-hide="r.isNarration"/>
+                        <br/>
+                        <input type="text" class="input-text-200"
+                               data-ng-model="r.english2"
+                               data-ng-hide="r.isNarration"/>
+                    </td>
+                    <!-- Highlight -->
+                    <td>
+                        <button class="btn btn-sm btn-u-blue" data-ng-click="vm.addNewHighlight(r)">
+                            <i class="fa fa-plus" aria-hidden="true"></i> Add Highlight
+                        </button>
+                        <div data-ng-repeat="h in r.highlights">
+                            <button class="btn btn-sm btn-u-red"
+                                    data-ng-click="r.highlights.splice($index, 1);">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+
+                            <input type="text" data-ng-model="h.item" class="inlineArabic width350" />
+
+                            <button class="btn btn-sm btn-u-green"
+                                    data-ng-disabled="$first"
+                                    data-ng-click="r.highlights.move($index, $index - 1)">
+                                <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-sm btn-u-green"
+                                    data-ng-disabled="$last"
+                                    data-ng-click="r.highlights.move($index, $index + 1)">
+                                <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-u btn-sm btn-u-green"
+                                data-ng-disabled="$first"
+                                data-ng-click="vm.json.wordComparisons.move($index, $index - 1)">
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-u btn-sm btn-u-green"
+                                data-ng-disabled="$last"
+                                data-ng-click="vm.json.wordComparisons.move($index, $index + 1)">
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
