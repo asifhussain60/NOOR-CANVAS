@@ -2068,7 +2068,7 @@
     }
 
     /// <summary>
-    /// Display asset detection results using simple, reliable alert (refactored for maintainability)
+    /// Display asset detection results using custom modern HTML popup with rich styling
     /// </summary>
     private async Task ShowAssetDetectionResults(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
     {
@@ -2076,14 +2076,34 @@
         
         try 
         {
-            var message = CreateAssetSummaryMessage(testResults, transcriptResults, totalAssetDefinitions);
-            await JSRuntime.InvokeVoidAsync("alert", message);
+            // Build rich HTML content with modern styling
+            var htmlContent = BuildModernAssetDetectionContent(testResults, transcriptResults, totalAssetDefinitions);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:popup:refactored:{RunId}] Asset detection alert displayed ;CLEANUP_OK", runId);
+            // Show custom HTML popup
+            await JSRuntime.InvokeVoidAsync("showCustomAssetPopup", htmlContent, "🔍 Enhanced Asset Detection Analysis");
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:popup:custom:{RunId}] Custom HTML popup displayed ;CLEANUP_OK", runId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:popup:refactored:{RunId}] Alert failed, logging fallback ;CLEANUP_OK", runId);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:popup:custom:{RunId}] Custom popup failed, using fallback ;CLEANUP_OK", runId);
+            await ShowFallbackAssetAlert(testResults, transcriptResults, totalAssetDefinitions);
+        }
+    }
+
+    /// <summary>
+    /// Show fallback alert if custom popup fails
+    /// </summary>
+    private async Task ShowFallbackAssetAlert(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
+    {
+        try
+        {
+            var message = CreateAssetSummaryMessage(testResults, transcriptResults, totalAssetDefinitions);
+            await JSRuntime.InvokeVoidAsync("alert", message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:popup:fallback] Both custom and alert failed ;CLEANUP_OK");
             LogAssetDetectionFallback(testResults, transcriptResults, totalAssetDefinitions);
         }
     }
@@ -2120,29 +2140,35 @@
     private string BuildModernAssetDetectionContent(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
     {
         var content = "<style>";
-        content += ".asset-detection-popup { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }";
-        content += ".asset-summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; }";
-        content += ".asset-card { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; margin-bottom: 15px; transition: all 0.3s; }";
-        content += ".asset-card:hover { border-color: #007bff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,123,255,0.15); }";
-        content += ".asset-type { background: #007bff; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }";
-        content += ".asset-count { background: #28a745; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }";
-        content += ".asset-ids { background: #f1f3f4; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.85em; margin-top: 8px; }";
-        content += ".section-header { font-size: 1.2em; font-weight: bold; color: #495057; margin: 20px 0 15px 0; border-bottom: 2px solid #dee2e6; padding-bottom: 8px; }";
-        content += ".icon { margin-right: 8px; }";
-        content += ".no-assets { color: #6c757d; font-style: italic; text-align: center; padding: 20px; }";
-        content += ".timestamp { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: 25px; padding-top: 15px; border-top: 1px solid #dee2e6; }";
+        // Modern theme matching NOOR Canvas application colors
+        content += ".asset-detection-content { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; }";
+        content += ".asset-summary { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%); color: white; padding: 24px; border-radius: 16px; margin-bottom: 28px; box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3); }";
+        content += ".asset-card { background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }";
+        content += ".asset-card:hover { border-color: #4f46e5; transform: translateY(-4px); box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15); }";
+        content += ".asset-type { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 6px 14px; border-radius: 24px; font-size: 0.8em; font-weight: 600; letter-spacing: 0.5px; }";
+        content += ".asset-count { background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }";
+        content += ".asset-ids { background: linear-gradient(145deg, #f1f5f9, #e2e8f0); border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace; font-size: 0.85em; margin-top: 12px; color: #475569; }";
+        content += ".section-header { font-size: 1.3em; font-weight: 700; color: #1e293b; margin: 28px 0 18px 0; border-bottom: 3px solid #e5e7eb; padding-bottom: 10px; display: flex; align-items: center; }";
+        content += ".icon { margin-right: 10px; }";
+        content += ".no-assets { color: #64748b; font-style: italic; text-align: center; padding: 32px; background: #f8fafc; border-radius: 12px; border: 2px dashed #cbd5e1; }";
+        content += ".timestamp { text-align: center; color: #64748b; font-size: 0.9em; margin-top: 32px; padding-top: 20px; border-top: 2px solid #f1f5f9; font-weight: 500; }";
+        content += ".stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }";
+        content += ".stat-item { text-align: center; padding: 16px; background: rgba(255,255,255,0.2); border-radius: 12px; }";
+        content += ".stat-number { font-size: 2.2em; font-weight: 800; margin-bottom: 4px; }";
+        content += ".stat-label { font-size: 0.9em; opacity: 0.9; font-weight: 500; }";
         content += "</style>";
         
-        // Summary section with gradient background
+        // Modern summary section with enhanced styling
+        content += "<div class='asset-detection-content'>";
         content += "<div class='asset-summary'>";
-        content += "<div style='display: flex; justify-content: space-between; align-items: center;'>";
-        content += "<div><span class='icon'>📊</span><strong>Detection Summary</strong></div>";
-        content += "<div style='font-size: 1.5em; font-weight: bold;'>"+$"{testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected}"+ " Total Detected</div>";
+        content += "<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;'>";
+        content += "<div style='display: flex; align-items: center;'><span class='icon' style='font-size: 1.3em;'>📊</span><span style='font-size: 1.4em; font-weight: 700;'>Detection Summary</span></div>";
+        content += "<div style='font-size: 1.8em; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.1);'>"+$"{testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected}"+ " Found</div>";
         content += "</div>";
-        content += "<div style='margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;'>";
-        content += $"<div style='text-align: center;'><div style='font-size: 1.8em; font-weight: bold;'>{totalAssetDefinitions}</div><div>Available Types</div></div>";
-        content += $"<div style='text-align: center;'><div style='font-size: 1.8em; font-weight: bold;'>{testResults.TotalAssetsDetected}</div><div>Test HTML</div></div>";
-        content += $"<div style='text-align: center;'><div style='font-size: 1.8em; font-weight: bold;'>{transcriptResults.TotalAssetsDetected}</div><div>Live Session</div></div>";
+        content += "<div class='stats-grid'>";
+        content += $"<div class='stat-item'><div class='stat-number'>{totalAssetDefinitions}</div><div class='stat-label'>Available Types</div></div>";
+        content += $"<div class='stat-item'><div class='stat-number'>{testResults.TotalAssetsDetected}</div><div class='stat-label'>Test HTML</div></div>";
+        content += $"<div class='stat-item'><div class='stat-number'>{transcriptResults.TotalAssetsDetected}</div><div class='stat-label'>Live Session</div></div>";
         content += "</div></div>";
         
         // Test HTML Results Section
@@ -2155,6 +2181,7 @@
         
         // Timestamp
         content += $"<div class='timestamp'><span class='icon'>⏱️</span>Analysis completed at {DateTime.Now:yyyy-MM-dd HH:mm:ss}</div>";
+        content += "</div>"; // Close asset-detection-content
         
         return content;
     }
@@ -3816,6 +3843,146 @@ Please share this report with the development team for debugging.`;
             shareButton.style.backgroundColor = '';
             shareButton.disabled = false;
         }
+    }
+    
+    // Custom Asset Detection Popup Function
+    window.showCustomAssetPopup = function(htmlContent, title) {
+        // Remove any existing popup
+        const existingPopup = document.getElementById('custom-asset-popup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        
+        // Create modern popup overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'custom-asset-popup';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        `;
+        
+        // Create popup container
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 900px;
+            overflow: hidden;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        `;
+        
+        // Create header
+        const header = document.createElement('div');
+        header.style.cssText = `
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+        `;
+        
+        const titleElement = document.createElement('h2');
+        titleElement.textContent = title || 'Asset Detection Results';
+        titleElement.style.cssText = `
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        `;
+        
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '✕';
+        closeButton.style.cssText = `
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+        closeButton.onmouseover = () => closeButton.style.background = 'rgba(255, 255, 255, 0.3)';
+        closeButton.onmouseout = () => closeButton.style.background = 'rgba(255, 255, 255, 0.2)';
+        closeButton.onclick = () => closePopup();
+        
+        header.appendChild(titleElement);
+        header.appendChild(closeButton);
+        
+        // Create content area
+        const content = document.createElement('div');
+        content.innerHTML = htmlContent;
+        content.style.cssText = `
+            padding: 32px;
+            overflow-y: auto;
+            max-height: calc(90vh - 120px);
+        `;
+        
+        // Assemble popup
+        popup.appendChild(header);
+        popup.appendChild(content);
+        overlay.appendChild(popup);
+        document.body.appendChild(overlay);
+        
+        // Close popup function
+        function closePopup() {
+            overlay.style.opacity = '0';
+            popup.style.transform = 'scale(0.95) translateY(20px)';
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.remove();
+                }
+            }, 200);
+        }
+        
+        // Close on overlay click
+        overlay.onclick = (e) => {
+            if (e.target === overlay) {
+                closePopup();
+            }
+        };
+        
+        // Close on Escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closePopup();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+        
+        console.log('[DEBUG-WORKITEM:popup:custom] Modern asset popup displayed');
+    };
+    
+    // Add CSS animations dynamically
+    if (!document.getElementById('popup-animations')) {
+        const style = document.createElement('style');
+        style.id = 'popup-animations';
+        const keyframesFadeIn = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
+        const keyframesSlideIn = '@keyframes slideIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }';
+        style.textContent = keyframesFadeIn + ' ' + keyframesSlideIn;
+        document.head.appendChild(style);
     }
     
     console.log('[DEBUG-WORKITEM:assetshare:continue] Share button JavaScript functions defined');
