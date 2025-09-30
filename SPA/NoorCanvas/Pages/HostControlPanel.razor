@@ -1957,15 +1957,23 @@
     // Asset processing methods moved to AssetProcessingService
 
     /// <summary>
-    /// Debug method to test AssetLookup table and ayah-card detection
+    /// Enhanced debug method to test AssetLookup table and asset detection with comprehensive popup display
     /// </summary>
     private async Task TestAssetDetectionAsync()
     {
         var runId = DateTime.Now.ToString("HHmmss") + "-TEST";
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] === TESTING ASSET DETECTION === ;CLEANUP_OK", runId);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] === ENHANCED ASSET DETECTION TEST === ;CLEANUP_OK", runId);
             
+            // Get asset lookups from API
+            var assetLookups = await AssetProcessor.GetAssetLookupsFromApiAsync(runId);
+            if (assetLookups == null || assetLookups.Count == 0)
+            {
+                await ShowErrorPopup("No asset definitions found", "The asset lookup API returned no definitions. Please check the AssetLookup table has data.");
+                return;
+            }
+
             // Test HTML with ayah-card from user's attachment
             var testHtml = @"<div class=""ayah-card"" id=""ayah-card-14-34"">
                 <div class=""golden-surah-header clickable-ayah-header"" data-ayats=""34"" data-original-token=""Q|14:34"" data-surah=""14"" id=""ayah-header-14-34"">
@@ -1975,20 +1983,220 @@
                 <div class=""translation-header"">Translation:</div>
                 <p class=""ayah-translation"">Test translation text</p>
             </div>";
+
+            // Analyze current session transcript if available
+            string currentTranscript = Model?.SessionTranscript ?? "";
             
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] Testing with sample ayah-card HTML ;CLEANUP_OK", runId);
+            // Count assets in both test HTML and current transcript  
+            var testResults = AnalyzeAssetDetection(testHtml, assetLookups, "Test HTML");
+            var transcriptResults = AnalyzeAssetDetection(currentTranscript, assetLookups, "Current Session Transcript");
             
-            // Use AssetProcessingService for testing
-            var result = await AssetProcessor.TransformTranscriptHtmlAsync(testHtml, SessionId, "Active");
+            // Show results popup
+            await ShowAssetDetectionResults(testResults, transcriptResults, assetLookups.Count);
             
-            var hasShareButton = result.Contains("ks-share-button");
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] TEST RESULT: Share button injected = {HasButton}, Original length = {OrigLen}, Result length = {ResLen} ;CLEANUP_OK", 
-                runId, hasShareButton, testHtml.Length, result.Length);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{RunId}] Enhanced asset detection completed successfully ;CLEANUP_OK", runId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] TEST FAILED with exception ;CLEANUP_OK", runId);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue:{RunId}] Enhanced asset detection failed ;CLEANUP_OK", runId);
+            await ShowErrorPopup("Asset Detection Failed", $"Error: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Analyze asset detection for a given text content
+    /// </summary>
+    private AssetDetectionResult AnalyzeAssetDetection(string content, List<Controllers.AssetLookupDto> assetLookups, string sourceName)
+    {
+        var result = new AssetDetectionResult { SourceName = sourceName };
+        
+        if (string.IsNullOrEmpty(content))
+        {
+            return result;
+        }
+
+        foreach (var asset in assetLookups)
+        {
+            if (!string.IsNullOrEmpty(asset.CssSelector))
+            {
+                // Count occurrences of the CSS selector in the content
+                var count = CountOccurrences(content, asset.CssSelector);
+                if (count > 0)
+                {
+                    // Generate asset IDs for each occurrence (matching the share button pattern)
+                    var generatedIds = new List<string>();
+                    for (int i = 1; i <= count; i++)
+                    {
+                        generatedIds.Add($"asset-{asset.AssetIdentifier}-{i}");
+                    }
+                    
+                    result.DetectedAssets.Add(new DetectedAsset
+                    {
+                        AssetId = (int)asset.AssetId,
+                        Name = asset.DisplayName ?? "Unknown",
+                        CssSelector = asset.CssSelector ?? "",
+                        Count = count,
+                        Description = asset.AssetType,
+                        GeneratedAssetIds = generatedIds
+                    });
+                }
+            }
+        }
+        
+        result.TotalAssetsDetected = result.DetectedAssets.Count;
+        return result;
+    }
+
+    /// <summary>
+    /// Count occurrences of a pattern in text (case-insensitive)
+    /// </summary>
+    private int CountOccurrences(string text, string pattern)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(pattern))
+            return 0;
+            
+        int count = 0;
+        int index = 0;
+        
+        while ((index = text.IndexOf(pattern, index, StringComparison.OrdinalIgnoreCase)) != -1)
+        {
+            count++;
+            index += pattern.Length;
+        }
+        
+        return count;
+    }
+
+    /// <summary>
+    /// Show comprehensive asset detection results with modern styling and detailed breakdowns
+    /// </summary>
+    private async Task ShowAssetDetectionResults(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
+    {
+        var title = "🔍 Enhanced Asset Detection Analysis";
+        
+        // Build modern styled content with comprehensive details
+        var content = BuildModernAssetDetectionContent(testResults, transcriptResults, totalAssetDefinitions);
+
+        await JSRuntime.InvokeVoidAsync("Swal.fire", new
+        {
+            title = title,
+            html = content,
+            icon = "info",
+            width = 900,
+            showCloseButton = true,
+            showConfirmButton = true,
+            confirmButtonText = "✅ Got It!",
+            confirmButtonColor = "#28a745",
+            customClass = new
+            {
+                popup = "asset-detection-popup",
+                title = "asset-detection-title",
+                htmlContainer = "asset-detection-content"
+            }
+        });
+    }
+
+    /// <summary>
+    /// Build modern styled HTML content for asset detection popup
+    /// </summary>
+    private string BuildModernAssetDetectionContent(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
+    {
+        var content = "<style>";
+        content += ".asset-detection-popup { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }";
+        content += ".asset-summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; }";
+        content += ".asset-card { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; margin-bottom: 15px; transition: all 0.3s; }";
+        content += ".asset-card:hover { border-color: #007bff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,123,255,0.15); }";
+        content += ".asset-type { background: #007bff; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }";
+        content += ".asset-count { background: #28a745; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }";
+        content += ".asset-ids { background: #f1f3f4; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.85em; margin-top: 8px; }";
+        content += ".section-header { font-size: 1.2em; font-weight: bold; color: #495057; margin: 20px 0 15px 0; border-bottom: 2px solid #dee2e6; padding-bottom: 8px; }";
+        content += ".icon { margin-right: 8px; }";
+        content += ".no-assets { color: #6c757d; font-style: italic; text-align: center; padding: 20px; }";
+        content += ".timestamp { text-align: center; color: #6c757d; font-size: 0.9em; margin-top: 25px; padding-top: 15px; border-top: 1px solid #dee2e6; }";
+        content += "</style>";
+        
+        // Summary section with gradient background
+        content += "<div class='asset-summary'>";
+        content += "<div style='display: flex; justify-content: space-between; align-items: center;'>";
+        content += "<div><span class='icon'>📊</span><strong>Detection Summary</strong></div>";
+        content += "<div style='font-size: 1.5em; font-weight: bold;'>"+$"{testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected}"+ " Total Detected</div>";
+        content += "</div>";
+        content += "<div style='margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;'>";
+        content += $"<div style='text-align: center;'><div style='font-size: 1.8em; font-weight: bold;'>{totalAssetDefinitions}</div><div>Available Types</div></div>";
+        content += $"<div style='text-align: center;'><div style='font-size: 1.8em; font-weight: bold;'>{testResults.TotalAssetsDetected}</div><div>Test HTML</div></div>";
+        content += $"<div style='text-align: center;'><div style='font-size: 1.8em; font-weight: bold;'>{transcriptResults.TotalAssetsDetected}</div><div>Live Session</div></div>";
+        content += "</div></div>";
+        
+        // Test HTML Results Section
+        content += "<div class='section-header'><span class='icon'>🧪</span>Test HTML Analysis</div>";
+        content += BuildAssetSection(testResults, "test-html");
+        
+        // Current Session Results Section
+        content += "<div class='section-header'><span class='icon'>🔴</span>Live Session Analysis</div>";
+        content += BuildAssetSection(transcriptResults, "live-session");
+        
+        // Timestamp
+        content += $"<div class='timestamp'><span class='icon'>⏱️</span>Analysis completed at {DateTime.Now:yyyy-MM-dd HH:mm:ss}</div>";
+        
+        return content;
+    }
+
+    /// <summary>
+    /// Build asset section with detailed asset cards
+    /// </summary>
+    private string BuildAssetSection(AssetDetectionResult results, string sectionId)
+    {
+        if (!results.DetectedAssets.Any())
+        {
+            return "<div class='no-assets'><span class='icon'>❌</span>No assets detected in this content</div>";
+        }
+        
+        var section = "<div class='assets-grid'>";
+        
+        foreach (var asset in results.DetectedAssets)
+        {
+            section += "<div class='asset-card'>";
+            
+            // Asset header with type and count
+            section += "<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;'>";
+            section += $"<div><span class='icon'>🎯</span><strong>{asset.Name}</strong></div>";
+            section += $"<span class='asset-count'>{asset.Count} found</span>";
+            section += "</div>";
+            
+            // Asset details
+            section += "<div style='margin-bottom: 10px;'>";
+            section += $"<span class='asset-type'>{asset.Description}</span>";
+            section += $"<span style='margin-left: 10px; color: #6c757d; font-family: monospace;'>{asset.CssSelector}</span>";
+            section += "</div>";
+            
+            // Generated Asset IDs
+            if (asset.GeneratedAssetIds.Any())
+            {
+                section += "<div><strong>🏷️ Generated Asset IDs:</strong></div>";
+                section += "<div class='asset-ids'>";
+                section += string.Join(", ", asset.GeneratedAssetIds);
+                section += "</div>";
+            }
+            
+            section += "</div>";
+        }
+        
+        section += "</div>";
+        return section;
+    }
+
+    /// <summary>
+    /// Show error popup using SweetAlert2
+    /// </summary>
+    private async Task ShowErrorPopup(string title, string message)
+    {
+        await JSRuntime.InvokeVoidAsync("Swal.fire", new
+        {
+            title = title,
+            text = message,
+            icon = "error",
+            confirmButtonText = "OK"
+        });
     }
 
     /// <summary>
@@ -2711,6 +2919,29 @@
         public string? CssSelector { get; set; }
         public string? DisplayName { get; set; }
         public bool IsActive { get; set; }
+    }
+
+    /// <summary>
+    /// Asset detection analysis result for a specific content source
+    /// </summary>
+    public class AssetDetectionResult
+    {
+        public string SourceName { get; set; } = "";
+        public List<DetectedAsset> DetectedAssets { get; set; } = new();
+        public int TotalAssetsDetected { get; set; }
+    }
+
+    /// <summary>
+    /// Information about a detected asset
+    /// </summary>
+    public class DetectedAsset
+    {
+        public int AssetId { get; set; }
+        public string Name { get; set; } = "";
+        public string CssSelector { get; set; } = "";
+        public int Count { get; set; }
+        public string Description { get; set; } = "";
+        public List<string> GeneratedAssetIds { get; set; } = new();
     }
 }
 

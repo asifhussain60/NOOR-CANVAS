@@ -1,0 +1,341 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - img "NOOR Canvas" [ref=e7]
+      - heading " HOST CONTROL PANEL" [level=1] [ref=e8]:
+        - generic [ref=e9]: 
+        - generic [ref=e10]: HOST CONTROL PANEL
+      - paragraph [ref=e11]: Manage your session with professional-grade controls
+    - text:   
+    - generic [ref=e13]:
+      - generic [ref=e17]: 
+      - generic [ref=e18]:
+        - heading "Need For Messengers" [level=2] [ref=e19]
+        - paragraph [ref=e20]: We Look at the Purpose of Sending Messengers, and Their Role in Our Spiritual Awakening.
+      - generic [ref=e21]:
+        - heading " SESSION CONTROLS" [level=3] [ref=e22]:
+          - generic [ref=e23]: 
+          - generic [ref=e24]: SESSION CONTROLS
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]: 
+            - paragraph [ref=e28]: Session Time
+            - paragraph [ref=e29]: 6:00 AM
+          - generic [ref=e30]:
+            - generic [ref=e31]: 
+            - paragraph [ref=e32]: Duration
+            - paragraph [ref=e33]: 1 hour
+        - generic [ref=e34]:
+          - heading " User Registration Link" [level=4] [ref=e35]:
+            - generic [ref=e36]: 
+            - generic [ref=e37]: User Registration Link
+          - generic [ref=e39]:
+            - link "https://localhost:9091/user/landing/KJAHA99L" [ref=e40] [cursor=pointer]:
+              - /url: https://localhost:9091/user/landing/KJAHA99L
+            - button " Copy" [ref=e41] [cursor=pointer]:
+              - generic [ref=e42] [cursor=pointer]: 
+              - text: Copy
+          - paragraph [ref=e43]: Click the link to open in a new window, or use the copy button to share with participants
+        - button " Start Session" [disabled] [ref=e45]:
+          - generic [ref=e46]: 
+          - generic [ref=e47]: Start Session
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - heading " Session Transcript" [level=3] [ref=e50]:
+          - generic [ref=e51]: 
+          - generic [ref=e52]: Session Transcript
+        - generic [ref=e57]:
+          - 'heading "The Purpose of Messengers: A Call to Awaken from Heedlessness" [level=2] [ref=e58]'
+          - paragraph [ref=e59]:
+            - text: The purpose and need for sending messengers, the
+            - generic [ref=e60]: رسول
+            - text: ", are intertwined. The purpose emanates from Allah's perspective, while the need is entirely from our own. The word"
+            - generic [ref=e61]: رسول
+            - text: is derived from the root
+            - generic [ref=e62]: رَسَلَ
+            - text: ", meaning to transmit, correspond, or delegate. Thus, the divine message, the Book itself, comes from Allah, but it is delivered to us through these intermediaries, the messengers—"
+            - generic [ref=e63]: مرسلین
+            - text: ". After believing in Allah, His Book, and His angels, the next article of faith is belief in His messengers. When they deliver Allah's message to humanity, there are two possible responses: either acceptance ("
+            - generic [ref=e64]: ایمان
+            - text: ) or rejection (
+            - generic [ref=e65]: کفر
+            - text: ).
+          - paragraph [ref=e66]:
+            - text: The word
+            - generic [ref=e67]: کفر
+            - text: is often translated as "disbelief," and
+            - generic [ref=e68]: کافر
+            - text: as "disbeliever," but this translation is imprecise. The root of
+            - generic [ref=e69]: کَفَرَ
+            - text: means to conceal or cover. The active participle,
+            - generic [ref=e70]: کافر
+            - text: ", is also used to describe a farmer because he covers a seed with soil, placing it into darkness. In this sense,"
+            - generic [ref=e71]: کفر
+            - text: is a state of truth concealment. The Islamic worldview posits that, in reality, everyone recognizes the truth at a fundamental level. Therefore, you cannot truly be a disbeliever; you can only choose to accept the truth (
+            - generic [ref=e72]: ایمان
+            - text: ) or to conceal it (
+            - generic [ref=e73]: کفر
+            - text: ). This is why the greatest truth concealer is
+            - generic [ref=e74]: ابلیس
+            - text: . He was among the closest beings to Allah and knew the truth, recognizing Adam's superiority, but he concealed it with the rationalization that fire was better than clay.
+          - paragraph [ref=e75]:
+            - text: A common misconception among modern Muslims is that anyone who is not Muslim is a
+            - generic [ref=e76]: کافر
+            - text: . However, the Quranic verses about
+            - generic [ref=e77]: کفار
+            - text: do not refer to all non-Muslims. They speak of those who are arrogant, proud, and puffed up. Read the Quran's descriptions of the
+            - generic [ref=e78]: کفار
+            - text: ": they are"
+            - generic [ref=e79]: متکبر
+            - text: ","
+            - generic [ref=e80]: مختالٌ فخور
+            - text: ", and"
+            - generic [ref=e81]: ظالمون
+            - text: . These are the specific attributes Allah assigns to them. Most people are simply
+            - generic [ref=e82]: الناس
+            - text: (mankind). Many have simply not heard the message, have not properly understood it, or are in a state of heedlessness (
+            - generic [ref=e83]: غفلۃ
+            - text: ). This is why Allah first addresses people as
+            - generic [ref=e84]: یا ایھا الناس
+            - text: before ever calling them
+            - generic [ref=e85]: یا ایھا الکافرون
+            - text: or
+            - generic [ref=e86]: یا ایھا الذین کفرو
+            - text: . Initially, Allah did not call the Arabs
+            - generic [ref=e87]: یا ایھا الکافرون
+            - text: because they were not truth concealers in essence. But after they witnessed miracle after miracle and treated Rasul Allah (SWS) with such contempt, for no reason other than his call to their own salvation, Allah declared
+            - generic [ref=e88]: حقَّ القول
+            - text: ", that their actions had gone too far and could not be overlooked."
+          - heading "Truth Concealment as Ingratitude" [level=2] [ref=e89]
+          - paragraph [ref=e90]:
+            - text: There are many ways to conceal the truth, and sadly, many Muslims are in fact truth concealers. One can perform all the outward obligations of Islam and yet be concealing the truth from themselves. The very essence of truth concealment is ingratitude. A
+            - generic [ref=e91]: کافر
+            - text: "is also known as an ingrate. Allah says:"
+          - generic [ref=e92]:
+            - generic [ref=e94] [cursor=pointer]: Abraham (14:34)
+            - paragraph [ref=e95]:
+              - text: ‏ ‏وَآتَىٰكُم مّن كُلّ مَا سَأَلْتُمُوهُ وَإن تَعُدُّوا۟ نعْمَتَ ٱللَّه لَا تُحْصُوهَا إنَّ ٱلْإنسَنَ لَظَلُومٌۭ كَفَّارٌۭ ‎
+              - img "34" [ref=e96]
+              - text: ‎
+            - generic [ref=e97]: Translation:.
+            - paragraph [ref=e98]: And he gave you from all you asked of him. And if you should count the favor of Allah, you could not enumerate them. Indeed, mankind is [generally] most unjust and ungrateful.
+          - paragraph [ref=e99]:
+            - text: Indeed man is extremely unjust and an ingrate. The word
+            - generic [ref=e100]: كَفَّار
+            - text: in this verse is not used in the meaning of "disbeliever," but as "ingrate." The sending of messengers is rooted in Allah’s profound good intention toward His creation. If Allah had simply created humanity and withheld the manual for life, we would all be left to wander in a state of turmoil and darkness, clueless about our purpose.
+          - paragraph [ref=e101]: This state of aimless wandering is reminiscent of the stories of Mulla Nasruddin. In one tale, Mulla Nasruddin is wandering the streets in the early morning hours. When a policeman asks him what he is doing, he replies, "If I knew the answer to that, I'd be at home in bed." This reflects the reality of many people who wander through life in a stupor, constantly seeking distractions and entertainment to avoid the pain of existence. The great scholar Rumi speaks of the many "wines" Allah has put on Earth to numb people's misery. He notes that Jesus (AS) was "drunk in the love of Allah, while his donkey was high on barley."
+          - paragraph [ref=e102]: This attitude of "whatever gets you through the night," as John Lennon said, is a form of ingratitude from the Islamic perspective. The messengers have already brought the news and guidance, yet people refuse to accept it. It is like being thirsty and given directions to a river, but choosing instead to watch a show or play a video game to forget the thirst. This is ingratitude.
+          - paragraph [ref=e103]: "Another story of Mulla Nasruddin illustrates a similar point: he was searching for his keys under a streetlight, and when someone asked him where he lost them, he pointed to a dark area away from the light. When asked why he was looking where he was, he replied, \"The light is better over here, right?\" This highlights another type of truth concealment: going where it is easy instead of where it is hard. This is where we begin to dilute religion to make our lives comfortable. Messengers, as human beings, set an incredible precedent by following Allah's Book to the letter, proving that what is decreed is humanly possible to achieve."
+          - heading "Heedlessness and the Allegory of Plato's Cave" [level=2] [ref=e104]
+          - paragraph [ref=e105]:
+            - text: The human condition is defined by heedlessness or forgetfulness, a state the Quran refers to as
+            - generic [ref=e106]: غفلۃ
+            - text: . We are distracted by the fleeting "shine and glimmer" of this world, lost in what can be likened to a "vanity fair." A servant sent by the king to the marketplace gets sidetracked by a fair on the way. He gets lost in the fun, forgets his purpose, and by the time he realizes the sun has set, the marketplace is closed. This metaphor illustrates our immersion in heedlessness, where we become preoccupied with this world's powerful distractions.
+          - paragraph [ref=e107]:
+            - text: So, how do we remind ourselves daily that this world is temporal and a greater journey awaits? From the Muslim perspective, the answer is remembrance,
+            - generic [ref=e108]: الذکر
+            - text: . This is why the Quran is also called
+            - generic [ref=e109]: الذکر
+            - text: "—because it constantly reminds us of our true purpose. In contrast to our forgetful natures, messengers are awakened beings. All prophets share four common qualities:"
+          - list [ref=e110]:
+            - listitem [ref=e111]: "Truthfulness: they never lie."
+            - listitem [ref=e112]: "Trustworthiness: their word is their bond."
+            - listitem [ref=e113]: "Conveyance: they have the ability to articulate and convey the message."
+            - listitem [ref=e114]:
+              - text: "Wakefulness:"
+              - generic [ref=e115]: فَطانا
+              - text: .
+          - paragraph [ref=e116]: Messengers are individuals who have woken up to the truth, much like the freed prisoner in Plato's allegory of the cave. In Plato’s story, prisoners chained since birth see only the shadows cast on a wall, mistaking these illusions for reality. When one prisoner is freed and dragged into the sunlight, he is initially disoriented and finds the truth hard to believe. But gradually, his eyes adjust until he can finally look at the sun itself—the ultimate source of light. He returns to the cave to share his discovery, but the other prisoners, comfortable in their ignorance, see his newfound "blindness" in the darkness as a sign of madness and violently resist his attempts to free them.
+          - paragraph [ref=e117]:
+            - text: Plato presents this as an analogy for the challenges messengers face. The cave represents this
+            - generic [ref=e118]: دنیا
+            - text: ", and the world outside the cave is the"
+            - generic [ref=e119]: آخرۃ
+            - text: . Everything we see in this world is a mere reflection of the Hereafter. But people are often so comfortable in their ignorance that they become hostile to anyone who points out the truth. Worse, they aren't even interested in examining the proposition itself. This spiritual laziness is what is known as "acedia." While often translated as sloth, in Christian theology, acedia was spiritual sloth—an unwillingness to seek the truth due to sheer arrogance.
+          - paragraph [ref=e120]:
+            - text: Allah describes such individuals as
+            - generic [ref=e121]: مُّقْمَحُونَ
+            - text: . The term
+            - generic [ref=e122]: مُقمَح
+            - text: "comes from camels:"
+            - generic [ref=e123]: قَمَحَ الجَمَل فَھُوَ قَامِحُون
+            - text: . When a camel is brought to water, it may raise its head, refusing to drink. That is the essence of a
+            - generic [ref=e124]: مقمح
+            - text: . The messenger brings them to the river of knowledge to quench their thirst, but they are too arrogant to bow their heads and drink. They ask, "The Quran? Why should I read that book?" But one in every four people believes it is from Allah, which in itself is a good reason to be interested. It is because of this heedlessness that the Quran always juxtaposes
+            - generic [ref=e125]: غفلۃ
+            - text: (heedlessness) with
+            - generic [ref=e126]: ذکر
+            - text: "(remembrance). As Allah says:"
+          - generic [ref=e127]:
+            - generic [ref=e129] [cursor=pointer]: The Romans (30:7).
+            - paragraph [ref=e130]:
+              - text: ‏ ‏يَعْلَمُونَ ظَهرًۭا مّنَ ٱلْحَيَوٰة ٱلدُّنْيَا وَهُمْ عَن ٱلْآخرَة هُمْ غَفلُونَ ‎
+              - img "7" [ref=e131]
+              - text: ‎
+            - generic [ref=e132]: Translation:.
+            - paragraph [ref=e133]: They know what is apparent of the worldly life, but they, of the Hereafter, are unaware.
+          - paragraph [ref=e134]:
+            - text: The universal message of all prophets is
+            - generic [ref=e135]: لا الہ الا اللہ
+            - text: . The second part of the declaration of faith changes with each era, from
+            - generic [ref=e136]: موسی رسول اللہ
+            - text: to
+            - generic [ref=e137]: عیسی رسول اللہ
+            - text: ", and finally, for us,"
+            - generic [ref=e138]: محمد الرسول اللہ
+            - text: . All messengers were sent to remind humanity about Allah and pull them out of their state of heedlessness.
+          - 'heading "The Debt of Submission: A Call from a Merciful Lord" [level=2] [ref=e139]'
+          - paragraph [ref=e140]:
+            - text: Our religion is called
+            - generic [ref=e141]: دین الاسلام
+            - text: . The word
+            - generic [ref=e142]: اسلام
+            - text: comes from the root
+            - generic [ref=e143]: سلم
+            - text: ", meaning to submit, specifically, to willingly submit out of love for Allah. The word"
+            - generic [ref=e144]: دین
+            - text: comes from
+            - generic [ref=e145]: دَیْن
+            - text: ", which means debt. Therefore, our religion,"
+            - generic [ref=e146]: دینُ الاسلام
+            - text: ", literally translates to \"the debt of willing submission.\" The idea is that we have been endowed with innumerable blessings by our Lord, and for these blessings, we owe Him a debt of gratitude through our willing submission."
+          - generic [ref=e147]:
+            - generic [ref=e149] [cursor=pointer]: The Family of Imran (3:83).
+            - paragraph [ref=e150]:
+              - text: ‏ ‏أَفَغَيْرَ دين ٱللَّه يَبْغُونَ وَلَهُ أَسْلَمَ مَن فى ٱلسَّمَوَت وَٱلْأَرْض طَوْعًۭا وَكَرْهًۭا وَإلَيْه يُرْجَعُونَ ‎
+              - img "83" [ref=e151]
+              - text: ‎
+            - generic [ref=e152]: Translation:.
+            - paragraph [ref=e153]: So is it other than the religion of Allah they desire, while to him have submitted [all] those within the heavens and earth, willingly or by compulsion, and to him they will be returned?
+          - paragraph [ref=e154]: Allah questions whether we seek to avoid repaying this debt, when everything in existence is already doing so, willingly or unwillingly. The sun, a celestial body immense in size, rises and sets according to its decree, fulfilling its purpose. It is in a state of submission, yet the human being, insignificant in comparison, is not. The same applies to galaxies, mountains, rivers, and the animal kingdom; they all exist in a state of submission to their Creator. Even human beings must submit to their own nature—eating, drinking, sleeping—and to the limitations of their physical bodies. Everything in existence is paying back its debt of submission to its Creator, willingly or unwillingly—except the human being.
+          - paragraph [ref=e155]:
+            - text: The crucial difference is that humanity is asked for willing submission (
+            - generic [ref=e156]: طَوْعًۭا
+            - text: ), out of love, not by force (
+            - generic [ref=e157]: كَرْهًۭا
+            - text: ). We will be held accountable for this debt on the Day of Judgment,
+            - generic [ref=e158]: یوم الدین
+            - text: ", the day when this debt of willing submission falls due. It is also called"
+            - generic [ref=e159]: یوم الحساب
+            - text: ", the Day of Accountability. Rasul Allah (SWS) said in a Hadith:"
+          - generic [ref=e160]:
+            - heading "Muhammad Ibn Abdullah (SWS) - Accountability, Deeds" [level=4] [ref=e162]:
+              - generic [ref=e163]: 
+              - text: Muhammad Ibn Abdullah (SWS)
+              - generic [ref=e164]: "- Accountability, Deeds"
+            - generic [ref=e165]: حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا، وَزِنُوا أَعْمَالَكُمْ قَبْلَ أَنْ تُوزَنُوا
+            - generic [ref=e166]: Hold yourselves accountable before you are held accountable, and weigh your deeds before they are weighed
+          - paragraph [ref=e167]:
+            - text: Interestingly, while we owe a debt to Allah, Allah also has a "debt" to us. When a master gives a command to a slave, the fulfillment of that command incurs a debt on the slave. If the slave obeys, the master owes him a reward. If he disobeys, he owes him a punishment. This is the essence of
+            - generic [ref=e168]: یوم الدین
+            - text: ", the day when the debt falls due for both. This is why Allah says in the Quran:"
+          - paragraph [ref=e169]: "Allah is asking for a loan, so that He can multiply its rewards and pay it back to His slave many times over. The ultimate reward for this beautiful loan is described as:"
+          - generic [ref=e170]:
+            - generic [ref=e172] [cursor=pointer]: Iron (57:11)
+            - paragraph [ref=e173]:
+              - text: ‏ ‏مَّن ذَا ٱلَّذى يُقْرضُ ٱللَّهَ قَرْضًا حَسَنًۭا فَيُضَعفَهُ لَهُ وَلَهُ أَجْرٌۭ كَريمٌۭ ‎
+              - img "11" [ref=e174]
+              - text: ‎
+            - generic [ref=e175]: Translation:.
+            - paragraph [ref=e176]: Who is it that would loan Allah a goodly loan so he will multiply it for him and he will have a noble reward?
+          - paragraph [ref=e177]:
+            - text: "This wake-up call is the very purpose of the messengers: to rouse humanity from its state of"
+            - generic [ref=e178]: غفلۃ
+            - text: . The word
+            - generic [ref=e179]: غفلۃ
+            - text: is particularly interesting. In Arabic linguistics, words beginning with the letter
+            - generic [ref=e180]: غین
+            - text: often imply a covering, hiding, or veiling, such as
+            - generic [ref=e181]: غاب
+            - text: (to be absent) or
+            - generic [ref=e182]: غفر
+            - text: (to forgive). Our intellects, in a state of
+            - generic [ref=e183]: غفلۃ
+            - text: ", become veiled by the temptations of this"
+            - generic [ref=e184]: دنیا
+            - text: . A simpleton is called a
+            - generic [ref=e185]: مُغَفَّل
+            - text: because they are easily deceived. The term
+            - generic [ref=e186]: غفلۃ
+            - text: also means lactose intolerance, an inability to digest the most beneficial thing for mankind, which serves as powerful imagery for a person's refusal to accept divine benefit. Scholars have said that all sin and wrongdoing are rooted in
+            - generic [ref=e187]: غفلۃ
+            - text: ", for if Allah was truly present in your heart, it would be impossible to sin. Allah asks in the Quran:"
+          - generic [ref=e188]:
+            - generic [ref=e190] [cursor=pointer]: The Cleaving (82:6).
+            - paragraph [ref=e191]:
+              - text: ‏ ‏يَأَيُّهَا ٱلْإنسَنُ مَا غَرَّكَ برَبّكَ ٱلْكَريم ‎
+              - img "6" [ref=e192]
+              - text: ‎
+            - generic [ref=e193]: Translation:.
+            - paragraph [ref=e194]: O mankind, what has deceived you concerning your lord, the generous.
+          - paragraph [ref=e195]:
+            - text: As one scholar noted, Allah has put the answer to the question within the question itself. It is Allah’s immense generosity,
+            - generic [ref=e196]: کرم
+            - text: ", that has made us delusional. We are heedless about our sins because He does not react with immediate punishment. The people who are most loving and generous with us are often the ones we take for granted the most. Allah's immense mercy makes us bold in our transgressions because we forget that He is our Master, and that is"
+            - generic [ref=e197]: غفلۃ
+            - text: .
+          - paragraph [ref=e198]: "An incredible Hadith describes a conversation between Allah and His angels, the oceans, and the earth. They say:"
+          - paragraph [ref=e199]
+          - paragraph [ref=e200]: "Not a single day passes that the oceans do not ask their Lord for permission to drown the children of Adam; and the earth asks its Lord for permission to swallow them; and the angels ask His permission to hasten their destruction and annihilate them. The earth says, \"O Allah, grant me permission to swallow them all. They walk on Your earth, eat from it, and do not prostrate to You!\" The angels exclaim, \"O Allah, grant us permission! In an instant we will annihilate this lot for their arrogance.\" The earth, oceans, and angels are Allah's creation, and they are filled with anger at seeing their beloved Creator disobeyed. But our Creator, the One we constantly ignore, says:"
+          - generic [ref=e201]: "والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض"
+          - paragraph [ref=e202]: "Leave my slave alone. I know everything about him since the moment I created him from the earth. Then He adds to the oceans, earth, and angels:"
+          - generic [ref=e203]: إن كان عبدُكم فَشَأنكم بِه، وإن كان عبدي فمني وإلي عَبدي
+          - paragraph [ref=e204]: "If he is your slave, then do with him as you please; but if he is My slave, then hand him over to me and walk away. Then He promises:"
+          - generic [ref=e205]: وعزتي وجلالي إن أتاني لَيلاً قَبِلتُه، وإن أتاني نهاراً قَبِلته،
+          - paragraph [ref=e206]: I swear by My Power and My Majesty, if he comes to Me in the night, I will accept him; if he comes to Me in the day, I will accept him.
+          - generic [ref=e207]: وإن تقرَّبَ مني شِبرا تقرَّبتُ مِنهُ ذِرَاعاً، وإن تقرَّبَ مني ذِرَاعاً تقرَّبتُ مِنهُ باعاً، وإن مشى إلي هَرْوَلْتُ إليه
+          - paragraph [ref=e208]: If he takes a step towards me, I will move an arm's length towards him. If he moves an arm's length towards me, I will move a yard towards him. If he walks towards me, I will run towards him.
+          - generic [ref=e209]: وإن استغفرني غَفَرْتُ له، وإن تَاب إلي تُبتُ عَليه
+          - paragraph [ref=e210]: And when he seeks My forgiveness, I will forgive him; and when he repents on his sins, I will accept his repentance.
+          - generic [ref=e211]: مَن تَقَرَّبَ أِلَیَّ تَلَقَّیتُہُ مِن بَعِید وَ مَن أَعرَضَ عَنِّی ناَدَیتُہُ عَن قَرِیب
+          - paragraph [ref=e212]: "When he approaches Me, I rush from afar to welcome him; and whoever turns away from Me, I approach him and say:"
+          - generic [ref=e213]: أَوَلَکَ رَبٌّ غَیرِی؟
+          - paragraph [ref=e214]: Do you have a Lord better than me?
+          - generic [ref=e215]:
+            - generic [ref=e217] [cursor=pointer]: Cattle (6:160)
+            - paragraph [ref=e218]:
+              - text: ‏ ‏مَن جَاءَ بٱلْحَسَنَة فَلَهُ عَشْرُ أَمْثَالهَا ۖ وَمَن جَاءَ بٱلسَّيّئَة فَلَا يُجْزَىٰ إلَّا مثْلَهَا وَهُمْ لَا يُظْلَمُونَ ‎
+              - img "160" [ref=e219]
+              - text: ‎
+            - generic [ref=e220]: Translation:.
+            - paragraph [ref=e221]: Whoever comes [on the Day of Judgement] with a good deed will have ten times the like thereof [to his credit], and whoever comes with an evil deed will not be recompensed except the like thereof; and they will not be wronged.
+          - paragraph [ref=e222]:
+            - text: Do you not see that when you come to Me with one good deed, I reward you ten times over; and when you come to Me with one sin, I respond with only what is due to remove it, and even then, I often choose to forgive it?
+            - generic [ref=e223]: اللہ اکبر
+            - text: .
+          - paragraph [ref=e224]: This is our Lord, our loving, merciful Creator. Who told us that He is a cruel being just waiting to burn us in hell? He created us with His own hands and honored us by having the angels prostrate to us. Do we truly believe He enjoys causing us pain? We would never wish harm on our own children, whom we didn't even create in their mother's womb—that was Allah. So who has painted this incredibly loving Creator as a monster for us?
+          - generic [ref=e225]:
+            - generic [ref=e227] [cursor=pointer]: The Cleaving (82:6).
+            - paragraph [ref=e228]:
+              - text: ‏ ‏يَأَيُّهَا ٱلْإنسَنُ مَا غَرَّكَ برَبّكَ ٱلْكَريم ‎
+              - img "6" [ref=e229]
+              - text: ‎
+            - generic [ref=e230]: Translation:.
+            - paragraph [ref=e231]: O my human being! What has put you in this state of delusion about your generous Lord?
+        - button " End Session" [ref=e233] [cursor=pointer]:
+          - generic [ref=e234] [cursor=pointer]: 
+          - generic [ref=e235] [cursor=pointer]: End Session
+      - generic [ref=e236]:
+        - heading " Questions & Answers" [level=3] [ref=e237]:
+          - generic [ref=e238]: 
+          - generic [ref=e239]: Questions & Answers
+        - generic [ref=e241]:
+          - generic [ref=e242]:
+            - generic [ref=e244]: 
+            - paragraph [ref=e246]: test
+          - generic [ref=e247]:
+            - generic [ref=e248]:
+              - generic [ref=e249]: 
+              - text: Scott Summers
+            - generic [ref=e250]:
+              - button "" [ref=e251] [cursor=pointer]:
+                - generic [ref=e252] [cursor=pointer]: 
+              - button "" [ref=e253] [cursor=pointer]:
+                - generic [ref=e254] [cursor=pointer]: 
+  - button "" [ref=e256] [cursor=pointer]:
+    - generic [ref=e257] [cursor=pointer]: 
+  - text:    
+```

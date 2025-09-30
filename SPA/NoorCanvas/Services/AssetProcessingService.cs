@@ -3,6 +3,7 @@ using System.Text.Json;
 using AngleSharp.Html.Parser;
 using AngleSharp.Dom;
 using NoorCanvas.Models;
+using NoorCanvas.Controllers;
 
 namespace NoorCanvas.Services;
 
@@ -79,10 +80,13 @@ public class AssetProcessingService
                 originalHtml?.Length ?? 0, finalHtml?.Length ?? 0);
 
             // Validate HTML structure before returning
-            ValidateHtmlStructure(finalHtml);
+            if (finalHtml != null)
+            {
+                ValidateHtmlStructure(finalHtml);
+            }
 
             // Wrap final HTML in a root scoping div if not already wrapped
-            return WrapInTranscriptContainer(finalHtml);
+            return WrapInTranscriptContainer(finalHtml ?? string.Empty);
         }
         catch (Exception ex)
         {
@@ -158,7 +162,7 @@ public class AssetProcessingService
     /// <summary>
     /// Process a single asset type from AssetLookup table
     /// </summary>
-    private async Task<int> ProcessAssetType(IDocument document, AssetLookupDto assetLookup, string runId, HtmlParser parser)
+    private Task<int> ProcessAssetType(IDocument document, AssetLookupDto assetLookup, string runId, HtmlParser parser)
     {
         try
         {
@@ -182,20 +186,20 @@ public class AssetProcessingService
                     ProcessAssetElement(elements[i], assetLookup, i + 1, runId, parser);
                 }
                 
-                return elements.Length;
+                return Task.FromResult(elements.Length);
             }
             else
             {
                 _logger.LogWarning("[ASSETSHARE-DB:{RunId}] ❌ NO MATCHES found for {AssetType} with selector '{Selector}'", 
                     runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
-                return 0;
+                return Task.FromResult(0);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[ASSETSHARE-DB:{RunId}] Failed to process asset type {AssetType} with selector '{Selector}'", 
                 runId, assetLookup.AssetIdentifier, assetLookup.CssSelector);
-            return 0;
+            return Task.FromResult(0);
         }
     }
 
@@ -214,11 +218,10 @@ public class AssetProcessingService
         
         // Create share button HTML
         var shareButton = CreateShareButtonHtml(
-            assetLookup.AssetIdentifier, 
-            assetLookup.DisplayName ?? assetLookup.AssetIdentifier, 
-            shareId, 
-            instanceNumber
-        );
+            assetLookup.AssetIdentifier,
+            assetLookup.DisplayName ?? assetLookup.AssetIdentifier,
+            shareId,
+            instanceNumber);
         
         // Parse share button and insert before the asset element
         if (element.ParentElement != null)
@@ -241,7 +244,7 @@ public class AssetProcessingService
     /// <summary>
     /// Get asset lookups from API
     /// </summary>
-    private async Task<List<AssetLookupDto>> GetAssetLookupsFromApiAsync(string runId)
+    public async Task<List<AssetLookupDto>> GetAssetLookupsFromApiAsync(string runId)
     {
         try
         {
@@ -256,15 +259,22 @@ public class AssetProcessingService
             }
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            var assetLookups = JsonSerializer.Deserialize<List<AssetLookupDto>>(responseContent, new JsonSerializerOptions
+            var assetLookupResponse = JsonSerializer.Deserialize<AssetLookupResponse>(responseContent, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            }) ?? new List<AssetLookupDto>();
+            });
 
-            _logger.LogInformation("[ASSETSHARE-API:{RunId}] Successfully loaded {Count} asset lookups from API", 
-                runId, assetLookups.Count);
-
-            return assetLookups;
+            if (assetLookupResponse?.Success == true)
+            {
+                _logger.LogInformation("[ASSETSHARE-API:{RunId}] Successfully loaded {Count} asset lookups from API", 
+                    runId, assetLookupResponse.AssetLookups.Count);
+                return assetLookupResponse.AssetLookups;
+            }
+            else
+            {
+                _logger.LogWarning("[ASSETSHARE-API:{RunId}] API response indicated failure", runId);
+                return new List<AssetLookupDto>();
+            }
         }
         catch (Exception ex)
         {
@@ -418,16 +428,5 @@ public class AssetProcessingService
         }
 
         return $"<div class=\"ks-transcript\">{html}</div>";
-    }
-
-    /// <summary>
-    /// Asset Lookup DTO for API communication
-    /// </summary>
-    public class AssetLookupDto
-    {
-        public string AssetIdentifier { get; set; } = "";
-        public string? CssSelector { get; set; }
-        public string? DisplayName { get; set; }
-        public bool IsActive { get; set; }
     }
 }
