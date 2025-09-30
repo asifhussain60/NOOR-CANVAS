@@ -1335,18 +1335,22 @@
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Preconditions passed: SessionId={SessionId}, ConnectionId={ConnectionId}", SessionId.Value, hubConnection.ConnectionId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ✅ STEP 2/7: Preconditions validated, SessionId={SessionId}, ConnectionId={ConnectionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, hubConnection.ConnectionId, broadcastId);
 
-            // Create simple test asset
+            // NEW: Detect sharable assets using AssetLookup API and SessionTranscripts for session 212
+            var assetDetectionResult = await DetectShareableAssetsAsync();
+            
+            // Create test asset with asset detection information
             var testId = Guid.NewGuid().ToString("N")[..8];
             var currentTime = DateTime.UtcNow.ToString("HH:mm:ss");
             
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 📊 Generated test asset: TestId={TestId}, Time={Time}", testId, currentTime);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 📦 STEP 3/7: Asset data created, testId={TestId}, time={Time}, broadcastId={BroadcastId} ;CLEANUP_OK", testId, currentTime, broadcastId);
             
-            // Simple test HTML content - using double quotes and HTML encoding (NO EMOJIS for DOM compatibility)
+            // Enhanced test HTML content with asset detection results
             var testHtmlContent = $@"<div style=""background:#E8F5E8;color:#006400;padding:20px;border-radius:8px;text-align:center;border:2px solid #006400;"">
 <h3 style=""margin:0 0 10px 0;"">Test Asset Shared</h3>
 <p style=""margin:5px 0;""><strong>Time:</strong> {System.Web.HttpUtility.HtmlEncode(currentTime)}</p>
 <p style=""margin:5px 0;""><strong>Test ID:</strong> {System.Web.HttpUtility.HtmlEncode(testId)}</p>
+<p style=""margin:5px 0;""><strong>Asset Detection:</strong> {System.Web.HttpUtility.HtmlEncode(assetDetectionResult)}</p>
 <p style=""margin:10px 0 0 0;font-size:14px;"">SignalR connection working!</p>
 </div>";
 
@@ -1417,6 +1421,92 @@
             
             // Also show in error panel for debugging
             await JSRuntime.InvokeVoidAsync("showErrorPanel", $"{errorMsg}: {ex.Message}", ex.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Detect the number of sharable assets using AssetLookup API and SessionTranscripts for session 212
+    /// </summary>
+    private async Task<string> DetectShareableAssetsAsync()
+    {
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] 🔍 Starting asset detection for session 212");
+            
+            // Step 1: Get AssetLookup definitions from API
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var assetLookupResponse = await httpClient.GetAsync("/api/host/asset-lookup");
+            
+            if (!assetLookupResponse.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] ❌ Failed to get AssetLookup data: {StatusCode}", assetLookupResponse.StatusCode);
+                return "AssetLookup API Error";
+            }
+
+            var assetLookupContent = await assetLookupResponse.Content.ReadAsStringAsync();
+            var assetLookups = JsonSerializer.Deserialize<List<AssetLookupDto>>(assetLookupContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? new List<AssetLookupDto>();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] 📋 Loaded {Count} asset lookup definitions", assetLookups.Count);
+
+            // Step 2: Get SessionTranscripts for session 212
+            var sessionDetailsResponse = await httpClient.GetAsync("/api/host/session-details/212?guid=debug-asset-detection");
+            
+            if (!sessionDetailsResponse.IsSuccessStatusCode)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] ❌ Failed to get session 212 details: {StatusCode}", sessionDetailsResponse.StatusCode);
+                return "Session 212 API Error";
+            }
+
+            var sessionDetailsContent = await sessionDetailsResponse.Content.ReadAsStringAsync();
+            var sessionDetails = JsonSerializer.Deserialize<EnhancedSessionDetailsApiResponse>(sessionDetailsContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (sessionDetails?.Session == null)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] ❌ No session details found for session 212");
+                return "Session 212 Not Found";
+            }
+
+            var transcript = sessionDetails.Session.Transcript ?? "";
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] 📄 Retrieved transcript, length: {Length} chars", transcript.Length);
+
+            // Step 3: Count assets found in transcript using AssetLookup CSS selectors
+            var parser = new AngleSharp.Html.Parser.HtmlParser();
+            var document = parser.ParseDocument(transcript);
+            int totalAssetsFound = 0;
+            var assetCounts = new List<string>();
+
+            foreach (var lookup in assetLookups.Where(a => a.IsActive && !string.IsNullOrEmpty(a.CssSelector)))
+            {
+                var elements = document.QuerySelectorAll(lookup.CssSelector ?? "");
+                if (elements.Length > 0)
+                {
+                    totalAssetsFound += elements.Length;
+                    assetCounts.Add($"{lookup.DisplayName ?? lookup.AssetIdentifier}: {elements.Length}");
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] 🎯 Found {Count} instances of {AssetType} using selector '{Selector}'", 
+                        elements.Length, lookup.AssetIdentifier, lookup.CssSelector);
+                }
+            }
+
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] ✅ Asset detection complete: {Total} total assets found in session 212", totalAssetsFound);
+            
+            if (totalAssetsFound == 0)
+            {
+                return "No sharable assets found in session 212";
+            }
+            
+            return $"Found {totalAssetsFound} sharable assets in session 212: {string.Join(", ", assetCounts)}";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hostcontrolpanel:ASSET-DETECTION] ❌ Exception during asset detection");
+            return $"Asset detection failed: {ex.Message}";
         }
     }
 
@@ -2610,6 +2700,17 @@
         public string? Message { get; set; }
         public SessionDetailsDto? Session { get; set; }
         public int TotalCount { get; set; }
+    }
+
+    /// <summary>
+    /// DTO for AssetLookup data from API
+    /// </summary>
+    public class AssetLookupDto
+    {
+        public string AssetIdentifier { get; set; } = "";
+        public string? CssSelector { get; set; }
+        public string? DisplayName { get; set; }
+        public bool IsActive { get; set; }
     }
 }
 

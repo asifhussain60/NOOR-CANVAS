@@ -22,9 +22,14 @@ All actions must respect the global guardrails and architectural mappings.
 ---
 
 ## Parameters
-- **key** *(required)*  
+- **key** *(required if available)*  
   Identifier for the task (maps directly to the keylock system).  
   Example: `hostcontrolpanel`  
+
+  If no `key` is provided:  
+  - Review **thread history**, **#Workspaces**, **#terminalLastCommand**, and **#getTerminalOutput**.  
+  - Infer the most relevant `key` from that context.  
+  - If inference is uncertain, halt and request clarification.  
 
 - **debug-level** *(optional, default=`simple`)*  
   Controls verbosity of task logging.  
@@ -48,12 +53,9 @@ All actions must respect the global guardrails and architectural mappings.
 
 ### 1. Plan
 - Parse `key`, `debug-level`, and any provided `tasks`.  
+- If `key` is missing, infer it from context (thread history, **#Workspaces**, **#terminalLastCommand**, **#getTerminalOutput**).  
 - Generate a **step-by-step execution plan**, mapping each subtask to the appropriate component, service, or prompt.  
-- Identify dependencies and validate that required instructions are available.  
-- Plan must clearly describe:  
-  - Execution order.  
-  - Expected outcomes.  
-  - Validation requirements for each step.  
+- Identify dependencies and validation requirements.  
 
 ---
 
@@ -92,7 +94,7 @@ All actions must respect the global guardrails and architectural mappings.
     Task <key> executed successfully.
     Key: <key>
     Key Status: In Progress
-  - If incomplete or halted, report:  
+- If incomplete or halted, report:  
 - Which step failed.  
 - Why it failed.  
 - Recommended next actions.  
