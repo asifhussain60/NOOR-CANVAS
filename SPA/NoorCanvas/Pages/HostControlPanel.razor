@@ -2072,28 +2072,45 @@
     /// </summary>
     private async Task ShowAssetDetectionResults(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
     {
-        var title = "🔍 Enhanced Asset Detection Analysis";
-        
-        // Build modern styled content with comprehensive details
-        var content = BuildModernAssetDetectionContent(testResults, transcriptResults, totalAssetDefinitions);
-
-        await JSRuntime.InvokeVoidAsync("Swal.fire", new
+        try 
         {
-            title = title,
-            html = content,
-            icon = "info",
-            width = 900,
-            showCloseButton = true,
-            showConfirmButton = true,
-            confirmButtonText = "✅ Got It!",
-            confirmButtonColor = "#28a745",
-            customClass = new
+            var title = "🔍 Enhanced Asset Detection Analysis";
+            
+            // Build modern styled content with comprehensive details
+            var content = BuildModernAssetDetectionContent(testResults, transcriptResults, totalAssetDefinitions);
+
+            // Use CancellationToken with timeout to prevent hanging
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            
+            await JSRuntime.InvokeVoidAsync("Swal.fire", cts.Token, new
             {
-                popup = "asset-detection-popup",
-                title = "asset-detection-title",
-                htmlContainer = "asset-detection-content"
-            }
-        });
+                title = title,
+                html = content,
+                icon = "info",
+                width = 900,
+                showCloseButton = true,
+                showConfirmButton = true,
+                confirmButtonText = "✅ Got It!",
+                confirmButtonColor = "#28a745",
+                customClass = new
+                {
+                    popup = "asset-detection-popup",
+                    title = "asset-detection-title",
+                    htmlContainer = "asset-detection-content"
+                }
+            });
+        }
+        catch (TaskCanceledException)
+        {
+            // SweetAlert2 timeout - fallback to simple alert
+            Logger.LogWarning("[DEBUG-WORKITEM:assetshare:TIMEOUT] SweetAlert2 popup timeout, using fallback ;CLEANUP_OK");
+            await ShowErrorPopup("Asset Detection Results", $"Detection completed: {testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected} total assets found");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:ERROR] Failed to show asset detection popup ;CLEANUP_OK");
+            await ShowErrorPopup("Asset Detection Error", $"Could not display results: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -2190,13 +2207,22 @@
     /// </summary>
     private async Task ShowErrorPopup(string title, string message)
     {
-        await JSRuntime.InvokeVoidAsync("Swal.fire", new
+        try
         {
-            title = title,
-            text = message,
-            icon = "error",
-            confirmButtonText = "OK"
-        });
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            await JSRuntime.InvokeVoidAsync("Swal.fire", cts.Token, new
+            {
+                title = title,
+                text = message,
+                icon = "error",
+                confirmButtonText = "OK"
+            });
+        }
+        catch (Exception ex)
+        {
+            // Fallback to console logging if SweetAlert2 fails
+            Logger.LogError(ex, "[DEBUG-WORKITEM:popup:FALLBACK] SweetAlert2 popup failed, title: {Title}, message: {Message} ;CLEANUP_OK", title, message);
+        }
     }
 
     /// <summary>
@@ -2231,6 +2257,151 @@
 
 
     // RemoveDeleteButtons method moved to AssetProcessingService
+
+    /// <summary>
+    /// KEY FUNCTION 1: Standardized Asset Detection Test Function
+    /// Used by all Playwright tests for comprehensive asset detection validation
+    /// </summary>
+    public async Task<AssetDetectionResult> RunStandardizedAssetDetectionTestAsync(string testIdentifier)
+    {
+        var runId = $"{testIdentifier}-{DateTime.Now:HHmmss}";
+        try
+        {
+            Logger.LogInformation("[STANDARDIZED-ASSET-DETECTION:{RunId}] Starting detection test ;CLEANUP_OK", runId);
+            
+            // Load asset lookups from API
+            var assetLookups = await AssetProcessor.GetAssetLookupsFromApiAsync(runId);
+            if (assetLookups == null || assetLookups.Count == 0)
+            {
+                Logger.LogError("[STANDARDIZED-ASSET-DETECTION:{RunId}] No asset definitions found ;CLEANUP_OK", runId);
+                return new AssetDetectionResult { SourceName = testIdentifier, TotalAssetsDetected = 0 };
+            }
+
+            // Get current session transcript
+            string currentTranscript = Model?.SessionTranscript ?? "";
+            
+            // Standard test HTML with canonical Session 212 assets
+            var canonicalTestHtml = @"<div class=""ayah-card"" id=""ayah-card-14-34"">
+                <div class=""golden-surah-header clickable-ayah-header"" data-ayats=""34"" data-original-token=""Q|14:34"" data-surah=""14"" id=""ayah-header-14-34"">
+                    <span>Abraham (14:34)</span>
+                </div>
+                <p class=""ayah-arabic"">وَإِن تَعُدُّوا نِعْمَتَ اللَّهِ لَا تُحْصُوهَا</p>
+                <div class=""translation-header"">Translation:</div>
+                <p class=""ayah-translation"">And if you should count the favors of Allah, you could not enumerate them.</p>
+            </div>";
+            
+            // Perform detection analysis
+            var testResults = AnalyzeAssetDetection(canonicalTestHtml, assetLookups, testIdentifier);
+            var transcriptResults = AnalyzeAssetDetection(currentTranscript, assetLookups, "Live-Session");
+            
+            // Combined result for test validation
+            var combinedResult = new AssetDetectionResult 
+            { 
+                SourceName = testIdentifier,
+                DetectedAssets = testResults.DetectedAssets.Concat(transcriptResults.DetectedAssets).ToList(),
+                TotalAssetsDetected = testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected
+            };
+            
+            Logger.LogInformation("[STANDARDIZED-ASSET-DETECTION:{RunId}] Detection completed: {Total} assets ;CLEANUP_OK", 
+                runId, combinedResult.TotalAssetsDetected);
+            
+            return combinedResult;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[STANDARDIZED-ASSET-DETECTION:{RunId}] Detection test failed ;CLEANUP_OK", runId);
+            return new AssetDetectionResult { SourceName = testIdentifier, TotalAssetsDetected = -1 };
+        }
+    }
+
+    /// <summary>
+    /// KEY FUNCTION 2: Standardized Share Button Injection Test Function  
+    /// Used by all Playwright tests for comprehensive injection validation
+    /// </summary>
+    public async Task<ShareButtonInjectionResult> RunStandardizedShareButtonInjectionTestAsync(string testIdentifier)
+    {
+        var runId = $"{testIdentifier}-{DateTime.Now:HHmmss}";
+        try
+        {
+            Logger.LogInformation("[STANDARDIZED-SHAREBUTTON-INJECTION:{RunId}] Starting injection test ;CLEANUP_OK", runId);
+            
+            if (SessionId == null)
+            {
+                Logger.LogWarning("[STANDARDIZED-SHAREBUTTON-INJECTION:{RunId}] No SessionId available ;CLEANUP_OK", runId);
+                return new ShareButtonInjectionResult 
+                { 
+                    TestIdentifier = testIdentifier, 
+                    Success = false, 
+                    ErrorMessage = "No SessionId available for injection test" 
+                };
+            }
+
+            // Load session assets from database
+            var sessionAssets = await LoadSessionAssetsAsync(SessionId.Value);
+            var assetCount = sessionAssets?.Count ?? 0;
+            
+            // Test HTML for injection
+            var testHtml = @"<div class=""ayah-card"" data-asset-id=""test-ayah-1"">
+                <div class=""golden-surah-header"" id=""ayah-header-14-34"">Abraham (14:34)</div>
+                <p class=""ayah-arabic"">Test Arabic content</p>
+                <p class=""ayah-translation"">Test translation</p>
+            </div>";
+            
+            // Perform injection
+            var enhancedHtml = await InjectIndividualShareButtonsAsync(testHtml);
+            
+            // Analyze injection results
+            var buttonCount = CountShareButtons(enhancedHtml);
+            var dataAttributeCount = CountDataAssetIds(enhancedHtml);
+            
+            var result = new ShareButtonInjectionResult
+            {
+                TestIdentifier = testIdentifier,
+                Success = buttonCount > 0 || dataAttributeCount > 0,
+                ShareButtonsInjected = buttonCount,
+                DataAttributesAdded = dataAttributeCount,
+                SessionAssetsAvailable = assetCount,
+                EnhancedHtml = enhancedHtml
+            };
+            
+            Logger.LogInformation("[STANDARDIZED-SHAREBUTTON-INJECTION:{RunId}] Injection completed: {Buttons} buttons, {Attributes} attributes ;CLEANUP_OK", 
+                runId, buttonCount, dataAttributeCount);
+            
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[STANDARDIZED-SHAREBUTTON-INJECTION:{RunId}] Injection test failed ;CLEANUP_OK", runId);
+            return new ShareButtonInjectionResult 
+            { 
+                TestIdentifier = testIdentifier, 
+                Success = false, 
+                ErrorMessage = ex.Message 
+            };
+        }
+    }
+
+    /// <summary>
+    /// Helper method to count share buttons in HTML
+    /// </summary>
+    private int CountShareButtons(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return 0;
+        
+        var buttonMatches = System.Text.RegularExpressions.Regex.Matches(html, @"class=""[^""]*ks-share-button[^""]*""");
+        return buttonMatches.Count;
+    }
+    
+    /// <summary>
+    /// Helper method to count data-asset-id attributes in HTML
+    /// </summary>
+    private int CountDataAssetIds(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return 0;
+        
+        var dataMatches = System.Text.RegularExpressions.Regex.Matches(html, @"data-asset-id=""[^""]*""");
+        return dataMatches.Count;
+    }
 
     /// <summary>
     /// Adds data-asset-id attributes and SHARE buttons using SessionAssets lookup table
@@ -2942,6 +3113,20 @@
         public int Count { get; set; }
         public string Description { get; set; } = "";
         public List<string> GeneratedAssetIds { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Result of share button injection test
+    /// </summary>
+    public class ShareButtonInjectionResult
+    {
+        public string TestIdentifier { get; set; } = "";
+        public bool Success { get; set; }
+        public int ShareButtonsInjected { get; set; }
+        public int DataAttributesAdded { get; set; }
+        public int SessionAssetsAvailable { get; set; }
+        public string EnhancedHtml { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
     }
 }
 

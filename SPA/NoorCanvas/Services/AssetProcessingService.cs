@@ -28,9 +28,13 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Transforms transcript HTML by removing delete buttons and adding share buttons for assets
-    /// Share buttons are only injected when session status is "Active" or "Waiting"
+    /// Transforms transcript HTML by removing delete buttons and adding share buttons for assets.
+    /// Share buttons are only injected when session status is "Active" or "Waiting".
     /// </summary>
+    /// <param name="originalHtml">The original HTML transcript content to transform.</param>
+    /// <param name="sessionId">The session ID for asset processing.</param>
+    /// <param name="sessionStatus">The current session status for injection control.</param>
+    /// <returns>The transformed HTML with injected share buttons and data attributes.</returns>
     public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, long? sessionId, string? sessionStatus)
     {
         if (string.IsNullOrEmpty(originalHtml))
@@ -97,7 +101,7 @@ public class AssetProcessingService
 
     /// <summary>
     /// Database-driven asset detection using AssetLookup table
-    /// Detects assets based on CSS selectors and injects share buttons
+    /// Detects assets based on CSS selectors and injects share buttons.
     /// </summary>
     private async Task<string> InjectAssetShareButtonsAsync(string html, string runId)
     {
@@ -160,7 +164,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Process a single asset type from AssetLookup table
+    /// Process a single asset type from AssetLookup table.
     /// </summary>
     private Task<int> ProcessAssetType(IDocument document, AssetLookupDto assetLookup, string runId, HtmlParser parser)
     {
@@ -204,7 +208,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Process individual asset element and inject share button
+    /// Process individual asset element and inject share button.
     /// </summary>
     private void ProcessAssetElement(IElement element, AssetLookupDto assetLookup, int instanceNumber, string runId, HtmlParser parser)
     {
@@ -242,8 +246,10 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Get asset lookups from API
+    /// Get asset lookups from API.
     /// </summary>
+    /// <param name="runId">The run identifier for logging purposes.</param>
+    /// <returns>List of AssetLookupDto objects from the API.</returns>
     public async Task<List<AssetLookupDto>> GetAssetLookupsFromApiAsync(string runId)
     {
         try
@@ -284,7 +290,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Create HTML for a share button based on AssetLookup data
+    /// Create HTML for a share button based on AssetLookup data.
     /// </summary>
     private static string CreateShareButtonHtml(string assetType, string displayName, string shareId, int instanceNumber)
     {
@@ -298,7 +304,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Removes any button elements that have 'delete' in their id or class attributes
+    /// Removes any button elements that have 'delete' in their id or class attributes.
     /// </summary>
     private static string RemoveDeleteButtons(string html)
     {
@@ -307,7 +313,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Basic HTML sanitization to remove dangerous elements and attributes
+    /// Basic HTML sanitization to remove dangerous elements and attributes.
     /// </summary>
     private string SanitizeHtml(string html)
     {
@@ -349,7 +355,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Sanitize attributes on a single element
+    /// Sanitize attributes on a single element.
     /// </summary>
     private static void SanitizeElementAttributes(IElement element)
     {
@@ -391,7 +397,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Validate HTML structure for potential issues
+    /// Validate HTML structure for potential issues.
     /// </summary>
     private void ValidateHtmlStructure(string html)
     {
@@ -415,7 +421,7 @@ public class AssetProcessingService
     }
 
     /// <summary>
-    /// Wrap HTML in transcript container if not already wrapped
+    /// Wrap HTML in transcript container if not already wrapped.
     /// </summary>
     private string WrapInTranscriptContainer(string html)
     {
