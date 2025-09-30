@@ -187,3 +187,12 @@ It is the **single source of truth** for system usage and must be updated if the
 ---
 
 *Last updated: September 28, 2025 - Comprehensive architectural reference for key-based prompts.*  
+
+
+---
+## Sync Protocol
+This file must reflect the **REAL current state** of the project.  
+- `/sync` is responsible for updating this file automatically.  
+- Obsolete data must be removed.  
+- Modified values must be updated to match source of truth in the repo.  
+- Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.  

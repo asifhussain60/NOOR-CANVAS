@@ -8,8 +8,8 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
-- **`.github/instructions/SystemStructureSummary.md`** - Single source of truth for system structure, key mappings, and architectural orientations
-- **`.github/instructions/NOOR-CANVAS_ARCHITECTURE.MD`** - Comprehensive application architecture documentation including:
+- **`.github/instructions/Links/SystemStructureSummary.md`** - Single source of truth for system structure, key mappings, and architectural orientations
+- **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** - Comprehensive application architecture documentation including:
   - Complete API endpoint catalog (52 endpoints across 11 controllers)
   - Razor pages and component inventory (15+ pages, 10+ components)
   - Service architecture (15+ services with responsibilities)

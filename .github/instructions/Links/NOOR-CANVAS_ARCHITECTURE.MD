@@ -435,3 +435,12 @@ As part of architecture modernization, new APIs have been created to eliminate d
 - Whenever the system architecture changes (new API, altered DTO, schema migration, or new component), update this file.  
 - Ensure **SystemStructureSummary.md** contains a summarized snapshot of changes for quick access.  
 - **Retrosync Protocol**: Regular synchronization between requirements, implementation, and documentation  
+
+
+---
+## Sync Protocol
+This file must reflect the **REAL current state** of the project.  
+- `/sync` is responsible for updating this file automatically.  
+- Obsolete data must be removed.  
+- Modified values must be updated to match source of truth in the repo.  
+- Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.  

@@ -177,3 +177,10 @@ _Important: When suggesting or implementing changes, you must **only commit** af
 - [ ] No conflicts remain with other prompts or instruction files
 
 _Do not commit until all items are checked and explicit approval is confirmed._
+
+
+---
+## Analyzer Reference
+Refactor operations must use `.github/instructions/Links/AnalyzerConfig.MD`  
+to determine the analyzers and rules applied to this repo.  
+Copilot must not hard-code analyzer rules.  
