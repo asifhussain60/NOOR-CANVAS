@@ -1,0 +1,8 @@
+{
+    "key": "bootstrap-sync",
+    "started": "2025-09-30T00:00:00Z",
+    "prompt": "sync.prompt.md",
+    "status": "In Progress",
+    "notes": "Bootstrap placeholder synchronization - filling AnalyzerConfig.MD and PlaywrightConfig.MD with real repository configuration data",
+    "debug-level": "simple"
+}

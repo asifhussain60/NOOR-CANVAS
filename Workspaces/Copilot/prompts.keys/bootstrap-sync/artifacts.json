@@ -1,0 +1,12 @@
+{
+    "files_modified": [
+        ".github/instructions/Links/AnalyzerConfig.MD",
+        ".github/instructions/Links/PlaywrightConfig.MD"
+    ],
+    "placeholders_filled": {
+        "AnalyzerConfig.MD": "Real .NET analyzer configuration from Directory.Build.props, Roslynator setup, ESLint config",
+        "PlaywrightConfig.MD": "Real Playwright configuration from config/testing/playwright.config.cjs with environment modes"
+    },
+    "validation_status": "complete",
+    "remaining_placeholders": 0
+}
