@@ -16,17 +16,17 @@ window.hostControlPanelState = {
  */
 function initializeShareButtons() {
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🚀 Initializing share button handlers...');
-    
+
     // Remove any existing event listeners to prevent duplicates
     document.removeEventListener('click', handleShareButtonClick, true);
-    
+
     // Add global click handler with capture phase for better event handling
     document.addEventListener('click', handleShareButtonClick, true);
-    
+
     // Test existing buttons
     const existingButtons = document.querySelectorAll('.ks-share-button, .ks-share-btn');
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 Found existing buttons:', existingButtons.length);
-    
+
     if (existingButtons.length > 0) {
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🧪 Testing click handler with first button...');
         const firstButton = existingButtons[0];
@@ -36,7 +36,7 @@ function initializeShareButtons() {
             attributes: Array.from(firstButton.attributes).map(attr => `${attr.name}="${attr.value}"`).join(', ')
         });
     }
-    
+
     window.hostControlPanelState.shareButtonsInitialized = true;
     console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ Share button handlers setup completed successfully!');
 }
@@ -52,41 +52,41 @@ function handleShareButtonClick(event) {
         hasClosest: !!event.target.closest,
         allClasses: Array.from(event.target.classList || [])
     };
-    
+
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 CLICK DETECTED:', clickData);
-    
+
     // Show click detection toast
     showShareDebugToast('🔍 CLICK DETECTED!', clickData, 'info');
-    
+
     // Check if clicked element is a share button
     const shareButton = event.target.closest('.ks-share-button');
-    
+
     const shareButtonCheck = {
         foundShareButton: !!shareButton,
         shareButtonElement: shareButton,
         shareButtonClasses: shareButton ? Array.from(shareButton.classList) : null
     };
-    
+
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON CHECK:', shareButtonCheck);
-    
+
     // Show share button detection result
     if (shareButton) {
         showShareDebugToast('✅ SHARE BUTTON FOUND!', shareButtonCheck, 'success');
     } else {
         showShareDebugToast('❌ Not a share button click', shareButtonCheck, 'warning');
     }
-    
+
     if (!shareButton) {
         console.log('[DEBUG-WORKITEM:assetshare:continue] ❌ Not a share button click, ignoring');
         return;
     }
-    
+
     event.preventDefault();
-    
+
     const shareId = shareButton.getAttribute('data-share-id');
     const assetType = shareButton.getAttribute('data-asset-type');
     const instanceNumber = parseInt(shareButton.getAttribute('data-instance-number')) || 1;
-    
+
     const attributesData = {
         shareId,
         assetType,
@@ -96,12 +96,12 @@ function handleShareButtonClick(event) {
             value: attr.value
         }))
     };
-    
+
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON ATTRIBUTES:', attributesData);
-    
+
     // Show extracted attributes
     showShareDebugToast('📋 SHARE BUTTON ATTRIBUTES', attributesData, 'info');
-    
+
     if (!shareId || !assetType) {
         const errorData = { shareId, assetType, instanceNumber };
         console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ Missing data attributes:', errorData);
@@ -109,7 +109,7 @@ function handleShareButtonClick(event) {
         alert(`Missing data attributes: shareId=${shareId}, assetType=${assetType}`);
         return;
     }
-    
+
     // Find and display the HTML payload that would be shared
     const assetElement = document.querySelector(`[data-asset-id="${shareId}"]`);
     if (assetElement) {
@@ -123,9 +123,9 @@ function handleShareButtonClick(event) {
     } else {
         showShareDebugToast('❌ ASSET ELEMENT NOT FOUND', { shareId, selector: `[data-asset-id="${shareId}"]` }, 'error');
     }
-    
+
     console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ Share button clicked - processing:', { shareId, assetType, instanceNumber });
-    
+
     // Process the share action
     processShareAction(shareButton, shareId, assetType, instanceNumber);
 }
@@ -139,30 +139,30 @@ function processShareAction(shareButton, shareId, assetType, instanceNumber) {
     shareButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SHARING...';
     shareButton.disabled = true;
     shareButton.style.backgroundColor = '#f59e0b';
-    
+
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔄 Calling DotNet method ShareAsset...');
-    
+
     // Show method call initiation
     showShareDebugToast('🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber }, 'info');
-    
+
     // Call C# method via DotNet interop
     if (window.hostControlPanelState.dotNetRef) {
         console.log('[DEBUG-WORKITEM:assetshare:continue] 📞 DotNet reference available, invoking ShareAsset...');
-        
+
         // Show DotNet reference status
         showShareDebugToast('📞 DOTNET REFERENCE FOUND', { hasReference: true, method: 'ShareAsset' }, 'success');
-        
+
         window.hostControlPanelState.dotNetRef.invokeMethodAsync('ShareAsset', shareId, assetType, instanceNumber)
             .then((result) => {
                 console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ ShareAsset completed successfully:', result);
-                
+
                 // Show success result
                 showShareDebugToast('🎉 SHARE SUCCESS!', result, 'success');
-                
+
                 // Success feedback
                 shareButton.innerHTML = '✅ SHARED!';
                 shareButton.style.backgroundColor = '#059669';
-                
+
                 // Restore button after 3 seconds
                 setTimeout(() => {
                     shareButton.innerHTML = originalContent;
@@ -172,14 +172,14 @@ function processShareAction(shareButton, shareId, assetType, instanceNumber) {
             })
             .catch((error) => {
                 console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ ShareAsset failed:', error);
-                
+
                 // Show error details
                 showShareDebugToast('💥 SHARE FAILED!', { error: error.toString(), shareId, assetType }, 'error');
-                
+
                 // Error feedback
                 shareButton.innerHTML = '❌ ERROR';
                 shareButton.style.backgroundColor = '#dc2626';
-                
+
                 // Restore button after error
                 setTimeout(() => {
                     shareButton.innerHTML = originalContent;
@@ -189,10 +189,10 @@ function processShareAction(shareButton, shareId, assetType, instanceNumber) {
             });
     } else {
         console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ DotNet reference not available');
-        
+
         // Show DotNet reference error
         showShareDebugToast('❌ NO DOTNET REFERENCE', { hasReference: false, windowDotNetRef: !!window.hostControlPanelState.dotNetRef }, 'error');
-        
+
         alert('DotNet reference not available. Please refresh the page.');
         shareButton.innerHTML = originalContent;
         shareButton.style.backgroundColor = '';
@@ -205,7 +205,7 @@ function processShareAction(shareButton, shareId, assetType, instanceNumber) {
  */
 function showShareDebugToast(title, data, type = 'info') {
     if (!window.hostControlPanelState.debugMode) return;
-    
+
     // Create or update debug toast container
     let toastContainer = document.getElementById('debug-toast-container');
     if (!toastContainer) {
@@ -221,7 +221,7 @@ function showShareDebugToast(title, data, type = 'info') {
         `;
         document.body.appendChild(toastContainer);
     }
-    
+
     // Create toast element
     const toast = document.createElement('div');
     const typeColors = {
@@ -231,7 +231,7 @@ function showShareDebugToast(title, data, type = 'info') {
         error: '#EF4444',
         payload: '#8B5CF6'
     };
-    
+
     toast.style.cssText = `
         background: white;
         border-left: 4px solid ${typeColors[type] || typeColors.info};
@@ -242,7 +242,7 @@ function showShareDebugToast(title, data, type = 'info') {
         pointer-events: auto;
         animation: slideIn 0.3s ease-out;
     `;
-    
+
     toast.innerHTML = `
         <div style="font-weight: 600; font-size: 14px; color: #1F2937; margin-bottom: 4px;">
             ${title}
@@ -251,7 +251,7 @@ function showShareDebugToast(title, data, type = 'info') {
             ${JSON.stringify(data, null, 2).substring(0, 200)}${JSON.stringify(data).length > 200 ? '...' : ''}
         </div>
     `;
-    
+
     // Add slide-in animation
     const style = document.createElement('style');
     style.textContent = `
@@ -261,9 +261,9 @@ function showShareDebugToast(title, data, type = 'info') {
         }
     `;
     document.head.appendChild(style);
-    
+
     toastContainer.appendChild(toast);
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
         if (toast.parentNode) {

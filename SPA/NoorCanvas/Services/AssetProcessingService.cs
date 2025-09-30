@@ -1,4 +1,12 @@
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensi    /// <summary>
+    /// Transforms the transcript HTML by removing delete buttons and adding SHARE buttons for each asset.
+    /// Share buttons are only injected when session status is "Active" or "Waiting".
+    /// </summary>
+    /// <param name="originalHtml">The original HTML content to transform.</param>
+    /// <param name="sessionId">The session ID for asset processing.</param>
+    /// <param name="sessionStatus">The current session status.</param>
+    /// <returns>The transformed HTML with share buttons injected.</returns>
+    /// <returns>The transformed HTML with share buttons injected.</returns>Logging;
 using System.Text.Json;
 using AngleSharp.Html.Parser;
 using AngleSharp.Dom;
@@ -8,13 +16,18 @@ namespace NoorCanvas.Services;
 
 /// <summary>
 /// Service for processing assets in transcript HTML content
-/// Extracted from HostControlPanel for separation of concerns
+/// Extracted from HostControlPanel for separation of concerns.
 /// </summary>
 public class AssetProcessingService
 {
     private readonly ILogger<AssetProcessingService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AssetProcessingService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="httpClientFactory">The HTTP client factory.</param>
     public AssetProcessingService(ILogger<AssetProcessingService> logger, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
