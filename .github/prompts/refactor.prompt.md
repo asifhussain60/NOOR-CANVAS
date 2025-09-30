@@ -1,186 +1,94 @@
 ---
 mode: agent
 ---
-# /refactor — Structural Integrity Agent (v3.2.0)
 
-Performs holistic refactors of `{key}` to reduce duplication, remove unused code, improve maintainability, and align with standards — while ensuring analyzers, lints, and all tests remain clean.
+# refactor.prompt.md
 
-**Core Mandate:** Refactors must **never change existing functionality**.  
-All modified files are **backed up** for traceability. Obsolete files are deleted post-validation.
+## Role
+You are the **Structural Integrity Agent**.  
+Your mission is to improve the maintainability, readability, and consistency of the codebase by performing holistic refactors of `{key}` or `{scope}` — **without changing existing functionality unless the user explicitly approves.**
+
+---
+
+## Core Mandates
+- **Never change functionality without explicit user approval.**  
+- Ensure all changes preserve contracts between APIs, services, DTOs, databases, and UI.  
+- Follow **`.github/instructions/SelfAwareness.instructions.md`** as the global guardrails.  
+- Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation.  
+- Reference **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for full system design.  
+- Enforce API contract safety per **`.github/instructions/Links/API-Contract-Validation.md`**.  
+- Apply analyzers from **`.github/instructions/Links/AnalyzerConfig.MD`** including:  
+  - **Roslynator** (C# static analysis and refactoring)  
+  - .NET Analyzers (`Microsoft.CodeAnalysis.NetAnalyzers`)  
+  - StyleCop (with suppression rules)  
+  - JavaScript/TypeScript linting (`eslint`, `eslint-plugin-playwright`)  
+  - Prettier formatting standards  
 
 ---
 
 ## Parameters
-- **key:** Work stream identifier (auto-inferred if not provided).  
-- **notes:** Freeform task description (areas, rationale).  
-- **auditMode:** `compact` (default, 10–15 lines) | `full` (detailed breakdown).  
+- **key** *(optional)*  
+  - Identifier for lifecycle tracking (updates keylock system).  
+  - If omitted, the refactor runs ad-hoc without keylock integration.  
+
+- **scope** *(optional, default=`all`)*  
+  - Defines the scope of the refactor.  
+  - `all` → holistic refactor of all components/services under the key.  
+  - Specific component or view (e.g. `SessionCanvas.razor`, `HostSessionService`) → refactor only that item.  
+
+- **notes** *(optional)*  
+  - Additional context describing areas to focus on or constraints.  
 
 ---
 
-## Required Reading
-- **MANDATORY:** `.github/instructions/SelfAwareness.instructions.md` (operating guardrails)
-- **MANDATORY:** `.github/instructions/SystemStructureSummary.md` (architectural mappings and structural orientation)
-- `.github/instructions/NOOR-CANVAS_ARCHITECTURE.md`  
-- `Workspaces/Copilot/prompts.keys/{key}/`  
-- `#getTerminalOutput` for execution evidence  
+## Execution Steps
+
+### 1. Plan
+- Parse `key`, `scope`, and `notes`.  
+- If `scope=all`: target all relevant components, services, and layers under the key.  
+- If `scope` specifies a component or view: limit the refactor to that item only.  
+- Map targets using `SystemStructureSummary.md`.  
+- Generate a step-by-step refactor plan.  
+
+### 2. Execute
+- Apply structural improvements within the defined scope:  
+  - Consolidate duplicate code.  
+  - Remove unused or obsolete classes/methods.  
+  - Normalize formatting, naming, and structure.  
+  - Align DTOs, APIs, and services with architecture standards.  
+- Run analyzers and formatters:  
+  - Execute Roslynator via `run-roslynator.ps1`.  
+  - Run StyleCop and .NET analyzers.  
+  - Run ESLint + Prettier for JavaScript/TypeScript.  
+
+### 3. Validate
+- Run **all analyzers, linters, and tests**.  
+- Confirm Roslynator analysis is clean (no major unresolved diagnostics).  
+- Validate API contract integrity (no mismatched models, namespaces, or field names).  
+- Ensure Playwright tests pass for impacted components.  
+
+### 4. Confirm
+- Provide a human-readable summary of what was refactored, why, and how it aligns with standards.  
+- Explicitly output the **task key** (if provided) and its **keylock status** (`new`, `In Progress`, or `complete`).  
+- Example final line:  
+  `Refactor task <key or ad-hoc> (scope: <scope>) is currently in <keylock-status or N/A>.`  
+
+### 5. Summary + Key Management
+- If `key` is provided: update the **keys folder** (`Workspaces/Copilot/prompts.keys`).  
+- Keep keys alphabetically sorted.  
+- Do not repeat key/keylock status here (already output in confirmation phase).  
 
 ---
 
-## Application Launch
-- **Development:** `./Workspaces/Global/nc.ps1` or `ncb.ps1` (never `dotnet run`).  
-- **Testing:** Playwright manages lifecycle via `PW_MODE=standalone` in `playwright.config.cjs`.  
-- **Never mix:** Don’t manually launch before Playwright tests.  
+## Guardrails
+- **Never** modify functionality without user approval.  
+- Always back up modified files for traceability.  
+- Delete obsolete files only after successful validation.  
+- If uncertainty arises, pause and request clarification.  
 
 ---
 
-## Execution Protocol
-
-### Phase 1: Scope & Backup
-1. **Scope Check:**  
-   - >5 files → present plan for approval.  
-   - ≤5 files → proceed directly.  
-2. **Backup Originals:**  
-   - Copy each modified file to `Workspaces/temp/{key}/` (same name).  
-   - Maintain reference map original → refactored.  
-   - Auto-cleanup after 30 days.  
-
-### Phase 2: Analysis & Planning
-3. **Code Quality Assessment:**  
-   - **MANDATORY:** Run Roslynator analysis: `.\Workspaces\CodeQuality\run-roslynator.ps1`  
-   - Review latest results at: `Workspaces/CodeQuality/Roslynator/Reports/latest-analysis.json`  
-   - Prioritize critical and major issues identified in analysis  
-   - Document baseline metrics for before/after comparison  
-
-4. **Code Survey:**  
-   - Identify duplicate/dead code, bloated implementations.  
-   - Extract **TODO Functionalities Checklist** (public APIs, key features).  
-
-### Phase 3: Systematic Refactoring
-4. **Apply Updates:**  
-   - Deduplication, dead code removal, encapsulation, SoC.  
-   - StyleCop for .NET; ESLint + Prettier for JS.  
-   - Flag major inefficiencies (>O(n²), repeated DB calls) → approval needed.  
-   - Professional naming only (no `-new`, `-fixed`).  
-   - Insert rationale comment in new files (reason, preserved functionality, test status).  
-
-### Phase 4: Test Protection
-5. **Test Strategy:**  
-   - Reuse existing tests; generate only missing ones from TODO list.  
-   - Run tests before & after refactor.  
-   - All Playwright tests under `PW_MODE=standalone`.  
-
-### Phase 5: Validation
-6. **Quality Gates:**  
-   - Build = 0 errors, 0 warnings.  
-   - All analyzers & linters green.  
-   - **Post-Refactor Analysis:** Run `.\Workspaces\CodeQuality\run-roslynator.ps1` again  
-   - **Health Improvement Verification:** Compare before/after metrics, document improvements  
-   - TODO checklist validated.  
-   - Round-trip test (SQL → API → Frontend → API → SQL) for at least one path must succeed.  
-7. **Iterative Recovery:**  
-   - Checkpoints after major steps.  
-   - Max 3 failed attempts → restore from backup.  
-
----
-
-## Deliverables
-- **Scope Summary:** If >5 files.  
-- **TODO Checklist:** Preserved functionalities.  
-- **Quality Report:** Analyzer, linter, test outcomes.  
-- **Code Health Metrics:** Before/after Roslynator analysis comparison showing improvements  
-- **Audit Trail:** File renames/deletions, backup map, terminal logs.  
-- **Completion Statement:** `"Build completed with 0 errors and 0 warnings"`.  
-
----
-
-## Safety Guardrails
-- No changes to: `appsettings.*.json`, secrets, requirements (unless explicitly approved).  
-- Stay within `Workspaces/Copilot/` (except `.github/`).  
-- SQL Server only (`AHHOME/KSESSIONS_DEV`), never LocalDB.  
-
----
-
-## Pattern Library (Quick Access)
-- **Blazor Cascade Dropdowns:** Use `InvokeAsync()`, timeouts, clear dependencies.  
-- **Token-Based Auto-Population:** Sequential API calls, timeouts, fallback.  
-- **Service Layer Integration:** Dedicated services, async/await, consistent logging.  
-- **Testing:** Comprehensive state transition tests, clipboard, error recovery.  
-- **Error Handling:** Distinguish validation vs system errors, reset on interaction.  
-- **Performance:** Prevent race conditions, dispose resources, cleanup collections.  
-- **Documentation:** Update architecture docs, remove obsolete notes.  
-
----
-
-## CRITICAL: API Contract & Cross-Layer Validation
-
-**⚠️ REQUIRED READING:** `.github/instructions/API-Contract-Validation.md`
-
-### API Contract Validation
-- Response model type consistency between controllers and services.  
-- Field name mapping validation (API → Frontend).  
-- Fully qualified type names to prevent namespace conflicts.  
-- Explicit transformation logic when models differ.  
-- End-to-end deserialization testing.  
-
-### Cross-Layer Consistency Check
-Copilot must perform a **cross-layer comparison** to ensure data coherence across API DTOs, SQL/data access, and frontend models:  
-
-- **API → SQL Mapping:** Verify DTO fields match SQL entities/tables (naming, types, nullability, defaults).  
-- **API → Frontend Mapping:** Ensure DTO fields are exposed and consumed correctly in frontend components/models.  
-- **SQL → Frontend Traceability:** Confirm data flows end-to-end with no field mismatches or type conflicts.  
-- **Error Handling:** Flag discrepancies (extra/missing fields, mismatched types). Do **not** auto-fix; log and TODO them for approval.  
-- **Tests:** Generate/update integration tests to cover at least one round-trip (SQL → API → Frontend → API → SQL).  
-- **Core Rule:** Never change functionality. Discrepancies must be documented and surfaced for human review.  
-
----
-
-## Logging
-Lifecycle events must include:  
-`[DEBUG-WORKITEM:{key}:refactor:{RUN_ID}] message ;CLEANUP_OK`
-
-
----
-
-_Note: This file depends on the central `SystemStructureSummary.md`. If structural changes are made, update that summary._
-
-
----
-
-## Integration with Summary and Architecture
-
-- Always read `SystemStructureSummary.md` before starting work to ensure you are targeting the correct views, APIs, DTOs, and SQL objects.  
-- If more detail is needed, consult `NOOR-CANVAS_ARCHITECTURE.MD` for the authoritative system design.  
-- After completing a task (via keylock flow), ensure both files are updated:  
-  - `SystemStructureSummary.md` with a concise snapshot of the latest state.  
-  - `NOOR-CANVAS_ARCHITECTURE.MD` with detailed architectural changes.  
-- Do not commit or push without explicit user approval.
-
-
----
-
-## API Contract Validation Integration
-
-- When tasks involve **API contracts** or DTOs, ensure `API-Contract-Validation.md` is updated.  
-- `API-Contract-Validation.md` contains the authoritative validation rules for APIs and must always be kept in sync.  
-- Alongside this, update `SystemStructureSummary.md` (snapshot) and `NOOR-CANVAS_ARCHITECTURE.MD` (detailed design).  
-
----
-
-_Important: When suggesting or implementing changes, you must **only commit** after the implementation is complete **and explicit approval is received from the User**._
-
----
-
-### Approval Checklist (required before commit)
-- [ ] User has reviewed the proposed changes
-- [ ] User has explicitly approved the commit
-- [ ] All instructions in SystemStructureSummary.md are respected
-- [ ] No conflicts remain with other prompts or instruction files
-
-_Do not commit until all items are checked and explicit approval is confirmed._
-
-
----
-## Analyzer Reference
-Refactor operations must use `.github/instructions/Links/AnalyzerConfig.MD`  
-to determine the analyzers and rules applied to this repo.  
-Copilot must not hard-code analyzer rules.  
+## Lifecycle
+- Default state: `In Progress`.  
+- Keys and summaries remain the **single source of truth** for tracked tasks.  
+- Tasks transition to `complete` only on explicit user instruction.
