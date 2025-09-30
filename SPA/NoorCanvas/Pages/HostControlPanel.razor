@@ -13,6 +13,7 @@
 @using Microsoft.EntityFrameworkCore
 @using NoorCanvas.Models
 @using NoorCanvas.Models.Simplified
+@using NoorCanvas.Models.Debug
 @using AngleSharp.Dom
 @using AngleSharp.Html.Parser
 @using System.Web
@@ -230,8 +231,6 @@
                                        target="_blank" 
                                        @onclick="HandleUserLinkClick"
                                        style="flex:1;background:transparent;border:none;color:#3B82F6;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;text-decoration:none;cursor:pointer;padding:0.25rem;border-radius:0.25rem;transition:background-color 0.2s;"
-                                       onmouseover="this.style.backgroundColor='#F0F9FF'"
-                                       onmouseout="this.style.backgroundColor='transparent'"
                                        title="Click to open in new window and copy to clipboard">
                                         https://localhost:9091/user/landing/@UserToken
                                     </a>
@@ -449,116 +448,9 @@
 </div>
 
 @* Debug Panel - Development Only *@
-@* Show only when session is active *@
-@if (System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" && Model?.SessionStatus == "Active")
-{
-    <div class="debug-panel @(_isDebugExpanded ? "expanded" : "collapsed")" 
-         style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-        
-        @* Toggle Button *@
-        <button @onclick="ToggleDebugPanel" 
-                disabled="@(Model?.SessionStatus != "Active")"
-                style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: none; cursor: @(Model?.SessionStatus == "Active" ? "pointer" : "not-allowed"); background-color: @(Model?.SessionStatus == "Active" ? "#3B82F6" : "#94A3B8"); color: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease; opacity: @(Model?.SessionStatus == "Active" ? "1" : "0.5");"
-                onmouseover="if(this.disabled) return; this.style.backgroundColor='#2563EB'; this.style.transform='scale(1.05)'"
-                onmouseout="if(this.disabled) return; this.style.backgroundColor='#3B82F6'; this.style.transform='scale(1)';">
-            <i class="fas @(_isDebugExpanded ? "fa-times" : "fa-bug")" style="font-size: 1.125rem;"></i>
-        </button>
-        
-        @* Debug Panel Content *@
-        @if (_isDebugExpanded)
-        {
-            <div style="background-color: white; border: 1px solid #D1D5DB; border-radius: 0.75rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); margin-top: 0.5rem; padding: 1rem; min-width: 300px; max-width: 400px;">
-                
-                @* Header *@
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #E5E7EB;">
-                    <h3 style="font-size: 0.875rem; font-weight: 700; color: #1F2937; display: flex; align-items: center; margin: 0;">
-                        <i class="fas fa-bug" style="color: #3B82F6; margin-right: 0.5rem;"></i>
-                        Debug Panel
-                    </h3>
-                    <span style="font-size: 0.75rem; color: #6B7280; background-color: #F3F4F6; padding: 0.25rem 0.5rem; border-radius: 0.25rem;">
-                        DEV MODE
-                    </span>
-                </div>
-                
-                @* Current Page Info *@
-                <div style="margin-bottom: 0.75rem;">
-                    <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem;">Current View:</div>
-                    <div style="font-size: 0.875rem; font-family: monospace; color: #1F2937; background-color: #F9FAFB; padding: 0.5rem; border-radius: 0.25rem;">
-                        HostControlPanel
-                    </div>
-                </div>
-                
-                @* Debug Actions *@
-                <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-direction: column;">
-                    @if (Model?.SessionStatus == "Active" && SessionId.HasValue)
-                    {
-                        <button @onclick="TestShareAsset" 
-                                disabled="@isLoading"
-                                style="width: 100%; background-color: #10B981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; border: none; cursor: @(isLoading ? "not-allowed" : "pointer"); opacity: @(isLoading ? "0.6" : "1");"
-                                onmouseover="this.style.backgroundColor='#059669'"
-                                onmouseout="this.style.backgroundColor='#10B981'">
-                            @if (isLoading)
-                            {
-                                <i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>
-                                <span>Testing...</span>
-                            }
-                            else
-                            {
-                                <i class="fas fa-share" style="margin-right: 0.5rem;"></i>
-                                <span>Test Share Asset</span>
-                            }
-                        </button>
-                        
-                        <button @onclick="TestAssetDetectionAsync" 
-                                disabled="@isLoading"
-                                style="width: 100%; background-color: #DC2626; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; border: none; cursor: @(isLoading ? "not-allowed" : "pointer"); opacity: @(isLoading ? "0.6" : "1");"
-                                onmouseover="this.style.backgroundColor='#B91C1C'"
-                                onmouseout="this.style.backgroundColor='#DC2626'">
-                            @if (isLoading)
-                            {
-                                <i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>
-                                <span>Testing...</span>
-                            }
-                            else
-                            {
-                                <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
-                                <span>Test Ayah Detection</span>
-                            }
-                        </button>
-                    }
-                    else
-                    {
-                        <div style="font-size: 0.75rem; color: #6B7280; text-align: center; padding: 0.5rem; background-color: #F9FAFB; border-radius: 0.5rem;">
-                            <i class="fas fa-info-circle" style="margin-right: 0.25rem;"></i>
-                            Start session to enable debug actions
-                        </div>
-                    }
-                </div>
-                
-                @* System Info *@
-                <div style="padding-top: 0.75rem; border-top: 1px solid #E5E7EB;">
-                    <button @onclick="ToggleDebugDetails" 
-                            style="width: 100%; text-align: left; font-size: 0.75rem; color: #6B7280; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer;"
-                            onmouseover="this.style.color='#1F2937'"
-                            onmouseout="this.style.color='#6B7280'">
-                        <span>System Info</span>
-                        <i class="fas @(_showDebugDetails ? "fa-chevron-up" : "fa-chevron-down")"></i>
-                    </button>
-                    
-                    @if (_showDebugDetails)
-                    {
-                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6B7280; display: flex; flex-direction: column; gap: 0.25rem;">
-                            <div>Environment: @(System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown")</div>
-                            <div>Session ID: @(SessionId?.ToString() ?? "Not loaded")</div>
-                            <div>Timestamp: @DateTime.Now.ToString("HH:mm:ss")</div>
-                            <div>SignalR: @(hubConnection?.State.ToString() ?? "Not connected")</div>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-    </div>
-}
+<DebugPanel CurrentViewName="HostControlPanel" 
+           DebugActions="GetHostControlPanelDebugActions()" 
+           GenericMessage="Host Control Panel debug actions" />
 
 @code {
     [Parameter] public string? HostToken { get; set; }
@@ -579,9 +471,7 @@
     // User token for generating user landing URL
     private string? UserToken { get; set; }
     
-    // Debug panel state
-    private bool _isDebugExpanded = false;
-    private bool _showDebugDetails = false;
+
 
     
     // Host auth token (GUID) removed - use HostToken (8-char) for host flows
@@ -2989,15 +2879,34 @@
         return html;
     }
     
-    // Debug Panel Methods
-    private void ToggleDebugPanel()
+    // Debug Actions Factory
+    private List<NoorCanvas.Models.Debug.IDebugAction> GetHostControlPanelDebugActions()
     {
-        _isDebugExpanded = !_isDebugExpanded;
-    }
-    
-    private void ToggleDebugDetails()
-    {
-        _showDebugDetails = !_showDebugDetails;
+        var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        // Test Share Asset Action
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Test Share Asset",
+            "Test SignalR asset sharing functionality",
+            async () => await TestShareAsset(),
+            "fa-solid fa-share"
+        )
+        {
+            IsEnabled = Model?.SessionStatus == "Active" && SessionId.HasValue && !isLoading
+        });
+        
+        // Test Asset Detection Action
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Test Asset Detection",
+            "Test asset detection in transcript content",
+            async () => await TestAssetDetectionAsync(),
+            "fa-solid fa-search"
+        )
+        {
+            IsEnabled = !isLoading
+        });
+        
+        return actions;
     }
     
     // Phase 4: Format session description to proper case

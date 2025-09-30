@@ -1,0 +1,48 @@
+{
+    "key": "hostcontrolpanel",
+    "context": "new",
+    "created": "2025-09-30T10:40:00Z",
+    "work_summary": {
+        "why": "User inquiry about 'Test Asset Detection' button functionality in HostControlPanel.razor",
+        "what": "Analyze and document the TestAssetDetectionAsync method and its role in the asset sharing system",
+        "risk": "None - analysis only, no code changes"
+    },
+    "surfaces": {
+        "controllers": [
+            "HostController"
+        ],
+        "pages": [
+            "HostControlPanel.razor"
+        ],
+        "services": [
+            "AssetHtmlProcessingService",
+            "SafeHtmlRenderingService"
+        ],
+        "methods": [
+            "TestAssetDetectionAsync",
+            "InjectAssetShareButtonsDatabaseAsync",
+            "GetAssetLookupsFromApiAsync"
+        ]
+    },
+    "files_touched": [
+        "SPA/NoorCanvas/Pages/HostControlPanel.razor"
+    ],
+    "endpoints_involved": [
+        "GET /api/host/asset-lookup"
+    ],
+    "test_identifiers": {
+        "debug_markers": [
+            "[DEBUG-WORKITEM:assetshare:continue:{RunId}]",
+            "[ASSETSHARE-DB]",
+            "[ASSETSHARE-API]"
+        ],
+        "mock_content": "Test HTML with ayah-card elements",
+        "fake_data": "Sample Islamic content elements for asset detection testing"
+    },
+    "debug_marker_format": "[DEBUG-WORKITEM:hostcontrolpanel:{layer}:{RUN_ID}] ... ;CLEANUP_OK",
+    "architecture_notes": {
+        "asset_detection": "Database-driven asset detection using canvas.AssetLookup table via API",
+        "debugging": "Development-only debug panel with asset detection testing capability",
+        "integration": "Uses AngleSharp for HTML parsing and CSS selector matching"
+    }
+}

@@ -1,4 +1,5 @@
 @using NoorCanvas.Services.Development
+@using NoorCanvas.Models.Debug
 @implements IDisposable
 @inject IDevModeService DevModeService
 @inject ILogger<DebugPanel> Logger
@@ -41,9 +42,29 @@
                     </div>
                 </div>
                 
-                @* Test Data Actions *@
-                <div class="debug-actions">
-                    @if (OnEnterTestData.HasDelegate)
+                @* Debug Actions *@
+                <div class="debug-actions space-y-2">
+                    @if (DebugActions?.Any() == true)
+                    {
+                        @foreach (var action in DebugActions)
+                        {
+                            <button @onclick="@(() => HandleDebugAction(action))" 
+                                    disabled="@(_isProcessing || !action.IsEnabled)"
+                                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-3 rounded-lg transition-colors duration-200 flex items-center text-sm"
+                                    title="@action.Description">
+                                @if (_isProcessing && _currentAction == action)
+                                {
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                }
+                                else
+                                {
+                                    <i class="@action.IconClass mr-2"></i>
+                                }
+                                <span>@action.Name</span>
+                            </button>
+                        }
+                    }
+                    else if (OnEnterTestData.HasDelegate)
                     {
                         <button @onclick="HandleEnterTestData" 
                                 disabled="@_isProcessing"
@@ -62,9 +83,9 @@
                     }
                     else
                     {
-                        <div class="text-xs text-gray-500 text-center py-2 bg-gray-50 rounded-lg">
+                        <div class="text-xs text-gray-500 text-center py-3 bg-gray-50 rounded-lg">
                             <i class="fas fa-info-circle mr-1"></i>
-                            No test data actions available for this view
+                            @GenericMessage
                         </div>
                     }
                 </div>
@@ -103,12 +124,15 @@
 @code {
     [Parameter] public string CurrentViewName { get; set; } = "Unknown";
     [Parameter] public EventCallback OnEnterTestData { get; set; }
+    [Parameter] public List<IDebugAction>? DebugActions { get; set; }
+    [Parameter] public string GenericMessage { get; set; } = "No debug actions available for this view";
     
     private bool _isExpanded = false;
     private bool _showDetails = false;
     private bool _isProcessing = false;
     private string _message = string.Empty;
     private bool _isSuccess = false;
+    private IDebugAction? _currentAction = null;
     private string _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
     
     protected override void OnInitialized()
@@ -129,6 +153,50 @@
         StateHasChanged();
     }
     
+    private async Task HandleDebugAction(IDebugAction action)
+    {
+        if (_isProcessing || !action.IsEnabled) return;
+        
+        try
+        {
+            _isProcessing = true;
+            _currentAction = action;
+            _message = string.Empty;
+            StateHasChanged();
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Executing debug action '{ActionName}' for view: {ViewName}", action.Name, CurrentViewName);
+            
+            await action.ExecuteAsync();
+            
+            _message = $"'{action.Name}' completed successfully";
+            _isSuccess = true;
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Debug action '{ActionName}' completed successfully", action.Name);
+        }
+        catch (Exception ex)
+        {
+            _message = $"Error executing '{action.Name}': {ex.Message}";
+            _isSuccess = false;
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error executing debug action '{ActionName}' for view: {ViewName}", action.Name, CurrentViewName);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _currentAction = null;
+            StateHasChanged();
+            
+            // Clear message after 3 seconds
+            _ = Task.Delay(3000).ContinueWith(_ =>
+            {
+                InvokeAsync(() =>
+                {
+                    _message = string.Empty;
+                    StateHasChanged();
+                });
+            });
+        }
+    }
+
     private async Task HandleEnterTestData()
     {
         if (_isProcessing) return;

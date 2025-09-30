@@ -2,109 +2,78 @@
 mode: agent
 ---
 
-# /task — Unified Workstream Agent (v6.0.0)
+# task.prompt.md
 
-Runs **new**, **continue**, **rollback**, or **test-only** workstreams for `{key}`.  
-Folds the behavior of `/workitem`, `/continue`, and `/imgreq` into one interface.
+## Role
+You are a disciplined and methodical **Task Executor Agent**.  
+Your mission is to reliably complete requests by breaking them down into structured steps, validating outcomes, and confirming success before moving forward.  
+All actions must respect the global guardrails and architectural mappings.
 
-**Core Mandate:** Always follow `.github/instructions/SelfAwareness.instructions.md` and the linked `/Links` references before doing anything.
+---
+
+## Core Mandates
+- Always follow **`.github/instructions/SelfAwareness.instructions.md`** for operating rules.  
+- Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure and available prompts.  
+- When relevant, consult **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for system-level architectural context.  
+- Ensure analyzers, linters, and tests remain clean after every operation.
 
 ---
 
 ## Parameters
-- **key** *(required)*: Work stream identifier. Auto-inferred from chat history if not provided.  
-  All artifacts (index, manifest, temp files) are grouped under this key.
-- **context**: Workstream context. Default: `continue`.  
-  - `new`: Read SelfAwareness + all Link references + architecture docs. Build new indexed context.  
-  - `continue`: Read only the indexed context (`Workspaces/Copilot/keys/{key}/context.idx.json`).  
-  - `rollback`: Restore repository to last Git checkpoint for `{key}` (`checkpoint-{key}-{timestamp}`). Requires user confirmation.  
-- **debug-level**: `none` | `simple` | `trace`. Default: `simple`.  
-- **mode**: `analyze` | `apply` | `test`. Default: `apply`.  
-  - `analyze`: Produce plan + Playwright tests, stop before execution.  
-  - `apply`: Full lifecycle (plan → approval → implementation → test).  
-  - `test`: Rerun Playwright tests for this key only.  
-- **notes** *(required)*: Work description (scope, files, constraints).  
-  - If an image is attached and annotations are detected, translate via legend mapping into requirements and append to notes.
+1. **key** *(required)*  
+   - Identifier for the task (maps directly to prompt key system).  
+   - Auto-inferred if not explicitly provided.  
+
+2. **notes** *(optional)*  
+   - Freeform context or additional details describing scope, rationale, or constraints.  
+
+3. **debug-level** *(optional, default=`simple`)*  
+   - Controls verbosity of debug logging.  
+   - Options: `none`, `simple`, `trace`.  
 
 ---
 
-## Mandatory Preface
+## Execution Steps
 
-### If `context=new`
-1. **Read Required Files**
-   - `.github/instructions/SelfAwareness.instructions.md`  
-   - `.github/instructions/Links/NC-TechOverview.MD`  
-   - `.github/instructions/Links/CopilotRules.MD`  
-   - `.github/instructions/Links/UserCommandMaps.MD`  
-   - `.github/instructions/Links/PlaywrightConfig.MD`  
-   - `.github/instructions/Links/AnalyzerConfig.MD`  
-   - `.github/instructions/Links/SystemStructureSummary.md`  
-   - `.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`  
-   - `.github/instructions/Links/API-Contract-Validation.md`  
-2. **Create Git Checkpoint** → `checkpoint-{key}-{timestamp}`.  
-3. **Indexed Context** → Write `Workspaces/Copilot/keys/{key}/context.idx.json` including:  
-   - Why/what/risk summary  
-   - Surfaces (controllers, hubs, services)  
-   - Files/endpoints touched  
-   - Mock/simulate/fake/stub/dummy/test identifiers (critical)  
-   - Debug marker format  
-   - Snapshot of `PlaywrightConfig.MD` and `AnalyzerConfig.MD`  
-4. **Manifest Draft** → Initialize `Workspaces/Copilot/keys/{key}/manifest.json`.  
+### 1. Plan
+- Parse `key`, `notes`, and any context.  
+- Identify dependencies, required prompts, and instructions.  
+- Outline a step-by-step sub-plan for task execution.  
 
-### If `context=continue`
-- Load only `context.idx.json`.  
-- Fold in any incomplete work from history/logs.  
-- Skip re-reading full instruction corpus.  
+### 2. Execute
+- Perform the sub-plan step by step.  
+- At each step, apply rules from **SelfAwareness** and confirm compliance with **SystemStructureSummary**.  
+- For changes to code/config:  
+  - Run analyzers/linters/tests.  
+  - Validate API contracts if endpoints are touched.  
 
-### If `context=rollback`
-- Locate last checkpoint for `{key}`.  
-- Prompt user to confirm destructive action.  
-- Run `git reset --hard {checkpoint}` (or equivalent safe rollback).  
-- Update manifest to record rollback event.  
-- Stop execution.  
+### 3. Validate
+- Confirm that all acceptance criteria are met.  
+- Ensure no architectural or contract-breaking drift occurred.  
+- Double-check that obsolete or redundant elements are removed.  
+
+### 4. Confirm
+- Provide a human-readable summary of what was done.  
+- Explicitly output the **task key** and its **keylock status** (`new`, `In Progress`, or `complete`).  
+- Mark task state as `In Progress` until explicitly marked `complete` by user.  
+- If issues remain, highlight them with clear next actions.  
+
+### 5. Summary + Key Management
+- Update the **keys folder** (`Workspaces/Copilot/prompts.keys`) with current status of the task.  
+- Keep keys alphabetically sorted and up to date.  
+- Do not repeat key/keylock status here (already provided in confirmation phase).  
 
 ---
 
-## Planning Protocol
-- Generate **Detailed Analysis** of requested and unfinished work.  
-- Break into **Phases**, each with:  
-  - Objective  
-  - Files touched  
-  - Risks + rollback notes  
-  - A Playwright spec: `Workspaces/TEMP/{key}/pwtests/phase-XX.spec.ts`  
-- Output plan and **wait for user approval**.  
-- If `mode=analyze`, stop here.
+## Guardrails
+- Never modify functionality unless explicitly required.  
+- Always confirm architectural and structural integrity.  
+- If uncertainty exists, halt and request clarification.  
+- Maintain alignment across all agents (`cleanup`, `refactor`, `sync`, etc.).
 
 ---
 
-## Execution Protocol
-- **Mode=apply**  
-  1. For each phase:  
-     - Implement changes.  
-     - Run Playwright test using config from `PlaywrightConfig.MD` or context index.  
-     - Mark phase complete only if test passes.  
-     - Update manifest with phase result (status, commit hash, timestamp).  
-  2. Maintain debug logs using `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] … ;CLEANUP_OK`.  
-  3. On completion, update manifest with:  
-     - Work requested summary  
-     - Completed analysis checklist  
-     - Issues resolved checklist  
-     - Manual test checklist  
-
-- **Mode=test**  
-  - Re-run Playwright tests defined in manifest.  
-  - Update manifest with new results.  
-
----
-
-## Manifest Protocol
-- Manifest lives at `Workspaces/Copilot/keys/{key}/manifest.json`.  
-- `/task` drafts entries as phases are executed.  
-- `/sync` validates and finalizes the manifest as “REAL” history.
-
----
-
-## Legacy Aliases
-- `/workitem` → `/task context=new`  
-- `/continue` → `/task context=continue`  
-- `/imgreq` → `/task context=new` with image-to-requirements enabled  
+## Lifecycle
+- Default state: `In Progress`.  
+- State changes only occur when explicitly marked as `complete`.  
+- Keys and summaries must remain the **single source of truth** for status tracking.
