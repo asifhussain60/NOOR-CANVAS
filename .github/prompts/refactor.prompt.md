@@ -11,8 +11,10 @@ Your mission is to improve the maintainability, readability, and consistency of 
 ---
 
 ## Core Mandates
+- **Always begin with a checkpoint commit before any refactor.** This is CRITICAL for rollback safety.  
 - **Never change functionality without explicit user approval.**  
 - Ensure all changes preserve contracts between APIs, services, DTOs, databases, and UI.  
+- Always leave the codebase in a clean, compilable, and functional state.  
 - Follow **`.github/instructions/SelfAwareness.instructions.md`** as the global guardrails.  
 - Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation.  
 - Reference **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for full system design.  
@@ -43,15 +45,26 @@ Your mission is to improve the maintainability, readability, and consistency of 
 
 ## Execution Steps
 
+### 0. Checkpoint Commit (Mandatory)
+- Before starting any planning or execution, create a **checkpoint commit** (or equivalent snapshot).  
+- Commit message must clearly identify the checkpoint:  
+  `checkpoint: pre-refactor <key or scope>`  
+- This guarantees rollback capability if the refactor introduces instability.  
+
 ### 1. Plan
 - Parse `key`, `scope`, and `notes`.  
 - If `scope=all`: target all relevant components, services, and layers under the key.  
 - If `scope` specifies a component or view: limit the refactor to that item only.  
 - Map targets using `SystemStructureSummary.md`.  
-- Generate a step-by-step refactor plan.  
+- Generate a detailed step-by-step refactor plan.  
 
-### 2. Execute
-- Apply structural improvements within the defined scope:  
+### 2. Approval (Mandatory)
+- Present the plan to the user for review.  
+- Do not proceed until the user explicitly approves.  
+- If no approval is given, halt and mark task as **Pending Approval**.  
+
+### 3. Execute
+- Once approved, apply structural improvements within the defined scope:  
   - Consolidate duplicate code.  
   - Remove unused or obsolete classes/methods.  
   - Normalize formatting, naming, and structure.  
@@ -61,19 +74,21 @@ Your mission is to improve the maintainability, readability, and consistency of 
   - Run StyleCop and .NET analyzers.  
   - Run ESLint + Prettier for JavaScript/TypeScript.  
 
-### 3. Validate
+### 4. Validate
 - Run **all analyzers, linters, and tests**.  
 - Confirm Roslynator analysis is clean (no major unresolved diagnostics).  
 - Validate API contract integrity (no mismatched models, namespaces, or field names).  
 - Ensure Playwright tests pass for impacted components.  
+- Verify DTO mappings are correct across UI → Service → API → DB.  
+- Confirm solution compiles with zero errors.  
 
-### 4. Confirm
+### 5. Confirm
 - Provide a human-readable summary of what was refactored, why, and how it aligns with standards.  
 - Explicitly output the **task key** (if provided) and its **keylock status** (`new`, `In Progress`, or `complete`).  
 - Example final line:  
   `Refactor task <key or ad-hoc> (scope: <scope>) is currently in <keylock-status or N/A>.`  
 
-### 5. Summary + Key Management
+### 6. Summary + Key Management
 - If `key` is provided: update the **keys folder** (`Workspaces/Copilot/prompts.keys`).  
 - Keep keys alphabetically sorted.  
 - Do not repeat key/keylock status here (already output in confirmation phase).  
@@ -83,12 +98,40 @@ Your mission is to improve the maintainability, readability, and consistency of 
 ## Guardrails
 - **Never** modify functionality without user approval.  
 - Always back up modified files for traceability.  
+- Always begin with a checkpoint commit to ensure rollback safety.  
 - Delete obsolete files only after successful validation.  
 - If uncertainty arises, pause and request clarification.  
 
 ---
 
-## Lifecycle
-- Default state: `In Progress`.  
-- Keys and summaries remain the **single source of truth** for tracked tasks.  
-- Tasks transition to `complete` only on explicit user instruction.
+## Clean Exit Guarantee
+At the end of every refactor:
+- The code **must compile successfully**.  
+- All analyzers, linters, and Roslynator checks must pass with no blocking errors.  
+- All automated tests (unit, integration, Playwright) must pass.  
+- API contracts must remain intact and validated.  
+- No obsolete or broken code paths may remain.  
+
+If any of these conditions fail, the refactor must be considered **incomplete** and marked accordingly in the confirmation output.  
+
+---
+
+## DTO Mapping Integrity
+All refactors must include a **cross-layer DTO mapping audit**:  
+
+- **UI Layer**: Razor components’ bound properties must exactly match DTO fields.  
+- **Service Layer**: Deserialization targets must match API response models, with fully qualified namespaces.  
+- **API Layer**: Controller DTOs must align with service and database schemas.  
+- **Database Layer**: SQL columns, constraints, and DTO properties must stay in sync.  
+
+### Validation Rules
+- Field names must match **exactly** (case-sensitive).  
+- No shorthand or aliasing without explicit mapping logic.  
+- Explicit transformations must be documented and logged.  
+- Any mismatch halts the refactor until resolved.  
+
+### Required Validation Steps
+- Run analyzer checks on DTO usage.  
+- Cross-reference with `API-Contract-Validation.md`.  
+- Confirm mappings in `SystemStructureSummary.md` and `NOOR-CANVAS_ARCHITECTURE.MD`.  
+- Validate end-to-end: UI → Service → API → DB.  

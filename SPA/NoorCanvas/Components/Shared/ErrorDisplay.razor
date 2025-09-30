@@ -1,0 +1,118 @@
+@* Error Display Component - Extracted from HostControlPanel for reusability *@
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JSRuntime
+
+<div id="@ErrorPanelId" style="display:@(IsVisible ? "block" : "none");background:linear-gradient(135deg,#FEF2F2,#FECACA);border:2px solid #DC2626;border-radius:1rem;padding:1.5rem;margin-bottom:1rem;box-shadow:0 10px 15px -3px rgba(220,38,38,0.1);">
+    <div style="display:flex;align-items:flex-start;gap:1rem;">
+        <div style="flex-shrink:0;background:#DC2626;color:white;width:2.5rem;height:2.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-exclamation-triangle" style="font-size:1.125rem;"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+            <h4 style="font-weight:700;font-size:1.125rem;color:#DC2626;margin:0 0 0.5rem 0;display:flex;align-items:center;gap:0.5rem;">
+                <span>@Title</span>
+                @if (ShowTimestamp)
+                {
+                    <span style="font-size:0.75rem;font-weight:400;color:#6B7280;">@Timestamp</span>
+                }
+            </h4>
+            <div style="background:rgba(255,255,255,0.8);border-radius:0.5rem;padding:1rem;margin-bottom:1rem;border:1px solid #FCA5A5;">
+                <div style="font-family:monospace;font-size:0.875rem;color:#374151;word-break:break-all;white-space:pre-wrap;">@Message</div>
+            </div>
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                <button @onclick="CopyError" 
+                        style="padding:0.5rem 1rem;background:#DC2626;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;"
+                        onmouseover="this.style.backgroundColor='#B91C1C'"
+                        onmouseout="this.style.backgroundColor='#DC2626'">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copy Error</span>
+                </button>
+                <button @onclick="Dismiss" 
+                        style="padding:0.5rem 1rem;background:#6B7280;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;"
+                        onmouseover="this.style.backgroundColor='#4B5563'"
+                        onmouseout="this.style.backgroundColor='#6B7280'">
+                    <i class="fa-solid fa-times"></i>
+                    <span>Dismiss</span>
+                </button>
+                @if (HasDetails)
+                {
+                    <button @onclick="ToggleDetails" 
+                            style="padding:0.5rem 1rem;background:#3B82F6;color:white;border:none;border-radius:0.5rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;"
+                            onmouseover="this.style.backgroundColor='#2563EB'"
+                            onmouseout="this.style.backgroundColor='#3B82F6'">
+                        <i class="fa-solid fa-info-circle"></i>
+                        <span>Details</span>
+                    </button>
+                }
+            </div>
+            @if (HasDetails)
+            {
+                <div id="@DetailsId" style="display:@(ShowDetails ? "block" : "none");margin-top:1rem;padding:1rem;background:rgba(255,255,255,0.9);border-radius:0.5rem;border:1px solid #E5E7EB;">
+                    <h5 style="font-weight:600;font-size:0.875rem;color:#374151;margin:0 0 0.5rem 0;">Technical Details:</h5>
+                    <div style="font-family:monospace;font-size:0.75rem;color:#6B7280;white-space:pre-wrap;word-break:break-all;">@StackTrace</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "System Error Detected";
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public string? StackTrace { get; set; }
+    [Parameter] public bool ShowTimestamp { get; set; } = true;
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public EventCallback OnDismiss { get; set; }
+    [Parameter] public string ErrorPanelId { get; set; } = "error-panel";
+    [Parameter] public string DetailsId { get; set; } = "error-details";
+
+    private string Timestamp => DateTime.Now.ToString("HH:mm:ss");
+    private bool ShowDetails { get; set; } = false;
+    private bool HasDetails => !string.IsNullOrEmpty(StackTrace);
+
+    private async Task CopyError()
+    {
+        try
+        {
+            var errorText = $"{Title}\n{Message}";
+            if (HasDetails)
+            {
+                errorText += $"\n\nDetails:\n{StackTrace}";
+            }
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", errorText);
+        }
+        catch (Exception ex)
+        {
+            // Silent fail for clipboard operations
+            Console.WriteLine($"Failed to copy error: {ex.Message}");
+        }
+    }
+
+    private async Task Dismiss()
+    {
+        IsVisible = false;
+        if (OnDismiss.HasDelegate)
+        {
+            await OnDismiss.InvokeAsync();
+        }
+    }
+
+    private void ToggleDetails()
+    {
+        ShowDetails = !ShowDetails;
+    }
+
+    public void ShowError(string message, string? stackTrace = null, string? title = null)
+    {
+        Title = title ?? "System Error Detected";
+        Message = message;
+        StackTrace = stackTrace;
+        IsVisible = true;
+        StateHasChanged();
+    }
+
+    public void HideError()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+}

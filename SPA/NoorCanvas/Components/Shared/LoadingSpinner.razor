@@ -1,0 +1,37 @@
+@* Loading Spinner Component - Extracted from HostControlPanel for reusability *@
+
+<div class="loading-spinner-container @CssClass" style="@ContainerStyle">
+    @if (ShowText)
+    {
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div class="loading-spinner" style="width:@(Size)px;height:@(Size)px;border:@(BorderWidth)px solid #f3f3f3;border-top:@(BorderWidth)px solid @Color;border-radius:50%;animation:spin 1s linear infinite;"></div>
+            <span style="color:@Color;font-size:@(TextSize);font-weight:@FontWeight;">@Text</span>
+        </div>
+    }
+    else
+    {
+        <div class="loading-spinner" style="width:@(Size)px;height:@(Size)px;border:@(BorderWidth)px solid #f3f3f3;border-top:@(BorderWidth)px solid @Color;border-radius:50%;animation:spin 1s linear infinite;"></div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Size { get; set; } = 16;
+    [Parameter] public int BorderWidth { get; set; } = 2;
+    [Parameter] public string Color { get; set; } = "#D4AF37";
+    [Parameter] public bool ShowText { get; set; } = false;
+    [Parameter] public string Text { get; set; } = "Loading...";
+    [Parameter] public string TextSize { get; set; } = "0.875rem";
+    [Parameter] public string FontWeight { get; set; } = "400";
+    [Parameter] public string CssClass { get; set; } = "";
+    [Parameter] public string ContainerStyle { get; set; } = "";
+}
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .loading-spinner-container {
+        display: inline-block;
+    }
+</style>
