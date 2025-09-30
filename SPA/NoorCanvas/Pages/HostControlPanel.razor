@@ -2068,49 +2068,50 @@
     }
 
     /// <summary>
-    /// Show comprehensive asset detection results with modern styling and detailed breakdowns
+    /// Display asset detection results using simple, reliable alert (refactored for maintainability)
     /// </summary>
     private async Task ShowAssetDetectionResults(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
     {
+        var runId = DateTime.Now.ToString("HHmmss");
+        
         try 
         {
-            var title = "🔍 Enhanced Asset Detection Analysis";
+            var message = CreateAssetSummaryMessage(testResults, transcriptResults, totalAssetDefinitions);
+            await JSRuntime.InvokeVoidAsync("alert", message);
             
-            // Build modern styled content with comprehensive details
-            var content = BuildModernAssetDetectionContent(testResults, transcriptResults, totalAssetDefinitions);
-
-            // Use CancellationToken with timeout to prevent hanging
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            
-            await JSRuntime.InvokeVoidAsync("Swal.fire", cts.Token, new
-            {
-                title = title,
-                html = content,
-                icon = "info",
-                width = 900,
-                showCloseButton = true,
-                showConfirmButton = true,
-                confirmButtonText = "✅ Got It!",
-                confirmButtonColor = "#28a745",
-                customClass = new
-                {
-                    popup = "asset-detection-popup",
-                    title = "asset-detection-title",
-                    htmlContainer = "asset-detection-content"
-                }
-            });
-        }
-        catch (TaskCanceledException)
-        {
-            // SweetAlert2 timeout - fallback to simple alert
-            Logger.LogWarning("[DEBUG-WORKITEM:assetshare:TIMEOUT] SweetAlert2 popup timeout, using fallback ;CLEANUP_OK");
-            await ShowErrorPopup("Asset Detection Results", $"Detection completed: {testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected} total assets found");
+            Logger.LogInformation("[DEBUG-WORKITEM:popup:refactored:{RunId}] Asset detection alert displayed ;CLEANUP_OK", runId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:ERROR] Failed to show asset detection popup ;CLEANUP_OK");
-            await ShowErrorPopup("Asset Detection Error", $"Could not display results: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:popup:refactored:{RunId}] Alert failed, logging fallback ;CLEANUP_OK", runId);
+            LogAssetDetectionFallback(testResults, transcriptResults, totalAssetDefinitions);
         }
+    }
+
+    /// <summary>
+    /// Create formatted asset detection summary message
+    /// </summary>
+    private static string CreateAssetSummaryMessage(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
+    {
+        var totalFound = testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected;
+        var timestamp = DateTime.Now.ToString("HH:mm:ss");
+        
+        return $"🔍 Asset Detection Complete\\n\\n" +
+               $"📊 Available Types: {totalAssetDefinitions}\\n" +
+               $"🧪 Test HTML: {testResults.TotalAssetsDetected} detected\\n" +
+               $"🔴 Live Session: {transcriptResults.TotalAssetsDetected} detected\\n" +
+               $"📈 Total Found: {totalFound}\\n\\n" +
+               $"⏰ Completed at {timestamp}";
+    }
+
+    /// <summary>
+    /// Log asset detection results when UI display fails
+    /// </summary>
+    private void LogAssetDetectionFallback(AssetDetectionResult testResults, AssetDetectionResult transcriptResults, int totalAssetDefinitions)
+    {
+        var totalFound = testResults.TotalAssetsDetected + transcriptResults.TotalAssetsDetected;
+        Logger.LogInformation("Asset Detection Summary - Available:{Available} Test:{Test} Session:{Session} Total:{Total}", 
+            totalAssetDefinitions, testResults.TotalAssetsDetected, transcriptResults.TotalAssetsDetected, totalFound);
     }
 
     /// <summary>
