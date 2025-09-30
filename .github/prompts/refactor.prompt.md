@@ -15,6 +15,7 @@ Your mission is to improve the maintainability, readability, and consistency of 
 - **Never change functionality without explicit user approval.**  
 - Ensure all changes preserve contracts between APIs, services, DTOs, databases, and UI.  
 - Always leave the codebase in a clean, compilable, and functional state.  
+- The build must finish with **zero errors and zero warnings**.  
 - Follow **`.github/instructions/SelfAwareness.instructions.md`** as the global guardrails.  
 - Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation.  
 - Reference **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for full system design.  
@@ -80,7 +81,15 @@ Your mission is to improve the maintainability, readability, and consistency of 
 - Validate API contract integrity (no mismatched models, namespaces, or field names).  
 - Ensure Playwright tests pass for impacted components.  
 - Verify DTO mappings are correct across UI → Service → API → DB.  
-- Confirm solution compiles with zero errors.  
+- Confirm solution builds with **zero errors and zero warnings**.  
+
+### 4.1 Iterative Resolution (Controlled)
+- If issues remain after validation:  
+  - Provide a clear report of remaining problems.  
+  - Do **not** automatically re-run refactor.  
+  - Ask the user if they would like to trigger another pass.  
+  - If approved, repeat Plan → Approval → Execute → Validate.  
+  - If not approved, stop and mark the task as **Incomplete** with remaining issues listed.  
 
 ### 5. Confirm
 - Provide a human-readable summary of what was refactored, why, and how it aligns with standards.  
@@ -106,8 +115,8 @@ Your mission is to improve the maintainability, readability, and consistency of 
 
 ## Clean Exit Guarantee
 At the end of every refactor:
-- The code **must compile successfully**.  
-- All analyzers, linters, and Roslynator checks must pass with no blocking errors.  
+- The code **must build with zero errors and zero warnings**.  
+- All analyzers, linters, and Roslynator checks must pass with no blocking issues.  
 - All automated tests (unit, integration, Playwright) must pass.  
 - API contracts must remain intact and validated.  
 - No obsolete or broken code paths may remain.  

@@ -1,12 +1,4 @@
-using Microsoft.Extensi    /// <summary>
-    /// Transforms the transcript HTML by removing delete buttons and adding SHARE buttons for each asset.
-    /// Share buttons are only injected when session status is "Active" or "Waiting".
-    /// </summary>
-    /// <param name="originalHtml">The original HTML content to transform.</param>
-    /// <param name="sessionId">The session ID for asset processing.</param>
-    /// <param name="sessionStatus">The current session status.</param>
-    /// <returns>The transformed HTML with share buttons injected.</returns>
-    /// <returns>The transformed HTML with share buttons injected.</returns>Logging;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using AngleSharp.Html.Parser;
 using AngleSharp.Dom;

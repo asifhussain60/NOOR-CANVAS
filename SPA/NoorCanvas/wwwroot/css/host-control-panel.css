@@ -6,8 +6,12 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Loading Spinner Base Class */
+/* Loading Spinner Base Classes */
 .loading-spinner {
+    display: inline-block;
+}
+
+.loading-spinner-container {
     display: inline-block;
 }
 

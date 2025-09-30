@@ -157,6 +157,9 @@ builder.Services.AddScoped<SafeHtmlRenderingService>(); // Safe HTML rendering i
 // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Enhanced asset HTML processing service using HtmlAgilityPack ;CLEANUP_OK
 builder.Services.AddScoped<AssetHtmlProcessingService>(); // Advanced asset detection, extraction, and processing for host sharing
 
+// AssetProcessingService - Extracted from HostControlPanel for HTML transformation and asset sharing
+builder.Services.AddScoped<AssetProcessingService>(); // HTML transformation service with asset sharing buttons
+
 builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection and sharing service (legacy)
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks
