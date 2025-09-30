@@ -74,11 +74,52 @@ Workspaces/Copilot/
 └── prompts.keys/           # Key-based prompt storage
 ```
 
+### Code Quality Analysis - Roslynator Organization
+**MANDATORY**: All Roslynator code analysis data is strictly organized under `Workspaces/CodeQuality/` with documentation stored in `Workspaces/Documentation/ROSLYNATOR DOCS/`:
+
+```
+Workspaces/CodeQuality/
+├── README.md                         # Comprehensive usage documentation
+├── run-roslynator.ps1               # Automated analysis execution script
+├── CONFIGURATION_COMPLETE.md        # Setup completion status
+└── Roslynator/
+    ├── Config/
+    │   └── roslynator.config        # Main Roslynator configuration
+    ├── Reports/
+    │   ├── baseline-analysis.json   # Initial baseline for comparison
+    │   ├── latest-analysis.json     # Most recent analysis (GitLab format)
+    │   └── analysis_*.json          # Timestamped historical reports
+    └── Logs/
+        ├── latest-analysis.log      # Most recent execution log
+        └── analysis_*.log           # Timestamped historical logs
+
+Workspaces/Documentation/ROSLYNATOR DOCS/
+├── latest-roslynator-documentation.md    # Most recent analysis documentation
+└── roslynator-documentation_*.md         # Timestamped historical documentation
+```
+
+**Roslynator Documentation Features:**
+- **Automatic Generation**: Enhanced markdown documentation with executive summaries
+- **Health Scoring**: Project health scores calculated from diagnostic patterns
+- **Severity Analysis**: Issues grouped by Error, Warning, Info, and Suggestion levels
+- **File Rankings**: Identification of files requiring the most attention
+- **Actionable Recommendations**: Specific improvement suggestions based on analysis
+- **Dual Format Output**: Both technical JSON reports and user-friendly documentation
+
+**Roslynator Execution Rules:**
+- **NEVER** run `roslynator` commands directly in project root
+- **ALWAYS** use: `.\Workspaces\CodeQuality\run-roslynator.ps1`
+- **VS Code Integration**: Use tasks "run-roslynator-analysis" or "run-roslynator-analysis-and-open"
+- **Report Access**: Latest results always at `Workspaces/CodeQuality/Roslynator/Reports/latest-analysis.json`
+- **Documentation Access**: Latest user-friendly docs at `Workspaces/Documentation/ROSLYNATOR DOCS/latest-roslynator-documentation.md`
+- **No Root Pollution**: All analysis artifacts are contained in the organized structure
+
 **Enforcement:**
 - **Summaries**: `Workspaces/Copilot/_DOCS/summaries/`
 - **Analysis**: `Workspaces/Copilot/_DOCS/analysis/`
 - **Config Documentation**: `Workspaces/Copilot/_DOCS/configs/`
 - **Migration Reports**: `Workspaces/Copilot/_DOCS/migrations/`
+- **Code Quality**: `Workspaces/CodeQuality/Roslynator/`
 - **Never use project root** for any temporary or analysis files
 
 ## Absolute Runtime Rules

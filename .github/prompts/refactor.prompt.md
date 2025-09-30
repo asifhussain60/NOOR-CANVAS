@@ -45,7 +45,13 @@ All modified files are **backed up** for traceability. Obsolete files are delete
    - Auto-cleanup after 30 days.  
 
 ### Phase 2: Analysis & Planning
-3. **Code Survey:**  
+3. **Code Quality Assessment:**  
+   - **MANDATORY:** Run Roslynator analysis: `.\Workspaces\CodeQuality\run-roslynator.ps1`  
+   - Review latest results at: `Workspaces/CodeQuality/Roslynator/Reports/latest-analysis.json`  
+   - Prioritize critical and major issues identified in analysis  
+   - Document baseline metrics for before/after comparison  
+
+4. **Code Survey:**  
    - Identify duplicate/dead code, bloated implementations.  
    - Extract **TODO Functionalities Checklist** (public APIs, key features).  
 
@@ -67,6 +73,8 @@ All modified files are **backed up** for traceability. Obsolete files are delete
 6. **Quality Gates:**  
    - Build = 0 errors, 0 warnings.  
    - All analyzers & linters green.  
+   - **Post-Refactor Analysis:** Run `.\Workspaces\CodeQuality\run-roslynator.ps1` again  
+   - **Health Improvement Verification:** Compare before/after metrics, document improvements  
    - TODO checklist validated.  
    - Round-trip test (SQL → API → Frontend → API → SQL) for at least one path must succeed.  
 7. **Iterative Recovery:**  
@@ -79,6 +87,7 @@ All modified files are **backed up** for traceability. Obsolete files are delete
 - **Scope Summary:** If >5 files.  
 - **TODO Checklist:** Preserved functionalities.  
 - **Quality Report:** Analyzer, linter, test outcomes.  
+- **Code Health Metrics:** Before/after Roslynator analysis comparison showing improvements  
 - **Audit Trail:** File renames/deletions, backup map, terminal logs.  
 - **Completion Statement:** `"Build completed with 0 errors and 0 warnings"`.  
 

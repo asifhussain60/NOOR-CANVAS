@@ -1,0 +1,11 @@
+﻿MSBuild location is 'C:\Program Files\dotnet\sdk\9.0.305'
+System.AggregateException: One or more errors occurred. (Project or solution file not found: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\SPA\NoorCanvas\NoorCanvas.csproj)
+ ---> System.IO.FileNotFoundException: Project or solution file not found: D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas\SPA\NoorCanvas\NoorCanvas.csproj
+   at Roslynator.CommandLine.MSBuildWorkspaceCommand`1.ExecuteAsync(String path, MSBuildWorkspace workspace, CancellationToken cancellationToken) in /_/src/CommandLine/Commands/MSBuildWorkspaceCommand.cs:line 149
+   at Roslynator.CommandLine.MSBuildWorkspaceCommand`1.ExecuteAsync(IEnumerable`1 paths, String msbuildPath, IEnumerable`1 properties) in /_/src/CommandLine/Commands/MSBuildWorkspaceCommand.cs:line 89
+   at Roslynator.CommandLine.Program.AnalyzeAsync(AnalyzeCommandLineOptions options) in /_/src/CommandLine/Program.cs:line 346
+   --- End of inner exception stack trace ---
+   at System.Threading.Tasks.Task`1.GetResultCore(Boolean waitCompletionNotification)
+   at Roslynator.CommandLine.Program.<>c.<Main>b__0_3(MSBuildCommandLineOptions options) in /_/src/CommandLine/Program.cs:line 175
+   at CommandLine.ParserResultExtensions.MapResult[T1,T2,TResult](ParserResult`1 result, Func`2 parsedFunc1, Func`2 parsedFunc2, Func`2 notParsedFunc)
+   at Roslynator.CommandLine.Program.Main(String[] args) in /_/src/CommandLine/Program.cs:line 169

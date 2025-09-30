@@ -1,0 +1,20 @@
+@page "/host/control/{hostToken}"
+@layout EmptyLayout
+@code {
+    [Parameter] public string? HostToken { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Redirect old route pattern to new route pattern
+        if (!string.IsNullOrEmpty(HostToken))
+        {
+            NavigationManager.NavigateTo($"/host/control-panel/{HostToken}", true);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/", true);
+        }
+    }
+}
+
+@inject NavigationManager NavigationManager

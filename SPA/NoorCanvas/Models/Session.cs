@@ -3,6 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NoorCanvas.Models;
 
+/// <summary>
+/// Represents a collaborative session in the NOOR Canvas application.
+/// Manages session data, participant tracking, and content sharing for real-time collaboration.
+/// </summary>
 [Table("Sessions", Schema = "canvas")]
 public class Session
 {

@@ -405,27 +405,41 @@
             Logger.LogInformation("NOOR-HOST: [{RequestId}] Loading user token for session: {SessionId}", requestId, sessionId);
 
             using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
             
-            // Call API to get user token for session
-            string apiUrl = $"https://localhost:9091/api/session/{sessionId}/usertoken";
-            var response = await httpClient.GetAsync(apiUrl);
+            // Use the token validation endpoint to get session info including user token
+            var response = await httpClient.GetAsync($"/api/host/token/{Model?.FriendlyToken}/validate");
             
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var tokenResponse = System.Text.Json.JsonSerializer.Deserialize<UserTokenResponse>(content,
-                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 
-                if (tokenResponse != null && !string.IsNullOrEmpty(tokenResponse.UserToken))
+                // Parse the JSON response to extract the user token from session data
+                using var document = System.Text.Json.JsonDocument.Parse(content);
+                
+                if (document.RootElement.TryGetProperty("session", out var sessionElement))
                 {
-                    UserToken = tokenResponse.UserToken;
-                    Logger.LogInformation("NOOR-HOST: [{RequestId}] Successfully loaded user token for session {SessionId}", 
-                        requestId, sessionId);
-                    await InvokeAsync(StateHasChanged); // Update UI to show the user link
+                    // Look for userToken in the session object (it's coming from canvas.Sessions.UserToken)
+                    if (sessionElement.TryGetProperty("userToken", out var userTokenElement) && 
+                        !userTokenElement.ValueEquals("null"))
+                    {
+                        UserToken = userTokenElement.GetString();
+                        if (!string.IsNullOrEmpty(UserToken))
+                        {
+                            Logger.LogInformation("NOOR-HOST: [{RequestId}] Successfully loaded user token for session {SessionId}: {UserToken}", 
+                                requestId, sessionId, UserToken);
+                            await InvokeAsync(StateHasChanged); // Update UI to show the user link
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("NOOR-HOST: [{RequestId}] No user token found in session data for session {SessionId}", 
+                            requestId, sessionId);
+                    }
                 }
                 else
                 {
-                    Logger.LogWarning("NOOR-HOST: [{RequestId}] No user token found in response for session {SessionId}", 
+                    Logger.LogWarning("NOOR-HOST: [{RequestId}] No session data found in validation response for session {SessionId}", 
                         requestId, sessionId);
                 }
             }

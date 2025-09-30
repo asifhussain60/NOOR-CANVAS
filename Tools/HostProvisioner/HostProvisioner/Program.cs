@@ -442,7 +442,6 @@ class Program
                     CreatedAt = DateTime.UtcNow,
                     HostToken = "",  // Will be set by token generation
                     UserToken = "",  // Will be set by token generation
-                    HostAuthToken = "", // Will be set by GUID generation
                     ExpiresAt = DateTime.UtcNow.AddHours(24)
                 };
                 

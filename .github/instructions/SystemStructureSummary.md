@@ -103,6 +103,32 @@ It is the **single source of truth** for system usage and must be updated if the
 
 ---
 
+## Development Tools & Code Quality
+
+### Roslynator Code Analysis Configuration
+**Location**: `Workspaces/CodeQuality/`  
+**Purpose**: Comprehensive C# code quality analysis with organized artifact storage
+
+**Key Components**:
+- **Execution Script**: `run-roslynator.ps1` - Automated analysis with timestamped artifacts
+- **Configuration**: `Roslynator/Config/roslynator.config` - Centralized Roslynator settings
+- **Reports**: `Roslynator/Reports/` - GitLab-format JSON reports for CI/CD integration
+- **Logs**: `Roslynator/Logs/` - Detailed execution logs with performance metrics
+- **VS Code Tasks**: Integrated tasks for easy execution ("run-roslynator-analysis")
+
+**Usage Rules**:
+- **NEVER** run `roslynator` commands directly in project root
+- **ALWAYS** use: `.\Workspaces\CodeQuality\run-roslynator.ps1`
+- **Latest Results**: `Workspaces/CodeQuality/Roslynator/Reports/latest-analysis.json`
+- **Documentation**: `Workspaces/CodeQuality/README.md` for comprehensive usage guide
+
+**Integration**:
+- **.gitignore**: Configured to prevent analysis artifact pollution in repository
+- **Health Metrics**: Provides quantitative code quality scores and trend analysis
+- **CI-Ready**: GitLab Code Climate format for automated quality gates
+
+---
+
 ## Usage Rules for Copilot
 
 1. **Start with SelfAwareness**  
@@ -117,7 +143,12 @@ It is the **single source of truth** for system usage and must be updated if the
    - When reviewing across layers (razor views, services, API contracts, SQL), Copilot should pull in `retrosync.prompt.md` or `refactor.prompt.md` plus any supporting instruction files.  
    - Reference the API & Database Architecture section for impact analysis.
 
-4. **Keep Summary Synced**  
+4. **Code Quality Integration**  
+   - Before major refactoring, run code analysis: `.\Workspaces\CodeQuality\run-roslynator.ps1`
+   - Reference latest analysis results for identifying improvement opportunities
+   - Use health metrics to prioritize refactoring efforts (critical/major issues first)
+
+5. **Keep Summary Synced**  
    - Any new prompt or instruction must be added here with its key and purpose.  
    - If file locations or naming conventions change, update this summary immediately.  
    - Update architecture mappings when views or APIs change.

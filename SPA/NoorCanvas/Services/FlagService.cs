@@ -2,6 +2,10 @@ using Microsoft.JSInterop;
 
 namespace NoorCanvas.Services
 {
+    /// <summary>
+    /// Service for managing country flag images with multiple CDN fallbacks for reliability.
+    /// Provides flag URL generation and validation functionality.
+    /// </summary>
     public class FlagService
     {
         private readonly IJSRuntime _jsRuntime;
@@ -16,6 +20,11 @@ namespace NoorCanvas.Services
             "https://raw.githubusercontent.com/lipis/flag-icons/main/flags/4x3/{0}.svg" // Fallback 3 - GitHub flags
         };
 
+        /// <summary>
+        /// Initializes a new instance of the FlagService with required dependencies.
+        /// </summary>
+        /// <param name="jsRuntime">JavaScript runtime for client-side operations.</param>
+        /// <param name="logger">Logger instance for tracking flag service operations.</param>
         public FlagService(IJSRuntime jsRuntime, ILogger<FlagService> logger)
         {
             _jsRuntime = jsRuntime;

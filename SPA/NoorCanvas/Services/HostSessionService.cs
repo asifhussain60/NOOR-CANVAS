@@ -17,7 +17,7 @@ namespace NoorCanvas.Services
         private readonly IConfiguration _configuration;
 
         public HostSessionService(
-            IHttpClientFactory httpClientFactory, 
+            IHttpClientFactory httpClientFactory,
             ILogger<HostSessionService> logger,
             IConfiguration configuration)
         {
@@ -63,9 +63,10 @@ namespace NoorCanvas.Services
                     return httpsUrl;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Ignore configuration errors and use fallback
+                // Log configuration errors and use fallback
+                Console.WriteLine($"Configuration error when reading HTTPS URL: {ex.Message}");
             }
 
             var fallbackUrl = "https://localhost:7242";

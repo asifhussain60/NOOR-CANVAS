@@ -585,17 +585,23 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization started", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostToken parameter: '{HostToken}'", requestId, HostToken ?? "NULL");
         
         // Initialize model
         Model ??= new HostControlPanelViewModel();
         
-        // Initialize empty model
-        await InitializeSessionAsync();
+        // Initialize empty model with loading states
+        await InitializeSessionAsync(requestId);
+        
+        // Extract session parameters - could be token or sessionId
+        string sessionIdOrToken = HostToken ?? string.Empty;
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Session parameter for loading: '{SessionIdOrToken}'", requestId, sessionIdOrToken);
         
         // CRITICAL: Extract SessionId from HostToken FIRST so it's available for all other operations
-        if (!string.IsNullOrEmpty(HostToken))
+        if (!string.IsNullOrEmpty(sessionIdOrToken))
         {
-            await ExtractSessionIdFromTokenAsync(HostToken, requestId);
+            await ExtractSessionIdFromTokenAsync(sessionIdOrToken, requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] After token extraction - SessionId: {SessionId}", requestId, SessionId);
         }
         
         // Check for persisted session state (fallback if SessionId not extracted)
@@ -604,41 +610,44 @@
         // Initialize SignalR connection for real-time updates (SessionId now available)
         await InitializeSignalRAsync();
         
-        // Load real session data if HostToken provided
-        if (!string.IsNullOrEmpty(HostToken))
+        // Load real session data from SQL via API
+        if (!string.IsNullOrEmpty(sessionIdOrToken))
         {
-            await LoadSessionDataAsync(HostToken);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] Starting LoadSessionDataAsync with parameter: '{SessionIdOrToken}'", requestId, sessionIdOrToken);
+            await LoadSessionDataAsync(sessionIdOrToken);
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] LoadSessionDataAsync completed", requestId);
             
             // Join SignalR groups AFTER SessionId is loaded
             await JoinSignalRGroupsAsync();
         }
+        else
+        {
+            Logger.LogError("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] No HostToken provided - cannot load session data", requestId);
+        }
         
-        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization completed - SessionId: {SessionId}", 
-            requestId, SessionId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization completed - SessionId: {SessionId}, Model.SessionName: '{SessionName}'", 
+            requestId, SessionId, Model?.SessionName ?? "NULL");
     }
 
-    private async Task InitializeSessionAsync()
+    private async Task InitializeSessionAsync(string requestId)
     {
-        // Initialize empty model - all data will be loaded from SQL
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] InitializeSessionAsync started - creating empty model for data loading", requestId);
+        
+        // Initialize model with loading states - NO hardcoded content, everything from SQL
         Model = new HostControlPanelViewModel
         {
             LogoText = "NOOR Canvas",
             SessionName = "Loading Session...",
             SessionDescription = "Loading session details...",
             SessionStatus = "Loading",
-            SessionTranscript = @"
-                <p style=""text-center italic text-gray-600 leading-relaxed"">""And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.""</p>
-                <p style=""text-center font-semibold mt-2"">- The Holy Quran, Surah Ar-Rum (30:21)</p>
-            ",
-            Questions = new List<QuestionItem>() // Empty - no questions initially
+            SessionTranscript = null, // Will be loaded from SQL via API - NO HARDCODED CONTENT
+            TransformedTranscript = null,
+            ScheduledTime = null, // Will be loaded from SQL via API 
+            ScheduledDuration = null, // Will be loaded from SQL via API
+            Questions = new List<QuestionItem>() // Empty - will be loaded from database
         };
         
-        // Transform the initial transcript
-        if (!string.IsNullOrEmpty(Model.SessionTranscript))
-        {
-            Model.TransformedTranscript = await TransformTranscriptHtmlAsync(Model.SessionTranscript);
-        }
-        
+        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] InitializeSessionAsync completed - empty model created for SQL data loading via API", requestId);
         await InvokeAsync(StateHasChanged);
     }
 
@@ -846,18 +855,39 @@
                 
                 var jsonContent = await response.Content.ReadAsStringAsync();
                 using var document = JsonDocument.Parse(jsonContent);
-                var sessionsElement = document.RootElement.GetProperty("Sessions");
+                var root = document.RootElement;
+                
+                // Handle API response format with success wrapper (lowercase property names)
+                JsonElement sessionsElement;
+                if (root.TryGetProperty("success", out var successProp) && successProp.GetBoolean())
+                {
+                    if (root.TryGetProperty("sessions", out sessionsElement))
+                    {
+                        Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] 📄 Successfully parsed sessions list from API response", requestId);
+                    }
+                    else
+                    {
+                        Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ Success response missing sessions property", requestId);
+                        return;
+                    }
+                }
+                else
+                {
+                    Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ API response indicates failure or missing success property. JSON: {Json}", 
+                        requestId, jsonContent);
+                    return;
+                }
                 
                 var allTokens = new List<dynamic>();
                 foreach (var sessionElement in sessionsElement.EnumerateArray())
                 {
                     allTokens.Add(new
                     {
-                        SessionId = sessionElement.GetProperty("SessionId").GetInt64(),
-                        HostToken = sessionElement.TryGetProperty("HostToken", out var hostTokenProp) ? hostTokenProp.GetString() : null,
-                        UserToken = sessionElement.TryGetProperty("UserToken", out var userTokenProp) ? userTokenProp.GetString() : null,
-                        Status = sessionElement.TryGetProperty("Status", out var statusProp) ? statusProp.GetString() : null,
-                        ExpiresAt = sessionElement.TryGetProperty("ExpiresAt", out var expiresProp) ? expiresProp.GetDateTime() : (DateTime?)null
+                        SessionId = sessionElement.GetProperty("sessionId").GetInt64(),
+                        HostToken = sessionElement.TryGetProperty("hostToken", out var hostTokenProp) ? hostTokenProp.GetString() : null,
+                        UserToken = sessionElement.TryGetProperty("userToken", out var userTokenProp) ? userTokenProp.GetString() : null,
+                        Status = sessionElement.TryGetProperty("status", out var statusProp) ? statusProp.GetString() : null,
+                        ExpiresAt = sessionElement.TryGetProperty("expiresAt", out var expiresProp) ? expiresProp.GetDateTime() : (DateTime?)null
                     });
                 }
                 
@@ -1002,13 +1032,34 @@
                         {
                             var scheduleContent = await scheduleResponse.Content.ReadAsStringAsync();
                             using var document = JsonDocument.Parse(scheduleContent);
-                            var sessionElement = document.RootElement.GetProperty("Session");
+                            var root = document.RootElement;
                             
-                            if (sessionElement.ValueKind != JsonValueKind.Null && Model != null)
+                            // Handle API response format with success wrapper (lowercase properties)
+                            JsonElement sessionElement;
+                            if (root.TryGetProperty("success", out var successProp) && successProp.GetBoolean())
                             {
-                                Model.ScheduledDate = sessionElement.TryGetProperty("ScheduledDate", out var dateProp) && dateProp.ValueKind != JsonValueKind.Null ? dateProp.GetString() : null;
-                                Model.ScheduledTime = sessionElement.TryGetProperty("ScheduledTime", out var timeProp) && timeProp.ValueKind != JsonValueKind.Null ? timeProp.GetString() : null;
-                                Model.ScheduledDuration = sessionElement.TryGetProperty("ScheduledDuration", out var durationProp) && durationProp.ValueKind != JsonValueKind.Null ? durationProp.GetString() : null;
+                                if (root.TryGetProperty("session", out sessionElement))
+                                {
+                                    Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] 📄 Successfully parsed session details from API response", requestId);
+                                }
+                                else
+                                {
+                                    Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ Success response missing session property", requestId);
+                                    sessionElement = default; // Initialize to default JsonElement
+                                }
+                            }
+                            else
+                            {
+                                Logger.LogError("NOOR-HOST-PANEL: [{RequestId}] ❌ API response indicates failure or missing success property. JSON: {Json}", 
+                                    requestId, scheduleContent);
+                                sessionElement = default; // Initialize to default JsonElement
+                            }
+                            
+                            if (sessionElement.ValueKind != JsonValueKind.Null && sessionElement.ValueKind != JsonValueKind.Undefined && Model != null)
+                            {
+                                Model.ScheduledDate = sessionElement.TryGetProperty("scheduledDate", out var dateProp) && dateProp.ValueKind != JsonValueKind.Null ? dateProp.GetString() : null;
+                                Model.ScheduledTime = sessionElement.TryGetProperty("scheduledTime", out var timeProp) && timeProp.ValueKind != JsonValueKind.Null ? timeProp.GetString() : null;
+                                Model.ScheduledDuration = sessionElement.TryGetProperty("scheduledDuration", out var durationProp) && durationProp.ValueKind != JsonValueKind.Null ? durationProp.GetString() : null;
                                 
                                 Logger.LogInformation("NOOR-HOST-PANEL: [{RequestId}] ✅ Scheduling fields loaded via API: Date={Date}, Time={Time}, Duration={Duration}mins", 
                                     requestId, Model.ScheduledDate ?? "NULL", Model.ScheduledTime ?? "NULL", Model.ScheduledDuration ?? "NULL");
@@ -1121,7 +1172,41 @@
             {
                 var jsonContent = await response.Content.ReadAsStringAsync();
                 using var document = JsonDocument.Parse(jsonContent);
-                var sessionId = document.RootElement.GetProperty("SessionId").GetString();
+                var root = document.RootElement;
+                
+                // Handle API response format with success wrapper (try both uppercase and lowercase)
+                string? sessionId = null;
+                
+                // Try lowercase first (consistent with GetSessionByToken API)
+                if (root.TryGetProperty("success", out var successPropLower) && successPropLower.GetBoolean())
+                {
+                    if (root.TryGetProperty("sessionId", out var sessionIdPropLower))
+                    {
+                        sessionId = sessionIdPropLower.GetString();
+                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] Successfully extracted sessionId from token mapping API (lowercase): {SessionId}", sessionId);
+                    }
+                    else
+                    {
+                        Logger.LogError("[DEBUG-WORKITEM:hostcanvas:SESSION] Success response missing sessionId property in token mapping (lowercase)");
+                    }
+                }
+                // Try uppercase as fallback (legacy format)
+                else if (root.TryGetProperty("Success", out var successPropUpper) && successPropUpper.GetBoolean())
+                {
+                    if (root.TryGetProperty("SessionId", out var sessionIdPropUpper))
+                    {
+                        sessionId = sessionIdPropUpper.GetString();
+                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] Successfully extracted SessionId from token mapping API (uppercase): {SessionId}", sessionId);
+                    }
+                    else
+                    {
+                        Logger.LogError("[DEBUG-WORKITEM:hostcanvas:SESSION] Success response missing SessionId property in token mapping (uppercase)");
+                    }
+                }
+                else
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hostcanvas:SESSION] API response indicates failure or missing success/Success property in token mapping. JSON: {Json}", jsonContent);
+                }
                 
                 if (!string.IsNullOrEmpty(sessionId))
                 {
@@ -1246,13 +1331,34 @@
             
             // [API-MIGRATION:09291900-api] Quick lookup to get SessionId from token using API
             using var extractHttpClient = HttpClientFactory.CreateClient("default");
-            var response = await extractHttpClient.GetAsync($"/api/host/sessions/by-token/{Uri.EscapeDataString(hostToken)}");
+            var response = await extractHttpClient.GetAsync($"/api/host/sessions/by-token/{Uri.EscapeDataString(hostToken ?? string.Empty)}");
             
             if (response.IsSuccessStatusCode)
             {
                 var jsonContent = await response.Content.ReadAsStringAsync();
                 using var document = JsonDocument.Parse(jsonContent);
-                var canvasSession = document.RootElement.GetProperty("SessionId").GetInt64();
+                var root = document.RootElement;
+                
+                // Handle API response format with success wrapper (lowercase properties)
+                long canvasSession = 0;
+                if (root.TryGetProperty("success", out var successProp) && successProp.GetBoolean())
+                {
+                    if (root.TryGetProperty("sessionId", out var sessionIdProp))
+                    {
+                        canvasSession = sessionIdProp.GetInt64();
+                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] 📄 JSON Response Success: sessionId={SessionId}", 
+                            requestId, canvasSession);
+                    }
+                    else
+                    {
+                        Logger.LogError("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ❌ Success response missing sessionId property", requestId);
+                    }
+                }
+                else
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ❌ API response indicates failure or missing success property. JSON: {Json}", 
+                        requestId, jsonContent);
+                }
                 
                 if (canvasSession > 0)
                 {
@@ -2054,7 +2160,7 @@
                     transformRunId, SessionId, Model?.SessionStatus);
                 
                 // [ASSETSHARE-DATABASE] Use AssetLookup table for asset detection and red share button injection
-                finalHtml = await InjectAssetShareButtonsDatabaseAsync(sanitizedInput);
+                finalHtml = await InjectAssetShareButtonsDatabaseAsync(sanitizedInput ?? string.Empty);
                 
                 Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue:{TransformRunId}] ✅ InjectAssetShareButtonsDatabaseAsync COMPLETED - Output length: {OutputLength} ;CLEANUP_OK", 
                     transformRunId, finalHtml?.Length ?? 0);
@@ -2063,26 +2169,26 @@
             {
                 Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue:{TransformRunId}] ❌ SKIPPING share button injection - Session {SessionId} status '{SessionStatus}' (HTML: {HasHTML}chars) ;CLEANUP_OK", 
                     transformRunId, SessionId, Model?.SessionStatus, sanitizedInput?.Length ?? 0);
-                finalHtml = sanitizedInput;
+                finalHtml = sanitizedInput ?? string.Empty;
             }
             
             Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:TRANSFORM] Transformation completed. Original: {OriginalLength}, Final: {FinalLength}, ShareButtons: {ShareButtonsInjected}", 
-                originalHtml.Length, finalHtml.Length, Model?.SessionStatus == "Active");
+                originalHtml?.Length ?? 0, finalHtml?.Length ?? 0, Model?.SessionStatus == "Active");
 
             // SAFETY: Validate HTML structure before returning
             try
             {
                 // Log a sample of the transformed HTML for debugging
-                var htmlSample = finalHtml.Length > 500 ? finalHtml.Substring(0, 500) + "..." : finalHtml;
+                var htmlSample = (finalHtml?.Length ?? 0) > 500 ? finalHtml?.Substring(0, 500) + "..." : finalHtml;
                 Logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:TRANSFORM] HTML sample: {HtmlSample}", htmlSample);
                 
                 // Basic validation - check for unclosed tags that might cause issues
-                if (finalHtml.Contains("<button") && !finalHtml.Contains("</button>"))
+                if (finalHtml?.Contains("<button") == true && !finalHtml.Contains("</button>"))
                 {
                     Logger.LogError("[DEBUG-WORKITEM:hostcanvas:ERROR] Detected unclosed button tags in transformed HTML");
                 }
                 
-                if (finalHtml.Contains("<div") && (finalHtml.Split("<div").Length - 1) != (finalHtml.Split("</div>").Length - 1))
+                if (finalHtml?.Contains("<div") == true && (finalHtml.Split("<div").Length - 1) != (finalHtml.Split("</div>").Length - 1))
                 {
                     Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:WARNING] Potential unclosed div tags detected");
                 }
@@ -2093,10 +2199,10 @@
             }
 
             // Avoid double-wrapping: if the transformed HTML already contains a top-level ks-transcript wrapper, return as-is
-            var trimmed = finalHtml.TrimStart();
+            var trimmed = finalHtml?.TrimStart() ?? string.Empty;
             if (trimmed.StartsWith("<div class=\"ks-transcript\"") || trimmed.StartsWith("<div class='ks-transcript'"))
             {
-                return finalHtml;
+                return finalHtml ?? string.Empty;
             }
 
             // Wrap final HTML in a root scoping div so transcript CSS can be safely scoped

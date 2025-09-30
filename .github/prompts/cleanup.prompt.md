@@ -29,11 +29,18 @@ Removes unused files, simplifies duplicate code, normalizes formatting, and vali
 - Logging modes: `none`, `simple`, `trace`
 
 ## Execution Protocol
-1. **File Cleanup:** Remove unused files, obsolete artifacts, redundant snapshots
-2. **Code Simplification:** Eliminate duplicate/unreferenced code
-3. **Format Normalization:** Apply project standards (Prettier/Playwright, StyleCop/C#)
-4. **Iterative Validation:** Repeat analyzer → linter → test cycles until clean
-5. **Evidence Capture:** Include 10-20 lines from `#getTerminalOutput` in completion summary
+1. **Initial Code Quality Assessment:**  
+   - **MANDATORY:** Run baseline analysis: `.\Workspaces\CodeQuality\run-roslynator.ps1`  
+   - Document starting health metrics from: `Workspaces/CodeQuality/Roslynator/Reports/latest-analysis.json`  
+
+2. **File Cleanup:** Remove unused files, obsolete artifacts, redundant snapshots  
+3. **Code Simplification:** Eliminate duplicate/unreferenced code, address Roslynator findings  
+4. **Format Normalization:** Apply project standards (Prettier/Playwright, StyleCop/C#)  
+5. **Iterative Validation:** Repeat analyzer → linter → test cycles until clean  
+6. **Final Quality Verification:**  
+   - Re-run Roslynator analysis to measure improvement  
+   - Compare before/after metrics and document health score changes  
+7. **Evidence Capture:** Include 10-20 lines from `#getTerminalOutput` in completion summary
 
 ## Completion Criteria
 - Zero analyzer warnings
@@ -44,8 +51,9 @@ Removes unused files, simplifies duplicate code, normalizes formatting, and vali
 
 ## Outputs
 Summaries must include:
-- Analyzer/linter results after cleanup
-- Test suite results (pass/fail counts)
+- **Code Health Metrics:** Before/after Roslynator analysis showing issue count reduction  
+- Analyzer/linter results after cleanup  
+- Test suite results (pass/fail counts)  
 - Terminal Evidence tail
 
 ## Approval Workflow
@@ -98,14 +106,27 @@ rules:
   - match: "**/*.md"
     exclude:
       - "README.md"
+      - "Workspaces/CodeQuality/**/*.md"  # Preserve Roslynator docs
     action: move
     target: "Workspaces/Copilot/_DOCS/analysis"
   - match: "**/*.txt"
+    exclude:
+      - "Workspaces/CodeQuality/**/*.txt"  # Preserve Roslynator artifacts
     action: move
     target: "Workspaces/Copilot/_DOCS/analysis"
   - match: "**/*.log"
+    exclude:
+      - "Workspaces/CodeQuality/**/*.log"  # Preserve Roslynator logs
     action: move
     target: "Workspaces/Copilot/_DOCS/summaries"
+  - match: "**/*.json"
+    exclude:
+      - "package*.json"
+      - "**/tsconfig*.json"
+      - "**/*.config.json"
+      - "Workspaces/CodeQuality/**/*.json"  # Preserve Roslynator reports
+    action: move
+    target: "Workspaces/Copilot/_DOCS/analysis"
   - match: "**/*.spec.ts"
     action: move
     target: "PlayWright/tests"

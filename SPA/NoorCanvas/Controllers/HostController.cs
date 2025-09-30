@@ -934,8 +934,6 @@ namespace NoorCanvas.Controllers
                     SpeakerName = session.Speaker?.SpeakerName
                 };
 
-
-
                 // Log transcript details for debugging
                 var transcriptLength = sessionDetails.Transcript?.Length ?? 0;
                 _logger.LogInformation("[DEBUG-WORKITEM:api:impl:09291900-api] Found session details - SessionId: {SessionId}, SessionName: {SessionName}, GroupName: {GroupName}, TranscriptLength: {TranscriptLength}",
@@ -1628,8 +1626,6 @@ namespace NoorCanvas.Controllers
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
     }
-
-
 
     public class AssetLookupResponse
     {

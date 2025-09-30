@@ -503,8 +503,6 @@ public class SessionHub : Hub
         _logger.LogInformation("NOOR-HUB: ParticipantLeft broadcast completed for session {SessionId}", sessionId);
     }
 
-
-
     // Test methods for SignalR functionality verification
     public async Task BroadcastToAll(string message)
     {
