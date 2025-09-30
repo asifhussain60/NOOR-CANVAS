@@ -1,11 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Debug Asset Share Button Processing', () => {
   test('Debug why share buttons are not being injected for session 212', async ({ page }) => {
-    const sessionId = 212;
     const hostToken = 'PQ9N5YWW';
     const trackingId = `debug-${Date.now()}`;
-    
+
     console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Starting debug test with trackingId: ${trackingId}`);
 
     // Navigate to Host Control Panel for session 212
@@ -30,7 +29,7 @@ test.describe('Debug Asset Share Button Processing', () => {
       if (await element.isVisible({ timeout: 2000 })) {
         const content = await element.innerHTML();
         const textContent = await element.textContent();
-        
+
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] === ${selector} ===`);
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Content length: ${content.length}`);
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Text length: ${textContent?.length || 0}`);
@@ -38,7 +37,7 @@ test.describe('Debug Asset Share Button Processing', () => {
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Has inlineArabic: ${content.includes('inlineArabic')}`);
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Has share buttons: ${content.includes('ks-share-button')}`);
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Has data-share-id: ${content.includes('data-share-id')}`);
-        
+
         // Look for specific patterns that should trigger asset detection
         const patterns = [
           'ayah-card',
@@ -50,14 +49,14 @@ test.describe('Debug Asset Share Button Processing', () => {
           'SHARE',
           'asset'
         ];
-        
+
         const foundPatterns = patterns.filter(pattern => content.includes(pattern));
         console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Found patterns: ${foundPatterns.join(', ')}`);
-        
+
         // Show a snippet of the content
         if (content.length > 0) {
           console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Content preview: ${content.substring(0, 300)}...`);
-          
+
           if (content.includes('ayah-card')) {
             // Try to extract the ayah-card sections
             const ayahMatches = content.match(/<[^>]*ayah-card[^>]*>.*?<\/[^>]*>/g);
@@ -121,7 +120,7 @@ test.describe('Debug Asset Share Button Processing', () => {
     console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Page has share buttons: ${pageSource.includes('ks-share-button')}`);
 
     console.log(`[DEBUG-WORKITEM:assetshare:continue:debug] Debug test completed with trackingId: ${trackingId}`);
-    
+
     // Test should pass - we're just debugging
     expect(pageSource.length).toBeGreaterThan(1000);
   });

@@ -226,20 +226,25 @@
                             </h4>
                             <div style="background-color:white;border-radius:0.5rem;padding:0.75rem;border:1px solid #E2E8F0;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-                                    <input type="text" 
-                                           value="https://localhost:9091/user/landing/@UserToken" 
-                                           readonly
-                                           style="flex:1;background:transparent;border:none;color:#374151;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;"
-                                           id="userLinkInput" />
+                                    <a href="https://localhost:9091/user/landing/@UserToken" 
+                                       target="_blank" 
+                                       @onclick="HandleUserLinkClick"
+                                       style="flex:1;background:transparent;border:none;color:#3B82F6;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;text-decoration:none;cursor:pointer;padding:0.25rem;border-radius:0.25rem;transition:background-color 0.2s;"
+                                       onmouseover="this.style.backgroundColor='#F0F9FF'"
+                                       onmouseout="this.style.backgroundColor='transparent'"
+                                       title="Click to open in new window and copy to clipboard">
+                                        https://localhost:9091/user/landing/@UserToken
+                                    </a>
                                     <button @onclick="CopyUserLink" 
                                             id="copyUserLinkButton"
-                                            style="@GetCopyButtonStyle()">
+                                            style="@GetCopyButtonStyle()"
+                                            title="Copy link to clipboard">
                                         <i class="@GetCopyIcon()"></i> @GetCopyText()
                                     </button>
                                 </div>
                             </div>
                             <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-top:0.5rem;margin-bottom:0;text-align:center;">
-                                Share this link with session participants for easy registration
+                                Click the link to open in a new window, or use the copy button to share with participants
                             </p>
                         </div>
                     }
@@ -3073,6 +3078,32 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error copying user URL to clipboard");
+        }
+    }
+
+    // Handle user link click - copy to clipboard and allow link to open in new window
+    private async Task HandleUserLinkClick()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(UserToken) && Model != null)
+            {
+                var userLink = $"https://localhost:9091/user/landing/{UserToken}";
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", userLink);
+                
+                // Brief visual feedback that copy occurred
+                Model.UserCopied = true;
+                StateHasChanged();
+                
+                // Reset copy indicator after a short delay
+                await Task.Delay(1500);
+                Model.UserCopied = false;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error copying user URL to clipboard when clicking link");
         }
     }
 

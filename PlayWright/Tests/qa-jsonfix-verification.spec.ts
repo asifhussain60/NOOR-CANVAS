@@ -160,143 +160,147 @@ async function verifyQuestionInPanel(
   }
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
+import { test, expect } from '@playwright/test';
+
 test.describe('Q&A JsonElement Fix Verification', () => {
-  let browser: Browser;
-  let context1: BrowserContext;
-  let context2: BrowserContext;
-  let context3: BrowserContext;
-  let user1Page: Page;
-  let user2Page: Page;
-  let user3Page: Page;
+  {
+    let browser: Browser;
+    let context1: BrowserContext;
+    let context2: BrowserContext;
+    let context3: BrowserContext;
+    let user1Page: Page;
+    let user2Page: Page;
+    let user3Page: Page;
 
-  test.beforeAll(async ({ browser: b }) => {
-    browser = b;
-    log('Starting Q&A JsonElement Fix Verification Test');
+    test.beforeAll(async ({ browser: b }) => {
+      browser = b;
+      log('Starting Q&A JsonElement Fix Verification Test');
 
-    // Create separate contexts for each user to simulate different sessions
-    log('Creating browser contexts for multiple users');
-    context1 = await browser.newContext({
-      ignoreHTTPSErrors: true,
-      viewport: { width: 1280, height: 720 },
+      // Create separate contexts for each user to simulate different sessions
+      log('Creating browser contexts for multiple users');
+      context1 = await browser.newContext({
+        ignoreHTTPSErrors: true,
+        viewport: { width: 1280, height: 720 },
+      });
+
+      context2 = await browser.newContext({
+        ignoreHTTPSErrors: true,
+        viewport: { width: 1280, height: 720 },
+      });
+
+      context3 = await browser.newContext({
+        ignoreHTTPSErrors: true,
+        viewport: { width: 1280, height: 720 },
+      });
+
+      // Setup health check with first context
+      const healthPage = await context1.newPage();
+      await performHealthCheck(healthPage);
+      await healthPage.close();
+
+      log('Health check completed successfully');
     });
 
-    context2 = await browser.newContext({
-      ignoreHTTPSErrors: true,
-      viewport: { width: 1280, height: 720 },
+    test.afterAll(async () => {
+      log('Cleaning up test contexts');
+      if (context1) await context1.close();
+      if (context2) await context2.close();
+      if (context3) await context3.close();
+      log('Test cleanup completed');
     });
 
-    context3 = await browser.newContext({
-      ignoreHTTPSErrors: true,
-      viewport: { width: 1280, height: 720 },
+    test('should load Q&A panel without JsonElement errors and propagate questions across multiple users', async () => {
+      log('=== Starting multi-user Q&A propagation test ===');
+
+      // Setup three user sessions
+      log('Setting up user sessions');
+      user1Page = await setupUserSession(context1, 'User1-Alice');
+      user2Page = await setupUserSession(context2, 'User2-Bob');
+      user3Page = await setupUserSession(context3, 'User3-Carol');
+
+      // Generate unique test questions with timestamp
+      const timestamp = Date.now();
+      const questions = [
+        {
+          text: `Alice's question about JsonElement fix - ${timestamp}`,
+          user: 'Alice',
+          page: user1Page,
+        },
+        { text: `Bob's question about Q&A propagation - ${timestamp}`, user: 'Bob', page: user2Page },
+        {
+          text: `Carol's question about multi-user sync - ${timestamp}`,
+          user: 'Carol',
+          page: user3Page,
+        },
+      ];
+
+      log('Starting question submission and propagation test', {
+        questionsCount: questions.length,
+        timestamp,
+      });
+
+      // Submit questions from each user
+      for (const question of questions) {
+        log(`=== Submitting question from ${question.user} ===`);
+        await submitQuestion(question.page, question.text, question.user);
+
+        // Wait for SignalR propagation
+        await user1Page.waitForTimeout(2000);
+        await user2Page.waitForTimeout(2000);
+        await user3Page.waitForTimeout(2000);
+      }
+
+      log('All questions submitted, starting cross-user verification');
+
+      // Verify each question appears in all user sessions (cross-propagation)
+      for (const question of questions) {
+        log(`=== Verifying "${question.text}" appears in all user panels ===`);
+
+        // Check question appears in User1's panel
+        await verifyQuestionInPanel(user1Page, question.text, `User1-sees-${question.user}`);
+
+        // Check question appears in User2's panel
+        await verifyQuestionInPanel(user2Page, question.text, `User2-sees-${question.user}`);
+
+        // Check question appears in User3's panel
+        await verifyQuestionInPanel(user3Page, question.text, `User3-sees-${question.user}`);
+
+        log(`Question propagation verified across all users`, { questionFrom: question.user });
+      }
+
+      log('=== Q&A JsonElement Fix Verification Test PASSED ===');
+      log('All questions successfully propagated across multiple user sessions');
+      log('JsonElement casting fix confirmed working correctly');
     });
 
-    // Setup health check with first context
-    const healthPage = await context1.newPage();
-    await performHealthCheck(healthPage);
-    await healthPage.close();
+    // Additional focused test for the specific JsonElement fix
+    test('should load questions from API without JsonElement casting errors', async () => {
+      log('=== Testing specific JsonElement API fix ===');
 
-    log('Health check completed successfully');
-  });
+      const testPage = await context1.newPage();
 
-  test.afterAll(async () => {
-    log('Cleaning up test contexts');
-    if (context1) await context1.close();
-    if (context2) await context2.close();
-    if (context3) await context3.close();
-    log('Test cleanup completed');
-  });
+      // Navigate to session
+      const userUrl = `${TEST_CONFIG.baseUrl}/user/landing/${TEST_CONFIG.testToken}`;
+      await testPage.goto(userUrl, { waitUntil: 'networkidle', timeout: 20000 });
 
-  test('should load Q&A panel without JsonElement errors and propagate questions across multiple users', async () => {
-    log('=== Starting multi-user Q&A propagation test ===');
+      // Wait for Q&A panel to load - this triggers the API call that was failing
+      const qaPanelSelector = '[data-testid="qa-panel"], .qa-panel, #qa-panel, .questions-panel';
+      await expect(testPage.locator(qaPanelSelector)).toBeVisible({ timeout: 15000 });
 
-    // Setup three user sessions
-    log('Setting up user sessions');
-    user1Page = await setupUserSession(context1, 'User1-Alice');
-    user2Page = await setupUserSession(context2, 'User2-Bob');
-    user3Page = await setupUserSession(context3, 'User3-Carol');
+      log('Q&A panel loaded successfully - JsonElement fix confirmed');
 
-    // Generate unique test questions with timestamp
-    const timestamp = Date.now();
-    const questions = [
-      {
-        text: `Alice's question about JsonElement fix - ${timestamp}`,
-        user: 'Alice',
-        page: user1Page,
-      },
-      { text: `Bob's question about Q&A propagation - ${timestamp}`, user: 'Bob', page: user2Page },
-      {
-        text: `Carol's question about multi-user sync - ${timestamp}`,
-        user: 'Carol',
-        page: user3Page,
-      },
-    ];
+      // Check that questions are loaded (if any exist) without exceptions
+      const questionsContainer = testPage.locator(
+        '.qa-panel, .questions-panel, [data-testid="qa-panel"]',
+      );
+      const questionsCount = await questionsContainer
+        .locator('.question-item, [data-testid="question-item"]')
+        .count();
 
-    log('Starting question submission and propagation test', {
-      questionsCount: questions.length,
-      timestamp,
+      log('Questions loaded from API', { questionsCount });
+
+      await testPage.close();
+      log('JsonElement API fix verification completed');
     });
-
-    // Submit questions from each user
-    for (const question of questions) {
-      log(`=== Submitting question from ${question.user} ===`);
-      await submitQuestion(question.page, question.text, question.user);
-
-      // Wait for SignalR propagation
-      await user1Page.waitForTimeout(2000);
-      await user2Page.waitForTimeout(2000);
-      await user3Page.waitForTimeout(2000);
-    }
-
-    log('All questions submitted, starting cross-user verification');
-
-    // Verify each question appears in all user sessions (cross-propagation)
-    for (const question of questions) {
-      log(`=== Verifying "${question.text}" appears in all user panels ===`);
-
-      // Check question appears in User1's panel
-      await verifyQuestionInPanel(user1Page, question.text, `User1-sees-${question.user}`);
-
-      // Check question appears in User2's panel
-      await verifyQuestionInPanel(user2Page, question.text, `User2-sees-${question.user}`);
-
-      // Check question appears in User3's panel
-      await verifyQuestionInPanel(user3Page, question.text, `User3-sees-${question.user}`);
-
-      log(`Question propagation verified across all users`, { questionFrom: question.user });
-    }
-
-    log('=== Q&A JsonElement Fix Verification Test PASSED ===');
-    log('All questions successfully propagated across multiple user sessions');
-    log('JsonElement casting fix confirmed working correctly');
   });
-
-  // Additional focused test for the specific JsonElement fix
-  test('should load questions from API without JsonElement casting errors', async () => {
-    log('=== Testing specific JsonElement API fix ===');
-
-    const testPage = await context1.newPage();
-
-    // Navigate to session
-    const userUrl = `${TEST_CONFIG.baseUrl}/user/landing/${TEST_CONFIG.testToken}`;
-    await testPage.goto(userUrl, { waitUntil: 'networkidle', timeout: 20000 });
-
-    // Wait for Q&A panel to load - this triggers the API call that was failing
-    const qaPanelSelector = '[data-testid="qa-panel"], .qa-panel, #qa-panel, .questions-panel';
-    await expect(testPage.locator(qaPanelSelector)).toBeVisible({ timeout: 15000 });
-
-    log('Q&A panel loaded successfully - JsonElement fix confirmed');
-
-    // Check that questions are loaded (if any exist) without exceptions
-    const questionsContainer = testPage.locator(
-      '.qa-panel, .questions-panel, [data-testid="qa-panel"]',
-    );
-    const questionsCount = await questionsContainer
-      .locator('.question-item, [data-testid="question-item"]')
-      .count();
-
-    log('Questions loaded from API', { questionsCount });
-
-    await testPage.close();
-    log('JsonElement API fix verification completed');
-  });
-});

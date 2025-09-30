@@ -35,7 +35,8 @@ It is the **single source of truth** for system usage and must be updated if the
 - **SignalR**: SessionHub (`/hub/session`) - real-time participant updates, group: `usertoken_{token}`
 - **Purpose**: Pre-session waiting room with participant list and countdown timer
 
-#### hostcanvas (`HostControlPanel.razor`)
+#### hostcanvas (`HostControlPanel.razor`)  
+- **Route**: `/host/control-panel/{hostToken}` ✅ **FIXED** (was `/host/control/{hostToken}`)
 - **APIs**: 
   - `GET /api/question/session/{userToken}` - fetch session Q&A
   - `POST /api/host/session/{sessionId}/start` - start session
@@ -44,9 +45,12 @@ It is the **single source of truth** for system usage and must be updated if the
   - `GET /api/host/asset-lookup` - fetch asset lookup definitions (database-driven asset detection)
   - `GET /api/host/ksessions/session/{sessionId}/details` - enhanced session details with transcript from KSESSIONS
   - `GET /api/host/ksessions/countries/flags` - country flag mappings from KSESSIONS database
+  - `GET /api/host/sessions/list` - host sessions list with token validation
+  - `GET /api/host/sessions/{sessionId}/details` - session with scheduling information
 - **Tables**: `canvas.Sessions`, `canvas.Questions`, `canvas.AssetLookup`, `KSESSIONS.Sessions`, `KSESSIONS.SessionTranscripts`, `KSESSIONS.Countries`
 - **Architecture**: ✅ **API-First** - All database access via HTTP APIs (no direct DbContext injection)
 - **SignalR**: SessionHub, QAHub, AnnotationHub - groups: `session_{sessionId}`, `host_{hostToken}`
+- **Backward Compatibility**: HostControlRedirect.razor handles old `/host/control/{hostToken}` route
 - **Purpose**: Host session management, Q&A moderation, and real-time content broadcasting
 
 #### canvas (`SessionCanvas.razor`)
@@ -88,16 +92,43 @@ It is the **single source of truth** for system usage and must be updated if the
 
 ---
 
+## Current Architecture Status (September 30, 2025)
+
+### System Scale
+- **Controllers**: 11 operational (AdminController, HostController, ParticipantController, QuestionController, SessionController, AnnotationsController, HealthController, TokenController, HostProvisionerController, IssueController, LogsController)
+- **SignalR Hubs**: 4 operational (SessionHub, QAHub, AnnotationHub, TestHub)
+- **Services**: 17+ operational (AssetHtmlProcessingService, HostSessionService, SimplifiedTokenService, SessionStateService, ConfigurableLoadingService, etc.)
+- **API Endpoints**: 52+ across all controllers
+- **Razor Components**: 15+ pages, 10+ components
+
+### Recent Changes (September 2025)
+- ✅ **KSESSIONS Integration**: New API endpoints for enhanced session details and country flags
+- ✅ **Routing Fix**: HostControlPanel.razor route standardization with backward compatibility
+- ✅ **API-First Architecture**: Eliminated direct database access violations
+- ✅ **Asset Detection**: Database-driven asset lookup system
+- ✅ **Service Layer**: Comprehensive service architecture with 17+ services
+
+### Architecture Quality Gates
+- ✅ **Build Status**: Clean compilation
+- ❌ **Linter Status**: 49 TypeScript/JavaScript lint errors (mostly `@typescript-eslint/no-explicit-any`)
+- ✅ **Database Connectivity**: Canvas and KSESSIONS databases operational
+- ✅ **SignalR Infrastructure**: 4 hubs operational with proper routing
+- ✅ **API Endpoints**: Core endpoints responding correctly
+
+---
+
 ## File Locations
 
 - **/instructions**:  
   Contains high-level behavioral guides. Example:  
   - `SelfAwareness.instructions.md`: central meta-instruction.  
   - `API-Contract-Validation.md`: API-specific validations.  
+  - `NOOR-CANVAS_ARCHITECTURE.MD`: comprehensive system architecture (updated September 30, 2025)
 
 - **/prompts**:  
   Contains task-specific operational prompts. Example:  
-  - `refactor.prompt.md`: deep code restructuring guidance.  
+  - `refactor.prompt.md`: deep code restructuring guidance.
+  - `retrosync.prompt.md`: requirements/test synchronization protocol  
   - `retrosync.prompt.md`: alignment checks across layers.  
   - `workitem.prompt.md`: generating or managing discrete dev tasks.  
 

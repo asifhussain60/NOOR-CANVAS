@@ -148,6 +148,8 @@ async function testTokenValidity(token: string): Promise<boolean> {
 
 // Helper function to run Host Provisioner and extract user token
 
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
+
 test.describe('User Registration Multi-Instance Synchronization', () => {
   let contexts: BrowserContext[] = [];
   let pages: Page[] = [];

@@ -143,6 +143,7 @@ test.describe('Implementation Comparison: SignalR vs HTTP', () => {
 
       try {
         // Test SessionHub
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sessionConnection = new (window as any).signalR.HubConnectionBuilder()
           .withUrl('/hub/session')
           .build();
@@ -152,6 +153,7 @@ test.describe('Implementation Comparison: SignalR vs HTTP', () => {
         await sessionConnection.stop();
 
         // Test QAHub
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const qaConnection = new (window as any).signalR.HubConnectionBuilder()
           .withUrl('/hub/qa')
           .build();
@@ -210,9 +212,9 @@ test.describe('Implementation Comparison: SignalR vs HTTP', () => {
     // Test real-time messaging
     const messagingTest = await page1.evaluate(async () => {
       return new Promise((resolve) => {
-        let __messageReceived = false;
         const timeout = setTimeout(() => resolve(false), 5000);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const connection = new (window as any).signalR.HubConnectionBuilder()
           .withUrl('/hub/session')
           .build();
@@ -221,8 +223,7 @@ test.describe('Implementation Comparison: SignalR vs HTTP', () => {
           .start()
           .then(() => {
             // Listen for user joined events
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            connection.on('UserJoined', (data: any) => {
+            connection.on('UserJoined', (data: unknown) => {
               clearTimeout(timeout);
               resolve(true);
             });

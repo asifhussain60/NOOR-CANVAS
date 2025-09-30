@@ -55,7 +55,8 @@ const testResults: TestResults = {
   },
 };
 
-test.describe('SignalR vs HTTP Implementation Comparison', () => {
+
+test.describe('Implementation Comparison: SignalR vs HTTP', () => {
   test.beforeAll(async () => {
     console.log('🧪 Starting SignalR vs HTTP Implementation Analysis');
     console.log(`📊 Test Configuration:`);

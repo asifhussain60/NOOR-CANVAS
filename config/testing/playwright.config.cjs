@@ -4,10 +4,12 @@
  * Canonical Playwright configuration for the repository.
  * - Uses repository-relative paths for artifacts (Workspaces/TEMP/playwright-artifacts)
  * - Keeps PW_MODE-aware overrides for 'standalone' and 'temp'
+ * - Supports both PlayWright/tests and Workspaces/TEMP directories per SelfAwareness instructions
  */
 const cfg = {
     timeout: 30 * 1000,
-    testDir: '../../PlayWright/tests',
+    testDir: '../../',
+    testMatch: ['**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}', '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'],
     retries: 0,
     reporter: [
         ['list'],

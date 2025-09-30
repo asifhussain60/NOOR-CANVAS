@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Asset Share Button Broadcasting Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -38,28 +38,26 @@ test.describe('Asset Share Button Broadcasting Tests', () => {
     if (shareButtonCount > 0) {
       // Test clicking the first share button
       const firstShareButton = shareButtons.first();
-      
+
       // Get button details before clicking
       const shareId = await firstShareButton.getAttribute('data-share-id');
       const assetType = await firstShareButton.getAttribute('data-asset-type');
       const instanceNumber = await firstShareButton.getAttribute('data-instance-number');
-      
+
       console.log(`[DEBUG-WORKITEM:assetshare:continue] Testing share button: ShareId=${shareId}, AssetType=${assetType}, Instance=${instanceNumber}`);
 
       // Open a new page as SessionCanvas client
       const sessionCanvasPage = await context.newPage();
-      
+
       // Navigate to SessionCanvas with corresponding user token
       await sessionCanvasPage.goto('https://localhost:9091/session/canvas/testuser123');
       await sessionCanvasPage.waitForLoadState('networkidle');
       console.log('[DEBUG-WORKITEM:assetshare:continue] SessionCanvas client page opened');
 
       // Set up listener for shared content on SessionCanvas
-      let sharedContentReceived = false;
       sessionCanvasPage.on('console', (msg) => {
-        if (msg.text().includes('AssetShared event received') || 
-            msg.text().includes('HtmlContentReceived event received')) {
-          sharedContentReceived = true;
+        if (msg.text().includes('AssetShared event received') ||
+          msg.text().includes('HtmlContentReceived event received')) {
           console.log(`[DEBUG-WORKITEM:assetshare:continue] 📦 CANVAS RECEIVED: ${msg.text()}`);
         }
       });
@@ -79,11 +77,11 @@ test.describe('Asset Share Button Broadcasting Tests', () => {
 
       // Check if SessionCanvas received the shared content
       await sessionCanvasPage.waitForTimeout(3000);
-      
+
       // Look for shared content in the canvas area
       const canvasContent = sessionCanvasPage.locator('[data-testid="canvas-content"], .session-canvas-container');
       const hasSharedContent = await canvasContent.textContent();
-      
+
       if (hasSharedContent && hasSharedContent.length > 0) {
         console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ Content found in SessionCanvas area');
         console.log(`[DEBUG-WORKITEM:assetshare:continue] Content preview: ${hasSharedContent.substring(0, 200)}...`);
@@ -98,13 +96,13 @@ test.describe('Asset Share Button Broadcasting Tests', () => {
       console.log('[DEBUG-WORKITEM:assetshare:continue] Share button broadcast test completed');
     } else {
       console.log('[DEBUG-WORKITEM:assetshare:continue] No share buttons found - testing asset processing pipeline');
-      
+
       // If no share buttons exist, test the processing pipeline by triggering transcript processing
       const processButton = page.locator('button:has-text("Process"), button:has-text("Transform")');
       if (await processButton.isVisible({ timeout: 2000 })) {
         await processButton.click();
         await page.waitForTimeout(2000);
-        
+
         // Check if share buttons appeared after processing
         const newShareButtonCount = await shareButtons.count();
         console.log(`[DEBUG-WORKITEM:assetshare:continue] After processing: ${newShareButtonCount} share buttons`);
@@ -129,13 +127,13 @@ test.describe('Asset Share Button Broadcasting Tests', () => {
     });
 
     console.log('[DEBUG-WORKITEM:assetshare:continue] JavaScript setup check:', jsSetupResult);
-    
+
     expect(jsSetupResult.setupFunction).toBe(true);
     console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ setupShareButtonHandlers function exists');
-    
+
     // The dotNetRef should be set after first render
     await page.waitForTimeout(1000);
-    
+
     const dotNetRefAfterRender = await page.evaluate(() => typeof (window as any).dotNetRef !== 'undefined');
     if (dotNetRefAfterRender) {
       console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ DotNet reference properly initialized');
@@ -152,18 +150,18 @@ test.describe('Asset Share Button Broadcasting Tests', () => {
 
     // Check if the service is working by looking for enhanced HTML processing
     const transcriptArea = page.locator('[data-testid="transformed-transcript"]');
-    
+
     if (await transcriptArea.isVisible()) {
       const transcriptContent = await transcriptArea.innerHTML();
-      
+
       // Check for HtmlAgilityPack processing indicators
       const hasAssetButtons = transcriptContent.includes('ks-share-button');
       const hasDataAttributes = transcriptContent.includes('data-share-id');
       const hasAssetTypes = transcriptContent.includes('data-asset-type');
-      
+
       console.log('[DEBUG-WORKITEM:assetshare:continue] Processing indicators:', {
         hasAssetButtons,
-        hasDataAttributes, 
+        hasDataAttributes,
         hasAssetTypes
       });
 

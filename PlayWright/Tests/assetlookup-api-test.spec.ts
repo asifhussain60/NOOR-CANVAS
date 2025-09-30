@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * Test the new AssetLookup API endpoint and database-to-API migration
  */
 
 test.describe('AssetLookup API Tests', () => {
-    
+
     test('should access AssetLookup data via API endpoint', async ({ page }) => {
         const runId = `api-test-${Date.now()}`;
         console.log(`[DEBUG-WORKITEM:assetshare:api:${runId}] Testing AssetLookup API endpoint`);
@@ -19,28 +19,36 @@ test.describe('AssetLookup API Tests', () => {
         console.log(`[DEBUG-WORKITEM:assetshare:api:${runId}] API Response: ${responseText}`);
 
         expect(responseText).toBeTruthy();
-        
+
         try {
             const response = JSON.parse(responseText || '{}');
-            
+
             // Verify response structure
             expect(response.success).toBe(true);
             expect(response.assetLookups).toBeDefined();
             expect(response.totalCount).toBeGreaterThanOrEqual(0);
             expect(response.requestId).toBeTruthy();
-            
+
             console.log(`[DEBUG-WORKITEM:assetshare:api:${runId}] ✅ Found ${response.totalCount} asset lookups`);
-            
+
+            // Define interface for asset lookup
+            interface AssetLookup {
+                assetIdentifier: string;
+                displayName: string;
+                cssSelector: string;
+                isActive: boolean;
+            }
+
             // Check that we have the expected asset types
             const expectedAssets = ['ayah-card', 'inserted-hadees', 'etymology-card', 'table'];
-            const actualIdentifiers = response.assetLookups.map((a: any) => a.assetIdentifier);
-            
+            const actualIdentifiers = response.assetLookups.map((a: AssetLookup) => a.assetIdentifier);
+
             for (const expectedAsset of expectedAssets) {
                 const found = actualIdentifiers.includes(expectedAsset);
                 console.log(`[DEBUG-WORKITEM:assetshare:api:${runId}] Asset '${expectedAsset}': ${found ? '✅ Found' : '❌ Missing'}`);
                 expect(found).toBe(true);
             }
-            
+
             // Verify each asset has required properties
             for (const asset of response.assetLookups) {
                 expect(asset.assetId).toBeGreaterThan(0);
@@ -50,7 +58,7 @@ test.describe('AssetLookup API Tests', () => {
                 expect(asset.displayName).toBeTruthy();
                 expect(asset.isActive).toBe(true);
             }
-            
+
         } catch (error) {
             console.error(`[DEBUG-WORKITEM:assetshare:api:${runId}] ❌ Failed to parse API response: ${error}`);
             throw error;

@@ -107,6 +107,7 @@ async function waitForAppReady(page: Page, timeout: number = 15000): Promise<voi
   console.log('✅ Application appears ready');
 }
 
+
 test.describe('Q&A Flow End-to-End Tests (Database Driven)', () => {
   test('Complete Q&A Flow: SessionCanvas → HostControlPanel (Using Database Session)', async ({
     browser,

@@ -1,7 +1,7 @@
 {
   "config": {
     "configFile": "D:\\PROJECTS\\NOOR CANVAS\\config\\testing\\playwright.config.cjs",
-    "rootDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
+    "rootDir": "D:/PROJECTS/NOOR CANVAS",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -36,15 +34,14 @@
         "outputDir": "D:/PROJECTS/NOOR CANVAS/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
-        "testDir": "D:/PROJECTS/NOOR CANVAS/PlayWright/tests",
+        "testDir": "D:/PROJECTS/NOOR CANVAS",
         "testIgnore": [],
         "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+          "**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}",
+          "**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}"
         ],
         "timeout": 30000
       }
@@ -56,105 +53,47 @@
     "workers": 4,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "final-share-button-validation.spec.ts",
-      "file": "final-share-button-validation.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Asset Share Button Fix Validation",
-          "file": "final-share-button-validation.spec.ts",
-          "line": 7,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Verify share buttons are properly injected for session 212",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 2839,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host?sessionId=212\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host?sessionId=212\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host?sessionId=212\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host?sessionId=212\", waiting until \"load\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\final-share-button-validation.spec.ts:13:20",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\final-share-button-validation.spec.ts",
-                          "column": 20,
-                          "line": 13
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 11 |\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[90m// Navigate to session 212 (Active session with ayah-card assets)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host?sessionId=212'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'.host-control-panel'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m         \n \u001b[90m 16 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m`[FINAL-TEST:${trackingId}] Host Control Panel loaded for session 212`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\final-share-button-validation.spec.ts",
-                            "column": 20,
-                            "line": 13
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host?sessionId=212\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host?sessionId=212\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 11 |\u001b[39m\n \u001b[90m 12 |\u001b[39m         \u001b[90m// Navigate to session 212 (Active session with ayah-card assets)\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 13 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host?sessionId=212'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 14 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'.host-control-panel'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 15 |\u001b[39m         \n \u001b[90m 16 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m`[FINAL-TEST:${trackingId}] Host Control Panel loaded for session 212`\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\final-share-button-validation.spec.ts:13:20\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "[FINAL-TEST:final-validation-1759167091897] Starting comprehensive validation of share button fix\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-09-29T17:31:31.658Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\final-share-button-validat-e462f-ly-injected-for-session-212-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\final-share-button-validat-e462f-ly-injected-for-session-212-chromium\\video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\final-share-button-validation.spec.ts",
-                        "column": 20,
-                        "line": 13
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "3fae81b223717276272e-81c72957dd0b340522b6",
-              "file": "final-share-button-validation.spec.ts",
-              "line": 8,
-              "column": 9
-            }
-          ]
-        }
-      ]
+      "message": "SyntaxError: D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\implementation-comparison.spec.ts: Identifier 'test' has already been declared. (58:9)\n\n\u001b[0m \u001b[90m 56 |\u001b[39m }\u001b[33m;\u001b[39m\n \u001b[90m 57 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Implementation Comparison: SignalR vs HTTP'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 61 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeAll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m",
+      "stack": "SyntaxError: D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\implementation-comparison.spec.ts: Identifier 'test' has already been declared. (58:9)\n\n\u001b[0m \u001b[90m 56 |\u001b[39m }\u001b[33m;\u001b[39m\n \u001b[90m 57 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Implementation Comparison: SignalR vs HTTP'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 61 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeAll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m",
+      "location": {
+        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\implementation-comparison.spec.ts",
+        "line": 58,
+        "column": 9
+      },
+      "snippet": "\u001b[90m   at \u001b[39mPlayWright\\tests\\implementation-comparison.spec.ts:58\n\n\u001b[0m \u001b[90m 56 |\u001b[39m }\u001b[33m;\u001b[39m\n \u001b[90m 57 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Implementation Comparison: SignalR vs HTTP'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 61 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeAll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m"
+    },
+    {
+      "message": "TypeError: Duplicate declaration \"test\"\n\u001b[0m \u001b[90m 108 |\u001b[39m }\n \u001b[90m 109 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 110 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 111 |\u001b[39m\n \u001b[90m 112 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Q&A Flow End-to-End Tests (Database Driven)'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 113 |\u001b[39m   test(\u001b[32m'Complete Q&A Flow: SessionCanvas → HostControlPanel (Using Database Session)'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({\u001b[0m",
+      "stack": "TypeError: Duplicate declaration \"test\"\n\u001b[0m \u001b[90m 108 |\u001b[39m }\n \u001b[90m 109 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 110 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 111 |\u001b[39m\n \u001b[90m 112 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Q&A Flow End-to-End Tests (Database Driven)'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 113 |\u001b[39m   test(\u001b[32m'Complete Q&A Flow: SessionCanvas → HostControlPanel (Using Database Session)'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({\u001b[0m"
+    },
+    {
+      "message": "TypeError: Duplicate declaration \"test\"\n\u001b[0m \u001b[90m 72 |\u001b[39m }\n \u001b[90m 73 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 74 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect\u001b[33m,\u001b[39m \u001b[33mBrowser\u001b[39m\u001b[33m,\u001b[39m \u001b[33mBrowserContext\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPage\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 75 |\u001b[39m\n \u001b[90m 76 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Q&A Functionality Multi-User Test'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 77 |\u001b[39m   \u001b[36mlet\u001b[39m browser\u001b[33m:\u001b[39m \u001b[33mBrowser\u001b[39m\u001b[33m;\u001b[39m\u001b[0m",
+      "stack": "TypeError: Duplicate declaration \"test\"\n\u001b[0m \u001b[90m 72 |\u001b[39m }\n \u001b[90m 73 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 74 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect\u001b[33m,\u001b[39m \u001b[33mBrowser\u001b[39m\u001b[33m,\u001b[39m \u001b[33mBrowserContext\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPage\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 75 |\u001b[39m\n \u001b[90m 76 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Q&A Functionality Multi-User Test'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 77 |\u001b[39m   \u001b[36mlet\u001b[39m browser\u001b[33m:\u001b[39m \u001b[33mBrowser\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+    },
+    {
+      "message": "SyntaxError: D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-jsonfix-verification.spec.ts: Unexpected token (305:1)\n\n\u001b[0m \u001b[90m 303 |\u001b[39m     log(\u001b[32m'JsonElement API fix verification completed'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 304 |\u001b[39m   })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 305 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 306 |\u001b[39m\u001b[0m",
+      "stack": "SyntaxError: D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-jsonfix-verification.spec.ts: Unexpected token (305:1)\n\n\u001b[0m \u001b[90m 303 |\u001b[39m     log(\u001b[32m'JsonElement API fix verification completed'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 304 |\u001b[39m   })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 305 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 306 |\u001b[39m\u001b[0m",
+      "location": {
+        "file": "D:\\PROJECTS\\NOOR CANVAS\\PlayWright\\tests\\qa-jsonfix-verification.spec.ts",
+        "line": 305,
+        "column": 1
+      },
+      "snippet": "\u001b[90m   at \u001b[39mPlayWright\\tests\\qa-jsonfix-verification.spec.ts:305\n\n\u001b[0m \u001b[90m 303 |\u001b[39m     log(\u001b[32m'JsonElement API fix verification completed'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 304 |\u001b[39m   })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 305 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 306 |\u001b[39m\u001b[0m"
+    },
+    {
+      "message": "TypeError: Duplicate declaration \"test\"\n\u001b[0m \u001b[90m 150 |\u001b[39m\n \u001b[90m 151 |\u001b[39m \u001b[90m/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 152 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 153 |\u001b[39m\n \u001b[90m 154 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'User Registration Multi-Instance Synchronization'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 155 |\u001b[39m   \u001b[36mlet\u001b[39m contexts\u001b[33m:\u001b[39m \u001b[33mBrowserContext\u001b[39m[] \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m",
+      "stack": "TypeError: Duplicate declaration \"test\"\n\u001b[0m \u001b[90m 150 |\u001b[39m\n \u001b[90m 151 |\u001b[39m \u001b[90m/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 152 |\u001b[39m \u001b[36mimport\u001b[39m { test\u001b[33m,\u001b[39m expect } \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 153 |\u001b[39m\n \u001b[90m 154 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'User Registration Multi-Instance Synchronization'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 155 |\u001b[39m   \u001b[36mlet\u001b[39m contexts\u001b[33m:\u001b[39m \u001b[33mBrowserContext\u001b[39m[] \u001b[33m=\u001b[39m []\u001b[33m;\u001b[39m\u001b[0m"
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2025-09-29T17:31:30.312Z",
-    "duration": 4421.467000000001,
+    "startTime": "2025-09-30T09:56:57.029Z",
+    "duration": 1227.6620000000003,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

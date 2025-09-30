@@ -68,8 +68,15 @@ test.describe('HtmlAgilityPack Asset Processing Tests', () => {
     expect(responseData.detectedAssets).toBeDefined();
     expect(responseData.assetCount).toBeGreaterThan(0);
 
+    // Define interface for detected assets
+    interface DetectedAsset {
+      assetType: string;
+      assetId: string;
+      content: string;
+    }
+
     // Verify that HtmlAgilityPack detected the expected asset types
-    const assetTypes = responseData.detectedAssets.map((asset: any) => asset.assetType);
+    const assetTypes = responseData.detectedAssets.map((asset: DetectedAsset) => asset.assetType);
     expect(assetTypes).toContain('ayah-card');
     expect(assetTypes).toContain('ahadees-content');
     expect(assetTypes).toContain('inline-arabic');

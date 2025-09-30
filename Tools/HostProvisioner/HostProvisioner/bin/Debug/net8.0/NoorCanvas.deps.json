@@ -16,6 +16,7 @@
           "Microsoft.EntityFrameworkCore.InMemory": "8.0.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.0",
           "Microsoft.EntityFrameworkCore.Tools": "8.0.0",
+          "Roslynator.Analyzers": "4.12.4",
           "Serilog.AspNetCore": "8.0.0",
           "Serilog.Sinks.Console": "5.0.0",
           "Serilog.Sinks.File": "5.0.0",
@@ -731,6 +732,7 @@
           }
         }
       },
+      "Roslynator.Analyzers/4.12.4": {},
       "Serilog/3.1.1": {
         "runtime": {
           "lib/net7.0/Serilog.dll": {
@@ -1551,6 +1553,13 @@
       "sha512": "sha512-KZYeKBET/2Z0gY1WlTAK7+RHTl7GSbtvTLDXEZZojUdAPqpQNDL6tHv7VUpqfX5VEOh+uRGKaZXkuD253nEOBQ==",
       "path": "mono.texttemplating/2.2.1",
       "hashPath": "mono.texttemplating.2.2.1.nupkg.sha512"
+    },
+    "Roslynator.Analyzers/4.12.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-isl8hAh7yFNjyBEC4YlTSi+xGBblqBUC/2MCMmnBPwuXPewb7XYnMRzT3vXbP/gOGwT8hZUOy1g/aRH3lAF/NQ==",
+      "path": "roslynator.analyzers/4.12.4",
+      "hashPath": "roslynator.analyzers.4.12.4.nupkg.sha512"
     },
     "Serilog/3.1.1": {
       "type": "package",
