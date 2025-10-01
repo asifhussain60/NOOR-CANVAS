@@ -81,7 +81,13 @@ This makes you both the **synchronizer** and **janitor** of the system.
   - Remove unused files and code.  
   - Eliminate duplicate logic.  
   - Normalize formatting and structure.  
-  - Validate results with analyzers, linters, and tests.  
+  - Validate results with analyzers, linters, and tests.
+
+- **Chat Context Documentation:**  
+  - Execute `generate-chat-summary` agent to capture current session state.  
+  - Generate comprehensive context documentation for Copilot continuity.  
+  - Update `.github/copilot-chats/INDEX.md` with session information.  
+  - Ensure chat documentation follows standardized format and indexing.  
 
 ### 4. Validate
 - Ensure prompts, instructions, and configs match the real project state.  
@@ -101,6 +107,7 @@ This makes you both the **synchronizer** and **janitor** of the system.
 - Update the **keys folder** (`Workspaces/Copilot/prompts.keys`).  
 - Keep keys alphabetically sorted.  
 - Do not repeat key/keylock status here (already surfaced in confirmation phase).  
+- Ensure chat session documentation is properly indexed and accessible for future Copilot interactions.  
 
 ---
 
@@ -122,6 +129,8 @@ At the end of every sync:
 - Keys must be alphabetically sorted and status-correct.  
 - The solution must build with **zero errors and zero warnings**.  
 - Analyzers, linters, and tests must all pass.  
+- **Chat session context must be documented** in `.github/copilot-chats/` for continuity.  
+- Chat documentation index must be current and properly tagged.  
 
 If any of these conditions fail, the sync task must remain **In Progress** and explicitly report the failure in its confirmation output.  
 
