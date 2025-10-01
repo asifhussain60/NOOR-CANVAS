@@ -8,6 +8,7 @@
 - **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
 - **inventory.prompt.md** → inventory and dashboard manager  
 - **generate-chat-summary.prompt.md** → chat context documentation agent (continuity preservation)  
+- **question.prompt.md** → comprehensive application knowledge agent (one-stop Q&A solution)  
 
 ## Retired Prompts
 - **retrosync.prompt.md** → replaced by sync  
@@ -35,7 +36,8 @@
 - **healthcheck** → validates system integrity, reports to **sync** for fixes  
 - **pwtest** → creates tests, integrates with **task** completion workflow  
 - **inventory** → provides status overview, supports all other agents with context  
-- **generate-chat-summary** → captures session state, enables seamless continuity
+- **generate-chat-summary** → captures session state, enables seamless continuity  
+- **question** → analyzes application queries, supports all agents with knowledge and investigation
 
 ## LLM Optimization Principles
 - **Consistent Structure**: All prompts follow identical format patterns for reliable parsing  
