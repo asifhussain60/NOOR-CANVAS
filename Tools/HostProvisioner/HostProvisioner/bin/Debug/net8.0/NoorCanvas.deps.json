@@ -20,8 +20,7 @@
           "Serilog.AspNetCore": "8.0.0",
           "Serilog.Sinks.Console": "5.0.0",
           "Serilog.Sinks.File": "5.0.0",
-          "StyleCop.Analyzers": "1.2.0-beta.507",
-          "System.CommandLine": "2.0.0-beta4.22272.1"
+          "StyleCop.Analyzers": "1.2.0-beta.507"
         },
         "runtime": {
           "NoorCanvas.dll": {}
@@ -864,55 +863,6 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
-      "System.CommandLine/2.0.0-beta4.22272.1": {
-        "runtime": {
-          "lib/net6.0/System.CommandLine.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.0.22.27201"
-          }
-        },
-        "resources": {
-          "lib/net6.0/cs/System.CommandLine.resources.dll": {
-            "locale": "cs"
-          },
-          "lib/net6.0/de/System.CommandLine.resources.dll": {
-            "locale": "de"
-          },
-          "lib/net6.0/es/System.CommandLine.resources.dll": {
-            "locale": "es"
-          },
-          "lib/net6.0/fr/System.CommandLine.resources.dll": {
-            "locale": "fr"
-          },
-          "lib/net6.0/it/System.CommandLine.resources.dll": {
-            "locale": "it"
-          },
-          "lib/net6.0/ja/System.CommandLine.resources.dll": {
-            "locale": "ja"
-          },
-          "lib/net6.0/ko/System.CommandLine.resources.dll": {
-            "locale": "ko"
-          },
-          "lib/net6.0/pl/System.CommandLine.resources.dll": {
-            "locale": "pl"
-          },
-          "lib/net6.0/pt-BR/System.CommandLine.resources.dll": {
-            "locale": "pt-BR"
-          },
-          "lib/net6.0/ru/System.CommandLine.resources.dll": {
-            "locale": "ru"
-          },
-          "lib/net6.0/tr/System.CommandLine.resources.dll": {
-            "locale": "tr"
-          },
-          "lib/net6.0/zh-Hans/System.CommandLine.resources.dll": {
-            "locale": "zh-Hans"
-          },
-          "lib/net6.0/zh-Hant/System.CommandLine.resources.dll": {
-            "locale": "zh-Hant"
-          }
-        }
-      },
       "System.Composition/6.0.0": {
         "dependencies": {
           "System.Composition.AttributedModel": "6.0.0",
@@ -1651,13 +1601,6 @@
       "sha512": "sha512-l4zZJ1WU2hqpQQHXz1rvC3etVZN+2DLmQMO79FhOTZHMn8tDRr+WU287sbomD0BETlmKDn0ygUgVy9k5xkkJdA==",
       "path": "system.collections.immutable/6.0.0",
       "hashPath": "system.collections.immutable.6.0.0.nupkg.sha512"
-    },
-    "System.CommandLine/2.0.0-beta4.22272.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-1uqED/q2H0kKoLJ4+hI2iPSBSEdTuhfCYADeJrAqERmiGQ2NNacYKRNEQ+gFbU4glgVyK8rxI+ZOe1onEtr/Pg==",
-      "path": "system.commandline/2.0.0-beta4.22272.1",
-      "hashPath": "system.commandline.2.0.0-beta4.22272.1.nupkg.sha512"
     },
     "System.Composition/6.0.0": {
       "type": "package",

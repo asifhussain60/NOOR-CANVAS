@@ -1170,8 +1170,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "8.0.0",
           "Serilog.AspNetCore": "8.0.0",
           "Serilog.Sinks.Console": "5.0.0",
-          "Serilog.Sinks.File": "5.0.0",
-          "System.CommandLine": "2.0.0-beta4.22272.1"
+          "Serilog.Sinks.File": "5.0.0"
         },
         "runtime": {
           "NoorCanvas.dll": {
