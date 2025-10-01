@@ -394,8 +394,8 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
         
-        // Initialize consistent UserGuid for Q&A authentication
-        await InitializeUserGuidAsync(requestId);
+        // API-BASED APPROACH: UserGuid will be retrieved from API during participant loading
+        // This eliminates storage dependency and ensures proper multi-browser isolation
         
         // Check for persisted session state first (for page refresh/navigation scenarios)
         await LoadPersistedSessionStateAsync(requestId);
@@ -618,20 +618,9 @@
                             Flag = p.CountryFlag?.ToLower() ?? ""
                         }).ToList();
                         
-                        // Find the current participant's name with improved matching logic
-                        var currentParticipant = Model.Participants.FirstOrDefault(p => p.UserId == CurrentUserGuid);
-                        
-                        // If no direct match found, use participant index based on browser session for demo purposes
-                        if (currentParticipant == null && Model.Participants.Any())
-                        {
-                            // Use a hash of the UserGuid to consistently select the same participant for this browser session
-                            var participantIndex = Math.Abs(CurrentUserGuid.GetHashCode()) % Model.Participants.Count;
-                            currentParticipant = Model.Participants[participantIndex];
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] No direct participant match, using index {Index} for UserGuid: {UserGuid}", 
-                                requestId, participantIndex, CurrentUserGuid);
-                        }
-                        
-                        Model.CurrentParticipantName = currentParticipant?.Name ?? "Session Participant";
+                        // API-BASED APPROACH: Get current participant directly from API using token
+                        // This eliminates the hash-based selection that caused "same name on multiple browsers" issue
+                        await LoadCurrentParticipantFromApiAsync(requestId);
                         Model.ParticipantCount = Model.Participants.Count;
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Loaded {Count} participants for session canvas", 
                             requestId, Model.Participants.Count);
@@ -654,6 +643,95 @@
         }
         
         await InvokeAsync(() => StateHasChanged());
+    }
+
+    /// <summary>
+    /// API-BASED APPROACH: Loads current participant info directly from API using token.
+    /// This replaces both storage-based UserGuid initialization and hash-based participant selection.
+    /// Sets both CurrentParticipantName for display and CurrentUserGuid for authentication.
+    /// </summary>
+    private async Task LoadCurrentParticipantFromApiAsync(string requestId)
+    {
+        try
+        {
+            Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] Loading current participant from API using token: {Token}", 
+                requestId, SessionToken);
+
+            if (Http != null && !string.IsNullOrEmpty(SessionToken))
+            {
+                var response = await Http.GetAsync($"/api/participant/session/{SessionToken}/me");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var participantData = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(jsonResponse);
+                    
+                    // Extract participant name for display
+                    if (participantData.TryGetProperty("name", out var nameElement))
+                    {
+                        var participantName = nameElement.GetString();
+                        if (Model != null)
+                        {
+                            Model.CurrentParticipantName = participantName ?? "Session Participant";
+                        }
+                        
+                        Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] Participant name loaded: {Name}", 
+                            requestId, participantName);
+                    }
+                    
+                    // Extract UserGuid for authentication (Q&A, delete, etc.)
+                    if (participantData.TryGetProperty("userGuid", out var userGuidElement))
+                    {
+                        var userGuid = userGuidElement.GetString();
+                        if (!string.IsNullOrEmpty(userGuid))
+                        {
+                            CurrentUserGuid = userGuid;
+                            Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] UserGuid loaded for authentication: {UserGuid}", 
+                                requestId, CurrentUserGuid);
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Empty UserGuid returned from API", requestId);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] No UserGuid found in participant API response", requestId);
+                    }
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Participant not found for token: {Token} - User may not be registered yet", 
+                        requestId, SessionToken);
+                    if (Model != null)
+                    {
+                        Model.CurrentParticipantName = "Session Participant";
+                    }
+                    // Don't set CurrentUserGuid - this will prevent Q&A until user registers
+                }
+                else
+                {
+                    Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Current participant API failed - Status: {StatusCode}", 
+                        requestId, response.StatusCode);
+                    if (Model != null)
+                    {
+                        Model.CurrentParticipantName = "Session Participant";
+                    }
+                }
+            }
+            else
+            {
+                Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Cannot load participant - Http or SessionToken is null", requestId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[API-PARTICIPANT-ME] [{RequestId}] Error loading current participant from API", requestId);
+            if (Model != null)
+            {
+                Model.CurrentParticipantName = "Session Participant";
+            }
+        }
     }
 
     // SignalR Status Methods
@@ -1403,52 +1481,9 @@
 
     private DateTime? lastConnectionTime;
 
-    private async Task InitializeUserGuidAsync(string requestId)
-    {
-        try
-        {
-            var storageKey = $"noor_user_guid_{SessionToken}";
-            
-            // PRIORITY 1: Check localStorage first for registered users (authentication compatibility)
-            var localStorageGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
-            
-            if (!string.IsNullOrEmpty(localStorageGuid))
-            {
-                // Registered user - use localStorage UserGuid for authentication
-                CurrentUserGuid = localStorageGuid;
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using registered user UserGuid from localStorage: {UserGuid}", requestId, CurrentUserGuid);
-                
-                // Also store in sessionStorage for consistency (but localStorage is the source of truth)
-                await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, CurrentUserGuid);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Synced localStorage UserGuid to sessionStorage for tab consistency", requestId);
-                return;
-            }
-            
-            // PRIORITY 2: Check sessionStorage for tab-specific users (multi-tab isolation)
-            var sessionStorageGuid = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", storageKey);
-            
-            if (!string.IsNullOrEmpty(sessionStorageGuid))
-            {
-                CurrentUserGuid = sessionStorageGuid;
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using existing tab-specific UserGuid from sessionStorage: {UserGuid}", requestId, CurrentUserGuid);
-                return;
-            }
-            
-            // PRIORITY 3: Generate new tab-specific UserGuid for unregistered users
-            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var randomSuffix = Guid.NewGuid().ToString("N")[..8];
-            CurrentUserGuid = $"tab_{timestamp}_{randomSuffix}";
-            
-            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, CurrentUserGuid);
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated new tab-specific UserGuid for unregistered user: {UserGuid}", requestId, CurrentUserGuid);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Error initializing UserGuid, using fallback", requestId);
-            var fallbackGuid = $"fallback_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid().ToString("N")[..8]}";
-            CurrentUserGuid = fallbackGuid;
-        }
-    }
+    // REMOVED: InitializeUserGuidAsync method eliminated in favor of API-based approach
+    // UserGuid is now retrieved directly from the participant API during LoadCurrentParticipantFromApiAsync
+    // This eliminates localStorage/sessionStorage dependency and ensures proper multi-browser isolation
 
     private string GetSignalRStatusIconStyle()
     {

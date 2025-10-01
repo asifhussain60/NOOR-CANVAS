@@ -20,7 +20,7 @@ This directory contains documented chat sessions for seamless Copilot continuity
 - **session-cleanup-sync-20251001.md** - System synchronization and cleanup operations
 
 #### 🧪 Testing & Quality
-*No sessions documented yet*
+- **multi-browser-isolation-api-fix** - API-based solution for "same name on multiple browsers" issue (✅ ALL TESTS PASS)
 
 ## 🏷️ Tag Index
 
@@ -35,9 +35,9 @@ This directory contains documented chat sessions for seamless Copilot continuity
 
 ### By Domain
 - **UI/Frontend**: asset-detection-bug-fix.md
-- **API/Backend**: *(none)*
-- **Database**: *(none)*
-- **Testing**: *(none)*
+- **API/Backend**: multi-browser-isolation-api-fix
+- **Database**: multi-browser-isolation-api-fix  
+- **Testing**: multi-browser-isolation-api-fix
 
 ## 📖 Usage Guidelines
 

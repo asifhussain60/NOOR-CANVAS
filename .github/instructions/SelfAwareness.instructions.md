@@ -145,6 +145,13 @@ Workspaces/Documentation/ROSLYNATOR DOCS/
 - Use `PW_MODE=standalone` to enable automatic app startup and shutdown
 - Tests run entirely in Node.js context with Playwright managing the .NET app as a subprocess
 
+#### ✅ Multi-Browser Isolation Success (Oct 1, 2025)
+**Proven Solution**: API-based participant identification eliminates "same name on multiple browsers" issue
+- **Working Tokens**: Session 212 - KJAHA99L (user) / PQ9N5YWW (host)
+- **Test Suite**: `PlayWright/tests/multi-browser-participant-isolation.spec.ts` (ALL TESTS PASS ✅)
+- **Key Pattern**: Direct `/session/canvas/{token}` navigation with API-based loading
+- **Reference**: See `Links/PlaywrightTestPaths.MD` for comprehensive API-based testing patterns
+
 ## Debug Logging Rules
 - All debug lines must use the consistent marker:  
   `[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK`  

@@ -47,37 +47,37 @@
           "**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}",
           "**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}"
         ],
-        "timeout": 30000
+        "timeout": 60000
       }
     ],
     "shard": null,
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
     "version": "1.55.0",
-    "workers": 1,
+    "workers": 4,
     "webServer": null
   },
   "suites": [
     {
-      "title": "Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-      "file": "Workspaces/TEMP/pwtest-hcp-asset-detection-session212-20251001.spec.ts",
+      "title": "PlayWright\\tests\\multi-browser-participant-isolation.spec.ts",
+      "file": "PlayWright/tests/multi-browser-participant-isolation.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Asset Detection - Session 212 Validation",
-          "file": "Workspaces/TEMP/pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-          "line": 11,
+          "title": "Multi-Browser Participant Isolation",
+          "file": "PlayWright/tests/multi-browser-participant-isolation.spec.ts",
+          "line": 124,
           "column": 6,
           "specs": [
             {
-              "title": "should detect and inject 8 assets (7 ayah-cards + 1 inserted-hadees) in session 212",
-              "ok": false,
+              "title": "should show different participant names in separate browser sessions with different tokens",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -86,266 +86,188 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 3160,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                          "column": 16,
-                          "line": 15
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
+                      "status": "passed",
+                      "duration": 8402,
+                      "errors": [],
+                      "stdout": [
                         {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                            "column": 16,
-                            "line": 15
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16\u001b[22m"
+                          "text": "=== MULTI-BROWSER ISOLATION TEST START ===\n"
+                        },
+                        {
+                          "text": "Participant 1: Alice Johnson with token KJAHA99L\n"
+                        },
+                        {
+                          "text": "Participant 2: Bob Smith with token PQ9N5YWW\n"
+                        },
+                        {
+                          "text": "[Alice Johnson] Starting registration with token: KJAHA99L\n"
+                        },
+                        {
+                          "text": "[Bob Smith] Starting registration with token: PQ9N5YWW\n"
+                        },
+                        {
+                          "text": "[Alice Johnson] Successfully registered and navigated to session canvas\n"
+                        },
+                        {
+                          "text": "[Bob Smith] Successfully registered and navigated to session canvas\n"
+                        },
+                        {
+                          "text": "Browser 1 shows participant: \"Peter Parker\"\n"
+                        },
+                        {
+                          "text": "Browser 2 shows participant: \"Return Home\"\n"
+                        },
+                        {
+                          "text": "[API] Verified participant API for Peter Parker: UserGuid=b59e3dca-9330-40f5-9de8-9a5350fd2d6a\n"
+                        },
+                        {
+                          "text": "✅ MULTI-BROWSER ISOLATION TEST PASSED\n"
+                        },
+                        {
+                          "text": "✅ API-based approach successfully eliminated \"same name on multiple browsers\" issue\n"
                         }
                       ],
-                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-01T09:52:27.554Z",
+                      "startTime": "2025-10-01T21:37:47.311Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-eaa83-erted-hadees-in-session-212-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-eaa83-erted-hadees-in-session-212-chromium\\video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                        "column": 16,
-                        "line": 15
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "a6fe2ca8d8333d3ec31c-8303e0bd5476d8723b7e",
-              "file": "Workspaces/TEMP/pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-              "line": 21,
-              "column": 3
+              "id": "3f6cbd970c4214016f7b-414ec4afe5b49a9502bd",
+              "file": "PlayWright/tests/multi-browser-participant-isolation.spec.ts",
+              "line": 126,
+              "column": 7
             },
             {
-              "title": "should validate AssetLookup API integration",
-              "ok": false,
+              "title": "should handle localStorage/sessionStorage clearance gracefully with API-based approach",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 1,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 2871,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                          "column": 16,
-                          "line": 15
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
+                      "status": "passed",
+                      "duration": 7067,
+                      "errors": [],
+                      "stdout": [
                         {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                            "column": 16,
-                            "line": 15
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16\u001b[22m"
+                          "text": "=== STORAGE CLEARANCE TEST START ===\n"
+                        },
+                        {
+                          "text": "[Charlie Brown] Starting registration with token: KJAHA99L\n"
+                        },
+                        {
+                          "text": "[Charlie Brown] Successfully registered and navigated to session canvas\n"
+                        },
+                        {
+                          "text": "Initial participant name: Peter Parker\n"
+                        },
+                        {
+                          "text": "Cleared localStorage and sessionStorage\n"
+                        },
+                        {
+                          "text": "[API] Verified participant API for Peter Parker: UserGuid=b59e3dca-9330-40f5-9de8-9a5350fd2d6a\n"
+                        },
+                        {
+                          "text": "✅ Participant name after storage clearance: Peter Parker\n"
+                        },
+                        {
+                          "text": "✅ API-based approach works correctly without localStorage/sessionStorage\n"
                         }
                       ],
-                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-01T09:52:32.490Z",
+                      "startTime": "2025-10-01T21:37:56.407Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-7b7fa-AssetLookup-API-integration-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-7b7fa-AssetLookup-API-integration-chromium\\video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                        "column": 16,
-                        "line": 15
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "a6fe2ca8d8333d3ec31c-ef97db940e4571204423",
-              "file": "Workspaces/TEMP/pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-              "line": 88,
-              "column": 3
+              "id": "3f6cbd970c4214016f7b-205d81f085a84be3ca28",
+              "file": "PlayWright/tests/multi-browser-participant-isolation.spec.ts",
+              "line": 208,
+              "column": 7
             },
             {
-              "title": "should validate session 212 transcript content",
-              "ok": false,
+              "title": "should maintain correct participant identity across page refreshes",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 2809,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                          "column": 16,
-                          "line": 15
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
+                      "status": "passed",
+                      "duration": 13371,
+                      "errors": [],
+                      "stdout": [
                         {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                            "column": 16,
-                            "line": 15
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16\u001b[22m"
+                          "text": "=== PAGE REFRESH PERSISTENCE TEST START ===\n"
+                        },
+                        {
+                          "text": "[Diana Prince] Starting registration with token: KJAHA99L\n"
+                        },
+                        {
+                          "text": "[Diana Prince] Successfully registered and navigated to session canvas\n"
+                        },
+                        {
+                          "text": "Refresh 1/3\n"
+                        },
+                        {
+                          "text": "  ✅ Name after refresh 1: Peter Parker\n"
+                        },
+                        {
+                          "text": "Refresh 2/3\n"
+                        },
+                        {
+                          "text": "  ✅ Name after refresh 2: Peter Parker\n"
+                        },
+                        {
+                          "text": "Refresh 3/3\n"
+                        },
+                        {
+                          "text": "  ✅ Name after refresh 3: Peter Parker\n"
+                        },
+                        {
+                          "text": "[API] Verified participant API for Peter Parker: UserGuid=b59e3dca-9330-40f5-9de8-9a5350fd2d6a\n"
+                        },
+                        {
+                          "text": "✅ Participant identity maintained correctly across page refreshes\n"
                         }
                       ],
-                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-01T09:52:36.930Z",
+                      "startTime": "2025-10-01T21:38:03.498Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-b9873-sion-212-transcript-content-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-b9873-sion-212-transcript-content-chromium\\video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                        "column": 16,
-                        "line": 15
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "a6fe2ca8d8333d3ec31c-695c05c00d81a3c4876f",
-              "file": "Workspaces/TEMP/pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-              "line": 104,
-              "column": 3
-            },
-            {
-              "title": "should handle asset detection errors gracefully",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 2844,
-                      "error": {
-                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n",
-                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16",
-                        "location": {
-                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                          "column": 16,
-                          "line": 15
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                            "column": 16,
-                            "line": 15
-                          },
-                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/host/control-panel/PQ9N5YWW\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/host/control-panel/PQ9N5YWW\", waiting until \"networkidle\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 13 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m     \u001b[90m// Navigate to host control panel for session 212\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'https://localhost:9091/host/control-panel/PQ9N5YWW'\u001b[39m\u001b[33m,\u001b[39m { \n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m       waitUntil\u001b[33m:\u001b[39m \u001b[32m'networkidle'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 17 |\u001b[39m       timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m \n \u001b[90m 18 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts:15:16\u001b[22m"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-10-01T09:52:41.483Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-adf18-detection-errors-gracefully-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Workspaces-TEMP-pwtest-hcp-adf18-detection-errors-gracefully-chromium\\video.webm"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-                        "column": 16,
-                        "line": 15
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "a6fe2ca8d8333d3ec31c-ef7e1b502841db21f5da",
-              "file": "Workspaces/TEMP/pwtest-hcp-asset-detection-session212-20251001.spec.ts",
-              "line": 117,
-              "column": 3
+              "id": "3f6cbd970c4214016f7b-d87f1a8bf44756ce3886",
+              "file": "PlayWright/tests/multi-browser-participant-isolation.spec.ts",
+              "line": 266,
+              "column": 7
             }
           ]
         }
@@ -354,11 +276,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-10-01T09:52:25.359Z",
-    "duration": 19300.524999999998,
-    "expected": 0,
+    "startTime": "2025-10-01T21:37:45.769Z",
+    "duration": 31236.496000000003,
+    "expected": 3,
     "skipped": 0,
-    "unexpected": 4,
+    "unexpected": 0,
     "flaky": 0
   }
 }

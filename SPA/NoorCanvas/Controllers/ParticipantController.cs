@@ -383,6 +383,65 @@ namespace NoorCanvas.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets the current participant's information based on token - eliminates need for localStorage/sessionStorage.
+        /// This replaces hash-based participant selection with direct API-based identification.
+        /// </summary>
+        /// <param name="token">The session token to get current participant for.</param>
+        /// <returns>Current participant information including name, country, etc.</returns>
+        [HttpGet("session/{token}/me")]
+        public async Task<IActionResult> GetCurrentParticipant(string token)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+
+            _logger.LogInformation("NOOR-PARTICIPANT-ME: [{RequestId}] Current participant request for token: {Token}",
+                requestId, token);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token) || token.Length != 8)
+                {
+                    return BadRequest(new { Error = "Invalid token format", RequestId = requestId });
+                }
+
+                // First validate the token
+                var session = await _tokenService.ValidateTokenAsync(token, isHostToken: false);
+                if (session == null)
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT-ME: [{RequestId}] Invalid session token: {Token}", requestId, token);
+                    return NotFound(new { Error = "Invalid or expired session token", RequestId = requestId });
+                }
+
+                // Find the participant for this session and token
+                var participant = await _context.Participants
+                    .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.UserToken == token);
+
+                if (participant == null)
+                {
+                    _logger.LogWarning("NOOR-PARTICIPANT-ME: [{RequestId}] No participant found for token: {Token}", requestId, token);
+                    return NotFound(new { Error = "Participant not found for this session", RequestId = requestId });
+                }
+
+                _logger.LogInformation("NOOR-PARTICIPANT-ME: [{RequestId}] Current participant found: {Name} (UserGuid: {UserGuid})",
+                    requestId, participant.Name, participant.UserGuid);
+
+                return Ok(new
+                {
+                    UserGuid = participant.UserGuid,
+                    Name = participant.Name,
+                    Email = participant.Email,
+                    Country = participant.Country,
+                    JoinedAt = participant.JoinedAt,
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-PARTICIPANT-ME: [{RequestId}] Error retrieving current participant for token: {Token}", requestId, token);
+                return StatusCode(500, new { Error = "Internal server error", RequestId = requestId });
+            }
+        }
+
         [HttpGet("session/{token}/participants")]
         public async Task<IActionResult> GetSessionParticipants(string token)
         {

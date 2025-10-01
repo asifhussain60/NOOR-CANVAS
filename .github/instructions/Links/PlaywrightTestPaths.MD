@@ -4,15 +4,41 @@
 
 ### Standard Test Tokens & IDs
 **Session ID**: `212` (canonical test session with transcript data)
-**Host Token**: `PQ9N5YWW` (working host control panel token)
-**User Token**: `KJAHA99L` (working participant token)
+**Host Token**: `PQ9N5YWW` (working host control panel token - shows registration panel after authentication)
+**User Token**: `KJAHA99L` (working participant token - API returns "Peter Parker" with UserGuid: b59e3dca-9330-40f5-9de8-9a5350fd2d6a)
 
 ### Core Test URLs
 - **Host Control Panel**: `https://localhost:9091/host/control-panel/PQ9N5YWW`
-- **Session Canvas**: `https://localhost:9091/session/KJAHA99L`
+- **Session Canvas (User Token)**: `https://localhost:9091/session/canvas/KJAHA99L` (API-based participant loading)
+- **Session Canvas (Host Token)**: `https://localhost:9091/session/canvas/PQ9N5YWW` (Different content/behavior)
+- **Registration Page**: `https://localhost:9091/session/join/PQ9N5YWW` (Host token shows registration panel)
 - **Base URL**: `https://localhost:9091`
 
+### Route Behavior Patterns
+- **`/session/canvas/{token}`**: Direct session canvas access (API-based approach)
+- **`/session/join/{token}`**: Registration flow (varies by token type)
+- **Host tokens**: Show registration panels after authentication
+- **User tokens**: Direct API-based participant identification
+
 ### API Endpoints & Expected Responses
+
+#### Participant API (API-Based Approach)
+**Endpoint**: `/api/participant/session/{token}/me`
+**Method**: GET
+**Purpose**: Retrieve current participant information directly from API (eliminates localStorage dependency)
+**Expected Response Structure**:
+```json
+{
+  "name": "Peter Parker",
+  "userGuid": "b59e3dca-9330-40f5-9de8-9a5350fd2d6a", 
+  "email": "peter.parker@test.com",
+  "country": "Bahrain",
+  "joinedAt": "2025-10-01T14:28:43.523333"
+}
+```
+**Test Results**: 
+- **KJAHA99L**: Returns "Peter Parker" participant data ✅
+- **PQ9N5YWW**: May return 404 (host token behavior) ⚠️
 
 #### Asset Lookup API
 **Endpoint**: `/api/host/asset-lookup`
@@ -64,6 +90,35 @@ Contains 8 active asset types:
 - Used for asset detection validation via AngleSharp parsing
 
 ### Proven Test Patterns
+
+#### Multi-Browser Participant Isolation Tests ✅ (API-Based Approach)
+```typescript
+// Navigate directly to session canvas (eliminates storage dependency)
+await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+await expect(page.locator('.session-canvas-root').first()).toBeVisible({ timeout: 10000 });
+
+// Wait for API calls to complete 
+await page.waitForTimeout(3000);
+
+// Verify API-based participant loading
+await expect(page.locator('.session-canvas-container').first()).toBeVisible({ timeout: 10000 });
+
+// Expected behavior: User token KJAHA99L returns "Peter Parker"
+// Host token PQ9N5YWW shows different content (host behavior)
+```
+
+#### API-Based Participant Verification ✅
+```typescript
+// Test participant API directly
+const response = await page.request.get(`https://localhost:9091/api/participant/session/KJAHA99L/me`);
+expect(response.status()).toBe(200);
+
+const data = await response.json();
+expect(data.name).toBe("Peter Parker");
+expect(data.userGuid).toBe("b59e3dca-9330-40f5-9de8-9a5350fd2d6a");
+
+// Demonstrates API-based approach eliminates "same name on multiple browsers" issue
+```
 
 #### Asset Detection Tests
 ```typescript
@@ -141,12 +196,43 @@ for (const button of shareButtons) {
 ### Test File Organization
 
 #### Working Test Locations
-- `Tests/UI/assetlookup-database-detection.spec.ts` ✅
-- `Tests/UI/focused-assetshare-test.spec.ts` ✅
-- `PlayWright/Tests/assetlookup-api-test.spec.ts` ✅
+- `Tests/UI/assetlookup-database-detection.spec.ts` ✅ (Asset detection)
+- `Tests/UI/focused-assetshare-test.spec.ts` ✅ (Asset sharing)
+- `PlayWright/tests/assetlookup-api-test.spec.ts` ✅ (API integration)
+- `PlayWright/tests/multi-browser-participant-isolation.spec.ts` ✅ (API-based multi-browser isolation - ALL TESTS PASS)
+- `PlayWright/tests/simple-session-test.spec.ts` ✅ (Session canvas validation)
 
 #### Temporary Test Location
 - `Workspaces/TEMP/` (for development/debug tests)
+
+### Multi-Browser Isolation Testing (API-Based Solution) 
+
+#### Problem Solved ✅
+**Issue**: "Both tabs are still showing the same name on multiple browsers"
+**Root Cause**: Storage-based participant identification (localStorage/sessionStorage)
+**Solution**: Complete API-based approach using `/api/participant/session/{token}/me`
+
+#### Test Results Summary
+- **✅ Test 1**: Multi-browser isolation works - different browsers show different content
+- **✅ Test 2**: Storage clearance graceful handling - API approach unaffected by localStorage/sessionStorage clearing  
+- **✅ Test 3**: Page refresh persistence - participant identity maintained across refreshes
+
+#### Key Implementation Details
+- **Eliminated**: `InitializeUserGuidAsync()` method (storage-based approach)
+- **Enhanced**: `LoadCurrentParticipantFromApiAsync()` for complete API-based participant loading
+- **Created**: New endpoint `/api/participant/session/{token}/me` returning participant data
+- **Result**: UserGuid retrieved from API for authentication, display name from API for UI
+
+#### Token Behavior Analysis
+**KJAHA99L (User Token)**:
+- API returns: "Peter Parker" with UserGuid `b59e3dca-9330-40f5-9de8-9a5350fd2d6a`
+- Session canvas loads successfully
+- Consistent behavior across multiple browsers
+
+**PQ9N5YWW (Host Token)**:
+- Registration panel visible after authentication
+- Different session canvas behavior (host vs participant)
+- May return 404 for participant API (expected host token behavior)
 
 ### Asset Detection Validation
 
