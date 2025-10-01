@@ -63,13 +63,30 @@
                                  OnFormatDurationFromString="@FormatDurationFromString" />
         
         <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
-        <HostControlPanelContent Model="@Model" 
-                                 HostToken="@HostToken"
-                                 IsLoading="@isLoading"
-                                 OnEndSession="@EndSession"
-                                 OnMarkQuestionAnswered="@MarkQuestionAnswered"
-                                 OnShowDeleteModal="@ShowDeleteModal"
-                                 OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
+        <!-- Only show transcript and Q&A panels after session has started -->
+        @if (Model?.SessionStatus == "Active" || Model?.SessionStatus == "Ended")
+        {
+            <HostControlPanelContent Model="@Model" 
+                                     HostToken="@HostToken"
+                                     IsLoading="@isLoading"
+                                     OnEndSession="@EndSession"
+                                     OnMarkQuestionAnswered="@MarkQuestionAnswered"
+                                     OnShowDeleteModal="@ShowDeleteModal"
+                                     OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
+        }
+        else if (Model?.SessionStatus == "Waiting" && !isLoading)
+        {
+            <!-- Informational message when session hasn't started yet -->
+            <div style="background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:3rem;text-align:center;">
+                <i class="fa-solid fa-info-circle" style="font-size:3rem;color:#D4AF37;margin-bottom:1rem;"></i>
+                <h3 style="color:#006400;font-size:1.5rem;font-weight:700;margin-bottom:1rem;">Session Ready to Start</h3>
+                <p style="color:#6B7280;font-size:1rem;margin-bottom:1.5rem;">Click the "Start Session" button above to begin the session and access the transcript and Q&amp;A panels.</p>
+                <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;color:#9CA3AF;font-size:0.875rem;">
+                    <i class="fa-solid fa-clock" style="color:#D4AF37;"></i>
+                    <span>Session transcript and participant questions will appear here once started</span>
+                </div>
+            </div>
+        }
     </div>
     
     <!-- Confirmation Modal - Refactored to use HostControlPanelModal component -->
