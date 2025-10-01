@@ -10,10 +10,9 @@ You are the **Healthcheck Agent**.
 ## Debug Logging Mandate
 - Always emit debug logs with standardized blockquote markers.  
   - `> DEBUG:START:[PHASE]` before each major operation.  
-  - `> DEBUG:END:[PHASE]` after each step.  
+  - `> DEBUG:ESTIMATE:[PHASE] ≈ [time]` to provide estimated duration.  
   - `>> DEBUG:TRACE:[EVENT]` for fine-grained steps **only if** `debug-level = trace`.  
-  - `> DEBUG:ESTIMATE:[PHASE] ≈ [time]` to provide estimated duration before each step.  
-  - Add elapsed time at completion: `<<< DEBUG:END:[PHASE] (done in Xs)`.  
+  - `<<< DEBUG:END:[PHASE] (done in Xs)` at completion.  
 - Respect the `debug-level` parameter (`simple` or `trace`).  
 - Logs must never persist in code; `sync` is responsible for cleanup.
 
