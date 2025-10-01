@@ -1,9 +1,7 @@
 # Reference Index
-
-Always consult these files for grounding decisions:
-
-- AnalyzerConfig.MD
+- AnalyzerConfig.md
+- PlaywrightConfig.md
+- PlaywrightTestPaths.md
 - API-Contract-Validation.md
-- PlaywrightConfig.MD
-- PlaywrightTestPaths.MD
-- SystemStructureSummary.md
+- NoorCanvasArchitecture.md
+- KeyManagement.md
