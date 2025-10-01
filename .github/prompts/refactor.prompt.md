@@ -19,9 +19,13 @@ You are the **Structural Integrity Agent**.
 ---
 
 ## Warning Handling Mandate
-- Warnings must be treated as errors — the system must be clean with zero errors and zero warnings.  
-- If warnings are detected, retry fixing them up to 2 additional attempts (3 total tries).  
-- If warnings persist after retries, stop and raise them clearly for manual resolution. Do not loop infinitely.  
+- **CRITICAL**: Warnings must be treated as BLOCKING ERRORS — the system must be 100% clean with zero errors and zero warnings.  
+- **MANDATORY**: Run full build validation after EVERY change to detect issues immediately.  
+- **RETRY POLICY**: If warnings are detected, automatically retry fixing them up to 2 additional attempts (3 total tries).  
+- **ESCALATION**: If warnings persist after retries, IMMEDIATELY stop execution and raise them clearly for manual resolution.  
+- **NO PARTIAL SUCCESS**: Do not accept "mostly clean" or "minor warnings" — ZERO tolerance for build issues.  
+- **VALIDATION FREQUENCY**: Check build status after each file modification, not just at the end.  
+- **ROLLBACK TRIGGER**: Any persistent warning triggers immediate rollback to checkpoint commit.  
 
 ---
 
@@ -35,9 +39,11 @@ Your mission is to improve the maintainability, readability, and consistency of 
 ## Core Mandates
 - **Always begin with a checkpoint commit before any refactor.** This is CRITICAL for rollback safety.  
 - **Never change functionality without explicit user approval.**  
+- **ZERO TOLERANCE**: The build must finish with **ABSOLUTELY ZERO errors and ZERO warnings** — no exceptions.  
+- **CONTINUOUS VALIDATION**: Run `dotnet build` after every significant change to catch issues immediately.  
+- **IMMEDIATE ROLLBACK**: If any build errors/warnings are introduced, immediately revert changes and retry.  
 - Ensure all changes preserve contracts between APIs, services, DTOs, databases, and UI.  
 - Always leave the codebase in a clean, compilable, and functional state.  
-- The build must finish with **zero errors and zero warnings**.  
 - Follow **`.github/instructions/SelfAwareness.instructions.md`** as the global guardrails.  
 - Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation.  
 - Reference **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for full system design.  
@@ -220,22 +226,34 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
     - **Technology Modernization**: Update outdated patterns and dependencies.  
     - **Documentation Alignment**: Ensure code matches architectural documentation.  
     - **Test Coverage Improvement**: Add missing tests for critical components.  
-- **Quality Assurance:**  
-  - Execute Roslynator via `run-roslynator.ps1`.  
-  - Run StyleCop and .NET analyzers.  
-  - Run ESLint + Prettier for JavaScript/TypeScript.  
+- **MANDATORY BUILD VALIDATION (After Every Change):**  
+  - Run `dotnet build` immediately after each file modification.  
+  - **STOP EXECUTION** if ANY warnings or errors are detected.  
+  - Verify solution compiles completely before proceeding to next change.  
+  - **AUTOMATED ROLLBACK**: If build fails, immediately revert last change and retry.  
+- **Quality Assurance Pipeline:**  
+  - Execute Roslynator via `run-roslynator.ps1` and ensure ZERO diagnostics.  
+  - Run StyleCop and .NET analyzers with ZERO warnings policy.  
+  - Run ESLint + Prettier for JavaScript/TypeScript with --max-warnings 0.  
+  - **VALIDATION GATE**: All analyzers must pass with zero issues before proceeding.  
 - **Key Management Updates:**  
   - Create or update identified keys in `Workspaces/Copilot/prompts.keys`.  
   - Update relevant instruction files based on architectural changes.  
 
-### 4. Validate
+### 4. Validate (ZERO TOLERANCE POLICY)
+- **MANDATORY BUILD VERIFICATION:**  
+  - Execute `dotnet build --configuration Release --verbosity normal` for complete validation.  
+  - Execute `dotnet build --configuration Debug --verbosity normal` for debug validation.  
+  - **REQUIREMENT**: Both builds must complete with ZERO errors and ZERO warnings.  
+  - **IMMEDIATE FAILURE**: Any warning/error triggers immediate rollback and retry.  
 - **Comprehensive Validation Pipeline:**  
-  - Run **all analyzers, linters, and tests**.  
-  - Confirm Roslynator analysis is clean (no major unresolved diagnostics).  
+  - Run **all analyzers, linters, and tests** with zero-warning enforcement.  
+  - Execute `Workspaces/CodeQuality/run-roslynator.ps1` and verify ZERO unresolved diagnostics.  
+  - Run `dotnet format --verify-no-changes` to ensure consistent formatting.  
   - Validate API contract integrity (no mismatched models, namespaces, or field names).  
   - Ensure Playwright tests pass for impacted components.  
   - Verify DTO mappings are correct across UI → Service → API → DB.  
-  - Confirm solution builds with **zero errors and zero warnings**.  
+  - **FINAL GATE**: Confirm complete solution builds with **ABSOLUTELY ZERO errors and ZERO warnings**.  
 - **Instruction File Validation:**  
   - Verify `.github/instructions/Links/SystemStructureSummary.md` reflects any architectural changes.  
   - Update `.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD` if component relationships changed.  
@@ -244,13 +262,20 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
   - Ensure all created/updated keys are properly tracked and alphabetically sorted.  
   - Validate key status consistency across the system.  
 
-### 4.1 Iterative Resolution (Controlled)
-- If issues remain after validation:  
-  - Provide a clear report of remaining problems.  
-  - Do **not** automatically re-run refactor.  
-  - Ask the user if they would like to trigger another pass.  
-  - If approved, repeat Plan → Approval → Execute → Validate.  
-  - If not approved, stop and mark the task as **Incomplete** with remaining issues listed.  
+### 4.1 Iterative Resolution (MANDATORY BUILD VALIDATION)
+- **CONTINUOUS BUILD MONITORING**: After each individual change, immediately run:  
+  - `dotnet build --verbosity minimal` to catch issues instantly  
+  - If ANY warnings/errors detected, immediately rollback that specific change  
+  - **NEVER** proceed to next change until current change builds cleanly  
+- **VALIDATION FAILURE PROTOCOL**: If issues remain after validation:  
+  - **IMMEDIATE**: Execute full build validation commands to identify ALL issues  
+  - **MANDATORY**: Provide complete diagnostic report with specific error/warning details  
+  - **AUTOMATIC**: Attempt targeted fixes for detected issues (max 2 attempts per issue)  
+  - **ESCALATION**: If automatic fixes fail, do **not** automatically re-run refactor  
+  - **USER DECISION**: Ask the user if they would like to trigger another pass  
+  - **CONTROLLED RETRY**: If approved, repeat Plan → Approval → Execute → Validate with enhanced monitoring  
+  - **STOP CONDITION**: If not approved, stop and mark task as **Incomplete** with remaining issues listed  
+- **ZERO COMPROMISE**: Never accept partial success - either 100% clean build or complete rollback  
 
 ### 5. Confirm
 - Provide a human-readable summary of what was refactored, why, and how it aligns with standards.  
@@ -293,13 +318,20 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 
 ---
 
-## Clean Exit Guarantee
-At the end of every refactor:
-- The code **must build with zero errors and zero warnings**.  
-- All analyzers, linters, and Roslynator checks must pass with no blocking issues.  
-- All automated tests (unit, integration, Playwright) must pass.  
-- API contracts must remain intact and validated.  
+## Clean Exit Guarantee (ABSOLUTE REQUIREMENTS)
+At the end of every refactor - **ALL CONDITIONS MUST BE MET**:
+- **CRITICAL**: Execute `dotnet build --configuration Release` with **ZERO ERRORS AND ZERO WARNINGS**.  
+- **CRITICAL**: Execute `dotnet build --configuration Debug` with **ZERO ERRORS AND ZERO WARNINGS**.  
+- **CRITICAL**: Run `dotnet format --verify-no-changes` with no formatting issues.  
+- **CRITICAL**: Execute `Workspaces/CodeQuality/run-roslynator.ps1` with ZERO unresolved diagnostics.  
+- All analyzers, linters, and Roslynator checks must pass with **ZERO** issues (not just "no blocking" issues).  
+- All automated tests (unit, integration, Playwright) must pass with 100% success rate.  
+- API contracts must remain intact and validated with zero breaking changes.  
 - No obsolete or broken code paths may remain.  
+- **BUILD COMMANDS FOR VALIDATION:**  
+  - `dotnet clean && dotnet build --configuration Release --verbosity normal`  
+  - `dotnet clean && dotnet build --configuration Debug --verbosity normal`  
+  - `dotnet format --verify-no-changes --verbosity diagnostic`  
 - **Instruction files must be consistent** with refactored codebase:  
   - `SystemStructureSummary.md` accurately reflects component relationships  
   - `NOOR-CANVAS_ARCHITECTURE.MD` matches current system design  
@@ -307,7 +339,36 @@ At the end of every refactor:
   - All cross-references between instruction files remain valid  
 - **Key management system must be accurate** with proper lifecycle tracking.  
 
-If any of these conditions fail, the refactor must be considered **incomplete** and marked accordingly in the confirmation output.  
+**FAILURE PROTOCOL**: If ANY of these conditions fail, the refactor must be considered **INCOMPLETE** and marked accordingly in the confirmation output. **IMMEDIATE ROLLBACK** to checkpoint commit is required.
+
+---
+
+## Mandatory Validation Commands
+**Execute these commands in sequence - ALL must succeed with zero warnings/errors:**
+
+1. **Clean Build Validation:**
+   ```powershell
+   dotnet clean
+   dotnet build --configuration Release --verbosity normal
+   dotnet build --configuration Debug --verbosity normal
+   ```
+
+2. **Code Quality Validation:**
+   ```powershell
+   dotnet format --verify-no-changes --verbosity diagnostic
+   ```
+
+3. **Static Analysis Validation:**
+   ```powershell
+   .\Workspaces\CodeQuality\run-roslynator.ps1
+   ```
+
+4. **Test Suite Validation:**
+   ```powershell
+   dotnet test --configuration Release --verbosity normal
+   ```
+
+**REQUIREMENT**: Each command must complete with exit code 0 and ZERO warnings. Any failure triggers immediate rollback.
 
 ---
 
