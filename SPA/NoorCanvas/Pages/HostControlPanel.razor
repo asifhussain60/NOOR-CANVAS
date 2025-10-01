@@ -117,6 +117,7 @@
     private bool isLoading = false;
     private bool showDeleteModal = false;
     private bool showMessage = false;
+    private bool shareHandlersInitialized = false;
     private string messageText = "";
     private Guid questionToDeleteId;
     private Timer? messageTimer;
@@ -917,6 +918,9 @@
                     SessionId = (int)canvasSession;
                     Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] ✅ SessionId extracted via API: {SessionId}", 
                         requestId, SessionId);
+                    
+                    // [DEBUG-WORKITEM:assetshare:fix] Initialize share button handlers now that SessionId is available
+                    await InitializeShareButtonHandlersAsync();
                 }
                 else
                 {
@@ -1472,30 +1476,56 @@
         }, null, TimeSpan.FromSeconds(6), Timeout.InfiniteTimeSpan);
     }
 
+    /// <summary>
+    /// Initialize share button handlers when SessionId becomes available
+    /// </summary>
+    private async Task InitializeShareButtonHandlersAsync()
+    {
+        if (shareHandlersInitialized || !SessionId.HasValue)
+        {
+            Logger.LogDebug("[DEBUG-WORKITEM:assetshare:continue] Skipping share handler initialization - already initialized: {Initialized}, SessionId: {SessionId} ;CLEANUP_OK", 
+                shareHandlersInitialized, SessionId);
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Initializing share button handlers for SessionId: {SessionId} ;CLEANUP_OK", SessionId);
+            
+            // Set SessionId in JavaScript
+            await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Set JavaScript window.currentSessionId = {SessionId}", SessionId.Value);
+            
+            // Setup share button handlers and DotNet interop
+            var dotNetRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("setupShareButtonHandlers", dotNetRef);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Share button handlers initialized ;CLEANUP_OK");
+            
+            // Check if share buttons exist in the DOM
+            var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('[data-share-button=\"asset\"]').length");
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Found {ButtonCount} share buttons in DOM after initialization ;CLEANUP_OK", buttonCount);
+            
+            shareHandlersInitialized = true;
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Share button handler initialization completed successfully ;CLEANUP_OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] Failed to initialize share button handlers ;CLEANUP_OK");
+        }
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // [DEBUG-WORKITEM:hostcanvas:impl] Set SessionId in JavaScript on first render to fix prerendering error ;CLEANUP_OK
+        // [DEBUG-WORKITEM:assetshare:fix] Always try to initialize share handlers when component renders and SessionId is available
+        if (SessionId.HasValue)
+        {
+            await InitializeShareButtonHandlersAsync();
+        }
+        
+        // [DEBUG-WORKITEM:hostcanvas:impl] Legacy first render logic for backward compatibility ;CLEANUP_OK
         if (firstRender && SessionId.HasValue)
         {
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Set JavaScript window.currentSessionId = {SessionId}", SessionId.Value);
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:impl] Successfully set window.currentSessionId = {SessionId} in JavaScript ;CLEANUP_OK", SessionId.Value);
-                
-                // [DEBUG-WORKITEM:assetshare:continue] Setup share button handlers and DotNet interop ;CLEANUP_OK
-                var dotNetRef = DotNetObjectReference.Create(this);
-                await JSRuntime.InvokeVoidAsync("setupShareButtonHandlers", dotNetRef);
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Share button handlers initialized ;CLEANUP_OK");
-                
-                // Check if share buttons exist in the DOM
-                var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('[data-share-button=\"asset\"]').length");
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Found {ButtonCount} share buttons in DOM after initialization ;CLEANUP_OK", buttonCount);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:impl] Failed to set SessionId in JavaScript ;CLEANUP_OK");
-            }
+            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:impl] First render completed with SessionId = {SessionId} ;CLEANUP_OK", SessionId.Value);
         }
         
         if (!firstRender && !string.IsNullOrEmpty(Model?.TransformedTranscript))
