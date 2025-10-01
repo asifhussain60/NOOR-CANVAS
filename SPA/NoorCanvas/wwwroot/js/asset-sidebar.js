@@ -9,9 +9,9 @@
  */
 function detectAssetsInDOM() {
     console.log('[ASSET-SIDEBAR-JS] Starting asset detection in DOM');
-    
+
     const detectedAssets = [];
-    
+
     // Asset type configurations (matching the server-side logic)
     const assetConfigs = [
         { type: 'ayah-card', selector: '.ayah-card', displayName: 'Ayah Card' },
@@ -28,11 +28,11 @@ function detectAssetsInDOM() {
     assetConfigs.forEach(config => {
         const elements = document.querySelectorAll(config.selector);
         console.log(`[ASSET-SIDEBAR-JS] Found ${elements.length} elements for ${config.type}`);
-        
+
         elements.forEach((element, index) => {
             const instanceNumber = index + 1;
             const shareId = `asset-${config.type}-${instanceNumber}`;
-            
+
             // Extract preview text
             let previewText = '';
             if (element.textContent) {
@@ -40,10 +40,10 @@ function detectAssetsInDOM() {
             } else if (element.innerText) {
                 previewText = element.innerText.trim().substring(0, 150);
             }
-            
+
             // Add data attribute for linking
             element.setAttribute('data-asset-id', shareId);
-            
+
             detectedAssets.push({
                 ShareId: shareId,
                 AssetType: config.type,
@@ -66,12 +66,12 @@ function detectAssetsInDOM() {
 function scrollToAsset(shareId) {
     const element = document.querySelector(`[data-asset-id="${shareId}"]`);
     if (element) {
-        element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+        element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
         });
         console.log(`[ASSET-SIDEBAR-JS] Scrolled to asset: ${shareId}`);
-        
+
         // Add temporary highlight
         highlightAsset(shareId, 2000);
     } else {
@@ -91,14 +91,14 @@ function highlightAsset(shareId, duration = 3000) {
         const originalBorder = element.style.border;
         const originalBoxShadow = element.style.boxShadow;
         const originalTransition = element.style.transition;
-        
+
         // Apply highlight styles
         element.style.transition = 'all 0.3s ease';
         element.style.border = '2px solid #3b82f6';
         element.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.3)';
-        
+
         console.log(`[ASSET-SIDEBAR-JS] Highlighting asset: ${shareId}`);
-        
+
         // Remove highlight after duration
         setTimeout(() => {
             element.style.transition = originalTransition;
@@ -152,13 +152,13 @@ function getAssetInfo(shareId) {
 function pulseAllAssets() {
     const assets = document.querySelectorAll('[data-asset-id]');
     console.log(`[ASSET-SIDEBAR-JS] Pulsing ${assets.length} assets`);
-    
+
     assets.forEach((asset, index) => {
         setTimeout(() => {
             const original = asset.style.transform;
             asset.style.transition = 'transform 0.3s ease';
             asset.style.transform = 'scale(1.05)';
-            
+
             setTimeout(() => {
                 asset.style.transform = original;
             }, 300);

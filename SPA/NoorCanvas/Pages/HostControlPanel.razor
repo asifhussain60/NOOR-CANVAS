@@ -1549,10 +1549,23 @@
             await JSRuntime.InvokeVoidAsync("eval", $"window.currentSessionId = {SessionId.Value};");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Set JavaScript window.currentSessionId = {SessionId}", SessionId.Value);
             
-            // Initial setup of share button handlers using timer-based approach
+            // Initialize the new definitive share system - simple and reliable
             var dotNetRef = DotNetObjectReference.Create(this);
-            await InitializeHandlersWithTimerAsync(dotNetRef);
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Initial timer-based share button handlers setup started ;CLEANUP_OK");
+            var initResult = await JSRuntime.InvokeAsync<bool>("initNoorShareSystem", dotNetRef);
+            
+            if (initResult)
+            {
+                shareHandlersInitialized = true;
+                Logger.LogInformation("[NOOR-SHARE] ✅ Share system initialized successfully");
+                
+                // Get status for debugging
+                var status = await JSRuntime.InvokeAsync<object>("getNoorShareStatus");
+                Logger.LogInformation("[NOOR-SHARE] System status: {Status}", status);
+            }
+            else
+            {
+                Logger.LogError("[NOOR-SHARE] ❌ Failed to initialize share system");
+            }
             
             // Check if share buttons exist in the DOM at this point (may be zero initially)
             var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('[data-share-button=\"asset\"]').length");
@@ -1613,94 +1626,53 @@
 
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-debug:fix] 🔄 Starting timer-based share button handler initialization ;CLEANUP_OK");
+            Logger.LogInformation("[NOOR-SHARE] 🔄 Reinitializing share system after transcript update");
             
-            // Force recheck of share buttons in DOM before setting up handlers
-            var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('[data-share-button=\"asset\"]').length");
-            Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-debug:fix] 🔍 Pre-handler check: {ButtonCount} share buttons in DOM ;CLEANUP_OK", buttonCount);
+            // Count existing share buttons
+            var buttonCount = await JSRuntime.InvokeAsync<int>("eval", "document.querySelectorAll('.ks-share-button, .ks-share-btn').length");
+            Logger.LogInformation("[NOOR-SHARE] 🔍 Found {ButtonCount} share buttons in DOM", buttonCount);
             
-            // TIMING FIX: Use timer-based approach instead of immediate function call
-            var dotNetRef = DotNetObjectReference.Create(this);
-            await InitializeHandlersWithTimerAsync(dotNetRef);
+            // Initialize the new definitive share system
+            await InitializeNoorShareSystemAsync();
+            
+            // Refresh button styling if buttons exist
+            if (buttonCount > 0)
+            {
+                await JSRuntime.InvokeVoidAsync("refreshShareButtons");
+                Logger.LogInformation("[NOOR-SHARE] 🎨 Refreshed styling for {ButtonCount} buttons", buttonCount);
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:sharebutton-debug:fix] ❌ Failed to reinitialize share button handlers ;CLEANUP_OK");
+            Logger.LogError(ex, "[NOOR-SHARE] ❌ Failed to reinitialize share system");
         }
     }
 
     /// <summary>
-    /// Timer-based handler initialization with retry logic - CRITICAL timing fix
+    /// Initialize the definitive share system - simple and reliable
     /// </summary>
-    private async Task InitializeHandlersWithTimerAsync(DotNetObjectReference<HostControlPanel> dotNetRef)
+    private async Task InitializeNoorShareSystemAsync()
     {
         try
         {
-            // TIMING FIX: Use JavaScript setTimeout with retry logic to wait for DOM and JS functions to be ready
-            var refId = Guid.NewGuid().ToString("N")[..8]; // Generate unique reference ID
-            var initScript = $@"
-                (function() {{
-                    let attempts = 0;
-                    const maxAttempts = 10;
-                    const retryDelay = 50; // Start with 50ms
-                    
-                    function attemptInitialization() {{
-                        attempts++;
-                        console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] Attempt ' + attempts + ' - checking function availability');
-                        
-                        // Check if initializeShareButtons function exists (from host-control-panel.js)
-                        if (typeof window.initializeShareButtons === 'function') {{
-                            // Check if share buttons exist in DOM
-                            const buttons = document.querySelectorAll('.ks-share-button, .ks-share-btn');
-                            console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] Found ' + buttons.length + ' share buttons');
-                            
-                            if (buttons.length > 0) {{
-                                console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] ✅ Both function and buttons available - initializing handlers');
-                                try {{
-                                    // Initialize the share button handlers
-                                    window.initializeShareButtons();
-                                    console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] ✅ Handler setup completed successfully');
-                                    return true; // Success
-                                }} catch (error) {{
-                                    console.error('[DEBUG-WORKITEM:sharebutton-timing-fix] Error during handler setup:', error);
-                                }}
-                            }} else {{
-                                console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] No share buttons found yet, retrying...');
-                            }}
-                        }} else {{
-                            console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] initializeShareButtons function not available yet, retrying...');
-                        }}
-                        
-                        // Retry with exponential backoff if not ready and attempts remain
-                        if (attempts < maxAttempts) {{
-                            const delay = retryDelay * Math.pow(1.5, attempts - 1);
-                            console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] Retrying in ' + delay + 'ms (attempt ' + (attempts + 1) + '/' + maxAttempts + ')');
-                            setTimeout(attemptInitialization, delay);
-                        }} else {{
-                            console.error('[DEBUG-WORKITEM:sharebutton-timing-fix] ❌ Max attempts reached - handler initialization failed');
-                        }}
-                        
-                        return false; // Not ready yet
-                    }}
-                    
-                    // Start the initialization attempt
-                    attemptInitialization();
-                }})();
-            ";
-
-            // Store the DotNet reference globally using proper JSInterop
-            await JSRuntime.InvokeVoidAsync("eval", $"window.dotNetRef_{refId} = null; window.hostControlPanelState = window.hostControlPanelState || {{}};");
-            await JSRuntime.InvokeVoidAsync("setDotNetReference", dotNetRef);
+            Logger.LogInformation("[NOOR-SHARE] Starting definitive share system initialization");
             
-            // Execute the timer-based initialization script
-            await JSRuntime.InvokeVoidAsync("eval", initScript);
+            var dotNetRef = DotNetObjectReference.Create(this);
+            var initResult = await JSRuntime.InvokeAsync<bool>("initNoorShareSystem", dotNetRef);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-debug:fix] ✅ Timer-based handler initialization started ;CLEANUP_OK");
-            shareHandlersInitialized = true;
+            if (initResult)
+            {
+                shareHandlersInitialized = true;
+                Logger.LogInformation("[NOOR-SHARE] ✅ Definitive share system initialized successfully");
+            }
+            else
+            {
+                Logger.LogError("[NOOR-SHARE] ❌ Failed to initialize definitive share system");
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:sharebutton-debug:fix] ❌ Failed to start timer-based handler initialization ;CLEANUP_OK");
+            Logger.LogError(ex, "[NOOR-SHARE] ❌ Exception during share system initialization");
         }
     }
 
