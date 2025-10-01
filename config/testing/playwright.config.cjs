@@ -24,6 +24,7 @@ const cfg = {
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
+        ignoreHTTPSErrors: true,
         outputDir: path.resolve(__dirname, '../../Workspaces', 'TEMP', 'playwright-artifacts'),
     },
     projects: [
