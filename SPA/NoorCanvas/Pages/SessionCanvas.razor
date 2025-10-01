@@ -197,6 +197,7 @@
                                       style="flex:5;padding:0.75rem;border-radius:0.5rem;border:1px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
                                       placeholder="Ask a question..." rows="2"></textarea>
                             <button @onclick="SubmitQuestion" 
+                                    type="button"
                                     style="flex:1;min-width:80px;padding:0.5rem;border-radius:0.5rem;color:white;font-weight:600;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;border:1px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
                                     class="shadow-golden">
                                 <i class="fa-solid fa-paper-plane" style="font-size:1.25rem;color:white;"></i>
@@ -925,13 +926,19 @@
     // Q&A Methods
     private async Task SubmitQuestion()
     {
-        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
-            return;
-
         var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] SubmitQuestion called - QuestionInput: '{QuestionText}', SessionToken: '{SessionToken}', UserGuid: '{UserGuid}'", 
+            requestId, QuestionInput?.Trim() ?? "NULL", SessionToken ?? "NULL", CurrentUserGuid ?? "NULL");
+
+        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Validation failed - missing required fields", requestId);
+            return;
+        }
 
         try
         {
+            Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Preparing API request payload", requestId);
             var requestPayload = new
             {
                 SessionToken = SessionToken,
@@ -939,26 +946,28 @@
                 UserGuid = CurrentUserGuid
             };
             
-
-
+            Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Sending POST request to /api/Question/Submit", requestId);
             var response = await Http.PostAsJsonAsync("/api/Question/Submit", requestPayload);
 
 
 
+            Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] API response received - StatusCode: {StatusCode}", requestId, response.StatusCode);
+
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Question submitted successfully - Response: {Response}", requestId, responseContent);
+                
                 // Question submitted successfully - clear input
-                    
                 QuestionInput = "";
                 await InvokeAsync(StateHasChanged);
                 
-
+                Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Question input cleared and UI refreshed", requestId);
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                // User not authenticated - redirect to registration
+                Logger.LogWarning("[DEBUG-WORKITEM:submit-bug] [{RequestId}] User unauthorized - redirecting to landing page. Error: {Error}", requestId, errorContent);
                 
                 // Redirect to UserLanding.razor with session token for proper authentication
                 // UserLanding.razor will handle session status check and route user to appropriate page after authentication
@@ -968,13 +977,13 @@
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("Question submission failed: {StatusCode} - {Error}", response.StatusCode, errorContent);
+                Logger.LogError("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Question submission failed: {StatusCode} - {Error}", requestId, response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Exception during question submission. RequestId: {RequestId}", requestId);
-            Console.WriteLine($"Error submitting question: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:submit-bug] [{RequestId}] Exception during question submission: {ExceptionMessage}", requestId, ex.Message);
+            Console.WriteLine($"[DEBUG-WORKITEM:submit-bug] Error submitting question: {ex.Message}");
         }
     }
 
@@ -1398,37 +1407,44 @@
     {
         try
         {
-            // Use sessionStorage for tab-specific identification (not shared between browser tabs)
-            var sessionStorageKey = $"noor_user_guid_{SessionToken}";
-            var storedUserGuid = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", sessionStorageKey);
+            var storageKey = $"noor_user_guid_{SessionToken}";
             
-            if (!string.IsNullOrEmpty(storedUserGuid))
-            {
-                CurrentUserGuid = storedUserGuid;
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using existing sessionStorage UserGuid: {UserGuid}", requestId, CurrentUserGuid);
-            }
-            else
-            {
-                // Generate unique GUID per browser tab using sessionStorage
-                var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                var randomSuffix = Guid.NewGuid().ToString("N")[..8];
-                CurrentUserGuid = $"tab_{timestamp}_{randomSuffix}";
-                
-                await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", sessionStorageKey, CurrentUserGuid);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated tab-specific UserGuid: {UserGuid}", requestId, CurrentUserGuid);
-            }
+            // PRIORITY 1: Check localStorage first for registered users (authentication compatibility)
+            var localStorageGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             
-            // Also check localStorage for fallback compatibility (but sessionStorage takes priority)
-            var localStorageGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", $"noor_user_guid_{SessionToken}");
             if (!string.IsNullOrEmpty(localStorageGuid))
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] localStorage UserGuid exists but using sessionStorage for tab isolation: localStorage={LocalGuid}, sessionStorage={SessionGuid}", 
-                    requestId, localStorageGuid, CurrentUserGuid);
+                // Registered user - use localStorage UserGuid for authentication
+                CurrentUserGuid = localStorageGuid;
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using registered user UserGuid from localStorage: {UserGuid}", requestId, CurrentUserGuid);
+                
+                // Also store in sessionStorage for consistency (but localStorage is the source of truth)
+                await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, CurrentUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Synced localStorage UserGuid to sessionStorage for tab consistency", requestId);
+                return;
             }
+            
+            // PRIORITY 2: Check sessionStorage for tab-specific users (multi-tab isolation)
+            var sessionStorageGuid = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", storageKey);
+            
+            if (!string.IsNullOrEmpty(sessionStorageGuid))
+            {
+                CurrentUserGuid = sessionStorageGuid;
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using existing tab-specific UserGuid from sessionStorage: {UserGuid}", requestId, CurrentUserGuid);
+                return;
+            }
+            
+            // PRIORITY 3: Generate new tab-specific UserGuid for unregistered users
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var randomSuffix = Guid.NewGuid().ToString("N")[..8];
+            CurrentUserGuid = $"tab_{timestamp}_{randomSuffix}";
+            
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, CurrentUserGuid);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated new tab-specific UserGuid for unregistered user: {UserGuid}", requestId, CurrentUserGuid);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error initializing UserGuid, using fallback");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Error initializing UserGuid, using fallback", requestId);
             var fallbackGuid = $"fallback_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid().ToString("N")[..8]}";
             CurrentUserGuid = fallbackGuid;
         }

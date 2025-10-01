@@ -671,8 +671,12 @@
                     var userGuidValue = userGuidElement.GetString();
                     if (!string.IsNullOrEmpty(userGuidValue))
                     {
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{Model.TokenInput}", userGuidValue);
-                        // UserGuid stored for Q&A authentication
+                        var storageKey = $"noor_user_guid_{Model.TokenInput}";
+                        // Store in localStorage as primary source for registered users
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, userGuidValue);
+                        // Also store in sessionStorage for tab consistency with SessionCanvas
+                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, userGuidValue);
+                        Logger.LogInformation("[DEBUG-WORKITEM:userlanding:USERGUID] UserGuid stored in both localStorage and sessionStorage for authentication consistency: {UserGuid}", userGuidValue);
                     }
                 }
                 else

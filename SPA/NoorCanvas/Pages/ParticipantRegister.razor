@@ -316,12 +316,18 @@
                     // Store UserGuid with SessionCanvas-compatible key pattern
                     try
                     {
-                        // Store with session-specific key for SessionCanvas compatibility
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{Session}", newUserGuid);
+                        var storageKey = $"noor_user_guid_{Session}";
+                        // Store in localStorage as primary source for registered users
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, newUserGuid);
+                        // Also store in sessionStorage for tab consistency with SessionCanvas
+                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", storageKey, newUserGuid);
+                        
                         // Keep legacy keys for backward compatibility
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserGuid);
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userName", registration.Name);
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCountry", registration.Country);
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:register:USERGUID] UserGuid stored in both localStorage and sessionStorage for authentication consistency: {UserGuid}", newUserGuid);
                     }
                     catch 
                     {
