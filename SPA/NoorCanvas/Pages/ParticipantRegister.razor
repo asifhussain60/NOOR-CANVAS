@@ -197,9 +197,6 @@
                 existingUserId = null;
             }
 
-            registration.SessionId = Session;
-            registration.UserId = existingUserId ?? "";
-
             await ValidateSession();
             
             // Load countries after successful session validation
@@ -314,12 +311,15 @@
                 
                 if (registrationResponse?.Success == true)
                 {
-                    var newUserId = registrationResponse.UserId;
+                    var newUserGuid = registrationResponse.UserGuid;
                     
-                    // Store UserId in localStorage for future sessions
+                    // Store UserGuid with SessionCanvas-compatible key pattern
                     try
                     {
-                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserId);
+                        // Store with session-specific key for SessionCanvas compatibility
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{Session}", newUserGuid);
+                        // Keep legacy keys for backward compatibility
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userId", newUserGuid);
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userName", registration.Name);
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "noor-userCountry", registration.Country);
                     }
@@ -329,14 +329,14 @@
                         Logger.LogWarning("NOOR-WARNING: Failed to store user data in localStorage");
                     }
 
-                    Logger.LogInformation("NOOR-SUCCESS: Participant registered successfully: {Name} (UserID: {UserId})", 
-                        registration.Name, newUserId.Substring(0, 8) + "...");
+                    Logger.LogInformation("NOOR-SUCCESS: Participant registered successfully: {Name} (UserGuid: {UserGuid})", 
+                        registration.Name, newUserGuid.Substring(0, 8) + "...");
 
                     await JSRuntime.InvokeVoidAsync("NoorLogger.info", "PARTICIPANT-REGISTRATION", "Registration successful", 
-                        new { userId = newUserId.Substring(0, 8) + "...", name = registration.Name, participantId = registrationResponse.ParticipantId });
+                        new { userGuid = newUserGuid.Substring(0, 8) + "...", name = registration.Name, participantId = registrationResponse.ParticipantId });
 
                     // Navigate to waiting room
-                    Navigation.NavigateTo($"/session/{Session}/waiting?userId={newUserId}");
+                    Navigation.NavigateTo($"/session/{Session}/waiting?userId={newUserGuid}");
                 }
                 else
                 {
@@ -401,7 +401,7 @@
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] Loading countries from API for ParticipantRegister...", requestId);
             
             // Use session token for countries API call
-            var countriesUrl = $"/api/host/countries?guid={Uri.EscapeDataString(registration.SessionId ?? "USERREF001")}";
+            var countriesUrl = $"/api/host/countries?guid={Uri.EscapeDataString(Session ?? "USERREF001")}";
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] GET {Url}", requestId, countriesUrl);
             
             var response = await Http.GetAsync(countriesUrl);
@@ -456,9 +456,12 @@
     public class ParticipantRegistrationResponse
     {
         public bool Success { get; set; }
-        public string UserId { get; set; } = string.Empty;
+        public string UserGuid { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public string ParticipantId { get; set; } = string.Empty;
+        public long SessionId { get; set; }
+        public string WaitingRoomUrl { get; set; } = string.Empty;
+        public string RequestId { get; set; } = string.Empty;
     }
 
     public class CountryData
