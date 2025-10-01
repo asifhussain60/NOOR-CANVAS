@@ -1297,6 +1297,35 @@
                 }
             });
 
+            // POC: Simple asset content reception - KSESSIONS-style approach
+            hubConnection.On<string>("AssetContentReceived", async (htmlContent) =>
+            {
+                var trackingId = Guid.NewGuid().ToString("N")[..8];
+                
+                try
+                {
+                    Logger.LogInformation("[ASSET-SHARE-POC] Content received, length={Length}, trackingId={TrackingId}", 
+                        htmlContent?.Length ?? 0, trackingId);
+                    
+                    if (!string.IsNullOrEmpty(htmlContent) && Model != null)
+                    {
+                        // Direct assignment - no complex parsing, following KSESSIONS pattern
+                        Model.SharedAssetContent = htmlContent;
+                        await InvokeAsync(StateHasChanged);
+                        
+                        Logger.LogInformation("[ASSET-SHARE-POC] ✅ Content displayed successfully, trackingId={TrackingId}", trackingId);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[ASSET-SHARE-POC] ⚠️ No content or model null, trackingId={TrackingId}", trackingId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[ASSET-SHARE-POC] ❌ Error displaying content, trackingId={TrackingId}", trackingId);
+                }
+            });
+
             // HTML content broadcasting events (using working SimpleSignalRTest pattern)
             hubConnection.On<object>("HtmlContentReceived", async (broadcastData) =>
             {

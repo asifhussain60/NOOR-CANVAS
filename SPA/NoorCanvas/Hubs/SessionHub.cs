@@ -174,6 +174,33 @@ public class SessionHub : Hub
         }
     }
 
+    /// <summary>
+    /// Simple asset content publishing method - KSESSIONS-style approach for POC
+    /// </summary>
+    public async Task PublishAssetContent(long sessionId, string contentHtml)
+    {
+        var groupName = $"session_{sessionId}";
+        var hubTrackingId = Guid.NewGuid().ToString("N")[..8];
+
+        _logger.LogInformation("[ASSET-SHARE-POC] Publishing content to group {GroupName}, trackingId={HubTrackingId}, contentLength={ContentLength}", 
+            groupName, hubTrackingId, contentHtml?.Length ?? 0);
+
+        try
+        {
+            // Simple direct broadcast - no complex wrapping, following KSESSIONS pattern
+            await Clients.Group(groupName).SendAsync("AssetContentReceived", contentHtml);
+            
+            _logger.LogInformation("[ASSET-SHARE-POC] ✅ Content published successfully to group {GroupName}, trackingId={HubTrackingId}", 
+                groupName, hubTrackingId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ASSET-SHARE-POC] ❌ Failed to publish content to group {GroupName}, trackingId={HubTrackingId}", 
+                groupName, hubTrackingId);
+            throw;
+        }
+    }
+
     public async Task Ping()
     {
         await Clients.Caller.SendAsync("Pong", DateTime.UtcNow);
