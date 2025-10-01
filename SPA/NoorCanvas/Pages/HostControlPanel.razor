@@ -799,12 +799,21 @@
                     {
                         Id = Guid.NewGuid(), // Generate new GUID for UI tracking
                         Text = q.Text ?? "",
-                        UserName = q.UserName ?? "Anonymous",
+                        UserName = !string.IsNullOrWhiteSpace(q.UserName) ? q.UserName : "Anonymous User",
                         CreatedBy = q.CreatedBy ?? "",
                         CreatedAt = q.CreatedAt,
                         IsAnswered = q.IsAnswered,
                         VoteCount = q.Votes
                     }).ToList();
+                    
+                    // Debug logging to understand the data flow
+                    foreach (var question in questionsResponse.Questions)
+                    {
+                        Logger.LogInformation("QUESTIONS-DATA-DEBUG: Question Text='{Text}', UserName='{UserName}', CreatedBy='{CreatedBy}'", 
+                            question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)) ?? "null",
+                            question.UserName ?? "null",
+                            question.CreatedBy ?? "null");
+                    }
                     
                     Logger.LogInformation("QUESTIONS-DATA: Loaded {Count} questions for host", Model.Questions.Count);
                 }
