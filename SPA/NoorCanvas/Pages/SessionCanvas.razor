@@ -1301,9 +1301,12 @@
             hubConnection.On<string>("AssetContentReceived", async (htmlContent) =>
             {
                 var trackingId = Guid.NewGuid().ToString("N")[..8];
+                var receiveTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 
                 try
                 {
+                    Logger.LogInformation("[DOM-TIMING] AssetContentReceived at {ReceiveTime}ms, trackingId={TrackingId}", 
+                        receiveTime, trackingId);
                     Logger.LogInformation("[ASSET-SHARE-POC] Content received, length={Length}, trackingId={TrackingId}", 
                         htmlContent?.Length ?? 0, trackingId);
                     
@@ -1313,6 +1316,9 @@
                         Model.SharedAssetContent = htmlContent;
                         await InvokeAsync(StateHasChanged);
                         
+                        var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                        Logger.LogInformation("[DOM-TIMING] Content displayed at {DisplayTime}ms, trackingId={TrackingId}", 
+                            displayTime, trackingId);
                         Logger.LogInformation("[ASSET-SHARE-POC] ✅ Content displayed successfully, trackingId={TrackingId}", trackingId);
                     }
                     else

@@ -3386,7 +3386,11 @@ Please share this report with the development team for debugging.`;
     
     // [DEBUG-WORKITEM:assetshare:continue] Share button handler setup ;CLEANUP_OK
     function setupShareButtonHandlers(dotNetObjectRef) {
+        const handlerSetupTime = new Date();
+        const timeString = handlerSetupTime.toLocaleTimeString() + '.' + handlerSetupTime.getMilliseconds().toString().padStart(3, '0');
+        
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🚀 Setting up share button handlers...');
+        console.log('[ASSET-SHARE-TIMING] 👂 HANDLER SETUP START:', timeString);
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 DotNet reference received:', dotNetObjectRef);
         
         // Remove existing listeners to prevent duplicates
@@ -3411,6 +3415,11 @@ Please share this report with the development team for debugging.`;
         // Add event listener for share button clicks using event delegation
         document.addEventListener('click', handleShareButtonClick);
         console.log('[DEBUG-WORKITEM:assetshare:continue] 👂 Added new click event listener');
+        
+        const handlerCompleteTime = new Date();
+        const completeTimeString = handlerCompleteTime.toLocaleTimeString() + '.' + handlerCompleteTime.getMilliseconds().toString().padStart(3, '0');
+        console.log('[ASSET-SHARE-TIMING] ✅ HANDLER SETUP COMPLETE:', completeTimeString);
+        console.log('[ASSET-SHARE-TIMING] ⏱️ SETUP DURATION:', (handlerCompleteTime - handlerSetupTime) + 'ms');
         
         // Test click handler by simulating a click
         if (existingButtons.length > 0) {
@@ -3517,6 +3526,12 @@ Please share this report with the development team for debugging.`;
         shareButton.style.backgroundColor = '#f59e0b';
         
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔄 Calling DotNet method ShareAsset...');
+        
+        // [DOM-TIMING] Log click timing for DOM debugging
+        const clickTime = new Date().toISOString();
+        const clickTimestamp = Date.now();
+        console.log('[DOM-TIMING] Share button clicked at', clickTime, 'timestamp:', clickTimestamp);
+        console.log('[DOM-TIMING] About to invoke KSESSIONS ShareAsset method');
         
         // TOAST: Show method call initiation
         showShareDebugToast('🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber }, 'info');
