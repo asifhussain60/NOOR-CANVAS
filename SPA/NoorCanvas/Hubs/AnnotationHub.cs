@@ -14,12 +14,14 @@ namespace NoorCanvas.Hubs
             _annotationService = annotationService;
         }
 
+        /// <inheritdoc/>
         public override async Task OnConnectedAsync()
         {
             _logger.LogInformation("NOOR-ANNOTATION-HUB: Client connected - ConnectionId: {ConnectionId}", Context.ConnectionId);
             await base.OnConnectedAsync();
         }
 
+        /// <inheritdoc/>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             if (exception != null)

@@ -25,6 +25,7 @@ namespace NoorCanvas.Services
             _logger = logger;
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<Annotation>> GetSessionAnnotationsAsync(long sessionId)
         {
             try
@@ -48,6 +49,7 @@ namespace NoorCanvas.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<Annotation> CreateAnnotationAsync(long sessionId, string createdBy, object annotationData)
         {
             try
@@ -78,6 +80,7 @@ namespace NoorCanvas.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<bool> DeleteAnnotationAsync(long annotationId, string userId)
         {
             try
@@ -115,6 +118,7 @@ namespace NoorCanvas.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<bool> UpdateAnnotationAsync(long annotationId, string userId, object annotationData)
         {
             try
@@ -152,6 +156,7 @@ namespace NoorCanvas.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task ClearSessionAnnotationsAsync(long sessionId, string userId)
         {
             try

@@ -98,12 +98,14 @@ public class QAHub : Hub
         }
     }
 
+    /// <inheritdoc/>
     public override async Task OnConnectedAsync()
     {
         _logger.LogDebug("NOOR-QA: Connection established: {ConnectionId}", Context.ConnectionId);
         await base.OnConnectedAsync();
     }
 
+    /// <inheritdoc/>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         if (exception != null)

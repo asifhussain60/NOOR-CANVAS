@@ -39,6 +39,7 @@ namespace NoorCanvas.Services.Development
             _configuration = configuration;
         }
 
+        /// <inheritdoc/>
         public bool IsDevelopmentMode =>
 #if DEBUG
             _environment.IsDevelopment();
@@ -46,10 +47,12 @@ namespace NoorCanvas.Services.Development
             false;
 #endif
 
+        /// <inheritdoc/>
         public bool ShowDevPanels =>
             IsDevelopmentMode &&
             _configuration.GetValue<bool>("Development:ShowDevPanels", true);
 
+        /// <inheritdoc/>
         public bool EnableDebugFeatures =>
             IsDevelopmentMode &&
             _configuration.GetValue<bool>("Development:EnableDebugFeatures", true);

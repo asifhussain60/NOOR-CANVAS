@@ -28,6 +28,7 @@ public class CanvasDbContext : DbContext
 
     // [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcast DbSet removed ;CLEANUP_OK
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

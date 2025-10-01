@@ -20,6 +20,7 @@ public class SimplifiedCanvasDbContext : DbContext
     public DbSet<Models.Simplified.SessionData> SessionData { get; set; }
     public DbSet<AssetLookup> AssetLookup { get; set; } // Global asset definitions for share button injection
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -386,6 +386,7 @@ namespace NoorCanvas.Services
 
         public double ElapsedMilliseconds => ElapsedTime.TotalMilliseconds;
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (_isEnabled)

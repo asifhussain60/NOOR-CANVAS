@@ -36,6 +36,7 @@ namespace NoorCanvas.Services.Development
             _random = new Random();
         }
 
+        /// <inheritdoc/>
         public string GenerateSuperheroName()
         {
             var name = _superheroNames[_random.Next(_superheroNames.Length)];
@@ -43,6 +44,7 @@ namespace NoorCanvas.Services.Development
             return name;
         }
 
+        /// <inheritdoc/>
         public string GenerateSuperheroEmail()
         {
             var name = _superheroNames[_random.Next(_superheroNames.Length)];
@@ -56,6 +58,7 @@ namespace NoorCanvas.Services.Development
             return email;
         }
 
+        /// <inheritdoc/>
         public string GetRandomCountry(IEnumerable<string> countries)
         {
             var countryList = countries.ToList();
@@ -70,6 +73,7 @@ namespace NoorCanvas.Services.Development
             return country;
         }
 
+        /// <inheritdoc/>
         public (string name, string email, string country) GenerateUserLandingTestData(IEnumerable<string> availableCountries)
         {
             var name = GenerateSuperheroName();
@@ -82,6 +86,7 @@ namespace NoorCanvas.Services.Development
             return (name, email, country);
         }
 
+        /// <inheritdoc/>
         public (string name, string email) GenerateUserLandingNameAndEmail()
         {
             var name = GenerateSuperheroName();

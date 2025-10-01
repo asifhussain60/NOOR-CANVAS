@@ -122,12 +122,14 @@ public class TestHub : Hub
         }
     }
 
+    /// <inheritdoc/>
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] Client connected: {ConnectionId}", Context.ConnectionId);
         await base.OnConnectedAsync();
     }
 
+    /// <inheritdoc/>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         if (exception != null)

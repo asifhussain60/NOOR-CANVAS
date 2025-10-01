@@ -21,6 +21,7 @@ namespace NoorCanvas.Data
         public DbSet<KSessionsCountry> Countries { get; set; }
         public DbSet<KSessionsSpeaker> Speakers { get; set; }
 
+        /// <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -133,6 +134,7 @@ namespace NoorCanvas.Data
             });
         }
 
+        /// <inheritdoc/>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Read-only configuration - no change tracking needed for performance
