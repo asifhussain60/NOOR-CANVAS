@@ -302,11 +302,11 @@
                 registration.Fingerprint = "unknown";
             }
 
-            // Prepare registration request
-            registration.SessionId = Session ?? string.Empty;
+            // Prepare registration request - include session token for register-with-token endpoint
+            registration.Token = Session ?? string.Empty; // Set token for the register-with-token endpoint
             
-            // ✅ LIVE API: Register participant via REST API
-            var response = await Http.PostAsJsonAsync("/api/participant/register", registration);
+            // ✅ LIVE API: Register participant via REST API (corrected endpoint)
+            var response = await Http.PostAsJsonAsync("/api/participant/register-with-token", registration);
             
             if (response.IsSuccessStatusCode)
             {
@@ -446,9 +446,9 @@
 
     public class ParticipantRegistrationRequest
     {
-        public string SessionId { get; set; } = string.Empty;
-        public string UserId { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? Fingerprint { get; set; }
     }
