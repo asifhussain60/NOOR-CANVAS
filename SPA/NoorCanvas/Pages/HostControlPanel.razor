@@ -1074,10 +1074,25 @@
         Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎯 PHASE1 STEP 1/7: ShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
         Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔍 DEBUGGING: Method successfully invoked from JavaScript! This proves the click handler is working! ;CLEANUP_OK");
         
+        // TOASTR: Show immediate feedback that click was detected and C# method called
+        await JSRuntime.InvokeVoidAsync("showNoorToast", 
+            $"Processing share request for {assetType} #{instanceNumber}...", 
+            "Share Button Clicked", 
+            "info");
+        Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Share click notification shown to user, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        
         if (SessionId == null || hubConnection == null)
         {
             var errorMsg = "Cannot share asset: SignalR connection or session not available";
             Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ Precondition failed: SessionId={SessionId}, hubConnection={HubConnectionExists}", SessionId, hubConnection != null);
+            
+            // TOASTR: Show error notification
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                "Share failed: Session or SignalR connection not available. Please refresh the page.", 
+                "Share Error", 
+                "error");
+            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Connection error notification shown, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+            
             await ShowErrorMessageAsync(errorMsg);
             return;
         }
@@ -1086,6 +1101,14 @@
         {
             var errorMsg = $"SignalR connection is in state: {hubConnection.State}. Expected: Connected";
             Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ SignalR not connected: State={State}", hubConnection.State);
+            
+            // TOASTR: Show SignalR connection error
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                $"Share failed: SignalR is {hubConnection.State}. Please refresh the page to reconnect.", 
+                "Connection Error", 
+                "error");
+            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: SignalR state error notification shown, State={State}, broadcastId={BroadcastId} ;CLEANUP_OK", hubConnection.State, broadcastId);
+            
             await ShowErrorMessageAsync(errorMsg);
             return;
         }
@@ -1099,6 +1122,14 @@
             if (string.IsNullOrEmpty(rawAssetHtml))
             {
                 Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ No HTML content found for shareId: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
+                
+                // TOASTR: Show content not found error
+                await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                    $"Could not find content for {assetType} #{instanceNumber}. The asset may have been removed or modified.", 
+                    "Content Not Found", 
+                    "error");
+                Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Content not found error shown, ShareId={ShareId}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, broadcastId);
+                
                 await ShowErrorMessageAsync($"Asset content not found for {assetType} #{instanceNumber}");
                 return;
             }
@@ -1117,6 +1148,14 @@
             if (completedTask == timeoutTask)
             {
                 Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ STEP 3 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId}", broadcastId);
+                
+                // TOASTR: Show timeout error
+                await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                    $"Share request for {assetType} #{instanceNumber} timed out. Please check your connection and try again.", 
+                    "Share Timeout", 
+                    "error");
+                Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Timeout error notification shown, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+                
                 await ShowErrorMessageAsync("Asset sharing timed out after 5 seconds");
                 return;
             }
@@ -1125,12 +1164,27 @@
             
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 4/4: KSESSIONS-style PublishAssetContent completed successfully, SessionId={SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
             
+            // TOASTR: Show success notification with asset details
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                $"{assetType} #{instanceNumber} has been shared with all participants!", 
+                "✅ Share Successful", 
+                "success");
+            Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Success notification shown, AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId} ;CLEANUP_OK", assetType, instanceNumber, broadcastId);
+            
             await ShowSuccessMessageAsync($"✅ {assetType} #{instanceNumber} shared successfully via KSESSIONS pattern!");
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🎉 SHARE COMPLETE: Asset broadcasted using direct content approach, broadcastId={BroadcastId}", broadcastId);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[ASSET-SHARE-KSESSIONS] ❌ Error in KSESSIONS-style asset sharing: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
+            
+            // TOASTR: Show exception error with user-friendly message
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                $"Failed to share {assetType} #{instanceNumber}: {ex.Message}", 
+                "Share Failed", 
+                "error");
+            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Exception error notification shown, Exception={ExceptionType}, broadcastId={BroadcastId} ;CLEANUP_OK", ex.GetType().Name, broadcastId);
+            
             await ShowErrorMessageAsync($"KSESSIONS-style asset sharing failed: {ex.Message}");
         }
     }
@@ -1594,16 +1648,17 @@
                         attempts++;
                         console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] Attempt ' + attempts + ' - checking function availability');
                         
-                        // Check if setupShareButtonHandlers function exists
-                        if (typeof window.setupShareButtonHandlers === 'function') {{
+                        // Check if initializeShareButtons function exists (from host-control-panel.js)
+                        if (typeof window.initializeShareButtons === 'function') {{
                             // Check if share buttons exist in DOM
-                            const buttons = document.querySelectorAll('[data-share-button=""asset""]');
+                            const buttons = document.querySelectorAll('.ks-share-button, .ks-share-btn');
                             console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] Found ' + buttons.length + ' share buttons');
                             
                             if (buttons.length > 0) {{
                                 console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] ✅ Both function and buttons available - initializing handlers');
                                 try {{
-                                    window.setupShareButtonHandlers(window.dotNetRef_{refId});
+                                    // Initialize the share button handlers
+                                    window.initializeShareButtons();
                                     console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] ✅ Handler setup completed successfully');
                                     return true; // Success
                                 }} catch (error) {{
@@ -1613,7 +1668,7 @@
                                 console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] No share buttons found yet, retrying...');
                             }}
                         }} else {{
-                            console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] setupShareButtonHandlers function not available yet, retrying...');
+                            console.log('[DEBUG-WORKITEM:sharebutton-timing-fix] initializeShareButtons function not available yet, retrying...');
                         }}
                         
                         // Retry with exponential backoff if not ready and attempts remain
@@ -1633,8 +1688,9 @@
                 }})();
             ";
 
-            // Store the DotNet reference globally for the timer function
-            await JSRuntime.InvokeVoidAsync("eval", $"window.dotNetRef_{refId} = arguments[0];", dotNetRef);
+            // Store the DotNet reference globally using proper JSInterop
+            await JSRuntime.InvokeVoidAsync("eval", $"window.dotNetRef_{refId} = null; window.hostControlPanelState = window.hostControlPanelState || {{}};");
+            await JSRuntime.InvokeVoidAsync("setDotNetReference", dotNetRef);
             
             // Execute the timer-based initialization script
             await JSRuntime.InvokeVoidAsync("eval", initScript);
@@ -3098,6 +3154,16 @@
                 const result = await shareResponse.json();
                 console.log('NOOR-ASSET-SHARE: Asset shared successfully:', result);
                 
+                // TOASTR: Show API success notification
+                if (typeof window.showNoorToast === 'function') {
+                    window.showNoorToast(
+                        `${assetType} successfully shared with all participants!`, 
+                        '✅ Share Complete', 
+                        'success'
+                    );
+                    console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: API success notification shown for:', assetId);
+                }
+                
                 // Success feedback
                 shareButton.textContent = '✓ SHARED';
                 shareButton.style.backgroundColor = '#059669';
@@ -3123,8 +3189,18 @@
                 errorMessage = error;
             }
             
-            // Show toast notification with error details
-            showErrorToast(`Failed to share asset: ${errorMessage}`);
+            // TOASTR: Show asset sharing error  
+            if (typeof window.showNoorToast === 'function') {
+                window.showNoorToast(
+                    `Failed to share ${assetType}: ${errorMessage}`, 
+                    'Share Failed', 
+                    'error'
+                );
+                console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Asset sharing error shown:', errorMessage);
+            } else {
+                // Fallback to existing error toast function
+                showErrorToast(`Failed to share asset: ${errorMessage}`);
+            }
             
             // Find button and show error feedback
             const shareButton = document.querySelector(`button[data-asset-id="${assetId}"]`);
@@ -3162,6 +3238,16 @@
                 await window.signalRConnection.invoke('ShareAsset', window.currentSessionId, assetData);
                 console.log('NOOR-ASSET-SIGNALR: Individual asset shared successfully via SignalR hub');
                 
+                // TOASTR: Show SignalR success notification
+                if (typeof window.showNoorToast === 'function') {
+                    window.showNoorToast(
+                        `${assetType} #${instanceCount} shared via SignalR successfully!`, 
+                        '✅ SignalR Share Complete', 
+                        'success'
+                    );
+                    console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: SignalR success notification shown');
+                }
+                
                 // Show success feedback
                 const button = document.querySelector(`[data-share-id="${shareId}"]`);
                 if (button) {
@@ -3179,11 +3265,33 @@
                 }
             } else {
                 console.error('NOOR-ASSET-SIGNALR: SignalR connection not available or not connected');
-                alert('SignalR connection is not available. Please refresh the page and try again.');
+                
+                // TOASTR: Show SignalR connection error
+                if (typeof window.showNoorToast === 'function') {
+                    window.showNoorToast(
+                        'SignalR connection is not available. Please refresh the page and try again.', 
+                        'Connection Error', 
+                        'error'
+                    );
+                    console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: SignalR connection error shown');
+                } else {
+                    alert('SignalR connection is not available. Please refresh the page and try again.');
+                }
             }
         } catch (error) {
             console.error('NOOR-ASSET-SIGNALR: Error sharing individual asset via SignalR:', error);
-            alert('Failed to share individual asset via SignalR: ' + error.message);
+            
+            // TOASTR: Show SignalR exception error
+            if (typeof window.showNoorToast === 'function') {
+                window.showNoorToast(
+                    `Failed to share ${assetType} via SignalR: ${error.message}`, 
+                    'SignalR Error', 
+                    'error'
+                );
+                console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: SignalR exception error shown:', error.message);
+            } else {
+                alert('Failed to share individual asset via SignalR: ' + error.message);
+            }
         }
     };
 

@@ -11,7 +11,7 @@ test.describe('Share Button Timing Fix Validation', () => {
         page.on('console', msg => {
             const text = msg.text();
             // Capture our specific timing fix logs
-            if (text.includes('sharebutton-timing-fix') || 
+            if (text.includes('sharebutton-timing-fix') ||
                 text.includes('setupShareButtonHandlers') ||
                 text.includes('Handler setup completed successfully')) {
                 consoleLogs.push(`${msg.type()}: ${text}`);
@@ -40,7 +40,7 @@ test.describe('Share Button Timing Fix Validation', () => {
         expect(timingFixLogs.length).toBeGreaterThan(0);
 
         // Check for successful handler initialization
-        const successLogs = consoleLogs.filter(log => 
+        const successLogs = consoleLogs.filter(log =>
             log.includes('Handler setup completed successfully') ||
             log.includes('Both function and buttons available')
         );
@@ -54,7 +54,7 @@ test.describe('Share Button Timing Fix Validation', () => {
         if (buttonCount > 0) {
             // Click the first share button to verify handlers are working
             const firstButton = shareButtons.first();
-            
+
             // Capture any additional console logs from the click
             const clickLogs: string[] = [];
             page.on('console', msg => {
@@ -72,18 +72,18 @@ test.describe('Share Button Timing Fix Validation', () => {
 
             // Verify that click was processed (handler responded)
             const clickProcessedLogs = clickLogs.filter(log =>
-                log.includes('CLICK DETECTED') || 
+                log.includes('CLICK DETECTED') ||
                 log.includes('SHARE BUTTON') ||
                 log.includes('ShareAsset')
             );
-            
+
             // Should have at least some click processing logs
             expect(clickProcessedLogs.length).toBeGreaterThan(0);
         }
 
         // Final validation: no "function not available" errors should exist
-        const functionErrors = consoleLogs.filter(log => 
-            log.includes('setupShareButtonHandlers') && 
+        const functionErrors = consoleLogs.filter(log =>
+            log.includes('setupShareButtonHandlers') &&
             log.includes('undefined')
         );
         expect(functionErrors.length).toBe(0); // Should be zero - timing fix resolved this
@@ -105,8 +105,8 @@ test.describe('Share Button Timing Fix Validation', () => {
         await page.waitForTimeout(5000);
 
         // Check for retry attempts in logs
-        const retryLogs = consoleLogs.filter(log => 
-            log.includes('Attempt') || 
+        const retryLogs = consoleLogs.filter(log =>
+            log.includes('Attempt') ||
             log.includes('Retrying in') ||
             log.includes('checking function availability')
         );

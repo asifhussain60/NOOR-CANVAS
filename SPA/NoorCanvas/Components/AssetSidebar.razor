@@ -1,0 +1,483 @@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using System.Text.Json
+@inject IJSRuntime JSRuntime
+@inject ILogger<AssetSidebar> Logger
+
+<div class="asset-sidebar @(IsExpanded ? "expanded" : "collapsed")" id="asset-sidebar">
+    <!-- Toggle Button -->
+    <button class="sidebar-toggle" @onclick="ToggleSidebar" title="@(IsExpanded ? "Hide Assets" : "Show Assets")">
+        <i class="fa-solid @(IsExpanded ? "fa-chevron-right" : "fa-chevron-left")"></i>
+        @if (!IsExpanded)
+        {
+            <span class="toggle-text">Assets (@DetectedAssets.Count)</span>
+        }
+    </button>
+
+    <!-- Sidebar Content -->
+    <div class="sidebar-content">
+        <div class="sidebar-header">
+            <h3><i class="fa-solid fa-share-nodes"></i> Shareable Assets</h3>
+            <p class="asset-count">@DetectedAssets.Count assets detected</p>
+        </div>
+
+        @if (IsLoading)
+        {
+            <div class="loading-state">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Detecting assets...</p>
+            </div>
+        }
+        else if (!DetectedAssets.Any())
+        {
+            <div class="empty-state">
+                <i class="fa-solid fa-search"></i>
+                <p>No assets found in current content</p>
+                <button class="btn-refresh" @onclick="RefreshAssets">
+                    <i class="fa-solid fa-refresh"></i> Refresh
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="asset-list">
+                @foreach (var asset in DetectedAssets)
+                {
+                    <div class="asset-item @(asset.IsSharing ? "sharing" : "")" data-asset-id="@asset.ShareId">
+                        <div class="asset-preview" @onclick="() => ScrollToAsset(asset.ShareId)">
+                            <div class="asset-icon">
+                                <i class="fa-solid @GetAssetIcon(asset.AssetType)"></i>
+                            </div>
+                            <div class="asset-info">
+                                <div class="asset-type">@asset.DisplayName</div>
+                                <div class="asset-preview-text">@GetPreviewText(asset)</div>
+                                <div class="asset-meta">ID: @asset.ShareId</div>
+                            </div>
+                        </div>
+                        
+                        <div class="asset-actions">
+                            <button class="btn-highlight" @onclick="() => HighlightAsset(asset.ShareId)" 
+                                    title="Highlight in content" disabled="@asset.IsSharing">
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </button>
+                            
+                            <button class="btn-share" @onclick="() => ShareAsset(asset)" 
+                                    disabled="@asset.IsSharing" title="Share this asset">
+                                @if (asset.IsSharing)
+                                {
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-share"></i>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="bulk-actions">
+                <button class="btn-share-all" @onclick="ShareAllAssets" disabled="@IsAnySharing">
+                    <i class="fa-solid fa-share-nodes"></i> Share All (@DetectedAssets.Count)
+                </button>
+                <button class="btn-refresh" @onclick="RefreshAssets" disabled="@IsLoading">
+                    <i class="fa-solid fa-refresh"></i> Refresh
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int SessionId { get; set; }
+    [Parameter] public EventCallback<AssetShareRequest> OnAssetShare { get; set; }
+    [Parameter] public string TranscriptContent { get; set; } = "";
+
+    private bool IsExpanded { get; set; } = false;
+    private bool IsLoading { get; set; } = false;
+    private List<DetectedAsset> DetectedAssets { get; set; } = new();
+    
+    private bool IsAnySharing => DetectedAssets.Any(a => a.IsSharing);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(TranscriptContent) && DetectedAssets.Count == 0)
+        {
+            await RefreshAssets();
+        }
+    }
+
+    private async Task ToggleSidebar()
+    {
+        IsExpanded = !IsExpanded;
+        
+        if (IsExpanded && DetectedAssets.Count == 0)
+        {
+            await RefreshAssets();
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task RefreshAssets()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            Logger.LogInformation("[ASSET-SIDEBAR] Starting asset detection for session {SessionId}", SessionId);
+            
+            // Use JavaScript to detect assets from the current DOM
+            var assetsJson = await JSRuntime.InvokeAsync<string>("detectAssetsInDOM");
+            
+            if (!string.IsNullOrEmpty(assetsJson))
+            {
+                var detectedAssets = JsonSerializer.Deserialize<List<DetectedAsset>>(assetsJson) ?? new();
+                DetectedAssets = detectedAssets;
+                Logger.LogInformation("[ASSET-SIDEBAR] Detected {Count} assets", DetectedAssets.Count);
+            }
+            else
+            {
+                DetectedAssets = new();
+                Logger.LogWarning("[ASSET-SIDEBAR] No assets detected");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[ASSET-SIDEBAR] Error detecting assets");
+            DetectedAssets = new();
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ScrollToAsset(string shareId)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("scrollToAsset", shareId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[ASSET-SIDEBAR] Error scrolling to asset {ShareId}", shareId);
+        }
+    }
+
+    private async Task HighlightAsset(string shareId)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("highlightAsset", shareId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[ASSET-SIDEBAR] Error highlighting asset {ShareId}", shareId);
+        }
+    }
+
+    private async Task ShareAsset(DetectedAsset asset)
+    {
+        try
+        {
+            asset.IsSharing = true;
+            StateHasChanged();
+
+            Logger.LogInformation("[ASSET-SIDEBAR] Sharing asset {ShareId} of type {AssetType}", asset.ShareId, asset.AssetType);
+
+            var shareRequest = new AssetShareRequest
+            {
+                ShareId = asset.ShareId,
+                AssetType = asset.AssetType,
+                InstanceNumber = asset.InstanceNumber
+            };
+
+            await OnAssetShare.InvokeAsync(shareRequest);
+
+            Logger.LogInformation("[ASSET-SIDEBAR] Asset {ShareId} shared successfully", asset.ShareId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[ASSET-SIDEBAR] Error sharing asset {ShareId}", asset.ShareId);
+        }
+        finally
+        {
+            asset.IsSharing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShareAllAssets()
+    {
+        foreach (var asset in DetectedAssets.Where(a => !a.IsSharing))
+        {
+            await ShareAsset(asset);
+            await Task.Delay(100); // Small delay to prevent overwhelming
+        }
+    }
+
+    private string GetAssetIcon(string assetType) => assetType?.ToLower() switch
+    {
+        "ayah-card" => "fa-book-quran",
+        "verse-container" => "fa-quote-left",
+        "inserted-hadees" => "fa-scroll",
+        "table" => "fa-table",
+        "imgresponsive" => "fa-image",
+        "etymology-card" => "fa-language",
+        "etymology-derivative-card" => "fa-sitemap",
+        "esotericblock" => "fa-eye",
+        _ => "fa-square"
+    };
+
+    private string GetPreviewText(DetectedAsset asset)
+    {
+        if (string.IsNullOrEmpty(asset.PreviewText))
+            return "No preview available";
+        
+        return asset.PreviewText.Length > 80 
+            ? asset.PreviewText.Substring(0, 80) + "..."
+            : asset.PreviewText;
+    }
+
+    // Data Transfer Objects
+    public class DetectedAsset
+    {
+        public string ShareId { get; set; } = "";
+        public string AssetType { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+        public int InstanceNumber { get; set; } = 1;
+        public string PreviewText { get; set; } = "";
+        public bool IsSharing { get; set; } = false;
+    }
+
+    public class AssetShareRequest
+    {
+        public string ShareId { get; set; } = "";
+        public string AssetType { get; set; } = "";
+        public int InstanceNumber { get; set; } = 1;
+    }
+}
+
+<style>
+    .asset-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        background: white;
+        border-left: 1px solid #e5e7eb;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .asset-sidebar.collapsed {
+        width: 60px;
+    }
+
+    .asset-sidebar.expanded {
+        width: 350px;
+    }
+
+    .sidebar-toggle {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        width: 60px;
+        height: 60px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+    }
+
+    .sidebar-toggle:hover {
+        background: #2563eb;
+    }
+
+    .toggle-text {
+        font-size: 11px;
+        margin-top: 4px;
+        transform: rotate(180deg);
+    }
+
+    .sidebar-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .asset-sidebar.expanded .sidebar-content {
+        display: block;
+    }
+
+    .sidebar-header h3 {
+        margin: 0 0 5px 0;
+        color: #1f2937;
+        font-size: 18px;
+    }
+
+    .asset-count {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0 0 20px 0;
+    }
+
+    .loading-state, .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+
+    .loading-state i, .empty-state i {
+        font-size: 24px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .asset-list {
+        space-y: 10px;
+    }
+
+    .asset-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        transition: all 0.2s;
+    }
+
+    .asset-item:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .asset-item.sharing {
+        background: #fef3c7;
+        border-color: #f59e0b;
+    }
+
+    .asset-preview {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+    .asset-icon {
+        color: #3b82f6;
+        font-size: 18px;
+        min-width: 20px;
+    }
+
+    .asset-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .asset-type {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .asset-preview-text {
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.4;
+        margin-bottom: 4px;
+    }
+
+    .asset-meta {
+        color: #9ca3af;
+        font-size: 10px;
+        font-family: monospace;
+    }
+
+    .asset-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-highlight, .btn-share {
+        background: none;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 6px 8px;
+        cursor: pointer;
+        color: #6b7280;
+        transition: all 0.2s;
+        font-size: 12px;
+    }
+
+    .btn-highlight:hover {
+        border-color: #f59e0b;
+        color: #f59e0b;
+        background: #fef3c7;
+    }
+
+    .btn-share {
+        flex: 1;
+    }
+
+    .btn-share:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        background: #dbeafe;
+    }
+
+    .btn-share:disabled, .btn-highlight:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .bulk-actions {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-share-all, .btn-refresh {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .btn-share-all {
+        flex: 1;
+    }
+
+    .btn-share-all:hover, .btn-refresh:hover {
+        background: #2563eb;
+    }
+
+    .btn-refresh {
+        background: #6b7280;
+    }
+
+    .btn-refresh:hover {
+        background: #4b5563;
+    }
+</style>

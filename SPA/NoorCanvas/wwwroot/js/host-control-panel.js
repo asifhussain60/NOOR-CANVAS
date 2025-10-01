@@ -55,6 +55,16 @@ function handleShareButtonClick(event) {
 
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 CLICK DETECTED:', clickData);
 
+    // TOASTR: Show click detection notification
+    if (typeof window.showNoorToast === 'function') {
+        window.showNoorToast(
+            'Share button clicked - processing request...',
+            '🔍 Button Click Detected',
+            'info'
+        );
+        console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Click detection notification shown');
+    }
+
     // Show click detection toast
     showShareDebugToast('🔍 CLICK DETECTED!', clickData, 'info');
 
@@ -72,6 +82,16 @@ function handleShareButtonClick(event) {
     // Show share button detection result
     if (shareButton) {
         showShareDebugToast('✅ SHARE BUTTON FOUND!', shareButtonCheck, 'success');
+
+        // TOASTR: Confirm share button validation
+        if (typeof window.showNoorToast === 'function') {
+            window.showNoorToast(
+                'Share button validated - extracting asset details...',
+                '✅ Valid Share Button',
+                'info'
+            );
+            console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Share button validation notification shown');
+        }
     } else {
         showShareDebugToast('❌ Not a share button click', shareButtonCheck, 'warning');
     }
@@ -142,6 +162,16 @@ function processShareAction(shareButton, shareId, assetType, instanceNumber) {
 
     console.log('[DEBUG-WORKITEM:assetshare:continue] 🔄 Calling DotNet method ShareAsset...');
 
+    // TOASTR: Show processing initiation
+    if (typeof window.showNoorToast === 'function') {
+        window.showNoorToast(
+            `Initiating share for ${assetType} #${instanceNumber}...`,
+            '🚀 Processing Share',
+            'info'
+        );
+        console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Share processing notification shown');
+    }
+
     // Show method call initiation
     showShareDebugToast('🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber }, 'info');
 
@@ -193,7 +223,18 @@ function processShareAction(shareButton, shareId, assetType, instanceNumber) {
         // Show DotNet reference error
         showShareDebugToast('❌ NO DOTNET REFERENCE', { hasReference: false, windowDotNetRef: !!window.hostControlPanelState.dotNetRef }, 'error');
 
-        alert('DotNet reference not available. Please refresh the page.');
+        // TOASTR: Show DotNet reference error
+        if (typeof window.showNoorToast === 'function') {
+            window.showNoorToast(
+                'Share functionality not available. Please refresh the page to reconnect.',
+                'System Error',
+                'error'
+            );
+            console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: DotNet reference error notification shown');
+        } else {
+            alert('DotNet reference not available. Please refresh the page.');
+        }
+
         shareButton.innerHTML = originalContent;
         shareButton.style.backgroundColor = '';
         shareButton.disabled = false;
