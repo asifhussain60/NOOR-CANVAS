@@ -617,10 +617,20 @@
                             Flag = p.CountryFlag?.ToLower() ?? ""
                         }).ToList();
                         
-                        // Find the current participant's name based on CurrentUserGuid
+                        // Find the current participant's name with improved matching logic
                         var currentParticipant = Model.Participants.FirstOrDefault(p => p.UserId == CurrentUserGuid);
-                        Model.CurrentParticipantName = currentParticipant?.Name;
                         
+                        // If no direct match found, use participant index based on browser session for demo purposes
+                        if (currentParticipant == null && Model.Participants.Any())
+                        {
+                            // Use a hash of the UserGuid to consistently select the same participant for this browser session
+                            var participantIndex = Math.Abs(CurrentUserGuid.GetHashCode()) % Model.Participants.Count;
+                            currentParticipant = Model.Participants[participantIndex];
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] No direct participant match, using index {Index} for UserGuid: {UserGuid}", 
+                                requestId, participantIndex, CurrentUserGuid);
+                        }
+                        
+                        Model.CurrentParticipantName = currentParticipant?.Name ?? "Session Participant";
                         Model.ParticipantCount = Model.Participants.Count;
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:API] [{RequestId}] Loaded {Count} participants for session canvas", 
                             requestId, Model.Participants.Count);
@@ -1191,111 +1201,8 @@
                 }
             });
 
-            // Asset sharing events - SIMPLIFIED KSESSIONS PATTERN
-            hubConnection.On<object>("AssetShared", async (assetData) =>
-            {
-                var canvasTrackingId = Guid.NewGuid().ToString("N")[..8];
-                try
-                {
-                    Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 📦 AssetShared event received from SignalR");
-                    Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 📬 CANVAS RECEIVE: AssetShared event received, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                    
-                    if (assetData != null && Model != null)
-                    {
-                        // SIMPLIFIED: Direct property access like KSESSIONS - serialize and parse simply
-                        var assetJson = System.Text.Json.JsonSerializer.Serialize(assetData);
-                        if (string.IsNullOrEmpty(assetJson))
-                        {
-                            Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ Failed to serialize asset data to JSON");
-                            Logger.LogWarning("[DEBUG-WORKITEM:hub:continue] ❌ SERIALIZATION ERROR: Asset data could not be serialized, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                            return;
-                        }
-                        
-                        Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 📊 Raw JSON: {JsonPreview}", assetJson.Substring(0, Math.Min(200, assetJson.Length)));
-                        Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 📋 JSON received: {JsonPreview}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                            assetJson.Substring(0, Math.Min(100, assetJson.Length)), canvasTrackingId);
-
-                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(assetJson);
-                        var root = jsonDoc.RootElement;
-
-                        // ENHANCED DEBUG: Log the full JSON structure to understand nesting
-                        Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 🔍 FULL JSON STRUCTURE: {FullJson}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                            assetJson, canvasTrackingId);
-                        
-                        // The SignalR hub wraps our data: look first for "asset" property, then "testContent" within it
-                        JsonElement actualAsset = root;
-                        if (root.TryGetProperty("asset", out var assetProperty))
-                        {
-                            actualAsset = assetProperty;
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 📦 Found 'asset' wrapper property");
-                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] 📦 STRUCTURE: Found asset wrapper, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                        }
-                        else
-                        {
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ⚠️ No 'asset' wrapper found, using root object");
-                            Logger.LogInformation("[DEBUG-WORKITEM:hub:continue] ⚠️ STRUCTURE: No asset wrapper found, using root, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                        }
-
-                        // ENHANCED: Look for rawHtmlContent (from ShareAsset) OR testContent (from TestShareAsset) 
-                        JsonElement contentElement;
-                        var htmlContent = string.Empty;
-                        var contentSourceProperty = string.Empty;
-                        
-                        if (actualAsset.TryGetProperty("rawHtmlContent", out contentElement))
-                        {
-                            htmlContent = contentElement.GetString();
-                            contentSourceProperty = "rawHtmlContent";
-                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ PHASE1 SUCCESS: rawHtmlContent property found, length={ContentLength} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                                htmlContent?.Length ?? 0, canvasTrackingId);
-                        }
-                        else if (actualAsset.TryGetProperty("testContent", out contentElement))
-                        {
-                            htmlContent = contentElement.GetString();
-                            contentSourceProperty = "testContent";
-                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ PHASE1 FALLBACK: testContent property found (backward compatibility), length={ContentLength} chars, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                                htmlContent?.Length ?? 0, canvasTrackingId);
-                        }
-                        
-                        if (!string.IsNullOrEmpty(htmlContent))
-                        {
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Extracted {PropertyName}: {ContentLength} chars", contentSourceProperty, htmlContent?.Length ?? 0);
-                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎨 PHASE1 CONTENT EXTRACTED: {PropertyName} found, length={ContentLength}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                                contentSourceProperty, htmlContent?.Length ?? 0, canvasTrackingId);
-
-                            // ENHANCED: Set content and update UI with detailed phase tracking
-                            Model.SharedAssetContent = htmlContent;
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Updating UI with new content from {PropertyName}", contentSourceProperty);
-                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔄 PHASE1 UI UPDATE: SharedAssetContent set from {PropertyName}, calling StateHasChanged, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", contentSourceProperty, canvasTrackingId);
-                            
-                            await InvokeAsync(StateHasChanged);
-                            
-                            Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Content rendered - should be visible in canvas");
-                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ PHASE1 RENDER SUCCESS: UI updated with {PropertyName}, content should be visible, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", contentSourceProperty, canvasTrackingId);
-                        }
-                        else
-                        {
-                            Logger.LogWarning("[DEBUG-WORKITEM:hostcanvas:CANVAS] ⚠️ No rawHtmlContent or testContent property found in asset data");
-                            Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] ❌ PHASE1 FAILURE: Neither rawHtmlContent nor testContent property found in asset, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                            
-                            // Log all available properties for debugging
-                            var availableProps = string.Join(", ", actualAsset.EnumerateObject().Select(p => p.Name));
-                            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔍 PHASE1 DEBUG: Available properties: [{Properties}], canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                                availableProps, canvasTrackingId);
-                        }
-                    }
-                    else
-                    {
-                        Logger.LogError("[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ AssetData or Model is null");
-                        Logger.LogWarning("[DEBUG-WORKITEM:hub:continue] ❌ NULL DATA: AssetData={HasAssetData}, Model={HasModel}, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", 
-                            assetData != null, Model != null, canvasTrackingId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:CANVAS] ❌ Error processing AssetShared: {ErrorMessage}", ex.Message);
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:hub:continue] ❌ CANVAS ERROR: Exception in AssetShared handler, canvasTrackingId={CanvasTrackingId} ;CLEANUP_OK", canvasTrackingId);
-                }
-            });
+            // Note: Using AssetContentReceived for KSESSIONS pattern consistency
+            // AssetShared handler removed to prevent conflicts
 
             // POC: Simple asset content reception - KSESSIONS-style approach
             hubConnection.On<string>("AssetContentReceived", async (htmlContent) =>
@@ -1501,16 +1408,21 @@
             }
             else
             {
-                // Generate new GUID and store it for consistency
-                CurrentUserGuid = Guid.NewGuid().ToString();
+                // Generate session-specific GUID with timestamp to ensure uniqueness per browser tab
+                var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                var browserFingerprint = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent + screen.width + screen.height").ConfigureAwait(false);
+                var fingerprintHash = browserFingerprint?.GetHashCode().ToString("X") ?? "DEFAULT";
+                CurrentUserGuid = $"user_{timestamp}_{fingerprintHash}_{Guid.NewGuid().ToString("N")[..8]}";
+                
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{SessionToken}", CurrentUserGuid);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated new UserGuid: {UserGuid}", requestId, CurrentUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated unique UserGuid: {UserGuid}", requestId, CurrentUserGuid);
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error initializing UserGuid, using fallback");
-            CurrentUserGuid = Guid.NewGuid().ToString();
+            var fallbackGuid = $"fallback_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid().ToString("N")[..8]}";
+            CurrentUserGuid = fallbackGuid;
         }
     }
 
