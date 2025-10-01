@@ -1398,24 +1398,32 @@
     {
         try
         {
-            // Try to get UserGuid from localStorage first (persisted from UserLanding registration)
-            var storedUserGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", $"noor_user_guid_{SessionToken}");
+            // Use sessionStorage for tab-specific identification (not shared between browser tabs)
+            var sessionStorageKey = $"noor_user_guid_{SessionToken}";
+            var storedUserGuid = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", sessionStorageKey);
             
             if (!string.IsNullOrEmpty(storedUserGuid))
             {
                 CurrentUserGuid = storedUserGuid;
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using existing UserGuid: {UserGuid}", requestId, CurrentUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Using existing sessionStorage UserGuid: {UserGuid}", requestId, CurrentUserGuid);
             }
             else
             {
-                // Generate session-specific GUID with timestamp to ensure uniqueness per browser tab
+                // Generate unique GUID per browser tab using sessionStorage
                 var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                var browserFingerprint = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent + screen.width + screen.height").ConfigureAwait(false);
-                var fingerprintHash = browserFingerprint?.GetHashCode().ToString("X") ?? "DEFAULT";
-                CurrentUserGuid = $"user_{timestamp}_{fingerprintHash}_{Guid.NewGuid().ToString("N")[..8]}";
+                var randomSuffix = Guid.NewGuid().ToString("N")[..8];
+                CurrentUserGuid = $"tab_{timestamp}_{randomSuffix}";
                 
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", $"noor_user_guid_{SessionToken}", CurrentUserGuid);
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated unique UserGuid: {UserGuid}", requestId, CurrentUserGuid);
+                await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", sessionStorageKey, CurrentUserGuid);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] Generated tab-specific UserGuid: {UserGuid}", requestId, CurrentUserGuid);
+            }
+            
+            // Also check localStorage for fallback compatibility (but sessionStorage takes priority)
+            var localStorageGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", $"noor_user_guid_{SessionToken}");
+            if (!string.IsNullOrEmpty(localStorageGuid))
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:USERGUID] [{RequestId}] localStorage UserGuid exists but using sessionStorage for tab isolation: localStorage={LocalGuid}, sessionStorage={SessionGuid}", 
+                    requestId, localStorageGuid, CurrentUserGuid);
             }
         }
         catch (Exception ex)
