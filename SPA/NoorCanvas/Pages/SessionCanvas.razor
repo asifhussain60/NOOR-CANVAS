@@ -646,7 +646,7 @@
     }
 
     /// <summary>
-    /// API-BASED APPROACH: Loads current participant info directly from API using token.
+    /// API-BASED APPROACH: Loads current participant info directly from API using token and UserGuid.
     /// This replaces both storage-based UserGuid initialization and hash-based participant selection.
     /// Sets both CurrentParticipantName for display and CurrentUserGuid for authentication.
     /// </summary>
@@ -654,12 +654,51 @@
     {
         try
         {
-            Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] Loading current participant from API using token: {Token}", 
-                requestId, SessionToken);
+            // USERGUID-BASED IDENTIFICATION: Retrieve stored UserGuid for this session
+            string? storedUserGuid = null;
+            try
+            {
+                if (JSRuntime != null)
+                {
+                    // Try session-specific UserGuid first (multi-browser isolation)
+                    var sessionStorageKey = $"noor_user_guid_{SessionToken}";
+                    storedUserGuid = await JSRuntime.InvokeAsync<string?>("sessionStorage.getItem", sessionStorageKey);
+                    
+                    if (string.IsNullOrEmpty(storedUserGuid))
+                    {
+                        // Fallback to localStorage (cross-tab persistence)
+                        storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", sessionStorageKey);
+                    }
+                    
+                    if (string.IsNullOrEmpty(storedUserGuid))
+                    {
+                        // Legacy fallback
+                        storedUserGuid = await JSRuntime.InvokeAsync<string?>("localStorage.getItem", "noor-userId");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Failed to retrieve UserGuid from browser storage: {Error}", 
+                    requestId, ex.Message);
+            }
+
+            Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] Loading current participant from API - Token: {Token}, UserGuid: {UserGuid}", 
+                requestId, SessionToken, storedUserGuid ?? "NULL");
 
             if (Http != null && !string.IsNullOrEmpty(SessionToken))
             {
-                var response = await Http.GetAsync($"/api/participant/session/{SessionToken}/me");
+                // Build API URL with optional UserGuid parameter for multi-browser isolation
+                var apiUrl = $"/api/participant/session/{SessionToken}/me";
+                if (!string.IsNullOrEmpty(storedUserGuid))
+                {
+                    apiUrl += $"?userGuid={Uri.EscapeDataString(storedUserGuid)}";
+                }
+                
+                Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] Calling participant API: {ApiUrl}", 
+                    requestId, apiUrl);
+                    
+                var response = await Http.GetAsync(apiUrl);
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -688,6 +727,24 @@
                             CurrentUserGuid = userGuid;
                             Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] UserGuid loaded for authentication: {UserGuid}", 
                                 requestId, CurrentUserGuid);
+                                
+                            // USERGUID-PERSISTENCE: Store UserGuid for multi-browser isolation
+                            try
+                            {
+                                if (JSRuntime != null)
+                                {
+                                    var sessionStorageKey = $"noor_user_guid_{SessionToken}";
+                                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", sessionStorageKey, userGuid);
+                                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", sessionStorageKey, userGuid);
+                                    Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] UserGuid stored for session persistence: {Key}", 
+                                        requestId, sessionStorageKey);
+                                }
+                            }
+                            catch (Exception storageEx)
+                            {
+                                Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Failed to store UserGuid: {Error}", 
+                                    requestId, storageEx.Message);
+                            }
                         }
                         else
                         {
@@ -701,13 +758,31 @@
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Participant not found for token: {Token} - User may not be registered yet", 
-                        requestId, SessionToken);
+                    Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Participant not found for token: {Token}, UserGuid: {UserGuid} - User may not be registered yet", 
+                        requestId, SessionToken, storedUserGuid ?? "NULL");
                     if (Model != null)
                     {
                         Model.CurrentParticipantName = "Session Participant";
                     }
                     // Don't set CurrentUserGuid - this will prevent Q&A until user registers
+                    // Clear any invalid stored UserGuid to force re-registration
+                    if (!string.IsNullOrEmpty(storedUserGuid))
+                    {
+                        try
+                        {
+                            if (JSRuntime != null)
+                            {
+                                var sessionStorageKey = $"noor_user_guid_{SessionToken}";
+                                await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", sessionStorageKey);
+                                Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] Cleared invalid UserGuid from session storage", requestId);
+                            }
+                        }
+                        catch (Exception clearEx)
+                        {
+                            Logger.LogWarning("[API-PARTICIPANT-ME] [{RequestId}] Failed to clear invalid UserGuid: {Error}", 
+                                requestId, clearEx.Message);
+                        }
+                    }
                 }
                 else
                 {

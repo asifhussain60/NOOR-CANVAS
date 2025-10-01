@@ -384,18 +384,19 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Gets the current participant's information based on token - eliminates need for localStorage/sessionStorage.
-        /// This replaces hash-based participant selection with direct API-based identification.
+        /// Gets the current participant's information based on token and optional UserGuid - eliminates need for localStorage/sessionStorage.
+        /// This replaces hash-based participant selection with direct API-based identification using unique UserGuid.
         /// </summary>
         /// <param name="token">The session token to get current participant for.</param>
+        /// <param name="userGuid">Optional UserGuid to identify specific participant when multiple participants share same token.</param>
         /// <returns>Current participant information including name, country, etc.</returns>
         [HttpGet("session/{token}/me")]
-        public async Task<IActionResult> GetCurrentParticipant(string token)
+        public async Task<IActionResult> GetCurrentParticipant(string token, [FromQuery] string? userGuid = null)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
 
-            _logger.LogInformation("NOOR-PARTICIPANT-ME: [{RequestId}] Current participant request for token: {Token}",
-                requestId, token);
+            _logger.LogInformation("NOOR-PARTICIPANT-ME: [{RequestId}] Current participant request for token: {Token}, UserGuid: {UserGuid}",
+                requestId, token, userGuid ?? "NULL");
 
             try
             {
@@ -412,13 +413,35 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Invalid or expired session token", RequestId = requestId });
                 }
 
-                // Find the participant for this session and token
-                var participant = await _context.Participants
-                    .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.UserToken == token);
+                // USERGUID-BASED LOOKUP: Find specific participant using UserGuid when provided
+                Participant? participant = null;
+                
+                if (!string.IsNullOrWhiteSpace(userGuid))
+                {
+                    // Primary lookup: Use UserGuid for exact participant identification (multi-browser isolation)
+                    participant = await _context.Participants
+                        .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && 
+                                                 p.UserToken == token && 
+                                                 p.UserGuid == userGuid);
+                                                 
+                    _logger.LogInformation("NOOR-PARTICIPANT-ME: [{RequestId}] UserGuid-based lookup for token: {Token}, UserGuid: {UserGuid}, Found: {Found}",
+                        requestId, token, userGuid, participant != null);
+                }
+                
+                if (participant == null)
+                {
+                    // Fallback lookup: Use token only (backward compatibility or first-time access)
+                    participant = await _context.Participants
+                        .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.UserToken == token);
+                        
+                    _logger.LogInformation("NOOR-PARTICIPANT-ME: [{RequestId}] Fallback token-only lookup for token: {Token}, Found: {Found}",
+                        requestId, token, participant != null);
+                }
 
                 if (participant == null)
                 {
-                    _logger.LogWarning("NOOR-PARTICIPANT-ME: [{RequestId}] No participant found for token: {Token}", requestId, token);
+                    _logger.LogWarning("NOOR-PARTICIPANT-ME: [{RequestId}] No participant found for token: {Token}, UserGuid: {UserGuid}", 
+                        requestId, token, userGuid ?? "NULL");
                     return NotFound(new { Error = "Participant not found for this session", RequestId = requestId });
                 }
 

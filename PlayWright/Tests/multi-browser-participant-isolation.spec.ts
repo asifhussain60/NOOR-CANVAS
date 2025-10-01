@@ -37,6 +37,29 @@ import { expect, Page, test } from '@playwright/test';
 test.use({ headless: true, video: 'retain-on-failure' });
 
 /**
+ * Helper function to inject UserGuid into browser session for multi-browser isolation testing
+ */
+async function injectUserGuidForSession(
+  page: Page,
+  sessionToken: string,
+  userGuid: string
+): Promise<void> {
+  const storageKey = `noor_user_guid_${sessionToken}`;
+
+  try {
+    // Inject UserGuid into both localStorage and sessionStorage for consistency
+    await page.evaluate((data) => {
+      localStorage.setItem(data.key, data.userGuid);
+      sessionStorage.setItem(data.key, data.userGuid);
+    }, { key: storageKey, userGuid });
+
+    console.log(`[UserGuid] Injected UserGuid ${userGuid} for session ${sessionToken}`);
+  } catch (error) {
+    console.log(`[UserGuid] Failed to inject UserGuid before navigation: ${error}`);
+  }
+}
+
+/**
  * Helper function to register a participant and navigate to session canvas
  */
 async function registerParticipantAndNavigateToSession(
@@ -44,12 +67,18 @@ async function registerParticipantAndNavigateToSession(
   sessionToken: string,
   participantName: string,
   participantEmail: string,
+  userGuidToInject?: string,
   country: string = 'BH'
 ): Promise<void> {
-  console.log(`[${participantName}] Starting registration with token: ${sessionToken}`);
+  console.log(`[${participantName}] Starting registration with token: ${sessionToken}, UserGuid: ${userGuidToInject || 'AUTO'}`);
 
   // Navigate directly to session canvas (API-based approach)
   await page.goto(`https://localhost:9091/session/canvas/${sessionToken}`);
+
+  // Inject UserGuid for multi-browser isolation testing (after navigation)
+  if (userGuidToInject) {
+    await injectUserGuidForSession(page, sessionToken, userGuidToInject);
+  }
 
   // Wait for session canvas to load
   await expect(page.locator('.session-canvas-root').first()).toBeVisible({ timeout: 10000 });
@@ -108,15 +137,25 @@ async function getCurrentParticipantName(page: Page): Promise<string> {
 async function verifyParticipantApiEndpoint(
   page: Page,
   sessionToken: string,
-  expectedName: string
+  expectedName: string,
+  expectedUserGuid?: string
 ): Promise<void> {
-  const response = await page.request.get(`https://localhost:9091/api/participant/session/${sessionToken}/me`);
+  let apiUrl = `https://localhost:9091/api/participant/session/${sessionToken}/me`;
+  if (expectedUserGuid) {
+    apiUrl += `?userGuid=${encodeURIComponent(expectedUserGuid)}`;
+  }
+
+  const response = await page.request.get(apiUrl);
 
   expect(response.status()).toBe(200);
 
   const data = await response.json();
   expect(data.name).toBe(expectedName);
   expect(data.userGuid).toBeTruthy();
+
+  if (expectedUserGuid) {
+    expect(data.userGuid).toBe(expectedUserGuid);
+  }
 
   console.log(`[API] Verified participant API for ${expectedName}: UserGuid=${data.userGuid}`);
 }
@@ -138,36 +177,40 @@ test.describe('Multi-Browser Participant Isolation', () => {
     const page2 = await context2.newPage();
 
     try {
-      // Test data for two different participants - using real tokens from session ID 212
+      // Test data using REAL participant data from database for session 212
       const participant1 = {
         token: 'KJAHA99L', // Real user token from session 212
-        name: 'Alice Johnson',
+        userGuid: '63bf4e5c-72ca-4e73-8444-e96d5cb6068c', // Real UserGuid from database
+        expectedName: 'John Walker', // Real participant name from database
         email: 'alice.johnson@test.com'
       };
 
       const participant2 = {
-        token: 'PQ9N5YWW', // Real host token from session 212 (using as different participant)
-        name: 'Bob Smith',
+        token: 'KJAHA99L', // Same token (shared session)
+        userGuid: '9ade0f42-f82c-41d4-8849-d6c91acdf8f9', // Different UserGuid from database
+        expectedName: 'Raven Darkholme', // Real participant name from database
         email: 'bob.smith@test.com'
       };
 
       console.log('=== MULTI-BROWSER ISOLATION TEST START ===');
-      console.log(`Participant 1: ${participant1.name} with token ${participant1.token}`);
-      console.log(`Participant 2: ${participant2.name} with token ${participant2.token}`);
+      console.log(`Participant 1: ${participant1.expectedName} with token ${participant1.token}, UserGuid: ${participant1.userGuid}`);
+      console.log(`Participant 2: ${participant2.expectedName} with token ${participant2.token}, UserGuid: ${participant2.userGuid}`);
 
-      // Register both participants in parallel using different session tokens
+      // Register both participants in parallel using same token but different UserGuids
       await Promise.all([
         registerParticipantAndNavigateToSession(
           page1,
           participant1.token,
-          participant1.name,
-          participant1.email
+          participant1.expectedName,
+          participant1.email,
+          participant1.userGuid
         ),
         registerParticipantAndNavigateToSession(
           page2,
           participant2.token,
-          participant2.name,
-          participant2.email
+          participant2.expectedName,
+          participant2.email,
+          participant2.userGuid
         )
       ]);
 
@@ -182,19 +225,19 @@ test.describe('Multi-Browser Participant Isolation', () => {
       console.log(`Browser 1 shows participant: "${displayedName1}"`);
       console.log(`Browser 2 shows participant: "${displayedName2}"`);
 
-      // CRITICAL ASSERTION: API-based approach shows different participants
-      // Browser 1 with user token KJAHA99L should show the real participant: "Peter Parker"
-      expect(displayedName1).toBe("Peter Parker");
+      // CRITICAL ASSERTION: UserGuid-based approach shows different participants
+      // Browser 1 with UserGuid 63bf4e5c-... should show John Walker
+      expect(displayedName1).toBe(participant1.expectedName);
 
-      // Browser 2 with host token PQ9N5YWW shows different content (host vs participant behavior)
-      expect(displayedName2).not.toBe("Peter Parker");
+      // Browser 2 with UserGuid 9ade0f42-... should show Raven Darkholme
+      expect(displayedName2).toBe(participant2.expectedName);
 
       // MOST IMPORTANT: Names should be different (no "same name" issue)
       expect(displayedName1).not.toBe(displayedName2);
 
-      // Verify API endpoints return correct participant data
-      // Only test user token (KJAHA99L) - host token (PQ9N5YWW) may return 404
-      await verifyParticipantApiEndpoint(page1, participant1.token, "Peter Parker");
+      // Verify API endpoints return correct participant data for both UserGuids
+      await verifyParticipantApiEndpoint(page1, participant1.token, participant1.expectedName, participant1.userGuid);
+      await verifyParticipantApiEndpoint(page2, participant2.token, participant2.expectedName, participant2.userGuid);
 
       console.log('✅ MULTI-BROWSER ISOLATION TEST PASSED');
       console.log('✅ API-based approach successfully eliminated "same name on multiple browsers" issue');
@@ -216,23 +259,25 @@ test.describe('Multi-Browser Participant Isolation', () => {
     try {
       const participant = {
         token: 'KJAHA99L', // Real user token from session 212
-        name: 'Charlie Brown',
+        userGuid: '63bf4e5c-72ca-4e73-8444-e96d5cb6068c', // Real UserGuid
+        expectedName: 'John Walker', // Real participant name from database
         email: 'charlie.brown@test.com'
       };
 
       console.log('=== STORAGE CLEARANCE TEST START ===');
 
-      // Register participant
+      // Register participant with UserGuid injection
       await registerParticipantAndNavigateToSession(
         page,
         participant.token,
-        participant.name,
-        participant.email
+        participant.expectedName,
+        participant.email,
+        participant.userGuid
       );
 
       // Verify initial state - should show real participant from API
       const initialName = await getCurrentParticipantName(page);
-      expect(initialName).toBe("Peter Parker"); // Real participant from database
+      expect(initialName).toBe(participant.expectedName); // Real participant from database
       console.log(`Initial participant name: ${initialName}`);
 
       // Clear all browser storage (localStorage, sessionStorage, cookies)
@@ -248,15 +293,15 @@ test.describe('Multi-Browser Participant Isolation', () => {
       await page.reload();
       await page.waitForTimeout(3000); // Allow time for API calls
 
-      // Verify participant name is still correct after storage clearance (API-based)
+      // Verify participant name falls back to first participant after storage clearance
       const nameAfterClearance = await getCurrentParticipantName(page);
-      expect(nameAfterClearance).toBe("Peter Parker"); // API returns real participant
+      expect(nameAfterClearance).toBe(participant.expectedName); // Should fallback to first participant
 
-      // Verify API still works correctly for user token
-      await verifyParticipantApiEndpoint(page, participant.token, "Peter Parker");
+      // Verify API still works correctly (fallback mode without UserGuid)
+      await verifyParticipantApiEndpoint(page, participant.token, participant.expectedName);
 
       console.log(`✅ Participant name after storage clearance: ${nameAfterClearance}`);
-      console.log('✅ API-based approach works correctly without localStorage/sessionStorage');
+      console.log('✅ API-based approach works correctly with fallback behavior');
 
     } finally {
       await context.close();
@@ -274,23 +319,25 @@ test.describe('Multi-Browser Participant Isolation', () => {
     try {
       const participant = {
         token: 'KJAHA99L', // Real user token from session 212
-        name: 'Diana Prince',
+        userGuid: '63bf4e5c-72ca-4e73-8444-e96d5cb6068c', // Real UserGuid
+        expectedName: 'John Walker', // Real participant name from database
         email: 'diana.prince@test.com'
       };
 
       console.log('=== PAGE REFRESH PERSISTENCE TEST START ===');
 
-      // Register participant
+      // Register participant with UserGuid injection
       await registerParticipantAndNavigateToSession(
         page,
         participant.token,
-        participant.name,
-        participant.email
+        participant.expectedName,
+        participant.email,
+        participant.userGuid
       );
 
       // Verify initial state - should show real participant from API
       const initialName = await getCurrentParticipantName(page);
-      expect(initialName).toBe("Peter Parker"); // Real participant from database
+      expect(initialName).toBe(participant.expectedName); // Real participant from database
 
       // Refresh the page multiple times
       for (let i = 1; i <= 3; i++) {
@@ -299,13 +346,13 @@ test.describe('Multi-Browser Participant Isolation', () => {
         await page.waitForTimeout(3000);
 
         const nameAfterRefresh = await getCurrentParticipantName(page);
-        expect(nameAfterRefresh).toBe("Peter Parker"); // API consistently returns real participant
+        expect(nameAfterRefresh).toBe(participant.expectedName); // API consistently returns real participant
 
         console.log(`  ✅ Name after refresh ${i}: ${nameAfterRefresh}`);
       }
 
-      // Final API verification  
-      await verifyParticipantApiEndpoint(page, participant.token, "Peter Parker");
+      // Final API verification with UserGuid
+      await verifyParticipantApiEndpoint(page, participant.token, participant.expectedName, participant.userGuid);
 
       console.log('✅ Participant identity maintained correctly across page refreshes');
 
