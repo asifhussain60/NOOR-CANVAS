@@ -3167,8 +3167,8 @@
         
         try {
             // Get session details (safely encoded using System.Text.Json)
-            const sessionId = @System.Text.Json.JsonSerializer.Serialize(SessionId ?? 0);
-            const hostToken = @System.Text.Json.JsonSerializer.Serialize(HostToken ?? "");
+            const sessionId = @(System.Text.Json.JsonSerializer.Serialize(SessionId ?? 0));
+            const hostToken = @(System.Text.Json.JsonSerializer.Serialize(HostToken ?? ""));
             
             if (!sessionId || !hostToken) {
                 console.error('NOOR-ASSET-SHARE: Missing session ID or host token');
@@ -3868,7 +3868,8 @@ Please share this report with the development team for debugging.`;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         `;
         
         // Create popup container
@@ -3881,7 +3882,8 @@ Please share this report with the development team for debugging.`;
             max-height: 90vh;
             width: 900px;
             overflow: hidden;
-            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(1) translateY(0);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         `;
         
@@ -3975,15 +3977,7 @@ Please share this report with the development team for debugging.`;
         console.log('[DEBUG-WORKITEM:popup:custom] Modern asset popup displayed');
     };
     
-    // Add CSS animations dynamically
-    if (!document.getElementById('popup-animations')) {
-        const style = document.createElement('style');
-        style.id = 'popup-animations';
-        const keyframesFadeIn = '@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }';
-        const keyframesSlideIn = '@keyframes slideIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }';
-        style.textContent = keyframesFadeIn + ' ' + keyframesSlideIn;
-        document.head.appendChild(style);
-    }
+    // Note: CSS animations handled inline to avoid Razor parsing issues
     
     console.log('[DEBUG-WORKITEM:assetshare:continue] Share button JavaScript functions defined');
 </script>
