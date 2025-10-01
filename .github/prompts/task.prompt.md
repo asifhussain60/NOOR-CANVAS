@@ -7,63 +7,40 @@ You are the **Task Executor Agent**.
 
 ---
 
-## Key Handling Mandate
-- Use `keys_index.json` in `prompts.keys` as the authoritative machine-readable index.
-- If `key` is provided → validate against `keys_index.json`.
-- If `key` is not provided → use `last_active` from `keys_index.json`.
-- If no active key can be inferred → create a new key, add to `keys_index.json`, `prompts.keys`, and `active.keys.log`.
-- Default status = In Progress until explicitly set to Complete.
-- Report both `Key:` and `Key Status:` at the start and final summary.
-- No silent key creation.
-
----
-
 ## Debug Logging Mandate
-- Default debug-level = simple.
-- Trace only if explicitly requested (`/task debug-level: trace`).
-- Use standardized markers: START, END, TRACE.
-- `sync` cleans up all debug logs.
+- Always emit debug logs with standardized markers.  
+  - `>>> DEBUG:START:[PHASE]` before each major operation.  
+  - `<<< DEBUG:END:[PHASE]` after each major operation.  
+  - `>>> DEBUG:TRACE:[EVENT]` for fine-grained steps **only if** `debug-level = trace`.  
+- Respect the `debug-level` parameter (`simple` or `trace`).  
+  - **simple**: comprehensive enough to follow the workflow path.  
+  - **trace**: surgical detail inside code blocks without flooding.  
+- Logs must never persist in code; `sync` is responsible for cleanup of these markers.  
 
 ---
 
-### 1. Checkpoint Commit (Mandatory)
-Create a checkpoint commit before execution. Commit message:
-`checkpoint: pre-task <key>`
-
-### 2. Plan
-Generate a step-by-step plan including order, dependencies, and validations.
-
-### 3. Approval (Mandatory)
-Output plan with banner:
-`>>> PLAN GENERATED – AWAITING APPROVAL <<<`
-Do not execute until explicit `/approve`.
-If `/reject`, halt and mark as Pending Approval.
-
-### 4. Execute
-Carry out subtasks sequentially after approval. Halt on failure unless overridden.
-
-### 5. Validate
-Verify solution builds with 0 errors/warnings, analyzers clean, tests pass.
-
-### 6. Confirm
-Provide summary and always restate:
-```
-Key: <key>
-Key Status: <status>
-```
-
-### 7. Summary + Key Management
-Update keys folder and rolling log. Ensure alphabetical order and keep `keys_index.json` in sync.
+## Warning Handling Mandate
+- Warnings must be treated as errors — the system must be clean with zero errors and zero warnings.  
+- If warnings are detected, retry fixing them up to 2 additional attempts (3 total tries).  
+- If warnings persist after retries, stop and raise them clearly for manual resolution. Do not loop infinitely.  
 
 ---
 
-## Guardrails
-- Never modify functionality unless explicitly required.
-- Enforce architectural integrity.
-- Pause and clarify if uncertain.
-- Stay aligned across all agents.
+## Core Mandates
+- Always begin with a **checkpoint commit** to guarantee rollback safety.  
+- Always follow **`.github/instructions/SelfAwareness.instructions.md`** for operating rules.  
+- Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure and available prompts.  
+- Always generate debug logs as specified in the Debug Logging Mandate.  
+- Always enforce warning handling as specified in the Warning Handling Mandate.  
 
 ---
 
-## Clean Exit Guarantee
-Always end with 0 errors/warnings, clean analyzers, passing tests, intact contracts.
+## Orchestration
+- This prompt orchestrates others: **refactor**, **sync**, **inventory**, **pwtest**.  
+- It ensures all invoked prompts follow the references in `instructions/Links/ReferenceIndex.md`.  
+- After every **refactor**, a **healthcheck** step must be run.  
+- Always reference AnalyzerConfig, PlaywrightConfig, and PlaywrightTestPaths through the ReferenceIndex.
+
+---
+
+Always consult `instructions/Links/ReferenceIndex.md` for grounding context before execution.
