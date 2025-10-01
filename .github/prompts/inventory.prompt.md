@@ -25,10 +25,6 @@ You are the **Inventory Agent**.
 
 ---
 
----
-mode: agent
----
-
 # /inventory — Key Inventory & Status Agent (v1.1.0)
 
 Performs an audit of all keys in `NOOR-CANVAS/Workspaces/Copilot/prompts.keys`, reporting whether they have been closed by `/keylock`.  

@@ -6,8 +6,8 @@
 - **refactor.prompt.md** → structural integrity agent (checkpointed, approval-gated, zero warnings)  
 - **pwtest.prompt.md** → automated UI/regression test executor (Playwright-based)  
 - **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
-- **lock.prompt.md** → keylock manager  
 - **inventory.prompt.md** → inventory and dashboard manager  
+- **generate-chat-summary.prompt.md** → chat context documentation agent (continuity preservation)  
 
 ## Retired Prompts
 - **retrosync.prompt.md** → replaced by sync  
@@ -27,3 +27,19 @@
 - Keys tracked in: `Workspaces/Copilot/prompts.keys`  
 - States: `new`, `In Progress`, `complete`  
 - Keys are always alphabetically sorted  
+
+## Agent Coordination Protocols
+- **task** → executes work, hands off to **pwtest** for validation  
+- **refactor** → improves structure, triggers **healthcheck** for validation  
+- **sync** → orchestrates system state, calls **generate-chat-summary** as final step  
+- **healthcheck** → validates system integrity, reports to **sync** for fixes  
+- **pwtest** → creates tests, integrates with **task** completion workflow  
+- **inventory** → provides status overview, supports all other agents with context  
+- **generate-chat-summary** → captures session state, enables seamless continuity
+
+## LLM Optimization Principles
+- **Consistent Structure**: All prompts follow identical format patterns for reliable parsing  
+- **Clear Parameters**: Standardized parameter names and formats across agents  
+- **Explicit Instructions**: No ambiguous language that could lead to misinterpretation  
+- **Error Prevention**: Built-in validation and retry mechanisms in every agent  
+- **Context Preservation**: Comprehensive state tracking and handoff documentation  

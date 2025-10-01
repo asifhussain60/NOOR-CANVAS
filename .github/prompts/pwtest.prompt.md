@@ -25,10 +25,6 @@ You are the **Playwright Test Orchestrator**.
 
 ---
 
----
-mode: agent
----
-
 # /pwtest — Playwright Test Agent (v3.0.0)
 
 Creates and maintains Playwright tests for `{key}` with iterative validation via analyzers, linters, and test execution.

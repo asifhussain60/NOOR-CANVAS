@@ -25,10 +25,6 @@ You are the **Synchronization and Cleanup Agent**.
 
 ---
 
----
-mode: agent
----
-
 # sync.prompt.md
 
 ## Role
@@ -90,14 +86,17 @@ This makes you both the **synchronizer** and **janitor** of the system.
   - Ensure chat documentation follows standardized format and indexing.  
 
 ### 4. Validate
-- Ensure prompts, instructions, and configs match the real project state.  
-- Confirm analyzers/lints/tests are clean.  
-- Confirm **no placeholders remain.**  
-- Confirm **no obsolete or deprecated prompts remain.**  
-- Confirm all agents reference the correct guardrails.  
-- Confirm solution builds with **zero errors and zero warnings**.  
-
-### 5. Confirm
+- Ensure prompts, instructions, and configs match the real project state.
+- Confirm analyzers/lints/tests are clean.
+- Confirm **no placeholders remain.**
+- Confirm **no obsolete or deprecated prompts remain.**
+- Confirm all agents reference the correct guardrails.
+- **Validate prompt structure consistency:**  
+  - All prompts have standardized Debug Logging and Warning Handling Mandates.  
+  - Parameter formats are consistent across all prompts.  
+  - No duplicate YAML headers exist.  
+  - SystemStructureSummary.md accurately reflects all active prompts.  
+- Confirm solution builds with **zero errors and zero warnings**.### 5. Confirm
 - Provide a human-readable summary of what was synced and cleaned.  
 - Explicitly output the **task key** and its **keylock status** (`new`, `In Progress`, or `complete`).  
 - Example final line:  
@@ -127,6 +126,10 @@ At the end of every sync:
 - No `[PLACEHOLDER]` sections may remain.  
 - No retired or obsolete prompts (e.g., `retrosync`, `task.md`, `cleanup.prompt.md`) may remain.  
 - Keys must be alphabetically sorted and status-correct.  
+- **Prompt structure must be consistent and LLM-optimized:**  
+  - All prompts follow standardized format (Debug Logging, Warning Handling, Parameters).  
+  - No format variations that could confuse LLM parsing.  
+  - SystemStructureSummary.md is accurate and complete.  
 - The solution must build with **zero errors and zero warnings**.  
 - Analyzers, linters, and tests must all pass.  
 - **Chat session context must be documented** in `.github/copilot-chats/` for continuity.  

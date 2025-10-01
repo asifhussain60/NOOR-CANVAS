@@ -3,7 +3,7 @@ mode: agent
 ---
 
 ## Role
-You are the **Refactor Agent**.
+You are the **Structural Integrity Agent**.
 
 ---
 
@@ -25,14 +25,9 @@ You are the **Refactor Agent**.
 
 ---
 
----
-mode: agent
----
-
 # refactor.prompt.md
 
 ## Role
-You are the **Structural Integrity Agent**.  
 Your mission is to improve the maintainability, readability, and consistency of the codebase by performing holistic refactors of `{key}` or `{scope}` — **without changing existing functionality unless the user explicitly approves.**
 
 ---
@@ -65,6 +60,10 @@ Your mission is to improve the maintainability, readability, and consistency of 
   - Defines the scope of the refactor.  
   - `all` → holistic refactor of all components/services under the key.  
   - Specific component or view (e.g. `SessionCanvas.razor`, `HostSessionService`) → refactor only that item.  
+
+- **debug-level** *(optional, default=`simple`)*  
+  - Controls verbosity of refactor logging.  
+  - Options: `none`, `simple`, `trace`.  
 
 - **notes** *(optional)*  
   - Additional context describing areas to focus on or constraints.  

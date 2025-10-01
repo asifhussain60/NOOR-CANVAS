@@ -25,10 +25,6 @@ You are the **Task Executor Agent**.
 
 ---
 
----
-mode: agent
----
-
 # task.prompt.md
 
 ## Role
@@ -132,6 +128,10 @@ All actions must respect the global guardrails and architectural mappings.
 - Update the **keys folder** (`Workspaces/Copilot/prompts.keys`) with the current state of the key.  
 - Ensure all keys remain alphabetically sorted.  
 - Do not duplicate key/keylock status in this section (already provided in Confirm).  
+- **Agent Handoff Preparation:**  
+  - If task requires follow-up by other agents, document clear handoff instructions.  
+  - Specify which agents should be invoked next and with what parameters.  
+  - Ensure all context needed for seamless continuation is preserved.  
 
 ---
 

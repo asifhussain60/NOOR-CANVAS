@@ -42,7 +42,7 @@ You capture the complete state of work, identifying incomplete tasks, current po
   - `standard`: Include work context, decisions, and file changes  
   - `comprehensive`: Full context including architecture, dependencies, and complete state
 
-- **debug-level** *(optional, default: "simple")*  
+- **debug-level** *(optional, default=`simple`)*  
   - `none`: No debug logging  
   - `simple`: Key phase logging only  
   - `trace`: Detailed step-by-step logging

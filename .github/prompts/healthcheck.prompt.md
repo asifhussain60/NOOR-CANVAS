@@ -25,10 +25,6 @@ You are the **Healthcheck Agent**.
 
 ---
 
----
-mode: agent
----
-
 # healthcheck.prompt.md
 
 ## Role
