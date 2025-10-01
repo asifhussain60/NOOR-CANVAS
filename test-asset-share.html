@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Share POC Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Asset Share POC Test</h1>
+        <p>This page tests our new KSESSIONS-style asset sharing implementation.</p>
+        
+        <div class="test-section">
+            <h2>Test 1: Basic Asset Broadcasting</h2>
+            <button onclick="testBasicBroadcast()">Test Basic Broadcast</button>
+            <div id="basic-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 2: Session 212 Content Test</h2>
+            <button onclick="testSession212()">Test with Session 212 Data</button>
+            <div id="session212-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>SignalR Connection Status</h2>
+            <button onclick="connectSignalR()">Connect to SignalR</button>
+            <div id="signalr-status" class="result">Not connected</div>
+            <div id="received-content" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@microsoft/signalr@6.0.1/dist/browser/signalr.min.js"></script>
+    <script>
+        let connection = null;
+        
+        async function testBasicBroadcast() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('https://localhost:9091/api/AssetShareTest/test-broadcast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sessionId: 212,
+                        content: 'Test asset content from POC - Basic Test at ' + new Date().toLocaleTimeString()
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = '<span class="success">✅ Success!</span><br>' + JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ Error:</span> ' + response.status + ' ' + response.statusText;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">❌ Error:</span> ' + error.message;
+            }
+        }
+        
+        async function testSession212() {
+            const resultDiv = document.getElementById('session212-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('https://localhost:9091/api/AssetShareTest/test-with-session212', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sessionId: 212
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = '<span class="success">✅ Success!</span><br>' + JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ Error:</span> ' + response.status + ' ' + response.statusText;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">❌ Error:</span> ' + error.message;
+            }
+        }
+        
+        async function connectSignalR() {
+            const statusDiv = document.getElementById('signalr-status');
+            const contentDiv = document.getElementById('received-content');
+            
+            try {
+                statusDiv.innerHTML = 'Connecting...';
+                
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("https://localhost:9091/hub/session")
+                    .build();
+                
+                // Listen for asset content broadcasts
+                connection.on("AssetContentReceived", function (sessionId, content) {
+                    contentDiv.style.display = 'block';
+                    contentDiv.innerHTML = '<strong>🎯 Received Asset Content!</strong><br>' +
+                        'Session ID: ' + sessionId + '<br>' +
+                        'Content: ' + content + '<br>' +
+                        'Time: ' + new Date().toLocaleTimeString();
+                });
+                
+                // Listen for legacy asset sharing (for comparison)
+                connection.on("AssetShared", function (sessionId, data) {
+                    contentDiv.style.display = 'block';
+                    contentDiv.innerHTML = '<strong>📋 Received Legacy Asset!</strong><br>' +
+                        'Session ID: ' + sessionId + '<br>' +
+                        'Data: ' + JSON.stringify(data) + '<br>' +
+                        'Time: ' + new Date().toLocaleTimeString();
+                });
+                
+                await connection.start();
+                statusDiv.innerHTML = '<span class="success">✅ Connected to SignalR!</span>';
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="error">❌ Connection failed:</span> ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1088,60 +1088,46 @@
 
         try
         {
-            // [FIX] Simplified approach inspired by KSessions - avoid multi-layered HTML processing
+            // [KSESSIONS-STYLE FIX] Use direct content broadcasting - no complex JSON wrapping
             // Extract raw asset HTML directly from the source
             var rawAssetHtml = await ExtractRawAssetHtml(shareId, assetType, instanceNumber);
             
             if (string.IsNullOrEmpty(rawAssetHtml))
             {
-                Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ No HTML content found for shareId: {ShareId}", shareId);
+                Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ No HTML content found for shareId: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
                 await ShowErrorMessageAsync($"Asset content not found for {assetType} #{instanceNumber}");
                 return;
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 PHASE1 STEP 2/7: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId} ;CLEANUP_OK", rawAssetHtml.Length, broadcastId);
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📄 PHASE1 HTML PREVIEW: {HtmlPreview}, broadcastId={BroadcastId} ;CLEANUP_OK", rawAssetHtml.Substring(0, Math.Min(200, rawAssetHtml.Length)), broadcastId);
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 2/4: Raw asset HTML extracted, length={Length} chars, broadcastId={BroadcastId}", rawAssetHtml.Length, broadcastId);
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 📄 HTML PREVIEW: {HtmlPreview}, broadcastId={BroadcastId}", rawAssetHtml.Substring(0, Math.Min(200, rawAssetHtml.Length)), broadcastId);
 
-            // [PHASE1] Create clean asset data object with rawHtmlContent property (fixed naming)
-            var assetData = new
-            {
-                shareId = shareId,
-                assetType = assetType,
-                instanceNumber = instanceNumber,
-                rawHtmlContent = rawAssetHtml,  // PHASE1 FIX: Use rawHtmlContent property name
-                sharedAt = DateTime.UtcNow,
-                sessionId = SessionId.Value
-            };
-
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📋 PHASE1 STEP 3/7: Asset data object created with rawHtmlContent property, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
-
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀 STEP 4/7: Broadcasting asset via SignalR ShareAsset, target=session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🚀 STEP 3/4: Broadcasting asset via KSESSIONS-style PublishAssetContent, target=session_{SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
             
-            // Broadcast via SignalR using the same mechanism as TestShareAsset
-            var shareTask = hubConnection.InvokeAsync("ShareAsset", SessionId.Value, assetData);
+            // [KSESSIONS PATTERN] Direct content broadcasting - no complex object wrapping
+            var shareTask = hubConnection.InvokeAsync("PublishAssetContent", SessionId.Value, rawAssetHtml);
             var timeoutTask = Task.Delay(5000);
             
             var completedTask = await Task.WhenAny(shareTask, timeoutTask);
             
             if (completedTask == timeoutTask)
             {
-                Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ STEP 4 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+                Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ STEP 3 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId}", broadcastId);
                 await ShowErrorMessageAsync("Asset sharing timed out after 5 seconds");
                 return;
             }
 
             await shareTask; // Await the actual task to catch any exceptions
             
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] ✅ STEP 5/7: SignalR ShareAsset call completed successfully, SessionId={SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📡 STEP 6/7: Asset HTML broadcasted to SessionCanvas clients in group session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 4/4: KSESSIONS-style PublishAssetContent completed successfully, SessionId={SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
             
-            await ShowSuccessMessageAsync($"✅ {assetType} #{instanceNumber} shared successfully!");
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎉 STEP 7/7: Share operation completed successfully, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+            await ShowSuccessMessageAsync($"✅ {assetType} #{instanceNumber} shared successfully via KSESSIONS pattern!");
+            Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🎉 SHARE COMPLETE: Asset broadcasted using direct content approach, broadcastId={BroadcastId}", broadcastId);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:continue] ❌ Error sharing asset: {ShareId}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, broadcastId);
-            await ShowErrorMessageAsync($"Error sharing asset: {ex.Message}");
+            Logger.LogError(ex, "[ASSET-SHARE-KSESSIONS] ❌ Error in KSESSIONS-style asset sharing: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
+            await ShowErrorMessageAsync($"KSESSIONS-style asset sharing failed: {ex.Message}");
         }
     }
     

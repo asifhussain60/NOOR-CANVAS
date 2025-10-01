@@ -77,7 +77,7 @@ public class AssetShareTestController : ControllerBase
             
             if (string.IsNullOrEmpty(transcriptData))
             {
-                return BadRequest(new { success = false, error = "Could not retrieve Session 212 data", testId });
+                throw new InvalidOperationException("Session 212 transcript data is null or empty - check if Session 212 exists and has transcript content");
             }
 
             // Extract first ayah-card for testing
@@ -85,7 +85,7 @@ public class AssetShareTestController : ControllerBase
             
             if (string.IsNullOrEmpty(ayahCardContent))
             {
-                return BadRequest(new { success = false, error = "No ayah-card found in Session 212 data", testId });
+                throw new InvalidOperationException($"No ayah-card content found in Session 212 transcript (length: {transcriptData.Length} chars). The transcript may not contain the expected ayah-card HTML structure.");
             }
 
             // Broadcast the real content
@@ -123,18 +123,19 @@ public class AssetShareTestController : ControllerBase
             
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    throw new InvalidOperationException("Session 212 transcript API returned empty content");
+                }
+                return content;
             }
             
-            _logger.LogWarning("[ASSET-SHARE-TEST] Session 212 API call failed: {StatusCode}", response.StatusCode);
-            
-            // Fallback: return sample ayah-card HTML for testing
-            return GetSampleAyahCardHtml();
+            throw new HttpRequestException($"Session 212 API call failed with status code: {response.StatusCode} - {response.ReasonPhrase}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!(ex is HttpRequestException || ex is InvalidOperationException))
         {
-            _logger.LogError(ex, "[ASSET-SHARE-TEST] Error retrieving Session 212 data");
-            return GetSampleAyahCardHtml();
+            throw new InvalidOperationException($"Failed to retrieve Session 212 transcript data: {ex.Message}", ex);
         }
     }
 
@@ -182,22 +183,8 @@ public class AssetShareTestController : ControllerBase
             }
         }
 
-        // Fallback if extraction fails
-        return GetSampleAyahCardHtml();
-    }
-
-    private string GetSampleAyahCardHtml()
-    {
-        return @"<div class='ayah-card' style='background:#FFF8E1;border:2px solid #FFA000;border-radius:12px;padding:20px;margin:15px 0;'>
-    <div style='text-align:center;margin-bottom:15px;'>
-        <h4 style='color:#E65100;margin:0;font-family:""Times New Roman"",serif;'>📖 Sample Ayah Card</h4>
-    </div>
-    <div style='background:white;padding:15px;border-radius:8px;text-align:center;'>
-        <p style='font-size:1.2em;color:#333;margin:10px 0;'>This is a sample ayah card for POC testing</p>
-        <p style='color:#666;font-size:0.9em;margin:5px 0;'>Content extracted from Session 212 transcript</p>
-        <p style='color:#999;font-size:0.8em;margin:5px 0;'>Broadcast Time: " + DateTime.UtcNow.ToString("HH:mm:ss") + @"</p>
-    </div>
-</div>";
+        // No fallback - throw clear error if extraction fails
+        throw new InvalidOperationException("No ayah-card content found in Session 212 transcript. Expected <div class='ayah-card'> or class='ayah-card' in the HTML content.");
     }
 }
 
