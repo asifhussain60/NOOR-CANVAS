@@ -7,7 +7,7 @@ namespace NoorCanvas.Services;
 
 /// <summary>
 /// Service for detecting Islamic content assets in session transcripts
-/// and storing them in SessionAssets lookup table for efficient retrieval
+/// and storing them in SessionAssets lookup table for efficient retrieval.
 /// </summary>
 public class AssetDetectionService
 {
@@ -22,8 +22,9 @@ public class AssetDetectionService
 
     /// <summary>
     /// Detect and store all assets found in a session transcript using flexible class-based detection
-    /// Replaces existing assets for the session to ensure consistency
+    /// Replaces existing assets for the session to ensure consistency.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<int> DetectAndStoreAssetsAsync(long sessionId, string transcriptHtml)
     {
         try
@@ -68,7 +69,7 @@ public class AssetDetectionService
 
     /// <summary>
     /// Flexible asset detection using class intersection analysis
-    /// Groups assets by primary class and counts instances
+    /// Groups assets by primary class and counts instances.
     /// </summary>
     private Task<List<SessionAsset>> DetectAssetsFlexibleAsync(long sessionId, string transcriptHtml)
     {
@@ -130,7 +131,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Find HTML elements that contain any of the specified CSS classes
+    /// Find HTML elements that contain any of the specified CSS classes.
     /// </summary>
     private List<(List<string> Classes, string Html)> FindElementsWithClassIntersection(string html, string[] targetClasses)
     {
@@ -162,7 +163,7 @@ public class AssetDetectionService
 
     /// <summary>
     /// Calculate confidence score based on class intersection
-    /// Higher scores indicate better matches
+    /// Higher scores indicate better matches.
     /// </summary>
     private int CalculateClassScore(List<string> elementClasses, string[] targetClasses)
     {
@@ -176,7 +177,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Legacy method - detect assets of a specific type in the transcript HTML
+    /// Legacy method - detect assets of a specific type in the transcript HTML.
     /// </summary>
     private (List<SessionAsset> Assets, int NewPosition) DetectAssetType(long sessionId, string html, string assetType, int globalPosition)
     {
@@ -229,7 +230,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Generate a unique selector for an asset based on its type and content
+    /// Generate a unique selector for an asset based on its type and content.
     /// </summary>
     private string GenerateAssetSelector(string assetType, int position, string htmlContent)
     {
@@ -253,7 +254,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Extract Ayah-specific selector (e.g., "ayah-2-255" for Surah 2, Ayah 255)
+    /// Extract Ayah-specific selector (e.g., "ayah-2-255" for Surah 2, Ayah 255).
     /// </summary>
     private string? ExtractAyahSelector(string html)
     {
@@ -277,7 +278,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Extract Hadees-specific selector (e.g., "hadees-bukhari-123")
+    /// Extract Hadees-specific selector (e.g., "hadees-bukhari-123").
     /// </summary>
     private string? ExtractHadeesSelector(string html)
     {
@@ -301,7 +302,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Extract Etymology-specific selector (e.g., "etymology-rasul-rsl")
+    /// Extract Etymology-specific selector (e.g., "etymology-rasul-rsl").
     /// </summary>
     private string? ExtractEtymologySelector(string html)
     {
@@ -327,7 +328,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Extract Image-specific selector
+    /// Extract Image-specific selector.
     /// </summary>
     private string? ExtractImageSelector(string html)
     {
@@ -343,7 +344,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Extract Table-specific selector
+    /// Extract Table-specific selector.
     /// </summary>
     private string? ExtractTableSelector(string html)
     {
@@ -363,7 +364,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Filter out nested assets to keep only outermost containers
+    /// Filter out nested assets to keep only outermost containers.
     /// </summary>
     private List<SessionAsset> FilterOutermostAssets(List<SessionAsset> allAssets, string html)
     {
@@ -419,7 +420,7 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// DISABLED: Remove existing assets for a session before detecting new ones
+    /// DISABLED: Remove existing assets for a session before detecting new ones.
     /// </summary>
     private async Task ClearExistingAssetsAsync(long sessionId)
     {
@@ -429,8 +430,9 @@ public class AssetDetectionService
     }
 
     /// <summary>
-    /// Get asset statistics for a session
+    /// Get asset statistics for a session.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public Task<Dictionary<string, int>> GetAssetStatsAsync(long sessionId)
     {
         try

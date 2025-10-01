@@ -6,7 +6,7 @@ namespace NoorCanvas.Data;
 
 /// <summary>
 /// Simplified Canvas Database Context - Ultra-minimal 4-table design
-/// Replaces the complex 15-table architecture with elegant simplicity
+/// Replaces the complex 15-table architecture with elegant simplicity.
 /// </summary>
 public class SimplifiedCanvasDbContext : DbContext
 {

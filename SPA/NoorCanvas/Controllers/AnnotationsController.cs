@@ -18,8 +18,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Get all annotations for a specific session
+        /// Get all annotations for a specific session.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("session/{sessionId}")]
         public async Task<IActionResult> GetSessionAnnotations(long sessionId)
         {
@@ -52,8 +53,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Create a new annotation
+        /// Create a new annotation.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateAnnotation([FromBody] CreateAnnotationRequest request)
         {
@@ -94,8 +96,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Get a specific annotation by ID
+        /// Get a specific annotation by ID.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAnnotation(long id)
         {
@@ -126,8 +129,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Update an existing annotation
+        /// Update an existing annotation.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAnnotation(long id, [FromBody] UpdateAnnotationRequest request)
         {
@@ -164,8 +168,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Delete an annotation
+        /// Delete an annotation.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnnotation(long id, [FromQuery] string userId)
         {
@@ -201,8 +206,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Clear all annotations for a session by a specific user
+        /// Clear all annotations for a session by a specific user.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpDelete("session/{sessionId}/clear")]
         public async Task<IActionResult> ClearSessionAnnotations(long sessionId, [FromQuery] string userId)
         {

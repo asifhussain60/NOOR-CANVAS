@@ -4,7 +4,7 @@ namespace NoorCanvas.Models.DTOs;
 
 /// <summary>
 /// DTO for session details from KSESSIONS database
-/// Maps to combined KSessionsSession and KSessionsSessionTranscript data
+/// Maps to combined KSessionsSession and KSessionsSessionTranscript data.
 /// </summary>
 public class SessionDetailsDto
 {
@@ -20,7 +20,7 @@ public class SessionDetailsDto
     public string? Transcript { get; set; }
     public DateTime? CreatedDate { get; set; }
     public DateTime? ChangedDate { get; set; }
-    
+
     // Navigation data
     public string? GroupName { get; set; }
     public string? CategoryName { get; set; }
@@ -28,7 +28,7 @@ public class SessionDetailsDto
 }
 
 /// <summary>
-/// Response wrapper for enhanced session details API with transcript
+/// Response wrapper for enhanced session details API with transcript.
 /// </summary>
 public class EnhancedSessionDetailsResponse
 {

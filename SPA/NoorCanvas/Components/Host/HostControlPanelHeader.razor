@@ -1,0 +1,20 @@
+@using Microsoft.AspNetCore.Components
+@using NoorCanvas.ViewModels
+
+@* Header component for HostControlPanel - Contains logo, title, and session info *@
+<header style="text-align:center;background:linear-gradient(135deg,#F8F5F1,#FFFFFF);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem;box-shadow:0 8px 25px -8px rgba(0,100,0,0.15);border:1px solid rgba(212,175,55,0.2);">
+    <!-- Logo -->
+    <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+        <img src="/images/NoorCanvas.png?v=20250924" 
+             alt="@(Model?.LogoText ?? "NOOR Canvas")" />
+    </div>
+    <h1 style="font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#006400,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.75rem;letter-spacing:-0.025em;">
+        <i class="fa-solid fa-gear" style="color:#006400;font-size:2.25rem;"></i>
+        <span>HOST CONTROL PANEL</span>
+    </h1>
+    <p style="color:#6B7280;font-size:1rem;font-weight:500;margin:0;">Manage your session with professional-grade controls</p>
+</header>
+
+@code {
+    [Parameter] public HostControlPanelViewModel? Model { get; set; }
+}

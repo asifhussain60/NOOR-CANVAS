@@ -10,7 +10,7 @@ namespace NoorCanvas.Services
     {
         private readonly IJSRuntime _jsRuntime;
         private readonly ILogger<FlagService> _logger;
-        
+
         // Primary and fallback CDN endpoints
         private readonly List<string> _flagCdnUrls = new()
         {
@@ -21,6 +21,7 @@ namespace NoorCanvas.Services
         };
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FlagService"/> class.
         /// Initializes a new instance of the FlagService with required dependencies.
         /// </summary>
         /// <param name="jsRuntime">JavaScript runtime for client-side operations.</param>
@@ -32,10 +33,10 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Gets the flag URL for a country ISO2 code with fallback CDN support
+        /// Gets the flag URL for a country ISO2 code with fallback CDN support.
         /// </summary>
-        /// <param name="countryIso2">Two-letter country code (e.g., "us", "ca", "gb")</param>
-        /// <returns>Primary CDN URL with JavaScript fallback handling</returns>
+        /// <param name="countryIso2">Two-letter country code (e.g., "us", "ca", "gb").</param>
+        /// <returns>Primary CDN URL with JavaScript fallback handling.</returns>
         public string GetFlagUrl(string? countryIso2)
         {
             _logger.LogInformation("COPILOT-DEBUG: FlagService.GetFlagUrl called with countryIso2='{CountryIso2}'", countryIso2 ?? "NULL");
@@ -48,7 +49,7 @@ namespace NoorCanvas.Services
             }
 
             var iso2Lower = countryIso2.ToLowerInvariant();
-            
+
             // Return primary CDN URL - JavaScript will handle fallbacks
             var primaryUrl = string.Format(_flagCdnUrls[0], iso2Lower);
             _logger.LogInformation("COPILOT-DEBUG: FlagService returning primary CDN URL: '{PrimaryUrl}' for country '{CountryIso2}'", primaryUrl, countryIso2);
@@ -56,8 +57,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Gets all fallback URLs for a country ISO2 code (for JavaScript fallback)
+        /// Gets all fallback URLs for a country ISO2 code (for JavaScript fallback).
         /// </summary>
+        /// <returns></returns>
         public List<string> GetAllFlagUrls(string? countryIso2)
         {
             if (string.IsNullOrEmpty(countryIso2))
@@ -67,7 +69,7 @@ namespace NoorCanvas.Services
 
             var iso2Lower = countryIso2.ToLowerInvariant();
             var iso2Upper = countryIso2.ToUpperInvariant();
-            
+
             return new List<string>
             {
                 string.Format(_flagCdnUrls[0], iso2Lower),  // flagcdn.com
@@ -78,7 +80,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Returns a default flag URL for unknown countries
+        /// Returns a default flag URL for unknown countries.
         /// </summary>
         private string GetDefaultFlagUrl()
         {
@@ -87,13 +89,14 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Generates JavaScript code for handling image load failures with CDN fallbacks
+        /// Generates JavaScript code for handling image load failures with CDN fallbacks.
         /// </summary>
+        /// <returns></returns>
         public string GetFallbackScript(string countryIso2)
         {
             var fallbackUrls = GetAllFlagUrls(countryIso2);
             var jsUrls = string.Join(",", fallbackUrls.Skip(1).Select(url => $"'{url}'"));
-            
+
             return $@"
                 let fallbacks_{countryIso2?.Replace("-", "_")} = [{jsUrls}];
                 let currentIndex_{countryIso2?.Replace("-", "_")} = 0;

@@ -5,7 +5,7 @@ namespace NoorCanvas.Middleware
 {
     /// <summary>
     /// Debug middleware for comprehensive request/response tracking
-    /// Automatically logs all HTTP requests with performance metrics
+    /// Automatically logs all HTTP requests with performance metrics.
     /// </summary>
     public class DebugMiddleware
     {
@@ -89,13 +89,14 @@ namespace NoorCanvas.Middleware
     }
 
     /// <summary>
-    /// Extension method to register Debug Middleware
+    /// Extension method to register Debug Middleware.
     /// </summary>
     public static class DebugMiddlewareExtensions
     {
         /// <summary>
-        /// Add debug middleware to the pipeline (only in development)
+        /// Add debug middleware to the pipeline (only in development).
         /// </summary>
+        /// <returns></returns>
         public static IApplicationBuilder UseDebugMiddleware(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<DebugMiddleware>();

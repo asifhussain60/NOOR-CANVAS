@@ -7,7 +7,7 @@ namespace NoorCanvas.Services
 {
     /// <summary>
     /// Service for handling host asset operations including detection, processing, and sharing
-    /// Extracted from HostControlPanel.razor for better separation of concerns
+    /// Extracted from HostControlPanel.razor for better separation of concerns.
     /// </summary>
     public class HostAssetService
     {
@@ -16,7 +16,7 @@ namespace NoorCanvas.Services
         private readonly AssetProcessingService _assetProcessor;
 
         public HostAssetService(
-            IHttpClientFactory httpClientFactory, 
+            IHttpClientFactory httpClientFactory,
             ILogger<HostAssetService> logger,
             AssetProcessingService assetProcessor)
         {
@@ -26,18 +26,19 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Detect shareable assets using AssetLookup API and SessionTranscripts
+        /// Detect shareable assets using AssetLookup API and SessionTranscripts.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<string> DetectShareableAssetsAsync(int sessionId)
         {
             try
             {
                 _logger.LogInformation("[HostAssetService:DetectShareableAssets] Starting asset detection for session {SessionId}", sessionId);
-                
+
                 // Get AssetLookup definitions from API
                 using var httpClient = _httpClientFactory.CreateClient("default");
                 var assetLookupResponse = await httpClient.GetAsync("/api/host/asset-lookup");
-                
+
                 if (!assetLookupResponse.IsSuccessStatusCode)
                 {
                     _logger.LogWarning("[HostAssetService:DetectShareableAssets] Failed to get AssetLookup data: {StatusCode}", assetLookupResponse.StatusCode);
@@ -54,7 +55,7 @@ namespace NoorCanvas.Services
 
                 // Get SessionTranscripts for the session
                 var sessionDetailsResponse = await httpClient.GetAsync($"/api/host/session-details/{sessionId}?guid=asset-detection");
-                
+
                 if (!sessionDetailsResponse.IsSuccessStatusCode)
                 {
                     _logger.LogWarning("[HostAssetService:DetectShareableAssets] Failed to get session {SessionId} details: {StatusCode}", sessionId, sessionDetailsResponse.StatusCode);
@@ -89,19 +90,19 @@ namespace NoorCanvas.Services
                     {
                         totalAssetsFound += elements.Length;
                         assetCounts.Add($"{lookup.DisplayName ?? lookup.AssetIdentifier}: {elements.Length}");
-                        
-                        _logger.LogInformation("[HostAssetService:DetectShareableAssets] Found {Count} instances of {AssetType} using selector '{Selector}'", 
+
+                        _logger.LogInformation("[HostAssetService:DetectShareableAssets] Found {Count} instances of {AssetType} using selector '{Selector}'",
                             elements.Length, lookup.AssetIdentifier, lookup.CssSelector);
                     }
                 }
 
                 _logger.LogInformation("[HostAssetService:DetectShareableAssets] Asset detection complete: {Total} total assets found in session {SessionId}", totalAssetsFound, sessionId);
-                
+
                 if (totalAssetsFound == 0)
                 {
                     return $"No sharable assets found in session {sessionId}";
                 }
-                
+
                 return $"Found {totalAssetsFound} sharable assets in session {sessionId}: {string.Join(", ", assetCounts)}";
             }
             catch (Exception ex)
@@ -112,8 +113,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Load session assets from the SessionAssets API
+        /// Load session assets from the SessionAssets API.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<List<SessionAssetDto>?> LoadSessionAssetsAsync(long sessionId)
         {
             try
@@ -143,8 +145,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Extract raw asset HTML directly from transcript using simple pattern matching
+        /// Extract raw asset HTML directly from transcript using simple pattern matching.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task<string> ExtractRawAssetHtml(string? sessionTranscript, string shareId, string assetType, int instanceNumber)
         {
             try
@@ -156,19 +159,19 @@ namespace NoorCanvas.Services
                 }
 
                 _logger.LogInformation("[HostAssetService:ExtractRawAssetHtml] Extracting raw asset HTML using simple pattern matching: {AssetType}", assetType);
-                
+
                 // Use simple HTML parsing to extract asset content directly from original transcript
                 var htmlDoc = new HtmlAgilityPack.HtmlDocument();
                 htmlDoc.LoadHtml(sessionTranscript);
-                
+
                 // Find ayah-card elements (or other asset types) directly
                 var assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card')]");
-                
+
                 if (assetElements != null && assetElements.Count > instanceNumber - 1)
                 {
                     var targetElement = assetElements[instanceNumber - 1];
                     var rawHtml = targetElement.OuterHtml;
-                    
+
                     _logger.LogInformation("[HostAssetService:ExtractRawAssetHtml] Successfully extracted raw asset HTML: {Length} chars", rawHtml.Length);
                     return Task.FromResult(rawHtml);
                 }

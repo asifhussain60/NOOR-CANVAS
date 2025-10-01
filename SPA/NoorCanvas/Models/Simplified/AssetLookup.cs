@@ -12,45 +12,45 @@ namespace NoorCanvas.Models.Simplified;
 public class AssetLookup
 {
     /// <summary>
-    /// Primary key - unique asset identifier
+    /// Gets or sets primary key - unique asset identifier.
     /// </summary>
     [Key]
     public long AssetId { get; set; }
 
     /// <summary>
-    /// Asset identifier matching the exact class names from detection system
+    /// Gets or sets asset identifier matching the exact class names from detection system
     /// (e.g., 'ayah-card', 'inserted-hadees', 'etymology-card', etc.)
     /// </summary>
     [Required, MaxLength(100)]
     public string AssetIdentifier { get; set; } = string.Empty;
 
     /// <summary>
-    /// Asset category type (e.g., 'islamic-content', 'media', 'content')
+    /// Gets or sets asset category type (e.g., 'islamic-content', 'media', 'content').
     /// </summary>
     [Required, MaxLength(50)]
     public string AssetType { get; set; } = string.Empty;
 
     /// <summary>
-    /// CSS selector used for detection in HTML transcripts
-    /// (e.g., '.ayah-card', '.inserted-hadees.ks-ahadees-container')
+    /// Gets or sets cSS selector used for detection in HTML transcripts
+    /// (e.g., '.ayah-card', '.inserted-hadees.ks-ahadees-container').
     /// </summary>
     [MaxLength(200)]
     public string? CssSelector { get; set; }
 
     /// <summary>
-    /// Human-readable display name for SHARE buttons
-    /// (e.g., 'Ayah Card', 'Inserted Hadees', 'Table')
+    /// Gets or sets human-readable display name for SHARE buttons
+    /// (e.g., 'Ayah Card', 'Inserted Hadees', 'Table').
     /// </summary>
     [MaxLength(100)]
     public string? DisplayName { get; set; }
 
     /// <summary>
-    /// Active flag - allows disabling asset types without deletion
+    /// Gets or sets a value indicating whether active flag - allows disabling asset types without deletion.
     /// </summary>
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// When this asset definition was created
+    /// Gets or sets when this asset definition was created.
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

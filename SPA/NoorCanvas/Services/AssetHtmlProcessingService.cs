@@ -89,13 +89,13 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Process HTML content to identify and prepare assets for sharing, with optional share button injection
+        /// Process HTML content to identify and prepare assets for sharing, with optional share button injection.
         /// </summary>
-        /// <param name="htmlContent">Raw HTML content from session transcripts</param>
-        /// <param name="sessionId">Session ID for asset tracking</param>
-        /// <param name="sessionStatus">Session status - share buttons only injected if "Active"</param>
-        /// <param name="injectShareButtons">Whether to inject share buttons during processing</param>
-        /// <returns>Processed HTML with asset identifiers, optional share buttons, and metadata</returns>
+        /// <param name="htmlContent">Raw HTML content from session transcripts.</param>
+        /// <param name="sessionId">Session ID for asset tracking.</param>
+        /// <param name="sessionStatus">Session status - share buttons only injected if "Active".</param>
+        /// <param name="injectShareButtons">Whether to inject share buttons during processing.</param>
+        /// <returns>Processed HTML with asset identifiers, optional share buttons, and metadata.</returns>
         public AssetProcessingResult ProcessHtmlForAssetSharingWithButtons(string htmlContent, long sessionId, string sessionStatus, bool injectShareButtons = true)
         {
             try
@@ -142,9 +142,9 @@ namespace NoorCanvas.Services
                 {
                     ProcessedHtml = safeProcessedHtml.Value,
                     DetectedAssets = detectedAssets,
-                    ProcessingMetadata = new ProcessingMetadata 
-                    { 
-                        Success = true, 
+                    ProcessingMetadata = new ProcessingMetadata
+                    {
+                        Success = true,
                         Message = $"Successfully processed {detectedAssets.Count} assets, injected {shareButtonsInjected} share buttons",
                         SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
@@ -154,14 +154,14 @@ namespace NoorCanvas.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error processing HTML for asset sharing with buttons - SessionId: {SessionId} ;CLEANUP_OK", sessionId);
-                
+
                 return new AssetProcessingResult
                 {
                     ProcessedHtml = htmlContent, // Return original content as fallback
                     DetectedAssets = new List<DetectedAsset>(),
-                    ProcessingMetadata = new ProcessingMetadata 
-                    { 
-                        Success = false, 
+                    ProcessingMetadata = new ProcessingMetadata
+                    {
+                        Success = false,
                         Message = $"Processing error: {ex.Message}",
                         SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
@@ -171,11 +171,11 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Process HTML content to identify and prepare assets for sharing
+        /// Process HTML content to identify and prepare assets for sharing.
         /// </summary>
-        /// <param name="htmlContent">Raw HTML content from session transcripts</param>
-        /// <param name="sessionId">Session ID for asset tracking</param>
-        /// <returns>Processed HTML with asset identifiers and metadata</returns>
+        /// <param name="htmlContent">Raw HTML content from session transcripts.</param>
+        /// <param name="sessionId">Session ID for asset tracking.</param>
+        /// <returns>Processed HTML with asset identifiers and metadata.</returns>
         public AssetProcessingResult ProcessHtmlForAssetSharing(string htmlContent, long sessionId)
         {
             try
@@ -211,9 +211,9 @@ namespace NoorCanvas.Services
                 {
                     ProcessedHtml = safeProcessedHtml.Value,
                     DetectedAssets = detectedAssets,
-                    ProcessingMetadata = new ProcessingMetadata 
-                    { 
-                        Success = true, 
+                    ProcessingMetadata = new ProcessingMetadata
+                    {
+                        Success = true,
                         Message = $"Successfully processed {detectedAssets.Count} assets",
                         SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
@@ -223,14 +223,14 @@ namespace NoorCanvas.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error processing HTML for asset sharing - SessionId: {SessionId} ;CLEANUP_OK", sessionId);
-                
+
                 return new AssetProcessingResult
                 {
                     ProcessedHtml = htmlContent, // Return original content as fallback
                     DetectedAssets = new List<DetectedAsset>(),
-                    ProcessingMetadata = new ProcessingMetadata 
-                    { 
-                        Success = false, 
+                    ProcessingMetadata = new ProcessingMetadata
+                    {
+                        Success = false,
                         Message = $"Processing error: {ex.Message}",
                         SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
@@ -240,11 +240,11 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Extract a specific asset from HTML content by asset ID
+        /// Extract a specific asset from HTML content by asset ID.
         /// </summary>
-        /// <param name="htmlContent">HTML content containing the asset</param>
-        /// <param name="assetId">Unique asset identifier</param>
-        /// <returns>Extracted asset HTML with metadata</returns>
+        /// <param name="htmlContent">HTML content containing the asset.</param>
+        /// <param name="assetId">Unique asset identifier.</param>
+        /// <returns>Extracted asset HTML with metadata.</returns>
         public ExtractedAsset? ExtractAssetById(string htmlContent, string assetId)
         {
             try
@@ -294,7 +294,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Detect assets in HTML document using predefined patterns
+        /// Detect assets in HTML document using predefined patterns.
         /// </summary>
         private List<DetectedAsset> DetectAssetsInHtml(HtmlDocument htmlDoc, long sessionId)
         {
@@ -311,7 +311,7 @@ namespace NoorCanvas.Services
                         foreach (var element in elements)
                         {
                             var assetId = $"{sessionId}-{assetTypeDef.Type}-{assetIdCounter++}";
-                            
+
                             var detectedAsset = new DetectedAsset
                             {
                                 AssetId = assetId,
@@ -325,7 +325,7 @@ namespace NoorCanvas.Services
                             };
 
                             detectedAssets.Add(detectedAsset);
-                            
+
                             _logger.LogDebug("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Detected asset: {AssetId}, Type: {AssetType}, Position: {Position} ;CLEANUP_OK",
                                 assetId, assetTypeDef.Type, detectedAsset.Position);
                         }
@@ -353,11 +353,11 @@ namespace NoorCanvas.Services
                     asset.HtmlElement.SetAttributeValue("data-asset-id", asset.AssetId);
                     asset.HtmlElement.SetAttributeValue("data-asset-type", asset.AssetType);
                     asset.HtmlElement.SetAttributeValue("data-asset-position", asset.Position.ToString());
-                    
+
                     // Add CSS class for styling
                     var existingClass = asset.HtmlElement.GetAttributeValue("class", string.Empty);
-                    var newClass = string.IsNullOrEmpty(existingClass) 
-                        ? "noor-shareable-asset" 
+                    var newClass = string.IsNullOrEmpty(existingClass)
+                        ? "noor-shareable-asset"
                         : $"{existingClass} noor-shareable-asset";
                     asset.HtmlElement.SetAttributeValue("class", newClass);
 
@@ -376,10 +376,10 @@ namespace NoorCanvas.Services
         private int InjectShareButtonsIntoHtmlDocument(HtmlDocument htmlDoc, List<DetectedAsset> assets)
         {
             var injectedCount = 0;
-            
+
             // Process assets in reverse order to maintain positions during HTML insertion
             var sortedAssets = assets.OrderByDescending(a => a.Position).ToList();
-            
+
             foreach (var asset in sortedAssets)
             {
                 try
@@ -387,12 +387,12 @@ namespace NoorCanvas.Services
                     // Generate share button HTML
                     var shareId = GenerateShareId();
                     var shareButtonHtml = CreateShareButtonHtml(asset.AssetType, asset.DisplayName, shareId);
-                    
+
                     // Parse share button HTML and create node
                     var shareButtonDoc = new HtmlDocument();
                     shareButtonDoc.LoadHtml(shareButtonHtml);
                     var shareButtonNode = shareButtonDoc.DocumentNode.FirstChild;
-                    
+
                     if (shareButtonNode != null && asset.HtmlElement.ParentNode != null)
                     {
                         // Create a new button element in the main document
@@ -402,12 +402,12 @@ namespace NoorCanvas.Services
                         buttonElement.SetAttributeValue("data-asset-type", asset.AssetType);
                         buttonElement.SetAttributeValue("onclick", $"shareAsset('{shareId}', '{asset.AssetType}')");
                         buttonElement.InnerHtml = $"Share {asset.DisplayName}";
-                        
+
                         // Insert share button before the asset element
                         asset.HtmlElement.ParentNode.InsertBefore(buttonElement, asset.HtmlElement);
                         injectedCount++;
-                        
-                        _logger.LogDebug("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Injected share button for asset: {AssetId} ({AssetType}) ;CLEANUP_OK", 
+
+                        _logger.LogDebug("[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Injected share button for asset: {AssetId} ({AssetType}) ;CLEANUP_OK",
                             asset.AssetId, asset.AssetType);
                     }
                 }
@@ -416,7 +416,7 @@ namespace NoorCanvas.Services
                     _logger.LogWarning(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error injecting share button for asset: {AssetId} ;CLEANUP_OK", asset.AssetId);
                 }
             }
-            
+
             return injectedCount;
         }
 
@@ -447,7 +447,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Extract metadata from HTML element
+        /// Extract metadata from HTML element.
         /// </summary>
         private Dictionary<string, object> ExtractElementMetadata(HtmlNode element)
         {
@@ -458,7 +458,7 @@ namespace NoorCanvas.Services
                 // Basic element information
                 metadata["tagName"] = element.Name;
                 metadata["textContent"] = element.InnerText?.Trim()?.Substring(0, Math.Min(200, element.InnerText?.Trim()?.Length ?? 0)) ?? string.Empty;
-                
+
                 // CSS classes and IDs
                 var cssClass = element.GetAttributeValue("class", string.Empty);
                 if (!string.IsNullOrEmpty(cssClass))
@@ -477,7 +477,7 @@ namespace NoorCanvas.Services
                 {
                     var src = element.GetAttributeValue("src", string.Empty);
                     var alt = element.GetAttributeValue("alt", string.Empty);
-                    
+
                     if (!string.IsNullOrEmpty(src)) metadata["src"] = src;
                     if (!string.IsNullOrEmpty(alt)) metadata["alt"] = alt;
                 }
@@ -487,7 +487,7 @@ namespace NoorCanvas.Services
                 {
                     var rows = element.SelectNodes(".//tr");
                     var cells = element.SelectNodes(".//td | .//th");
-                    
+
                     metadata["rowCount"] = rows?.Count ?? 0;
                     metadata["cellCount"] = cells?.Count ?? 0;
                 }
@@ -504,13 +504,13 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Get the position of an element in the document
+        /// Get the position of an element in the document.
         /// </summary>
         private int GetElementPosition(HtmlNode element)
         {
             var position = 0;
             var current = element.ParentNode?.FirstChild;
-            
+
             while (current != null && current != element)
             {
                 if (current.NodeType == HtmlNodeType.Element)
@@ -524,16 +524,18 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Get asset type definitions for external reference
+        /// Get asset type definitions for external reference.
         /// </summary>
+        /// <returns></returns>
         public IReadOnlyDictionary<string, AssetTypeDefinition> GetAssetTypeDefinitions()
         {
             return _assetTypeDefinitions.AsReadOnly();
         }
 
         /// <summary>
-        /// Validate if HTML content is suitable for asset processing
+        /// Validate if HTML content is suitable for asset processing.
         /// </summary>
+        /// <returns></returns>
         public bool ValidateHtmlForAssetProcessing(string htmlContent)
         {
             if (string.IsNullOrWhiteSpace(htmlContent))
@@ -545,7 +547,7 @@ namespace NoorCanvas.Services
             {
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(htmlContent);
-                
+
                 // Check if the HTML contains potentially shareable assets
                 foreach (var assetTypeDef in _assetTypeDefinitions.Values)
                 {

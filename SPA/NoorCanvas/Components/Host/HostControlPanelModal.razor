@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Components
+
+@* Modal component for HostControlPanel - Contains confirmation dialogs *@
+@if (ShowDeleteModal)
+{
+    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;">
+        <div style="background-color:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);max-width:400px;text-align:center;">
+            <p style="font-size:1.125rem;font-weight:700;color:#1F2937;margin-bottom:1rem;">Confirm Deletion</p>
+            <p style="color:#6B7280;margin-bottom:1.5rem;">Are you sure you want to delete this question?</p>
+            <div style="display:flex;justify-content:center;gap:1rem;">
+                <button @onclick="OnCancelDelete" 
+                        style="padding:0.5rem 1rem;border-radius:1.5rem;background-color:#E5E7EB;color:#374151;font-weight:600;border:none;cursor:pointer;"
+                        onmouseover="this.style.backgroundColor='#D1D5DB'"
+                        onmouseout="this.style.backgroundColor='#E5E7EB'">Cancel</button>
+                <button @onclick="OnConfirmDelete" 
+                        style="padding:0.5rem 1rem;border-radius:1.5rem;background-color:#EF4444;color:white;font-weight:600;border:none;cursor:pointer;"
+                        onmouseover="this.style.backgroundColor='#DC2626'"
+                        onmouseout="this.style.backgroundColor='#EF4444'">Delete</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool ShowDeleteModal { get; set; }
+    [Parameter] public EventCallback OnCancelDelete { get; set; }
+    [Parameter] public EventCallback OnConfirmDelete { get; set; }
+}

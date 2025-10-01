@@ -5,7 +5,7 @@ namespace NoorCanvas.Services
     /// <summary>
     /// Enhanced comprehensive debugging service with infrastructure-level capabilities
     /// Usage: Clean debug code by searching for "NOOR_DEBUG" or "DebugService"
-    /// Version: 2.0 Enhanced - All Phases Support
+    /// Version: 2.0 Enhanced - All Phases Support.
     /// </summary>
     public class DebugService
     {
@@ -55,7 +55,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Log debug information with NOOR_DEBUG prefix for easy identification
+        /// Log debug information with NOOR_DEBUG prefix for easy identification.
         /// </summary>
         public void LogDebug(string component, string action, object? data = null)
         {
@@ -75,7 +75,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Enhanced debug logging with component-level control
+        /// Enhanced debug logging with component-level control.
         /// </summary>
         public void LogDebugAdvanced(string component, string action, object? data = null, string? correlationId = null)
         {
@@ -99,8 +99,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Log to browser console for frontend debugging
+        /// Log to browser console for frontend debugging.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ConsoleLogAsync(string component, string message, object? data = null)
         {
             if (!_isDebugEnabled || !IsComponentDebugEnabled(component)) return;
@@ -130,8 +131,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Enhanced browser console logging with grouping and colors
+        /// Enhanced browser console logging with grouping and colors.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ConsoleLogAdvancedAsync(string component, string message, object? data = null, string logLevel = "log")
         {
             if (!_isDebugEnabled || !IsComponentDebugEnabled(component)) return;
@@ -165,7 +167,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Log HTTP request/response for API debugging
+        /// Log HTTP request/response for API debugging.
         /// </summary>
         public void LogHttpRequest(string endpoint, string method, object? requestData = null, object? responseData = null)
         {
@@ -185,8 +187,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Log component lifecycle events
+        /// Log component lifecycle events.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task LogComponentLifecycle(string componentName, string lifecycleEvent, object? parameters = null)
         {
             if (!_isDebugEnabled || !IsComponentDebugEnabled("ComponentLifecycle")) return;
@@ -196,7 +199,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Track SignalR hub events
+        /// Track SignalR hub events.
         /// </summary>
         public void LogSignalREvent(string hubName, string eventName, object? eventData = null)
         {
@@ -206,7 +209,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Log database operations
+        /// Log database operations.
         /// </summary>
         public void LogDatabaseOperation(string operation, string table, object? parameters = null, TimeSpan? duration = null)
         {
@@ -224,7 +227,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Track performance with automatic slow operation detection
+        /// Track performance with automatic slow operation detection.
         /// </summary>
         public void LogPerformanceMetric(string operation, TimeSpan duration, string? component = null)
         {
@@ -292,33 +295,36 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Performance timing helper
+        /// Performance timing helper.
         /// </summary>
+        /// <returns></returns>
         public DebugTimer StartTimer(string operationName, string? component = null)
         {
             return new DebugTimer(this, operationName, _isDebugEnabled, component);
         }
 
         /// <summary>
-        /// Check if debug mode is enabled
+        /// Gets a value indicating whether check if debug mode is enabled.
         /// </summary>
         public bool IsDebugEnabled => _isDebugEnabled;
 
         /// <summary>
-        /// Check if debug is enabled for specific component
+        /// Check if debug is enabled for specific component.
         /// </summary>
+        /// <returns></returns>
         public bool IsComponentDebugEnabled(string component)
         {
             return _componentDebugSettings.GetValueOrDefault(component, true);
         }
 
         /// <summary>
-        /// Get debug metrics for monitoring
+        /// Get debug metrics for monitoring.
         /// </summary>
+        /// <returns></returns>
         public DebugMetrics GetMetrics() => _metrics;
 
         /// <summary>
-        /// Get component-specific console styling
+        /// Get component-specific console styling.
         /// </summary>
         private string GetComponentGroupStyle(string component)
         {
@@ -337,7 +343,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Get log level specific styling
+        /// Get log level specific styling.
         /// </summary>
         private string GetLogLevelStyle(string logLevel)
         {
@@ -352,7 +358,7 @@ namespace NoorCanvas.Services
     }
 
     /// <summary>
-    /// Enhanced debug timer for performance tracking with automatic metrics collection
+    /// Enhanced debug timer for performance tracking with automatic metrics collection.
     /// </summary>
     public class DebugTimer : IDisposable
     {
@@ -391,7 +397,7 @@ namespace NoorCanvas.Services
     }
 
     /// <summary>
-    /// Debug metrics collection class
+    /// Debug metrics collection class.
     /// </summary>
     public class DebugMetrics
     {
@@ -409,7 +415,7 @@ namespace NoorCanvas.Services
     }
 
     /// <summary>
-    /// Performance alert for monitoring slow operations
+    /// Performance alert for monitoring slow operations.
     /// </summary>
     public class PerformanceAlert
     {

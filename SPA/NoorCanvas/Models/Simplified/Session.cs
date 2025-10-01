@@ -7,13 +7,13 @@ namespace NoorCanvas.Models.Simplified;
 public class Session
 {
     /// <summary>
-    /// Auto-generated Canvas SessionId - primary key (not the KSESSIONS database SessionId)
+    /// Gets or sets auto-generated Canvas SessionId - primary key (not the KSESSIONS database SessionId).
     /// </summary>
     [Key]
     public long SessionId { get; set; }
 
     /// <summary>
-    /// Album/Group identifier from KSESSIONS database (formerly GroupId)
+    /// Gets or sets album/Group identifier from KSESSIONS database (formerly GroupId).
     /// </summary>
     public Guid AlbumId { get; set; }
 
@@ -53,10 +53,10 @@ public class Session
     // Host Session Opener custom scheduling fields - Issue sessionopener
     [MaxLength(20)]
     public string? ScheduledDate { get; set; }    // Date: 09/28/2025 (stored as string from form)
-    
-    [MaxLength(20)] 
+
+    [MaxLength(20)]
     public string? ScheduledTime { get; set; }    // Time: 6:00 AM (stored as string from form)
-    
+
     [MaxLength(10)]
     public string? ScheduledDuration { get; set; } // Duration: 60 (minutes, stored as string from form)
 

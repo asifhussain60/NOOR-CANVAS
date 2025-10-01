@@ -5,7 +5,7 @@ namespace NoorCanvas.Services;
 
 /// <summary>
 /// Service for detecting and handling shareable assets in transcript content.
-/// Implements UC-L1 Detect & Share Asset workflow from NOOR-CANVAS-DESIGN.MD
+/// Implements UC-L1 Detect & Share Asset workflow from NOOR-CANVAS-DESIGN.MD.
 /// </summary>
 public class AssetDetectorService
 {
@@ -19,8 +19,9 @@ public class AssetDetectorService
     }
 
     /// <summary>
-    /// Gets asset detection patterns from the API for a specific session
+    /// Gets asset detection patterns from the API for a specific session.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<AssetPatternsResponse?> GetAssetPatternsAsync(int sessionId, string hostToken)
     {
         try
@@ -57,6 +58,7 @@ public class AssetDetectorService
     /// Detects assets in transcript content using the provided patterns.
     /// Returns asset payloads ready for sharing via UC-L1 workflow.
     /// </summary>
+    /// <returns></returns>
     public List<AssetPayload> DetectAssetsInContent(string transcriptContent, AssetPattern[] patterns)
     {
         var detectedAssets = new List<AssetPayload>();
@@ -88,7 +90,7 @@ public class AssetDetectorService
     }
 
     /// <summary>
-    /// Detects assets matching a specific pattern in the transcript content
+    /// Detects assets matching a specific pattern in the transcript content.
     /// </summary>
     private List<AssetPayload> DetectAssetsByPattern(string content, AssetPattern pattern)
     {
@@ -242,7 +244,7 @@ public class AssetDetectorService
 }
 
 /// <summary>
-/// Response model for asset patterns API
+/// Response model for asset patterns API.
 /// </summary>
 public class AssetPatternsResponse
 {
@@ -251,7 +253,7 @@ public class AssetPatternsResponse
 }
 
 /// <summary>
-/// Asset detection pattern configuration
+/// Asset detection pattern configuration.
 /// </summary>
 public class AssetPattern
 {
@@ -262,7 +264,7 @@ public class AssetPattern
 }
 
 /// <summary>
-/// Asset payload for UC-L1 workflow: AssetDetector constructs payload (type, selector, metadata)
+/// Asset payload for UC-L1 workflow: AssetDetector constructs payload (type, selector, metadata).
 /// </summary>
 public class AssetPayload
 {

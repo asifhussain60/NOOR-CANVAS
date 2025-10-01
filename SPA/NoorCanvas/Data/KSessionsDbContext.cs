@@ -5,7 +5,7 @@ namespace NoorCanvas.Data
 {
     /// <summary>
     /// KSESSIONS Database Context - Read-only access to Islamic content database
-    /// Connects to production KSESSIONS database for Groups, Categories, Sessions data
+    /// Connects to production KSESSIONS database for Groups, Categories, Sessions data.
     /// </summary>
     public class KSessionsDbContext : DbContext
     {

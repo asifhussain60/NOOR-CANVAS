@@ -4,21 +4,23 @@ namespace NoorCanvas.Extensions
 {
     /// <summary>
     /// Debug extension methods for easy integration throughout the application
-    /// Usage: Component can use fluent debug API - this.Debug().LogComponent("Action", data)
+    /// Usage: Component can use fluent debug API - this.Debug().LogComponent("Action", data).
     /// </summary>
     public static class DebugExtensions
     {
         /// <summary>
-        /// Extension method to add debug capabilities to any object
+        /// Extension method to add debug capabilities to any object.
         /// </summary>
+        /// <returns></returns>
         public static DebugContext Debug(this object source, DebugService debugService)
         {
             return new DebugContext(debugService, source.GetType().Name);
         }
 
         /// <summary>
-        /// Extension for Blazor components to easily add debug logging
+        /// Extension for Blazor components to easily add debug logging.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public static async Task DebugLifecycleAsync(this Microsoft.AspNetCore.Components.ComponentBase component,
             DebugService debugService, string lifecycleEvent, object? parameters = null)
         {
@@ -26,7 +28,7 @@ namespace NoorCanvas.Extensions
         }
 
         /// <summary>
-        /// Extension for controllers to easily add debug logging
+        /// Extension for controllers to easily add debug logging.
         /// </summary>
         public static void DebugAction(this Microsoft.AspNetCore.Mvc.ControllerBase controller,
             DebugService debugService, string actionName, object? parameters = null)
@@ -35,7 +37,7 @@ namespace NoorCanvas.Extensions
         }
 
         /// <summary>
-        /// Extension for SignalR hubs to easily add debug logging
+        /// Extension for SignalR hubs to easily add debug logging.
         /// </summary>
         public static void DebugHubMethod(this Microsoft.AspNetCore.SignalR.Hub hub,
             DebugService debugService, string methodName, object? parameters = null)
@@ -45,7 +47,7 @@ namespace NoorCanvas.Extensions
     }
 
     /// <summary>
-    /// Debug context for fluent API
+    /// Debug context for fluent API.
     /// </summary>
     public class DebugContext
     {

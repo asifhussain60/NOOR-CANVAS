@@ -5,7 +5,7 @@ namespace NoorCanvas.Models.KSESSIONS
 {
     /// <summary>
     /// KSESSIONS SessionTranscripts entity - represents transcript content available for annotation
-    /// Maps to KSESSIONS_DEV.dbo.SessionTranscripts table
+    /// Maps to KSESSIONS_DEV.dbo.SessionTranscripts table.
     /// </summary>
     [Table("SessionTranscripts", Schema = "dbo")]
     public class KSessionsSessionTranscript
@@ -17,18 +17,18 @@ namespace NoorCanvas.Models.KSESSIONS
         public int SessionId { get; set; }
 
         /// <summary>
-        /// Transcript content in HTML format with Arabic text support
-        /// Maps to nvarchar(MAX) field in database
+        /// Gets or sets transcript content in HTML format with Arabic text support
+        /// Maps to nvarchar(MAX) field in database.
         /// </summary>
         public string? Transcript { get; set; }
 
         /// <summary>
-        /// When transcript was originally created
+        /// Gets or sets when transcript was originally created.
         /// </summary>
         public DateTime? CreatedDate { get; set; }
 
         /// <summary>
-        /// When transcript was last modified
+        /// Gets or sets when transcript was last modified.
         /// </summary>
         public DateTime? ChangedDate { get; set; }
 

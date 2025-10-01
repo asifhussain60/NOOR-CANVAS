@@ -13,7 +13,7 @@ public class TestHub : Hub
 
     public async Task SendMessage(string message)
     {
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] SendMessage called: {Message} from {ConnectionId}", 
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] SendMessage called: {Message} from {ConnectionId}",
             message, Context.ConnectionId);
 
         try
@@ -31,14 +31,14 @@ public class TestHub : Hub
     public async Task JoinHtmlTestSession(string sessionId)
     {
         var groupName = $"htmltest_{sessionId}";
-        
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] JoinHtmlTestSession: ConnectionId {ConnectionId} joining group {GroupName}", 
+
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] JoinHtmlTestSession: ConnectionId {ConnectionId} joining group {GroupName}",
             Context.ConnectionId, groupName);
 
         try
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            
+
             // Notify others in the group about the new participant
             await Clients.Group(groupName).SendAsync("ParticipantJoined", new
             {
@@ -47,7 +47,7 @@ public class TestHub : Hub
                 timestamp = DateTime.UtcNow
             });
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] Successfully added {ConnectionId} to session group {GroupName}", 
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] Successfully added {ConnectionId} to session group {GroupName}",
                 Context.ConnectionId, groupName);
         }
         catch (Exception ex)
@@ -107,7 +107,7 @@ public class TestHub : Hub
 
     public async Task Echo(string message)
     {
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] Echo called: {Message} from {ConnectionId}", 
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TESTHUB] Echo called: {Message} from {ConnectionId}",
             message, Context.ConnectionId);
 
         try

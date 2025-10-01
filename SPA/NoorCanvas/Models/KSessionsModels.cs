@@ -5,7 +5,7 @@ namespace NoorCanvas.Models.KSESSIONS
 {
     /// <summary>
     /// Groups (Albums) from KSESSIONS database - Islamic content collections
-    /// Maps to KSESSIONS.dbo.Groups table
+    /// Maps to KSESSIONS.dbo.Groups table.
     /// </summary>
     [Table("Groups", Schema = "dbo")]
     public class KSessionsGroup
@@ -50,7 +50,7 @@ namespace NoorCanvas.Models.KSESSIONS
 
     /// <summary>
     /// Categories from KSESSIONS database - Subdivisions within Groups
-    /// Maps to KSESSIONS.dbo.Categories table
+    /// Maps to KSESSIONS.dbo.Categories table.
     /// </summary>
     [Table("Categories", Schema = "dbo")]
     public class KSessionsCategory
@@ -87,7 +87,7 @@ namespace NoorCanvas.Models.KSESSIONS
 
     /// <summary>
     /// Sessions from KSESSIONS database - Individual Islamic learning sessions
-    /// Maps to KSESSIONS.dbo.Sessions table
+    /// Maps to KSESSIONS.dbo.Sessions table.
     /// </summary>
     [Table("Sessions", Schema = "dbo")]
     public class KSessionsSession
@@ -157,7 +157,7 @@ namespace NoorCanvas.Models.KSESSIONS
 
     /// <summary>
     /// Speakers from KSESSIONS database - Session instructors/presenters
-    /// Maps to KSESSIONS.dbo.Speakers table
+    /// Maps to KSESSIONS.dbo.Speakers table.
     /// </summary>
     [Table("Speakers", Schema = "dbo")]
     public class KSessionsSpeaker

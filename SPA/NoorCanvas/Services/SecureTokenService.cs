@@ -163,8 +163,9 @@ public class SecureTokenService
     }
 
     /// <summary>
-    /// Expire a specific user token by setting IsActive to false and ExpiresAt to current time
+    /// Expire a specific user token by setting IsActive to false and ExpiresAt to current time.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<bool> ExpireUserTokenAsync(string userToken)
     {
         var token = await _context.SecureTokens
@@ -179,7 +180,7 @@ public class SecureTokenService
 
         token.IsActive = false;
         token.ExpiresAt = DateTime.UtcNow;
-        
+
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("NOOR-SECURITY: Expired user token {UserToken} for Session {SessionId}",

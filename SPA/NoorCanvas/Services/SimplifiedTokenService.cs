@@ -9,7 +9,7 @@ namespace NoorCanvas.Services;
 
 /// <summary>
 /// Simplified Token Service - Works with ultra-minimal 3-table schema
-/// Handles tokens that are embedded directly in Session model
+/// Handles tokens that are embedded directly in Session model.
 /// </summary>
 public class SimplifiedTokenService
 {
@@ -25,8 +25,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Generate token pair embedded directly in Session (no separate table)
+    /// Generate token pair embedded directly in Session (no separate table).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<(string hostToken, string userToken)> GenerateTokenPairForSessionAsync(
         long sessionId,
         int validHours = 24,
@@ -53,8 +54,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Validate token using simplified schema (no SecureTokens table)
+    /// Validate token using simplified schema (no SecureTokens table).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<Session?> ValidateTokenAsync(string token, bool isHostToken)
     {
         var validationId = Guid.NewGuid().ToString("N")[..8];
@@ -116,8 +118,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Get session by token (unified lookup)
+    /// Get session by token (unified lookup).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<Session?> GetSessionByTokenAsync(string token)
     {
         return await _context.Sessions
@@ -127,8 +130,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Get session tokens by SessionId
+    /// Get session tokens by SessionId.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<(string? hostToken, string? userToken)?> GetTokensBySessionIdAsync(long sessionId)
     {
         var session = await _context.Sessions
@@ -141,8 +145,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Expire tokens for a session (set expiry to past)
+    /// Expire tokens for a session (set expiry to past).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<bool> ExpireTokensAsync(long sessionId)
     {
         var session = await _context.Sessions.FindAsync(sessionId);
@@ -156,8 +161,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Store annotation data in SessionData table using JSON
+    /// Store annotation data in SessionData table using JSON.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<int> StoreAnnotationAsync(long sessionId, object annotationData, string? userGuid = null)
     {
         var sessionData = new SessionData
@@ -179,8 +185,9 @@ public class SimplifiedTokenService
     }
 
     /// <summary>
-    /// Store question data in SessionData table using JSON
+    /// Store question data in SessionData table using JSON.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<int> StoreQuestionAsync(long sessionId, object questionData, string? userGuid = null)
     {
         var sessionData = new SessionData
@@ -204,6 +211,7 @@ public class SimplifiedTokenService
     /// <summary>
     /// Get all session data by type (annotations, questions, etc.)
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<List<T>> GetSessionDataAsync<T>(long sessionId, string dataType) where T : class
     {
         var sessionDataList = await _context.SessionData
@@ -252,7 +260,7 @@ public class SimplifiedTokenService
             {
                 var delayMs = Math.Min(1000, attempts * 10);
                 await Task.Delay(delayMs);
-                _logger.LogWarning("NOOR-SIMPLIFIED-TOKEN: Token collision detected, attempt {Attempt}/{MaxAttempts}, backing off {DelayMs}ms", 
+                _logger.LogWarning("NOOR-SIMPLIFIED-TOKEN: Token collision detected, attempt {Attempt}/{MaxAttempts}, backing off {DelayMs}ms",
                     attempts, maxAttempts, delayMs);
             }
 
@@ -287,18 +295,18 @@ public class SimplifiedTokenService
         // including expired sessions to prevent immediate reuse
         var hostTokenExists = await _context.Sessions
             .AnyAsync(s => s.HostToken == token);
-            
+
         var userTokenExists = await _context.Sessions
             .AnyAsync(s => s.UserToken == token);
-            
+
         var tokenExists = hostTokenExists || userTokenExists;
-        
+
         if (tokenExists)
         {
-            _logger.LogDebug("NOOR-SIMPLIFIED-TOKEN: Token collision detected - Token: {Token}, HostToken: {HostExists}, UserToken: {UserExists}", 
+            _logger.LogDebug("NOOR-SIMPLIFIED-TOKEN: Token collision detected - Token: {Token}, HostToken: {HostExists}, UserToken: {UserExists}",
                 token, hostTokenExists, userTokenExists);
         }
-        
+
         return tokenExists;
     }
 }

@@ -19,8 +19,9 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Handle connection lifecycle - called when client connects
+    /// Handle connection lifecycle - called when client connects.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation("NOOR-HUB-LIFECYCLE: Client {ConnectionId} connected", Context.ConnectionId);
@@ -28,8 +29,9 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Handle connection lifecycle - called when client disconnects
+    /// Handle connection lifecycle - called when client disconnects.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         lock (_connectionsLock)
@@ -37,9 +39,9 @@ public class SessionHub : Hub
             if (_connections.TryGetValue(Context.ConnectionId, out var connectionInfo))
             {
                 _connections.Remove(Context.ConnectionId);
-                
-                _logger.LogInformation("NOOR-HUB-LIFECYCLE: Connection {ConnectionId} removed from session {SessionId} (role: {Role}) - Duration: {Duration}ms", 
-                    Context.ConnectionId, connectionInfo.sessionId, connectionInfo.role, 
+
+                _logger.LogInformation("NOOR-HUB-LIFECYCLE: Connection {ConnectionId} removed from session {SessionId} (role: {Role}) - Duration: {Duration}ms",
+                    Context.ConnectionId, connectionInfo.sessionId, connectionInfo.role,
                     (DateTime.UtcNow - connectionInfo.joinedAt).TotalMilliseconds);
 
                 // Notify session group of user departure
@@ -66,7 +68,7 @@ public class SessionHub : Hub
 
         if (exception != null)
         {
-            _logger.LogWarning("NOOR-HUB-LIFECYCLE: Client {ConnectionId} disconnected with exception: {Error}", 
+            _logger.LogWarning("NOOR-HUB-LIFECYCLE: Client {ConnectionId} disconnected with exception: {Error}",
                 Context.ConnectionId, exception.Message);
         }
         else
@@ -80,8 +82,8 @@ public class SessionHub : Hub
     public async Task JoinSession(long sessionId, string role = "user")
     {
         var groupName = $"session_{sessionId}";
-        
-        _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}", 
+
+        _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}",
             Context.ConnectionId, groupName);
 
         // Track connection with thread safety
@@ -89,7 +91,7 @@ public class SessionHub : Hub
         {
             _connections[Context.ConnectionId] = (sessionId, role, DateTime.UtcNow);
         }
-            
+
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
         _logger.LogInformation("NOOR-HUB-JOIN: User {ConnectionId} joined session {SessionId} as {Role}",
@@ -125,12 +127,12 @@ public class SessionHub : Hub
         var groupName = $"session_{sessionId}";
         var hubTrackingId = Guid.NewGuid().ToString("N")[..8];
 
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 🎣 HUB ENTRY: ShareAsset method called, sessionId={SessionId}, connectionId={ConnectionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 🎣 HUB ENTRY: ShareAsset method called, sessionId={SessionId}, connectionId={ConnectionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK",
             sessionId, Context.ConnectionId, hubTrackingId);
 
-        _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] Asset data type: {AssetType}, group name: {GroupName}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+        _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] Asset data type: {AssetType}, group name: {GroupName}, hubTrackingId={HubTrackingId} ;CLEANUP_OK",
             assetData?.GetType()?.Name ?? "null", groupName, hubTrackingId);
-        
+
         // ENHANCED: Log the actual asset data structure for debugging
         try
         {
@@ -153,20 +155,20 @@ public class SessionHub : Hub
                 sharedBy = Context.ConnectionId
             };
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📦 HUB BROADCAST: Broadcasting AssetShared to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📦 HUB BROADCAST: Broadcasting AssetShared to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK",
                 groupName, sessionId, hubTrackingId);
 
             await Clients.Group(groupName).SendAsync("AssetShared", broadcastPayload);
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] ✅ HUB SUCCESS: AssetShared message sent to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] ✅ HUB SUCCESS: AssetShared message sent to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK",
                 groupName, sessionId, hubTrackingId);
-            
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📝 HUB COMPLETE: Broadcast complete, testContent={HasTestContent}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] 📝 HUB COMPLETE: Broadcast complete, testContent={HasTestContent}, hubTrackingId={HubTrackingId} ;CLEANUP_OK",
                 assetData?.GetType()?.GetProperty("testContent") != null ? "YES" : "NO", hubTrackingId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] ❌ HUB ERROR: Failed to send AssetShared message to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK", 
+            _logger.LogError(ex, "[DEBUG-WORKITEM:hostcanvas:HUB-TRACK] ❌ HUB ERROR: Failed to send AssetShared message to group {GroupName} for session {SessionId}, hubTrackingId={HubTrackingId} ;CLEANUP_OK",
                 groupName, sessionId, hubTrackingId);
             throw;
         }
@@ -178,59 +180,62 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Q&A: Join host group for receiving question notifications
+    /// Q&A: Join host group for receiving question notifications.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task JoinHostGroup(string sessionId)
     {
         var hostGroupName = $"Host_{sessionId}";
-        
-        _logger.LogInformation("COPILOT-DEBUG: JoinHostGroup called - SessionId: {SessionId}, ConnectionId: {ConnectionId}", 
+
+        _logger.LogInformation("COPILOT-DEBUG: JoinHostGroup called - SessionId: {SessionId}, ConnectionId: {ConnectionId}",
             sessionId, Context.ConnectionId);
-        _logger.LogInformation("COPILOT-DEBUG: Adding host connection {ConnectionId} to group {HostGroup}", 
+        _logger.LogInformation("COPILOT-DEBUG: Adding host connection {ConnectionId} to group {HostGroup}",
             Context.ConnectionId, hostGroupName);
 
         try
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, hostGroupName);
-            
-            _logger.LogInformation("COPILOT-DEBUG: Host connection {ConnectionId} successfully added to group {HostGroup}", 
+
+            _logger.LogInformation("COPILOT-DEBUG: Host connection {ConnectionId} successfully added to group {HostGroup}",
                 Context.ConnectionId, hostGroupName);
-            _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} joined host group {HostGroup} for session {SessionId}", 
+            _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} joined host group {HostGroup} for session {SessionId}",
                 Context.ConnectionId, hostGroupName, sessionId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "COPILOT-DEBUG: Error adding host {ConnectionId} to group {HostGroup}", 
+            _logger.LogError(ex, "COPILOT-DEBUG: Error adding host {ConnectionId} to group {HostGroup}",
                 Context.ConnectionId, hostGroupName);
             throw;
         }
     }
 
     /// <summary>
-    /// Q&A: Leave host group
+    /// Q&A: Leave host group.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task LeaveHostGroup(string sessionId)
     {
         var hostGroupName = $"Host_{sessionId}";
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, hostGroupName);
-        
-        _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} left host group for session {SessionId}", 
+
+        _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} left host group for session {SessionId}",
             Context.ConnectionId, sessionId);
     }
 
     /// <summary>
-    /// Q&A: Broadcast question submission to session participants
+    /// Q&A: Broadcast question submission to session participants.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastQuestion(string sessionId, object questionData)
     {
         var sessionGroupName = $"session_{sessionId}";  // Fixed: use lowercase to match JoinSession
         var hostGroupName = $"Host_{sessionId}";
-        
-        _logger.LogInformation("COPILOT-DEBUG: BroadcastQuestion called - SessionId: {SessionId}, ConnectionId: {ConnectionId}", 
+
+        _logger.LogInformation("COPILOT-DEBUG: BroadcastQuestion called - SessionId: {SessionId}, ConnectionId: {ConnectionId}",
             sessionId, Context.ConnectionId);
-        _logger.LogInformation("COPILOT-DEBUG: Target groups - SessionGroup: {SessionGroup}, HostGroup: {HostGroup}", 
+        _logger.LogInformation("COPILOT-DEBUG: Target groups - SessionGroup: {SessionGroup}, HostGroup: {HostGroup}",
             sessionGroupName, hostGroupName);
-        
+
         var questionJson = System.Text.Json.JsonSerializer.Serialize(questionData);
         _logger.LogInformation("COPILOT-DEBUG: Question data to broadcast: {QuestionData}", questionJson);
 
@@ -240,13 +245,13 @@ public class SessionHub : Hub
             _logger.LogInformation("COPILOT-DEBUG: Sending QuestionReceived to group {SessionGroup}", sessionGroupName);
             await Clients.Group(sessionGroupName).SendAsync("QuestionReceived", questionData);
             _logger.LogInformation("COPILOT-DEBUG: QuestionReceived sent successfully to {SessionGroup}", sessionGroupName);
-            
+
             // Send special notification to hosts with toast trigger
             _logger.LogInformation("COPILOT-DEBUG: Sending HostQuestionAlert to group {HostGroup}", hostGroupName);
             await Clients.Group(hostGroupName).SendAsync("HostQuestionAlert", questionData);
             _logger.LogInformation("COPILOT-DEBUG: HostQuestionAlert sent successfully to {HostGroup}", hostGroupName);
-            
-            _logger.LogInformation("NOOR-QA-HUB: Broadcasting question to session {SessionId} completed successfully - groups: {SessionGroup}, {HostGroup}", 
+
+            _logger.LogInformation("NOOR-QA-HUB: Broadcasting question to session {SessionId} completed successfully - groups: {SessionGroup}, {HostGroup}",
                 sessionId, sessionGroupName, hostGroupName);
         }
         catch (Exception ex)
@@ -257,51 +262,54 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Q&A: Broadcast vote update to session participants
+    /// Q&A: Broadcast vote update to session participants.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastVoteUpdate(string sessionId, object voteData)
     {
         var sessionGroupName = $"session_{sessionId}";  // Fixed: use lowercase to match JoinSession
-        
-        _logger.LogInformation("NOOR-QA-HUB: Broadcasting vote update to session {SessionId} - group: {SessionGroup}", 
+
+        _logger.LogInformation("NOOR-QA-HUB: Broadcasting vote update to session {SessionId} - group: {SessionGroup}",
             sessionId, sessionGroupName);
-        
+
         await Clients.Group(sessionGroupName).SendAsync("QuestionVoteUpdate", voteData);
-        
+
         _logger.LogDebug("NOOR-QA-HUB: Successfully sent vote update to group {SessionGroup}", sessionGroupName);
     }
 
     /// <summary>
-    /// Q&A: Mark question as answered (host action)
+    /// Q&A: Mark question as answered (host action).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task MarkQuestionAnswered(string sessionId, int questionId)
     {
         var sessionGroupName = $"session_{sessionId}";  // Fixed: use lowercase to match JoinSession
-        
-        _logger.LogInformation("NOOR-QA-HUB: Question {QuestionId} marked as answered in session {SessionId} - group: {SessionGroup}", 
+
+        _logger.LogInformation("NOOR-QA-HUB: Question {QuestionId} marked as answered in session {SessionId} - group: {SessionGroup}",
             questionId, sessionId, sessionGroupName);
-        
+
         await Clients.Group(sessionGroupName).SendAsync("QuestionAnswered", new { questionId, sessionId });
-        
+
         _logger.LogDebug("NOOR-QA-HUB: Successfully sent question answered notification to group {SessionGroup}", sessionGroupName);
     }
 
     /// <summary>
-    /// ISSUE-1 FIX: Enhanced group join method that syncs existing participants to new connections
+    /// ISSUE-1 FIX: Enhanced group join method that syncs existing participants to new connections.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task JoinGroup(string groupName)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        
+
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Connection {ConnectionId} joined group {GroupName}", 
+        _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Connection {ConnectionId} joined group {GroupName}",
             requestId, Context.ConnectionId, groupName);
 
         // COPILOT-DEBUG: SIGNALR SYNC FIX - Send existing participants to newly connected user
         if (groupName.StartsWith("usertoken_"))
         {
             var userToken = groupName.Substring("usertoken_".Length);
-            _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Extracting user token '{UserToken}' from group '{GroupName}'", 
+            _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Extracting user token '{UserToken}' from group '{GroupName}'",
                 requestId, userToken, groupName);
 
             try
@@ -321,55 +329,58 @@ public class SessionHub : Hub
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Found {Count} existing participants for token '{UserToken}'", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Found {Count} existing participants for token '{UserToken}'",
                     requestId, existingParticipants.Count, userToken);
 
                 // Send each existing participant to the newly connected client
                 foreach (var participant in existingParticipants)
                 {
                     await Clients.Caller.SendAsync("ParticipantJoined", participant);
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Sent existing participant '{Name}' to new connection", 
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Sent existing participant '{Name}' to new connection",
                         requestId, participant.displayName);
                 }
-                
+
                 if (existingParticipants.Count > 0)
                 {
-                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX COMPLETED - Synced {Count} existing participants to connection {ConnectionId}", 
+                    _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX COMPLETED - Synced {Count} existing participants to connection {ConnectionId}",
                         requestId, existingParticipants.Count, Context.ConnectionId);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX ERROR - Failed to sync existing participants for token '{UserToken}'", 
+                _logger.LogError(ex, "COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX ERROR - Failed to sync existing participants for token '{UserToken}'",
                     requestId, userToken);
             }
         }
     }
 
     /// <summary>
-    /// ISSUE-1 FIX: Generic group leave method for token-based participant filtering
+    /// ISSUE-1 FIX: Generic group leave method for token-based participant filtering.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task LeaveGroup(string groupName)
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogInformation("NOOR-HUB: Connection {ConnectionId} left group {GroupName}", 
+        _logger.LogInformation("NOOR-HUB: Connection {ConnectionId} left group {GroupName}",
             Context.ConnectionId, groupName);
     }
 
     /// <summary>
-    /// Legacy method for session-based grouping (backwards compatibility)
+    /// Legacy method for session-based grouping (backwards compatibility).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task JoinSessionGroup(string sessionId)
     {
         var groupName = $"session_{sessionId}";
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        _logger.LogInformation("NOOR-HUB: Connection {ConnectionId} joined session group {GroupName}", 
+        _logger.LogInformation("NOOR-HUB: Connection {ConnectionId} joined session group {GroupName}",
             Context.ConnectionId, groupName);
     }
 
     /// <summary>
-    /// Broadcast session began event to all participants
+    /// Broadcast session began event to all participants.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastSessionBegan(long sessionId, object sessionData)
     {
         var groupName = $"session_{sessionId}";
@@ -389,14 +400,15 @@ public class SessionHub : Hub
 
     /// <summary>
     /// Broadcast HTML content to session participants
-    /// PRIMARY IMPLEMENTATION - replaces duplicate TestHub.BroadcastHtml
+    /// PRIMARY IMPLEMENTATION - replaces duplicate TestHub.BroadcastHtml.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastHtml(string sessionId, string htmlContent, string contentType = "general")
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         var groupName = $"session_{sessionId}";
-        
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] BroadcastHtml called: SessionId {SessionId}, ContentType {ContentType}, ContentLength {Length}, From {ConnectionId}", 
+
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] BroadcastHtml called: SessionId {SessionId}, ContentType {ContentType}, ContentLength {Length}, From {ConnectionId}",
             requestId, sessionId, contentType, htmlContent?.Length ?? 0, Context.ConnectionId);
 
         var broadcastData = new
@@ -412,12 +424,12 @@ public class SessionHub : Hub
         try
         {
             _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Broadcasting HtmlContentReceived to group {GroupName}", requestId, groupName);
-            
+
             // Send to all clients in the session group 
             await Clients.Group(groupName).SendAsync("HtmlContentReceived", broadcastData);
-            
+
             _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] Successfully sent HtmlContentReceived to group {GroupName}", requestId, groupName);
-            
+
             // Send confirmation back to sender for debugging
             await Clients.Caller.SendAsync("HtmlBroadcastConfirmed", new
             {
@@ -428,7 +440,7 @@ public class SessionHub : Hub
                 requestId = requestId,
                 groupName = groupName
             });
-            
+
             _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSIONHUB] [{RequestId}] HTML broadcast confirmation sent to sender {ConnectionId}", requestId, Context.ConnectionId);
         }
         catch (Exception ex)
@@ -439,8 +451,9 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Broadcast session ended event to all participants
+    /// Broadcast session ended event to all participants.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastSessionEnded(long sessionId, string reason = "Host ended session")
     {
         var groupName = $"session_{sessionId}";
@@ -459,8 +472,9 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Broadcast participant joined event to session group (called from ParticipantController)
+    /// Broadcast participant joined event to session group (called from ParticipantController).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastParticipantJoined(long sessionId, string participantId, string displayName, string? country, DateTime joinedAt)
     {
         var groupName = $"session_{sessionId}";
@@ -482,8 +496,9 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Broadcast participant left event to session group
+    /// Broadcast participant left event to session group.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastParticipantLeft(long sessionId, string participantId, string displayName)
     {
         var groupName = $"session_{sessionId}";
@@ -506,7 +521,7 @@ public class SessionHub : Hub
     // Test methods for SignalR functionality verification
     public async Task BroadcastToAll(string message)
     {
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] BroadcastToAll called: {Message} from {ConnectionId}", 
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] BroadcastToAll called: {Message} from {ConnectionId}",
             message, Context.ConnectionId);
 
         try
@@ -523,7 +538,7 @@ public class SessionHub : Hub
 
     public async Task SendTestMessage(string message)
     {
-        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] SendTestMessage called: {Message} from {ConnectionId}", 
+        _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:TEST] SendTestMessage called: {Message} from {ConnectionId}",
             message, Context.ConnectionId);
 
         try
@@ -540,8 +555,9 @@ public class SessionHub : Hub
 
     /// <summary>
     /// WORKITEM-WAITINGROOM: Broadcast test participant to token group for debug panel functionality
-    /// Sends ParticipantJoined event to all users sharing the same token
+    /// Sends ParticipantJoined event to all users sharing the same token.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task BroadcastTestParticipant(string userToken, object participantData)
     {
         var tokenGroup = $"usertoken_{userToken}";
@@ -550,13 +566,13 @@ public class SessionHub : Hub
         {
             // Broadcast ParticipantJoined event to all clients in the token group
             await Clients.Group(tokenGroup).SendAsync("ParticipantJoined", participantData);
-            
+
             // Only log errors, not every successful broadcast (reduces 100 logs to ~0 for success case)
         }
         catch (Exception ex)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            _logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] BroadcastTestParticipant failed for token group '{TokenGroup}': {Error}", 
+            _logger.LogError(ex, "WORKITEM-WAITINGROOM: [{RequestId}] BroadcastTestParticipant failed for token group '{TokenGroup}': {Error}",
                 requestId, tokenGroup, ex.Message);
             throw;
         }

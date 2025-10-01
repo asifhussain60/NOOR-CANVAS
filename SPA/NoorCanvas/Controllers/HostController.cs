@@ -38,7 +38,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("authenticate")]
-    public IActionResult AuthenticateHost([FromBody] HostAuthRequest request)
+        public IActionResult AuthenticateHost([FromBody] HostAuthRequest request)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpGet("session/{hostGuid}/validate")]
-    public IActionResult ValidateHostSession(string hostGuid)
+        public IActionResult ValidateHostSession(string hostGuid)
         {
             try
             {
@@ -255,14 +255,14 @@ namespace NoorCanvas.Controllers
             // [RUN_ID:1229-1712-304] Add validation debugging for workitem sessionopener  
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("NOOR-WORKITEM-DEBUG[1229-1712-304]: Model validation failed. Errors: {ValidationErrors}", 
+                _logger.LogWarning("NOOR-WORKITEM-DEBUG[1229-1712-304]: Model validation failed. Errors: {ValidationErrors}",
                     string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
                 return BadRequest(ModelState);
             }
-            
-            _logger.LogInformation("NOOR-WORKITEM-DEBUG[1229-1712-304]: Received CreateSession request: {RequestData}", 
+
+            _logger.LogInformation("NOOR-WORKITEM-DEBUG[1229-1712-304]: Received CreateSession request: {RequestData}",
                 System.Text.Json.JsonSerializer.Serialize(request));
-                
+
             try
             {
                 _logger.LogInformation("NOOR-INFO: Creating new session for Host GUID: {HostGuid}, Album: {AlbumId}, Category: {CategoryId}, Session: {SessionId}",
@@ -284,7 +284,7 @@ namespace NoorCanvas.Controllers
 
                 // FETCH existing session from Canvas database (created by Host Provisioner)
                 var session = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == request.SessionId);
-                
+
                 if (session == null)
                 {
                     _logger.LogError("NOOR-HOST-CREATE: Session {SessionId} not found - Host Provisioner should have created it", request.SessionId);
@@ -294,12 +294,12 @@ namespace NoorCanvas.Controllers
                 // Validate session belongs to this HostGuid
                 if (session.HostToken != request.HostGuid)
                 {
-                    _logger.LogError("NOOR-HOST-CREATE: Session {SessionId} HostToken mismatch. Expected: {ExpectedHost}, Found: {ActualHost}", 
+                    _logger.LogError("NOOR-HOST-CREATE: Session {SessionId} HostToken mismatch. Expected: {ExpectedHost}, Found: {ActualHost}",
                         request.SessionId, request.HostGuid, session.HostToken);
                     return BadRequest(new { error = "Session does not belong to the specified HostGuid" });
                 }
 
-                _logger.LogInformation("NOOR-HOST-CREATE: Found existing session - SessionId: {SessionId}, HostToken: {HostToken}, UserToken: {UserToken}", 
+                _logger.LogInformation("NOOR-HOST-CREATE: Found existing session - SessionId: {SessionId}, HostToken: {HostToken}, UserToken: {UserToken}",
                     session.SessionId, session.HostToken, session.UserToken);
 
                 // Validate UserToken exists (should be populated by Host Provisioner)
@@ -834,14 +834,15 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// Get all active AssetLookup definitions for asset detection
-        /// Used by HostControlPanel for database-driven asset detection
+        /// Used by HostControlPanel for database-driven asset detection.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("asset-lookup")]
         public async Task<IActionResult> GetAssetLookup([FromQuery] string? hostToken = null)
         {
             try
             {
-                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:api] GetAssetLookup called with hostToken: {Token}", 
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:api] GetAssetLookup called with hostToken: {Token}",
                     hostToken?.Substring(0, Math.Min(8, hostToken?.Length ?? 0)) + "...");
 
                 // Get all active asset lookup definitions
@@ -860,7 +861,7 @@ namespace NoorCanvas.Controllers
                     })
                     .ToListAsync();
 
-                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:api] Found {Count} active asset lookup definitions", 
+                _logger.LogInformation("[DEBUG-WORKITEM:assetshare:api] Found {Count} active asset lookup definitions",
                     assetLookups.Count);
 
                 var response = new AssetLookupResponse
@@ -882,8 +883,9 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// [DEBUG-WORKITEM:api:impl:09291900-api] Get enhanced session details with transcript from KSESSIONS database
-        /// Used by HostControlPanel to replace direct database access with API calls
+        /// Used by HostControlPanel to replace direct database access with API calls.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("ksessions/session/{sessionId}/details")]
         public async Task<IActionResult> GetKSessionsSessionDetails(int sessionId, [FromQuery] string? hostToken = null)
         {
@@ -964,8 +966,9 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// [DEBUG-WORKITEM:api:impl:09291900-api] Get country flag mappings from KSESSIONS database
-        /// Used by ParticipantController to replace direct database access with API calls
+        /// Used by ParticipantController to replace direct database access with API calls.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("ksessions/countries/flags")]
         public async Task<IActionResult> GetKSessionsCountryFlags([FromQuery] string[]? countryCodes = null)
         {
@@ -976,7 +979,7 @@ namespace NoorCanvas.Controllers
 
                 // Query KSESSIONS database for country flag mappings
                 var countryQuery = _kSessionsContext.Countries.AsQueryable();
-                
+
                 // Filter by specific country codes if provided
                 if (countryCodes != null && countryCodes.Length > 0)
                 {
@@ -1031,8 +1034,9 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// Get all assets for a session from the SessionAssets lookup table
-        /// Used by HostControlPanel transform function to inject share buttons
+        /// Used by HostControlPanel transform function to inject share buttons.
         /// </summary>
+        /// <returns></returns>
         [HttpGet("sessions/{sessionId}/assets")]
         public IActionResult GetSessionAssets(long sessionId, [FromQuery] string? type = null, [FromQuery] bool sharedOnly = false)
         {
@@ -1124,10 +1128,10 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Process HTML content for asset sharing using HtmlAgilityPack ;CLEANUP_OK
+        /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Process HTML content for asset sharing using HtmlAgilityPack ;CLEANUP_OK.
         /// </summary>
-        /// <param name="request">HTML processing request containing content and session information</param>
-        /// <returns>Processed HTML with detected assets and metadata</returns>
+        /// <param name="request">HTML processing request containing content and session information.</param>
+        /// <returns>Processed HTML with detected assets and metadata.</returns>
         [HttpPost("process-html-assets")]
         public IActionResult ProcessHtmlAssets([FromBody] ProcessHtmlAssetsRequest request)
         {
@@ -1178,8 +1182,8 @@ namespace NoorCanvas.Controllers
                     DisplayName = asset.DisplayName,
                     CssSelector = asset.CssSelector,
                     Position = asset.Position,
-                    TextContent = asset.Metadata.TryGetValue("textContent", out var textContent) 
-                        ? textContent.ToString() ?? string.Empty 
+                    TextContent = asset.Metadata.TryGetValue("textContent", out var textContent)
+                        ? textContent.ToString() ?? string.Empty
                         : string.Empty,
                     Metadata = asset.Metadata
                 }).ToList();
@@ -1204,10 +1208,10 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Extract specific asset content by asset ID ;CLEANUP_OK
+        /// [DEBUG-WORKITEM:assetshare:impl:09291233-as1] Extract specific asset content by asset ID ;CLEANUP_OK.
         /// </summary>
-        /// <param name="request">Asset extraction request with HTML content and asset ID</param>
-        /// <returns>Extracted asset content with metadata</returns>
+        /// <param name="request">Asset extraction request with HTML content and asset ID.</param>
+        /// <returns>Extracted asset content with metadata.</returns>
         [HttpPost("extract-asset")]
         public IActionResult ExtractAsset([FromBody] ExtractAssetRequest request)
         {
@@ -1253,7 +1257,7 @@ namespace NoorCanvas.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error extracting asset {AssetId} for session {SessionId} ;CLEANUP_OK", 
+                _logger.LogError(ex, "[DEBUG-WORKITEM:assetshare:impl:09291233-as1] Error extracting asset {AssetId} for session {SessionId} ;CLEANUP_OK",
                     request?.AssetId, request?.SessionId);
                 return StatusCode(500, new { error = "Failed to extract asset", details = ex.Message });
             }
@@ -1277,8 +1281,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [API-MIGRATION:09291900-api] Get all sessions with token information for HostControlPanel token validation
+        /// [API-MIGRATION:09291900-api] Get all sessions with token information for HostControlPanel token validation.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("sessions/list")]
         public async Task<IActionResult> GetSessionsList(string? hostToken = null)
         {
@@ -1318,8 +1323,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [API-MIGRATION:09291900-api] Get session with scheduling information by session ID
+        /// [API-MIGRATION:09291900-api] Get session with scheduling information by session ID.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("sessions/{sessionId}/details")]
         public async Task<IActionResult> GetSessionWithScheduling(long sessionId)
         {
@@ -1357,8 +1363,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [API-MIGRATION:09291900-api] Map host token to session ID
+        /// [API-MIGRATION:09291900-api] Map host token to session ID.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("token/{hostToken}/session-id")]
         public async Task<IActionResult> GetSessionIdByToken(string hostToken)
         {
@@ -1398,8 +1405,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [API-MIGRATION:09291900-api] Quick session ID extraction from host token
+        /// [API-MIGRATION:09291900-api] Quick session ID extraction from host token.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("sessions/by-token/{hostToken}")]
         public async Task<IActionResult> GetSessionByToken(string hostToken)
         {

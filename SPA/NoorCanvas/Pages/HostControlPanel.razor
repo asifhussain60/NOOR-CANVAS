@@ -10,6 +10,7 @@
 @using NoorCanvas.Components.Shared
 @using NoorCanvas.Components.Host
 @using NoorCanvas.Services
+@using NoorCanvas.ViewModels
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
@@ -43,214 +44,38 @@
 
     <div style="width:95%;background-color:white;border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);padding:2rem;display:flex;flex-direction:column;gap:1.5rem;">
 
-        <!-- Header & Session Info -->
-        <header style="text-align:center;background:linear-gradient(135deg,#F8F5F1,#FFFFFF);border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem;box-shadow:0 8px 25px -8px rgba(0,100,0,0.15);border:1px solid rgba(212,175,55,0.2);">
-            <!-- Logo -->
-            <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
-                <img src="/images/NoorCanvas.png?v=20250924" 
-                     alt="@(Model?.LogoText ?? "NOOR Canvas")" />
-            </div>
-            <h1 style="font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#006400,#059669);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem;display:flex;align-items:center;justify-content:center;gap:0.75rem;letter-spacing:-0.025em;">
-                <i class="fa-solid fa-gear" style="color:#006400;font-size:2.25rem;"></i>
-                <span>HOST CONTROL PANEL</span>
-            </h1>
-            <p style="color:#6B7280;font-size:1rem;font-weight:500;margin:0;">Manage your session with professional-grade controls</p>
-        </header>
+        <!-- Header & Session Info - Refactored to use HostControlPanelHeader component -->
+        <HostControlPanelHeader Model="@Model" />
 
         <!-- Error Display Panel - Refactored to use ErrorDisplay component -->
         <ErrorDisplay @ref="errorDisplay" 
                       ErrorPanelId="noor-error-panel" 
                       DetailsId="error-details" />
 
-        <!-- Elegant Session Management Container -->
-        <div style="display:flex;justify-content:center;width:100%;">
-            <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:stretch;width:50%;background:linear-gradient(135deg,#FFFFFF,#F8F9FA);border-radius:2rem;padding:2rem;box-shadow:0 20px 40px -12px rgba(0,0,0,0.35),0 8px 16px -8px rgba(0,0,0,0.2);border:1px solid rgba(212,175,55,0.3);position:relative;overflow:hidden;">
-                <!-- Decorative gradient overlay -->
-                <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#D4AF37,#FFD700,#D4AF37);border-radius:2rem 2rem 0 0;"></div>
-                <!-- SignalR Status Icon (Top-Right Modern Design) -->
-                <div style="position:absolute;top:1rem;right:1rem;z-index:10;">
-                    <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:@(GetSignalRStatusColor() == "#10B981" ? "linear-gradient(135deg,#10B981,#059669)" : "linear-gradient(135deg,#EF4444,#DC2626)");box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;border:2px solid white;">
-                        <i class="@GetSignalRStatusIcon()" style="font-size:1rem;color:white;"></i>
-                    </div>
-                </div>
-                <!-- Session Details Panel -->
-                <div style="background-color:white;padding:1.5rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:1px solid #D4AF37;text-align:center;">
-                    <h2 style="font-weight:800;font-size:2.25rem;color:#D4AF37;margin-bottom:1rem;text-shadow:0 2px 4px rgba(212,175,55,0.2);letter-spacing:-0.025em;">@(Model?.SessionName ?? "Loading Session...")</h2>
-                    <p style="color:#6B7280;font-size:1rem;line-height:1.625;margin-bottom:1rem;font-weight:500;">@(FormatSessionDescriptionToProperCase(Model?.SessionDescription ?? "Session details are being loaded..."))</p>
-                </div>
-
-                <!-- Session Controls Panel -->
-                <div style="width:100%;background-color:#F8F5F1;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
-                    <h3 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:center;">
-                        <i class="fa-solid fa-sliders" style="color:#006400;"></i>
-                        <span>SESSION CONTROLS</span>
-                    </h3>
-
-                    <!-- Session Time & Duration Cards -->
-                    <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-                        <!-- Session Time Card -->
-                        <div style="background-color:white;border-radius:0.75rem;padding:1rem;text-align:center;border:1px solid #D4AF37;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-                            <i class="fa-solid fa-clock" style="font-size:1.5rem;color:#006400;margin-bottom:0.5rem;"></i>
-                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;text-transform:uppercase;font-weight:500;color:#4B3C2B;margin:0 0 0.25rem 0;">Session Time</p>
-                            <p style="font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;color:#4B3C2B;margin:0;">@(Model?.ScheduledTime ?? "TBD")</p>
-                        </div>
-                        
-                        <!-- Session Duration Card -->
-                        <div style="background-color:white;border-radius:0.75rem;padding:1rem;text-align:center;border:1px solid #D4AF37;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-                            <i class="fa-solid fa-hourglass-half" style="font-size:1.5rem;color:#006400;margin-bottom:0.5rem;"></i>
-                            <p style="font-family:'Inter',sans-serif;font-size:0.75rem;text-transform:uppercase;font-weight:500;color:#4B3C2B;margin:0 0 0.25rem 0;">Duration</p>
-                            <p style="font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;color:#4B3C2B;margin:0;">@FormatDurationFromString(Model?.ScheduledDuration)</p>
-                        </div>
-                    </div>
-
-                    <!-- User Registration Link Display - Refactored to use UserRegistrationLink component -->
-                    @if (!string.IsNullOrEmpty(UserToken))
-                    {
-                        <UserRegistrationLink UserToken="@UserToken" BaseUrl="https://localhost:9091" />
-                    }
-                    
-                    <div style="width:100%;display:flex;justify-content:center;gap:1rem;flex-direction:column;">
-                        
-                        <button @onclick="StartSession" 
-                                disabled="@(isLoading || Model?.SessionStatus == "Active")"
-                                style="width:100%;padding:1rem 2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4);color:white;font-weight:700;font-size:1.125rem;background-color:#006400;border:none;transition:transform 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.75rem;@(isLoading || Model?.SessionStatus == "Active" ? "cursor:not-allowed;opacity:0.6;" : "cursor:pointer;opacity:1;")" 
-                                onmouseover="this.style.backgroundColor='#059669'; this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.backgroundColor='#006400'; this.style.transform='scale(1)'">
-                            <i class="fa-solid fa-play" style="font-size:1.25rem;"></i>
-                            <span>Start Session</span>
-                        </button>
-                        
-
-
-
-                        
-
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Session Management Container - Refactored to use HostControlPanelSidebar component -->
+        <HostControlPanelSidebar Model="@Model" 
+                                 UserToken="@UserToken"
+                                 IsLoading="@isLoading"
+                                 OnStartSession="@StartSession"
+                                 OnGetSignalRStatusColor="@GetSignalRStatusColor"
+                                 OnGetSignalRStatusIcon="@GetSignalRStatusIcon"
+                                 OnFormatSessionDescriptionToProperCase="@FormatSessionDescriptionToProperCase"
+                                 OnFormatDurationFromString="@FormatDurationFromString" />
         
-        <!-- 70/30 Horizontal Layout: Session Transcript (70%) + Q&A Panel (30%) -->
-        <div class="host-main-container" style="display:flex;gap:1.5rem;width:100%;min-height:600px;align-items:stretch;">
-            
-            <!-- Left Panel: Session Transcript (70%) -->
-            <div class="host-transcript-panel" style="flex:0 0 70%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
-                <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.5rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
-                    <i class="fa-solid fa-file-lines" style="color:#006400;"></i>
-                    <span>Session Transcript</span>
-                    @if (isLoading)
-                    {
-                        <div style="margin-left:auto;display:flex;align-items:center;gap:0.5rem;color:#D4AF37;font-size:0.875rem;font-weight:400;">
-                            <LoadingSpinner Size="16" Color="#D4AF37" />
-                            <span>Loading...</span>
-                        </div>
-                    }
-                </h3>
-                
-                <!-- Transcript Content Area with Independent Scrolling -->
-                <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-                    @if (isLoading)
-                    {
-                        <div style="color:#6B7280;text-align:center;padding:3rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
-                            <LoadingSpinner Size="40" Color="#D4AF37" Text="Loading session transcript..." ShowText="@true" />
-                            <p style="margin:0;color:#9CA3AF;font-size:0.875rem;">Please wait while we retrieve the session content.</p>
-                        </div>
-                    }
-                    else if (!string.IsNullOrEmpty(Model?.TransformedTranscript))
-                    {
-                        <div style="flex:1;overflow-y:auto;border-radius:0.5rem;padding:1rem;" @ref="transcriptContainer">
-                            <div class="html-viewer-content session-transcript-content" data-islamic-content>
-                                @* [DEBUG-WORKITEM:hostcanvas:continue] Safe HTML rendering inspired by KSESSIONS $sce.trustAsHtml() ;CLEANUP_OK *@
-                                @SafeHtmlRenderer.RenderSafeHtml(Model?.TransformedTranscript ?? "")
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div style="flex:1;color:#6B7280;text-align:center;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <i class="fa-solid fa-file-text" style="font-size:2rem;margin-bottom:1rem;color:#9CA3AF;"></i>
-                            <p style="margin:0;color:#6B7280;">No transcript available for this session.</p>
-                        </div>
-                    }
-                </div>
-                
-                <!-- End Session Button (moved to transcript panel) -->
-                @if (Model?.SessionStatus == "Active" && !string.IsNullOrEmpty(HostToken))
-                {
-                    <div style="display:flex;justify-content:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #E5E7EB;">
-                        <button @onclick="EndSession" 
-                                disabled="@isLoading"
-                                style="padding:0.75rem 2rem;border-radius:1rem;box-shadow:0 8px 12px -2px rgba(220,38,38,0.4);color:white;font-weight:600;font-size:1rem;background-color:#DC2626;border:none;cursor:@(isLoading ? "not-allowed" : "pointer");opacity:@(isLoading ? "0.6" : "1");transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;gap:0.5rem;" 
-                                onmouseover="this.style.backgroundColor='#B91C1C'; this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.backgroundColor='#DC2626'; this.style.transform='scale(1)'">
-                            @if (isLoading)
-                            {
-                                <i class="fa-solid fa-spinner fa-spin" style="font-size:1rem;"></i>
-                            }
-                            else
-                            {
-                                <i class="fa-solid fa-stop" style="font-size:1rem;"></i>
-                            }
-                            <span>End Session</span>
-                        </button>
-                    </div>
-                }
-            </div>
-
-            <!-- Right Panel: Q&A Sidebar (30%) -->
-            <div class="host-qa-panel" style="flex:0 0 30%;background-color:white;border-radius:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);border:1px solid #D4AF37;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
-                <h3 style="display:flex;align-items:center;justify-content:flex-start;gap:0.5rem;font-weight:800;font-size:1.25rem;color:#006400;margin-bottom:0.5rem;text-align:left;">
-                    <i class="fa-solid fa-clipboard-question" style="color:#006400;"></i>
-                    <span>Questions & Answers</span>
-                </h3>
-                
-                <!-- Questions List with Independent Scrolling and Enhanced Styling -->
-                <div style="flex:1;overflow-y:auto;padding-right:0.5rem;max-height:500px;" class="custom-scrollbar">
-                    @if (Model?.Questions != null && Model.Questions.Any())
-                    {
-                        @foreach (var question in Model.Questions.OrderBy(q => q.IsAnswered).Select((q, i) => new { Question = q, Index = i }))
-                        {
-                            <QuestionCard Question="@(new NoorCanvas.Components.Host.QuestionCard.QuestionDto { Id = (int)question.Question.Id.GetHashCode(), Text = question.Question.Text, UserName = question.Question.UserName, IsAnswered = question.Question.IsAnswered })" 
-                                          Index="@question.Index"
-                                          OnMarkAnswered="@(EventCallback.Factory.Create<int>(this, async (id) => await MarkQuestionAnswered(question.Question.Id)))" 
-                                          OnDelete="@(EventCallback.Factory.Create<int>(this, async (id) => await ShowDeleteModal(question.Question.Id)))" />
-                        }
-                    }
-                    else
-                    {
-                        <div style="text-align:center;color:#6B7280;padding:2rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <div style="background:linear-gradient(135deg,#F3F4F6,#E5E7EB);border-radius:50%;width:4rem;height:4rem;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
-                                <i class="fa-solid fa-clipboard-question" style="font-size:1.5rem;color:#9CA3AF;"></i>
-                            </div>
-                            <h4 style="margin:0 0 0.5rem 0;font-size:1rem;font-weight:600;color:#4B5563;">No Questions Yet</h4>
-                            <p style="margin:0;font-size:0.875rem;line-height:1.4;color:#6B7280;">Questions will appear here when participants submit them during the session.</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+        <!-- Main Content Area - Refactored to use HostControlPanelContent component -->
+        <HostControlPanelContent Model="@Model" 
+                                 HostToken="@HostToken"
+                                 IsLoading="@isLoading"
+                                 OnEndSession="@EndSession"
+                                 OnMarkQuestionAnswered="@MarkQuestionAnswered"
+                                 OnShowDeleteModal="@ShowDeleteModal"
+                                 OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
     </div>
     
-    <!-- Custom Confirmation Modal -->
-    @if (showDeleteModal)
-    {
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;">
-            <div style="background-color:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);max-width:400px;text-align:center;">
-                <p style="font-size:1.125rem;font-weight:700;color:#1F2937;margin-bottom:1rem;">Confirm Deletion</p>
-                <p style="color:#6B7280;margin-bottom:1.5rem;">Are you sure you want to delete this question?</p>
-                <div style="display:flex;justify-content:center;gap:1rem;">
-                    <button @onclick="CancelDelete" 
-                            style="padding:0.5rem 1rem;border-radius:1.5rem;background-color:#E5E7EB;color:#374151;font-weight:600;border:none;cursor:pointer;"
-                            onmouseover="this.style.backgroundColor='#D1D5DB'"
-                            onmouseout="this.style.backgroundColor='#E5E7EB'">Cancel</button>
-                    <button @onclick="ConfirmDelete" 
-                            style="padding:0.5rem 1rem;border-radius:1.5rem;background-color:#EF4444;color:white;font-weight:600;border:none;cursor:pointer;"
-                            onmouseover="this.style.backgroundColor='#DC2626'"
-                            onmouseout="this.style.backgroundColor='#EF4444'">Delete</button>
-                </div>
-            </div>
-        </div>
-    }
+    <!-- Confirmation Modal - Refactored to use HostControlPanelModal component -->
+    <HostControlPanelModal ShowDeleteModal="@showDeleteModal"
+                           OnCancelDelete="@CancelDelete"
+                           OnConfirmDelete="@ConfirmDelete" />
 
     @if (showMessage)
     {
@@ -279,7 +104,6 @@
     private Guid questionToDeleteId;
     private Timer? messageTimer;
     private HubConnection? hubConnection;
-    private ElementReference transcriptContainer;
     private ErrorDisplay? errorDisplay;
 
     // User token for generating user landing URL
@@ -1800,107 +1624,7 @@
         }
     }
 
-    // ViewModel Classes
-    public class HostControlPanelViewModel
-    {
-        public string? LogoText { get; set; }
-        public string? SessionName { get; set; }
-        public string? SessionDescription { get; set; }
-        public string? SessionStatus { get; set; }
-        public string? SessionTranscript { get; set; }
-        public string? TransformedTranscript { get; set; }
-        public List<QuestionItem>? Questions { get; set; }
-        public bool UserCopied { get; set; }
-        
-        // Scheduling fields from Host Session Opener
-        public string? ScheduledDate { get; set; }    // Date: 09/28/2025
-        public string? ScheduledTime { get; set; }    // Time: 6:00 AM
-        public string? ScheduledDuration { get; set; } // Duration: 60 minutes
-    }
-
-    public class QuestionItem
-    {
-        public Guid Id { get; set; }
-        public string Text { get; set; } = "";
-        public bool IsAnswered { get; set; }
-        public int VoteCount { get; set; }
-        public string UserName { get; set; } = "";
-        public string CreatedBy { get; set; } = "";
-        public DateTime CreatedAt { get; set; }
-    }
-
-    // API Response Models
-    public class SessionDetailsResponse
-    {
-        // dbo Schema (KSESSIONS primary content source)
-        public int SessionId { get; set; }
-        public int GroupId { get; set; }
-        public int CategoryId { get; set; }
-        public string? SessionName { get; set; }
-        public string? Description { get; set; }
-        
-        // dbo Schema (Session Transcript)
-        public string? Transcript { get; set; }
-        public DateTime? TranscriptCreatedDate { get; set; }
-        public DateTime? TranscriptChangedDate { get; set; }
-        public bool HasTranscript { get; set; }
-        
-        // canvas Schema (Session management)
-        public int? CanvasSessionId { get; set; }
-        public string? CanvasTitle { get; set; }
-        public string? CanvasDescription { get; set; }
-        public string? Status { get; set; }
-        public int ParticipantCount { get; set; }
-        public int? MaxParticipants { get; set; }
-        public string? HostGuid { get; set; }
-        public DateTime? StartedAt { get; set; }
-        public DateTime? EndedAt { get; set; }
-        public DateTime? CanvasCreatedAt { get; set; }
-        public DateTime? CanvasModifiedAt { get; set; }
-        
-        // Derived information
-        public bool IsCanvasSessionCreated { get; set; }
-        
-        // Host Session Opener scheduling fields
-        public string? ScheduledDate { get; set; }    // Date: 09/28/2025
-        public string? ScheduledTime { get; set; }    // Time: 6:00 AM  
-        public string? ScheduledDuration { get; set; } // Duration: 60 minutes
-    }
-
-    /// <summary>
-    /// Response model for user token API endpoint
-    /// </summary>
-    public class UserTokenResponse
-    {
-        public string? UserToken { get; set; }
-        public int SessionId { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime? ExpiresAt { get; set; }
-    }
-
-    /// <summary>
-    /// Response model for questions API endpoint
-    /// </summary>
-    public class GetQuestionsApiResponse
-    {
-        public bool Success { get; set; }
-        public List<QuestionApiItem>? Questions { get; set; }
-        public int Count { get; set; }
-        public string? RequestId { get; set; }
-    }
-
-    public class QuestionApiItem
-    {
-        public string? QuestionId { get; set; }
-        public int Id { get; set; }
-        public string? Text { get; set; }
-        public string? UserName { get; set; }
-        public string? CreatedBy { get; set; }
-        public int Votes { get; set; }
-        public bool IsAnswered { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime SubmittedAt { get; set; }
-    }
+    // ViewModel Classes moved to NoorCanvas.ViewModels namespace
 
 
 

@@ -11,13 +11,13 @@ namespace NoorCanvas.Models;
 public class Session
 {
     /// <summary>
-    /// KSESSIONS database SessionId - now the primary key for consistent referencing
+    /// Gets or sets kSESSIONS database SessionId - now the primary key for consistent referencing.
     /// </summary>
     [Key]
     public long SessionId { get; set; }
 
     /// <summary>
-    /// Album/Group identifier from KSESSIONS database (formerly GroupId)
+    /// Gets or sets album/Group identifier from KSESSIONS database (formerly GroupId).
     /// </summary>
     public Guid AlbumId { get; set; }
 

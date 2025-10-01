@@ -21,8 +21,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Get current session state for late-joining participants
+        /// Get current session state for late-joining participants.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("{sessionId}/state")]
         public async Task<IActionResult> GetSessionState(long sessionId)
         {
@@ -100,8 +101,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Get basic session information by session ID
+        /// Get basic session information by session ID.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("{sessionId}")]
         public async Task<IActionResult> GetSessionInfo(int sessionId)
         {
@@ -124,11 +126,11 @@ namespace NoorCanvas.Controllers
                 {
                     var kSession = await _kSessionsContext.Sessions
                         .FirstOrDefaultAsync(ks => ks.SessionId == (int)session.SessionId);
-                    
+
                     sessionTitle = kSession?.SessionName ?? "HOST SESSION";
                     sessionDescription = kSession?.Description ?? "Manage Islamic learning sessions with interactive tools";
-                    
-                    _logger.LogInformation("COPILOT-DEBUG: Retrieved from KSESSIONS - Title: '{Title}', Description: '{Description}' for SessionId {SessionId}", 
+
+                    _logger.LogInformation("COPILOT-DEBUG: Retrieved from KSESSIONS - Title: '{Title}', Description: '{Description}' for SessionId {SessionId}",
                         sessionTitle, sessionDescription, session.SessionId);
                 }
                 catch (Exception ex)
@@ -160,8 +162,9 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Get session state by session GUID for participants
+        /// Get session state by session GUID for participants.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("guid/{sessionGuid}/state")]
         public async Task<IActionResult> GetSessionStateByGuid(string sessionGuid)
         {

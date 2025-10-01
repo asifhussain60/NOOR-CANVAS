@@ -20,10 +20,10 @@ public class IssueController : ControllerBase
     }
 
     /// <summary>
-    /// Create a new issue report
+    /// Create a new issue report.
     /// </summary>
-    /// <param name="request">Issue creation request</param>
-    /// <returns>Created issue with ID</returns>
+    /// <param name="request">Issue creation request.</param>
+    /// <returns>Created issue with ID.</returns>
     [HttpPost]
     public async Task<IActionResult> CreateIssue([FromBody] CreateIssueRequest request)
     {
@@ -87,10 +87,10 @@ public class IssueController : ControllerBase
     }
 
     /// <summary>
-    /// Get issue by ID
+    /// Get issue by ID.
     /// </summary>
-    /// <param name="id">Issue ID</param>
-    /// <returns>Issue details</returns>
+    /// <param name="id">Issue ID.</param>
+    /// <returns>Issue details.</returns>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetIssue(long id)
     {
@@ -128,12 +128,12 @@ public class IssueController : ControllerBase
     }
 
     /// <summary>
-    /// Get all issues with optional filtering
+    /// Get all issues with optional filtering.
     /// </summary>
-    /// <param name="status">Filter by status</param>
-    /// <param name="priority">Filter by priority</param>
-    /// <param name="category">Filter by category</param>
-    /// <returns>List of issues</returns>
+    /// <param name="status">Filter by status.</param>
+    /// <param name="priority">Filter by priority.</param>
+    /// <param name="category">Filter by category.</param>
+    /// <returns>List of issues.</returns>
     [HttpGet]
     public async Task<IActionResult> GetIssues(
         [FromQuery] string? status = null,
@@ -183,7 +183,7 @@ public class IssueController : ControllerBase
 }
 
 /// <summary>
-/// Request model for creating a new issue
+/// Request model for creating a new issue.
 /// </summary>
 public class CreateIssueRequest
 {
@@ -209,7 +209,7 @@ public class CreateIssueRequest
 }
 
 /// <summary>
-/// Response model for issue data
+/// Response model for issue data.
 /// </summary>
 public class IssueResponse
 {

@@ -87,7 +87,7 @@ builder.Services.AddSignalR(options =>
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
     options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB max message size
-    
+
     // Enhanced logging for hostcanvas debugging
     if (builder.Environment.IsDevelopment())
     {
@@ -333,7 +333,7 @@ static void ValidateStartupConfiguration(IServiceProvider services)
             using var scope = services.CreateScope();
             var canvasDbContext = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
             var kSessionsDbContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
-            
+
             var canvasCanConnect = canvasDbContext.Database.CanConnect();
             var kSessionsCanConnect = kSessionsDbContext.Database.CanConnect();
 
@@ -357,7 +357,7 @@ static void ValidateStartupConfiguration(IServiceProvider services)
             else
             {
                 logger.LogInformation("✅ NOOR-VALIDATION: KSESSIONS database connection verified");
-                
+
                 // [DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table will be created on first access ;CLEANUP_OK
                 logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table migration will run on first broadcast ;CLEANUP_OK");
             }
@@ -377,7 +377,7 @@ static void ValidateStartupConfiguration(IServiceProvider services)
             {
                 logger.LogError("   - {Error}", error);
             }
-            
+
             throw new ApplicationException($"Application startup failed due to {criticalErrors.Count} critical configuration errors. " +
                 "See logs for details. Fix configuration issues before restarting.");
         }

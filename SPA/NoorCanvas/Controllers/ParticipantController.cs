@@ -101,7 +101,7 @@ namespace NoorCanvas.Controllers
                         .Where(s => s.SessionId == session.SessionId)
                         .Select(s => s.SessionName)
                         .FirstOrDefaultAsync();
-                    
+
                     if (!string.IsNullOrEmpty(ksessionInfo))
                     {
                         sessionTitle = ksessionInfo;
@@ -278,14 +278,14 @@ namespace NoorCanvas.Controllers
                 // ISSUE-1 FIX: Use token-based SignalR groups instead of session-based groups
                 // Only users with the same user token should see each other
                 var tokenGroup = $"usertoken_{session.UserToken}";
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Broadcasting ParticipantJoined to token-specific group: '{TokenGroup}' for participant '{Name}'", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Broadcasting ParticipantJoined to token-specific group: '{TokenGroup}' for participant '{Name}'",
                     requestId, tokenGroup, request.Name);
 
                 // Get current participant count for debugging
                 var currentParticipantCount = await _context.Participants
                     .Where(p => p.UserToken == session.UserToken)
                     .CountAsync();
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Total participants for token '{UserToken}': {Count}", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SIGNALR SYNC FIX - Total participants for token '{UserToken}': {Count}",
                     requestId, session.UserToken, currentParticipantCount);
 
                 // Broadcast SignalR event to notify users sharing the same user token
@@ -316,7 +316,7 @@ namespace NoorCanvas.Controllers
                 // Get the final participant record to return consistent UserGuid
                 var finalParticipant = existingParticipant ?? await _context.Participants
                     .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.Email == request.Email);
-                
+
                 return Ok(new
                 {
                     success = true,
@@ -367,7 +367,7 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Participant not found for this session", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-USERGUID: [{RequestId}] UserGuid found: {UserGuid} for participant: {Name}", 
+                _logger.LogInformation("NOOR-QA-USERGUID: [{RequestId}] UserGuid found: {UserGuid} for participant: {Name}",
                     requestId, participant.UserGuid, participant.Name);
 
                 return Ok(new
@@ -406,25 +406,25 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Token filtering analysis complete
-                
+
                 // DIRECT TOKEN GROUPING: Filter participants directly by UserToken (no complex joins needed)
                 var participantsData = await _context.Participants
                     .Where(p => p.UserToken == session.UserToken)
                     .ToListAsync();
 
-                _logger.LogInformation("NOOR-PARTICIPANT-GROUPING: [{RequestId}] Direct UserToken filtering returned {Count} participants for token '{UserToken}'", 
+                _logger.LogInformation("NOOR-PARTICIPANT-GROUPING: [{RequestId}] Direct UserToken filtering returned {Count} participants for token '{UserToken}'",
                     requestId, participantsData.Count, session.UserToken);
 
                 // COPILOT-DEBUG: Log participant countries for debugging
                 var participantCountries = participantsData.Select(p => p.Country).Distinct().ToList();
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant countries in database: {Countries}", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant countries in database: {Countries}",
                     requestId, string.Join(", ", participantCountries.Select(c => $"'{c}'")));
 
                 // [DEBUG-WORKITEM:api:impl:09291900-api] Get country flags from KSESSIONS API instead of direct database access
                 var countryFlags = await GetCountryFlagsFromApiAsync(participantCountries.Where(c => !string.IsNullOrEmpty(c)).Cast<string>().ToArray(), requestId);
 
                 // COPILOT-DEBUG: Log country mapping results
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Country flag mappings found via API: {Mappings}", 
+                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Country flag mappings found via API: {Mappings}",
                     requestId, string.Join(", ", countryFlags.Select(kv => $"'{kv.Key}' -> '{kv.Value}'")));
 
                 // Combine participant data with flag codes
@@ -462,19 +462,20 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Delete all participants for a specific UserToken when host opens session
+        /// Delete all participants for a specific UserToken when host opens session.
         /// <summary>
         /// This clears the waiting room participants for a fresh session start.
         /// </summary>
         /// <param name="userToken">The user token for authentication.</param>
         /// <returns>The result of the delete operation.</returns>
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpDelete("session/{userToken}/participants")]
         public async Task<IActionResult> DeleteParticipantsByToken(string userToken)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            
-            _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] Delete participants request for UserToken: {UserToken}", 
+
+            _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] Delete participants request for UserToken: {UserToken}",
                 requestId, userToken);
 
             try
@@ -501,11 +502,12 @@ namespace NoorCanvas.Controllers
                 {
                     _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] No participants found for UserToken: {UserToken}",
                         requestId, userToken);
-                    return Ok(new { 
-                        Message = "No participants found for this token", 
+                    return Ok(new
+                    {
+                        Message = "No participants found for this token",
                         DeletedCount = 0,
                         UserToken = userToken,
-                        RequestId = requestId 
+                        RequestId = requestId
                     });
                 }
 
@@ -537,11 +539,12 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("NOOR-PARTICIPANT-DELETE: [{RequestId}] SignalR notification sent to session group: session_{UserToken}",
                     requestId, userToken);
 
-                return Ok(new { 
-                    Message = "Participants deleted successfully", 
+                return Ok(new
+                {
+                    Message = "Participants deleted successfully",
                     DeletedCount = participantsToDelete.Count,
                     UserToken = userToken,
-                    RequestId = requestId 
+                    RequestId = requestId
                 });
             }
             catch (Exception ex)
@@ -553,11 +556,11 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// [DEBUG-WORKITEM:api:impl:09291900-api] Get country flags from KSESSIONS API instead of direct database access
+        /// [DEBUG-WORKITEM:api:impl:09291900-api] Get country flags from KSESSIONS API instead of direct database access.
         /// </summary>
-        /// <param name="countryCodes">Array of ISO2 country codes to get flags for</param>
-        /// <param name="requestId">Request ID for logging</param>
-        /// <returns>Dictionary mapping ISO2 codes to lowercase flag codes</returns>
+        /// <param name="countryCodes">Array of ISO2 country codes to get flags for.</param>
+        /// <param name="requestId">Request ID for logging.</param>
+        /// <returns>Dictionary mapping ISO2 codes to lowercase flag codes.</returns>
         private async Task<Dictionary<string, string>> GetCountryFlagsFromApiAsync(string[] countryCodes, string requestId)
         {
             try
@@ -566,7 +569,7 @@ namespace NoorCanvas.Controllers
                     requestId, countryCodes.Length, string.Join(", ", countryCodes));
 
                 using var httpClient = _httpClientFactory.CreateClient();
-                
+
                 // Build query string for country codes
                 var queryParams = string.Join("&", countryCodes.Select(c => $"countryCodes={Uri.EscapeDataString(c)}"));
                 var response = await httpClient.GetAsync($"/api/host/ksessions/countries/flags?{queryParams}");

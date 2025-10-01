@@ -11,121 +11,123 @@ namespace NoorCanvas.Models.Simplified;
 public class SessionAsset
 {
     /// <summary>
-    /// Primary key - unique asset identifier
+    /// Gets or sets primary key - unique asset identifier.
     /// </summary>
     [Key]
     public long AssetId { get; set; }
 
     /// <summary>
-    /// Foreign key to Sessions table
+    /// Gets or sets foreign key to Sessions table.
     /// </summary>
     [Required]
     public long SessionId { get; set; }
 
     /// <summary>
-    /// Primary CSS class for this asset type (e.g., 'imgResponsive', 'ayah-card', 'inserted-hadees')
-    /// Used for flexible class-based detection and targeting
+    /// Gets or sets primary CSS class for this asset type (e.g., 'imgResponsive', 'ayah-card', 'inserted-hadees')
+    /// Used for flexible class-based detection and targeting.
     /// </summary>
     [Required, MaxLength(100)]
     public string AssetClass { get; set; } = string.Empty;
 
     /// <summary>
-    /// Alternate CSS classes found with this asset (comma-separated)
-    /// Supports flexible matching (e.g., 'fr-fic,fr-dib,fr-bordered')
+    /// Gets or sets alternate CSS classes found with this asset (comma-separated)
+    /// Supports flexible matching (e.g., 'fr-fic,fr-dib,fr-bordered').
     /// </summary>
     [MaxLength(500)]
     public string? AlternateClasses { get; set; }
 
     /// <summary>
-    /// Position/order within the transcript for reliable button injection
-    /// Lower numbers = earlier in transcript
+    /// Gets or sets position/order within the transcript for reliable button injection
+    /// Lower numbers = earlier in transcript.
     /// </summary>
     public int? Position { get; set; }
 
     /// <summary>
-    /// CSS regex pattern used to detect this asset type (for re-targeting)
-    /// Stored for reliability in case HTML structure changes
+    /// Gets or sets cSS regex pattern used to detect this asset type (for re-targeting)
+    /// Stored for reliability in case HTML structure changes.
     /// </summary>
     [MaxLength(500)]
     public string? CssPattern { get; set; }
 
     /// <summary>
-    /// Number of instances of this asset class found in the transcript
+    /// Gets or sets number of instances of this asset class found in the transcript.
     /// </summary>
     public int InstanceCount { get; set; } = 1;
 
     /// <summary>
-    /// Match confidence score for flexible class detection (1-5)
-    /// Higher scores indicate better class matches
+    /// Gets or sets match confidence score for flexible class detection (1-5)
+    /// Higher scores indicate better class matches.
     /// </summary>
     public int ClassScore { get; set; } = 1;
 
     /// <summary>
-    /// How many times this asset class has been shared by host
+    /// Gets or sets how many times this asset class has been shared by host.
     /// </summary>
     public int SharedCount { get; set; } = 0;
 
     /// <summary>
-    /// Unique identifier for sharing this asset via SignalR
+    /// Gets or sets unique identifier for sharing this asset via SignalR.
     /// </summary>
     [MaxLength(100)]
     public string? ShareId { get; set; }
 
     /// <summary>
-    /// When this asset was shared by host (NULL = detected but not shared yet)
+    /// Gets or sets when this asset was shared by host (NULL = detected but not shared yet).
     /// </summary>
     public DateTime? SharedAt { get; set; }
 
     /// <summary>
-    /// Soft delete flag - false means asset should be ignored
+    /// Gets or sets a value indicating whether soft delete flag - false means asset should be ignored.
     /// </summary>
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// When this asset was first detected in the transcript
+    /// Gets or sets when this asset was first detected in the transcript.
     /// </summary>
     public DateTime DetectedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// When this record was created
+    /// Gets or sets when this record was created.
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// Who created this asset record (optional)
+    /// Gets or sets who created this asset record (optional).
     /// </summary>
     [MaxLength(100)]
     public string? CreatedBy { get; set; }
 
     // Navigation properties
+
     /// <summary>
-    /// Navigation property to parent Session
+    /// Gets or sets navigation property to parent Session.
     /// </summary>
     [ForeignKey(nameof(SessionId))]
     public virtual Session Session { get; set; } = null!;
 
     // Helper properties
+
     /// <summary>
-    /// Computed property - true if asset has been shared by host
+    /// Gets a value indicating whether computed property - true if asset has been shared by host.
     /// </summary>
     [NotMapped]
     public bool IsShared => SharedAt.HasValue;
 
     /// <summary>
-    /// Computed property - generates data-asset-id value for HTML injection
+    /// Gets computed property - generates data-asset-id value for HTML injection.
     /// </summary>
     [NotMapped]
     public string DataAssetId => $"asset-{AssetId}";
 
     /// <summary>
-    /// Computed property - generates CSS selector for JavaScript targeting
+    /// Gets computed property - generates CSS selector for JavaScript targeting.
     /// </summary>
     [NotMapped]
     public string CssSelector => $"[data-asset-id='{DataAssetId}']";
 }
 
 /// <summary>
-/// Constants for asset types - ensures consistency across the application
+/// Constants for asset types - ensures consistency across the application.
 /// </summary>
 public static class AssetTypes
 {
@@ -142,7 +144,7 @@ public static class AssetTypes
     public const string ImageResponsive = "imgResponsive";
 
     /// <summary>
-    /// All supported asset types based on Session 212 analysis
+    /// All supported asset types based on Session 212 analysis.
     /// </summary>
     public static readonly string[] All =
     {
@@ -157,7 +159,7 @@ public static class AssetTypes
     };
 
     /// <summary>
-    /// CSS patterns for detecting each asset type (legacy - flexible detection now handles this)
+    /// CSS patterns for detecting each asset type (legacy - flexible detection now handles this).
     /// </summary>
     public static readonly Dictionary<string, string> DetectionPatterns = new()
     {
@@ -173,7 +175,7 @@ public static class AssetTypes
 }
 
 /// <summary>
-/// DTO for API responses - lighter version of SessionAsset
+/// DTO for API responses - lighter version of SessionAsset.
 /// </summary>
 public class SessionAssetDto
 {
@@ -188,8 +190,9 @@ public class SessionAssetDto
     public int SharedCount { get; set; }
 
     /// <summary>
-    /// Convert from entity to DTO
+    /// Convert from entity to DTO.
     /// </summary>
+    /// <returns></returns>
     public static SessionAssetDto FromEntity(SessionAsset asset)
     {
         return new SessionAssetDto
@@ -208,7 +211,7 @@ public class SessionAssetDto
 }
 
 /// <summary>
-/// Response wrapper for asset collections
+/// Response wrapper for asset collections.
 /// </summary>
 public class SessionAssetsResponse
 {

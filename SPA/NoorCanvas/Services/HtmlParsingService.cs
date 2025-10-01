@@ -5,18 +5,18 @@ namespace NoorCanvas.Services
 {
     /// <summary>
     /// Advanced HTML parsing service to replace/enhance Blazor's DOM parser limitations
-    /// Provides robust HTML validation, sanitization, and safe rendering for broadcast content
+    /// Provides robust HTML validation, sanitization, and safe rendering for broadcast content.
     /// </summary>
     public class HtmlParsingService
     {
         private readonly ILogger<HtmlParsingService> _logger;
-        
+
         // Regex patterns for problematic CSS detection
         private static readonly Regex ComplexGradientPattern = new(@"linear-gradient\([^)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RgbaPattern = new(@"rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex ComplexFontFamilyPattern = new(@"font-family:\s*[""'][^""']*[""']\s*,\s*[""'][^""']*[""']", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex NestedQuotePattern = new(@"style\s*=\s*[""'][^""']*[""'][^""']*[""'][^""']*[""']", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        
+
         public HtmlParsingService(ILogger<HtmlParsingService> logger)
         {
             _logger = logger;
@@ -24,8 +24,9 @@ namespace NoorCanvas.Services
 
         /// <summary>
         /// Parse and validate HTML content with advanced error recovery
-        /// This replaces the basic Blazor MarkupString approach with robust parsing
+        /// This replaces the basic Blazor MarkupString approach with robust parsing.
         /// </summary>
+        /// <returns></returns>
         public SafeHtmlResult ParseHtml(string? htmlContent, ParseMode mode = ParseMode.Safe)
         {
             if (string.IsNullOrEmpty(htmlContent))
@@ -33,7 +34,7 @@ namespace NoorCanvas.Services
 
             try
             {
-                _logger.LogInformation("Starting HTML parsing, mode: {Mode}, length: {Length}", 
+                _logger.LogInformation("Starting HTML parsing, mode: {Mode}, length: {Length}",
                     mode, htmlContent.Length);
 
                 // Phase 1: Security validation
@@ -52,7 +53,7 @@ namespace NoorCanvas.Services
 
                 // Phase 3: CSS processing and simplification
                 var processedHtml = ProcessCssForBlazorCompatibility(htmlContent);
-                
+
                 // Phase 4: Quote normalization
                 var normalizedHtml = NormalizeQuotes(processedHtml);
 
@@ -63,7 +64,7 @@ namespace NoorCanvas.Services
                     return SafeHtmlResult.Error(finalValidation.ErrorMessage ?? "Final HTML validation failed");
                 }
 
-                _logger.LogInformation("[DEBUG-WORKITEM:signalcomm:PARSER] HTML parsing successful, output length: {Length} ;CLEANUP_OK", 
+                _logger.LogInformation("[DEBUG-WORKITEM:signalcomm:PARSER] HTML parsing successful, output length: {Length} ;CLEANUP_OK",
                     normalizedHtml.Length);
 
                 return SafeHtmlResult.Success(normalizedHtml, compatibilityResult.Warnings);
@@ -76,7 +77,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Validate HTML for security issues (XSS prevention)
+        /// Validate HTML for security issues (XSS prevention).
         /// </summary>
         private ValidationResult ValidateSecurity(string html)
         {
@@ -103,7 +104,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Analyze HTML for Blazor DOM parser compatibility issues
+        /// Analyze HTML for Blazor DOM parser compatibility issues.
         /// </summary>
         private ValidationResult AnalyzeBlazorCompatibility(string html)
         {
@@ -137,12 +138,12 @@ namespace NoorCanvas.Services
             // Check for unmatched quotes
             var singleQuotes = html.Count(c => c == '\'');
             var doubleQuotes = html.Count(c => c == '"');
-            
+
             if (singleQuotes % 2 != 0)
             {
                 errors.Add("Unmatched single quotes detected");
             }
-            
+
             if (doubleQuotes % 2 != 0)
             {
                 errors.Add("Unmatched double quotes detected");
@@ -158,7 +159,7 @@ namespace NoorCanvas.Services
 
         /// <summary>
         /// Process CSS to make it compatible with Blazor's DOM parser
-        /// This is the core replacement logic for problematic CSS patterns
+        /// This is the core replacement logic for problematic CSS patterns.
         /// </summary>
         private string ProcessCssForBlazorCompatibility(string html)
         {
@@ -195,7 +196,7 @@ namespace NoorCanvas.Services
 
         /// <summary>
         /// Normalize quotes to prevent Blazor parsing issues
-        /// This addresses the core quote escaping problems
+        /// This addresses the core quote escaping problems.
         /// </summary>
         private string NormalizeQuotes(string html)
         {
@@ -203,8 +204,8 @@ namespace NoorCanvas.Services
             var normalized = html;
 
             // Find style attributes and normalize their quotes
-            normalized = Regex.Replace(normalized, 
-                @"style\s*=\s*""([^""]*)""\s*", 
+            normalized = Regex.Replace(normalized,
+                @"style\s*=\s*""([^""]*)""\s*",
                 match =>
                 {
                     var styleContent = match.Groups[1].Value;
@@ -218,7 +219,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Final validation of processed HTML
+        /// Final validation of processed HTML.
         /// </summary>
         private ValidationResult ValidateFinalHtml(string html)
         {
@@ -246,20 +247,22 @@ namespace NoorCanvas.Services
     }
 
     /// <summary>
-    /// Parsing modes for different use cases
+    /// Parsing modes for different use cases.
     /// </summary>
     public enum ParseMode
     {
-        /// <summary>Safe mode - apply all compatibility fixes</summary>
+        /// <summary>Safe mode - apply all compatibility fixes.</summary>
         Safe,
-        /// <summary>Strict mode - fail if compatibility issues found</summary>
+
+        /// <summary>Strict mode - fail if compatibility issues found.</summary>
         Strict,
-        /// <summary>Permissive mode - allow most content through</summary>
+
+        /// <summary>Permissive mode - allow most content through.</summary>
         Permissive
     }
 
     /// <summary>
-    /// Result of HTML parsing operation
+    /// Result of HTML parsing operation.
     /// </summary>
     public class SafeHtmlResult
     {
@@ -298,7 +301,7 @@ namespace NoorCanvas.Services
     }
 
     /// <summary>
-    /// Validation result helper
+    /// Validation result helper.
     /// </summary>
     public class ValidationResult
     {

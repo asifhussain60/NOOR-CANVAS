@@ -1,9 +1,8 @@
 namespace NoorCanvas.Models
 {
     /// <summary>
-    /// API response and data transfer objects for Host Session Opener
+    /// API response and data transfer objects for Host Session Opener.
     /// </summary>
-    
     public class AlbumData
     {
         public int Id { get; set; }

@@ -22,8 +22,8 @@ namespace NoorCanvas.Services
         /// Safely renders HTML content using Blazor's MarkupString, similar to AngularJS $sce.trustAsHtml()
         /// This approach avoids appendChild JavaScript errors by using Blazor's native rendering.
         /// </summary>
-        /// <param name="htmlContent">Raw HTML content to render</param>
-        /// <returns>MarkupString that can be safely rendered in Blazor</returns>
+        /// <param name="htmlContent">Raw HTML content to render.</param>
+        /// <returns>MarkupString that can be safely rendered in Blazor.</returns>
         public MarkupString RenderSafeHtml(string htmlContent)
         {
             try
@@ -57,16 +57,16 @@ namespace NoorCanvas.Services
 
         /// <summary>
         /// Process HTML content to ensure it's compatible with Blazor rendering
-        /// Based on KSESSIONS pattern of safe HTML processing
+        /// Based on KSESSIONS pattern of safe HTML processing.
         /// </summary>
         private string ProcessHtmlForBlazorRendering(HtmlDocument htmlDoc)
         {
             // Remove potentially problematic elements that could cause appendChild issues
             RemoveProblematicElements(htmlDoc);
-            
+
             // Sanitize attributes that could cause JavaScript conflicts
             SanitizeAttributes(htmlDoc);
-            
+
             // Optimize for Blazor rendering
             OptimizeForBlazorRendering(htmlDoc);
 
@@ -110,7 +110,7 @@ namespace NoorCanvas.Services
                 {
                     // Remove attributes that could conflict with Blazor
                     var attributesToRemove = new List<string>();
-                    
+
                     foreach (var attr in node.Attributes)
                     {
                         // Remove javascript: URLs
@@ -132,18 +132,18 @@ namespace NoorCanvas.Services
         {
             // Add classes that help with Blazor rendering performance
             var bodyNode = htmlDoc.DocumentNode.SelectSingleNode("//body") ?? htmlDoc.DocumentNode;
-            
+
             // Ensure the content has a proper container structure for Blazor
             if (bodyNode.ChildNodes.Count > 0)
             {
                 // Wrap content in a div if it's not already properly contained
                 var hasContainerDiv = bodyNode.SelectSingleNode("./div[@class='transcript-content']") != null;
-                
+
                 if (!hasContainerDiv)
                 {
                     var wrapper = htmlDoc.CreateElement("div");
                     wrapper.SetAttributeValue("class", "transcript-content blazor-safe-html");
-                    
+
                     // Move all existing content into the wrapper
                     var existingNodes = bodyNode.ChildNodes.ToList();
                     foreach (var node in existingNodes)
@@ -151,7 +151,7 @@ namespace NoorCanvas.Services
                         node.Remove();
                         wrapper.AppendChild(node);
                     }
-                    
+
                     bodyNode.AppendChild(wrapper);
                     _logger.LogDebug("[DEBUG-WORKITEM:hostcanvas:continue] Wrapped content in Blazor-safe container ;CLEANUP_OK");
                 }
@@ -160,8 +160,9 @@ namespace NoorCanvas.Services
 
         /// <summary>
         /// Alternative method for chunk-based rendering to handle very large content
-        /// Inspired by KSESSIONS approach to content streaming
+        /// Inspired by KSESSIONS approach to content streaming.
         /// </summary>
+        /// <returns></returns>
         public IEnumerable<MarkupString> RenderSafeHtmlInChunks(string htmlContent, int chunkSize = 10000)
         {
             if (string.IsNullOrEmpty(htmlContent))
@@ -170,7 +171,7 @@ namespace NoorCanvas.Services
                 yield break;
             }
 
-            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:continue] Rendering large content in chunks - total size: {Size}, chunk size: {ChunkSize} ;CLEANUP_OK", 
+            _logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:continue] Rendering large content in chunks - total size: {Size}, chunk size: {ChunkSize} ;CLEANUP_OK",
                 htmlContent.Length, chunkSize);
 
             var htmlDoc = new HtmlDocument();
@@ -179,12 +180,12 @@ namespace NoorCanvas.Services
 
             // Split into manageable chunks while preserving HTML structure
             var content = htmlDoc.DocumentNode.OuterHtml;
-            
+
             for (int i = 0; i < content.Length; i += chunkSize)
             {
                 var chunkLength = Math.Min(chunkSize, content.Length - i);
                 var chunk = content.Substring(i, chunkLength);
-                
+
                 // Ensure we don't break HTML tags
                 if (i + chunkLength < content.Length && chunk.LastIndexOf('<') > chunk.LastIndexOf('>'))
                 {

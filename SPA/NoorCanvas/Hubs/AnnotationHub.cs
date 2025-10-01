@@ -35,8 +35,9 @@ namespace NoorCanvas.Hubs
         }
 
         /// <summary>
-        /// Join a session group for real-time annotation updates
+        /// Join a session group for real-time annotation updates.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task JoinSession(long sessionId, string userId)
         {
             try
@@ -64,8 +65,9 @@ namespace NoorCanvas.Hubs
         }
 
         /// <summary>
-        /// Leave a session group
+        /// Leave a session group.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task LeaveSession(long sessionId, string userId)
         {
             try
@@ -88,8 +90,9 @@ namespace NoorCanvas.Hubs
         }
 
         /// <summary>
-        /// Broadcast a new annotation to all session participants
+        /// Broadcast a new annotation to all session participants.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task BroadcastAnnotation(long sessionId, string userId, object annotationData)
         {
             try
@@ -131,8 +134,9 @@ namespace NoorCanvas.Hubs
         }
 
         /// <summary>
-        /// Broadcast annotation update to all session participants
+        /// Broadcast annotation update to all session participants.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task BroadcastAnnotationUpdate(long sessionId, long annotationId, string userId, object annotationData)
         {
             try
@@ -179,8 +183,9 @@ namespace NoorCanvas.Hubs
         }
 
         /// <summary>
-        /// Broadcast annotation deletion to all session participants
+        /// Broadcast annotation deletion to all session participants.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task BroadcastAnnotationDeletion(long sessionId, long annotationId, string userId)
         {
             try
@@ -226,8 +231,9 @@ namespace NoorCanvas.Hubs
         }
 
         /// <summary>
-        /// Broadcast session annotation clear to all participants
+        /// Broadcast session annotation clear to all participants.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task BroadcastClearAnnotations(long sessionId, string userId)
         {
             try

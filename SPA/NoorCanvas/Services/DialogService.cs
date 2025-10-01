@@ -66,11 +66,11 @@ namespace NoorCanvas.Services
                     var toastrType = type switch
                     {
                         AlertDialog.AlertType.Success => "success",
-                        AlertDialog.AlertType.Warning => "warning", 
+                        AlertDialog.AlertType.Warning => "warning",
                         AlertDialog.AlertType.Error => "error",
                         _ => "info"
                     };
-                    
+
                     await _jsRuntime.InvokeVoidAsync("showNoorToast", message, title, toastrType);
                     _logger.LogInformation("[DEBUG-WORKITEM:canvas:API] Toastr notification displayed successfully for: {Title}", title);
                 }

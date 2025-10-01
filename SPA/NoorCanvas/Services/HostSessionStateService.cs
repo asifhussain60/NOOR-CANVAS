@@ -5,7 +5,7 @@ namespace NoorCanvas.Services
 {
     /// <summary>
     /// Service for managing host session state and persistence
-    /// Extracted from HostControlPanel.razor for better separation of concerns
+    /// Extracted from HostControlPanel.razor for better separation of concerns.
     /// </summary>
     public class HostSessionStateService
     {
@@ -21,8 +21,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Save current session state to localStorage
+        /// Save current session state to localStorage.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<bool> SaveHostSessionStateAsync(HostSessionState sessionState)
         {
             try
@@ -45,34 +46,35 @@ namespace NoorCanvas.Services
                 };
 
                 var saved = await _sessionStateService.SaveSessionStateAsync(baseSessionState);
-                
-                _logger.LogInformation("[HostSessionStateService:SaveState] Session state saved: {Success} for SessionId: {SessionId}", 
+
+                _logger.LogInformation("[HostSessionStateService:SaveState] Session state saved: {Success} for SessionId: {SessionId}",
                     saved, sessionState.SessionId);
 
                 return saved;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[HostSessionStateService:SaveState] Error saving session state for SessionId: {SessionId}", 
+                _logger.LogError(ex, "[HostSessionStateService:SaveState] Error saving session state for SessionId: {SessionId}",
                     sessionState.SessionId);
                 return false;
             }
         }
 
         /// <summary>
-        /// Load persisted session state from localStorage
+        /// Load persisted session state from localStorage.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<HostSessionState?> LoadHostSessionStateAsync(string requestId)
         {
             try
             {
                 _logger.LogInformation("[HostSessionStateService:LoadState] [{RequestId}] Loading persisted session state from localStorage", requestId);
-                
+
                 var sessionState = await _sessionStateService.LoadSessionStateAsync();
-                
+
                 if (sessionState != null)
                 {
-                    _logger.LogInformation("[HostSessionStateService:LoadState] [{RequestId}] Found persisted SessionId: {SessionId}", 
+                    _logger.LogInformation("[HostSessionStateService:LoadState] [{RequestId}] Found persisted SessionId: {SessionId}",
                         requestId, sessionState.SessionId);
 
                     return new HostSessionState
@@ -100,8 +102,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Clear persisted session state
+        /// Clear persisted session state.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<bool> ClearHostSessionStateAsync()
         {
             try
@@ -120,7 +123,7 @@ namespace NoorCanvas.Services
     }
 
     /// <summary>
-    /// Host-specific session state model
+    /// Host-specific session state model.
     /// </summary>
     public class HostSessionState
     {

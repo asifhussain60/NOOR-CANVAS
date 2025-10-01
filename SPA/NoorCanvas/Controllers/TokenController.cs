@@ -18,8 +18,9 @@ public class TokenController : ControllerBase
     }
 
     /// <summary>
-    /// Validate a friendly token (host or user)
+    /// Validate a friendly token (host or user).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [HttpGet("validate/{token}")]
     public async Task<IActionResult> ValidateToken(string token, [FromQuery] bool isHost = false)
     {
@@ -111,8 +112,9 @@ public class TokenController : ControllerBase
     }
 
     /// <summary>
-    /// Generate friendly token pair for a session (for testing)
+    /// Generate friendly token pair for a session (for testing).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [HttpPost("generate/{sessionId}")]
     public async Task<IActionResult> GenerateTokenPair(long sessionId, [FromQuery] int validHours = 24)
     {
@@ -147,8 +149,9 @@ public class TokenController : ControllerBase
     }
 
     /// <summary>
-    /// Get token information for a session
+    /// Get token information for a session.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [HttpGet("session/{sessionId}")]
     public async Task<IActionResult> GetSessionToken(long sessionId)
     {
@@ -185,8 +188,9 @@ public class TokenController : ControllerBase
     }
 
     /// <summary>
-    /// Expire a specific user token (for ending sessions)
+    /// Expire a specific user token (for ending sessions).
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [HttpPost("expire/{userToken}")]
     public async Task<IActionResult> ExpireUserToken(string userToken)
     {
@@ -209,23 +213,25 @@ public class TokenController : ControllerBase
             {
                 _logger.LogWarning("NOOR-TOKEN-EXPIRE: [{RequestId}] Invalid token length: {Length}, expected 8 characters",
                     requestId, userToken.Length);
-                return BadRequest(new { 
-                    error = "Invalid token format", 
-                    message = "Token must be 8 characters", 
-                    requestId 
+                return BadRequest(new
+                {
+                    error = "Invalid token format",
+                    message = "Token must be 8 characters",
+                    requestId
                 });
             }
 
             var success = await _tokenService.ExpireUserTokenAsync(userToken);
-            
+
             if (!success)
             {
                 _logger.LogWarning("NOOR-TOKEN-EXPIRE: [{RequestId}] Token not found or already expired: {UserToken}",
                     requestId, userToken);
-                return NotFound(new { 
-                    error = "Token not found or already expired", 
+                return NotFound(new
+                {
+                    error = "Token not found or already expired",
                     userToken,
-                    requestId 
+                    requestId
                 });
             }
 
@@ -242,12 +248,13 @@ public class TokenController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "NOOR-TOKEN-EXPIRE: [{RequestId}] Error expiring user token: {UserToken}", 
+            _logger.LogError(ex, "NOOR-TOKEN-EXPIRE: [{RequestId}] Error expiring user token: {UserToken}",
                 requestId, userToken);
-            return StatusCode(500, new { 
-                error = "Internal server error", 
-                message = "Failed to expire token", 
-                requestId 
+            return StatusCode(500, new
+            {
+                error = "Internal server error",
+                message = "Failed to expire token",
+                requestId
             });
         }
     }

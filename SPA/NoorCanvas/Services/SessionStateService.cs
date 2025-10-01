@@ -4,13 +4,13 @@ namespace NoorCanvas.Services
 {
     /// <summary>
     /// Secure session state persistence service using browser localStorage
-    /// Handles session information sharing between components without exposing sensitive data
+    /// Handles session information sharing between components without exposing sensitive data.
     /// </summary>
     public class SessionStateService
     {
         private readonly IJSRuntime _jsRuntime;
         private readonly ILogger<SessionStateService> _logger;
-        
+
         private const string SESSION_STATE_KEY = "noorCanvas_sessionState";
         private const string HOST_SESSION_KEY = "noorCanvas_hostSession";
 
@@ -21,7 +21,7 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Session state model - contains only non-sensitive session information
+        /// Session state model - contains only non-sensitive session information.
         /// </summary>
         public class SessionState
         {
@@ -34,21 +34,22 @@ namespace NoorCanvas.Services
             public int ParticipantCount { get; set; }
             public string Topic { get; set; } = string.Empty;
             public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-            
+
             // Security note: Tokens are NOT stored in localStorage for security reasons
             // Components must use their parameter tokens for API calls
         }
 
         /// <summary>
-        /// Save session state to localStorage (non-sensitive data only)
+        /// Save session state to localStorage (non-sensitive data only).
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<bool> SaveSessionStateAsync(SessionState sessionState)
         {
             try
             {
                 var json = System.Text.Json.JsonSerializer.Serialize(sessionState);
                 await _jsRuntime.InvokeVoidAsync("localStorage.setItem", SESSION_STATE_KEY, json);
-                
+
                 _logger.LogInformation("SESSION-STATE: Session state saved for SessionId {SessionId}", sessionState.SessionId);
                 return true;
             }
@@ -60,14 +61,15 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Load session state from localStorage
+        /// Load session state from localStorage.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<SessionState?> LoadSessionStateAsync()
         {
             try
             {
                 var json = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", SESSION_STATE_KEY);
-                
+
                 if (string.IsNullOrEmpty(json))
                 {
                     _logger.LogInformation("SESSION-STATE: No session state found in localStorage");
@@ -76,7 +78,7 @@ namespace NoorCanvas.Services
 
                 var sessionState = System.Text.Json.JsonSerializer.Deserialize<SessionState>(json);
                 _logger.LogInformation("SESSION-STATE: Session state loaded for SessionId {SessionId}", sessionState?.SessionId);
-                
+
                 return sessionState;
             }
             catch (Exception ex)
@@ -87,8 +89,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Clear session state from localStorage
+        /// Clear session state from localStorage.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ClearSessionStateAsync()
         {
             try
@@ -103,14 +106,15 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Check if current session state is still valid (not expired)
+        /// Check if current session state is still valid (not expired).
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<bool> IsSessionStateValidAsync()
         {
             try
             {
                 var sessionState = await LoadSessionStateAsync();
-                
+
                 if (sessionState == null)
                     return false;
 
@@ -131,8 +135,9 @@ namespace NoorCanvas.Services
         }
 
         /// <summary>
-        /// Get SessionId from persisted state (for components that need it during initialization)
+        /// Get SessionId from persisted state (for components that need it during initialization).
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<int?> GetSessionIdAsync()
         {
             try

@@ -101,17 +101,17 @@ namespace NoorCanvas.Controllers
 
                 // Find session by user token - accept both Active and Configured sessions
                 var session = await _context.Sessions
-                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken && 
+                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
                                             (s.Status == "Active" || s.Status == "Configured"));
 
                 if (session == null)
                 {
-                    _logger.LogWarning("NOOR-QA-SUBMIT: [{RequestId}] Session not found or inactive for token: {Token}", 
+                    _logger.LogWarning("NOOR-QA-SUBMIT: [{RequestId}] Session not found or inactive for token: {Token}",
                         requestId, request.SessionToken);
                     return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}", 
+                _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}",
                     requestId, session.SessionId, session.Status);
 
                 // Check if user is registered for this session
@@ -120,7 +120,7 @@ namespace NoorCanvas.Controllers
 
                 if (participant == null)
                 {
-                    _logger.LogWarning("NOOR-QA-SUBMIT: [{RequestId}] User not registered for session: {UserGuid}", 
+                    _logger.LogWarning("NOOR-QA-SUBMIT: [{RequestId}] User not registered for session: {UserGuid}",
                         requestId, request.UserGuid);
                     return Unauthorized(new { Error = "User not registered for this session", RequestId = requestId });
                 }
@@ -150,7 +150,7 @@ namespace NoorCanvas.Controllers
                 _context.SessionData.Add(sessionData);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Question saved successfully, DataId: {DataId}", 
+                _logger.LogInformation("NOOR-QA-SUBMIT: [{RequestId}] Question saved successfully, DataId: {DataId}",
                     requestId, sessionData.DataId);
 
                 // Question saved to database successfully
@@ -158,7 +158,7 @@ namespace NoorCanvas.Controllers
                 // Broadcast via SignalR to all session participants
                 var sessionGroup = $"session_{session.SessionId}";
                 var hostGroup = $"Host_{session.SessionId}";
-                
+
                 // Broadcast via SignalR to all session participants
                 try
                 {
@@ -202,8 +202,8 @@ namespace NoorCanvas.Controllers
         public async Task<IActionResult> VoteQuestion(string questionId, [FromBody] VoteQuestionRequest request)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            
-            _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Vote submission started for question {QuestionId}", 
+
+            _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Vote submission started for question {QuestionId}",
                 requestId, questionId);
 
             try
@@ -221,7 +221,7 @@ namespace NoorCanvas.Controllers
 
                 // Find session by user token - accept both Active and Configured sessions
                 var session = await _context.Sessions
-                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken && 
+                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
                                             (s.Status == "Active" || s.Status == "Configured"));
 
                 if (session == null)
@@ -229,7 +229,7 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}", 
+                _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}",
                     requestId, session.SessionId, session.Status);
 
                 // Check if user is registered for this session
@@ -302,7 +302,7 @@ namespace NoorCanvas.Controllers
                     await _sessionHub.Clients.Group($"Host_{session.SessionId}")
                         .SendAsync("VoteUpdateReceived", questionText, newVotes);
 
-                    _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Vote recorded successfully, new count: {VoteCount}", 
+                    _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Vote recorded successfully, new count: {VoteCount}",
                         requestId, newVotes);
 
                     return Ok(new
@@ -331,8 +331,8 @@ namespace NoorCanvas.Controllers
         public async Task<IActionResult> GetQuestions(string sessionToken)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            
-            _logger.LogInformation("NOOR-QA-GET: [{RequestId}] Questions retrieval started for token: {Token}", 
+
+            _logger.LogInformation("NOOR-QA-GET: [{RequestId}] Questions retrieval started for token: {Token}",
                 requestId, sessionToken);
 
             try
@@ -365,10 +365,11 @@ namespace NoorCanvas.Controllers
                     })
                     .ToListAsync();
 
-                var questionList = questions.Select(q => {
-                    var data = string.IsNullOrWhiteSpace(q.Content) ? null : 
+                var questionList = questions.Select(q =>
+                {
+                    var data = string.IsNullOrWhiteSpace(q.Content) ? null :
                         JsonSerializer.Deserialize<Dictionary<string, object>>(q.Content);
-                    
+
                     return new
                     {
                         QuestionId = data?.ContainsKey("questionId") == true ? data["questionId"]?.ToString() : "",
@@ -412,7 +413,7 @@ namespace NoorCanvas.Controllers
             var requestId = Guid.NewGuid().ToString("N")[..8];
             var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-            _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question deletion started for QuestionId: {QuestionId}", 
+            _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question deletion started for QuestionId: {QuestionId}",
                 requestId, questionId);
 
             try
@@ -438,25 +439,25 @@ namespace NoorCanvas.Controllers
                     return NotFound(new { Error = "Invalid session token", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Session validated - SessionId: {SessionId}", 
+                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Session validated - SessionId: {SessionId}",
                     requestId, session.SessionId);
 
                 // Find the question and verify ownership
                 var questionRecord = await _context.SessionData
                     .FirstOrDefaultAsync(sd => sd.SessionId == session.SessionId &&
                                              sd.DataType == SessionDataTypes.Question &&
-                                             sd.Content != null && 
+                                             sd.Content != null &&
                                              sd.Content.Contains($"\"questionId\":\"{questionId}\"") &&
                                              sd.CreatedBy == request.UserGuid);
 
                 if (questionRecord == null)
                 {
-                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Question not found or user not authorized - QuestionId: {QuestionId}, UserGuid: {UserGuid}", 
+                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Question not found or user not authorized - QuestionId: {QuestionId}, UserGuid: {UserGuid}",
                         requestId, questionId, request.UserGuid);
                     return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question found and ownership verified - Content: {Content}", 
+                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question found and ownership verified - Content: {Content}",
                     requestId, questionRecord.Content);
 
                 // Delete the question

@@ -2,7 +2,7 @@ namespace NoorCanvas.Models.DTOs;
 
 /// <summary>
 /// DTO for country flag mappings from KSESSIONS database
-/// Maps ISO2 codes to lowercase flag codes for frontend display
+/// Maps ISO2 codes to lowercase flag codes for frontend display.
 /// </summary>
 public class CountryFlagDto
 {
@@ -13,7 +13,7 @@ public class CountryFlagDto
 }
 
 /// <summary>
-/// Response wrapper for country flags API
+/// Response wrapper for country flags API.
 /// </summary>
 public class CountryFlagsResponse
 {

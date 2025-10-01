@@ -96,7 +96,7 @@ namespace NoorCanvas.Controllers
                     .Select(ks => new { ks.SessionId, ks.SessionName, ks.Description })
                     .ToListAsync();
 
-                var sessions = canvasSessions.Select(s => 
+                var sessions = canvasSessions.Select(s =>
                 {
                     var kSessionData = kSessionsData.FirstOrDefault(ks => ks.SessionId == (int)s.SessionId);
                     return new AdminSessionDetails

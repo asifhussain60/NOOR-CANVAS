@@ -4,7 +4,7 @@ namespace NoorCanvas.Models.KSESSIONS
 {
     /// <summary>
     /// Country reference data from KSESSIONS database
-    /// Used for registration form country selection
+    /// Used for registration form country selection.
     /// </summary>
     public class KSessionsCountry
     {
@@ -22,7 +22,7 @@ namespace NoorCanvas.Models.KSESSIONS
         public string? ISO3 { get; set; }
 
         public bool IsActive { get; set; } = true;
-        
+
         public bool IsShortListed { get; set; } = false;
     }
 }
