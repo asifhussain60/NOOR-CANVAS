@@ -15,30 +15,30 @@
         <button @onclick="TogglePanel" 
                 class="debug-toggle-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 ease-in-out"
                 style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;">
-            <i class="fas @(_isExpanded ? "fa-times" : "fa-bug") text-lg"></i>
+            <i class="fas @(_isExpanded ? "fa-times" : "fa-bug") text-lg text-white"></i>
         </button>
         
         @* Debug Panel Content *@
         @if (_isExpanded)
         {
-            <div class="debug-content bg-white border border-gray-300 rounded-lg shadow-xl mt-2 p-4"
+            <div class="debug-content bg-gray-800 border border-gray-600 rounded-lg shadow-xl mt-2 p-4"
                  style="min-width: 300px; max-width: 400px;">
                 
                 @* Header *@
-                <div class="debug-header flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
-                    <h3 class="text-sm font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-bug text-blue-600 mr-2"></i>
+                <div class="debug-header flex items-center justify-between mb-3 pb-2 border-b border-gray-600">
+                    <h3 class="text-sm font-bold text-white flex items-center">
+                        <i class="fas fa-bug text-blue-400 mr-2"></i>
                         Debug Panel
                     </h3>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    <span class="text-xs text-gray-300 bg-gray-700 px-2 py-1 rounded">
                         DEV MODE
                     </span>
                 </div>
                 
                 @* Current Page Info *@
                 <div class="debug-info mb-3">
-                    <div class="text-xs text-gray-600 mb-1">Current View:</div>
-                    <div class="text-sm font-mono text-gray-800 bg-gray-50 px-2 py-1 rounded">
+                    <div class="text-xs text-gray-300 mb-1">Current View:</div>
+                    <div class="text-sm font-mono text-white bg-gray-700 px-2 py-1 rounded">
                         @CurrentViewName
                     </div>
                 </div>
@@ -84,7 +84,7 @@
                     }
                     else
                     {
-                        <div class="text-xs text-gray-500 text-center py-3 bg-gray-50 rounded-lg">
+                        <div class="text-xs text-gray-300 text-center py-3 bg-gray-700 rounded-lg">
                             <i class="fas fa-info-circle mr-1"></i>
                             @GenericMessage
                         </div>
@@ -96,17 +96,18 @@
                 @* Debug Info (collapsible) *@
                 <div class="debug-details mt-3 pt-3 border-t border-gray-200">
                     <button @onclick="ToggleDetails" 
-                            class="w-full text-left text-xs text-gray-600 hover:text-gray-800 flex items-center justify-between">
+                            class="w-full text-left text-xs text-gray-300 hover:text-white flex items-center justify-between">
                         <span>System Info</span>
                         <i class="fas @(_showDetails ? "fa-chevron-up" : "fa-chevron-down")"></i>
                     </button>
                     
                     @if (_showDetails)
                     {
-                        <div class="mt-2 text-xs text-gray-500 space-y-1">
+                        <div class="mt-2 text-xs text-gray-300 space-y-1">
                             <div>Environment: @_environment</div>
                             <div>Timestamp: @DateTime.Now.ToString("HH:mm:ss")</div>
                             <div>Debug Features: @(DevModeService.EnableDebugFeatures ? "Enabled" : "Disabled")</div>
+                            <div>Debug Toasts: @(ShowDebugToasts ? "Enabled" : "Disabled")</div>
                         </div>
                     }
                 </div>
@@ -120,6 +121,7 @@
     [Parameter] public EventCallback OnEnterTestData { get; set; }
     [Parameter] public List<IDebugAction>? DebugActions { get; set; }
     [Parameter] public string GenericMessage { get; set; } = "No debug actions available for this view";
+    [Parameter] public bool ShowDebugToasts { get; set; } = true;
     
     private bool _isExpanded = false;
     private bool _showDetails = false;
@@ -159,15 +161,18 @@
             
             await action.ExecuteAsync();
             
-            // Show success toast and auto-collapse panel
-            await DialogService.ShowSuccessAsync($"'{action.Name}' completed successfully", "Debug Action");
+            // Show success toast only if debug toasts are enabled
+            if (ShowDebugToasts)
+            {
+                await DialogService.ShowSuccessAsync($"'{action.Name}' completed successfully", "Debug Action");
+            }
             _isExpanded = false;
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Debug action '{ActionName}' completed successfully", action.Name);
         }
         catch (Exception ex)
         {
-            // Show error toast and auto-collapse panel
+            // Always show error toasts regardless of ShowDebugToasts setting (user notifications must always display)
             await DialogService.ShowAlertAsync($"Error executing '{action.Name}': {ex.Message}", "Debug Action Error", Components.Dialogs.AlertDialog.AlertType.Error);
             _isExpanded = false;
             
@@ -194,15 +199,18 @@
             
             await OnEnterTestData.InvokeAsync();
             
-            // Show success toast and auto-collapse panel
-            await DialogService.ShowSuccessAsync($"Test data entered successfully for {CurrentViewName}", "Test Data");
+            // Show success toast only if debug toasts are enabled
+            if (ShowDebugToasts)
+            {
+                await DialogService.ShowSuccessAsync($"Test data entered successfully for {CurrentViewName}", "Test Data");
+            }
             _isExpanded = false;
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Test data entry completed successfully");
         }
         catch (Exception ex)
         {
-            // Show error toast and auto-collapse panel
+            // Always show error toasts regardless of ShowDebugToasts setting (user notifications must always display)
             await DialogService.ShowAlertAsync($"Error entering test data: {ex.Message}", "Test Data Error", Components.Dialogs.AlertDialog.AlertType.Error);
             _isExpanded = false;
             
