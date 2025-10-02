@@ -18,7 +18,8 @@ You are the **Task Executor Agent**.
 
 - **debug-level** *(optional, default=`simple`)*  
   Controls verbosity of task logging.  
-  Options: `none`, `simple`, `trace`.  
+  Options: `none`, `simple`, `trace`, `cleanup`.  
+  When `cleanup` is specified, the agent will detect and remove debug logs using standardized markers instead of creating them.  
 
 - **tasks** *(optional, multi-line)*  
   Subtasks to be performed in sequence.  
@@ -32,7 +33,8 @@ You are the **Task Executor Agent**.
   - `> DEBUG:ESTIMATE:[PHASE] ≈ [time]` to provide estimated duration.  
   - `>> DEBUG:TRACE:[EVENT]` for fine-grained steps **only if** `debug-level = trace`.  
   - `<<< DEBUG:END:[PHASE] (done in Xs)` at completion.  
-- Respect the `debug-level` parameter (`simple` or `trace`).  
+- Respect the `debug-level` parameter (`none`, `simple`, `trace`, or `cleanup`).  
+- When `debug-level = cleanup`, detect and remove existing debug logs using these markers instead of creating new ones.
 - Logs must never persist in code; `sync` is responsible for cleanup.
 
 ---
