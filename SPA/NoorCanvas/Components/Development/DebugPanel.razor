@@ -3,6 +3,7 @@
 @implements IDisposable
 @inject IDevModeService DevModeService
 @inject ILogger<DebugPanel> Logger
+@inject DialogService DialogService
 
 @* Only render debug panel in development mode *@
 @if (DevModeService.ShowDevPanels)
@@ -90,14 +91,7 @@
                     }
                 </div>
                 
-                @* Success/Error Messages *@
-                @if (!string.IsNullOrEmpty(_message))
-                {
-                    <div class="debug-message mt-3 p-2 rounded-lg text-xs @(_isSuccess ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200")">
-                        <i class="fas @(_isSuccess ? "fa-check-circle" : "fa-exclamation-triangle") mr-1"></i>
-                        @_message
-                    </div>
-                }
+
                 
                 @* Debug Info (collapsible) *@
                 <div class="debug-details mt-3 pt-3 border-t border-gray-200">
@@ -130,8 +124,6 @@
     private bool _isExpanded = false;
     private bool _showDetails = false;
     private bool _isProcessing = false;
-    private string _message = string.Empty;
-    private bool _isSuccess = false;
     private IDebugAction? _currentAction = null;
     private string _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
     
@@ -161,22 +153,24 @@
         {
             _isProcessing = true;
             _currentAction = action;
-            _message = string.Empty;
             StateHasChanged();
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Executing debug action '{ActionName}' for view: {ViewName}", action.Name, CurrentViewName);
             
             await action.ExecuteAsync();
             
-            _message = $"'{action.Name}' completed successfully";
-            _isSuccess = true;
+            // Show success toast and auto-collapse panel
+            await DialogService.ShowSuccessAsync($"'{action.Name}' completed successfully", "Debug Action");
+            _isExpanded = false;
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Debug action '{ActionName}' completed successfully", action.Name);
         }
         catch (Exception ex)
         {
-            _message = $"Error executing '{action.Name}': {ex.Message}";
-            _isSuccess = false;
+            // Show error toast and auto-collapse panel
+            await DialogService.ShowAlertAsync($"Error executing '{action.Name}': {ex.Message}", "Debug Action Error", Components.Dialogs.AlertDialog.AlertType.Error);
+            _isExpanded = false;
+            
             Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error executing debug action '{ActionName}' for view: {ViewName}", action.Name, CurrentViewName);
         }
         finally
@@ -184,16 +178,6 @@
             _isProcessing = false;
             _currentAction = null;
             StateHasChanged();
-            
-            // Clear message after 3 seconds
-            _ = Task.Delay(3000).ContinueWith(_ =>
-            {
-                InvokeAsync(() =>
-                {
-                    _message = string.Empty;
-                    StateHasChanged();
-                });
-            });
         }
     }
 
@@ -204,38 +188,30 @@
         try
         {
             _isProcessing = true;
-            _message = string.Empty;
             StateHasChanged();
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Entering test data for view: {ViewName}", CurrentViewName);
             
             await OnEnterTestData.InvokeAsync();
             
-            _message = $"Test data entered successfully for {CurrentViewName}";
-            _isSuccess = true;
+            // Show success toast and auto-collapse panel
+            await DialogService.ShowSuccessAsync($"Test data entered successfully for {CurrentViewName}", "Test Data");
+            _isExpanded = false;
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Test data entry completed successfully");
         }
         catch (Exception ex)
         {
-            _message = $"Error entering test data: {ex.Message}";
-            _isSuccess = false;
+            // Show error toast and auto-collapse panel
+            await DialogService.ShowAlertAsync($"Error entering test data: {ex.Message}", "Test Data Error", Components.Dialogs.AlertDialog.AlertType.Error);
+            _isExpanded = false;
+            
             Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error entering test data for view: {ViewName}", CurrentViewName);
         }
         finally
         {
             _isProcessing = false;
             StateHasChanged();
-            
-            // Clear message after 3 seconds
-            _ = Task.Delay(3000).ContinueWith(_ =>
-            {
-                InvokeAsync(() =>
-                {
-                    _message = string.Empty;
-                    StateHasChanged();
-                });
-            });
         }
     }
     
