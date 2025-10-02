@@ -11,10 +11,15 @@
 @using NoorCanvas.Components
 @using System.ComponentModel.DataAnnotations
 @using System.Text.Json
+@using NoorCanvas.Models.Debug
+@using NoorCanvas.Components.Development
+@using NoorCanvas.Data
+@using Microsoft.EntityFrameworkCore
 @inject HostSessionService HostService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<Host_SessionOpener> Logger
+@inject SimplifiedCanvasDbContext DbContext
 
 <PageTitle>NOOR Canvas - Host Session Opener</PageTitle>
 
@@ -173,6 +178,11 @@
         }
     </div>
 </div>
+
+@* Debug Panel - Development Only *@
+<DebugPanel CurrentViewName="HostSessionOpener" 
+           DebugActions="GetHostSessionOpenerDebugActions()" 
+           GenericMessage="Host Session Opener debug actions" />
 
 @code {
     [Parameter] public string? Token { get; set; }
@@ -611,5 +621,48 @@
         }
         
         return baseStyle + "background-color:#006400;color:#ffffff;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);";
+    }
+    
+    // Debug Actions Factory
+    private List<IDebugAction> GetHostSessionOpenerDebugActions()
+    {
+        var actions = new List<IDebugAction>();
+        
+        // Clean Canvas Action - Execute canvas.CleanCanvas stored procedure
+        actions.Add(new DebugAction(
+            "Clean Canvas",
+            "Execute canvas.CleanCanvas stored procedure to reset table structure for testing",
+            async () => await ExecuteCleanCanvasAsync(),
+            "fa-solid fa-broom"
+        )
+        {
+            IsEnabled = true
+        });
+        
+        return actions;
+    }
+    
+    // Execute canvas.CleanCanvas stored procedure
+    private async Task ExecuteCleanCanvasAsync()
+    {
+        try
+        {
+            Logger.LogInformation("NOOR-DEBUG-PANEL: Starting canvas.CleanCanvas execution");
+            
+            // Execute the stored procedure using the database context
+            await DbContext.Database.ExecuteSqlRawAsync("EXEC canvas.CleanCanvas");
+            
+            Logger.LogInformation("NOOR-DEBUG-PANEL: canvas.CleanCanvas executed successfully");
+            
+            // Show success toast notification
+            await JSRuntime.InvokeVoidAsync("showNoorToast", "Clean Canvas completed successfully", "success");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error executing canvas.CleanCanvas");
+            
+            // Show error toast notification
+            await JSRuntime.InvokeVoidAsync("showNoorToast", $"Clean Canvas failed: {ex.Message}", "error");
+        }
     }
 }
