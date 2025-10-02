@@ -216,14 +216,18 @@
             {
                 try
                 {
+                    Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: HostQuestionAlert received via SignalR");
+                    
                     // Validate question data
                     if (questionData == null)
                     {
+                        Logger.LogWarning("SIGNAL-PARTICIPANT-TRACE: questionData is null");
                         return;
                     }
 
                     // Parse the questionData object from SignalR
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                    Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Raw SignalR payload: {JsonPayload}", jsonString);
                     
                     using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDocument.RootElement;
@@ -239,10 +243,37 @@
                         questionText = questionTextProp.GetString() ?? "Question text unavailable";
                     }
                     
+                    // SIGNAL-PARTICIPANT FIX: Extract participant information from SignalR payload
+                    var userName = "Anonymous";
+                    if (root.TryGetProperty("userName", out var userNameProp) && userNameProp.ValueKind == JsonValueKind.String)
+                    {
+                        userName = userNameProp.GetString() ?? "Anonymous";
+                        Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Extracted userName from SignalR: '{UserName}'", userName);
+                    }
+                    
+                    var userId = "";
+                    if (root.TryGetProperty("userId", out var userIdProp) && userIdProp.ValueKind == JsonValueKind.String)
+                    {
+                        userId = userIdProp.GetString() ?? "";
+                        Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Extracted userId from SignalR: '{UserId}'", userId);
+                    }
+                    
+                    var submittedAt = DateTime.UtcNow;
+                    if (root.TryGetProperty("submittedAt", out var submittedAtProp) && submittedAtProp.ValueKind == JsonValueKind.String)
+                    {
+                        if (DateTime.TryParse(submittedAtProp.GetString(), out var parsedDate))
+                        {
+                            submittedAt = parsedDate;
+                        }
+                    }
+                    
                     var newQuestion = new QuestionItem 
                     { 
                         Id = Guid.NewGuid(), // Generate new GUID for UI tracking
                         Text = questionText,
+                        UserName = userName, // ← CRITICAL FIX: Now extracting participant name from SignalR
+                        CreatedBy = userId,  // ← CRITICAL FIX: Now extracting userId from SignalR
+                        CreatedAt = submittedAt,
                         IsAnswered = false,
                         VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0
                     };
@@ -257,6 +288,9 @@
                     }
                     
                     Model?.Questions?.Add(newQuestion);
+                    
+                    Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Successfully processed question - UserName: '{UserName}', UserId: '{UserId}', Text: '{Text}'", 
+                        newQuestion.UserName, newQuestion.CreatedBy, newQuestion.Text?.Substring(0, Math.Min(50, newQuestion.Text?.Length ?? 0)));
                     
                     // Show toast notification to host about new question
                     await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);

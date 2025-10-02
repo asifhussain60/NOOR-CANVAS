@@ -11,11 +11,11 @@ async function makeApiCall(url) {
     return new Promise((resolve, reject) => {
         const req = https.get(url, (res) => {
             let data = '';
-            
+
             res.on('data', (chunk) => {
                 data += chunk;
             });
-            
+
             res.on('end', () => {
                 try {
                     const parsedData = JSON.parse(data);
@@ -25,7 +25,7 @@ async function makeApiCall(url) {
                 }
             });
         });
-        
+
         req.on('error', (err) => {
             reject(err);
         });
@@ -35,12 +35,12 @@ async function makeApiCall(url) {
 async function analyzeQuestionData() {
     console.log('🔍 ANALYZING: Question data structure from API');
     console.log('='.repeat(50));
-    
+
     const testConfig = {
         hostToken: 'KJAHA99L',
         userToken: 'PQ9N5YWW'
     };
-    
+
     try {
         // Test 1: Get questions using HostToken
         console.log('\n📊 TEST 1: Getting questions with HostToken');
@@ -49,7 +49,7 @@ async function analyzeQuestionData() {
         if (hostResult.status === 200 && hostResult.data) {
             console.log('📦 HostToken Response:');
             console.log(JSON.stringify(hostResult.data, null, 2));
-            
+
             if (hostResult.data.questions && hostResult.data.questions.length > 0) {
                 console.log('\n🔍 Question Analysis (HostToken):');
                 hostResult.data.questions.forEach((q, i) => {
@@ -66,7 +66,7 @@ async function analyzeQuestionData() {
         } else {
             console.log(`❌ Error: ${hostResult.status} - ${JSON.stringify(hostResult.data)}`);
         }
-        
+
         // Test 2: Get questions using UserToken
         console.log('\n📊 TEST 2: Getting questions with UserToken');
         const userResult = await makeApiCall(`https://localhost:9091/api/question/session/${testConfig.userToken}`);
@@ -74,7 +74,7 @@ async function analyzeQuestionData() {
         if (userResult.status === 200 && userResult.data) {
             console.log('📦 UserToken Response:');
             console.log(JSON.stringify(userResult.data, null, 2));
-            
+
             if (userResult.data.questions && userResult.data.questions.length > 0) {
                 console.log('\n🔍 Question Analysis (UserToken):');
                 userResult.data.questions.forEach((q, i) => {
@@ -91,7 +91,7 @@ async function analyzeQuestionData() {
         } else {
             console.log(`❌ Error: ${userResult.status} - ${JSON.stringify(userResult.data)}`);
         }
-        
+
         // Test 3: Get participant info
         console.log('\n📊 TEST 3: Getting participant information');
         const participantResult = await makeApiCall(`https://localhost:9091/api/participant/session/${testConfig.userToken}/participants`);
@@ -102,14 +102,14 @@ async function analyzeQuestionData() {
         } else {
             console.log(`❌ Error: ${participantResult.status} - ${JSON.stringify(participantResult.data)}`);
         }
-        
+
         console.log('\n📋 SUMMARY:');
         console.log('='.repeat(50));
         console.log('1. Question data structure includes: text, userName, createdBy, votes');
         console.log('2. HostToken vs UserToken may return different data');
         console.log('3. userName field is where participant names should appear');
         console.log('4. If userName shows "Anonymous", the issue is in participant name resolution');
-        
+
     } catch (error) {
         console.error('❌ API test failed:', error);
     }

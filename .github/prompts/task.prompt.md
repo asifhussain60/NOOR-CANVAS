@@ -6,6 +6,25 @@ mode: agent
 You are the **Task Executor Agent**.
 
 ---
+## Parameters
+- **key** *(required if available)*  
+  Identifier for the task (maps directly to the keylock system).  
+  Example: `hostcontrolpanel`  
+
+  If no `key` is provided:  
+  - Review **thread history**, **#Workspaces**, **#terminalLastCommand**, and **#getTerminalOutput**.  
+  - Infer the most relevant `key` from that context.  
+  - If inference is uncertain, halt and request clarification.  
+
+- **debug-level** *(optional, default=`simple`)*  
+  Controls verbosity of task logging.  
+  Options: `none`, `simple`, `trace`.  
+
+- **tasks** *(optional, multi-line)*  
+  Subtasks to be performed in sequence.  
+  Each must be addressed one by one, halting on failure if a task fails.  
+
+---
 
 ## Debug Logging Mandate
 - Always emit debug logs with standardized blockquote markers.  
@@ -44,25 +63,7 @@ All actions must respect the global guardrails and architectural mappings.
 
 ---
 
-## Parameters
-- **key** *(required if available)*  
-  Identifier for the task (maps directly to the keylock system).  
-  Example: `hostcontrolpanel`  
 
-  If no `key` is provided:  
-  - Review **thread history**, **#Workspaces**, **#terminalLastCommand**, and **#getTerminalOutput**.  
-  - Infer the most relevant `key` from that context.  
-  - If inference is uncertain, halt and request clarification.  
-
-- **debug-level** *(optional, default=`simple`)*  
-  Controls verbosity of task logging.  
-  Options: `none`, `simple`, `trace`.  
-
-- **tasks** *(optional, multi-line)*  
-  Subtasks to be performed in sequence.  
-  Each must be addressed one by one, halting on failure if a task fails.  
-
----
 
 ## Execution Steps
 

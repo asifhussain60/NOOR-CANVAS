@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 
 async function debugQuestionDataFlow() {
     console.log('🔍 DEBUG: Analyzing question data flow in HostControlPanel.razor');
-    
+
     const testConfig = {
         baseUrl: 'http://localhost:9090',
         sessionId: '212',
@@ -17,7 +17,7 @@ async function debugQuestionDataFlow() {
     };
 
     const browser = await chromium.launch({ headless: false, slowMo: 500 });
-    
+
     try {
         // Create separate contexts for host and participant
         const hostContext = await browser.newContext();
@@ -30,8 +30,8 @@ async function debugQuestionDataFlow() {
         // Monitor all console logs for question data analysis
         hostPage.on('console', msg => {
             const text = msg.text();
-            if (text.includes('HOST-QUESTIONS-TRACE') || 
-                text.includes('QUESTIONS-DATA') || 
+            if (text.includes('HOST-QUESTIONS-TRACE') ||
+                text.includes('QUESTIONS-DATA') ||
                 text.includes('HostQuestionAlert') ||
                 text.includes('questionData')) {
                 console.log(`🎯 HOST-CONSOLE: ${text}`);
@@ -62,7 +62,7 @@ async function debugQuestionDataFlow() {
 
         // Step 3: Register participant with proper name
         console.log('👤 Step 3: Registering participant with name');
-        
+
         // Check if registration form is present
         const registrationForm = await userPage.$('form');
         if (registrationForm) {
@@ -78,23 +78,23 @@ async function debugQuestionDataFlow() {
 
         // Step 4: Submit a test question and monitor SignalR data
         console.log('❓ Step 4: Submitting test question to analyze data structure');
-        
+
         const testQuestion = `Debug Test Question - ${new Date().toLocaleTimeString()}`;
-        
+
         // Look for the question input field
         const questionInput = await userPage.$('input[placeholder*="question"], textarea[placeholder*="question"], input[type="text"]');
         if (questionInput) {
             await questionInput.fill(testQuestion);
-            
+
             // Find and click submit button
             const submitButton = await userPage.$('button:has-text("Submit"), button:has-text("Ask"), button[type="submit"]');
             if (submitButton) {
                 console.log(`📤 Submitting question: "${testQuestion}"`);
                 await submitButton.click();
-                
+
                 // Wait for SignalR transmission and host reception
                 await hostPage.waitForTimeout(5000);
-                
+
                 console.log('✅ Question submitted, waiting for HostControlPanel to receive data');
             } else {
                 console.log('❌ Submit button not found');
@@ -105,7 +105,7 @@ async function debugQuestionDataFlow() {
 
         // Step 5: Analyze the question data in HostControlPanel
         console.log('🔍 Step 5: Analyzing question data in HostControlPanel');
-        
+
         // Check if questions are displayed
         const questionsList = await hostPage.$$('[data-testid*="question"], .question-item, div:has-text("' + testQuestion + '")');
         console.log(`📋 Found ${questionsList.length} question elements in HostControlPanel`);
@@ -114,7 +114,7 @@ async function debugQuestionDataFlow() {
         const nameElements = await hostPage.$$eval('*', (elements) => {
             return elements
                 .filter(el => el.textContent && (
-                    el.textContent.includes('Test Participant') || 
+                    el.textContent.includes('Test Participant') ||
                     el.textContent.includes('Anonymous')
                 ))
                 .map(el => ({
@@ -131,13 +131,13 @@ async function debugQuestionDataFlow() {
 
         // Step 6: Check API calls and data structure
         console.log('🌐 Step 6: Checking API calls for question data');
-        
+
         // Monitor network requests
         hostPage.on('response', async response => {
             if (response.url().includes('/api/question/session/')) {
                 console.log(`🔗 API Call: ${response.url()}`);
                 console.log(`📊 Status: ${response.status()}`);
-                
+
                 if (response.status() === 200) {
                     try {
                         const responseData = await response.json();
@@ -156,16 +156,16 @@ async function debugQuestionDataFlow() {
 
         // Step 7: Examine the HTML structure for questions
         console.log('🔍 Step 7: Examining HTML structure for questions');
-        
+
         const questionsHTML = await hostPage.$eval('body', (body) => {
-            const questionElements = Array.from(body.querySelectorAll('*')).filter(el => 
+            const questionElements = Array.from(body.querySelectorAll('*')).filter(el =>
                 el.textContent && (
-                    el.textContent.toLowerCase().includes('question') || 
-                    el.textContent.includes('Test Participant') || 
+                    el.textContent.toLowerCase().includes('question') ||
+                    el.textContent.includes('Test Participant') ||
                     el.textContent.includes('Anonymous')
                 )
             );
-            
+
             return questionElements.slice(0, 5).map(el => ({
                 tag: el.tagName,
                 text: el.textContent.trim().substring(0, 100),
