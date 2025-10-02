@@ -1211,26 +1211,18 @@
             
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] ✅ STEP 4/4: KSESSIONS-style PublishAssetContent completed successfully, SessionId={SessionId}, broadcastId={BroadcastId}", SessionId.Value, broadcastId);
             
-            // TOASTR: Show success notification with asset details
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                $"{assetType} #{instanceNumber} has been shared with all participants!", 
-                "✅ Share Successful", 
-                "success");
-            Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Success notification shown, AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId} ;CLEANUP_OK", assetType, instanceNumber, broadcastId);
+            // SignalR broadcast logging preserved for troubleshooting
+            Logger.LogInformation("[ASSET-SHARE-BROADCAST] ✅ Asset shared successfully - AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId}", assetType, instanceNumber, broadcastId);
             
-            await ShowSuccessMessageAsync($"✅ {assetType} #{instanceNumber} shared successfully via KSESSIONS pattern!");
+            // Success notification removed - SignalR broadcast logging preserved above
             Logger.LogInformation("[ASSET-SHARE-KSESSIONS] 🎉 SHARE COMPLETE: Asset broadcasted using direct content approach, broadcastId={BroadcastId}", broadcastId);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "[ASSET-SHARE-KSESSIONS] ❌ Error in KSESSIONS-style asset sharing: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
             
-            // TOASTR: Show exception error with user-friendly message
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                $"Failed to share {assetType} #{instanceNumber}: {ex.Message}", 
-                "Share Failed", 
-                "error");
-            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Exception error notification shown, Exception={ExceptionType}, broadcastId={BroadcastId} ;CLEANUP_OK", ex.GetType().Name, broadcastId);
+            // SignalR broadcast error logging preserved for troubleshooting
+            Logger.LogError("[ASSET-SHARE-BROADCAST] ❌ Asset sharing failed - AssetType={AssetType}, Instance={InstanceNumber}, Exception={ExceptionType}, broadcastId={BroadcastId}", assetType, instanceNumber, ex.GetType().Name, broadcastId);
             
             await ShowErrorMessageAsync($"KSESSIONS-style asset sharing failed: {ex.Message}");
         }
@@ -1322,7 +1314,7 @@
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 📡 Asset should now be broadcasted to all SessionCanvas clients in group session_{SessionId}", SessionId.Value);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] ✅ STEP 6/7: SignalR ShareAsset call completed successfully, SessionId={SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:BROADCAST-TRACK] 📡 STEP 7/7: Broadcast should now reach SessionCanvas clients in group session_{SessionId}, broadcastId={BroadcastId} ;CLEANUP_OK", SessionId.Value, broadcastId);
-            await ShowSuccessMessageAsync("✅ Test asset shared successfully via SignalR!");
+            // Test success notification removed - SignalR broadcast logging preserved
         }
         catch (TimeoutException ex)
         {
@@ -3458,66 +3450,7 @@
         }, 5000);
     };
 
-    // Debug Share Toast Function - shows comprehensive debugging info
-    window.showShareDebugToast = function(message, data, type = 'info') {
-        const colors = {
-            info: { bg: '#3B82F6', icon: '🔍' },
-            success: { bg: '#10B981', icon: '✅' },
-            error: { bg: '#DC2626', icon: '❌' },
-            warning: { bg: '#F59E0B', icon: '⚠️' },
-            payload: { bg: '#8B5CF6', icon: '📦' }
-        };
-        
-        const config = colors[type] || colors.info;
-        
-        const toast = document.createElement('div');
-        toast.innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                <span style="font-size: 1.5rem;">${config.icon}</span>
-                <div style="flex: 1;">
-                    <div style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1rem;">${message}</div>
-                    ${data ? `<pre style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; max-height: 200px; overflow-y: auto; margin: 0; white-space: pre-wrap; word-break: break-all;">${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}</pre>` : ''}
-                </div>
-            </div>
-        `;
-        
-        toast.style.cssText = `
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background: ${config.bg};
-            color: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.3s ease;
-            z-index: 10001;
-            font-family: 'Consolas', 'Monaco', monospace;
-            max-width: 500px;
-            word-wrap: break-word;
-        `;
-        
-        document.body.appendChild(toast);
-        
-        // Show toast
-        setTimeout(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Auto-hide after 8 seconds for debug messages
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            }, 300);
-        }, 8000);
-    };
+    // Debug share toast function removed - preserving console logging only
 
     // Simplified clipboard handling - Blazor will handle copy operations directly via JSRuntime
 
@@ -3716,7 +3649,7 @@ Please share this report with the development team for debugging.`;
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 CLICK DETECTED:', clickData);
         
         // TOAST: Show click detection
-        showShareDebugToast('🔍 CLICK DETECTED!', clickData, 'info');
+        console.log('[SHARE-DEBUG] 🔍 CLICK DETECTED:', clickData);
         
         // Check if clicked element is a share button
         const shareButton = event.target.closest('.ks-share-button');
@@ -3731,9 +3664,9 @@ Please share this report with the development team for debugging.`;
         
         // TOAST: Show share button detection result
         if (shareButton) {
-            showShareDebugToast('✅ SHARE BUTTON FOUND!', shareButtonCheck, 'success');
+            console.log('[SHARE-DEBUG] ✅ SHARE BUTTON FOUND:', shareButtonCheck);
         } else {
-            showShareDebugToast('❌ Not a share button click', shareButtonCheck, 'warning');
+            console.log('[SHARE-DEBUG] ❌ Not a share button click:', shareButtonCheck);
         }
         
         if (!shareButton) {
@@ -3760,12 +3693,12 @@ Please share this report with the development team for debugging.`;
         console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 SHARE BUTTON ATTRIBUTES:', attributesData);
         
         // TOAST: Show extracted attributes
-        showShareDebugToast('📋 SHARE BUTTON ATTRIBUTES', attributesData, 'info');
+        console.log('[SHARE-DEBUG] 📋 SHARE BUTTON ATTRIBUTES:', attributesData);
         
         if (!shareId || !assetType) {
             const errorData = { shareId, assetType, instanceNumber };
             console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ Missing data attributes:', errorData);
-            showShareDebugToast('❌ MISSING DATA ATTRIBUTES', errorData, 'error');
+            console.log('[SHARE-DEBUG] ❌ MISSING DATA ATTRIBUTES:', errorData);
             alert(`Missing data attributes: shareId=${shareId}, assetType=${assetType}`);
             return;
         }
@@ -3779,9 +3712,9 @@ Please share this report with the development team for debugging.`;
                 className: assetElement.className || '',
                 elementFound: true
             };
-            showShareDebugToast('📦 HTML PAYLOAD TO BE SHARED', htmlPayload, 'payload');
+            console.log('[SHARE-DEBUG] 📦 HTML PAYLOAD TO BE SHARED:', htmlPayload);
         } else {
-            showShareDebugToast('❌ ASSET ELEMENT NOT FOUND', { shareId, selector: `[data-asset-id="${shareId}"]` }, 'error');
+            console.log('[SHARE-DEBUG] ❌ ASSET ELEMENT NOT FOUND:', { shareId, selector: `[data-asset-id="${shareId}"]` });
         }
         
         console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ Share button clicked - processing:', { shareId, assetType, instanceNumber });
@@ -3801,21 +3734,21 @@ Please share this report with the development team for debugging.`;
         console.log('[DOM-TIMING] About to invoke KSESSIONS ShareAsset method');
         
         // TOAST: Show method call initiation
-        showShareDebugToast('🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber }, 'info');
+        console.log('[SHARE-DEBUG] 🔄 CALLING C# METHOD...', { shareId, assetType, instanceNumber });
         
         // Call C# method via DotNet interop
         if (window.dotNetRef) {
             console.log('[DEBUG-WORKITEM:assetshare:continue] 📞 DotNet reference available, invoking ShareAsset...');
             
             // TOAST: Show DotNet reference status
-            showShareDebugToast('📞 DOTNET REFERENCE FOUND', { hasReference: true, method: 'ShareAsset' }, 'success');
+            console.log('[SHARE-DEBUG] 📞 DOTNET REFERENCE FOUND:', { hasReference: true, method: 'ShareAsset' });
             
             window.dotNetRef.invokeMethodAsync('ShareAsset', shareId, assetType, instanceNumber)
                 .then((result) => {
                     console.log('[DEBUG-WORKITEM:assetshare:continue] ✅ ShareAsset completed successfully:', result);
                     
                     // TOAST: Show success result
-                    showShareDebugToast('🎉 SHARE SUCCESS!', result, 'success');
+                    console.log('[SHARE-DEBUG] 🎉 SHARE SUCCESS:', result);
                     
                     // Success feedback
                     shareButton.innerHTML = '✅ SHARED!';
@@ -3832,7 +3765,7 @@ Please share this report with the development team for debugging.`;
                     console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ ShareAsset failed:', error);
                     
                     // TOAST: Show error details
-                    showShareDebugToast('💥 SHARE FAILED!', { error: error.toString(), shareId, assetType }, 'error');
+                    console.log('[SHARE-DEBUG] 💥 SHARE FAILED:', { error: error.toString(), shareId, assetType });
                     
                     // Error feedback
                     shareButton.innerHTML = '❌ ERROR';
@@ -3849,7 +3782,7 @@ Please share this report with the development team for debugging.`;
             console.error('[DEBUG-WORKITEM:assetshare:continue] ❌ DotNet reference not available');
             
             // TOAST: Show DotNet reference error
-            showShareDebugToast('❌ NO DOTNET REFERENCE', { hasReference: false, windowDotNetRef: !!window.dotNetRef }, 'error');
+            console.log('[SHARE-DEBUG] ❌ NO DOTNET REFERENCE:', { hasReference: false, windowDotNetRef: !!window.dotNetRef });
             
             alert('DotNet reference not available. Please refresh the page.');
             shareButton.innerHTML = originalContent;
