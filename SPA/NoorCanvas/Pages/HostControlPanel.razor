@@ -216,18 +216,15 @@
             {
                 try
                 {
-                    Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: HostQuestionAlert received via SignalR");
-                    
                     // Validate question data
                     if (questionData == null)
                     {
-                        Logger.LogWarning("SIGNAL-PARTICIPANT-TRACE: questionData is null");
+                        Logger.LogWarning("SignalR HostQuestionAlert: questionData is null");
                         return;
                     }
 
                     // Parse the questionData object from SignalR
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                    Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Raw SignalR payload: {JsonPayload}", jsonString);
                     
                     using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDocument.RootElement;
@@ -243,19 +240,17 @@
                         questionText = questionTextProp.GetString() ?? "Question text unavailable";
                     }
                     
-                    // SIGNAL-PARTICIPANT FIX: Extract participant information from SignalR payload
+                    // Extract participant information from SignalR payload
                     var userName = "Anonymous";
                     if (root.TryGetProperty("userName", out var userNameProp) && userNameProp.ValueKind == JsonValueKind.String)
                     {
                         userName = userNameProp.GetString() ?? "Anonymous";
-                        Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Extracted userName from SignalR: '{UserName}'", userName);
                     }
                     
                     var userId = "";
                     if (root.TryGetProperty("userId", out var userIdProp) && userIdProp.ValueKind == JsonValueKind.String)
                     {
                         userId = userIdProp.GetString() ?? "";
-                        Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Extracted userId from SignalR: '{UserId}'", userId);
                     }
                     
                     var submittedAt = DateTime.UtcNow;
@@ -288,9 +283,6 @@
                     }
                     
                     Model?.Questions?.Add(newQuestion);
-                    
-                    Logger.LogInformation("SIGNAL-PARTICIPANT-TRACE: Successfully processed question - UserName: '{UserName}', UserId: '{UserId}', Text: '{Text}'", 
-                        newQuestion.UserName, newQuestion.CreatedBy, newQuestion.Text?.Substring(0, Math.Min(50, newQuestion.Text?.Length ?? 0)));
                     
                     // Show toast notification to host about new question
                     await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
@@ -376,9 +368,8 @@
                 
                 Logger.LogInformation("NOOR-SIGNALR: Host joined session {SessionId} and host group successfully", SessionId.Value);
                 
-                // [DEBUG-WORKITEM:hostcanvas:impl] JavaScript interop moved to OnAfterRenderAsync to fix prerendering error ;CLEANUP_OK
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 📊 SessionId {SessionId} will be set in JavaScript during OnAfterRenderAsync", SessionId.Value);
-                Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:impl] SessionId {SessionId} scheduled for JavaScript assignment in OnAfterRenderAsync ;CLEANUP_OK", SessionId.Value);
+                // JavaScript interop moved to OnAfterRenderAsync to fix prerendering error
+                Logger.LogInformation("SessionId {SessionId} scheduled for JavaScript assignment", SessionId.Value);
             }
             catch (Exception ex)
             {
@@ -1129,29 +1120,25 @@
     public async Task ShareAsset(string shareId, string assetType, int instanceNumber)
     {
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🚀🚀🚀 SHAREBUTTON CLICKED - C# METHOD CALLED! broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 📦 PHASE1 INPUT: ShareId={ShareId}, AssetType={AssetType}, Instance={InstanceNumber}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, assetType, instanceNumber, broadcastId);
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🎯 PHASE1 STEP 1/7: ShareAsset initiated, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
-        Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] 🔍 DEBUGGING: Method successfully invoked from JavaScript! This proves the click handler is working! ;CLEANUP_OK");
+        Logger.LogInformation("ShareAsset initiated: {ShareId} {AssetType} #{InstanceNumber}", shareId, assetType, instanceNumber);
         
         // TOASTR: Show immediate feedback that click was detected and C# method called
         await JSRuntime.InvokeVoidAsync("showNoorToast", 
             $"Processing share request for {assetType} #{instanceNumber}...", 
             "Share Button Clicked", 
             "info");
-        Logger.LogInformation("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Share click notification shown to user, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
+        // Toast notification shown to user
         
         if (SessionId == null || hubConnection == null)
         {
             var errorMsg = "Cannot share asset: SignalR connection or session not available";
-            Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ Precondition failed: SessionId={SessionId}, hubConnection={HubConnectionExists}", SessionId, hubConnection != null);
+            Logger.LogError("Share asset failed: SessionId={SessionId}, hubConnection available={HubConnectionExists}", SessionId, hubConnection != null);
             
-            // TOASTR: Show error notification
+            // Show error notification
             await JSRuntime.InvokeVoidAsync("showNoorToast", 
                 "Share failed: Session or SignalR connection not available. Please refresh the page.", 
                 "Share Error", 
                 "error");
-            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Connection error notification shown, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
             
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -3669,20 +3656,13 @@ Please share this report with the development team for debugging.`;
         }
     };
 
-    console.log('[DEBUG-WORKITEM:hostcanvas:ui] Error display system initialized');
-    
-    // [DEBUG-WORKITEM:assetshare:continue] Share button handler setup ;CLEANUP_OK
+    // Share button handler setup
     function setupShareButtonHandlers(dotNetObjectRef) {
         const handlerSetupTime = new Date();
         const timeString = handlerSetupTime.toLocaleTimeString() + '.' + handlerSetupTime.getMilliseconds().toString().padStart(3, '0');
         
-        console.log('[DEBUG-WORKITEM:assetshare:continue] 🚀 Setting up share button handlers...');
-        console.log('[ASSET-SHARE-TIMING] 👂 HANDLER SETUP START:', timeString);
-        console.log('[DEBUG-WORKITEM:assetshare:continue] 🔍 DotNet reference received:', dotNetObjectRef);
-        
         // Remove existing listeners to prevent duplicates
         document.removeEventListener('click', handleShareButtonClick);
-        console.log('[DEBUG-WORKITEM:assetshare:continue] 🗑️  Removed existing click listener');
         
         // Store reference for cleanup
         window.dotNetRef = dotNetObjectRef;
