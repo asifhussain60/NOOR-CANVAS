@@ -1,14 +1,15 @@
 # System Structure Summary
 
 ## Active Prompts
-- **task.prompt.md** → canonical task executor  
-- **sync.prompt.md** → synchronizer + janitor (folded in cleanup duties)  
-- **refactor.prompt.md** → structural integrity agent (checkpointed, approval-gated, zero warnings)  
-- **pwtest.prompt.md** → automated UI/regression test executor (Playwright-based)  
-- **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
-- **inventory.prompt.md** → inventory and dashboard manager  
 - **generate-chat-summary.prompt.md** → chat context documentation agent (continuity preservation)  
+- **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
+- **multi-browser-testing.prompt.md** → multi-browser test execution and coordination agent  
+- **next-thread.prompt.md** → conversation continuation and thread management agent  
+- **pwtest.prompt.md** → automated UI/regression test executor (Playwright-based)  
 - **question.prompt.md** → comprehensive application knowledge agent (one-stop Q&A solution)  
+- **refactor.prompt.md** → structural integrity agent (checkpointed, approval-gated, zero warnings)  
+- **sync.prompt.md** → synchronizer + janitor (folded in cleanup duties)  
+- **task.prompt.md** → canonical task executor  
 
 ## Retired Prompts
 - **retrosync.prompt.md** → replaced by sync  
@@ -35,7 +36,8 @@
 - **sync** → orchestrates system state, calls **generate-chat-summary** as final step  
 - **healthcheck** → validates system integrity, reports to **sync** for fixes  
 - **pwtest** → creates tests, integrates with **task** completion workflow  
-- **inventory** → provides status overview, supports all other agents with context  
+- **multi-browser-testing** → coordinates cross-browser test execution with **pwtest**  
+- **next-thread** → manages conversation continuity and thread transitions  
 - **generate-chat-summary** → captures session state, enables seamless continuity  
 - **question** → analyzes application queries, supports all agents with knowledge and investigation
 
