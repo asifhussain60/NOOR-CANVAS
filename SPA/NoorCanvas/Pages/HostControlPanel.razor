@@ -652,10 +652,28 @@
             }
             
             // Load existing questions from database
-            if (Model != null && !string.IsNullOrEmpty(UserToken))
+            // Fix for participant name display: Use available token to load questions
+            string? questionLoadToken = null;
+            if (!string.IsNullOrEmpty(UserToken))
             {
-                await LoadQuestionsForHostAsync(UserToken);
-                Logger.LogInformation("QUESTIONS-DATA: Loaded existing questions for SessionId: {SessionId}", sessionId);
+                questionLoadToken = UserToken;
+                Logger.LogInformation("🔍 HOST-QUESTIONS-TRACE: Using UserToken for questions: '{Token}'", UserToken);
+            }
+            else if (!string.IsNullOrEmpty(HostToken))
+            {
+                questionLoadToken = HostToken;
+                Logger.LogInformation("🔍 HOST-QUESTIONS-TRACE: Fallback to HostToken for questions: '{Token}'", HostToken);
+            }
+            
+            if (Model != null && !string.IsNullOrEmpty(questionLoadToken))
+            {
+                await LoadQuestionsForHostAsync(questionLoadToken);
+                Logger.LogInformation("QUESTIONS-DATA: Loaded existing questions for SessionId: {SessionId} using token: {Token}", sessionId, questionLoadToken);
+            }
+            else
+            {
+                Logger.LogWarning("🔍 HOST-QUESTIONS-TRACE: Cannot load questions - Model: {ModelNull}, UserToken: '{UserToken}', HostToken: '{HostToken}'", 
+                    Model == null, UserToken ?? "NULL", HostToken ?? "NULL");
             }
             
         }

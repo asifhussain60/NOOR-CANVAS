@@ -8,6 +8,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
+@using System.Text.Json
 @using NoorCanvas.Components.Development
 @using NoorCanvas.Components
 @using System.Timers
@@ -601,6 +602,22 @@ background-color: #effff9;
                 }
             </div>
 
+            <!-- Welcome Message Panel -->
+            <div style="background-color:#ffffff;border-radius:1.5rem;padding:1.5rem 2rem;margin:1rem auto;max-width:50rem;text-align:center;">
+                <div style="display:flex;align-items:center;justify-content:center;">
+                    <span style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:600;color:#006400;">
+                        @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
+                        {
+                            @($"{Model.CurrentParticipantName}, Welcome To The Waiting Room")
+                        }
+                        else
+                        {
+                            @("Welcome To The Waiting Room")
+                        }
+                    </span>
+                </div>
+            </div>
+
             <!-- Side-by-Side Panels Container: Waiting Room & Session Timer -->
             <div class="panels-container">
                 
@@ -758,6 +775,7 @@ background-color: #effff9;
     private int _retryAttempts = 0;
     private const int MaxRetryAttempts = 3;
     private long? _sessionId;
+    private string CurrentUserGuid { get; set; } = string.Empty;
     
 
 
@@ -807,6 +825,9 @@ background-color: #effff9;
                 if (Model?.CurrentState == SessionWaitingState.Loaded)
                 {
                     InitializeTimers();
+                    // Load current participant info first
+                    await LoadCurrentParticipantFromApiAsync(requestId);
+                    // Load participants list
                     await LoadParticipantsAsync(requestId);
                 }
             }
@@ -1081,6 +1102,77 @@ background-color: #effff9;
         }
         
         await InvokeAsync(() => StateHasChanged());
+    }
+
+    /// <summary>
+    /// Loads current participant info directly from API using token and UserGuid.
+    /// Similar to SessionCanvas.razor approach for consistent participant identification.
+    /// </summary>
+    private async Task LoadCurrentParticipantFromApiAsync(string requestId)
+    {
+        try
+        {
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            
+            // First, try to get UserGuid from browser storage
+            var storageKey = $"noor_user_guid_{SessionToken}";
+            try
+            {
+                CurrentUserGuid = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey) ?? string.Empty;
+            }
+            catch
+            {
+                CurrentUserGuid = string.Empty;
+            }
+            
+            // Build API URL with optional UserGuid parameter
+            var apiUrl = $"api/participant/session/{SessionToken}/me";
+            if (!string.IsNullOrEmpty(CurrentUserGuid))
+            {
+                apiUrl += $"?userGuid={Uri.EscapeDataString(CurrentUserGuid)}";
+            }
+            
+            var response = await httpClient.GetAsync(apiUrl);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var participantResponse = JsonSerializer.Deserialize<ParticipantMeResponse>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                
+                if (participantResponse != null && !string.IsNullOrEmpty(participantResponse.Name))
+                {
+                    if (Model != null)
+                    {
+                        Model.CurrentParticipantName = participantResponse.Name;
+                    }
+                    
+                    // Update UserGuid if provided in response
+                    if (!string.IsNullOrEmpty(participantResponse.UserGuid))
+                    {
+                        CurrentUserGuid = participantResponse.UserGuid;
+                        
+                        // Store UserGuid for session persistence
+                        try
+                        {
+                            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, CurrentUserGuid);
+                        }
+                        catch
+                        {
+                            // Storage failed, continue without persistence
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // Log error but don't fail the entire loading process
+            // Current participant name will remain null, showing generic welcome message
+        }
     }
 
     // GetCountryFlag method removed - now using database-driven flag codes from KSESSIONS.Countries table
@@ -1599,6 +1691,7 @@ background-color: #effff9;
         public List<ParticipantData>? Participants { get; set; }
         public bool SessionStarted { get; set; }
         public string? ErrorMessage { get; set; }
+        public string? CurrentParticipantName { get; set; }
     }
 
     public enum SessionWaitingState
@@ -1679,5 +1772,16 @@ background-color: #effff9;
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? CountryFlag { get; set; } // Database-driven flag code
+    }
+
+    public class ParticipantMeResponse
+    {
+        public string? Name { get; set; }
+        public string? UserGuid { get; set; }
+        public string? Email { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public DateTime JoinedAt { get; set; }
+        public DateTime LastSeenAt { get; set; }
     }
 }

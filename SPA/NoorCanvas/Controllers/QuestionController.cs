@@ -115,6 +115,9 @@ namespace NoorCanvas.Controllers
                     requestId, session.SessionId, session.Status);
 
                 // Check if user is registered for this session
+                _logger.LogTrace("NOOR-QA-SUBMIT-TRACE: [{RequestId}] Looking up participant: SessionId={SessionId}, UserGuid='{UserGuid}'", 
+                    requestId, session.SessionId, request.UserGuid ?? "NULL");
+                    
                 var participant = await _context.Participants
                     .FirstOrDefaultAsync(p => p.SessionId == session.SessionId && p.UserGuid == request.UserGuid);
 
@@ -124,6 +127,9 @@ namespace NoorCanvas.Controllers
                         requestId, request.UserGuid);
                     return Unauthorized(new { Error = "User not registered for this session", RequestId = requestId });
                 }
+                
+                _logger.LogTrace("NOOR-QA-SUBMIT-TRACE: [{RequestId}] Found participant: ParticipantId={ParticipantId}, Name='{Name}', UserGuid='{UserGuid}'", 
+                    requestId, participant.ParticipantId, participant.Name ?? "NULL", participant.UserGuid ?? "NULL");
 
                 // Create question data
                 var questionData = new
@@ -136,16 +142,26 @@ namespace NoorCanvas.Controllers
                     votes = 0,
                     isAnswered = false
                 };
+                
+                _logger.LogTrace("NOOR-QA-SUBMIT-TRACE: [{RequestId}] Created question data: QuestionId={QuestionId}, UserName='{UserName}', UserId='{UserId}', Text='{Text}'", 
+                    requestId, questionData.questionId, questionData.userName, questionData.userId ?? "NULL", 
+                    request.QuestionText?.Substring(0, Math.Min(50, request.QuestionText?.Length ?? 0)));
+                
+                var jsonContent = JsonSerializer.Serialize(questionData);
+                _logger.LogTrace("NOOR-QA-SUBMIT-TRACE: [{RequestId}] Serialized JSON: {JsonContent}", requestId, jsonContent);
 
                 // Store in SessionData table
                 var sessionData = new NoorCanvas.Models.Simplified.SessionData
                 {
                     SessionId = session.SessionId,
                     DataType = SessionDataTypes.Question,
-                    Content = JsonSerializer.Serialize(questionData),
+                    Content = jsonContent,
                     CreatedBy = participant.UserGuid,
                     CreatedAt = DateTime.UtcNow
                 };
+                
+                _logger.LogTrace("NOOR-QA-SUBMIT-TRACE: [{RequestId}] Creating SessionData: SessionId={SessionId}, CreatedBy='{CreatedBy}', DataType='{DataType}'", 
+                    requestId, sessionData.SessionId, sessionData.CreatedBy ?? "NULL", sessionData.DataType);
 
                 _context.SessionData.Add(sessionData);
                 await _context.SaveChangesAsync();
@@ -334,6 +350,7 @@ namespace NoorCanvas.Controllers
 
             _logger.LogInformation("NOOR-QA-GET: [{RequestId}] Questions retrieval started for token: {Token}",
                 requestId, sessionToken);
+            _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Starting detailed trace for GetQuestions method", requestId);
 
             try
             {
@@ -343,16 +360,23 @@ namespace NoorCanvas.Controllers
                     return BadRequest(new { Error = "Invalid session token format", RequestId = requestId });
                 }
 
-                // Find session by user token
+                // Find session by user token or host token
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Looking up session with token: '{Token}'", requestId, sessionToken);
                 var session = await _context.Sessions
-                    .FirstOrDefaultAsync(s => s.UserToken == sessionToken);
+                    .FirstOrDefaultAsync(s => s.UserToken == sessionToken || s.HostToken == sessionToken);
 
                 if (session == null)
                 {
+                    _logger.LogWarning("NOOR-QA-TRACE: [{RequestId}] Session not found for token: '{Token}' (tried both UserToken and HostToken)", requestId, sessionToken);
                     return NotFound(new { Error = "Session not found", RequestId = requestId });
                 }
 
+                var tokenType = session.UserToken == sessionToken ? "UserToken" : "HostToken";
+                _logger.LogInformation("NOOR-QA-TRACE: [{RequestId}] Session found via {TokenType}: SessionId={SessionId}, Status={Status}", 
+                    requestId, tokenType, session.SessionId, session.Status ?? "NULL");
+
                 // Get all questions for this session
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Querying questions for SessionId={SessionId}", requestId, session.SessionId);
                 var questions = await _context.SessionData
                     .Where(sd => sd.SessionId == session.SessionId && sd.DataType == SessionDataTypes.Question)
                     .OrderBy(sd => sd.CreatedAt)
@@ -365,34 +389,100 @@ namespace NoorCanvas.Controllers
                     })
                     .ToListAsync();
 
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Found {QuestionCount} questions", requestId, questions.Count);
+                
+                // Build a lookup dictionary of participants for this session for efficient name resolution
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Building participant lookup for SessionId={SessionId}", requestId, session.SessionId);
+                var participantLookup = await _context.Participants
+                    .Where(p => p.SessionId == session.SessionId && p.UserGuid != null)
+                    .ToDictionaryAsync(p => p.UserGuid!, p => p.Name ?? "Anonymous");
+
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Built participant lookup with {Count} entries: {Participants}", 
+                    requestId, participantLookup.Count, 
+                    string.Join(", ", participantLookup.Select(kv => $"'{kv.Key}' -> '{kv.Value}'"))); 
+
                 var questionList = questions.Select(q =>
                 {
+                    _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Processing question DataId={DataId}, CreatedBy='{CreatedBy}', ContentLength={ContentLength}", 
+                        requestId, q.DataId, q.CreatedBy ?? "NULL", q.Content?.Length ?? 0);
+                    
                     var data = string.IsNullOrWhiteSpace(q.Content) ? null :
                         JsonSerializer.Deserialize<Dictionary<string, object>>(q.Content);
 
-                    return new
+                    _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] DataId={DataId} - JSON parsed successfully: {HasData}, Keys: [{Keys}]", 
+                        requestId, q.DataId, data != null, 
+                        data != null ? string.Join(", ", data.Keys) : "NONE");
+
+                    // Extract userName from JSON, fallback to looking up participant by CreatedBy
+                    var userNameFromJson = data?.ContainsKey("userName") == true ? data["userName"]?.ToString() : null;
+                    
+                    _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] DataId={DataId} - UserName from JSON: '{UserNameFromJson}' (IsNull={IsNull}, IsEmpty={IsEmpty})", 
+                        requestId, q.DataId, userNameFromJson ?? "NULL", userNameFromJson == null, string.IsNullOrWhiteSpace(userNameFromJson));
+                    
+                    // If userName from JSON is empty/null/Anonymous, try to look up participant name from database
+                    var finalUserName = userNameFromJson;
+                    if (string.IsNullOrWhiteSpace(userNameFromJson) || userNameFromJson == "Anonymous")
+                    {
+                        var createdBy = q.CreatedBy ?? "";
+                        _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] DataId={DataId} - Attempting participant lookup for CreatedBy='{CreatedBy}'", 
+                            requestId, q.DataId, createdBy);
+                            
+                        if (participantLookup.TryGetValue(createdBy, out var participantName))
+                        {
+                            finalUserName = participantName;
+                            _logger.LogInformation("NOOR-QA-RESOLVE: [{RequestId}] DataId={DataId} - Resolved participant name '{ParticipantName}' for CreatedBy='{CreatedBy}'", 
+                                requestId, q.DataId, participantName, createdBy);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("NOOR-QA-RESOLVE: [{RequestId}] DataId={DataId} - Could not resolve participant name for CreatedBy='{CreatedBy}'. Available participants: [{Available}]", 
+                                requestId, q.DataId, createdBy, string.Join(", ", participantLookup.Keys));
+                            finalUserName = "Anonymous";
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] DataId={DataId} - Using userName from JSON: '{UserNameFromJson}'", 
+                            requestId, q.DataId, userNameFromJson);
+                    }
+                    
+                    // Debug logging to trace the userName extraction
+                    _logger.LogInformation("NOOR-QA-DEBUG: [{RequestId}] DataId={DataId}, UserNameFromJson='{UserNameFromJson}', FinalUserName='{FinalUserName}', CreatedBy='{CreatedBy}'", 
+                        requestId, q.DataId, userNameFromJson ?? "null", finalUserName ?? "null", q.CreatedBy ?? "null");
+
+                    var questionObj = new
                     {
                         QuestionId = data?.ContainsKey("questionId") == true ? data["questionId"]?.ToString() : "",
                         Id = q.DataId,
                         Text = data?.ContainsKey("text") == true ? data["text"]?.ToString() : "",
-                        UserName = data?.ContainsKey("userName") == true ? data["userName"]?.ToString() : "Anonymous",
+                        UserName = finalUserName ?? "Anonymous",
                         CreatedBy = q.CreatedBy ?? "", // Include the CreatedBy field for ownership checking
                         Votes = data?.ContainsKey("votes") == true ? GetIntFromJsonElement(data["votes"]) : 0,
                         IsAnswered = data?.ContainsKey("isAnswered") == true ? GetBoolFromJsonElement(data["isAnswered"]) : false,
                         CreatedAt = q.CreatedAt,
                         SubmittedAt = q.CreatedAt
                     };
+                    
+                    _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] DataId={DataId} - Final question object: QuestionId='{QuestionId}', Text='{Text}', UserName='{UserName}'", 
+                        requestId, q.DataId, questionObj.QuestionId, questionObj.Text, questionObj.UserName);
+                    
+                    return questionObj;
                 }).ToList();
 
                 _logger.LogInformation("NOOR-QA-GET: [{RequestId}] Retrieved {Count} questions", requestId, questionList.Count);
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Questions summary: [{Questions}]", requestId, 
+                    string.Join(", ", questionList.Select(q => $"DataId={q.Id},UserName='{q.UserName}',Text='{q.Text?.Substring(0, Math.Min(20, q.Text?.Length ?? 0))}...'")));
 
-                return Ok(new
+                var response = new
                 {
                     Success = true,
                     Questions = questionList,
                     Count = questionList.Count,
                     RequestId = requestId
-                });
+                };
+                
+                _logger.LogTrace("NOOR-QA-TRACE: [{RequestId}] Returning response with {Count} questions", requestId, questionList.Count);
+                return Ok(response);
             }
             catch (Exception ex)
             {
