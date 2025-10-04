@@ -50,10 +50,33 @@
             
             <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:0 2.5rem;">
                 
-                <!-- Error message container -->
-                @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+                <!-- Error/Info message container -->
+                @if (!string.IsNullOrEmpty(Model?.ErrorMessage) || !string.IsNullOrEmpty(Model?.InfoMessage))
                 {
-                    <div style="color:#ef4444;font-size:0.875rem;font-family:'Poppins',sans-serif;margin-bottom:1rem;">@Model.ErrorMessage</div>
+                    @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+                    {
+                        <div style="background-color:#fef2f2;border:1px solid #fca5a5;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;width:100%;">
+                            <div style="display:flex;align-items:start;gap:0.75rem;">
+                                <i class="fa-solid fa-exclamation-triangle" style="color:#dc2626;font-size:1.25rem;margin-top:0.125rem;"></i>
+                                <div style="flex:1;">
+                                    <h4 style="color:#dc2626;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 0.5rem 0;">Action Required</h4>
+                                    <p style="color:#991b1b;font-family:'Inter',sans-serif;font-size:0.875rem;line-height:1.4;margin:0;">@((MarkupString)Model.ErrorMessage)</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model?.InfoMessage))
+                    {
+                        <div style="background-color:#eff6ff;border:1px solid #93c5fd;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;width:100%;">
+                            <div style="display:flex;align-items:start;gap:0.75rem;">
+                                <i class="fa-solid fa-info-circle" style="color:#2563eb;font-size:1.25rem;margin-top:0.125rem;"></i>
+                                <div style="flex:1;">
+                                    <h4 style="color:#2563eb;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 0.5rem 0;">Information</h4>
+                                    <p style="color:#1d4ed8;font-family:'Inter',sans-serif;font-size:0.875rem;line-height:1.4;margin:0;">@((MarkupString)Model.InfoMessage)</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 }
                 
                 <!-- Microphone Icon -->
@@ -275,16 +298,23 @@
     private async Task LoadAlbumsAsync()
     {
         Model.IsLoadingAlbums = true;
+        Model.ErrorMessage = "";
+        Model.InfoMessage = "";
         StateHasChanged();
         
         try
         {
             Albums = await HostService.LoadAlbumsAsync(Model.HostFriendlyToken);
+            
+            if (Albums.Count == 0)
+            {
+                Model.InfoMessage = "No albums are currently available. Please contact your administrator if this seems incorrect.";
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error loading albums");
-            Model.ErrorMessage = "Failed to load albums. Please refresh the page.";
+            Model.ErrorMessage = "<strong>Unable to load albums</strong><br/>• Check your internet connection<br/>• Refresh the page to try again<br/>• Contact support if the problem persists";
         }
         finally
         {
@@ -307,6 +337,7 @@
             var validationResponse = await HostService.ValidateHostTokenAsync(Token);
             if (!validationResponse.Valid || validationResponse.SessionId <= 0)
             {
+                Model.InfoMessage = $"<strong>Host Token Status</strong><br/>Token <code>{Token}</code> is not valid or has expired.<br/><br/><strong>What to do:</strong><br/>• You can still use this form by manually selecting options below<br/>• To get a new token, run the Host Provisioner tool<br/>• Contact your administrator if you need assistance";
                 return;
             }
 
@@ -314,16 +345,19 @@
             var sessionDetails = await HostService.GetSessionDetailsAsync(validationResponse.SessionId, Token);
             if (sessionDetails == null)
             {
+                Model.InfoMessage = $"<strong>Session Configuration</strong><br/>Session details for token <code>{Token}</code> could not be retrieved.<br/><br/><strong>What to do:</strong><br/>• Select options manually from the dropdowns below<br/>• Verify the token with your administrator";
                 return;
             }
 
             // Step 3: Auto-populate dropdowns in sequence
             await AutoPopulateSequence(sessionDetails.GroupId.ToString(), sessionDetails.CategoryId.ToString(), sessionDetails.SessionId.ToString());
+            
+            Model.InfoMessage = $"<strong>Auto-populated from Token</strong><br/>Successfully loaded session configuration for token <code>{Token}</code>.<br/>You can modify the selections below if needed.";
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error during auto-population for token: {Token}", Token);
-            Model.ErrorMessage = "Failed to auto-populate session data. Please select manually.";
+            Model.ErrorMessage = $"<strong>Auto-population Failed</strong><br/>Could not load session data for token <code>{Token ?? "unknown"}</code>.<br/><br/><strong>What to do:</strong><br/>• Select options manually from the dropdowns below<br/>• Check your network connection<br/>• Contact support if the issue persists";
         }
     }
 
@@ -449,7 +483,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error in OnCategoryChanged for category {CategoryId}", Model?.SelectedCategory);
-            if (Model != null) Model.ErrorMessage = "Error loading sessions. Please try again.";
+            if (Model != null) Model.ErrorMessage = "<strong>Unable to load sessions</strong><br/>• Check your internet connection<br/>• Try selecting a different category<br/>• Refresh the page if the problem persists";
         }
     }
 
@@ -459,6 +493,7 @@
         
         Model.IsLoadingCategories = true;
         Model.SelectedCategory = null;
+        Model.ErrorMessage = "";
         Categories.Clear();
         Sessions.Clear();
         Model.SelectedSession = null;
@@ -467,11 +502,16 @@
         try
         {
             Categories = await HostService.LoadCategoriesAsync(Model.SelectedAlbum, Model.HostFriendlyToken);
+            
+            if (Categories.Count == 0)
+            {
+                Model.InfoMessage = "No categories are available for the selected album. Please try a different album.";
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error loading categories for album {AlbumId}", Model.SelectedAlbum);
-            Model.ErrorMessage = "Failed to load categories. Please try again.";
+            Model.ErrorMessage = $"<strong>Unable to load categories</strong><br/>• Check your internet connection<br/>• Try selecting a different album<br/>• Refresh the page if the problem persists";
         }
         finally
         {
@@ -487,6 +527,7 @@
         
         Model.IsLoadingSessions = true;
         Model.SelectedSession = null;
+        Model.ErrorMessage = "";
         Sessions.Clear();
         StateHasChanged();
         
@@ -495,12 +536,21 @@
             if (int.TryParse(Model.SelectedCategory, out int categoryId))
             {
                 Sessions = await HostService.LoadSessionsAsync(categoryId, Model.HostFriendlyToken);
+                
+                if (Sessions.Count == 0)
+                {
+                    Model.InfoMessage = "No sessions are available for the selected category. Please try a different category.";
+                }
+            }
+            else
+            {
+                Model.ErrorMessage = "<strong>Invalid Category Selection</strong><br/>Please select a valid category from the dropdown.";
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error loading sessions for category {CategoryId}", Model.SelectedCategory);
-            Model.ErrorMessage = "Failed to load sessions. Please try again.";
+            Model.ErrorMessage = "<strong>Unable to load sessions</strong><br/>• Check your internet connection<br/>• Try selecting a different category<br/>• Refresh the page if the problem persists";
         }
         finally
         {
@@ -529,12 +579,30 @@
         if (Model.IsFormValid && !HostService.ValidateTimeFormat(Model.SessionTime))
         {
             Model.IsFormValid = false;
-            Model.ErrorMessage = "Please enter a valid time in HH:MM AM/PM format.";
+            Model.ErrorMessage = "<strong>Invalid Time Format</strong><br/>Please enter time in HH:MM AM/PM format (e.g., 9:30 AM or 2:15 PM).";
+        }
+        else if (!Model.IsFormValid && Model.HasAttemptedSubmit)
+        {
+            // Provide detailed guidance on what's missing
+            var missingFields = new List<string>();
+            if (string.IsNullOrEmpty(Model.SelectedAlbum)) missingFields.Add("Album");
+            if (string.IsNullOrEmpty(Model.SelectedCategory)) missingFields.Add("Category");
+            if (string.IsNullOrEmpty(Model.SelectedSession)) missingFields.Add("Session");
+            if (string.IsNullOrEmpty(Model.SessionTime)) missingFields.Add("Start Time");
+            if (!Model.SessionDuration.HasValue || Model.SessionDuration.Value <= 0) missingFields.Add("Duration");
+            
+            if (missingFields.Any())
+            {
+                Model.ErrorMessage = $"<strong>Required Fields Missing</strong><br/>Please complete: {string.Join(", ", missingFields)}";
+            }
+            else
+            {
+                Model.ErrorMessage = "<strong>Form Validation</strong><br/>Please ensure all fields are filled correctly.";
+            }
         }
         else
         {
-            // Only show "Please fill out all fields" if user has attempted to submit
-            Model.ErrorMessage = Model.IsFormValid ? "" : (Model.HasAttemptedSubmit ? "Please fill out all fields." : "");
+            Model.ErrorMessage = "";
         }
         StateHasChanged();
     }
@@ -545,6 +613,7 @@
         Model.HasAttemptedSubmit = true;
         Model.IsProcessingSession = true;
         Model.ErrorMessage = "";
+        Model.InfoMessage = "";
         StateHasChanged();
         
         try
@@ -562,13 +631,26 @@
             }
             else
             {
-                Model.ErrorMessage = response.Message ?? "Failed to create session. Please try again.";
+                var errorMessage = response.Message ?? "Unknown error occurred";
+                
+                if (errorMessage.Contains("Session") && errorMessage.Contains("not found"))
+                {
+                    Model.ErrorMessage = $"<strong>Session Creation Failed</strong><br/>The selected session needs to be created by the Host Provisioner tool first.<br/><br/><strong>What to do:</strong><br/>• Run the Host Provisioner tool to create Session {Model.SelectedSession}<br/>• Or select a different session that has already been created<br/>• Contact your administrator for assistance";
+                }
+                else if (errorMessage.Contains("BadRequest") || errorMessage.Contains("400"))
+                {
+                    Model.ErrorMessage = "<strong>Invalid Request</strong><br/>There was a problem with the session data.<br/><br/><strong>What to do:</strong><br/>• Verify all fields are filled correctly<br/>• Try selecting different options<br/>• Refresh the page and try again";
+                }
+                else
+                {
+                    Model.ErrorMessage = $"<strong>Session Creation Failed</strong><br/>{errorMessage}<br/><br/><strong>What to do:</strong><br/>• Check your internet connection<br/>• Verify all fields are correct<br/>• Try again in a few moments";
+                }
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error in OpenSessionAsync");
-            Model.ErrorMessage = "An error occurred while creating the session. Please try again.";
+            Model.ErrorMessage = "<strong>Unexpected Error</strong><br/>An unexpected error occurred while creating the session.<br/><br/><strong>What to do:</strong><br/>• Check your internet connection<br/>• Refresh the page and try again<br/>• Contact support if the issue persists<br/><br/><small>Technical details logged for debugging</small>";
         }
         finally
         {

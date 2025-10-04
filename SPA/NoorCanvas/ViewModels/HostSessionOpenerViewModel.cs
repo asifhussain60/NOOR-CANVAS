@@ -36,6 +36,7 @@ namespace NoorCanvas.ViewModels
 
         // Form State
         public string ErrorMessage { get; set; } = "";
+        public string InfoMessage { get; set; } = "";
         public bool IsFormValid { get; set; }
         public bool HasAttemptedSubmit { get; set; } = false;
 
@@ -83,6 +84,7 @@ namespace NoorCanvas.ViewModels
             SessionUrl = "";
             UserLandingUrl = "";
             UserCopied = false;
+            InfoMessage = "";
         }
 
         /// <summary>
