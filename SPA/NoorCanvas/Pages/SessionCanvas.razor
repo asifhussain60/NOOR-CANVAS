@@ -34,19 +34,19 @@
     .poppins { font-family: 'Poppins', sans-serif; }
     .inter { font-family: 'Inter', sans-serif; }
     .shadow-golden { box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4); }
-    .tab-button.active { border-bottom-color: #D4AF37; color: #006400; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C5B358; }
-    .animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    .canvas-tab-button.active { border-bottom-color: #D4AF37; color: #006400; }
+    .canvas-custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .canvas-custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .canvas-custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+    .canvas-custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #C5B358; }
+    .canvas-animate-pulse-subtle { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     @@keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: .8; }
     }
-    .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+    .canvas-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
     @@media (max-width: 1024px) {
-        .main-grid { grid-template-columns: 1fr; }
+        .canvas-main-grid { grid-template-columns: 1fr; }
     }
     
     .session-canvas-root {
@@ -68,6 +68,640 @@
         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         border: 1px solid #E5E7EB;
     }
+
+    /* Error State Styles */
+    .canvas-error-container {
+        width: 100%;
+        max-width: 56rem;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border: 1px solid #fecaca;
+    }
+
+    .canvas-error-logo {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .canvas-error-logo-img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+    }
+
+    .canvas-error-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .canvas-error-icon {
+        font-size: 2rem;
+        color: #DC2626;
+    }
+
+    .canvas-error-message {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.125rem;
+        color: #706357;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .canvas-error-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .canvas-home-button {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        background-color: #3B82F6;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .canvas-home-button:hover {
+        background-color: #2563EB;
+    }
+
+    .canvas-home-button-icon {
+        margin-right: 0.5rem;
+    }
+
+    /* Session Content Styles */
+    .canvas-content-wrapper {
+        width: 100%;
+        max-width: 80rem;
+        margin: 0 auto;
+    }
+
+    .canvas-header {
+        background-color: white;
+        border-radius: 1rem;
+        padding: 10px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        border: 2px solid #D4AF37;
+    }
+
+    .canvas-header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .canvas-header-logo {
+        flex-shrink: 0;
+    }
+
+    .canvas-header-logo-img {
+        width: 120px;
+        height: 50px;
+        object-fit: contain;
+    }
+
+    .canvas-header-session-info {
+        flex: 1;
+        text-align: center;
+    }
+
+    .canvas-session-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+        color: #816611;
+        margin: 0;
+    }
+
+    .canvas-session-description {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: #6B7280;
+        margin: 0.25rem 0 0 0;
+    }
+
+    .canvas-signalr-status {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+
+    .canvas-signalr-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border: 2px solid;
+        border-radius: 50%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .canvas-signalr-icon {
+        font-size: 1.25rem;
+    }
+
+    .canvas-retry-button {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+        background-color: #EF4444;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .canvas-retry-button:hover {
+        background-color: #DC2626;
+    }
+
+    /* Welcome Panel Styles */
+    .canvas-welcome-panel {
+        background-color: #ffffff;
+        border-radius: 1.5rem;
+        padding: 1.5rem 2rem;
+        margin: 1rem auto;
+        max-width: 50rem;
+        text-align: center;
+    }
+
+    .canvas-welcome-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .canvas-welcome-text {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #006400;
+    }
+
+    /* Main Grid Layout */
+    .canvas-main-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 1.5rem;
+        height: calc(75vh - 150px);
+    }
+
+    /* Canvas Area Styles */
+    .canvas-area-container {
+        background-color: white;
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        border: 2px solid #D4AF37;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .canvas-content-area {
+        flex: 1;
+        border: 1px solid #D4AF37;
+        padding: 1rem;
+        border-radius: 1rem;
+        background-color: #F9FAFB;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 10px;
+        height: calc(100% - 20px);
+    }
+
+    .canvas-asset-content {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .canvas-empty-message {
+        font-family: 'Inter', sans-serif;
+        color: #9CA3AF;
+        font-size: 1.125rem;
+    }
+
+    /* Question Panel Styles */
+    .canvas-question-panel {
+        background-color: #FDFBEB;
+        border-radius: 0.75rem;
+        transition: all 0.3s;
+        overflow: hidden;
+        border: 1px solid #D4AF37;
+        margin-top: auto;
+        margin: 10px;
+    }
+
+    .canvas-question-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .canvas-question-icon {
+        color: #D4AF37;
+        font-size: 1rem;
+    }
+
+    .canvas-question-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4B3C2B;
+        margin: 0;
+    }
+
+    .canvas-question-form {
+        display: flex;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0 0.75rem 0.75rem 0.75rem;
+    }
+
+    /* Sidebar Styles */
+    .canvas-sidebar {
+        background-color: white;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        border: 2px solid #D4AF37;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .canvas-tabs {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #E5E7EB;
+        background-color: #F8F5F1;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .canvas-tab-button {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        text-align: center;
+        color: #4B3C2B;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+    }
+
+    .canvas-tab-button-left {
+        border-radius: 0.75rem 0 0 0;
+    }
+
+    .canvas-tab-button-right {
+        border-radius: 0 0.75rem 0 0;
+    }
+
+    .canvas-tab-button.active {
+        background: #FFFFFF;
+        border-bottom-color: #D4AF37;
+        color: #006400;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    }
+
+    .canvas-tab-icon {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .canvas-tab-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .canvas-tab-content.hidden {
+        display: none;
+    }
+
+    .canvas-tab-padding {
+        padding-right: 0.75rem;
+    }
+
+    .canvas-section-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4B3C2B;
+        margin: 0 0 1rem 0;
+    }
+
+    .canvas-questions-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .canvas-participants-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .canvas-empty-state {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #9CA3AF;
+        text-align: center;
+        padding: 1rem 0;
+        font-style: italic;
+    }
+
+    /* Modal Styles */
+    .canvas-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+    }
+
+    .canvas-modal-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        max-width: 24rem;
+        width: 100%;
+        text-align: center;
+        transform: scale(0.95);
+        transition: all 0.2s;
+    }
+
+    .canvas-modal-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #4B3C2B;
+        margin: 0 0 1rem 0;
+    }
+
+    .canvas-modal-message {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .canvas-modal-buttons {
+        display: flex;
+        justify-content: space-around;
+        gap: 1rem;
+    }
+
+    .canvas-modal-button {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .canvas-modal-button-delete {
+        color: white;
+        background-color: #8B0000;
+    }
+
+    .canvas-modal-button-cancel {
+        color: #4B3C2B;
+        background-color: #E5E7EB;
+    }
+
+    /* Form Elements */
+    .canvas-form-textarea {
+        flex: 5;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid #D4AF37;
+        outline: none;
+        font-family: 'Inter', sans-serif;
+        color: #4B3C2B;
+        background-color: white;
+        resize: none;
+    }
+
+    .canvas-form-submit-button {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        border: 1px solid #D4AF37;
+        cursor: pointer;
+    }
+
+    .canvas-form-submit-icon {
+        font-size: 1.25rem;
+        color: white;
+    }
+
+    .canvas-form-submit-text {
+        font-size: 1rem;
+        color: white;
+    }
+
+    /* Question Items */
+    .canvas-question-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        border: 1px solid;
+        color: #4B3C2B;
+        transition: all 0.2s;
+    }
+
+    .canvas-question-vote-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        margin-right: 0.75rem;
+    }
+
+    .canvas-question-vote-button {
+        font-size: 1.125rem;
+        transition: color 0.2s;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    .canvas-question-vote-count {
+        background-color: #C5B358;
+        color: #4B3C2B;
+        border-radius: 9999px;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .canvas-question-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .canvas-question-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .canvas-question-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        width: 100%;
+        line-height: 1.3;
+    }
+
+    .canvas-question-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .canvas-question-edit-button {
+        font-size: 0.75rem;
+        color: #6B7280;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .canvas-question-delete-button {
+        font-size: 0.75rem;
+        color: #DC2626;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .canvas-question-owner-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #006400;
+        margin-top: 0.25rem;
+    }
+
+    /* Participant Items */
+    .canvas-participant-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        background-color: white;
+        transition: background-color 0.2s;
+        border: 1px solid #E5E7EB;
+    }
+
+    .canvas-participant-flag {
+        height: 16px;
+        width: auto;
+        border-radius: 0.125rem;
+        border: 1px solid #D1D5DB;
+    }
+
+    .canvas-participant-flag-fallback {
+        width: 24px;
+        height: 16px;
+        background-color: #4B3C2B;
+        border-radius: 0.125rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .canvas-participant-flag-text {
+        color: #FBF9F6;
+        font-size: 0.625rem;
+        font-weight: 600;
+    }
+
+    .canvas-participant-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #4B3C2B;
+    }
+
+    /* Utility Classes */
+    .canvas-content-timestamp {
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: #666;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+    }
+
+    .canvas-retry-icon {
+        margin-right: 0.5rem;
+    }
+
+    /* Empty State Styles */
+    .canvas-empty-state-container {
+        text-align: center;
+        color: #9CA3AF;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        padding: 2rem 0;
+    }
+
+    .canvas-empty-state-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
 </style>
 
 <!-- Root container matching SessionWaiting.razor structure -->
@@ -80,23 +714,22 @@
         @if (Model?.CurrentState == SessionCanvasState.SessionNotFound)
     {
         <!-- Error State -->
-        <div style="width:100%;max-width:56rem;margin:0 auto;background-color:white;border-radius:1.5rem;padding:2rem;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #fecaca;">
+        <div class="canvas-error-container">
             
             <!-- Logo -->
-            <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+            <div class="canvas-error-logo">
                 <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
                      alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                     style="width:200px;height:200px;object-fit:contain;" />
+                     class="canvas-error-logo-img" />
             </div>
             
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;color:#DC2626;"></i>
+            <div class="canvas-error-icon-container">
+                <i class="fa-solid fa-triangle-exclamation canvas-error-icon"></i>
             </div>
-            <p data-testid="error-message" style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;margin:0 0 1.5rem 0;">@(Model?.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <button @onclick="NavigateHome" 
-                        style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:white;background-color:#3B82F6;padding:0.75rem 1.5rem;border-radius:0.5rem;border:none;cursor:pointer;transition:background-color 0.2s;hover:background-color:#2563EB;">
-                    <i class="fa-solid fa-home" style="margin-right:0.5rem;"></i>
+            <p data-testid="error-message" class="canvas-error-message">@(Model?.ErrorMessage ?? "Session could not be loaded. Please check your session token.")</p>
+            <div class="canvas-error-buttons">
+                <button @onclick="NavigateHome" class="canvas-home-button">
+                    <i class="fa-solid fa-home canvas-home-button-icon"></i>
                     Return Home
                 </button>
             </div>
@@ -105,41 +738,38 @@
     else if (Model?.CurrentState == SessionCanvasState.Loaded)
     {
         <!-- Session Canvas Content -->
-        <div style="width:100%;max-width:80rem;margin:0 auto;">
+        <div class="canvas-content-wrapper">
             
             <!-- Header -->
-            <div style="background-color:white;border-radius:1rem;padding:10px;margin-bottom:0.75rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <div class="canvas-header">
+                <div class="canvas-header-content">
                     
                     <!-- Logo -->
-                    <div style="flex-shrink:0;">
+                    <div class="canvas-header-logo">
                         <img src="/images/branding/NC-Header.png?v=@DateTime.Now.Ticks" 
                              alt="@(Model?.LogoText ?? "NOOR Canvas")" 
-                             style="width:200px;height:200px;object-fit:contain;" />
+                             class="canvas-header-logo-img" />
                     </div>
                     
                     <!-- Session Info -->
-                    <div style="flex:1;text-align:center;">
-                        <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2.5rem;color:#816611;margin:0;">@(Model?.SessionName ?? "Session Canvas")</h1>
+                    <div class="canvas-header-session-info">
+                        <h1 class="canvas-session-title">@(Model?.SessionName ?? "Session Canvas")</h1>
                         @if (!string.IsNullOrEmpty(Model?.SessionDescription))
                         {
-                            <p style="font-family:'Lato',sans-serif;font-size:1rem;color:#333;margin:0.5rem 0 0 0;text-align:center;text-transform:capitalize;">@Model.SessionDescription</p>
+                            <p class="canvas-session-description">@Model.SessionDescription</p>
                         }
                     </div>
                     
                     <!-- SignalR Connection Status -->
-                    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;">
-                        <div style="display:flex;align-items:center;justify-content:center;width:48px;height:48px;background-color:@GetSignalRStatusBackgroundColor();border:2px solid @GetSignalRStatusBorderColor();border-radius:50%;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-                            <i class="@GetSignalRStatusIcon()" style="color:@GetSignalRStatusColor();font-size:1.5rem;"></i>
+                    <div class="canvas-signalr-status">
+                        <div class="canvas-signalr-indicator" style="background-color:@GetSignalRStatusBackgroundColor();border-color:@GetSignalRStatusBorderColor();">
+                            <i class="@GetSignalRStatusIcon() canvas-signalr-icon" style="color:@GetSignalRStatusColor();"></i>
                         </div>
                         
                         @if (hubConnection?.State == HubConnectionState.Disconnected)
                         {
-                            <button @onclick="RetrySignalRConnection" 
-                                    style="padding:0.5rem 1rem;background-color:#3B82F6;color:white;border:none;border-radius:0.5rem;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.1);"
-                                    onmouseover="this.style.backgroundColor='#2563EB'"
-                                    onmouseout="this.style.backgroundColor='#3B82F6'">
-                                <i class="fa-solid fa-arrow-rotate-right" style="margin-right:0.5rem;"></i>
+                            <button @onclick="RetrySignalRConnection" class="canvas-retry-button">
+                                <i class="fa-solid fa-arrow-rotate-right canvas-retry-icon"></i>
                                 Retry Connection
                             </button>
                         }
@@ -149,9 +779,9 @@
             </div>
             
             <!-- Welcome Message Panel -->
-            <div style="background-color:#ffffff;border-radius:1.5rem;padding:1.5rem 2rem;margin:1rem auto;max-width:50rem;text-align:center;">
-                <div style="display:flex;align-items:center;justify-content:center;">
-                    <span style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:600;color:#006400;">
+            <div class="canvas-welcome-panel">
+                <div class="canvas-welcome-content">
+                    <span class="canvas-welcome-text">
                         @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
                         {
                             @($"{Model.CurrentParticipantName}, Welcome To The Session")
@@ -165,17 +795,17 @@
             </div>
             
             <!-- Main Canvas Area -->
-            <div style="display:grid;grid-template-columns:1fr 300px;gap:1.5rem;height:calc(75vh - 150px);">
+            <div class="canvas-main-grid">
                 
                 <!-- Canvas Content Area -->
-                <div style="background-color:white;border-radius:1rem;padding:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;display:flex;flex-direction:column;height:100%;">
+                <div class="canvas-area-container">
                     
                     <!-- Canvas Content Area -->
-                    <div style="flex:1;border:1px solid #D4AF37;padding:1rem;border-radius:1rem;background-color:#F9FAFB;box-shadow:inset 0 2px 4px rgba(0,0,0,0.1);transition:all 0.2s;display:flex;align-items:center;justify-content:center;text-align:center;margin:10px;height:calc(100% - 20px);">
+                    <div class="canvas-content-area">
                         @if (!string.IsNullOrEmpty(Model?.SharedAssetContent))
                         {
-                            <div style="width:100%;height:100%;">
-                                <div style="margin-bottom:10px;font-size:12px;color:#666;border-bottom:1px solid #ddd;padding-bottom:5px;">
+                            <div class="canvas-asset-content">
+                                <div class="canvas-content-timestamp">
                                     Content received via SignalR at @DateTime.Now.ToString("HH:mm:ss")
                                 </div>
                                 @((MarkupString)GetSafeHtmlContent(Model.SharedAssetContent))
@@ -183,55 +813,55 @@
                         }
                         else
                         {
-                            <p style="font-family:'Inter',sans-serif;font-size:1.125rem;color:#706357;font-weight:300;" class="animate-pulse-subtle">Content from the session will appear here.</p>
+                            <p class="canvas-empty-message canvas-animate-pulse-subtle">Content from the session will appear here.</p>
                         }
                     </div>
 
                     <!-- Ask a Question Panel -->
-                    <div style="background-color:#FDFBEB;border-radius:0.75rem;transition:all 0.3s;overflow:hidden;border:1px solid #D4AF37;margin-top:auto;margin:10px;">
-                        <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.5rem;">
-                            <i class="fa-solid fa-hand-raised" style="color:#006400;font-size:1rem;"></i>
-                            <h4 style="font-family:'Poppins',sans-serif;font-size:0.875rem;font-weight:600;color:#4B3C2B;margin:0;">Ask a question</h4>
+                    <div class="canvas-question-panel">
+                        <div class="canvas-question-header">
+                            <i class="fa-solid fa-hand-raised canvas-question-icon"></i>
+                            <h4 class="canvas-question-title">Ask a question</h4>
                         </div>
-                        <div style="display:flex;align-items:stretch;gap:0.75rem;padding:0 0.75rem 0.75rem 0.75rem;">
+                        <div class="canvas-question-form">
                             <textarea @bind="QuestionInput" 
-                                      style="flex:5;padding:0.75rem;border-radius:0.5rem;border:1px solid #D4AF37;outline:none;font-family:'Inter',sans-serif;color:#4B3C2B;background-color:white;resize:none;" 
+                                      class="canvas-form-textarea" 
                                       placeholder="Ask a question..." rows="2"></textarea>
                             <button @onclick="SubmitQuestion" 
                                     type="button"
-                                    style="flex:1;min-width:80px;padding:0.5rem;border-radius:0.5rem;color:white;font-weight:600;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;border:1px solid #D4AF37;cursor:pointer;@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
-                                    class="shadow-golden">
-                                <i class="fa-solid fa-paper-plane" style="font-size:1.25rem;color:white;"></i>
-                                <span style="font-size:1rem;color:white;">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
+                                    class="canvas-form-submit-button shadow-golden"
+                                    style="@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")">
+                                <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
+                                <span class="canvas-form-submit-text">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
                             </button>
         </div>
                     </div>
                 </div>
                 
                 <!-- Q&A and Participants Sidebar -->
-                <div style="background-color:white;border-radius:0.75rem;padding:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:2px solid #D4AF37;display:flex;flex-direction:column;height:100%;">
+                <div class="canvas-sidebar">
                     
                     <!-- Tabs -->
-                    <div style="display:flex;margin-bottom:1rem;border-bottom:2px solid #E5E7EB;background-color:#F8F5F1;border-radius:0.75rem 0.75rem 0 0;">
+                    <div class="canvas-tabs">
                         <button @onclick="() => ActiveTab = Tab.QA" 
-                                style="flex:1;padding:0.75rem 1rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:3px solid transparent;transition:all 0.2s;cursor:pointer;background:@(ActiveTab == Tab.QA ? "#FFFFFF" : "transparent");border:none;border-radius:0.75rem 0 0 0;@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")"
-                                class="tab-button @(ActiveTab == Tab.QA ? "active" : "")">
-                            <i class="fa-solid fa-question-circle" style="margin-right:0.5rem;font-size:1rem;"></i>
+                                class="canvas-tab-button canvas-tab-button-left @(ActiveTab == Tab.QA ? "active" : "")"
+                                style="background:@(ActiveTab == Tab.QA ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.QA ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
+                            <i class="fa-solid fa-question-circle canvas-tab-icon"></i>
                             Q&A
                         </button>
                         <button @onclick="() => ActiveTab = Tab.Participants" 
-                                style="flex:1;padding:0.75rem 1rem;text-align:center;color:#4B3C2B;font-family:'Poppins',sans-serif;font-weight:600;border-bottom:3px solid transparent;transition:all 0.2s;cursor:pointer;background:@(ActiveTab == Tab.Participants ? "#FFFFFF" : "transparent");border:none;border-radius:0 0.75rem 0 0;@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")"
-                                class="tab-button @(ActiveTab == Tab.Participants ? "active" : "")">
-                            <i class="fa-solid fa-users" style="margin-right:0.5rem;font-size:1rem;"></i>
+                                class="canvas-tab-button canvas-tab-button-right @(ActiveTab == Tab.Participants ? "active" : "")"
+                                style="background:@(ActiveTab == Tab.Participants ? "#FFFFFF" : "transparent");@(ActiveTab == Tab.Participants ? "border-bottom-color:#D4AF37;color:#006400;box-shadow:0 -2px 8px rgba(0,0,0,0.1);" : "")">
+                            <i class="fa-solid fa-users canvas-tab-icon"></i>
                             Participants
                         </button>
                     </div>
 
                     <!-- Q&A Content -->
-                    <div style="flex:1;overflow-y:auto;@(ActiveTab == Tab.QA ? "" : "display:none;")" class="custom-scrollbar">
-                        <div style="padding-right:0.75rem;">
-                            <h3 style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;color:#4B3C2B;margin:0 0 1rem 0;">Recent Questions</h3>
-                            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                    <div class="canvas-tab-content canvas-custom-scrollbar @(ActiveTab == Tab.QA ? "" : "hidden")">
+                        <div class="canvas-tab-padding">
+                            <h3 class="canvas-section-title">Recent Questions</h3>
+                            <div class="canvas-questions-container">
                                 @if (Model?.Questions?.Any() == true)
                                 {
                                     @foreach (var question in Model.Questions)
@@ -241,28 +871,29 @@
                                         var upvoteColor = question.IsMyQuestion ? "#006400" : "#D4AF37";
                                         var borderColor = question.IsMyQuestion ? "#006400" : "#D4AF37";
 
-                                        <div style="display:flex;align-items:flex-start;padding:0.75rem;border-radius:0.75rem;border:1px solid @borderColor;background-color:@bgColor;color:#4B3C2B;transition:all 0.2s;">
-                                            <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem;margin-right:0.75rem;">
+                                        <div class="canvas-question-item" style="border-color:@borderColor;background-color:@bgColor;">
+                                            <div class="canvas-question-vote-section">
                                                 <button @onclick="() => VoteQuestion(question.QuestionId)" 
-                                                        style="color:@upvoteColor;font-size:1.125rem;transition:color 0.2s;cursor:pointer;background:none;border:none;padding:0;">
+                                                        class="canvas-question-vote-button"
+                                                        style="color:@upvoteColor;">
                                                     <i class="fa-solid fa-arrow-up"></i>
                                                 </button>
-                                                <span style="background-color:#C5B358;color:#4B3C2B;border-radius:9999px;padding:0.125rem 0.5rem;font-size:0.75rem;font-weight:700;">@question.Votes</span>
+                                                <span class="canvas-question-vote-count">@question.Votes</span>
                                             </div>
-                                            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-                                                <div style="display:flex;align-items:center;justify-content:space-between;">
-                                                    <span style="font-family:'Inter',sans-serif;font-size:0.875rem;width:100%;line-height:1.3;">@question.Text</span>
+                                            <div class="canvas-question-content">
+                                                <div class="canvas-question-header">
+                                                    <span class="canvas-question-text">@question.Text</span>
                                                     @if (question.IsMyQuestion)
                                                     {
-                                                        <div style="display:flex;align-items:center;gap:0.5rem;">
-                                                            <i @onclick="() => EditQuestion(index)" class="fa-solid fa-pen" style="font-size:0.75rem;color:#6B7280;cursor:pointer;transition:color 0.2s;"></i>
-                                                            <i @onclick="() => ShowDeleteModal(index)" class="fa-solid fa-trash-can" style="font-size:0.75rem;color:#DC2626;cursor:pointer;transition:color 0.2s;"></i>
+                                                        <div class="canvas-question-actions">
+                                                            <i @onclick="() => EditQuestion(index)" class="fa-solid fa-pen canvas-question-edit-button"></i>
+                                                            <i @onclick="() => ShowDeleteModal(index)" class="fa-solid fa-trash-can canvas-question-delete-button"></i>
                                                         </div>
                                                     }
                                                 </div>
                                                 @if (question.IsMyQuestion)
                                                 {
-                                                    <span style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:#006400;margin-top:0.25rem;">Your Question</span>
+                                                    <span class="canvas-question-owner-label">Your Question</span>
                                                 }
                                             </div>
                                         </div>
@@ -270,8 +901,8 @@
                                 }
                                 else
                                 {
-                                    <div style="text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.875rem;padding:2rem 0;">
-                                        <i class="fa-solid fa-question-circle" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i>
+                                    <div class="canvas-empty-state-container">
+                                        <i class="fa-solid fa-question-circle canvas-empty-state-icon"></i>
                                         No questions yet. Be the first to ask!
                                     </div>
                                 }
@@ -280,32 +911,32 @@
                     </div>
 
                     <!-- Participants Content -->
-                    <div style="flex:1;overflow-y:auto;@(ActiveTab == Tab.Participants ? "" : "display:none;")" class="custom-scrollbar">
-                        <h3 style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;color:#4B3C2B;margin:0 0 1rem 0;">All Participants</h3>
-                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                    <div class="canvas-tab-content canvas-custom-scrollbar @(ActiveTab == Tab.Participants ? "" : "hidden")">
+                        <h3 class="canvas-section-title">All Participants</h3>
+                        <div class="canvas-participants-container">
                             @if (Model?.Participants?.Any() == true)
                             {
                                 @foreach (var participant in Model.Participants)
                                 {
-                                    <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:0.75rem;background-color:white;transition:background-color 0.2s;border:1px solid #E5E7EB;">
+                                    <div class="canvas-participant-item">
                                         @if (!string.IsNullOrEmpty(participant.Flag))
                                         {
-                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" style="height:16px;width:auto;border-radius:0.125rem;border:1px solid #D1D5DB;">
+                                            <img src="@($"https://flagcdn.com/w20/{participant.Flag}.png")" alt="@($"{participant.Country} Flag")" class="canvas-participant-flag">
                                         }
                                         else
                                         {
-                                            <div style="width:24px;height:16px;background-color:#4B3C2B;border-radius:0.125rem;display:flex;align-items:center;justify-content:center;">
-                                                <span style="color:#FBF9F6;font-size:0.625rem;font-weight:600;">@(participant.Country?.ToUpper() ?? "US")</span>
+                                            <div class="canvas-participant-flag-fallback">
+                                                <span class="canvas-participant-flag-text">@(participant.Country?.ToUpper() ?? "US")</span>
                                             </div>
                                         }
-                                        <span style="font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:500;color:#4B3C2B;">@participant.Name</span>
+                                        <span class="canvas-participant-name">@participant.Name</span>
                                     </div>
                                 }
                             }
                             else
                             {
-                                <div style="text-align:center;color:#9CA3AF;font-family:'Inter',sans-serif;font-size:0.875rem;padding:2rem 0;">
-                                    <i class="fa-solid fa-users" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i>
+                                <div class="canvas-empty-state-container">
+                                    <i class="fa-solid fa-users canvas-empty-state-icon"></i>
                                     No participants yet
                                 </div>
                             }
@@ -323,17 +954,15 @@
 <!-- Confirmation Modal -->
 @if (IsModalVisible)
 {
-    <div style="position:fixed;top:0;left:0;right:0;bottom:0;background-color:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:50;">
-        <div style="background-color:white;padding:2rem;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);max-width:24rem;width:100%;text-align:center;transform:scale(0.95);transition:all 0.2s;">
-            <h4 style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:#4B3C2B;margin:0 0 1rem 0;">Confirm Deletion</h4>
-            <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#6B7280;margin:0 0 1.5rem 0;">Are you sure you want to delete this question? This action cannot be undone.</p>
-            <div style="display:flex;justify-content:space-around;gap:1rem;">
-                <button @onclick="DeleteConfirmed" 
-                        style="flex:1;padding:0.5rem 1rem;border-radius:0.75rem;color:white;font-weight:600;background-color:#8B0000;border:none;cursor:pointer;transition:background-color 0.2s;font-family:'Inter',sans-serif;">
+    <div class="canvas-modal-overlay">
+        <div class="canvas-modal-content">
+            <h4 class="canvas-modal-title">Confirm Deletion</h4>
+            <p class="canvas-modal-message">Are you sure you want to delete this question? This action cannot be undone.</p>
+            <div class="canvas-modal-buttons">
+                <button @onclick="DeleteConfirmed" class="canvas-modal-button canvas-modal-button-delete">
                     Delete
                 </button>
-                <button @onclick="CancelDelete" 
-                        style="flex:1;padding:0.5rem 1rem;border-radius:0.75rem;color:#4B3C2B;font-weight:600;background-color:#E5E7EB;border:none;cursor:pointer;transition:background-color 0.2s;font-family:'Inter',sans-serif;">
+                <button @onclick="CancelDelete" class="canvas-modal-button canvas-modal-button-cancel">
                     Cancel
                 </button>
             </div>
