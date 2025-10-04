@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains SQL scripts to migrate the canvas schema and data from **KSESSIONS_DEV** to **KSESSIONS** database. The migration is designed to be **fault-tolerant**, **idempotent** (safe to run multiple times), and includes comprehensive validation and rollback mechanisms.
+This directory (`Workspaces/Scripts/`) contains SQL scripts to migrate the canvas schema and data from **KSESSIONS_DEV** to **KSESSIONS** database. The migration is designed to be **fault-tolerant**, **idempotent** (safe to run multiple times), and includes comprehensive validation and rollback mechanisms.
 
 ## Generated Files
 
