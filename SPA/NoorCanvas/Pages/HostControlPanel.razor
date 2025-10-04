@@ -1732,26 +1732,74 @@
                 return Task.FromResult(string.Empty);
             }
 
-            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Extracting raw asset HTML using simple pattern matching: {AssetType}", assetType);
+            Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Extracting raw asset HTML using asset-type-specific pattern matching: {AssetType}", assetType);
             
-            // [FIX] Use simple HTML parsing to extract asset content directly from original transcript
+            // [FIX] Use asset-type-specific HTML parsing to extract correct content based on actual assetType
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.LoadHtml(Model.SessionTranscript);
             
-            // Find ayah-card elements (or other asset types) directly
-            var assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card')]");
+            // Dynamically find elements based on the actual asset type
+            HtmlAgilityPack.HtmlNodeCollection? assetElements = null;
+            
+            switch (assetType.ToLowerInvariant())
+            {
+                case "ayah-card":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card')]");
+                    break;
+                case "inserted-hadees":
+                    // Try multiple possible hadees class names
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'inserted-hadees')] | //div[contains(@class, 'hadees-english')] | //div[contains(@class, 'ks-ahadees-english')]");
+                    break;
+                case "verse-container":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'verse-container')]");
+                    break;
+                case "etymology-card":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'etymology-card')]");
+                    break;
+                case "etymology-derivative-card":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'etymology-derivative-card')]");
+                    break;
+                case "esotericblock":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'esotericBlock')]");
+                    break;
+                case "table":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//table[@style='width: 100%;']");
+                    break;
+                case "imgresponsive":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'imgResponsive')] | //img[contains(@class, 'imgResponsive')]");
+                    break;
+                default:
+                    // Fallback: try to find by data-asset-id attribute first
+                    assetElements = htmlDoc.DocumentNode.SelectNodes($"//div[@data-asset-id='{shareId}']");
+                    
+                    // If not found, try generic class name matching
+                    if (assetElements == null || assetElements.Count == 0)
+                    {
+                        assetElements = htmlDoc.DocumentNode.SelectNodes($"//div[contains(@class, '{assetType}')]");
+                    }
+                    break;
+            }
             
             if (assetElements != null && assetElements.Count > instanceNumber - 1)
             {
                 var targetElement = assetElements[instanceNumber - 1];
                 var rawHtml = targetElement.OuterHtml;
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML: {Length} chars", rawHtml.Length);
+                Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Successfully extracted raw asset HTML for {AssetType} instance {Instance}: {Length} chars", assetType, instanceNumber, rawHtml.Length);
                 return Task.FromResult(rawHtml);
             }
             else
             {
-                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] Asset element not found: {AssetType} instance {Instance}", assetType, instanceNumber);
+                Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] Asset element not found: {AssetType} instance {Instance}. Found {Count} elements of this type.", assetType, instanceNumber, assetElements?.Count ?? 0);
+                
+                // Debug: Log available asset types in the document
+                var allAssetClasses = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card') or contains(@class, 'inserted-hadees') or contains(@class, 'verse-container')]");
+                if (allAssetClasses != null)
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Available assets in document: {AvailableAssets}", 
+                        string.Join(", ", allAssetClasses.Select((el, i) => $"{el.GetClasses().FirstOrDefault(c => c.Contains("ayah") || c.Contains("hadees") || c.Contains("verse"))}#{i+1}")));
+                }
+                
                 return Task.FromResult(string.Empty);
             }
         }
