@@ -33,6 +33,18 @@ BEGIN
         DECLARE @UpdatedSessions INT = @@ROWCOUNT;
         PRINT CONCAT('Extended expiration for ', @UpdatedSessions, ' active sessions by 24 hours');
         
+        -- Special handling for SessionID 212 - extend to 1 week for testing
+        UPDATE [canvas].[Sessions]
+        SET ExpiresAt = DATEADD(DAY, 7, GETUTCDATE()),
+            ModifiedAt = GETUTCDATE(),
+            Status='Active'
+        WHERE SessionId = 212;
+        
+        IF @@ROWCOUNT > 0
+            PRINT 'Extended SessionID 212 expiration to 1 week for testing purposes';
+        ELSE
+            PRINT 'SessionID 212 not found - no special extension applied';
+        
         -- Display current active sessions
         SELECT 
             SessionId,
