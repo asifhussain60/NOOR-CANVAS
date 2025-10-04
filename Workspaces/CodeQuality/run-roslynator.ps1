@@ -156,11 +156,11 @@ function Generate-RoslynatorDocumentation {
 **Total Issues:** $TotalIssues  
 **Project:** NoorCanvas  
 
-## 📊 Executive Summary
+## Executive Summary
 
 This document provides a comprehensive analysis of code quality metrics detected by Roslynator static analysis.
 
-## 🔍 Issues by Severity
+## Issues by Severity
 
 "@
     
@@ -168,12 +168,12 @@ This document provides a comprehensive analysis of code quality metrics detected
         $Documentation += "`n- **$($group.Name.ToUpper())**: $($group.Count) issues`n"
     }
     
-    $Documentation += "`n## 🏆 Top Issue Types`n`n"
+    $Documentation += "`n## Top Issue Types`n`n"
     foreach ($group in $IssuesByType) {
         $Documentation += "- **$($group.Name)**: $($group.Count) occurrences`n"
     }
     
-    $Documentation += "`n## 📁 Files with Most Issues`n`n"
+    $Documentation += "`n## Files with Most Issues`n`n"
     foreach ($group in $IssuesByFile) {
         $fileName = Split-Path $group.Name -Leaf
         $Documentation += "- **$fileName**: $($group.Count) issues`n"
@@ -181,7 +181,7 @@ This document provides a comprehensive analysis of code quality metrics detected
     
     $Documentation += @"
 
-## 🎯 Recommendations
+## Recommendations
 
 ### High Priority
 1. Address critical and major severity issues first
@@ -198,13 +198,13 @@ This document provides a comprehensive analysis of code quality metrics detected
 2. Remove unnecessary code constructs
 3. Optimize LINQ expressions
 
-## 📈 Health Score
+## Health Score
 
 **Overall Code Health**: $([math]::Round((1 - ($TotalIssues / 10000)) * 100, 1))%
 
 *Score calculation: Based on total issues relative to project size*
 
-## 📋 Analysis Details
+## Analysis Details
 
 - **Analysis Tool**: Roslynator v0.10.2
 - **Report Format**: GitLab JSON
