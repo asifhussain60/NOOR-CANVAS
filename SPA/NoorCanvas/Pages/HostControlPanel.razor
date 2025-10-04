@@ -1768,6 +1768,15 @@
                 case "imgresponsive":
                     assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'imgResponsive')] | //img[contains(@class, 'imgResponsive')]");
                     break;
+                case "example":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//p[contains(@class, 'example')]");
+                    break;
+                case "poetry-wrapper":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'poetry-wrapper')]");
+                    break;
+                case "quote":
+                    assetElements = htmlDoc.DocumentNode.SelectNodes("//p[contains(@class, 'quote')]");
+                    break;
                 default:
                     // Fallback: try to find by data-asset-id attribute first
                     assetElements = htmlDoc.DocumentNode.SelectNodes($"//div[@data-asset-id='{shareId}']");
@@ -1793,11 +1802,11 @@
                 Logger.LogWarning("[DEBUG-WORKITEM:assetshare:continue] Asset element not found: {AssetType} instance {Instance}. Found {Count} elements of this type.", assetType, instanceNumber, assetElements?.Count ?? 0);
                 
                 // Debug: Log available asset types in the document
-                var allAssetClasses = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card') or contains(@class, 'inserted-hadees') or contains(@class, 'verse-container')]");
+                var allAssetClasses = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ayah-card') or contains(@class, 'inserted-hadees') or contains(@class, 'verse-container') or contains(@class, 'poetry-wrapper')] | //p[contains(@class, 'example') or contains(@class, 'quote')]");
                 if (allAssetClasses != null)
                 {
                     Logger.LogInformation("[DEBUG-WORKITEM:assetshare:continue] Available assets in document: {AvailableAssets}", 
-                        string.Join(", ", allAssetClasses.Select((el, i) => $"{el.GetClasses().FirstOrDefault(c => c.Contains("ayah") || c.Contains("hadees") || c.Contains("verse"))}#{i+1}")));
+                        string.Join(", ", allAssetClasses.Select((el, i) => $"{el.GetClasses().FirstOrDefault(c => c.Contains("ayah") || c.Contains("hadees") || c.Contains("verse") || c.Contains("poetry") || c.Contains("example") || c.Contains("quote"))}#{i+1}")));
                 }
                 
                 return Task.FromResult(string.Empty);
