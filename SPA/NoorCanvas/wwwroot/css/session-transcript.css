@@ -212,17 +212,15 @@
 .session-transcript-content .ayah-card,
 .transcript-display .ayah-card,
 .islamic-content .ayah-card {
-    --gold: #d3b965;
-    --gold-line: linear-gradient(90deg,#d3b965 0%,#f7e8b7 50%,#d3b965 100%);
-    max-width: 80%;
-    margin: 10px auto;
-    padding: 1.1em;
-    border: none;
-    background: #fffefc !important;
-    text-align: center;
-    font-family: "Noto Sans", Helvetica, Arial, sans-serif;
-    border-radius: 8px;
+    background-color: var(--islamic-ayah-bg);
+    border: 2px solid var(--islamic-ayah-border);
+    padding: 0.75rem;
+    margin: 1rem auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    font-family: 'Lora', serif;
+    text-align: center;
+    border-radius: 8px;
+    max-width: 700px;
 }
 
 /* Golden Surah Headers */
