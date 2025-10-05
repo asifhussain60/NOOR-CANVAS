@@ -1,0 +1,241 @@
+/* 
+ * NOOR Canvas - Self-Hosted Font Definitions
+ * Provides @font-face declarations for locally hosted fonts
+ */
+
+/* Inter Font Family - Self-Hosted */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../../fonts/inter/inter-300.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/inter/inter-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts/inter/inter-500.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts/inter/inter-600.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/inter/inter-700.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../fonts/inter/inter-800.ttf') format('truetype');
+}
+
+/* Poppins Font Family - Self-Hosted */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/poppins/poppins-300.woff2') format('woff2'),
+       url('../fonts/poppins/poppins-300.woff') format('woff'),
+       url('../fonts/poppins/poppins-300.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/poppins/poppins-regular.woff2') format('woff2'),
+       url('../../fonts/poppins/poppins-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts/poppins/poppins-500.woff2') format('woff2'),
+       url('../../fonts/poppins/poppins-500.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts/poppins/poppins-600.woff2') format('woff2'),
+       url('../../fonts/poppins/poppins-600.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/poppins/poppins-700.ttf') format('truetype');
+}
+
+/* Lato Font Family - Self-Hosted */
+/* Lato 300 - Not available, using Google Fonts fallback */
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/lato/lato-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/lato/lato-bold.woff2') format('woff2');
+}
+
+/* Arabic Fonts - Self-Hosted */
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/arabic/amiri-400.woff2') format('woff2'),
+       url('../fonts/arabic/amiri-400.woff') format('woff'),
+       url('../fonts/arabic/amiri-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/arabic/amiri-700.woff2') format('woff2'),
+       url('../fonts/arabic/amiri-700.woff') format('woff'),
+       url('../fonts/arabic/amiri-700.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/arabic/scheherazade-new-400.woff2') format('woff2'),
+       url('../fonts/arabic/scheherazade-new-400.woff') format('woff'),
+       url('../fonts/arabic/scheherazade-new-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/arabic/scheherazade-new-700.woff2') format('woff2'),
+       url('../fonts/arabic/scheherazade-new-700.woff') format('woff'),
+       url('../fonts/arabic/scheherazade-new-700.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Nastaliq Urdu';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/arabic/noto-nastaliq-urdu-400.woff2') format('woff2'),
+       url('../fonts/arabic/noto-nastaliq-urdu-400.woff') format('woff'),
+       url('../fonts/arabic/noto-nastaliq-urdu-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Nastaliq Urdu';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/arabic/noto-nastaliq-urdu-700.woff2') format('woff2'),
+       url('../fonts/arabic/noto-nastaliq-urdu-700.woff') format('woff'),
+       url('../fonts/arabic/noto-nastaliq-urdu-700.ttf') format('truetype');
+}
+
+/* Custom Islamic Font - KashkoleTradArabic */
+@font-face {
+  font-family: 'KashkoleTradArabic';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/islamic/kashmiri-trad-arabic.woff2') format('woff2'),
+       url('../fonts/islamic/kashmiri-trad-arabic.woff') format('woff'),
+       url('../fonts/islamic/kashmiri-trad-arabic.ttf') format('truetype');
+}
+
+/* Display Fonts - Self-Hosted */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/display/playfair-display-400.woff2') format('woff2'),
+       url('../fonts/display/playfair-display-400.woff') format('woff'),
+       url('../fonts/display/playfair-display-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/display/playfair-display-700.woff2') format('woff2'),
+       url('../fonts/display/playfair-display-700.woff') format('woff'),
+       url('../fonts/display/playfair-display-700.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('../fonts/display/playfair-display-900.woff2') format('woff2'),
+       url('../fonts/display/playfair-display-900.woff') format('woff'),
+       url('../fonts/display/playfair-display-900.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/display/cinzel-decorative-400.woff2') format('woff2'),
+       url('../fonts/display/cinzel-decorative-400.woff') format('woff'),
+       url('../fonts/display/cinzel-decorative-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Cinzel Decorative';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/display/cinzel-decorative-700.woff2') format('woff2'),
+       url('../fonts/display/cinzel-decorative-700.woff') format('woff'),
+       url('../fonts/display/cinzel-decorative-700.ttf') format('truetype');
+}
