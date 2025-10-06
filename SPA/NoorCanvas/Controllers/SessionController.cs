@@ -195,5 +195,48 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to get session state" });
             }
         }
+
+        /// <summary>
+        /// Get session transcript HTML from KSESSIONS database by session ID.
+        /// </summary>
+        /// <param name="sessionId">The ID of the session to retrieve transcript for.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [HttpGet("{sessionId}/transcript")]
+        public async Task<IActionResult> GetSessionTranscript(long sessionId)
+        {
+            try
+            {
+                _logger.LogInformation("NOOR-INFO: Getting transcript for session: {SessionId}", sessionId);
+
+                var transcript = await _kSessionsContext.SessionTranscripts
+                    .FirstOrDefaultAsync(st => st.SessionId == sessionId);
+
+                if (transcript == null)
+                {
+                    _logger.LogWarning("NOOR-WARNING: No transcript found for session {SessionId}", sessionId);
+                    return NotFound(new { error = "Transcript not found for this session" });
+                }
+
+                if (string.IsNullOrEmpty(transcript.Transcript))
+                {
+                    _logger.LogWarning("NOOR-WARNING: Empty transcript content for session {SessionId}", sessionId);
+                    return Ok(new { sessionId = sessionId, transcript = "", lastUpdated = transcript.ChangedDate });
+                }
+
+                _logger.LogInformation("NOOR-SUCCESS: Retrieved transcript for session {SessionId}, length: {Length} characters", 
+                    sessionId, transcript.Transcript.Length);
+
+                return Ok(new { 
+                    sessionId = sessionId, 
+                    transcript = transcript.Transcript,
+                    lastUpdated = transcript.ChangedDate
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NOOR-ERROR: Failed to get transcript for session {SessionId}", sessionId);
+                return StatusCode(500, new { error = "Failed to retrieve transcript" });
+            }
+        }
     }
 }

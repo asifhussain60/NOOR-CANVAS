@@ -24,7 +24,7 @@
 .transcript-display p,
 .islamic-content p {
     font-family: 'Lato', sans-serif;
-    font-size: 1.3rem; /* 18px - appropriate for reading content */
+    font-size: 1.3rem !important; /* 18px - appropriate for reading content */
     line-height: 1.7;
     color: var(--islamic-text);
     margin-bottom: 1rem;
@@ -780,7 +780,7 @@
     line-height: 2.2;
     color: #722727;
     font-weight: 700;
-    font-size: 2em;
+    font-size: 1.6em !important;
 }
 
 [data-islamic-content] h3.arabic-text,

@@ -1,0 +1,202 @@
+@page "/host/session-opener/{token}/transcript"
+@page "/host/session-opener/{token}/transcript/{sessionId:int?}"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using System.Text.Json
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<Host_SessionTranscriptViewer> Logger
+
+<PageTitle>NOOR Canvas - Session Transcript Viewer</PageTitle>
+
+<HeadContent>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&family=Lora:wght@300;400;500;600;700&family=Comic+Neue:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Session Transcript CSS -->
+    <link href="/css/session-transcript.css" rel="stylesheet">
+</HeadContent>
+
+<!-- Page Content -->
+<div class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold text-gray-800">Session Transcript Viewer</h1>
+            <p class="text-gray-600 mt-1">Dynamic Islamic Content Loading from Database</p>
+            <div class="mt-3 flex items-center space-x-4">
+                <label class="text-sm font-medium text-gray-700">
+                    Session ID:
+                    <input type="number" @bind="CurrentSessionId" @bind:event="oninput" class="ml-2 px-3 py-1 border border-gray-300 rounded-md text-sm w-20">
+                </label>
+                <button @onclick="RefreshTranscript" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fa fa-refresh mr-2"></i>Refresh from Database
+                </button>
+                <div class="text-sm">
+                    @if (IsLoading)
+                    {
+                        <span class="text-blue-600"><i class="fa fa-spinner fa-spin mr-1"></i>Loading...</span>
+                    }
+                    else if (!string.IsNullOrEmpty(LastLoadTime))
+                    {
+                        <span class="text-green-600"><i class="fa fa-check mr-1"></i>Loaded @LastLoadTime</span>
+                    }
+                    else if (HasError)
+                    {
+                        <span class="text-red-600"><i class="fa fa-exclamation-triangle mr-1"></i>API Error</span>
+                    }
+                    else
+                    {
+                        <span class="text-gray-500">Ready</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm p-6 islamic-content" id="transcriptContainer">
+            @if (IsLoading)
+            {
+                <div class="text-center p-8">
+                    <i class="fa fa-spinner fa-spin fa-2x text-blue-500"></i>
+                    <p class="mt-4 text-gray-600">Loading fresh transcript from database...</p>
+                </div>
+            }
+            else if (HasError)
+            {
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                    <div class="flex">
+                        <i class="fa fa-exclamation-triangle text-yellow-400 mr-2"></i>
+                        <div>
+                            <p class="text-yellow-800 font-medium">Unable to load fresh transcript from database</p>
+                            <p class="text-yellow-700 text-sm">Error: @ErrorMessage</p>
+                            <p class="text-yellow-700 text-sm">Please check the API connection and try again.</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(TranscriptContent))
+            {
+                @((MarkupString)TranscriptContent)
+            }
+            else
+            {
+                <div class="text-center p-8 text-gray-500">
+                    <i class="fa fa-exclamation-circle fa-2x"></i>
+                    <p class="mt-4">No transcript content available for this session.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <p class="text-sm text-gray-400">NOOR Canvas - Dynamic Session Transcript Viewer</p>
+            <p class="text-xs text-gray-500 mt-2">Token: @Token | Session: @CurrentSessionId</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? Token { get; set; }
+    [Parameter] public int? SessionId { get; set; }
+
+    private int CurrentSessionId { get; set; } = 212;
+    private bool IsLoading { get; set; } = false;
+    private bool HasError { get; set; } = false;
+    private string ErrorMessage { get; set; } = "";
+    private string LastLoadTime { get; set; } = "";
+    private string TranscriptContent { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("TRANSCRIPT-VIEWER: Initializing with token: {Token}, sessionId: {SessionId}", Token, SessionId);
+        
+        if (SessionId.HasValue)
+        {
+            CurrentSessionId = SessionId.Value;
+        }
+
+        await LoadTranscriptFromDatabase();
+    }
+
+    private async Task RefreshTranscript()
+    {
+        await LoadTranscriptFromDatabase();
+    }
+
+    private async Task LoadTranscriptFromDatabase()
+    {
+        IsLoading = true;
+        HasError = false;
+        ErrorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            Logger.LogInformation("TRANSCRIPT-VIEWER: Loading transcript for session {SessionId}", CurrentSessionId);
+
+            var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
+            
+            var response = await httpClient.GetAsync($"/api/session/{CurrentSessionId}/transcript");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonContent = await response.Content.ReadAsStringAsync();
+                var transcriptData = System.Text.Json.JsonSerializer.Deserialize<TranscriptResponse>(jsonContent, new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                });
+
+                if (transcriptData != null && !string.IsNullOrEmpty(transcriptData.Transcript))
+                {
+                    TranscriptContent = transcriptData.Transcript;
+                    LastLoadTime = transcriptData.LastUpdated?.ToString("yyyy-MM-dd HH:mm:ss") ?? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    
+                    Logger.LogInformation("TRANSCRIPT-VIEWER: Successfully loaded transcript, length: {Length} characters", TranscriptContent.Length);
+                }
+                else
+                {
+                    TranscriptContent = "";
+                    HasError = true;
+                    ErrorMessage = "No transcript content available";
+                }
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = $"HTTP {response.StatusCode}: {response.ReasonPhrase}";
+                Logger.LogWarning("TRANSCRIPT-VIEWER: API request failed with status {StatusCode}", response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = ex.Message;
+            Logger.LogError(ex, "TRANSCRIPT-VIEWER: Failed to load transcript for session {SessionId}", CurrentSessionId);
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public class TranscriptResponse
+    {
+        public int SessionId { get; set; }
+        public string Transcript { get; set; } = "";
+        public DateTime? LastUpdated { get; set; }
+    }
+}

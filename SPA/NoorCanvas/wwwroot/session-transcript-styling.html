@@ -734,8 +734,125 @@
     transition: all 0.3s ease;
 }
 
+/* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 16px 20px;
+    max-width: 400px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #374151;
+    pointer-events: auto;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+    border-left: 4px solid #10b981;
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast.error {
+    border-left-color: #ef4444;
+}
+
+.toast.warning {
+    border-left-color: #f59e0b;
+}
+
+.toast.info {
+    border-left-color: #3b82f6;
+}
+
+.toast-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.toast.success .toast-icon {
+    color: #10b981;
+}
+
+.toast.error .toast-icon {
+    color: #ef4444;
+}
+
+.toast.warning .toast-icon {
+    color: #f59e0b;
+}
+
+.toast.info .toast-icon {
+    color: #3b82f6;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.toast-close:hover {
+    color: #6b7280;
+    background: #f3f4f6;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+    .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .toast {
+        min-width: auto;
+        max-width: none;
+    }
+    
     [data-islamic-content] .etymology-card,
     .ks-transcript .etymology-card,
     .session-transcript-content .etymology-card,
@@ -879,7 +996,62 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <script>
+        // Toast Notification System
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const toastId = 'toast-' + Date.now();
+            
+            toast.id = toastId;
+            toast.className = `toast ${type}`;
+            
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fa ${iconMap[type]} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="hideToast('${toastId}')">
+                    <i class="fa fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Auto-hide after duration
+            setTimeout(() => {
+                hideToast(toastId);
+            }, duration);
+            
+            return toastId;
+        }
+        
+        function hideToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        }
+        
         // Dynamic transcript loading from database
         document.addEventListener('DOMContentLoaded', function() {
             loadTranscriptFromDatabase();
@@ -888,10 +1060,19 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
         async function refreshTranscript() {
             const sessionIdInput = document.getElementById('sessionIdInput');
             const sessionId = sessionIdInput.value || 212;
-            await loadTranscriptFromDatabase(sessionId);
+            
+            // Show loading toast
+            const loadingToastId = showToast('info', 'Loading Transcript', `Fetching fresh content for Session ${sessionId}...`, 10000);
+            
+            try {
+                await loadTranscriptFromDatabase(sessionId, loadingToastId);
+            } catch (error) {
+                hideToast(loadingToastId);
+                showToast('error', 'Refresh Failed', `Unable to refresh Session ${sessionId}: ${error.message}`);
+            }
         }
 
-        async function loadTranscriptFromDatabase(sessionId = null) {
+        async function loadTranscriptFromDatabase(sessionId = null, loadingToastId = null) {
             if (!sessionId) {
                 const sessionIdInput = document.getElementById('sessionIdInput');
                 sessionId = sessionIdInput.value || 212;
@@ -910,7 +1091,7 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
 
             try {
                 // Fetch fresh transcript from API
-                const response = await fetch(`http://localhost:9090/api/session/${sessionId}/transcript`);
+                const response = await fetch(`/api/session/${sessionId}/transcript`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -933,6 +1114,16 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
                     const loadTimestamp = new Date(data.lastUpdated || Date.now()).toLocaleString();
                     statusIndicator.innerHTML = `<span class="text-green-600"><i class="fa fa-check mr-1"></i>Loaded ${loadTimestamp}</span>`;
                     
+                    // Hide loading toast if it exists
+                    if (loadingToastId) {
+                        hideToast(loadingToastId);
+                    }
+                    
+                    // Show success toast
+                    const contentLength = (data.transcript.length / 1024).toFixed(1);
+                    showToast('success', 'Transcript Refreshed', 
+                        `Session ${data.sessionId} loaded successfully (${contentLength}KB, updated ${loadTimestamp})`);
+                    
                     console.log('TRANSCRIPT-LOADED: Fresh content loaded from database', {
                         sessionId: data.sessionId,
                         contentLength: data.transcript.length,
@@ -941,6 +1132,14 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
                 } else {
                     transcriptContainer.innerHTML = '<div class="text-center p-8 text-gray-500"><i class="fa fa-exclamation-circle fa-2x"></i><p class="mt-4">No transcript content available for this session.</p></div>';
                     statusIndicator.innerHTML = '<span class="text-yellow-600"><i class="fa fa-exclamation-triangle mr-1"></i>No content</span>';
+                    
+                    // Hide loading toast if it exists
+                    if (loadingToastId) {
+                        hideToast(loadingToastId);
+                    }
+                    
+                    // Show warning toast
+                    showToast('warning', 'No Content Found', `Session ${sessionId} exists but has no transcript content available.`);
                 }
             } catch (error) {
                 console.error('TRANSCRIPT-ERROR: Failed to load transcript from database:', error);
@@ -964,6 +1163,15 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
                 
                 // Update status to show error
                 statusIndicator.innerHTML = `<span class="text-red-600"><i class="fa fa-exclamation-triangle mr-1"></i>API Error</span>`;
+                
+                // Hide loading toast if it exists
+                if (loadingToastId) {
+                    hideToast(loadingToastId);
+                }
+                
+                // Show error toast
+                showToast('error', 'Connection Failed', 
+                    `Unable to fetch Session ${sessionId} from database. ${error.message}`);
             }
         }
 
@@ -987,7 +1195,7 @@ I swear by My Power and My Majesty, if he comes to Me in the night, I will accep
                     this.style.transform = 'translateY(0)';
                 });
             });
-        });
+        }
     </script>
 </body>
 </html>
