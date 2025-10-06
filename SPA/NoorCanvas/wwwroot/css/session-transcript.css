@@ -1,10 +1,7 @@
 /* Islamic Content Styling - Multi-Container Support */
 /* CSS Custom Properties for Islamic Content Theming */
-[data-islamic-content],
-.ks-transcript,
-.session-transcript-content,
-.transcript-display,
-.islamic-content {
+:root {
+    /* Base Islamic Content Variables */
     --islamic-primary: #0c4a6e;
     --islamic-secondary: #0369a1;
     --islamic-text: #374151;
@@ -15,6 +12,32 @@
     --islamic-border: #e5e7eb;
     --islamic-golden-header: #fef3c7;
     --islamic-accent: #8b5cf6;
+    
+    /* Context-Aware Asset Dimensions */
+    --islamic-asset-width: 75%; /* Default fallback */
+    --islamic-asset-max-width: none;
+}
+
+/* Wide Container Theme (HostControlPanel, session-transcript-styling.html) */
+[data-theme="wide"],
+.ks-transcript,
+.session-transcript-content,
+.transcript-display {
+    --islamic-asset-width: 70%;
+    --islamic-asset-max-width: 700px;
+}
+
+/* Narrow Container Theme (SessionCanvas) */
+[data-theme="narrow"],
+.islamic-content {
+    --islamic-asset-width: 90%;
+    --islamic-asset-max-width: none;
+}
+
+/* Auto-detect for standalone HTML pages */
+[data-islamic-content] {
+    --islamic-asset-width: 75%;
+    --islamic-asset-max-width: 650px;
 }
 
 /* Basic Typography - Paragraphs and Headings */
@@ -203,7 +226,8 @@
     border-bottom: 2px solid #7dd3fc;
     padding: 1rem;
     color: var(--islamic-primary);
-    width: 85%;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
 }
 
 /* Ayah Cards */
@@ -220,7 +244,8 @@
     font-family: 'Lora', serif;
     text-align: center;
     border-radius: 8px;
-    width: 85%;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
 }
 
 /* Golden Surah Headers */
@@ -425,7 +450,8 @@
     position: relative;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     transition: all 0.3s ease;
-    width: 85%;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
 }
 
 [data-islamic-content] .etymology-card:hover,
@@ -586,7 +612,8 @@
     border-radius: 8px;
     padding: 0;
     margin: 1.5rem auto;
-    max-width: 700px;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
@@ -707,10 +734,10 @@
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 15px -3px rgba(0, 0, 0, 0.15);
     padding: 20px;
     margin-bottom: 20px;
-    width: 60%;
+    width: var(--islamic-asset-width);
     margin-left: auto;
     margin-right: auto;
-    max-width: 700px;
+    max-width: var(--islamic-asset-max-width);
 }
 
 [data-islamic-content] .poetry-poet-header,

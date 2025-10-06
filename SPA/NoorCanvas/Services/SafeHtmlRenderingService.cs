@@ -142,7 +142,8 @@ namespace NoorCanvas.Services
                 if (!hasContainerDiv)
                 {
                     var wrapper = htmlDoc.CreateElement("div");
-                    wrapper.SetAttributeValue("class", "transcript-content blazor-safe-html");
+                    wrapper.SetAttributeValue("class", "transcript-content blazor-safe-html ks-transcript");
+                    wrapper.SetAttributeValue("data-theme", "wide");
 
                     // Move all existing content into the wrapper
                     var existingNodes = bodyNode.ChildNodes.ToList();

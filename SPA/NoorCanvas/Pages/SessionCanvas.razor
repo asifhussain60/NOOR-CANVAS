@@ -799,7 +799,7 @@
                     <div class="canvas-content-area">
                         @if (!string.IsNullOrEmpty(Model?.SharedAssetContent))
                         {
-                            <div class="canvas-asset-content" data-islamic-content>
+                            <div class="canvas-asset-content islamic-content" data-islamic-content data-theme="narrow">
                                 @((MarkupString)GetSafeHtmlContent(Model.SharedAssetContent))
                             </div>
                         }
