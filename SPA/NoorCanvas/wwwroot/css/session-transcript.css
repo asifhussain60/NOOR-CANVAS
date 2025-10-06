@@ -203,7 +203,7 @@
     border-bottom: 2px solid #7dd3fc;
     padding: 1rem;
     color: var(--islamic-primary);
-    max-width: 700px;
+    width: 85%;
 }
 
 /* Ayah Cards */
@@ -220,7 +220,7 @@
     font-family: 'Lora', serif;
     text-align: center;
     border-radius: 8px;
-    max-width: 700px;
+    width: 85%;
 }
 
 /* Golden Surah Headers */
@@ -425,7 +425,7 @@
     position: relative;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     transition: all 0.3s ease;
-    max-width: 700px;
+    width: 85%;
 }
 
 [data-islamic-content] .etymology-card:hover,
