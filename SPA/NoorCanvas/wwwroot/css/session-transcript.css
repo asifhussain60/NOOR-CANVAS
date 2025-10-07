@@ -18,6 +18,20 @@
     --islamic-asset-max-width: none;
 }
 
+/* Global Arabic Text Fix */
+* {
+    -webkit-font-feature-settings: "liga", "kern";
+    font-feature-settings: "liga", "kern";
+    text-rendering: optimizeLegibility;
+}
+
+/* Force proper Unicode rendering for Arabic content */
+[lang="ar"], [dir="rtl"], .rtl, .arabic-text, .ayah-arabic, .inlineArabic, .amiriCrimson {
+    unicode-bidi: isolate;
+    direction: rtl;
+    text-rendering: optimizeLegibility;
+}
+
 /* Wide Container Theme (HostControlPanel, session-transcript-styling.html) */
 [data-theme="wide"],
 .ks-transcript,
@@ -204,10 +218,12 @@
 .session-transcript-content .inlineArabic,
 .transcript-display .inlineArabic,
 .islamic-content .inlineArabic {
-    font-family: 'Scheherazade New', 'Harmattan', serif;
+    font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', serif;
     direction: rtl;
     font-size: 28px;
     display: inline-block;
+    unicode-bidi: bidi-override;
+    text-rendering: optimizeLegibility;
 }
 
 /* Verse Containers */
@@ -336,15 +352,7 @@
 .session-transcript-content .ayah-arabic,
 .transcript-display .ayah-arabic,
 .islamic-content .ayah-arabic {
-            font-family: 'Amiri', serif;
-            font-size: 1.8em;
-            line-height: 1.6;
-            direction: rtl;
-            color: var(--primary-color);
-            padding: 0 1rem;
-            text-align: center;
-            margin: 0.5rem 0;
-    font-family: 'Amiri', serif;
+    font-family: 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', serif;
     font-size: 1.8em;
     line-height: 1.6;
     direction: rtl;
@@ -352,6 +360,7 @@
     padding: 0 1rem;
     text-align: center;
     margin: 0.5rem 0;
+    unicode-bidi: bidi-override;
 }
 
 /* Arabic Text Images */
@@ -999,8 +1008,22 @@
 .islamic-content .amiriCrimson,
 .islamic-content .amiriCrimson > span {
     padding-top: 15px;
-    text-align: left;
+    text-align: center;
     direction: rtl;
+    font-family: 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', serif !important;
+    color: #990000 !important;
+    background-color: #fdf6f6;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 6px solid #990000;
+    border-right: 6px solid #990000;
+    font-size: 3rem;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    unicode-bidi: bidi-override;
+    text-rendering: optimizeLegibility;
 }
 
 /* Urdu Poetry Styling */
@@ -1031,7 +1054,7 @@
 .transcript-display p.inlineArabic,
 .islamic-content span.inlineArabic,
 .islamic-content p.inlineArabic {
-    font-family: KashkoleTradArabic !important;
+    font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', serif !important;
     font-size: 1.5em !important;
     word-spacing: 3px;
     letter-spacing: normal;
@@ -1040,6 +1063,8 @@
     font-style: normal;
     direction: rtl;
     display: inline !important;
+    unicode-bidi: bidi-override;
+    text-rendering: optimizeLegibility;
 }
 
 /* Esoteric Block */
