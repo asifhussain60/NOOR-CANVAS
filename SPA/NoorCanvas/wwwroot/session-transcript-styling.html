@@ -178,6 +178,17 @@ h1, h2, h3, h4, h5, h6 {
 .text-muted {
     color: #6c757d !important;
 }
+
+/* Force imgResponsive images to use CSS variable width, overriding inline styles */
+[data-islamic-content] .imgResponsive,
+.ks-transcript .imgResponsive,
+.session-transcript-content .imgResponsive,
+.transcript-display .imgResponsive,
+.islamic-content .imgResponsive {
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
+    height: auto !important;
+}
     </style>
 </head>
 <body style="background-color: #cfc5c5;">
@@ -275,29 +286,35 @@ h1, h2, h3, h4, h5, h6 {
             const afterPlainTextButtons = cleaned.length;
             
             // Remove inline width and height styles from images (imgResponsive class)
-            // Pattern: matches style attribute with width/height and removes those properties
+            // Simplified approach: Find all imgResponsive images and strip width/height from style attribute
             let imageStylesRemoved = 0;
-            cleaned = cleaned.replace(/<img([^>]*class[^=]*=[^"]*"[^"]*imgResponsive[^"]*"[^>]*style[^=]*=[^"]*"[^"]*)(width|height)\s*:\s*[^;"]+(;?)[^"]*"([^>]*)>/gi, (match, before, prop, semicolon, after) => {
+            cleaned = cleaned.replace(/<img([^>]*imgResponsive[^>]*)>/gi, (match) => {
+                // Check if this image has a style attribute
+                if (!match.includes('style=')) {
+                    return match; // No style attribute, return as-is
+                }
+                
                 imageStylesRemoved++;
-                // Remove the entire style attribute if it only contains width/height
-                const cleanedMatch = match.replace(/style\s*=\s*"[^"]*"/gi, (styleAttr) => {
-                    let styleContent = styleAttr.match(/style\s*=\s*"([^"]*)"/i);
-                    if (styleContent && styleContent[1]) {
-                        // Remove width and height properties
-                        let cleanedStyle = styleContent[1]
-                            .replace(/width\s*:\s*[^;]+;?/gi, '')
-                            .replace(/height\s*:\s*[^;]+;?/gi, '')
-                            .trim();
-                        
-                        // Remove trailing semicolon and extra spaces
-                        cleanedStyle = cleanedStyle.replace(/;\s*;/g, ';').replace(/^;|;$/g, '').trim();
-                        
-                        // If style is now empty, remove the attribute entirely
-                        return cleanedStyle ? `style="${cleanedStyle}"` : '';
-                    }
-                    return styleAttr;
+                
+                // Remove width and height properties from style attribute
+                let cleaned = match.replace(/style\s*=\s*"([^"]*)"/gi, (styleMatch, styleContent) => {
+                    // Remove width and height properties
+                    let cleanedStyle = styleContent
+                        .replace(/\s*width\s*:\s*[^;]+;?/gi, '')
+                        .replace(/\s*height\s*:\s*[^;]+;?/gi, '')
+                        .trim();
+                    
+                    // Clean up multiple semicolons and trailing semicolons
+                    cleanedStyle = cleanedStyle.replace(/;\s*;/g, ';').replace(/^;|;$/g, '').trim();
+                    
+                    // If style is now empty, remove the attribute entirely
+                    return cleanedStyle ? `style="${cleanedStyle}"` : '';
                 });
-                return cleanedMatch;
+                
+                // Remove any empty style="" attributes left behind
+                cleaned = cleaned.replace(/\s+style\s*=\s*""\s*/gi, ' ');
+                
+                return cleaned;
             });
             const afterImageStyles = cleaned.length;
             
