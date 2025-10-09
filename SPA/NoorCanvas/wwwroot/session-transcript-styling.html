@@ -234,20 +234,24 @@ h1, h2, h3, h4, h5, h6 {
         // ============================================================================
         
         /**
-         * Transform HTML by removing delete buttons before rendering
-         * JavaScript port of AssetProcessingService.RemoveDeleteButtons()
+         * Transform HTML by removing action buttons before rendering
+         * JavaScript port of AssetProcessingService button removal logic
          * 
-         * Removes any <button> elements with 'delete' in their id or class attributes.
+         * Removes any <button> elements with:
+         * - 'delete' in their id or class attributes
+         * - 'plain' or 'text' in their id or class attributes (Plain Text button)
+         * 
          * This ensures that action buttons from the database are not displayed in the 
          * throwaway styling demo file.
          * 
          * Regex Pattern Explanation:
-         * - Matches: <button[^>]*(?:id="...delete..."|class="...delete...")[^>]*>.*?</button>
+         * - Delete buttons: <button[^>]*(?:id="...delete..."|class="...delete...")[^>]*>.*?</button>
+         * - Plain Text buttons: <button[^>]*(?:id="...plain.*text..."|class="...plain.*text...")[^>]*>.*?</button>
          * - Case-insensitive matching
          * - Handles both id and class attributes
          * 
          * @param {string} html - The HTML content to transform
-         * @returns {string} - Cleaned HTML with delete buttons removed
+         * @returns {string} - Cleaned HTML with action buttons removed
          */
         function transformHtml(html) {
             if (!html) {
@@ -258,16 +262,24 @@ h1, h2, h3, h4, h5, h6 {
             const startTime = performance.now();
             
             // Regex pattern matching AssetProcessingService.cs RemoveDeleteButtons() logic
-            // Pattern: <button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>.*?</button>
             const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>.*?<\/button>/gi;
             
-            // Apply transformation
-            const cleaned = html.replace(deleteButtonPattern, '');
+            // Pattern to match "Plain Text" buttons (with "plain" and "text" in id/class)
+            const plainTextButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|class[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|id[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*"|class[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*")[^>]*>.*?<\/button>/gi;
+            
+            // Apply transformations in sequence
+            let cleaned = html.replace(deleteButtonPattern, '');
+            const afterDeleteButtons = cleaned.length;
+            
+            cleaned = cleaned.replace(plainTextButtonPattern, '');
+            const afterPlainTextButtons = cleaned.length;
             
             // Calculate metrics
             const originalLength = html.length;
             const cleanedLength = cleaned.length;
-            const removedBytes = originalLength - cleanedLength;
+            const totalRemovedBytes = originalLength - cleanedLength;
+            const deleteBytesRemoved = originalLength - afterDeleteButtons;
+            const plainTextBytesRemoved = afterDeleteButtons - afterPlainTextButtons;
             const endTime = performance.now();
             const duration = (endTime - startTime).toFixed(2);
             
@@ -275,15 +287,23 @@ h1, h2, h3, h4, h5, h6 {
             console.log('TRANSFORM: HTML transformation completed', {
                 originalBytes: originalLength,
                 cleanedBytes: cleanedLength,
-                removedBytes: removedBytes,
-                buttonsRemoved: removedBytes > 0,
+                totalRemovedBytes: totalRemovedBytes,
+                deleteButtonBytesRemoved: deleteBytesRemoved,
+                plainTextButtonBytesRemoved: plainTextBytesRemoved,
+                buttonsRemoved: totalRemovedBytes > 0,
                 durationMs: duration
             });
             
-            if (removedBytes > 0) {
-                console.info(`✓ TRANSFORM: Successfully removed ${removedBytes} bytes of delete button HTML in ${duration}ms`);
+            if (deleteBytesRemoved > 0) {
+                console.info(`✓ TRANSFORM: Removed ${deleteBytesRemoved} bytes of delete button HTML`);
+            }
+            if (plainTextBytesRemoved > 0) {
+                console.info(`✓ TRANSFORM: Removed ${plainTextBytesRemoved} bytes of Plain Text button HTML`);
+            }
+            if (totalRemovedBytes === 0) {
+                console.info(`✓ TRANSFORM: No action buttons found in HTML (${duration}ms)`);
             } else {
-                console.info(`✓ TRANSFORM: No delete buttons found in HTML (${duration}ms)`);
+                console.info(`✓ TRANSFORM: Total cleanup: ${totalRemovedBytes} bytes removed in ${duration}ms`);
             }
             
             return cleaned;
@@ -291,21 +311,31 @@ h1, h2, h3, h4, h5, h6 {
         
         /**
          * Validate that transformation is working correctly
-         * Checks if delete buttons are present in HTML
+         * Checks if delete buttons or Plain Text buttons are present in HTML
          * 
          * @param {string} html - The HTML content to validate
          * @returns {object} - Validation results with details
          */
         function validateTransformation(html) {
-            if (!html) return { isValid: true, deleteButtonsFound: 0 };
+            if (!html) return { isValid: true, deleteButtonsFound: 0, plainTextButtonsFound: 0 };
             
             const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>/gi;
-            const matches = html.match(deleteButtonPattern);
+            const plainTextButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|class[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|id[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*"|class[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*")[^>]*>/gi;
+            
+            const deleteMatches = html.match(deleteButtonPattern);
+            const plainTextMatches = html.match(plainTextButtonPattern);
+            
+            const deleteButtonsFound = deleteMatches ? deleteMatches.length : 0;
+            const plainTextButtonsFound = plainTextMatches ? plainTextMatches.length : 0;
+            const totalButtonsFound = deleteButtonsFound + plainTextButtonsFound;
             
             return {
-                isValid: !matches || matches.length === 0,
-                deleteButtonsFound: matches ? matches.length : 0,
-                matches: matches || []
+                isValid: totalButtonsFound === 0,
+                deleteButtonsFound: deleteButtonsFound,
+                plainTextButtonsFound: plainTextButtonsFound,
+                totalButtonsFound: totalButtonsFound,
+                deleteMatches: deleteMatches || [],
+                plainTextMatches: plainTextMatches || []
             };
         }
         
@@ -421,18 +451,32 @@ h1, h2, h3, h4, h5, h6 {
                     // Validate original HTML
                     const originalValidation = validateTransformation(data.transcript);
                     if (!originalValidation.isValid) {
-                        console.warn(`⚠️ VALIDATION: Found ${originalValidation.deleteButtonsFound} delete button(s) in original HTML - will be removed`);
+                        const buttonSummary = [];
+                        if (originalValidation.deleteButtonsFound > 0) {
+                            buttonSummary.push(`${originalValidation.deleteButtonsFound} delete button(s)`);
+                        }
+                        if (originalValidation.plainTextButtonsFound > 0) {
+                            buttonSummary.push(`${originalValidation.plainTextButtonsFound} Plain Text button(s)`);
+                        }
+                        console.warn(`⚠️ VALIDATION: Found ${buttonSummary.join(', ')} in original HTML - will be removed`);
                     }
                     
-                    // Transform HTML to remove delete buttons
+                    // Transform HTML to remove action buttons
                     const transformedHtml = transformHtml(data.transcript);
                     
                     // Validate transformed HTML
                     const transformedValidation = validateTransformation(transformedHtml);
                     if (transformedValidation.isValid) {
-                        console.info('✓ VALIDATION: Transformed HTML is clean - no delete buttons present');
+                        console.info('✓ VALIDATION: Transformed HTML is clean - no action buttons present');
                     } else {
-                        console.error(`✗ VALIDATION: Transformation failed - ${transformedValidation.deleteButtonsFound} delete button(s) still present!`);
+                        const remainingSummary = [];
+                        if (transformedValidation.deleteButtonsFound > 0) {
+                            remainingSummary.push(`${transformedValidation.deleteButtonsFound} delete button(s)`);
+                        }
+                        if (transformedValidation.plainTextButtonsFound > 0) {
+                            remainingSummary.push(`${transformedValidation.plainTextButtonsFound} Plain Text button(s)`);
+                        }
+                        console.error(`✗ VALIDATION: Transformation failed - ${remainingSummary.join(', ')} still present!`);
                     }
                     
                     // Insert transformed content (delete buttons removed)
