@@ -52,7 +52,13 @@
     "Workspaces/Copilot/prompts.keys/system/key.json",
     "Workspaces/Copilot/prompts.keys/README.md"
   ],
-  "commits": [],
+  "commits": [
+    {
+      "hash": "10c718a7",
+      "message": "refactor: reorganize key data streams to folder-based structure",
+      "timestamp": "2025-10-09T17:12:30Z"
+    }
+  ],
   "warnings": [],
   "errors": [],
   "notes": [
@@ -60,6 +66,10 @@
     "Each key will have: {key-name}/key.json",
     "Enables future expansion with additional config files per key",
     "Improves organization and maintainability",
-    "Existing folders (api/, canvas/, etc.) will be preserved and standardized"
+    "Existing folders (api/, canvas/, etc.) preserved - will be standardized in future",
+    "Successfully migrated: _template, doc, hcp, session-transcript-css, session-transcript-styling",
+    "All old flat JSON files deleted",
+    "README.md updated with folder-based structure documentation",
+    "Commit: 10c718a7 - 7 files changed, 85 insertions(+), 9 deletions(-)"
   ]
 }
