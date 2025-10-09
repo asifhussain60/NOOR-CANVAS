@@ -252,6 +252,91 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <script>
+        // ============================================================================
+        // HTML TRANSFORMATION FUNCTIONS
+        // Based on AssetProcessingService.cs (SPA/NoorCanvas/Services/)
+        // ============================================================================
+        
+        /**
+         * Transform HTML by removing delete buttons before rendering
+         * JavaScript port of AssetProcessingService.RemoveDeleteButtons()
+         * 
+         * Removes any <button> elements with 'delete' in their id or class attributes.
+         * This ensures that action buttons from the database are not displayed in the 
+         * throwaway styling demo file.
+         * 
+         * Regex Pattern Explanation:
+         * - Matches: <button[^>]*(?:id="...delete..."|class="...delete...")[^>]*>.*?</button>
+         * - Case-insensitive matching
+         * - Handles both id and class attributes
+         * 
+         * @param {string} html - The HTML content to transform
+         * @returns {string} - Cleaned HTML with delete buttons removed
+         */
+        function transformHtml(html) {
+            if (!html) {
+                console.warn('TRANSFORM: Empty HTML provided');
+                return '';
+            }
+            
+            const startTime = performance.now();
+            
+            // Regex pattern matching AssetProcessingService.cs RemoveDeleteButtons() logic
+            // Pattern: <button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>.*?</button>
+            const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>.*?<\/button>/gi;
+            
+            // Apply transformation
+            const cleaned = html.replace(deleteButtonPattern, '');
+            
+            // Calculate metrics
+            const originalLength = html.length;
+            const cleanedLength = cleaned.length;
+            const removedBytes = originalLength - cleanedLength;
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            
+            // Log transformation results
+            console.log('TRANSFORM: HTML transformation completed', {
+                originalBytes: originalLength,
+                cleanedBytes: cleanedLength,
+                removedBytes: removedBytes,
+                buttonsRemoved: removedBytes > 0,
+                durationMs: duration
+            });
+            
+            if (removedBytes > 0) {
+                console.info(`✓ TRANSFORM: Successfully removed ${removedBytes} bytes of delete button HTML in ${duration}ms`);
+            } else {
+                console.info(`✓ TRANSFORM: No delete buttons found in HTML (${duration}ms)`);
+            }
+            
+            return cleaned;
+        }
+        
+        /**
+         * Validate that transformation is working correctly
+         * Checks if delete buttons are present in HTML
+         * 
+         * @param {string} html - The HTML content to validate
+         * @returns {object} - Validation results with details
+         */
+        function validateTransformation(html) {
+            if (!html) return { isValid: true, deleteButtonsFound: 0 };
+            
+            const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>/gi;
+            const matches = html.match(deleteButtonPattern);
+            
+            return {
+                isValid: !matches || matches.length === 0,
+                deleteButtonsFound: matches ? matches.length : 0,
+                matches: matches || []
+            };
+        }
+        
+        // ============================================================================
+        // TOAST NOTIFICATION SYSTEM
+        // ============================================================================
+        
         // Toast Notification System
         function showToast(type, title, message, duration = 5000) {
             const container = document.getElementById('toastContainer');
@@ -352,8 +437,30 @@
                 const data = await response.json();
                 
                 if (data.transcript) {
-                    // Clear loading message and insert fresh content
-                    transcriptContainer.innerHTML = data.transcript;
+                    // ============================================================================
+                    // TRANSFORMATION STEP: Remove delete buttons before rendering
+                    // Based on AssetProcessingService.TransformTranscriptHtmlAsync()
+                    // ============================================================================
+                    
+                    // Validate original HTML
+                    const originalValidation = validateTransformation(data.transcript);
+                    if (!originalValidation.isValid) {
+                        console.warn(`⚠️ VALIDATION: Found ${originalValidation.deleteButtonsFound} delete button(s) in original HTML - will be removed`);
+                    }
+                    
+                    // Transform HTML to remove delete buttons
+                    const transformedHtml = transformHtml(data.transcript);
+                    
+                    // Validate transformed HTML
+                    const transformedValidation = validateTransformation(transformedHtml);
+                    if (transformedValidation.isValid) {
+                        console.info('✓ VALIDATION: Transformed HTML is clean - no delete buttons present');
+                    } else {
+                        console.error(`✗ VALIDATION: Transformation failed - ${transformedValidation.deleteButtonsFound} delete button(s) still present!`);
+                    }
+                    
+                    // Insert transformed content (delete buttons removed)
+                    transcriptContainer.innerHTML = transformedHtml;
                     
                     // Update page title with timestamp
                     const timestamp = new Date(data.lastUpdated || Date.now()).toLocaleString();
@@ -371,14 +478,21 @@
                         hideToast(loadingToastId);
                     }
                     
-                    // Show success toast
-                    const contentLength = (data.transcript.length / 1024).toFixed(1);
-                    showToast('success', 'Transcript Refreshed', 
-                        `Session ${data.sessionId} loaded successfully (${contentLength}KB, updated ${loadTimestamp})`);
+                    // Show success toast with transformation info
+                    const originalLength = (data.transcript.length / 1024).toFixed(1);
+                    const transformedLength = (transformedHtml.length / 1024).toFixed(1);
+                    const transformMsg = originalValidation.isValid 
+                        ? `${originalLength}KB loaded` 
+                        : `${originalLength}KB → ${transformedLength}KB (${originalValidation.deleteButtonsFound} button(s) removed)`;
                     
-                    console.log('TRANSCRIPT-LOADED: Fresh content loaded from database', {
+                    showToast('success', 'Transcript Refreshed', 
+                        `Session ${data.sessionId} loaded successfully. ${transformMsg}. Updated ${loadTimestamp}`);
+                    
+                    console.log('TRANSCRIPT-LOADED: Fresh content loaded and transformed', {
                         sessionId: data.sessionId,
-                        contentLength: data.transcript.length,
+                        originalLength: data.transcript.length,
+                        transformedLength: transformedHtml.length,
+                        deleteButtonsRemoved: originalValidation.deleteButtonsFound,
                         lastUpdated: data.lastUpdated
                     });
                 } else {
