@@ -274,6 +274,20 @@ h1, h2, h3, h4, h5, h6 {
             cleaned = cleaned.replace(plainTextButtonPattern, '');
             const afterPlainTextButtons = cleaned.length;
             
+            // Add data-islamic-content attribute to .example elements (if not already present)
+            let exampleCount = 0;
+            cleaned = cleaned.replace(/<div([^>]*class[^=]*=[^"]*"[^"]*example[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, attrs) => {
+                exampleCount++;
+                return `<div${attrs} data-islamic-content>`;
+            });
+            
+            // Add data-islamic-content attribute to .quote elements (if not already present)
+            let quoteCount = 0;
+            cleaned = cleaned.replace(/<(p|div)([^>]*class[^=]*=[^"]*"[^"]*quote[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, tag, attrs) => {
+                quoteCount++;
+                return `<${tag}${attrs} data-islamic-content>`;
+            });
+            
             // Calculate metrics
             const originalLength = html.length;
             const cleanedLength = cleaned.length;
@@ -290,6 +304,8 @@ h1, h2, h3, h4, h5, h6 {
                 totalRemovedBytes: totalRemovedBytes,
                 deleteButtonBytesRemoved: deleteBytesRemoved,
                 plainTextButtonBytesRemoved: plainTextBytesRemoved,
+                exampleElementsMarked: exampleCount,
+                quoteElementsMarked: quoteCount,
                 buttonsRemoved: totalRemovedBytes > 0,
                 durationMs: duration
             });
@@ -300,10 +316,16 @@ h1, h2, h3, h4, h5, h6 {
             if (plainTextBytesRemoved > 0) {
                 console.info(`✓ TRANSFORM: Removed ${plainTextBytesRemoved} bytes of Plain Text button HTML`);
             }
-            if (totalRemovedBytes === 0) {
-                console.info(`✓ TRANSFORM: No action buttons found in HTML (${duration}ms)`);
+            if (exampleCount > 0) {
+                console.info(`✓ TRANSFORM: Added data-islamic-content to ${exampleCount} .example element(s)`);
+            }
+            if (quoteCount > 0) {
+                console.info(`✓ TRANSFORM: Added data-islamic-content to ${quoteCount} .quote element(s)`);
+            }
+            if (totalRemovedBytes === 0 && exampleCount === 0 && quoteCount === 0) {
+                console.info(`✓ TRANSFORM: No changes needed (${duration}ms)`);
             } else {
-                console.info(`✓ TRANSFORM: Total cleanup: ${totalRemovedBytes} bytes removed in ${duration}ms`);
+                console.info(`✓ TRANSFORM: Total processing: ${totalRemovedBytes} bytes removed, ${exampleCount + quoteCount} elements marked in ${duration}ms`);
             }
             
             return cleaned;

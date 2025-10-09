@@ -14,8 +14,11 @@
     --islamic-accent: #8b5cf6;
     
     /* Context-Aware Asset Dimensions */
-    --islamic-asset-width: 75%; /* Default fallback */
-    --islamic-asset-max-width: none;
+    /* Control the width of all Islamic content assets (poetry, hadees, ayah, etymology cards, etc.) */
+    /* Modify these values to adjust asset width across the entire application */
+    --islamic-asset-width: 75%; /* Default fallback - used when no theme is specified */
+    --islamic-asset-max-width: none; /* Maximum width constraint for assets */
+    --islamic-asset-width-mobile: 85%; /* Width for assets on mobile devices (max-width: 768px) */
 }
 
 /* Global Arabic Text Fix */
@@ -31,6 +34,32 @@
     direction: rtl;
     text-rendering: optimizeLegibility;
 }
+
+/* ============================================================================
+   THEME-SPECIFIC ASSET WIDTH OVERRIDES
+   ============================================================================
+   
+   The following theme sections override the default asset widths for different
+   container contexts. All Islamic content assets (poetry, hadees, ayah cards,
+   etymology cards, esoteric blocks, etc.) use these variables for consistent
+   width control.
+   
+   To modify asset widths globally:
+   - Edit --islamic-asset-width in :root for the default
+   - Edit --islamic-asset-width-mobile in :root for mobile devices
+   
+   To modify asset widths per theme:
+   - Edit --islamic-asset-width in the specific theme section below
+   
+   Asset types using these variables:
+   - Poetry sections (.poetry-section)
+   - Hadees cards (.inserted-hadees)
+   - Ayah cards (.ayah-card)
+   - Verse containers (.verse-container)
+   - Etymology cards (.etymology-card, .etymology-derivative-card)
+   - Esoteric blocks (.esotericBlock)
+   - Amiri Crimson poetry (.amiriCrimson)
+   ============================================================================ */
 
 /* Wide Container Theme (HostControlPanel, session-transcript-styling.html) */
 [data-theme="wide"],
@@ -896,7 +925,7 @@
     .islamic-content .poetry-section {
         padding: 15px;
         margin-bottom: 15px;
-        width: 85%;
+        width: var(--islamic-asset-width-mobile);
         border: 2px solid #722727;
         box-shadow: 0 6px 15px -3px rgba(0, 0, 0, 0.18), 0 4px 8px -1px rgba(0, 0, 0, 0.1);
     }
@@ -1019,9 +1048,10 @@
     border-left: 6px solid #990000;
     border-right: 6px solid #990000;
     font-size: 3rem;
-    width: 70%;
+    width: var(--islamic-asset-width);
     margin-left: auto;
     margin-right: auto;
+    max-width: var(--islamic-asset-max-width);
     unicode-bidi: bidi-override;
     text-rendering: optimizeLegibility;
 }
@@ -1080,7 +1110,8 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
     position: relative;
     font-family: Roboto, Arial, sans-serif;
-    max-width: 700px;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
 }
 
 /* ONLY target esotericData content */
@@ -1283,7 +1314,9 @@
     border-left: 5px solid #16a34a;
     border-radius: 12px;
     padding: 30px;
-    margin: 50px 20px 50px 20px !important;
+    margin: 50px auto 50px auto !important;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
     position: relative;
     box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15), 0 4px 10px rgba(0, 0, 0, 0.05);
     font-family: 'Segoe UI', 'Roboto', sans-serif;
@@ -1376,9 +1409,9 @@
     border-right: 10px solid #ccc;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
-    margin: 25px 10px;
-    margin-left: 3em;
-    margin-right: 3em;
+    margin: 25px auto;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
     padding: 1em 10px;
     border-radius: 10px;
     text-align: center;
