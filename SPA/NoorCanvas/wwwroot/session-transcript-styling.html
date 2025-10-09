@@ -274,6 +274,33 @@ h1, h2, h3, h4, h5, h6 {
             cleaned = cleaned.replace(plainTextButtonPattern, '');
             const afterPlainTextButtons = cleaned.length;
             
+            // Remove inline width and height styles from images (imgResponsive class)
+            // Pattern: matches style attribute with width/height and removes those properties
+            let imageStylesRemoved = 0;
+            cleaned = cleaned.replace(/<img([^>]*class[^=]*=[^"]*"[^"]*imgResponsive[^"]*"[^>]*style[^=]*=[^"]*"[^"]*)(width|height)\s*:\s*[^;"]+(;?)[^"]*"([^>]*)>/gi, (match, before, prop, semicolon, after) => {
+                imageStylesRemoved++;
+                // Remove the entire style attribute if it only contains width/height
+                const cleanedMatch = match.replace(/style\s*=\s*"[^"]*"/gi, (styleAttr) => {
+                    let styleContent = styleAttr.match(/style\s*=\s*"([^"]*)"/i);
+                    if (styleContent && styleContent[1]) {
+                        // Remove width and height properties
+                        let cleanedStyle = styleContent[1]
+                            .replace(/width\s*:\s*[^;]+;?/gi, '')
+                            .replace(/height\s*:\s*[^;]+;?/gi, '')
+                            .trim();
+                        
+                        // Remove trailing semicolon and extra spaces
+                        cleanedStyle = cleanedStyle.replace(/;\s*;/g, ';').replace(/^;|;$/g, '').trim();
+                        
+                        // If style is now empty, remove the attribute entirely
+                        return cleanedStyle ? `style="${cleanedStyle}"` : '';
+                    }
+                    return styleAttr;
+                });
+                return cleanedMatch;
+            });
+            const afterImageStyles = cleaned.length;
+            
             // Add data-islamic-content attribute to .example elements (if not already present)
             let exampleCount = 0;
             cleaned = cleaned.replace(/<div([^>]*class[^=]*=[^"]*"[^"]*example[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, attrs) => {
@@ -294,6 +321,7 @@ h1, h2, h3, h4, h5, h6 {
             const totalRemovedBytes = originalLength - cleanedLength;
             const deleteBytesRemoved = originalLength - afterDeleteButtons;
             const plainTextBytesRemoved = afterDeleteButtons - afterPlainTextButtons;
+            const imageStyleBytesRemoved = afterPlainTextButtons - afterImageStyles;
             const endTime = performance.now();
             const duration = (endTime - startTime).toFixed(2);
             
@@ -304,6 +332,8 @@ h1, h2, h3, h4, h5, h6 {
                 totalRemovedBytes: totalRemovedBytes,
                 deleteButtonBytesRemoved: deleteBytesRemoved,
                 plainTextButtonBytesRemoved: plainTextBytesRemoved,
+                imageStyleBytesRemoved: imageStyleBytesRemoved,
+                imageStylesRemoved: imageStylesRemoved,
                 exampleElementsMarked: exampleCount,
                 quoteElementsMarked: quoteCount,
                 buttonsRemoved: totalRemovedBytes > 0,
@@ -315,6 +345,9 @@ h1, h2, h3, h4, h5, h6 {
             }
             if (plainTextBytesRemoved > 0) {
                 console.info(`✓ TRANSFORM: Removed ${plainTextBytesRemoved} bytes of Plain Text button HTML`);
+            }
+            if (imageStyleBytesRemoved > 0) {
+                console.info(`✓ TRANSFORM: Removed inline width/height styles from ${imageStylesRemoved} image(s) (${imageStyleBytesRemoved} bytes)`);
             }
             if (exampleCount > 0) {
                 console.info(`✓ TRANSFORM: Added data-islamic-content to ${exampleCount} .example element(s)`);

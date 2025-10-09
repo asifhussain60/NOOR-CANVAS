@@ -870,9 +870,9 @@
 .session-transcript-content .imgResponsive,
 .transcript-display .imgResponsive,
 .islamic-content .imgResponsive {
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
-    height: auto;
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
+    height: auto !important;
     display: block;
     margin: 1em auto;
     border-radius: 8px;
