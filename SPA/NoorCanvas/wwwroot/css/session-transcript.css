@@ -870,7 +870,8 @@
 .session-transcript-content .imgResponsive,
 .transcript-display .imgResponsive,
 .islamic-content .imgResponsive {
-    max-width: 100%;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
     height: auto;
     display: block;
     margin: 1em auto;
@@ -1293,15 +1294,14 @@
 .session-transcript-content .anecdote,
 .transcript-display .anecdote,
 .islamic-content .anecdote {
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
     color: #2682c7;
     padding: 30px;
     font-family: 'Roboto Slab', serif;
     font-size: 2rem;
     border-left: #206ba4 3px solid;
-    margin-left: 40px;
-    margin-right: 20px;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
+    margin: 1.5rem auto;
 }
 
 [data-islamic-content] .example,
