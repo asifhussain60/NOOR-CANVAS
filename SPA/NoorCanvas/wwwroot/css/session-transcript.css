@@ -1086,9 +1086,10 @@
 .islamic-content span.inlineArabic,
 .islamic-content p.inlineArabic {
     font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', serif !important;
-    font-size: 1.5em !important;
+    font-size: 1.25em !important;
     word-spacing: 3px;
     letter-spacing: normal;
+    font-weight: 600;
     padding-left: 2px;
     padding-right: 2px;
     font-style: normal;
