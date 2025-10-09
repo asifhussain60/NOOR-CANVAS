@@ -870,9 +870,9 @@
 .session-transcript-content .imgResponsive,
 .transcript-display .imgResponsive,
 .islamic-content .imgResponsive {
-    width: var(--islamic-asset-width) !important;
-    max-width: var(--islamic-asset-max-width) !important;
-    height: auto !important;
+    width: var(--islamic-asset-width);
+    max-width: var(--islamic-asset-max-width);
+    height: auto;
     display: block;
     margin: 1em auto;
     border-radius: 8px;
@@ -929,6 +929,15 @@
         width: var(--islamic-asset-width-mobile);
         border: 2px solid #722727;
         box-shadow: 0 6px 15px -3px rgba(0, 0, 0, 0.18), 0 4px 8px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    [data-islamic-content] .imgResponsive,
+    .ks-transcript .imgResponsive,
+    .session-transcript-content .imgResponsive,
+    .transcript-display .imgResponsive,
+    .islamic-content .imgResponsive {
+        width: var(--islamic-asset-width-mobile);
+        max-width: 100%;
     }
 
     [data-islamic-content] .arabic-text,

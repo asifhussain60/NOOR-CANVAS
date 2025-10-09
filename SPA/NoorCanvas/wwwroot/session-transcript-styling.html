@@ -315,6 +315,13 @@ h1, h2, h3, h4, h5, h6 {
                 return `<${tag}${attrs} data-islamic-content>`;
             });
             
+            // Add data-islamic-content attribute to .imgResponsive elements (if not already present)
+            let imgCount = 0;
+            cleaned = cleaned.replace(/<img([^>]*class[^=]*=[^"]*"[^"]*imgResponsive[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, attrs) => {
+                imgCount++;
+                return `<img${attrs} data-islamic-content>`;
+            });
+            
             // Calculate metrics
             const originalLength = html.length;
             const cleanedLength = cleaned.length;
@@ -336,6 +343,7 @@ h1, h2, h3, h4, h5, h6 {
                 imageStylesRemoved: imageStylesRemoved,
                 exampleElementsMarked: exampleCount,
                 quoteElementsMarked: quoteCount,
+                imgElementsMarked: imgCount,
                 buttonsRemoved: totalRemovedBytes > 0,
                 durationMs: duration
             });
@@ -355,10 +363,13 @@ h1, h2, h3, h4, h5, h6 {
             if (quoteCount > 0) {
                 console.info(`✓ TRANSFORM: Added data-islamic-content to ${quoteCount} .quote element(s)`);
             }
-            if (totalRemovedBytes === 0 && exampleCount === 0 && quoteCount === 0) {
+            if (imgCount > 0) {
+                console.info(`✓ TRANSFORM: Added data-islamic-content to ${imgCount} .imgResponsive element(s)`);
+            }
+            if (totalRemovedBytes === 0 && exampleCount === 0 && quoteCount === 0 && imgCount === 0) {
                 console.info(`✓ TRANSFORM: No changes needed (${duration}ms)`);
             } else {
-                console.info(`✓ TRANSFORM: Total processing: ${totalRemovedBytes} bytes removed, ${exampleCount + quoteCount} elements marked in ${duration}ms`);
+                console.info(`✓ TRANSFORM: Total processing: ${totalRemovedBytes} bytes removed, ${exampleCount + quoteCount + imgCount} elements marked in ${duration}ms`);
             }
             
             return cleaned;
