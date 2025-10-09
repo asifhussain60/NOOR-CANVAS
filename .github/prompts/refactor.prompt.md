@@ -54,6 +54,10 @@ Your mission is to improve the maintainability, readability, and consistency of 
   - StyleCop (with suppression rules)  
   - JavaScript/TypeScript linting (`eslint`, `eslint-plugin-playwright`)  
   - Prettier formatting standards  
+- Use **`.github/instructions/Links/ValidationFramework.md`** for comprehensive validation (ALL 6 levels mandatory for refactor).
+- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/refactor-patterns.json` before refactoring.
+- **Knowledge Contribution:** Update refactor-patterns.json after successful structural improvements.
+- **Automatic Rollback:** If validation fails after 3 attempts, execute `.\Workspaces\Global\rollback.ps1 -Key {key} -Agent refactor`  
 
 ---
 

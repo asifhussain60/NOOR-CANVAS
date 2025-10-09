@@ -45,6 +45,9 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
   - **API-Contract-Validation.md** across frontend/backend models.  
   - **AnalyzerConfig.MD** enforcement (linting/analyzer compliance).  
   - **PlaywrightConfig.MD** for test coverage.  
+- Use **`.github/instructions/Links/ValidationFramework.md`** for comprehensive validation (ALL 6 levels as read-only verification).
+- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/validation-patterns.json` for known issues.
+- **Knowledge Contribution:** Document newly discovered validation patterns.  
 
 ---
 

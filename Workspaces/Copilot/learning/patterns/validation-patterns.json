@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Validation Patterns",
+    "description": "Common validation issues and their solutions",
+    "type": "object",
+    "properties": {
+        "patterns": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pattern_id": {
+                        "type": "string",
+                        "description": "Unique identifier for this pattern"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable pattern name"
+                    },
+                    "validation_level": {
+                        "type": "string",
+                        "enum": [
+                            "build",
+                            "analyzers",
+                            "linters",
+                            "contracts",
+                            "tests",
+                            "documentation"
+                        ],
+                        "description": "Validation level where pattern applies"
+                    },
+                    "issue_description": {
+                        "type": "string",
+                        "description": "Description of the validation issue"
+                    },
+                    "symptoms": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Observable symptoms of this issue"
+                    },
+                    "root_causes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Common root causes"
+                    },
+                    "solution": {
+                        "type": "string",
+                        "description": "How to resolve this validation issue"
+                    },
+                    "prevention": {
+                        "type": "string",
+                        "description": "How to prevent this issue in the future"
+                    },
+                    "learned_from": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Keys where this issue was encountered"
+                    },
+                    "frequency": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Number of times this issue has occurred"
+                    },
+                    "last_occurrence": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this issue last occurred"
+                    }
+                },
+                "required": [
+                    "pattern_id",
+                    "name",
+                    "validation_level",
+                    "issue_description",
+                    "solution"
+                ]
+            }
+        }
+    }
+}

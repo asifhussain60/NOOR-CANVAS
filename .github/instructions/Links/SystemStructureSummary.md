@@ -1,6 +1,7 @@
 # System Structure Summary
 
 ## Active Prompts
+- **analyze-learning.prompt.md** → self-learning analysis agent (pattern extraction and continuous improvement)
 - **generate-chat-summary.prompt.md** → chat context documentation agent (continuity preservation)  
 - **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
 - **multi-browser-testing.prompt.md** → multi-browser test execution and coordination agent  
@@ -23,6 +24,7 @@
 - **AnalyzerConfig.MD** → analyzer + Roslynator + lint/test rules  
 - **PlaywrightConfig.MD** → UI test configuration (coverage and rules)  
 - **API-Contract-Validation.md** → cross-layer contract validation rules (UI → API → DB)  
+- **ValidationFramework.md** → standard validation pipeline (6 levels, all agents)
 - **SelfAwareness.instructions.md** → global guardrails and operating rules  
 
 ## Key Management
@@ -31,6 +33,7 @@
 - Keys are always alphabetically sorted  
 
 ## Agent Coordination Protocols
+- **analyze-learning** → analyzes key data streams, updates learning infrastructure, generates recommendations
 - **task** → executes work, hands off to **pwtest** for validation  
 - **refactor** → improves structure, triggers **healthcheck** for validation  
 - **sync** → orchestrates system state, calls **generate-chat-summary** as final step  
@@ -40,6 +43,13 @@
 - **next-thread** → manages conversation continuity and thread transitions  
 - **generate-chat-summary** → captures session state, enables seamless continuity  
 - **question** → analyzes application queries, supports all agents with knowledge and investigation
+
+## Cross-Agent Learning Infrastructure
+- **Learning Directory:** `Workspaces/Copilot/learning/`
+- **Pattern Files:** task-patterns.json, refactor-patterns.json, validation-patterns.json, integration-patterns.json
+- **Mandate:** All agents query patterns before execution, contribute learnings after success
+- **Analysis Frequency:** Weekly or after 10 completed keys
+- **Knowledge Sharing:** Successful patterns shared across agent boundaries
 
 ## LLM Optimization Principles
 - **Consistent Structure**: All prompts follow identical format patterns for reliable parsing  

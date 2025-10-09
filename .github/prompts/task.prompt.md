@@ -60,6 +60,9 @@ All actions must respect the global guardrails and architectural mappings.
 - Always follow **`.github/instructions/SelfAwareness.instructions.md`** for operating rules.  
 - Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure and available prompts.  
 - When relevant, consult **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for system-level architectural context.  
+- Use **`.github/instructions/Links/ValidationFramework.md`** for standard validation pipeline.
+- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for relevant patterns before execution.
+- **Knowledge Contribution:** Update pattern library after successful completion.
 - Ensure analyzers, linters, and tests remain clean after every operation.  
 - The build must complete with **zero errors and zero warnings**.  
 
@@ -105,11 +108,11 @@ All actions must respect the global guardrails and architectural mappings.
 ---
 
 ### 4. Validate
-- Ensure all acceptance criteria are met.  
-- Confirm no architectural drift, contract mismatches, or DTO inconsistencies have been introduced.  
-- Verify that the solution builds with **zero errors and zero warnings**.  
-- Ensure analyzers, linters, and Roslynator checks are all clean.  
-- Confirm that all relevant unit, integration, and Playwright tests pass.  
+- Execute Standard Validation Pipeline per `.github/instructions/Links/ValidationFramework.md`
+- Apply validation shortcuts for task agent (Levels 1-5, Level 6 if structural changes)
+- Follow failure protocols on detection
+- Record all validation results in key data stream
+- **Automatic Rollback:** If validation fails after 3 attempts, execute `.\Workspaces\Global\rollback.ps1 -Key {key} -Agent task`
 
 ---
 

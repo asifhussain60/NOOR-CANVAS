@@ -1,0 +1,79 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Task Execution Patterns",
+    "description": "Successful patterns learned from task.prompt.md executions",
+    "type": "object",
+    "properties": {
+        "patterns": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pattern_id": {
+                        "type": "string",
+                        "description": "Unique identifier for this pattern"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable pattern name"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "planning",
+                            "execution",
+                            "validation",
+                            "error-handling",
+                            "optimization"
+                        ],
+                        "description": "Pattern category"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Detailed description of the pattern"
+                    },
+                    "context": {
+                        "type": "string",
+                        "description": "When this pattern is applicable"
+                    },
+                    "approach": {
+                        "type": "string",
+                        "description": "How to apply this pattern"
+                    },
+                    "success_indicators": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Metrics that indicate pattern success"
+                    },
+                    "learned_from": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Keys that contributed to learning this pattern"
+                    },
+                    "success_rate": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Success rate of this pattern (0.0 to 1.0)"
+                    },
+                    "last_updated": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this pattern was last updated"
+                    }
+                },
+                "required": [
+                    "pattern_id",
+                    "name",
+                    "category",
+                    "description",
+                    "approach"
+                ]
+            }
+        }
+    }
+}

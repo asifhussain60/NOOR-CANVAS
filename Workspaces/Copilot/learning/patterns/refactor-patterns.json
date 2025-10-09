@@ -1,0 +1,91 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Refactoring Patterns",
+    "description": "Effective refactoring approaches learned from refactor.prompt.md executions",
+    "type": "object",
+    "properties": {
+        "patterns": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pattern_id": {
+                        "type": "string",
+                        "description": "Unique identifier for this pattern"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable pattern name"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "scope-analysis",
+                            "structural-change",
+                            "iterative-improvement",
+                            "contract-preservation",
+                            "rollback-strategy"
+                        ],
+                        "description": "Pattern category"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Detailed description of the pattern"
+                    },
+                    "scope": {
+                        "type": "string",
+                        "enum": [
+                            "current",
+                            "all",
+                            "targeted"
+                        ],
+                        "description": "Refactoring scope where pattern applies"
+                    },
+                    "approach": {
+                        "type": "string",
+                        "description": "How to apply this refactoring pattern"
+                    },
+                    "risks": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Known risks when applying this pattern"
+                    },
+                    "mitigations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Risk mitigation strategies"
+                    },
+                    "learned_from": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Keys that contributed to learning this pattern"
+                    },
+                    "success_rate": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Success rate of this pattern (0.0 to 1.0)"
+                    },
+                    "last_updated": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this pattern was last updated"
+                    }
+                },
+                "required": [
+                    "pattern_id",
+                    "name",
+                    "category",
+                    "description",
+                    "approach"
+                ]
+            }
+        }
+    }
+}
