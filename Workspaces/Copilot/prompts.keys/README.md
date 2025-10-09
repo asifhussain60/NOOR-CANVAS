@@ -13,17 +13,28 @@ The key data stream system provides:
 
 ## Structure
 
-Each key is stored as a JSON file: `{key-name}.json`
+Each key is stored as a folder containing a `key.json` file: `{key-name}/key.json`
 
 Example:
 ```
 prompts.keys/
 ├── README.md                          # This file
-├── _template.json                     # Template for creating new keys
-├── doc.json                           # Documentation tasks
-├── hcp.json                           # Host Control Panel tasks
-└── session-transcript-css.json        # Session transcript styling tasks
+├── _template/                         # Template for creating new keys
+│   └── key.json                       # Template key structure
+├── doc/                               # Documentation tasks
+│   └── key.json                       # Key data stream for doc tasks
+├── hcp/                               # Host Control Panel tasks
+│   └── key.json                       # Key data stream for HCP tasks
+└── session-transcript-css/            # Session transcript styling tasks
+    └── key.json                       # Key data stream for CSS tasks
 ```
+
+### Folder-Based Organization Benefits
+
+- **Scalability**: Each key can have additional artifacts (logs, configs, etc.)
+- **Clarity**: Clear separation between different keys
+- **Extensibility**: Easy to add supplementary files per key
+- **Navigation**: Folders enable better IDE navigation and search
 
 ## Key Lifecycle States
 
