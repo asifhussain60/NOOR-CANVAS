@@ -6,7 +6,9 @@
     "debug_level": "simple",
     "created": "",
     "updated": "",
-    "recommended_files": ["key.json"],
+    "recommended_files": [
+        "key.json"
+    ],
     "phases": {
         "checkpoint": {
             "status": "pending",

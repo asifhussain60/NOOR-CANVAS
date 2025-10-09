@@ -1,86 +1,91 @@
 {
-  "key": "system",
-  "status": "in-progress",
-  "mode": "task",
-  "debug_level": "simple",
-  "created": "2025-10-09T17:00:00Z",
-  "updated": "2025-10-09T17:00:00Z",
-  "phases": {
-    "checkpoint": {
-      "status": "completed",
-      "duration": "5s",
-      "timestamp": "2025-10-09T17:00:05Z",
-      "note": "Working tree clean"
+    "key": "system",
+    "status": "in-progress",
+    "mode": "task",
+    "debug_level": "simple",
+    "created": "2025-10-09T17:00:00Z",
+    "updated": "2025-10-09T17:00:00Z",
+    "phases": {
+        "checkpoint": {
+            "status": "completed",
+            "duration": "5s",
+            "timestamp": "2025-10-09T17:00:05Z",
+            "note": "Working tree clean"
+        },
+        "plan": {
+            "status": "completed",
+            "duration": "2m45s",
+            "timestamp": "2025-10-09T17:02:50Z"
+        },
+        "execute": {
+            "status": "completed",
+            "duration": "9m15s",
+            "timestamp": "2025-10-09T17:12:05Z"
+        },
+        "validate": {
+            "status": "pending",
+            "duration": null,
+            "timestamp": null
+        },
+        "confirm": {
+            "status": "pending",
+            "duration": null,
+            "timestamp": null
+        }
     },
-    "plan": {
-      "status": "completed",
-      "duration": "2m45s",
-      "timestamp": "2025-10-09T17:02:50Z"
-    },
-    "execute": {
-      "status": "completed",
-      "duration": "9m15s",
-      "timestamp": "2025-10-09T17:12:05Z"
-    },
-    "validate": {
-      "status": "pending",
-      "duration": null,
-      "timestamp": null
-    },
-    "confirm": {
-      "status": "pending",
-      "duration": null,
-      "timestamp": null
-    }
-  },
-  "tasks": [
-    "Reorganize key data stream structure to use folders instead of flat JSON files",
-    "Migrate existing keys (doc, hcp, session-transcript-css, session-transcript-styling) to folder structure",
-    "Update _template to folder structure",
-    "Clean up existing prompts.keys folder structure",
-    "Update README.md to reflect folder-based organization",
-    "Update task.prompt.md to enforce folder structure requirement",
-    "Update refactor.prompt.md and sync.prompt.md if they reference key structure",
-    "Validate all keys are properly organized and alphabetically sorted"
-  ],
-  "files_modified": [
-    "Workspaces/Copilot/prompts.keys/_template/key.json",
-    "Workspaces/Copilot/prompts.keys/doc/key.json",
-    "Workspaces/Copilot/prompts.keys/hcp/key.json",
-    "Workspaces/Copilot/prompts.keys/session-transcript-css/key.json",
-    "Workspaces/Copilot/prompts.keys/session-transcript-styling/key.json",
-    "Workspaces/Copilot/prompts.keys/system/key.json",
-    "Workspaces/Copilot/prompts.keys/README.md",
-    "Workspaces/Copilot/prompts.keys/notes.template.md",
-    "Workspaces/Copilot/prompts.keys/plan.template.md",
-    "Workspaces/Copilot/prompts.keys/analysis.template.md",
-    "Workspaces/Copilot/prompts.keys/validate-key-structure.ps1"
-  ],
-  "commits": [
-    {
-      "hash": "10c718a7",
-      "message": "refactor: reorganize key data streams to folder-based structure",
-      "timestamp": "2025-10-09T17:12:30Z"
-    }
-  ],
-  "warnings": [],
-  "errors": [],
-  "notes": [
-    "Restructuring key data streams from flat JSON files to folder-based organization",
-    "Each key will have: {key-name}/key.json",
-    "Enables future expansion with additional config files per key",
-    "Improves organization and maintainability",
-    "Existing folders (api/, canvas/, etc.) preserved - will be standardized in future",
-    "Successfully migrated: _template, doc, hcp, session-transcript-css, session-transcript-styling",
-    "All old flat JSON files deleted",
-    "README.md updated with folder-based structure documentation",
-    "Commit: 10c718a7 - 7 files changed, 85 insertions(+), 9 deletions(-)",
-    "Enhanced README with file count guidelines and complexity levels",
-    "Created template files: notes.template.md, plan.template.md, analysis.template.md",
-    "Enhanced _template/key.json with complexity and recommended_files fields",
-    "Created validate-key-structure.ps1 PowerShell validation script",
-    "Validation script checks: required files, field validation, file counts, naming conventions",
-    "Added comprehensive field definitions table to README",
-    "All recommendations from question analysis implemented successfully"
-  ]
+    "tasks": [
+        "Reorganize key data stream structure to use folders instead of flat JSON files",
+        "Migrate existing keys (doc, hcp, session-transcript-css, session-transcript-styling) to folder structure",
+        "Update _template to folder structure",
+        "Clean up existing prompts.keys folder structure",
+        "Update README.md to reflect folder-based organization",
+        "Update task.prompt.md to enforce folder structure requirement",
+        "Update refactor.prompt.md and sync.prompt.md if they reference key structure",
+        "Validate all keys are properly organized and alphabetically sorted"
+    ],
+    "files_modified": [
+        "Workspaces/Copilot/prompts.keys/_template/key.json",
+        "Workspaces/Copilot/prompts.keys/doc/key.json",
+        "Workspaces/Copilot/prompts.keys/hcp/key.json",
+        "Workspaces/Copilot/prompts.keys/session-transcript-css/key.json",
+        "Workspaces/Copilot/prompts.keys/session-transcript-styling/key.json",
+        "Workspaces/Copilot/prompts.keys/system/key.json",
+        "Workspaces/Copilot/prompts.keys/README.md",
+        "Workspaces/Copilot/prompts.keys/notes.template.md",
+        "Workspaces/Copilot/prompts.keys/plan.template.md",
+        "Workspaces/Copilot/prompts.keys/analysis.template.md",
+        "Workspaces/Copilot/prompts.keys/validate-key-structure.ps1"
+    ],
+    "commits": [
+        {
+            "hash": "10c718a7",
+            "message": "refactor: reorganize key data streams to folder-based structure",
+            "timestamp": "2025-10-09T17:12:30Z"
+        },
+        {
+            "hash": "4c848ef9",
+            "message": "feat: enhance key data stream structure with guidelines and tooling",
+            "timestamp": "2025-10-09T17:35:00Z"
+        }
+    ],
+    "warnings": [],
+    "errors": [],
+    "notes": [
+        "Restructuring key data streams from flat JSON files to folder-based organization",
+        "Each key will have: {key-name}/key.json",
+        "Enables future expansion with additional config files per key",
+        "Improves organization and maintainability",
+        "Existing folders (api/, canvas/, etc.) preserved - will be standardized in future",
+        "Successfully migrated: _template, doc, hcp, session-transcript-css, session-transcript-styling",
+        "All old flat JSON files deleted",
+        "README.md updated with folder-based structure documentation",
+        "Commit: 10c718a7 - 7 files changed, 85 insertions(+), 9 deletions(-)",
+        "Enhanced README with file count guidelines and complexity levels",
+        "Created template files: notes.template.md, plan.template.md, analysis.template.md",
+        "Enhanced _template/key.json with complexity and recommended_files fields",
+        "Created validate-key-structure.ps1 PowerShell validation script",
+        "Validation script checks: required files, field validation, file counts, naming conventions",
+        "Added comprehensive field definitions table to README",
+        "All recommendations from question analysis implemented successfully"
+    ]
 }
