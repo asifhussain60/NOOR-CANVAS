@@ -36,6 +36,37 @@ prompts.keys/
 - **Extensibility**: Easy to add supplementary files per key
 - **Navigation**: Folders enable better IDE navigation and search
 
+## Required Files per Key Folder
+
+**Minimum (Required):**
+- `key.json` - Primary tracking file (MUST exist in every key folder)
+
+**Optional (Recommended for Complex Keys):**
+- `notes.md` - Extended notes and context
+- `plan.md` - Detailed execution plan
+- `analysis.md` - Technical analysis documentation
+
+**Optional (As Needed):**
+- `artifacts/` - Supporting files (configs, scripts, SQL, etc.)
+- `subtasks/` - Breakdown for multi-phase keys
+- Custom files based on specific key requirements
+
+## File Count Guidelines
+
+Keys should follow these guidelines based on complexity:
+
+| Complexity | File Count | Typical Files | Use Case |
+|------------|-----------|---------------|----------|
+| **Simple** | 1 | `key.json` only | Quick fixes, single-file changes |
+| **Standard** | 1-3 | `key.json` + 1-2 docs | Feature additions, bug fixes |
+| **Complex** | 3-10 | `key.json` + docs + artifacts | Refactors, multi-layer changes |
+| **Epic** | 10+ | Use subtask folders | Large initiatives, system redesigns |
+
+**File Naming Conventions:**
+- Use lowercase with hyphens: `my-analysis.md` (not `MyAnalysis.md`)
+- Use descriptive names: `migration-plan.md` (not `plan.md`)
+- Use standard extensions: `.md` for markdown, `.json` for data, `.ps1` for scripts
+
 ## Key Lifecycle States
 
 1. **not-started** - Key created but not yet executed
@@ -88,9 +119,11 @@ Each key JSON file contains:
   "key": "example-key-name",
   "status": "in-progress",
   "mode": "task",
+  "complexity": "standard",
   "debug_level": "simple",
   "created": "2025-10-09T10:00:00Z",
   "updated": "2025-10-09T15:30:00Z",
+  "recommended_files": ["key.json", "notes.md"],
   "phases": {
     "checkpoint": {
       "status": "completed",
@@ -140,6 +173,48 @@ Each key JSON file contains:
   ]
 }
 ```
+
+### Key Field Definitions
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `key` | string | Yes | Unique identifier for the key |
+| `status` | string | Yes | Current status (not-started, in-progress, completed, validated, failed) |
+| `mode` | string | Yes | Prompt mode (task, refactor, sync) |
+| `complexity` | string | Yes | Key complexity (simple, standard, complex, epic) |
+| `debug_level` | string | Yes | Debug verbosity (none, simple, trace, cleanup) |
+| `created` | ISO 8601 | Yes | Creation timestamp |
+| `updated` | ISO 8601 | Yes | Last update timestamp |
+| `recommended_files` | array | Yes | Recommended files for this complexity level |
+| `phases` | object | Yes | Execution phase tracking |
+| `tasks` | array | Yes | List of subtasks to execute |
+| `files_modified` | array | Yes | Paths of all modified files |
+| `commits` | array | Yes | Git commit history |
+| `warnings` | array | Yes | Warnings encountered during execution |
+| `errors` | array | Yes | Errors encountered during execution |
+| `notes` | array | Yes | Additional context and observations |
+
+### Complexity Levels
+
+**Simple Keys:**
+- Complexity: `"simple"`
+- Recommended Files: `["key.json"]`
+- Use Case: Quick fixes, single-file changes, minimal scope
+
+**Standard Keys:**
+- Complexity: `"standard"`
+- Recommended Files: `["key.json", "notes.md"]`
+- Use Case: Feature additions, bug fixes, moderate complexity
+
+**Complex Keys:**
+- Complexity: `"complex"`
+- Recommended Files: `["key.json", "notes.md", "plan.md", "analysis.md"]`
+- Use Case: Refactors, multi-layer changes, architectural updates
+
+**Epic Keys:**
+- Complexity: `"epic"`
+- Recommended Files: `["key.json", "notes.md", "plan.md", "analysis.md"]` + subtask folders
+- Use Case: Large initiatives, system redesigns, multi-phase projects
 
 ## Prompts Using Key Parameter
 

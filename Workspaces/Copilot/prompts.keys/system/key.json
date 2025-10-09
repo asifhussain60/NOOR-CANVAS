@@ -50,7 +50,11 @@
     "Workspaces/Copilot/prompts.keys/session-transcript-css/key.json",
     "Workspaces/Copilot/prompts.keys/session-transcript-styling/key.json",
     "Workspaces/Copilot/prompts.keys/system/key.json",
-    "Workspaces/Copilot/prompts.keys/README.md"
+    "Workspaces/Copilot/prompts.keys/README.md",
+    "Workspaces/Copilot/prompts.keys/notes.template.md",
+    "Workspaces/Copilot/prompts.keys/plan.template.md",
+    "Workspaces/Copilot/prompts.keys/analysis.template.md",
+    "Workspaces/Copilot/prompts.keys/validate-key-structure.ps1"
   ],
   "commits": [
     {
@@ -70,6 +74,13 @@
     "Successfully migrated: _template, doc, hcp, session-transcript-css, session-transcript-styling",
     "All old flat JSON files deleted",
     "README.md updated with folder-based structure documentation",
-    "Commit: 10c718a7 - 7 files changed, 85 insertions(+), 9 deletions(-)"
+    "Commit: 10c718a7 - 7 files changed, 85 insertions(+), 9 deletions(-)",
+    "Enhanced README with file count guidelines and complexity levels",
+    "Created template files: notes.template.md, plan.template.md, analysis.template.md",
+    "Enhanced _template/key.json with complexity and recommended_files fields",
+    "Created validate-key-structure.ps1 PowerShell validation script",
+    "Validation script checks: required files, field validation, file counts, naming conventions",
+    "Added comprehensive field definitions table to README",
+    "All recommendations from question analysis implemented successfully"
   ]
 }

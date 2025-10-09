@@ -2,9 +2,11 @@
     "key": "",
     "status": "not-started",
     "mode": "",
+    "complexity": "simple",
     "debug_level": "simple",
     "created": "",
     "updated": "",
+    "recommended_files": ["key.json"],
     "phases": {
         "checkpoint": {
             "status": "pending",
