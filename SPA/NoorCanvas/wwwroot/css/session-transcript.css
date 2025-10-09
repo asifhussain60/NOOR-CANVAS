@@ -353,7 +353,7 @@
 .transcript-display .ayah-arabic,
 .islamic-content .ayah-arabic {
     font-family: 'Amiri', 'Scheherazade New', 'Noto Sans Arabic', serif;
-    font-size: 1.8em;
+    font-size: 1.8em !important;
     line-height: 1.6;
     direction: rtl;
     color: var(--islamic-primary);
@@ -1382,4 +1382,50 @@
     padding: 1em 10px;
     border-radius: 10px;
     text-align: center;
+}}
+
+/* ======================================
+   Responsive Islamic Content Styles
+   ====================================== */
+
+@media (max-width: 768px) {
+    [data-islamic-content] .etymology-card,
+    .ks-transcript .etymology-card,
+    .session-transcript-content .etymology-card,
+    .transcript-display .etymology-card,
+    .islamic-content .etymology-card {
+        padding: 1rem;
+    }
+
+    [data-islamic-content] .poetry-section,
+    .ks-transcript .poetry-section,
+    .session-transcript-content .poetry-section,
+    .transcript-display .poetry-section,
+    .islamic-content .poetry-section {
+        padding: 1rem;
+    }
+
+    [data-islamic-content] .arabic-text,
+    .ks-transcript .arabic-text,
+    .session-transcript-content .arabic-text,
+    .transcript-display .arabic-text,
+    .islamic-content .arabic-text {
+        font-size: 1.5rem;
+    }
+
+    [data-islamic-content] .transliteration,
+    .ks-transcript .transliteration,
+    .session-transcript-content .transliteration,
+    .transcript-display .transliteration,
+    .islamic-content .transliteration {
+        font-size: 1rem;
+    }
+
+    [data-islamic-content] .translation,
+    .ks-transcript .translation,
+    .session-transcript-content .translation,
+    .transcript-display .translation,
+    .islamic-content .translation {
+        font-size: 0.95rem;
+    }
 }
