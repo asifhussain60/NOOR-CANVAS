@@ -6,7 +6,11 @@
     "debug_level": "simple",
     "created": "2025-10-09T19:00:00Z",
     "updated": "2025-10-09T19:30:00Z",
-    "recommended_files": ["key.json", "notes.md", "plan.md"],
+    "recommended_files": [
+        "key.json",
+        "notes.md",
+        "plan.md"
+    ],
     "phases": {
         "checkpoint": {
             "status": "completed",
