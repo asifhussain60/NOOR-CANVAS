@@ -239,14 +239,14 @@ h1, h2, h3, h4, h5, h6 {
          * 
          * Removes any <button> elements with:
          * - 'delete' in their id or class attributes
-         * - 'plain' or 'text' in their id or class attributes (Plain Text button)
+         * - 'poetry-restore-btn' or 'froala-only-btn' classes (Plain Text buttons)
          * 
          * This ensures that action buttons from the database are not displayed in the 
          * throwaway styling demo file.
          * 
          * Regex Pattern Explanation:
          * - Delete buttons: <button[^>]*(?:id="...delete..."|class="...delete...")[^>]*>.*?</button>
-         * - Plain Text buttons: <button[^>]*(?:id="...plain.*text..."|class="...plain.*text...")[^>]*>.*?</button>
+         * - Plain Text buttons: <button[^>]*class="...poetry-restore-btn|froala-only-btn..."[^>]*>.*?</button>
          * - Case-insensitive matching
          * - Handles both id and class attributes
          * 
@@ -264,8 +264,8 @@ h1, h2, h3, h4, h5, h6 {
             // Regex pattern matching AssetProcessingService.cs RemoveDeleteButtons() logic
             const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>.*?<\/button>/gi;
             
-            // Pattern to match "Plain Text" buttons (with "plain" and "text" in id/class)
-            const plainTextButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|class[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|id[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*"|class[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*")[^>]*>.*?<\/button>/gi;
+            // Pattern to match "Plain Text" buttons (poetry-restore-btn, froala-only-btn classes)
+            const plainTextButtonPattern = /<button[^>]*class[^=]*=[^"]*"[^"]*(?:poetry-restore-btn|froala-only-btn)[^"]*"[^>]*>.*?<\/button>/gi;
             
             // Apply transformations in sequence
             let cleaned = html.replace(deleteButtonPattern, '');
@@ -320,7 +320,7 @@ h1, h2, h3, h4, h5, h6 {
             if (!html) return { isValid: true, deleteButtonsFound: 0, plainTextButtonsFound: 0 };
             
             const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>/gi;
-            const plainTextButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|class[^=]*=[^"\s]*"[^"]*plain[^"]*text[^"]*"|id[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*"|class[^=]*=[^"\s]*"[^"]*text[^"]*plain[^"]*")[^>]*>/gi;
+            const plainTextButtonPattern = /<button[^>]*class[^=]*=[^"]*"[^"]*(?:poetry-restore-btn|froala-only-btn)[^"]*"[^>]*>/gi;
             
             const deleteMatches = html.match(deleteButtonPattern);
             const plainTextMatches = html.match(plainTextButtonPattern);

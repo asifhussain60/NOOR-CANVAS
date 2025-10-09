@@ -357,6 +357,17 @@
 			},
 			"problemMatcher": [],
 			"detail": "Run code quality analysis and automatically open the report in VS Code"
+		},
+		{
+			"label": "test-plain-text-button-removal",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-Command",
+				"Start-Job -ScriptBlock { cd 'D:\\PROJECTS\\NOOR CANVAS\\SPA\\NoorCanvas'; dotnet run } | Out-Null; Start-Sleep -Seconds 15; cd 'D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI'; npx playwright test verify-plain-text-button-removal.spec.ts --headed; Stop-Job -Name Job1 -ErrorAction SilentlyContinue"
+			],
+			"isBackground": false,
+			"group": "test"
 		}
 	]
 }

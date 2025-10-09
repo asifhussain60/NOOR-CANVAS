@@ -664,7 +664,7 @@
     display: flex;
     align-items: center;
     color: var(--islamic-hadith-accent);
-    font-weight: 700;
+    font-weight: 400;
 }
 
 /* Hadees Header Icons */
@@ -1382,7 +1382,7 @@
     padding: 1em 10px;
     border-radius: 10px;
     text-align: center;
-}}
+}
 
 /* ======================================
    Responsive Islamic Content Styles
