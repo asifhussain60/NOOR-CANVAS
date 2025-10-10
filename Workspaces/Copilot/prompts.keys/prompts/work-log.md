@@ -2,6 +2,32 @@
 
 ---
 
+## [2025-10-10T15:00:00Z] - task
+
+**Status**: in-progress
+**Phase**: parameter-rename
+**Git Commit**: a53be8f3
+
+**Work Done**:
+- Renamed "screenshot" parameter to "annotate" in task.prompt.md
+- Updated all 14 parameter usage examples throughout documentation
+- Enhanced documentation to emphasize HTML element identification and analysis
+- Updated AI workflow to explicitly mention HTML elements (buttons, inputs, divs, etc.)
+- Renamed service reference from ScreenshotAnalysisService to AnnotationAnalysisService
+- Preserved "screenshots" references for Playwright test artifacts (correct usage)
+
+**Files Modified**: 1 file
+- `.github/prompts/task.prompt.md`: Parameter rename and documentation updates
+
+**Rationale**:
+- "annotate" better reflects the purpose: marking HTML elements for modification
+- Emphasizes that AI should identify specific HTML elements from annotations
+- Clearer distinction between annotated images (trigger extraction) vs reference images
+
+**Next**: Documentation complete, no further action required
+
+---
+
 ## [2025-10-10T11:45:00Z] - refactor agent
 
 **Status**: complete
