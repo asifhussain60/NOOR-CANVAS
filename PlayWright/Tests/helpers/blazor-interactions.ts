@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
 
 /**
  * Shared Blazor interaction helpers for Playwright tests.
@@ -13,17 +13,17 @@ import { Page, Locator, expect } from '@playwright/test';
  * @param value - Value to fill into the input
  */
 export async function fillBlazorInput(
-  page: Page,
-  selectorOrLocator: string | Locator,
-  value: string,
+    page: Page,
+    selectorOrLocator: string | Locator,
+    value: string,
 ): Promise<void> {
-  const input =
-    typeof selectorOrLocator === 'string' ? page.locator(selectorOrLocator) : selectorOrLocator;
-  await input.clear();
-  await input.fill(value);
-  await input.dispatchEvent('input');
-  await input.dispatchEvent('change');
-  await page.waitForTimeout(2000); // Allow Blazor to process changes
+    const input =
+        typeof selectorOrLocator === 'string' ? page.locator(selectorOrLocator) : selectorOrLocator;
+    await input.clear();
+    await input.fill(value);
+    await input.dispatchEvent('input');
+    await input.dispatchEvent('change');
+    await page.waitForTimeout(2000); // Allow Blazor to process changes
 }
 
 /**
@@ -34,14 +34,14 @@ export async function fillBlazorInput(
  * @param timeout - Maximum time to wait for button to be enabled (default: 10000ms)
  */
 export async function clickEnabledButton(
-  page: Page,
-  selectorOrLocator: string | Locator,
-  timeout = 10000,
+    page: Page,
+    selectorOrLocator: string | Locator,
+    timeout = 10000,
 ): Promise<void> {
-  const button =
-    typeof selectorOrLocator === 'string' ? page.locator(selectorOrLocator) : selectorOrLocator;
-  await expect(button).toBeEnabled({ timeout });
-  await button.click();
+    const button =
+        typeof selectorOrLocator === 'string' ? page.locator(selectorOrLocator) : selectorOrLocator;
+    await expect(button).toBeEnabled({ timeout });
+    await button.click();
 }
 
 /**
@@ -51,6 +51,6 @@ export async function clickEnabledButton(
  * @returns Redacted string with sensitive data masked
  */
 export function redact(value: string | undefined): string {
-  if (!value) return value || '';
-  return value.replace(/[A-Z0-9]{8}/g, '********');
+    if (!value) return value || '';
+    return value.replace(/[A-Z0-9]{8}/g, '********');
 }
