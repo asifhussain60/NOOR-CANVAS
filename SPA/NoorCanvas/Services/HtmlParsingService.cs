@@ -6,27 +6,28 @@ namespace NoorCanvas.Services
     /// <summary>
     /// Advanced HTML parsing service to replace/enhance Blazor's DOM parser limitations
     /// Provides robust HTML validation, sanitization, and safe rendering for broadcast content.
+    /// Uses centralized HtmlTransformPatterns for consistent transformation behavior.
     /// </summary>
     public class HtmlParsingService
     {
         private readonly ILogger<HtmlParsingService> _logger;
 
-        // Regex patterns for problematic CSS detection
-        private static readonly Regex ComplexGradientPattern = new(@"linear-gradient\([^)]*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RgbaPattern = new(@"rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex ComplexFontFamilyPattern = new(@"font-family:\s*[""'][^""']*[""']\s*,\s*[""'][^""']*[""']", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex NestedQuotePattern = new(@"style\s*=\s*[""'][^""']*[""'][^""']*[""'][^""']*[""']", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HtmlParsingService"/> class.
+        /// </summary>
+        /// <param name="logger">Logger instance for diagnostic logging.</param>
         public HtmlParsingService(ILogger<HtmlParsingService> logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// Parse and validate HTML content with advanced error recovery
+        /// Parse and validate HTML content with advanced error recovery.
         /// This replaces the basic Blazor MarkupString approach with robust parsing.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="htmlContent">The HTML content to parse and validate.</param>
+        /// <param name="mode">The parsing mode to use (Safe, Strict, or Permissive).</param>
+        /// <returns>A SafeHtmlResult containing the parsed HTML or error information.</returns>
         public SafeHtmlResult ParseHtml(string? htmlContent, ParseMode mode = ParseMode.Safe)
         {
             if (string.IsNullOrEmpty(htmlContent))
@@ -115,25 +116,25 @@ namespace NoorCanvas.Services
             var errors = new List<string>();
 
             // Check for complex gradients
-            if (ComplexGradientPattern.IsMatch(html))
+            if (HtmlTransformPatterns.ComplexGradientPattern.IsMatch(html))
             {
                 warnings.Add("Complex CSS gradients detected - may cause parsing issues");
             }
 
             // Check for RGBA with decimals
-            if (RgbaPattern.IsMatch(html))
+            if (HtmlTransformPatterns.RgbaPattern.IsMatch(html))
             {
                 warnings.Add("RGBA colors detected - may cause parsing issues");
             }
 
             // Check for complex font-family declarations
-            if (ComplexFontFamilyPattern.IsMatch(html))
+            if (HtmlTransformPatterns.ComplexFontFamilyPattern.IsMatch(html))
             {
                 warnings.Add("Complex font-family declarations detected");
             }
 
             // Check for nested quotes in style attributes
-            if (NestedQuotePattern.IsMatch(html))
+            if (HtmlTransformPatterns.NestedQuotePattern.IsMatch(html))
             {
                 errors.Add("Nested quotes in style attributes detected - likely to cause parsing failure");
             }
@@ -163,20 +164,21 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Process CSS to make it compatible with Blazor's DOM parser
         /// This is the core replacement logic for problematic CSS patterns.
+        /// Uses centralized patterns from HtmlTransformPatterns.
         /// </summary>
         private string ProcessCssForBlazorCompatibility(string html)
         {
             var processed = html;
 
             // Replace complex gradients with simple backgrounds
-            processed = ComplexGradientPattern.Replace(processed, match =>
+            processed = HtmlTransformPatterns.ComplexGradientPattern.Replace(processed, match =>
             {
                 _logger.LogDebug("[DEBUG-WORKITEM:signalcomm:PARSER] Replacing complex gradient: {Gradient} ;CLEANUP_OK", match.Value);
                 return "background-color: #f0f0f0"; // Safe fallback
             });
 
             // Replace RGBA with solid colors
-            processed = RgbaPattern.Replace(processed, match =>
+            processed = HtmlTransformPatterns.RgbaPattern.Replace(processed, match =>
             {
                 _logger.LogDebug("[DEBUG-WORKITEM:signalcomm:PARSER] Replacing RGBA color: {Color} ;CLEANUP_OK", match.Value);
                 // Extract RGB values and use solid color
@@ -192,13 +194,14 @@ namespace NoorCanvas.Services
             });
 
             // Simplify complex font-family declarations
-            processed = ComplexFontFamilyPattern.Replace(processed, "font-family: sans-serif");
+            processed = HtmlTransformPatterns.ComplexFontFamilyPattern.Replace(processed, "font-family: sans-serif");
 
             return processed;
         }
 
         /// <summary>
         /// Transform HTML to remove unwanted elements and add Islamic content attributes.
+        /// Uses centralized patterns from HtmlTransformPatterns for consistency across services.
         /// This replicates the transformHtml function from session-transcript-styling.html.
         /// </summary>
         private string TransformHtml(string html)
@@ -211,26 +214,16 @@ namespace NoorCanvas.Services
 
             var startTime = DateTime.Now;
 
-            // Regex pattern matching AssetProcessingService.cs RemoveDeleteButtons() logic
-            var deleteButtonPattern = new Regex(
-                @"<button[^>]*(?:id[^=]*=[^""\s]*""[^""]*delete[^""]*""|class[^=]*=[^""\s]*""[^""]*delete[^""]*"")[^>]*>.*?</button>",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-            // Pattern to match "Plain Text" buttons (poetry-restore-btn, froala-only-btn classes)
-            var plainTextButtonPattern = new Regex(
-                @"<button[^>]*class[^=]*=[^""]*""[^""]*(?:poetry-restore-btn|froala-only-btn)[^""]*""[^>]*>.*?</button>",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-            // Apply transformations in sequence
-            var cleaned = deleteButtonPattern.Replace(html, string.Empty);
+            // Apply transformations in sequence using centralized patterns
+            var cleaned = HtmlTransformPatterns.DeleteButtonPattern.Replace(html, string.Empty);
             var afterDeleteButtons = cleaned.Length;
 
-            cleaned = plainTextButtonPattern.Replace(cleaned, string.Empty);
+            cleaned = HtmlTransformPatterns.PlainTextButtonPattern.Replace(cleaned, string.Empty);
             var afterPlainTextButtons = cleaned.Length;
 
             // Remove inline width and height styles from images (imgResponsive class)
             var imageStylesRemoved = 0;
-            cleaned = Regex.Replace(cleaned, @"<img([^>]*imgResponsive[^>]*)>", match =>
+            cleaned = HtmlTransformPatterns.ImgResponsiveStylePattern.Replace(cleaned, match =>
             {
                 // Check if this image has a style attribute
                 if (!match.Value.Contains("style="))
@@ -245,9 +238,8 @@ namespace NoorCanvas.Services
                 {
                     var styleContent = styleMatch.Groups[1].Value;
 
-                    // Remove width and height declarations
-                    var cleanedStyle = Regex.Replace(styleContent, @"\s*width\s*:\s*[^;]+;?", string.Empty, RegexOptions.IgnoreCase);
-                    cleanedStyle = Regex.Replace(cleanedStyle, @"\s*height\s*:\s*[^;]+;?", string.Empty, RegexOptions.IgnoreCase);
+                    // Remove width and height declarations using centralized pattern
+                    var cleanedStyle = HtmlTransformPatterns.StyleWidthHeightPattern.Replace(styleContent, string.Empty);
 
                     // Clean up extra semicolons and whitespace
                     cleanedStyle = Regex.Replace(cleanedStyle, @";+", ";");
@@ -260,43 +252,43 @@ namespace NoorCanvas.Services
                 result = Regex.Replace(result, @"\s*style\s*=\s*""""", string.Empty);
 
                 return result;
-            }, RegexOptions.IgnoreCase);
+            });
 
             var afterImageStyles = cleaned.Length;
 
             // Add data-islamic-content attribute to .example elements (if not already present)
             var exampleCount = 0;
-            cleaned = Regex.Replace(cleaned, @"<div([^>]*class[^=]*=[^""]*""[^""]*example[^""]*""[^>]*)(?!.*data-islamic-content)>", match =>
+            cleaned = HtmlTransformPatterns.ExampleAttributePattern.Replace(cleaned, match =>
             {
                 var attrs = match.Groups[1].Value;
                 exampleCount++;
                 return $"<div{attrs} data-islamic-content>";
-            }, RegexOptions.IgnoreCase);
+            });
 
             // Add data-islamic-content attribute to .quote elements (if not already present)
             var quoteCount = 0;
-            cleaned = Regex.Replace(cleaned, @"<(p|div)([^>]*class[^=]*=[^""]*""[^""]*quote[^""]*""[^>]*)(?!.*data-islamic-content)>", match =>
+            cleaned = HtmlTransformPatterns.QuoteAttributePattern.Replace(cleaned, match =>
             {
                 var tag = match.Groups[1].Value;
                 var attrs = match.Groups[2].Value;
                 quoteCount++;
                 return $"<{tag}{attrs} data-islamic-content>";
-            }, RegexOptions.IgnoreCase);
+            });
 
             // Add data-islamic-content attribute to .imgResponsive elements (if not already present)
             var imgCount = 0;
-            cleaned = Regex.Replace(cleaned, @"<img([^>]*class[^=]*=[^""]*""[^""]*imgResponsive[^""]*""[^>]*)(?!.*data-islamic-content)>", match =>
+            cleaned = HtmlTransformPatterns.ImgResponsiveAttributePattern.Replace(cleaned, match =>
             {
                 var attrs = match.Groups[1].Value;
                 imgCount++;
                 return $"<img{attrs} data-islamic-content>";
-            }, RegexOptions.IgnoreCase);
+            });
 
             // Remove subject tokens from hadees headers (e.g., " - Accountability, Deeds")
             // PATTERN 1: Remove <span> tags containing tokens (production HTML format)
-            // Matches: <span ...>- Topics, Subtopics</span>
+            // Uses centralized HadeesTokenSpanPattern
             var hadeesTokensRemoved = 0;
-            cleaned = Regex.Replace(cleaned, @"<span[^>]*>(\s*-\s*[^<]+?)</span>", match =>
+            cleaned = HtmlTransformPatterns.HadeesTokenSpanPattern.Replace(cleaned, match =>
             {
                 // Only count if it's actually a token pattern (starts with " - ")
                 if (match.Groups[1].Value.TrimStart().StartsWith("-"))
@@ -304,16 +296,16 @@ namespace NoorCanvas.Services
                     hadeesTokensRemoved++;
                 }
                 return string.Empty; // Remove the entire span
-            }, RegexOptions.IgnoreCase);
+            });
             
             // PATTERN 2: Remove plain text tokens (legacy HTML format for backwards compatibility)
-            // Matches: <h4>...<i></i>Narrator - Topics</h4>
-            cleaned = Regex.Replace(cleaned, @"(<h4[^>]*>[^<]*<i[^>]*></i>\s*)([^<]+?)(\s-\s[A-Za-z,\s]+)(</h4>)", match =>
+            // Uses centralized HadeesTokenPlainPattern
+            cleaned = HtmlTransformPatterns.HadeesTokenPlainPattern.Replace(cleaned, match =>
             {
                 hadeesTokensRemoved++;
                 // Keep everything except the " - Topics" part (group 3)
                 return $"{match.Groups[1].Value}{match.Groups[2].Value}{match.Groups[4].Value}";
-            }, RegexOptions.IgnoreCase);
+            });
 
             // Calculate metrics
             var originalLength = html.Length;
@@ -412,11 +404,32 @@ namespace NoorCanvas.Services
     /// </summary>
     public class SafeHtmlResult
     {
+        /// <summary>
+        /// Gets a value indicating whether the parsing was successful.
+        /// </summary>
         public bool IsValid { get; init; }
+
+        /// <summary>
+        /// Gets the parsed HTML content (null if parsing failed).
+        /// </summary>
         public string? Content { get; init; }
+
+        /// <summary>
+        /// Gets the error message if parsing failed.
+        /// </summary>
         public string? ErrorMessage { get; init; }
+
+        /// <summary>
+        /// Gets list of warnings encountered during parsing.
+        /// </summary>
         public List<string> Warnings { get; init; } = new();
 
+        /// <summary>
+        /// Creates a successful parsing result.
+        /// </summary>
+        /// <param name="content">The parsed HTML content.</param>
+        /// <param name="warnings">Optional list of warnings encountered.</param>
+        /// <returns>A successful SafeHtmlResult instance.</returns>
         public static SafeHtmlResult Success(string content, List<string>? warnings = null)
         {
             return new SafeHtmlResult
@@ -427,6 +440,11 @@ namespace NoorCanvas.Services
             };
         }
 
+        /// <summary>
+        /// Creates a failed parsing result with an error message.
+        /// </summary>
+        /// <param name="errorMessage">The error message describing the failure.</param>
+        /// <returns>A failed SafeHtmlResult instance.</returns>
         public static SafeHtmlResult Error(string errorMessage)
         {
             return new SafeHtmlResult
@@ -436,6 +454,10 @@ namespace NoorCanvas.Services
             };
         }
 
+        /// <summary>
+        /// Creates an empty but valid parsing result.
+        /// </summary>
+        /// <returns>An empty SafeHtmlResult instance.</returns>
         public static SafeHtmlResult Empty()
         {
             return new SafeHtmlResult
@@ -451,10 +473,26 @@ namespace NoorCanvas.Services
     /// </summary>
     public class ValidationResult
     {
+        /// <summary>
+        /// Gets a value indicating whether the validation passed.
+        /// </summary>
         public bool IsValid { get; init; }
+
+        /// <summary>
+        /// Gets the error message if validation failed.
+        /// </summary>
         public string? ErrorMessage { get; init; }
+
+        /// <summary>
+        /// Gets list of warnings encountered during validation.
+        /// </summary>
         public List<string> Warnings { get; init; } = new();
 
+        /// <summary>
+        /// Creates a valid ValidationResult.
+        /// </summary>
+        /// <param name="warnings">Optional list of warnings encountered.</param>
+        /// <returns>A valid ValidationResult instance.</returns>
         public static ValidationResult Valid(List<string>? warnings = null)
         {
             return new ValidationResult
@@ -464,6 +502,11 @@ namespace NoorCanvas.Services
             };
         }
 
+        /// <summary>
+        /// Creates an invalid ValidationResult with an error message.
+        /// </summary>
+        /// <param name="errorMessage">The error message describing the validation failure.</param>
+        /// <returns>An invalid ValidationResult instance.</returns>
         public static ValidationResult Invalid(string errorMessage)
         {
             return new ValidationResult
