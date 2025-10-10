@@ -2,6 +2,57 @@
 
 ---
 
+## [2025-10-10T11:00:00Z] - task agent
+
+**Status**: in-progress
+**Phase**: enhancement
+**Git Commit**: 034b33c1e37f82bb6fbb4ac4e8e8e9c5ac9b8f42
+
+**Work Done**:
+- Added phased refactoring strategy to refactor.prompt.md for scope=all
+- Implemented 4 phasing approaches with detailed execution workflows
+- Added mandatory validation checkpoints between phases
+- Updated Execute step to require phased approach for holistic refactoring
+
+**Files Modified**:
+- `.github/prompts/refactor.prompt.md` (+184 lines)
+  - Added "Phased Refactoring Strategy (scope=all)" section (Lines ~230-410)
+  - Four phasing strategies documented:
+    1. Layer-based (Database → Service → API → UI → Cross-cutting)
+    2. Component-based (Core → Feature domains → Integrations)
+    3. Complexity-based (Low-risk → Medium → High → Critical)
+    4. Dependency-based (Foundation → Tiered dependencies → Consumers)
+  - Phase execution workflow (7 steps per phase):
+    1. Phase checkpoint commit
+    2. Phase plan presentation with approval gate
+    3. Phase execution with continuous build validation
+    4. Phase validation (zero errors, zero warnings)
+    5. Phase commit with detailed metadata
+    6. Inter-phase validation
+    7. User approval for next phase
+  - Phase failure protocol: 3 retries → rollback → user decision
+  - Phase completion summary with aggregate metrics
+  - Example: Layer-based phased refactoring walkthrough
+  - Updated Step 3 (Execute) to mandate phased approach for scope=all
+  - Added phase management requirements: checkpoint per phase, approval per phase, independent commits
+
+**Implementation Details**:
+- Phased approach ensures system remains functional after each phase
+- Each phase has independent rollback capability via checkpoint commits
+- Zero-tolerance validation between phases prevents cascading failures
+- User maintains control with explicit approval required for each phase
+- Phase strategy selection based on refactoring goals (architecture vs features vs risk)
+- Commit messages include phase number and total phases for traceability
+
+**Rationale**:
+- Large-scale refactoring (scope=all) is risky when applied all at once
+- Breaking into phases reduces blast radius of potential issues
+- Validation checkpoints catch problems early before they compound
+- Independent commits allow surgical rollback of specific phases
+- User approval gates prevent runaway automated refactoring
+
+---
+
 ## [2025-10-10T10:45:00Z] - task agent
 
 **Status**: complete
