@@ -1,5 +1,21 @@
 # Canvas Key - Work Log
 
+## [2025-10-10 - Latest] - task
+**Status**: in-progress | **Phase**: question-update-delete | **Commit**: c20ffa5
+**Work**:
+- Implemented question update functionality with edit mode detection in SubmitQuestion
+- Added UpdateQuestion API endpoint with ownership validation
+- Fixed delete functionality to use correct GUID-based endpoint
+- Added SignalR broadcast for updates (QuestionUpdated, HostQuestionUpdated)
+- Added SignalR broadcast for deletes (QuestionDeleted, HostQuestionDeleted)
+- Real-time synchronization across all SessionCanvas participants and HostControlPanel
+**Files**: 3 modified (QuestionController.cs, SessionCanvas.razor, HostControlPanel.razor)
+**Tests**: Requires Playwright test creation
+**Build**: PASS (0 errors, 1 documentation warning)
+**Debug Logging**: Simple level markers with ;CLEANUP_OK suffix
+**Next**: Create Playwright tests for update/delete workflows
+
+---
 ## [2025-10-10 09:46] - task
 **Status**: in-progress | **Phase**: ui-fix | **Commit**: 6902ad9
 **Work**: 
