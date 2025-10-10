@@ -239,7 +239,7 @@ Example output format:
         return uniqueRequirements;
     }
 
-    private string? ResolveScreenshotPath(string path)
+    private static string? ResolveScreenshotPath(string path)
     {
         // If path already has an extension and exists, use it
         if (Path.HasExtension(path) && File.Exists(path))
@@ -267,7 +267,7 @@ Example output format:
         return null;
     }
 
-    private List<string> ParseRequirementsFromResponse(string response)
+    private static List<string> ParseRequirementsFromResponse(string response)
     {
         var requirements = new List<string>();
 

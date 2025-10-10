@@ -326,7 +326,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Get component-specific console styling.
         /// </summary>
-        private string GetComponentGroupStyle(string component)
+        private static string GetComponentGroupStyle(string component)
         {
             return component switch
             {
@@ -345,7 +345,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Get log level specific styling.
         /// </summary>
-        private string GetLogLevelStyle(string logLevel)
+        private static string GetLogLevelStyle(string logLevel)
         {
             return logLevel switch
             {

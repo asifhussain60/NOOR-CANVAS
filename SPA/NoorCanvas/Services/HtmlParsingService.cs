@@ -83,7 +83,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Validate HTML for security issues (XSS prevention).
         /// </summary>
-        private ValidationResult ValidateSecurity(string html)
+        private static ValidationResult ValidateSecurity(string html)
         {
             var dangerousPatterns = new[]
             {
@@ -110,7 +110,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Analyze HTML for Blazor DOM parser compatibility issues.
         /// </summary>
-        private ValidationResult AnalyzeBlazorCompatibility(string html)
+        private static ValidationResult AnalyzeBlazorCompatibility(string html)
         {
             var warnings = new List<string>();
             var errors = new List<string>();
@@ -336,7 +336,7 @@ namespace NoorCanvas.Services
         /// Normalize quotes to prevent Blazor parsing issues
         /// This addresses the core quote escaping problems.
         /// </summary>
-        private string NormalizeQuotes(string html)
+        private static string NormalizeQuotes(string html)
         {
             // Strategy: Use consistent single quotes for style attributes
             var normalized = html;
@@ -359,7 +359,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Final validation of processed HTML.
         /// </summary>
-        private ValidationResult ValidateFinalHtml(string html)
+        private static ValidationResult ValidateFinalHtml(string html)
         {
             try
             {

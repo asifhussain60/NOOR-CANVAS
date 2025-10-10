@@ -82,7 +82,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Returns a default flag URL for unknown countries.
         /// </summary>
-        private string GetDefaultFlagUrl()
+        private static string GetDefaultFlagUrl()
         {
             // Return a simple 1x1 transparent PNG or UN flag as default
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==";

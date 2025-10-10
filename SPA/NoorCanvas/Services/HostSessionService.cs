@@ -273,7 +273,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Extracts user token from join link URL.
         /// </summary>
-        private string? ExtractUserTokenFromJoinLink(string? joinLink)
+        private static string? ExtractUserTokenFromJoinLink(string? joinLink)
         {
             if (string.IsNullOrEmpty(joinLink))
                 return null;

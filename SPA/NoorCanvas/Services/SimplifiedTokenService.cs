@@ -274,7 +274,7 @@ public class SimplifiedTokenService
         return token;
     }
 
-    private string GenerateRandomToken()
+    private static string GenerateRandomToken()
     {
         using var rng = RandomNumberGenerator.Create();
         var result = new StringBuilder(TOKEN_LENGTH);

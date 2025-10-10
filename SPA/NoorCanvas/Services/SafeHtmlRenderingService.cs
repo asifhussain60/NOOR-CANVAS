@@ -100,7 +100,7 @@ namespace NoorCanvas.Services
             }
         }
 
-        private void SanitizeAttributes(HtmlDocument htmlDoc)
+        private static void SanitizeAttributes(HtmlDocument htmlDoc)
         {
             // Clean up any Blazor-conflicting attributes
             var allNodes = htmlDoc.DocumentNode.SelectNodes("//*");
