@@ -10,6 +10,7 @@ using NoorCanvas.Models.DTOs;
 using NoorCanvas.Models.KSESSIONS;
 using NoorCanvas.Services;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using SimplifiedSession = NoorCanvas.Models.Simplified.Session;
 
 namespace NoorCanvas.Controllers
@@ -20,7 +21,7 @@ namespace NoorCanvas.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class HostController : ControllerBase
+    public partial class HostController : ControllerBase
     {
         private readonly SimplifiedCanvasDbContext _context;
         private readonly KSessionsDbContext _kSessionsContext;
@@ -1278,13 +1279,16 @@ namespace NoorCanvas.Controllers
                 // Check if it's a valid base64 string
                 Convert.FromBase64String(s);
                 // Additional check: base64 strings typically end with = or == for padding
-                return s.Length % 4 == 0 && System.Text.RegularExpressions.Regex.IsMatch(s, @"^[a-zA-Z0-9+/]*={0,3}$");
+                return s.Length % 4 == 0 && Base64ValidationPattern().IsMatch(s);
             }
             catch
             {
                 return false;
             }
         }
+
+        [GeneratedRegex(@"^[a-zA-Z0-9+/]*={0,3}$")]
+        private static partial Regex Base64ValidationPattern();
 
         /// <summary>
         /// [API-MIGRATION:09291900-api] Get all sessions with token information for HostControlPanel token validation.

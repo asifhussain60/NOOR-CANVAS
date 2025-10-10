@@ -1,5 +1,6 @@
 using OpenAI;
 using OpenAI.Chat;
+using System.Text.RegularExpressions;
 
 namespace NoorCanvas.Services;
 
@@ -37,7 +38,7 @@ public interface IScreenshotAnalysisService
 /// <summary>
 /// Implementation of screenshot analysis service using OpenAI GPT-4 Vision.
 /// </summary>
-public class ScreenshotAnalysisService : IScreenshotAnalysisService
+public partial class ScreenshotAnalysisService : IScreenshotAnalysisService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<ScreenshotAnalysisService> _logger;
@@ -285,9 +286,8 @@ Example output format:
             var trimmedLine = line.Trim();
 
             // Remove leading numbers, bullets, or dashes
-            var cleaned = System.Text.RegularExpressions.Regex.Replace(
+            var cleaned = RequirementPrefixPattern().Replace(
                 trimmedLine,
-                @"^[\d\.\-\*\•]+\s*",
                 string.Empty).Trim();
 
             if (!string.IsNullOrWhiteSpace(cleaned))
@@ -298,4 +298,7 @@ Example output format:
 
         return requirements;
     }
+
+    [GeneratedRegex(@"^[\d\.\-\*\•]+\s*")]
+    private static partial Regex RequirementPrefixPattern();
 }

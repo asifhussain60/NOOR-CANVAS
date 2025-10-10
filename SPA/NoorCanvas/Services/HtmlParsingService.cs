@@ -182,7 +182,7 @@ namespace NoorCanvas.Services
             {
                 _logger.LogDebug("[DEBUG-WORKITEM:signalcomm:PARSER] Replacing RGBA color: {Color} ;CLEANUP_OK", match.Value);
                 // Extract RGB values and use solid color
-                var rgbaMatch = Regex.Match(match.Value, @"rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[\d.]+\s*\)");
+                var rgbaMatch = RgbaExtractionPattern().Match(match.Value);
                 if (rgbaMatch.Success)
                 {
                     var r = rgbaMatch.Groups[1].Value;
@@ -234,7 +234,7 @@ namespace NoorCanvas.Services
                 imageStylesRemoved++;
 
                 // Remove width and height properties from style attribute
-                var result = Regex.Replace(match.Value, @"style\s*=\s*""([^""]*)""", styleMatch =>
+                var result = StyleAttributePattern().Replace(match.Value, styleMatch =>
                 {
                     var styleContent = styleMatch.Groups[1].Value;
 
@@ -242,14 +242,14 @@ namespace NoorCanvas.Services
                     var cleanedStyle = HtmlTransformPatterns.StyleWidthHeightPattern().Replace(styleContent, string.Empty);
 
                     // Clean up extra semicolons and whitespace
-                    cleanedStyle = Regex.Replace(cleanedStyle, @";+", ";");
+                    cleanedStyle = MultipleSemicolonPattern().Replace(cleanedStyle, ";");
                     cleanedStyle = cleanedStyle.Trim().TrimEnd(';');
 
                     return string.IsNullOrWhiteSpace(cleanedStyle) ? string.Empty : $"style=\"{cleanedStyle}\"";
-                }, RegexOptions.IgnoreCase);
+                });
 
                 // Remove empty style attributes
-                result = Regex.Replace(result, @"\s*style\s*=\s*""""", string.Empty);
+                result = EmptyStylePattern().Replace(result, string.Empty);
 
                 return result;
             });
@@ -342,16 +342,14 @@ namespace NoorCanvas.Services
             var normalized = html;
 
             // Find style attributes and normalize their quotes
-            normalized = Regex.Replace(normalized,
-                @"style\s*=\s*""([^""]*)""\s*",
+            normalized = StyleNormalizationPattern().Replace(normalized,
                 match =>
                 {
                     var styleContent = match.Groups[1].Value;
                     // Replace any internal double quotes with single quotes
                     var cleanStyle = styleContent.Replace("\"", "'");
                     return $"style=\"{cleanStyle}\"";
-                },
-                RegexOptions.IgnoreCase);
+                });
 
             return normalized;
         }
@@ -382,6 +380,22 @@ namespace NoorCanvas.Services
                 return ValidationResult.Invalid($"Final validation failed: {ex.Message}");
             }
         }
+
+        // Generated Regex patterns for HtmlParsingService
+        [GeneratedRegex(@"rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[\d.]+\s*\)", RegexOptions.IgnoreCase)]
+        private static partial Regex RgbaExtractionPattern();
+
+        [GeneratedRegex(@"style\s*=\s*""([^""]*)""", RegexOptions.IgnoreCase)]
+        private static partial Regex StyleAttributePattern();
+
+        [GeneratedRegex(@";+")]
+        private static partial Regex MultipleSemicolonPattern();
+
+        [GeneratedRegex(@"\s*style\s*=\s*""""")]
+        private static partial Regex EmptyStylePattern();
+
+        [GeneratedRegex(@"style\s*=\s*""([^""]*)""\s*", RegexOptions.IgnoreCase)]
+        private static partial Regex StyleNormalizationPattern();
     }
 
     /// <summary>
