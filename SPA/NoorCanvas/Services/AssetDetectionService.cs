@@ -9,7 +9,7 @@ namespace NoorCanvas.Services;
 /// Service for detecting Islamic content assets in session transcripts
 /// and storing them in SessionAssets lookup table for efficient retrieval.
 /// </summary>
-public class AssetDetectionService
+public partial class AssetDetectionService
 {
     private readonly SimplifiedCanvasDbContext _context;
     private readonly ILogger<AssetDetectionService> _logger;
@@ -259,8 +259,8 @@ public class AssetDetectionService
     private static string? ExtractAyahSelector(string html)
     {
         // Look for data-surah and data-ayah attributes
-        var surahMatch = Regex.Match(html, @"data-surah=""(\d+)""", RegexOptions.IgnoreCase);
-        var ayahMatch = Regex.Match(html, @"data-ayah=""(\d+)""", RegexOptions.IgnoreCase);
+        var surahMatch = DataSurahPattern().Match(html);
+        var ayahMatch = DataAyahPattern().Match(html);
 
         if (surahMatch.Success && ayahMatch.Success)
         {
@@ -268,7 +268,7 @@ public class AssetDetectionService
         }
 
         // Fallback: look for class patterns like "ayah-2-255"
-        var classMatch = Regex.Match(html, @"ayah-(\d+)-(\d+)", RegexOptions.IgnoreCase);
+        var classMatch = AyahClassPattern().Match(html);
         if (classMatch.Success)
         {
             return classMatch.Value;
@@ -283,8 +283,8 @@ public class AssetDetectionService
     private static string? ExtractHadeesSelector(string html)
     {
         // Look for data-collection and data-number attributes
-        var collectionMatch = Regex.Match(html, @"data-collection=""([^""]+)""", RegexOptions.IgnoreCase);
-        var numberMatch = Regex.Match(html, @"data-(?:number|hadith-id)=""(\d+)""", RegexOptions.IgnoreCase);
+        var collectionMatch = DataCollectionPattern().Match(html);
+        var numberMatch = DataNumberPattern().Match(html);
 
         if (collectionMatch.Success && numberMatch.Success)
         {
@@ -292,7 +292,7 @@ public class AssetDetectionService
         }
 
         // Fallback: look for ID patterns
-        var idMatch = Regex.Match(html, @"id=""hadees-([^""]+)""", RegexOptions.IgnoreCase);
+        var idMatch = HadeesIdPattern().Match(html);
         if (idMatch.Success)
         {
             return $"hadees-{idMatch.Groups[1].Value}";
@@ -307,8 +307,8 @@ public class AssetDetectionService
     private static string? ExtractEtymologySelector(string html)
     {
         // Look for data-word and data-root attributes
-        var wordMatch = Regex.Match(html, @"data-word=""([^""]+)""", RegexOptions.IgnoreCase);
-        var rootMatch = Regex.Match(html, @"data-root=""([^""]+)""", RegexOptions.IgnoreCase);
+        var wordMatch = DataWordPattern().Match(html);
+        var rootMatch = DataRootPattern().Match(html);
 
         if (wordMatch.Success && rootMatch.Success)
         {
@@ -318,7 +318,7 @@ public class AssetDetectionService
         }
 
         // Fallback: look for class patterns
-        var classMatch = Regex.Match(html, @"etymology-([^""\s]+)", RegexOptions.IgnoreCase);
+        var classMatch = EtymologyClassPattern().Match(html);
         if (classMatch.Success)
         {
             return classMatch.Value;
@@ -333,7 +333,7 @@ public class AssetDetectionService
     private static string? ExtractImageSelector(string html)
     {
         // Look for src attribute to create meaningful selector
-        var srcMatch = Regex.Match(html, @"src=""([^""]+)""", RegexOptions.IgnoreCase);
+        var srcMatch = ImgSrcPattern().Match(html);
         if (srcMatch.Success)
         {
             var filename = Path.GetFileNameWithoutExtension(srcMatch.Groups[1].Value);
@@ -349,7 +349,7 @@ public class AssetDetectionService
     private static string? ExtractTableSelector(string html)
     {
         // Look for class or id attributes
-        var classMatch = Regex.Match(html, @"class=""([^""]*(?:islamic-table|content-table|comparison-table)[^""]*)""", RegexOptions.IgnoreCase);
+        var classMatch = TableClassPattern().Match(html);
         if (classMatch.Success)
         {
             var classes = classMatch.Groups[1].Value.Split(' ');
@@ -447,4 +447,38 @@ public class AssetDetectionService
             return Task.FromResult(new Dictionary<string, int>());
         }
     }
+
+    // Generated Regex patterns for asset detection
+    [GeneratedRegex(@"data-surah=""(\d+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex DataSurahPattern();
+
+    [GeneratedRegex(@"data-ayah=""(\d+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex DataAyahPattern();
+
+    [GeneratedRegex(@"ayah-(\d+)-(\d+)", RegexOptions.IgnoreCase)]
+    private static partial Regex AyahClassPattern();
+
+    [GeneratedRegex(@"data-collection=""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex DataCollectionPattern();
+
+    [GeneratedRegex(@"data-(?:number|hadith-id)=""(\d+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex DataNumberPattern();
+
+    [GeneratedRegex(@"id=""hadees-([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex HadeesIdPattern();
+
+    [GeneratedRegex(@"data-word=""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex DataWordPattern();
+
+    [GeneratedRegex(@"data-root=""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex DataRootPattern();
+
+    [GeneratedRegex(@"etymology-([^""\s]+)", RegexOptions.IgnoreCase)]
+    private static partial Regex EtymologyClassPattern();
+
+    [GeneratedRegex(@"src=""([^""]+)""", RegexOptions.IgnoreCase)]
+    private static partial Regex ImgSrcPattern();
+
+    [GeneratedRegex(@"class=""([^""]*(?:islamic-table|content-table|comparison-table)[^""]*)""", RegexOptions.IgnoreCase)]
+    private static partial Regex TableClassPattern();
 }

@@ -8,7 +8,7 @@ namespace NoorCanvas.Services
     /// Provides robust HTML validation, sanitization, and safe rendering for broadcast content.
     /// Uses centralized HtmlTransformPatterns for consistent transformation behavior.
     /// </summary>
-    public class HtmlParsingService
+    public partial class HtmlParsingService
     {
         private readonly ILogger<HtmlParsingService> _logger;
 
@@ -116,25 +116,25 @@ namespace NoorCanvas.Services
             var errors = new List<string>();
 
             // Check for complex gradients
-            if (HtmlTransformPatterns.ComplexGradientPattern.IsMatch(html))
+            if (HtmlTransformPatterns.ComplexGradientPattern().IsMatch(html))
             {
                 warnings.Add("Complex CSS gradients detected - may cause parsing issues");
             }
 
             // Check for RGBA with decimals
-            if (HtmlTransformPatterns.RgbaPattern.IsMatch(html))
+            if (HtmlTransformPatterns.RgbaPattern().IsMatch(html))
             {
                 warnings.Add("RGBA colors detected - may cause parsing issues");
             }
 
             // Check for complex font-family declarations
-            if (HtmlTransformPatterns.ComplexFontFamilyPattern.IsMatch(html))
+            if (HtmlTransformPatterns.ComplexFontFamilyPattern().IsMatch(html))
             {
                 warnings.Add("Complex font-family declarations detected");
             }
 
             // Check for nested quotes in style attributes
-            if (HtmlTransformPatterns.NestedQuotePattern.IsMatch(html))
+            if (HtmlTransformPatterns.NestedQuotePattern().IsMatch(html))
             {
                 errors.Add("Nested quotes in style attributes detected - likely to cause parsing failure");
             }
@@ -171,14 +171,14 @@ namespace NoorCanvas.Services
             var processed = html;
 
             // Replace complex gradients with simple backgrounds
-            processed = HtmlTransformPatterns.ComplexGradientPattern.Replace(processed, match =>
+            processed = HtmlTransformPatterns.ComplexGradientPattern().Replace(processed, match =>
             {
                 _logger.LogDebug("[DEBUG-WORKITEM:signalcomm:PARSER] Replacing complex gradient: {Gradient} ;CLEANUP_OK", match.Value);
                 return "background-color: #f0f0f0"; // Safe fallback
             });
 
             // Replace RGBA with solid colors
-            processed = HtmlTransformPatterns.RgbaPattern.Replace(processed, match =>
+            processed = HtmlTransformPatterns.RgbaPattern().Replace(processed, match =>
             {
                 _logger.LogDebug("[DEBUG-WORKITEM:signalcomm:PARSER] Replacing RGBA color: {Color} ;CLEANUP_OK", match.Value);
                 // Extract RGB values and use solid color
@@ -194,7 +194,7 @@ namespace NoorCanvas.Services
             });
 
             // Simplify complex font-family declarations
-            processed = HtmlTransformPatterns.ComplexFontFamilyPattern.Replace(processed, "font-family: sans-serif");
+            processed = HtmlTransformPatterns.ComplexFontFamilyPattern().Replace(processed, "font-family: sans-serif");
 
             return processed;
         }
@@ -215,15 +215,15 @@ namespace NoorCanvas.Services
             var startTime = DateTime.Now;
 
             // Apply transformations in sequence using centralized patterns
-            var cleaned = HtmlTransformPatterns.DeleteButtonPattern.Replace(html, string.Empty);
+            var cleaned = HtmlTransformPatterns.DeleteButtonPattern().Replace(html, string.Empty);
             var afterDeleteButtons = cleaned.Length;
 
-            cleaned = HtmlTransformPatterns.PlainTextButtonPattern.Replace(cleaned, string.Empty);
+            cleaned = HtmlTransformPatterns.PlainTextButtonPattern().Replace(cleaned, string.Empty);
             var afterPlainTextButtons = cleaned.Length;
 
             // Remove inline width and height styles from images (imgResponsive class)
             var imageStylesRemoved = 0;
-            cleaned = HtmlTransformPatterns.ImgResponsiveStylePattern.Replace(cleaned, match =>
+            cleaned = HtmlTransformPatterns.ImgResponsiveStylePattern().Replace(cleaned, match =>
             {
                 // Check if this image has a style attribute
                 if (!match.Value.Contains("style="))
@@ -239,7 +239,7 @@ namespace NoorCanvas.Services
                     var styleContent = styleMatch.Groups[1].Value;
 
                     // Remove width and height declarations using centralized pattern
-                    var cleanedStyle = HtmlTransformPatterns.StyleWidthHeightPattern.Replace(styleContent, string.Empty);
+                    var cleanedStyle = HtmlTransformPatterns.StyleWidthHeightPattern().Replace(styleContent, string.Empty);
 
                     // Clean up extra semicolons and whitespace
                     cleanedStyle = Regex.Replace(cleanedStyle, @";+", ";");
@@ -258,7 +258,7 @@ namespace NoorCanvas.Services
 
             // Add data-islamic-content attribute to .example elements (if not already present)
             var exampleCount = 0;
-            cleaned = HtmlTransformPatterns.ExampleAttributePattern.Replace(cleaned, match =>
+            cleaned = HtmlTransformPatterns.ExampleAttributePattern().Replace(cleaned, match =>
             {
                 var attrs = match.Groups[1].Value;
                 exampleCount++;
@@ -267,7 +267,7 @@ namespace NoorCanvas.Services
 
             // Add data-islamic-content attribute to .quote elements (if not already present)
             var quoteCount = 0;
-            cleaned = HtmlTransformPatterns.QuoteAttributePattern.Replace(cleaned, match =>
+            cleaned = HtmlTransformPatterns.QuoteAttributePattern().Replace(cleaned, match =>
             {
                 var tag = match.Groups[1].Value;
                 var attrs = match.Groups[2].Value;
@@ -277,7 +277,7 @@ namespace NoorCanvas.Services
 
             // Add data-islamic-content attribute to .imgResponsive elements (if not already present)
             var imgCount = 0;
-            cleaned = HtmlTransformPatterns.ImgResponsiveAttributePattern.Replace(cleaned, match =>
+            cleaned = HtmlTransformPatterns.ImgResponsiveAttributePattern().Replace(cleaned, match =>
             {
                 var attrs = match.Groups[1].Value;
                 imgCount++;
@@ -288,7 +288,7 @@ namespace NoorCanvas.Services
             // PATTERN 1: Remove <span> tags containing tokens (production HTML format)
             // Uses centralized HadeesTokenSpanPattern
             var hadeesTokensRemoved = 0;
-            cleaned = HtmlTransformPatterns.HadeesTokenSpanPattern.Replace(cleaned, match =>
+            cleaned = HtmlTransformPatterns.HadeesTokenSpanPattern().Replace(cleaned, match =>
             {
                 // Only count if it's actually a token pattern (starts with " - ")
                 if (match.Groups[1].Value.TrimStart().StartsWith("-"))
@@ -300,7 +300,7 @@ namespace NoorCanvas.Services
             
             // PATTERN 2: Remove plain text tokens (legacy HTML format for backwards compatibility)
             // Uses centralized HadeesTokenPlainPattern
-            cleaned = HtmlTransformPatterns.HadeesTokenPlainPattern.Replace(cleaned, match =>
+            cleaned = HtmlTransformPatterns.HadeesTokenPlainPattern().Replace(cleaned, match =>
             {
                 hadeesTokensRemoved++;
                 // Keep everything except the " - Topics" part (group 3)

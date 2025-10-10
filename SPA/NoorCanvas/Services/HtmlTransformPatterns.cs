@@ -6,101 +6,89 @@ namespace NoorCanvas.Services
     /// Centralized HTML transformation regex patterns used across multiple services.
     /// Single source of truth for HTML transformation logic to prevent pattern drift.
     /// </summary>
-    public static class HtmlTransformPatterns
+    public static partial class HtmlTransformPatterns
     {
         /// <summary>
         /// Pattern to match delete buttons (matching AssetProcessingService.cs RemoveDeleteButtons() logic).
         /// Matches buttons with "delete" in id or class attributes.
         /// </summary>
-        public static readonly Regex DeleteButtonPattern = new(
-            @"<button[^>]*(?:id[^=]*=[^""\s]*""[^""]*delete[^""]*""|class[^=]*=[^""\s]*""[^""]*delete[^""]*"")[^>]*>.*?</button>",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+        [GeneratedRegex(@"<button[^>]*(?:id[^=]*=[^""\s]*""[^""]*delete[^""]*""|class[^=]*=[^""\s]*""[^""]*delete[^""]*"")[^>]*>.*?</button>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+        public static partial Regex DeleteButtonPattern();
 
         /// <summary>
         /// Pattern to match "Plain Text" buttons (poetry-restore-btn, froala-only-btn classes).
         /// </summary>
-        public static readonly Regex PlainTextButtonPattern = new(
-            @"<button[^>]*class[^=]*=[^""]*""[^""]*(?:poetry-restore-btn|froala-only-btn)[^""]*""[^>]*>.*?</button>",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+        [GeneratedRegex(@"<button[^>]*class[^=]*=[^""]*""[^""]*(?:poetry-restore-btn|froala-only-btn)[^""]*""[^>]*>.*?</button>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+        public static partial Regex PlainTextButtonPattern();
 
         /// <summary>
         /// Pattern to remove hadees subject tokens from span tags (production HTML format).
         /// Matches: &lt;span ...&gt;- Topics, Subtopics&lt;/span&gt;.
         /// </summary>
-        public static readonly Regex HadeesTokenSpanPattern = new(
-            @"<span[^>]*>(\s*-\s*[^<]+?)</span>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"<span[^>]*>(\s*-\s*[^<]+?)</span>", RegexOptions.IgnoreCase)]
+        public static partial Regex HadeesTokenSpanPattern();
 
         /// <summary>
         /// Pattern to remove hadees subject tokens from plain text (legacy HTML format).
         /// Matches: &lt;h4&gt;...&lt;i&gt;&lt;/i&gt;Narrator - Topics&lt;/h4&gt;
         /// Preserves everything except the " - Topics" suffix.
         /// </summary>
-        public static readonly Regex HadeesTokenPlainPattern = new(
-            @"(<h4[^>]*>[^<]*<i[^>]*></i>\s*)([^<]+?)(\s-\s[A-Za-z,\s]+)(</h4>)",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"(<h4[^>]*>[^<]*<i[^>]*></i>\s*)([^<]+?)(\s-\s[A-Za-z,\s]+)(</h4>)", RegexOptions.IgnoreCase)]
+        public static partial Regex HadeesTokenPlainPattern();
 
         /// <summary>
         /// Pattern to detect and match inline styles in imgResponsive images for removal.
         /// </summary>
-        public static readonly Regex ImgResponsiveStylePattern = new(
-            @"<img([^>]*imgResponsive[^>]*)>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"<img([^>]*imgResponsive[^>]*)>", RegexOptions.IgnoreCase)]
+        public static partial Regex ImgResponsiveStylePattern();
 
         /// <summary>
         /// Pattern to remove width and height from style attributes.
         /// </summary>
-        public static readonly Regex StyleWidthHeightPattern = new(
-            @"\s*(width|height)\s*:\s*[^;]+;?",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"\s*(width|height)\s*:\s*[^;]+;?", RegexOptions.IgnoreCase)]
+        public static partial Regex StyleWidthHeightPattern();
 
         /// <summary>
         /// Pattern to add data-islamic-content attribute to .example elements.
         /// </summary>
-        public static readonly Regex ExampleAttributePattern = new(
-            @"<div([^>]*class[^=]*=[^""]*""[^""]*example[^""]*""[^>]*)(?!.*data-islamic-content)>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"<div([^>]*class[^=]*=[^""]*""[^""]*example[^""]*""[^>]*)(?!.*data-islamic-content)>", RegexOptions.IgnoreCase)]
+        public static partial Regex ExampleAttributePattern();
 
         /// <summary>
         /// Pattern to add data-islamic-content attribute to .quote elements.
         /// </summary>
-        public static readonly Regex QuoteAttributePattern = new(
-            @"<(p|div)([^>]*class[^=]*=[^""]*""[^""]*quote[^""]*""[^>]*)(?!.*data-islamic-content)>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"<(p|div)([^>]*class[^=]*=[^""]*""[^""]*quote[^""]*""[^>]*)(?!.*data-islamic-content)>", RegexOptions.IgnoreCase)]
+        public static partial Regex QuoteAttributePattern();
 
         /// <summary>
         /// Pattern to add data-islamic-content attribute to .imgResponsive elements.
         /// </summary>
-        public static readonly Regex ImgResponsiveAttributePattern = new(
-            @"<img([^>]*class[^=]*=[^""]*""[^""]*imgResponsive[^""]*""[^>]*)(?!.*data-islamic-content)>",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"<img([^>]*class[^=]*=[^""]*""[^""]*imgResponsive[^""]*""[^>]*)(?!.*data-islamic-content)>", RegexOptions.IgnoreCase)]
+        public static partial Regex ImgResponsiveAttributePattern();
 
         /// <summary>
         /// Pattern for complex CSS gradients that may cause Blazor parsing issues.
         /// </summary>
-        public static readonly Regex ComplexGradientPattern = new(
-            @"linear-gradient\([^)]*\)",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"linear-gradient\([^)]*\)", RegexOptions.IgnoreCase)]
+        public static partial Regex ComplexGradientPattern();
 
         /// <summary>
         /// Pattern for RGBA color values that may cause Blazor parsing issues.
         /// </summary>
-        public static readonly Regex RgbaPattern = new(
-            @"rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)", RegexOptions.IgnoreCase)]
+        public static partial Regex RgbaPattern();
 
         /// <summary>
         /// Pattern for complex font-family declarations that may cause Blazor parsing issues.
         /// </summary>
-        public static readonly Regex ComplexFontFamilyPattern = new(
-            @"font-family:\s*[""'][^""']*[""']\s*,\s*[""'][^""']*[""']",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"font-family:\s*[""'][^""']*[""']\s*,\s*[""'][^""']*[""']", RegexOptions.IgnoreCase)]
+        public static partial Regex ComplexFontFamilyPattern();
 
         /// <summary>
         /// Pattern for nested quotes in style attributes that may cause parsing failures.
         /// </summary>
-        public static readonly Regex NestedQuotePattern = new(
-            @"style\s*=\s*[""'][^""']*[""'][^""']*[""'][^""']*[""']",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        [GeneratedRegex(@"style\s*=\s*[""'][^""']*[""'][^""']*[""'][^""']*[""']", RegexOptions.IgnoreCase)]
+        public static partial Regex NestedQuotePattern();
     }
 }
+
