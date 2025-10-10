@@ -1,118 +1,126 @@
 {
-  "patterns": [
-    {
-      "pattern_id": "iterative-css-grid-refinement",
-      "name": "Iterative CSS Grid Layout Refinement Based on Visual Feedback",
-      "category": "ui",
-      "description": "When user provides sequential screenshot feedback for layout issues, apply incremental CSS Grid adjustments with validation cycles rather than complete rewrites. Each iteration builds on previous changes to converge on desired layout behavior.",
-      "context": "UI layout requirements clarified through visual feedback (screenshots with annotations). Initial implementation may not capture all requirements until user sees actual rendering behavior.",
-      "implementation": {
-        "steps": [
-          "Step 1: Create safety checkpoint commit before first change",
-          "Step 2: Implement initial interpretation of requirements",
-          "Step 3: Validate with clean build (0 errors, 0 warnings)",
-          "Step 4: Commit initial implementation with descriptive message",
-          "Step 5: Document changes in work log for traceability",
-          "Step 6: If user provides corrective screenshot, analyze delta from current state",
-          "Step 7: Apply targeted CSS adjustments (don't rewrite, refine)",
-          "Step 8: Validate again with clean build",
-          "Step 9: Commit refinement with clear distinction from previous attempt",
-          "Step 10: Update work log with refinement entry"
-        ],
-        "files_affected": [
-          "SPA/NoorCanvas/Pages/SessionCanvas.razor"
-        ],
-        "dependencies": []
-      },
-      "css_grid_patterns": {
-        "equal_height_containers": {
-          "problem": "Grid items with different heights when using align-items:start",
-          "solution": "Use align-items:stretch with height:100% on child containers",
-          "code": ".grid { align-items: stretch; } .child { height: 100%; }"
-        },
-        "auto_expanding_grid": {
-          "problem": "Fixed height grid prevents content expansion",
-          "solution": "Use height:auto on grid container, let content drive height",
-          "code": ".grid { height: auto; }"
-        },
-        "internal_scrolling": {
-          "problem": "Container-level overflow creates unwanted scrollbars",
-          "solution": "Apply overflow:hidden to container, overflow-y:auto to internal flex child with min-height:0",
-          "code": ".container { overflow: hidden; } .scrollable-child { overflow-y: auto; min-height: 0; flex: 1; }"
-        }
-      },
-      "validation": {
-        "tests_required": false,
-        "playwright_coverage": [],
-        "analyzer_checks": [],
-        "visual_validation": true,
-        "build_validation": "mandatory"
-      },
-      "success_metrics": {
-        "usage_count": 1,
-        "success_rate": 1.0,
-        "iterations_to_solution": 2,
-        "avg_execution_time_seconds": 180
-      },
-      "examples": [
+    "patterns": [
         {
-          "key": "canvas",
-          "git_commits": ["6902ad9", "5be8797", "a6927a3", "a202065", "9869cfd"],
-          "description": "SessionCanvas layout refinement through 5 commits based on two screenshots",
-          "iterations": [
-            {
-              "commit": "6902ad9",
-              "change": "Logo restoration",
-              "outcome": "User provided first screenshot"
+            "pattern_id": "iterative-css-grid-refinement",
+            "name": "Iterative CSS Grid Layout Refinement Based on Visual Feedback",
+            "category": "ui",
+            "description": "When user provides sequential screenshot feedback for layout issues, apply incremental CSS Grid adjustments with validation cycles rather than complete rewrites. Each iteration builds on previous changes to converge on desired layout behavior.",
+            "context": "UI layout requirements clarified through visual feedback (screenshots with annotations). Initial implementation may not capture all requirements until user sees actual rendering behavior.",
+            "implementation": {
+                "steps": [
+                    "Step 1: Create safety checkpoint commit before first change",
+                    "Step 2: Implement initial interpretation of requirements",
+                    "Step 3: Validate with clean build (0 errors, 0 warnings)",
+                    "Step 4: Commit initial implementation with descriptive message",
+                    "Step 5: Document changes in work log for traceability",
+                    "Step 6: If user provides corrective screenshot, analyze delta from current state",
+                    "Step 7: Apply targeted CSS adjustments (don't rewrite, refine)",
+                    "Step 8: Validate again with clean build",
+                    "Step 9: Commit refinement with clear distinction from previous attempt",
+                    "Step 10: Update work log with refinement entry"
+                ],
+                "files_affected": [
+                    "SPA/NoorCanvas/Pages/SessionCanvas.razor"
+                ],
+                "dependencies": []
             },
-            {
-              "commit": "5be8797",
-              "change": "Fixed height grid (600px)",
-              "outcome": "Intermediate state"
+            "css_grid_patterns": {
+                "equal_height_containers": {
+                    "problem": "Grid items with different heights when using align-items:start",
+                    "solution": "Use align-items:stretch with height:100% on child containers",
+                    "code": ".grid { align-items: stretch; } .child { height: 100%; }"
+                },
+                "auto_expanding_grid": {
+                    "problem": "Fixed height grid prevents content expansion",
+                    "solution": "Use height:auto on grid container, let content drive height",
+                    "code": ".grid { height: auto; }"
+                },
+                "internal_scrolling": {
+                    "problem": "Container-level overflow creates unwanted scrollbars",
+                    "solution": "Apply overflow:hidden to container, overflow-y:auto to internal flex child with min-height:0",
+                    "code": ".container { overflow: hidden; } .scrollable-child { overflow-y: auto; min-height: 0; flex: 1; }"
+                }
             },
-            {
-              "commit": "a6927a3",
-              "change": "Overflow fixes with flex containment",
-              "outcome": "Intermediate state"
+            "validation": {
+                "tests_required": false,
+                "playwright_coverage": [],
+                "analyzer_checks": [],
+                "visual_validation": true,
+                "build_validation": "mandatory"
             },
-            {
-              "commit": "a202065",
-              "change": "Auto-expanding grid with align-items:start",
-              "outcome": "User provided second screenshot showing unequal heights"
+            "success_metrics": {
+                "usage_count": 1,
+                "success_rate": 1.0,
+                "iterations_to_solution": 2,
+                "avg_execution_time_seconds": 180
             },
-            {
-              "commit": "9869cfd",
-              "change": "Equal heights with align-items:stretch + height:100%",
-              "outcome": "Requirements fully met"
-            }
-          ]
+            "examples": [
+                {
+                    "key": "canvas",
+                    "git_commits": [
+                        "6902ad9",
+                        "5be8797",
+                        "a6927a3",
+                        "a202065",
+                        "9869cfd"
+                    ],
+                    "description": "SessionCanvas layout refinement through 5 commits based on two screenshots",
+                    "iterations": [
+                        {
+                            "commit": "6902ad9",
+                            "change": "Logo restoration",
+                            "outcome": "User provided first screenshot"
+                        },
+                        {
+                            "commit": "5be8797",
+                            "change": "Fixed height grid (600px)",
+                            "outcome": "Intermediate state"
+                        },
+                        {
+                            "commit": "a6927a3",
+                            "change": "Overflow fixes with flex containment",
+                            "outcome": "Intermediate state"
+                        },
+                        {
+                            "commit": "a202065",
+                            "change": "Auto-expanding grid with align-items:start",
+                            "outcome": "User provided second screenshot showing unequal heights"
+                        },
+                        {
+                            "commit": "9869cfd",
+                            "change": "Equal heights with align-items:stretch + height:100%",
+                            "outcome": "Requirements fully met"
+                        }
+                    ]
+                }
+            ],
+            "anti_patterns": [
+                {
+                    "id": "complete-rewrite-on-feedback",
+                    "description": "Discarding all previous CSS and starting over after user feedback",
+                    "why_it_fails": "Loses progress, increases risk of regression, wastes iteration cycles",
+                    "alternative": "Analyze delta between current state and desired state, apply targeted fixes"
+                },
+                {
+                    "id": "assuming-requirements-complete",
+                    "description": "Treating initial screenshot requirements as comprehensive specification",
+                    "why_it_fails": "Visual requirements often clarify through iteration as user sees behavior",
+                    "alternative": "Expect refinement iterations, maintain clear commit history for rollback"
+                }
+            ],
+            "debug_logging_strategy": {
+                "level": "simple",
+                "marker_format": "[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK",
+                "placement": "Document rationale for CSS decisions in code comments and Logger.LogInformation",
+                "cleanup": "Remove markers on key completion"
+            },
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-10T11:45:00Z",
+            "contributed_by": "analyze-learning"
         }
-      ],
-      "anti_patterns": [
-        {
-          "id": "complete-rewrite-on-feedback",
-          "description": "Discarding all previous CSS and starting over after user feedback",
-          "why_it_fails": "Loses progress, increases risk of regression, wastes iteration cycles",
-          "alternative": "Analyze delta between current state and desired state, apply targeted fixes"
-        },
-        {
-          "id": "assuming-requirements-complete",
-          "description": "Treating initial screenshot requirements as comprehensive specification",
-          "why_it_fails": "Visual requirements often clarify through iteration as user sees behavior",
-          "alternative": "Expect refinement iterations, maintain clear commit history for rollback"
-        }
-      ],
-      "debug_logging_strategy": {
-        "level": "simple",
-        "marker_format": "[DEBUG-WORKITEM:{key}:{layer}:{RUN_ID}] message ;CLEANUP_OK",
-        "placement": "Document rationale for CSS decisions in code comments and Logger.LogInformation",
-        "cleanup": "Remove markers on key completion"
-      },
-      "learned_from": ["canvas"],
-      "success_rate": 1.0,
-      "last_updated": "2025-10-10T11:45:00Z",
-      "contributed_by": "analyze-learning"
-    }
-  ],
-  "anti_patterns": []
+    ],
+    "anti_patterns": []
 }
