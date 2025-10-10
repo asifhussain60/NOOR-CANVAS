@@ -53,58 +53,58 @@ You are the **Task Executor Agent**.
     - Marks key as `complete`
     - If new tasks arrive later under same key, status reverts to `in-progress` and normal workflow resumes
 
-- **screenshot** *(optional)*  
-  **TRIGGERS AI-POWERED REQUIREMENT EXTRACTION** from annotated screenshots.  
-  Provide filename(s) for images containing visual annotations (arrows, text overlays, measurements).  
-  Supports comma-delimited list for multiple screenshots (extensions optional).  
+- **annotate** *(optional)*  
+  **TRIGGERS AI-POWERED REQUIREMENT EXTRACTION** from annotated images.  
+  Provide filename(s) for images containing visual annotations (arrows, text overlays, measurements) that mark HTML elements for modification.  
+  Supports comma-delimited list for multiple images (extensions optional).  
   Formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.webp`  
   
   **IMPORTANT**: 
-  - **WITH this parameter**: AI extracts requirements from annotations → presents for approval → executes
-  - **WITHOUT this parameter**: Screenshots/images are treated as contextual info (bug evidence, reference images, documentation) - NO automatic extraction
+  - **WITH this parameter**: AI analyzes annotated HTML elements → extracts requirements → presents for approval → executes
+  - **WITHOUT this parameter**: Images are treated as contextual info (bug evidence, reference images, documentation) - NO automatic extraction
   
-  **Multi-Screenshot Support**:
+  **Multi-Image Support**:
   ```
-  screenshot="mockup-annotated.png"              # Single image
-  screenshot="mockup1,mockup2,design-final"      # Multiple images (auto-detects .png/.jpg)
-  screenshot="design.png,wireframe.jpg,spec.png" # Multiple with explicit extensions
+  annotate="mockup-annotated.png"              # Single image
+  annotate="mockup1,mockup2,design-final"      # Multiple images (auto-detects .png/.jpg)
+  annotate="design.png,wireframe.jpg,spec.png" # Multiple with explicit extensions
   ```
   
   **AI Extraction Workflow**:
   1. Each image sent to GPT-4 Vision API for analysis
-  2. AI extracts requirements from visual annotations (arrows, text, markup, measurements)
+  2. AI identifies annotated HTML elements (buttons, inputs, divs, etc.) and extracts change requirements
   3. Requirements from all images combined into unified task list
   4. Agent presents extracted requirements to user for approval
   5. User approves/modifies requirements before execution
   
   **Example Annotations** (what triggers extraction):
-  - Red/colored arrows pointing to elements with text descriptions
+  - Red/colored arrows pointing to HTML elements with text descriptions
   - Overlay text with measurements ("Make logo 250px × 250px")
-  - Highlighted areas with requirement notes ("Fix alignment here")
-  - Visual markup indicating layout changes
+  - Highlighted areas with requirement notes ("Fix alignment here", "Remove this button")
+  - Visual markup indicating layout changes to specific elements
   - Measurement indicators (dimensions, spacing, sizing)
   
   **Usage Examples**:
   ```
   # Single annotated mockup
-  @workspace /task key=ui screenshot="mockup-annotated.png"
+  @workspace /task key=ui annotate="mockup-annotated.png"
   
   # Multiple design iterations
-  @workspace /task key=canvas screenshot="design-v1.png,design-v2.png,design-final.png"
+  @workspace /task key=canvas annotate="design-v1.png,design-v2.png,design-final.png"
   
   # Combined with explicit tasks
-  @workspace /task key=ui screenshot="wireframe.png" tasks="Also add dark mode support\n---\nImplement responsive layout"
+  @workspace /task key=ui annotate="wireframe.png" tasks="Also add dark mode support\n---\nImplement responsive layout"
   
   # Extensions optional for common formats
-  @workspace /task key=redesign screenshot="header-mockup,footer-mockup,sidebar-mockup"
+  @workspace /task key=redesign annotate="header-mockup,footer-mockup,sidebar-mockup"
   ```
   
   **Requirements**:
   - OpenAI API key configured in `appsettings.json` (`OpenAI:ApiKey`)
-  - `ScreenshotAnalysisService` registered in DI container
+  - `AnnotationAnalysisService` registered in DI container (formerly `ScreenshotAnalysisService`)
   - Image files accessible from workspace root or relative paths
   
-  **Note**: Screenshots provided through other means (chat attachments, inline images) without this parameter are treated as reference/bug evidence and will NOT trigger automatic requirement extraction.
+  **Note**: Images provided through other means (chat attachments, inline images) without this parameter are treated as reference/bug evidence and will NOT trigger automatic requirement extraction.
 
 ---
 
