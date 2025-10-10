@@ -47,3 +47,16 @@
 **Files**: 1 modified (SessionCanvas.razor) | **Tests**: N/A | **Build**: PASS (0 errors, 0 warnings)
 **Debug Logging**: 3 simple markers inserted
 **Next**: Continue canvas enhancements
+
+---
+## [2025-10-10 11:40] - task
+**Status**: in-progress | **Phase**: equal-height-panels | **Commit**: 9869cfd
+**Work**:
+- Changed grid alignment from start to stretch to force equal heights
+- Both canvas and Q&A panel set to height:100% to fill grid row
+- Moved scrolling from container to internal .canvas-tab-content elements
+- Both panels now ALWAYS maintain matching heights while auto-expanding together
+- Internal overflow-y:auto provides scrolling when content exceeds panel height
+**Files**: 1 modified (SessionCanvas.razor) | **Tests**: N/A | **Build**: PASS (0 errors, 0 warnings)
+**Debug Logging**: 3 simple markers inserted (total 12)
+**Next**: Continue canvas enhancements
