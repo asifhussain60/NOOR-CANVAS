@@ -271,8 +271,8 @@
     border-bottom: 2px solid #7dd3fc;
     padding: 1rem;
     color: var(--islamic-primary);
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
 }
 
 /* Ayah Cards */
@@ -289,8 +289,8 @@
     font-family: 'Lora', serif;
     text-align: center;
     border-radius: 8px;
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
 }
 
 /* Golden Surah Headers */
@@ -488,8 +488,8 @@
     position: relative;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
     transition: all 0.3s ease;
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
 }
 
 [data-islamic-content] .etymology-card:hover,
@@ -650,8 +650,8 @@
     border-radius: 8px;
     padding: 0;
     margin: 1.5rem auto;
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
@@ -772,10 +772,10 @@
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 15px -3px rgba(0, 0, 0, 0.15);
     padding: 20px;
     margin-bottom: 20px;
-    width: var(--islamic-asset-width);
+    width: var(--islamic-asset-width) !important;
     margin-left: auto;
     margin-right: auto;
-    max-width: var(--islamic-asset-max-width);
+    max-width: var(--islamic-asset-max-width) !important;
 }
 
 [data-islamic-content] .poetry-poet-header,
@@ -870,9 +870,9 @@
 .session-transcript-content .imgResponsive,
 .transcript-display .imgResponsive,
 .islamic-content .imgResponsive {
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
-    height: auto;
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
+    height: auto !important;
     display: block;
     margin: 1em auto;
     border-radius: 8px;
@@ -926,7 +926,7 @@
     .islamic-content .poetry-section {
         padding: 15px;
         margin-bottom: 15px;
-        width: var(--islamic-asset-width-mobile);
+        width: var(--islamic-asset-width-mobile) !important;
         border: 2px solid #722727;
         box-shadow: 0 6px 15px -3px rgba(0, 0, 0, 0.18), 0 4px 8px -1px rgba(0, 0, 0, 0.1);
     }
@@ -936,8 +936,8 @@
     .session-transcript-content .imgResponsive,
     .transcript-display .imgResponsive,
     .islamic-content .imgResponsive {
-        width: var(--islamic-asset-width-mobile);
-        max-width: 100%;
+        width: var(--islamic-asset-width-mobile) !important;
+        max-width: 100% !important;
     }
 
     [data-islamic-content] .arabic-text,
@@ -1058,10 +1058,10 @@
     border-left: 6px solid #990000;
     border-right: 6px solid #990000;
     font-size: 3rem;
-    width: var(--islamic-asset-width);
+    width: var(--islamic-asset-width) !important;
     margin-left: auto;
     margin-right: auto;
-    max-width: var(--islamic-asset-max-width);
+    max-width: var(--islamic-asset-max-width) !important;
     unicode-bidi: bidi-override;
     text-rendering: optimizeLegibility;
 }
@@ -1121,8 +1121,8 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
     position: relative;
     font-family: Roboto, Arial, sans-serif;
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
 }
 
 /* ONLY target esotericData content */
@@ -1304,8 +1304,8 @@
 .session-transcript-content .anecdote,
 .transcript-display .anecdote,
 .islamic-content .anecdote {
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
     color: #2682c7;
     padding: 30px;
     font-family: 'Roboto Slab', serif;
@@ -1325,8 +1325,8 @@
     border-radius: 12px;
     padding: 30px;
     margin: 50px auto 50px auto !important;
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
     position: relative;
     box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15), 0 4px 10px rgba(0, 0, 0, 0.05);
     font-family: 'Segoe UI', 'Roboto', sans-serif;
@@ -1420,8 +1420,8 @@
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
     margin: 25px auto;
-    width: var(--islamic-asset-width);
-    max-width: var(--islamic-asset-max-width);
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
     padding: 1em 10px;
     border-radius: 10px;
     text-align: center;

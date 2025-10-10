@@ -54,8 +54,11 @@ namespace NoorCanvas.Services
                 // Phase 3: CSS processing and simplification
                 var processedHtml = ProcessCssForBlazorCompatibility(htmlContent);
 
+                // Phase 3.5: Transform HTML - remove unwanted elements and add Islamic content attributes
+                var transformedHtml = TransformHtml(processedHtml);
+
                 // Phase 4: Quote normalization
-                var normalizedHtml = NormalizeQuotes(processedHtml);
+                var normalizedHtml = NormalizeQuotes(transformedHtml);
 
                 // Phase 5: Final validation
                 var finalValidation = ValidateFinalHtml(normalizedHtml);
@@ -192,6 +195,125 @@ namespace NoorCanvas.Services
             processed = ComplexFontFamilyPattern.Replace(processed, "font-family: sans-serif");
 
             return processed;
+        }
+
+        /// <summary>
+        /// Transform HTML to remove unwanted elements and add Islamic content attributes.
+        /// This replicates the transformHtml function from session-transcript-styling.html.
+        /// </summary>
+        private string TransformHtml(string html)
+        {
+            if (string.IsNullOrEmpty(html))
+            {
+                _logger.LogWarning("TransformHtml: Empty HTML provided");
+                return string.Empty;
+            }
+
+            var startTime = DateTime.Now;
+
+            // Regex pattern matching AssetProcessingService.cs RemoveDeleteButtons() logic
+            var deleteButtonPattern = new Regex(
+                @"<button[^>]*(?:id[^=]*=[^""\s]*""[^""]*delete[^""]*""|class[^=]*=[^""\s]*""[^""]*delete[^""]*"")[^>]*>.*?</button>",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            // Pattern to match "Plain Text" buttons (poetry-restore-btn, froala-only-btn classes)
+            var plainTextButtonPattern = new Regex(
+                @"<button[^>]*class[^=]*=[^""]*""[^""]*(?:poetry-restore-btn|froala-only-btn)[^""]*""[^>]*>.*?</button>",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            // Apply transformations in sequence
+            var cleaned = deleteButtonPattern.Replace(html, string.Empty);
+            var afterDeleteButtons = cleaned.Length;
+
+            cleaned = plainTextButtonPattern.Replace(cleaned, string.Empty);
+            var afterPlainTextButtons = cleaned.Length;
+
+            // Remove inline width and height styles from images (imgResponsive class)
+            var imageStylesRemoved = 0;
+            cleaned = Regex.Replace(cleaned, @"<img([^>]*imgResponsive[^>]*)>", match =>
+            {
+                // Check if this image has a style attribute
+                if (!match.Value.Contains("style="))
+                {
+                    return match.Value; // No style attribute, return as-is
+                }
+
+                imageStylesRemoved++;
+
+                // Remove width and height properties from style attribute
+                var result = Regex.Replace(match.Value, @"style\s*=\s*""([^""]*)""", styleMatch =>
+                {
+                    var styleContent = styleMatch.Groups[1].Value;
+
+                    // Remove width and height declarations
+                    var cleanedStyle = Regex.Replace(styleContent, @"\s*width\s*:\s*[^;]+;?", string.Empty, RegexOptions.IgnoreCase);
+                    cleanedStyle = Regex.Replace(cleanedStyle, @"\s*height\s*:\s*[^;]+;?", string.Empty, RegexOptions.IgnoreCase);
+
+                    // Clean up extra semicolons and whitespace
+                    cleanedStyle = Regex.Replace(cleanedStyle, @";+", ";");
+                    cleanedStyle = cleanedStyle.Trim().TrimEnd(';');
+
+                    return string.IsNullOrWhiteSpace(cleanedStyle) ? string.Empty : $"style=\"{cleanedStyle}\"";
+                }, RegexOptions.IgnoreCase);
+
+                // Remove empty style attributes
+                result = Regex.Replace(result, @"\s*style\s*=\s*""""", string.Empty);
+
+                return result;
+            }, RegexOptions.IgnoreCase);
+
+            var afterImageStyles = cleaned.Length;
+
+            // Add data-islamic-content attribute to .example elements (if not already present)
+            var exampleCount = 0;
+            cleaned = Regex.Replace(cleaned, @"<div([^>]*class[^=]*=[^""]*""[^""]*example[^""]*""[^>]*)(?!.*data-islamic-content)>", match =>
+            {
+                var attrs = match.Groups[1].Value;
+                exampleCount++;
+                return $"<div{attrs} data-islamic-content>";
+            }, RegexOptions.IgnoreCase);
+
+            // Add data-islamic-content attribute to .quote elements (if not already present)
+            var quoteCount = 0;
+            cleaned = Regex.Replace(cleaned, @"<(p|div)([^>]*class[^=]*=[^""]*""[^""]*quote[^""]*""[^>]*)(?!.*data-islamic-content)>", match =>
+            {
+                var tag = match.Groups[1].Value;
+                var attrs = match.Groups[2].Value;
+                quoteCount++;
+                return $"<{tag}{attrs} data-islamic-content>";
+            }, RegexOptions.IgnoreCase);
+
+            // Add data-islamic-content attribute to .imgResponsive elements (if not already present)
+            var imgCount = 0;
+            cleaned = Regex.Replace(cleaned, @"<img([^>]*class[^=]*=[^""]*""[^""]*imgResponsive[^""]*""[^>]*)(?!.*data-islamic-content)>", match =>
+            {
+                var attrs = match.Groups[1].Value;
+                imgCount++;
+                return $"<img{attrs} data-islamic-content>";
+            }, RegexOptions.IgnoreCase);
+
+            // Calculate metrics
+            var originalLength = html.Length;
+            var cleanedLength = cleaned.Length;
+            var totalRemovedBytes = originalLength - cleanedLength;
+            var deleteBytesRemoved = originalLength - afterDeleteButtons;
+            var plainTextBytesRemoved = afterDeleteButtons - afterPlainTextButtons;
+            var imageStyleBytesRemoved = afterPlainTextButtons - afterImageStyles;
+            var duration = (DateTime.Now - startTime).TotalMilliseconds;
+
+            // Log transformation results
+            _logger.LogInformation(
+                "[DEBUG-WORKITEM:canvas:transform] HTML transformation completed: " +
+                "originalBytes={OriginalBytes}, cleanedBytes={CleanedBytes}, " +
+                "totalRemovedBytes={TotalRemovedBytes}, deleteButtonBytesRemoved={DeleteBytesRemoved}, " +
+                "plainTextButtonBytesRemoved={PlainTextBytesRemoved}, imageStyleBytesRemoved={ImageStyleBytesRemoved}, " +
+                "imageStylesRemoved={ImageStylesRemoved}, exampleElementsMarked={ExampleCount}, " +
+                "quoteElementsMarked={QuoteCount}, imgElementsMarked={ImgCount}, durationMs={Duration} ;CLEANUP_OK",
+                originalLength, cleanedLength, totalRemovedBytes, deleteBytesRemoved,
+                plainTextBytesRemoved, imageStyleBytesRemoved, imageStylesRemoved,
+                exampleCount, quoteCount, imgCount, duration);
+
+            return cleaned;
         }
 
         /// <summary>
