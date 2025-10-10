@@ -133,7 +133,7 @@ public class AssetDetectionService
     /// <summary>
     /// Find HTML elements that contain any of the specified CSS classes.
     /// </summary>
-    private List<(List<string> Classes, string Html)> FindElementsWithClassIntersection(string html, string[] targetClasses)
+    private static List<(List<string> Classes, string Html)> FindElementsWithClassIntersection(string html, string[] targetClasses)
     {
         var elements = new List<(List<string> Classes, string Html)>();
 
@@ -165,7 +165,7 @@ public class AssetDetectionService
     /// Calculate confidence score based on class intersection
     /// Higher scores indicate better matches.
     /// </summary>
-    private int CalculateClassScore(List<string> elementClasses, string[] targetClasses)
+    private static int CalculateClassScore(List<string> elementClasses, string[] targetClasses)
     {
         var intersectionCount = targetClasses.Count(targetClass =>
             elementClasses.Any(elementClass =>
@@ -256,7 +256,7 @@ public class AssetDetectionService
     /// <summary>
     /// Extract Ayah-specific selector (e.g., "ayah-2-255" for Surah 2, Ayah 255).
     /// </summary>
-    private string? ExtractAyahSelector(string html)
+    private static string? ExtractAyahSelector(string html)
     {
         // Look for data-surah and data-ayah attributes
         var surahMatch = Regex.Match(html, @"data-surah=""(\d+)""", RegexOptions.IgnoreCase);
@@ -280,7 +280,7 @@ public class AssetDetectionService
     /// <summary>
     /// Extract Hadees-specific selector (e.g., "hadees-bukhari-123").
     /// </summary>
-    private string? ExtractHadeesSelector(string html)
+    private static string? ExtractHadeesSelector(string html)
     {
         // Look for data-collection and data-number attributes
         var collectionMatch = Regex.Match(html, @"data-collection=""([^""]+)""", RegexOptions.IgnoreCase);
@@ -304,7 +304,7 @@ public class AssetDetectionService
     /// <summary>
     /// Extract Etymology-specific selector (e.g., "etymology-rasul-rsl").
     /// </summary>
-    private string? ExtractEtymologySelector(string html)
+    private static string? ExtractEtymologySelector(string html)
     {
         // Look for data-word and data-root attributes
         var wordMatch = Regex.Match(html, @"data-word=""([^""]+)""", RegexOptions.IgnoreCase);
@@ -330,7 +330,7 @@ public class AssetDetectionService
     /// <summary>
     /// Extract Image-specific selector.
     /// </summary>
-    private string? ExtractImageSelector(string html)
+    private static string? ExtractImageSelector(string html)
     {
         // Look for src attribute to create meaningful selector
         var srcMatch = Regex.Match(html, @"src=""([^""]+)""", RegexOptions.IgnoreCase);
@@ -346,7 +346,7 @@ public class AssetDetectionService
     /// <summary>
     /// Extract Table-specific selector.
     /// </summary>
-    private string? ExtractTableSelector(string html)
+    private static string? ExtractTableSelector(string html)
     {
         // Look for class or id attributes
         var classMatch = Regex.Match(html, @"class=""([^""]*(?:islamic-table|content-table|comparison-table)[^""]*)""", RegexOptions.IgnoreCase);

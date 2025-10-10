@@ -131,7 +131,7 @@ public class AssetDetectorService
         return assets;
     }
 
-    private List<AssetPayload> DetectAyahCards(string content)
+    private static List<AssetPayload> DetectAyahCards(string content)
     {
         var assets = new List<AssetPayload>();
 
@@ -159,7 +159,7 @@ public class AssetDetectorService
         return assets;
     }
 
-    private List<AssetPayload> DetectInlineArabic(string content)
+    private static List<AssetPayload> DetectInlineArabic(string content)
     {
         var assets = new List<AssetPayload>();
 
@@ -186,7 +186,7 @@ public class AssetDetectorService
         return assets;
     }
 
-    private List<AssetPayload> DetectAhadeesContent(string content)
+    private static List<AssetPayload> DetectAhadeesContent(string content)
     {
         var assets = new List<AssetPayload>();
 
@@ -215,7 +215,7 @@ public class AssetDetectorService
         return assets;
     }
 
-    private List<AssetPayload> DetectAyahHeaders(string content)
+    private static List<AssetPayload> DetectAyahHeaders(string content)
     {
         var assets = new List<AssetPayload>();
 

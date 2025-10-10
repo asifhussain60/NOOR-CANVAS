@@ -423,7 +423,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Generate a unique share ID for asset sharing.
         /// </summary>
-        private string GenerateShareId()
+        private static string GenerateShareId()
         {
             return Guid.NewGuid().ToString("N")[..8].ToUpper();
         }
@@ -431,7 +431,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Create share button HTML for an asset.
         /// </summary>
-        private string CreateShareButtonHtml(string assetType, string displayName, string shareId)
+        private static string CreateShareButtonHtml(string assetType, string displayName, string shareId)
         {
             var buttonText = $"Share {displayName}";
             return $@"<button class=""ks-share-btn"" data-share-id=""{shareId}"" data-asset-type=""{assetType}"" onclick=""shareAsset('{shareId}', '{assetType}')"">{buttonText}</button>";
@@ -506,7 +506,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Get the position of an element in the document.
         /// </summary>
-        private int GetElementPosition(HtmlNode element)
+        private static int GetElementPosition(HtmlNode element)
         {
             var position = 0;
             var current = element.ParentNode?.FirstChild;

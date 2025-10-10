@@ -139,7 +139,7 @@ public class AssetShareTestController : ControllerBase
         }
     }
 
-    private string ExtractFirstAyahCard(string html)
+    private static string ExtractFirstAyahCard(string html)
     {
         // Simple extraction for POC - find first ayah-card div
         var startIndex = html.IndexOf("<div class=\"ayah-card\"", StringComparison.OrdinalIgnoreCase);

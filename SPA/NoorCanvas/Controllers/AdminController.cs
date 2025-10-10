@@ -247,7 +247,7 @@ namespace NoorCanvas.Controllers
         }
 
         // Private helper methods
-        private bool IsValidAdminGuid(string adminGuid)
+        private static bool IsValidAdminGuid(string adminGuid)
         {
             // Use same validation as HostProvisioner for consistency
             var expectedGuids = new[]
@@ -268,7 +268,7 @@ namespace NoorCanvas.Controllers
             return adminSession != null;
         }
 
-        private string GenerateSessionToken()
+        private static string GenerateSessionToken()
         {
             var bytes = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -278,7 +278,7 @@ namespace NoorCanvas.Controllers
             return Convert.ToBase64String(bytes);
         }
 
-        private string GetSystemUptime()
+        private static string GetSystemUptime()
         {
             var uptime = DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime;
             return $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m";
