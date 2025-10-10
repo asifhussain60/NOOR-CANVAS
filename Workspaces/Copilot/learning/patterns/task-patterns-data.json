@@ -1,0 +1,39 @@
+{
+  "patterns": [
+    {
+      "pattern_id": "visual-feedback-iteration",
+      "name": "Visual Feedback Iteration Workflow",
+      "category": "execution",
+      "description": "When implementing UI changes based on user-provided screenshots, use iterative refinement cycles with checkpoint commits rather than attempting perfect implementation in first pass.",
+      "context": "User provides screenshot with visual requirements or correction feedback",
+      "approach": "Create checkpoint → implement initial interpretation → validate → commit → await feedback → refine (not rewrite) → validate → commit. Treat screenshots as evolving specification that clarifies through iteration.",
+      "success_indicators": [
+        "Clean build after each iteration",
+        "Clear commit history showing refinement progression",
+        "Each commit advances toward requirement without regression",
+        "Work log documents rationale for each change"
+      ],
+      "learned_from": ["canvas"],
+      "success_rate": 1.0,
+      "last_updated": "2025-10-10T11:45:00Z"
+    },
+    {
+      "pattern_id": "css-grid-equal-heights",
+      "name": "CSS Grid Equal Height Containers",
+      "category": "execution",
+      "description": "To ensure grid items maintain equal heights, use align-items:stretch (default) with height:100% on child containers. This forces grid cells to match the tallest item's height.",
+      "context": "CSS Grid layout where multiple columns must always match heights regardless of content",
+      "approach": "Apply align-items:stretch to grid container (.canvas-main-grid { align-items: stretch; }). Apply height:100% to direct grid children (.child { height: 100%; }). Move overflow control to nested children, not grid items.",
+      "success_indicators": [
+        "Both panels visually match heights in browser",
+        "Panels grow together when content increases",
+        "No layout shift when switching between empty/full content",
+        "Internal scrolling works correctly when content exceeds container"
+      ],
+      "learned_from": ["canvas"],
+      "success_rate": 1.0,
+      "last_updated": "2025-10-10T11:45:00Z"
+    }
+  ],
+  "anti_patterns": []
+}
