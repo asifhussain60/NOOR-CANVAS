@@ -270,7 +270,7 @@
         grid-template-columns: 1fr 300px;
         gap: 1.5rem;
         height: auto;
-        align-items: start;
+        align-items: stretch;
     }
 
     /* Canvas Area Styles */
@@ -282,6 +282,7 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
+        height: 100%;
         min-height: 400px;
     }
 
@@ -362,8 +363,8 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        max-height: 600px;
-        overflow-y: auto;
+        height: 100%;
+        overflow: hidden;
     }
 
     .canvas-tabs {
@@ -1035,6 +1036,9 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Canvas container changed from fixed height to auto-expand based on content ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Grid layout changed to height:auto with align-items:start for natural content flow ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel constrained to max-height:600px with overflow-y:auto scrollbar ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Grid changed to align-items:stretch to ensure both panels always match height ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both containers set to height:100% within grid for equal stretching ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel overflow:hidden with internal tab content scrolling via overflow-y:auto ;CLEANUP_OK");
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
