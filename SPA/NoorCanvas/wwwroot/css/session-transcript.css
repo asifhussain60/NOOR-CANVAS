@@ -411,8 +411,8 @@
 .session-transcript-content .ayah-translation,
 .transcript-display .ayah-translation,
 .islamic-content .ayah-translation {
-    font-size: 1em;
-    font-style: italic;
+    font-size: 1em !important;
+    font-style: normal;
     color: var(--islamic-text);
     line-height: 1.4;
     padding: 0 1rem;
