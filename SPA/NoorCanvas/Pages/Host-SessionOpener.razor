@@ -50,33 +50,19 @@
             
             <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:0 2.5rem;">
                 
-                <!-- Error/Info message container -->
-                @if (!string.IsNullOrEmpty(Model?.ErrorMessage) || !string.IsNullOrEmpty(Model?.InfoMessage))
+                <!-- Error message container -->
+                <!-- DEBUG-WORKITEM: session-opener - Removed InfoMessage panel, only ErrorMessage remains ;CLEANUP_OK -->
+                @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
                 {
-                    @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
-                    {
-                        <div style="background-color:#fef2f2;border:1px solid #fca5a5;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;width:100%;">
-                            <div style="display:flex;align-items:start;gap:0.75rem;">
-                                <i class="fa-solid fa-exclamation-triangle" style="color:#dc2626;font-size:1.25rem;margin-top:0.125rem;"></i>
-                                <div style="flex:1;">
-                                    <h4 style="color:#dc2626;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 0.5rem 0;">Action Required</h4>
-                                    <p style="color:#991b1b;font-family:'Inter',sans-serif;font-size:0.875rem;line-height:1.4;margin:0;">@((MarkupString)Model.ErrorMessage)</p>
-                                </div>
+                    <div style="background-color:#fef2f2;border:1px solid #fca5a5;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;width:100%;">
+                        <div style="display:flex;align-items:start;gap:0.75rem;">
+                            <i class="fa-solid fa-exclamation-triangle" style="color:#dc2626;font-size:1.25rem;margin-top:0.125rem;"></i>
+                            <div style="flex:1;">
+                                <h4 style="color:#dc2626;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 0.5rem 0;">Action Required</h4>
+                                <p style="color:#991b1b;font-family:'Inter',sans-serif;font-size:0.875rem;line-height:1.4;margin:0;">@((MarkupString)Model.ErrorMessage)</p>
                             </div>
                         </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model?.InfoMessage))
-                    {
-                        <div style="background-color:#eff6ff;border:1px solid #93c5fd;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;width:100%;">
-                            <div style="display:flex;align-items:start;gap:0.75rem;">
-                                <i class="fa-solid fa-info-circle" style="color:#2563eb;font-size:1.25rem;margin-top:0.125rem;"></i>
-                                <div style="flex:1;">
-                                    <h4 style="color:#2563eb;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 0.5rem 0;">Information</h4>
-                                    <p style="color:#1d4ed8;font-family:'Inter',sans-serif;font-size:0.875rem;line-height:1.4;margin:0;">@((MarkupString)Model.InfoMessage)</p>
-                                </div>
-                            </div>
-                        </div>
-                    }
+                    </div>
                 }
                 
                 <!-- Microphone Icon -->
@@ -299,7 +285,7 @@
     {
         Model.IsLoadingAlbums = true;
         Model.ErrorMessage = "";
-        Model.InfoMessage = "";
+        // DEBUG-WORKITEM: session-opener - Removed InfoMessage clearing (InfoMessage no longer used) ;CLEANUP_OK
         StateHasChanged();
         
         try
@@ -308,7 +294,8 @@
             
             if (Albums.Count == 0)
             {
-                Model.InfoMessage = "No albums are currently available. Please contact your administrator if this seems incorrect.";
+                // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty albums ;CLEANUP_OK
+                // No message needed - user will see empty dropdown
             }
         }
         catch (Exception ex)
@@ -337,7 +324,8 @@
             var validationResponse = await HostService.ValidateHostTokenAsync(Token);
             if (!validationResponse.Valid || validationResponse.SessionId <= 0)
             {
-                Model.InfoMessage = $"<strong>Host Token Status</strong><br/>Token <code>{Token}</code> is not valid or has expired.<br/><br/><strong>What to do:</strong><br/>• You can still use this form by manually selecting options below<br/>• To get a new token, run the Host Provisioner tool<br/>• Contact your administrator if you need assistance";
+                // DEBUG-WORKITEM: session-opener - Removed InfoMessage, form loads silently ;CLEANUP_OK
+                // Token invalid - form will be empty for manual entry
                 return;
             }
 
@@ -345,7 +333,8 @@
             var sessionDetails = await HostService.GetSessionDetailsAsync(validationResponse.SessionId, Token);
             if (sessionDetails == null)
             {
-                Model.InfoMessage = $"<strong>Session Configuration</strong><br/>Session details for token <code>{Token}</code> could not be retrieved.<br/><br/><strong>What to do:</strong><br/>• Select options manually from the dropdowns below<br/>• Verify the token with your administrator";
+                // DEBUG-WORKITEM: session-opener - Removed InfoMessage, form loads silently ;CLEANUP_OK
+                // Session details unavailable - form will be empty for manual entry
                 return;
             }
 
@@ -506,7 +495,8 @@
             
             if (Categories.Count == 0)
             {
-                Model.InfoMessage = "No categories are available for the selected album. Please try a different album.";
+                // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty categories ;CLEANUP_OK
+                // No message needed - user will see empty dropdown
             }
         }
         catch (Exception ex)
@@ -540,7 +530,8 @@
                 
                 if (Sessions.Count == 0)
                 {
-                    Model.InfoMessage = "No sessions are available for the selected category. Please try a different category.";
+                    // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty sessions ;CLEANUP_OK
+                    // No message needed - user will see empty dropdown
                 }
             }
             else
@@ -614,7 +605,7 @@
         Model.HasAttemptedSubmit = true;
         Model.IsProcessingSession = true;
         Model.ErrorMessage = "";
-        Model.InfoMessage = "";
+        // DEBUG-WORKITEM: session-opener - Removed InfoMessage clearing (InfoMessage no longer used) ;CLEANUP_OK
         StateHasChanged();
         
         try
