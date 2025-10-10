@@ -225,6 +225,177 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 
 ---
 
+## Phased Refactoring Strategy (`scope=all`)
+
+When `scope=all` is specified, refactoring must be broken down into **discrete, functional phases** rather than applying all changes simultaneously. This ensures system stability and allows incremental validation.
+
+### Phase Breakdown Principles
+1. **Functional Independence**: Each phase must leave the system in a fully functional, deployable state
+2. **Progressive Enhancement**: Later phases build upon earlier phases without breaking them
+3. **Validation Checkpoints**: Mandatory validation between phases prevents cascading failures
+4. **Rollback Safety**: Each phase has its own checkpoint commit for independent rollback
+
+### Phase Organization Strategies
+
+Choose the most appropriate strategy based on refactoring goals:
+
+#### **Strategy 1: Layer-Based Phasing** (Recommended for Architecture Improvements)
+- **Phase 1**: Database layer (models, migrations, queries, constraints)
+- **Phase 2**: Service layer (business logic, data access, external integrations)
+- **Phase 3**: API layer (controllers, DTOs, endpoints, routing)
+- **Phase 4**: UI layer (components, pages, client scripts, styling)
+- **Phase 5**: Cross-cutting concerns (logging, error handling, configuration)
+
+**When to Use**: Architecture standardization, layer separation improvements, contract alignment
+
+#### **Strategy 2: Component-Based Phasing** (Recommended for Feature Consolidation)
+- **Phase 1**: Core/shared components (base classes, utilities, common services)
+- **Phase 2**: Feature domain A (e.g., session management: SessionCanvas, SessionService, session APIs)
+- **Phase 3**: Feature domain B (e.g., content management: ContentService, content APIs, UI)
+- **Phase 4**: Feature domain C (e.g., authentication: AdminController, auth services)
+- **Phase 5**: Integration points (SignalR hubs, cross-feature dependencies)
+
+**When to Use**: Feature-specific refactoring, domain consolidation, related functionality improvements
+
+#### **Strategy 3: Complexity-Based Phasing** (Recommended for Risk Mitigation)
+- **Phase 1**: Low-risk changes (naming conventions, formatting, comments, documentation)
+- **Phase 2**: Medium-risk changes (code consolidation, helper extraction, simple refactoring)
+- **Phase 3**: High-risk changes (architectural modifications, major restructuring)
+- **Phase 4**: Critical path changes (core business logic, security, data integrity)
+
+**When to Use**: Large-scale refactoring with high uncertainty, legacy code modernization
+
+#### **Strategy 4: Dependency-Based Phasing** (Recommended for Interdependent Changes)
+- **Phase 1**: Foundation (no dependencies - base classes, interfaces, contracts)
+- **Phase 2**: Tier 1 dependencies (depend only on foundation)
+- **Phase 3**: Tier 2 dependencies (depend on foundation + tier 1)
+- **Phase 4**: Tier 3+ dependencies (depend on multiple lower tiers)
+- **Phase 5**: Integration and consumers (top-level dependents)
+
+**When to Use**: Breaking circular dependencies, dependency injection improvements, interface refactoring
+
+### Phase Execution Workflow
+
+For each phase:
+
+1. **Phase Checkpoint Commit**
+   ```
+   checkpoint: pre-refactor <key> phase-<number>-<name>
+   ```
+
+2. **Phase Plan Presentation**
+   - Document specific changes for THIS phase only
+   - Show dependency relationships with previous phases
+   - Highlight validation checkpoints
+   - **Require explicit approval before executing phase**
+
+3. **Phase Execution**
+   - Apply changes within phase scope only
+   - **MANDATORY**: Run `dotnet build` after each file modification
+   - Stop immediately if ANY warnings/errors detected
+   - Document all changes in phase-specific commit
+
+4. **Phase Validation** (MANDATORY - ZERO TOLERANCE)
+   - Execute complete validation pipeline (see Step 4: Validate)
+   - **REQUIREMENT**: ZERO errors, ZERO warnings
+   - Run all tests (unit, integration, Playwright)
+   - Validate API contracts remain intact
+   - Verify UI functionality unchanged
+   - **FAILURE PROTOCOL**: If validation fails, rollback to phase checkpoint and retry (max 3 attempts)
+
+5. **Phase Commit**
+   ```
+   refactor(<key>): Phase <number> - <description>
+   
+   - Change 1
+   - Change 2
+   - Change N
+   
+   Build: Clean (0 errors, 0 warnings)
+   Tests: All passing
+   Phase: <number>/<total>
+   ```
+
+6. **Inter-Phase Validation**
+   - Confirm system is fully functional before proceeding to next phase
+   - Run smoke tests on critical user workflows
+   - Verify no regressions introduced
+
+7. **User Approval for Next Phase**
+   - Present results of current phase
+   - Show plan for next phase
+   - **Wait for explicit approval** before continuing
+
+### Phase Failure Protocol
+
+If a phase fails validation after 3 retry attempts:
+
+1. **Immediate Rollback**: Revert to phase checkpoint commit
+2. **Analysis Report**: Document what failed and why
+3. **User Decision Point**: 
+   - Skip this phase and proceed to next phase
+   - Modify phase scope and retry
+   - Abort entire refactoring operation
+4. **No Automatic Continuation**: Agent MUST stop and request user guidance
+
+### Phase Completion Summary
+
+After all phases complete successfully:
+
+1. **Aggregate Metrics**:
+   - Total files modified across all phases
+   - Total lines changed (additions/deletions)
+   - Analyzer issues resolved
+   - Test coverage improvements
+
+2. **Cross-Phase Validation**:
+   - Final full build verification (Release + Debug)
+   - Complete test suite execution
+   - End-to-end workflow validation
+   - Performance regression check
+
+3. **Documentation**:
+   - Update `SystemStructureSummary.md` with architectural changes
+   - Update `NOOR-CANVAS_ARCHITECTURE.MD` if needed
+   - Document phased approach in key data stream
+   - Record successful phase strategy in `refactor-patterns.json`
+
+### Example: Layer-Based Phased Refactoring
+
+```
+Phase 1: Database Layer Refactoring
+├─ Checkpoint: checkpoint: pre-refactor hcp phase-1-database
+├─ Changes: Normalize table schemas, add indexes, update migrations
+├─ Validation: Build clean, DB tests passing
+└─ Commit: refactor(hcp): Phase 1 - Database layer normalization
+
+Phase 2: Service Layer Refactoring  
+├─ Checkpoint: checkpoint: pre-refactor hcp phase-2-services
+├─ Changes: Consolidate duplicate logic, improve error handling
+├─ Validation: Build clean, service tests passing
+└─ Commit: refactor(hcp): Phase 2 - Service layer consolidation
+
+Phase 3: API Layer Refactoring
+├─ Checkpoint: checkpoint: pre-refactor hcp phase-3-api
+├─ Changes: Standardize DTOs, improve routing, add validation
+├─ Validation: Build clean, API tests passing, contracts intact
+└─ Commit: refactor(hcp): Phase 3 - API layer standardization
+
+Phase 4: UI Layer Refactoring
+├─ Checkpoint: checkpoint: pre-refactor hcp phase-4-ui
+├─ Changes: Component consolidation, styling improvements
+├─ Validation: Build clean, Playwright tests passing
+└─ Commit: refactor(hcp): Phase 4 - UI layer improvements
+
+Phase 5: Final Integration
+├─ Cross-phase validation
+├─ End-to-end testing
+├─ Performance verification
+└─ Documentation updates
+```
+
+---
+
 ## Execution Steps
 
 ### 0. Checkpoint Commit (Mandatory)
@@ -270,7 +441,14 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 ### 3. Execute
 - **ONLY after explicit user approval**, apply structural improvements within the defined scope:  
   - **For `scope=current`**: Focus on recent work and uncommitted changes identified in analysis.  
-  - **For `scope=all`**: Execute application-wide improvements based on holistic analysis recommendations.  
+  - **For `scope=all`**: Execute application-wide improvements using **Phased Refactoring Strategy** (see above).
+    - **MANDATORY**: Break refactoring into discrete phases based on selected strategy (layer-based, component-based, complexity-based, or dependency-based)
+    - **CHECKPOINT**: Create checkpoint commit before each phase
+    - **APPROVAL**: Obtain explicit user approval for each phase before execution
+    - **VALIDATION**: Complete full validation pipeline after each phase (zero errors, zero warnings)
+    - **COMMIT**: Commit each phase independently with descriptive message
+    - **CONTINUATION**: Only proceed to next phase after successful validation and user approval
+    - **FAILURE PROTOCOL**: If any phase fails validation after 3 attempts, stop and request user guidance
   - **For specific components**: Limit to the named component only.  
 - **Structural Improvements:**  
   - **For `scope=current` and specific components:**  
@@ -279,7 +457,7 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
     - Normalize formatting, naming conventions, and code structure.  
     - Align DTOs, APIs, and services with architecture standards.  
     - Improve error handling and validation patterns.  
-  - **For `scope=all` (Application-Wide Improvements):**  
+  - **For `scope=all` (Application-Wide Improvements - Applied in Phases):**  
     - **Architecture Optimization**: Strengthen layer separation and component coupling.  
     - **Code Standardization**: Apply consistent patterns across entire codebase.  
     - **Performance Enhancement**: Implement identified optimization opportunities.  
@@ -300,6 +478,10 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 - **Key Management Updates:**  
   - Create or update identified keys in `Workspaces/Copilot/prompts.keys`.  
   - Update relevant instruction files based on architectural changes.  
+- **Phase Management (for `scope=all` only):**
+  - Document current phase number and total phases in commit messages
+  - Record phase strategy used (layer-based, component-based, etc.) in key data stream
+  - Maintain phase execution history for rollback and debugging purposes  
 
 ### 4. Validate (ZERO TOLERANCE POLICY)
 - **MANDATORY BUILD VERIFICATION:**  
