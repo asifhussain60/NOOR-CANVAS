@@ -61,11 +61,14 @@
                             <div style="position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
                                 <i class="fa-solid fa-user-lock" style="color:#706357;"></i>
                             </div>
+                            @* DEBUG-WORKITEM:user-auth - Token input: maxlength=8, uppercase conversion, Enter key submit, autocomplete=off ;CLEANUP_OK *@
                             <InputText id="token-input"
                                       @bind-Value="Model!.TokenInput" 
-                                      @onfocus="ClearError" 
-                                      placeholder="Enter your Unique User Token" 
-                                      style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;text-align:left;"
+                                      @bind-Value:event="oninput"
+                                      @onfocus="ClearError"
+                                      @onkeydown="HandleTokenKeyDown"
+                                      maxlength="8"
+                                      style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;text-align:center;text-transform:uppercase;"
                                       autocomplete="off" />
                         </div>
                     </div>
@@ -405,6 +408,16 @@
         if (Model != null)
         {
             Model.ErrorMessage = string.Empty;
+        }
+    }
+
+    // [DEBUG-WORKITEM:user-auth:impl] Handle Enter key press on token input to trigger submit ;CLEANUP_OK
+    private async Task HandleTokenKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && Model != null && !Model.IsLoading)
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:user-auth:impl] Enter key pressed on token input, triggering submit ;CLEANUP_OK");
+            await HandleButtonClick();
         }
     }
     
@@ -968,7 +981,15 @@
         public string? SessionName { get; set; }
         public string? SessionDescription { get; set; }
         public bool ShowTokenPanel { get; set; } = true;
-        public string TokenInput { get; set; } = string.Empty;
+        
+        // [DEBUG-WORKITEM:user-auth:impl] TokenInput property with automatic uppercase conversion ;CLEANUP_OK
+        private string _tokenInput = string.Empty;
+        public string TokenInput 
+        { 
+            get => _tokenInput;
+            set => _tokenInput = value?.ToUpperInvariant() ?? string.Empty;
+        }
+        
         public string NameInput { get; set; } = string.Empty;
         public string EmailInput { get; set; } = string.Empty;
         public string CountrySelect { get; set; } = string.Empty;
