@@ -293,12 +293,21 @@ namespace NoorCanvas.Services
             }, RegexOptions.IgnoreCase);
 
             // Remove subject tokens from hadees headers (e.g., " - Accountability, Deeds")
-            // Pattern matches: space, hyphen, space, followed by comma-separated words
-            var hadeeSubjectPattern = new Regex(
-                @"(<span[^>]*class[^=]*=[^""]*""[^""]*ks-ahadees-subject[^""]*""[^>]*>)([^<]*?)(\s-\s[^<]+)(</span>)",
-                RegexOptions.IgnoreCase);
-            
+            // PATTERN 1: Remove <span> tags containing tokens (production HTML format)
+            // Matches: <span ...>- Topics, Subtopics</span>
             var hadeesTokensRemoved = 0;
+            cleaned = Regex.Replace(cleaned, @"<span[^>]*>(\s*-\s*[^<]+?)</span>", match =>
+            {
+                // Only count if it's actually a token pattern (starts with " - ")
+                if (match.Groups[1].Value.TrimStart().StartsWith("-"))
+                {
+                    hadeesTokensRemoved++;
+                }
+                return string.Empty; // Remove the entire span
+            }, RegexOptions.IgnoreCase);
+            
+            // PATTERN 2: Remove plain text tokens (legacy HTML format for backwards compatibility)
+            // Matches: <h4>...<i></i>Narrator - Topics</h4>
             cleaned = Regex.Replace(cleaned, @"(<h4[^>]*>[^<]*<i[^>]*></i>\s*)([^<]+?)(\s-\s[A-Za-z,\s]+)(</h4>)", match =>
             {
                 hadeesTokensRemoved++;
