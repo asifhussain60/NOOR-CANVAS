@@ -164,6 +164,7 @@ builder.Services.AddScoped<AssetDetectorService>(); // UC-L1: Asset detection an
 builder.Services.AddScoped<AssetDetectionService>(); // SessionAssets table-based asset detection
 builder.Services.AddScoped<FlagService>(); // Resilient flag service with CDN fallbacks
 builder.Services.AddScoped<HtmlParsingService>(); // [DEBUG-WORKITEM:signalcomm:impl] Advanced HTML parsing service to replace Blazor DOM parser limitations ;CLEANUP_OK
+builder.Services.AddScoped<IScreenshotAnalysisService, ScreenshotAnalysisService>(); // AI-powered screenshot annotation extraction
 // [DEBUG-WORKITEM:canvascleanup:impl] ContentBroadcastService removed ;CLEANUP_OK
 // [DEBUG-WORKITEM:canvascleanup:impl] DatabaseMigrator removed ;CLEANUP_OK
 

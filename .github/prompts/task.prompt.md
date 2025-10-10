@@ -53,6 +53,33 @@ You are the **Task Executor Agent**.
     - Marks key as `complete`
     - If new tasks arrive later under same key, status reverts to `in-progress` and normal workflow resumes
 
+- **screenshot** *(optional)*  
+  Path to an annotated screenshot image for AI-powered requirement extraction.  
+  Supports formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.webp`  
+  
+  **Workflow**:
+  1. Image sent to GPT-4 Vision API for analysis
+  2. AI extracts requirements from visual annotations (arrows, text, markup)
+  3. Requirements presented to user as structured task list
+  4. User approves/modifies before execution
+  
+  **Example annotations**:
+  - Red arrows pointing to elements with text descriptions
+  - Overlay text with measurements ("Make logo 250px × 250px")
+  - Highlighted areas with requirement notes
+  - Visual markup indicating layout changes
+  
+  **Usage**:
+  ```
+  @workspace /task key=ui screenshot="mockup-annotated.png"
+  @workspace /task key=canvas screenshot="design.png" tasks="Also add dark mode support"
+  ```
+  
+  **Requirements**:
+  - OpenAI API key configured in `appsettings.json`
+  - `ScreenshotAnalysisService` registered in DI container
+  - Image file accessible from workspace
+
 ---
 
 ## Key Data Stream Update Requirements
