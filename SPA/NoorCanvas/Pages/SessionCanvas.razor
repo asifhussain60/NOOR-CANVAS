@@ -155,23 +155,28 @@
         margin-bottom: 0.75rem;
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
         border: 2px solid #D4AF37;
+        position: relative;
     }
 
     .canvas-header-content {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
+        gap: 0.5rem;
     }
 
     .canvas-header-logo {
         flex-shrink: 0;
+        margin: 0 auto;
+        display: block;
     }
 
     .canvas-header-logo-img {
         width: 250px;
-        height: 100px;
+        height: 250px;
         object-fit: contain;
+        display: block;
+        margin: 0 auto;
     }
 
     .canvas-header-session-info {
@@ -195,7 +200,9 @@
     }
 
     .canvas-signalr-status {
-        flex-shrink: 0;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -262,8 +269,7 @@
         display: grid;
         grid-template-columns: 1fr 300px;
         gap: 1.5rem;
-        max-height: calc(75vh - 150px);
-        min-height: 400px;
+        height: 600px;
     }
 
     /* Canvas Area Styles */
@@ -697,6 +703,36 @@
         margin-bottom: 0.5rem;
         display: block;
     }
+
+    /* Responsive Layout - Mobile */
+    @@media (max-width: 768px) {
+        .canvas-main-grid {
+            grid-template-columns: 1fr;
+            height: auto;
+        }
+
+        .canvas-header-content {
+            padding: 1rem 0.5rem;
+        }
+
+        .canvas-header-logo-img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .canvas-session-title {
+            font-size: 1.75rem;
+        }
+
+        .canvas-signalr-status {
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+
+        .canvas-sidebar {
+            order: 2;
+        }
+    }
 </style>
 
 <!-- Root container matching SessionWaiting.razor structure -->
@@ -1015,6 +1051,9 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas ViewModel initialized, starting session data load", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] CSS fixes applied - justify-content:space-between for proper DOM parsing", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] Logo restored to original large size: 250px × 100px ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Logo centered above title with 250px × 250px dimensions ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Canvas div height set to fixed 600px for shareable assets ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] [{RequestId}] Responsive layout configured - sidebar moves below on mobile ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] [{RequestId}] Loading session data first, then initializing SignalR", requestId);
         
         // API-BASED APPROACH: UserGuid will be retrieved from API during participant loading
