@@ -1,5 +1,69 @@
 # Work Log - session-opener
 
+## 2025-10-10 - Remove InfoMessage Panel Completely
+
+### Context
+User clarified that the information panel (blue banner) should be removed entirely. Only the error panel (red banner) should remain to show legitimate errors such as:
+- Validation failures when clicking "Generate User Token" without filling all fields
+- API/database processing errors
+- Network connectivity issues
+
+### Implementation
+**Phase 2 - Complete InfoMessage Removal**:
+
+1. **Removed InfoMessage UI Panel** (`Pages/Host-SessionOpener.razor`, lines ~54-78):
+   - Removed entire `@if (!string.IsNullOrEmpty(Model?.InfoMessage))` block
+   - Kept only ErrorMessage panel for legitimate errors
+   - Added debug marker: `[DEBUG-WORKITEM:session-opener - Removed InfoMessage panel]`
+
+2. **Removed InfoMessage Assignments**:
+   - Line ~311: Removed "No albums available" message
+   - Line ~327: Removed "Token invalid" message  
+   - Line ~335: Removed "Session details unavailable" message
+   - Line ~498: Removed "No categories available" message
+   - Line ~532: Removed "No sessions available" message
+   - Replaced with debug comments explaining silent behavior
+
+3. **Removed InfoMessage Clearing Statements**:
+   - Line ~288: Removed `Model.InfoMessage = "";` in LoadAlbumsAsync
+   - Line ~608: Removed `Model.InfoMessage = "";` in OpenSessionAsync
+
+**ErrorMessage Panel Preserved**:
+- Still displays validation errors when "Generate User Token" clicked
+- Still displays API/database errors
+- Still displays network connectivity issues
+- User gets actionable error feedback only when needed
+
+### Behavior Changes
+**Before**: 
+- Blue information banner showed "Auto-populated from Token" success message
+- Blue banner showed "No albums/categories/sessions available" warnings
+- Blue banner showed token validation status messages
+
+**After**:
+- No information banners displayed at all
+- Form loads silently (success or empty state)
+- Only red error banner shows when actual errors occur (validation, API, network)
+- Cleaner, less cluttered UI
+
+### Validation
+- **Syntax Check**: No errors in Host-SessionOpener.razor
+- **Build Status**: Pending (app running - file lock)
+- **Files Modified**: 1 (Host-SessionOpener.razor)
+- **Lines Changed**: ~10 sections modified
+
+### Git Commits
+- **SHA 1**: `33b8ecaa2f6e0a31531fe920e5e140121aa733e0` - Initial InfoMessage removal
+- **SHA 2**: `31b78fc0a3f87be98192862565a0fc44dff0eda0` - Complete InfoMessage panel and code removal
+
+### Next Steps
+- Restart application to verify UI behavior
+- Test that no blue information banners appear
+- Verify red error banner still shows on validation failure
+- Verify red error banner shows on API/database errors
+
+---
+
 ## 2025-10-10 - Remove Auto-Populated Information Message
 
 ### Context
