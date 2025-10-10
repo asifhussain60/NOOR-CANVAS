@@ -35,3 +35,15 @@
 **Debug Logging**: 3 simple markers inserted
 **Next**: Continue canvas enhancements
 
+---
+## [2025-10-10 11:30] - task
+**Status**: in-progress | **Phase**: auto-height-layout | **Commit**: a202065
+**Work**:
+- Changed grid layout from fixed 600px height to auto-expanding (height:auto with align-items:start)
+- Canvas container now auto-expands based on content (removed height:100%, overflow:hidden, min-height:0)
+- Q&A panel constrained to max-height:600px with overflow-y:auto scrollbar
+- Canvas no longer has vertical scrollbar - container grows to fit content
+- Right panel scrolls independently when content exceeds 600px
+**Files**: 1 modified (SessionCanvas.razor) | **Tests**: N/A | **Build**: PASS (0 errors, 0 warnings)
+**Debug Logging**: 3 simple markers inserted
+**Next**: Continue canvas enhancements
