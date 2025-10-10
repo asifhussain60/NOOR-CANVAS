@@ -456,3 +456,51 @@ git checkout [commit-hash] -- [file]      # Restore specific file version
 
 ---
 
+## [2025-10-10T19:30:00Z] - task agent
+
+**Status**: in-progress | **Phase**: implementation | **Commit**: e272572
+
+**Work**:
+- Restored debug-level functionality for inserting debug markers into source code
+- Added verbosity parameter to control agent output detail level
+- Updated all 6 prompt files with consistent parameter definitions
+- Enhanced completion workflow with mandatory debug marker cleanup
+
+**Files**: 6 modified | **Tests**: N/A | **Build**: N/A (prompt documentation only)
+
+**Details**:
+
+1. **debug-level Parameter Restoration**:
+   - Now controls debug logging code **INSERTED INTO SOURCE FILES**
+   - Options: `none` (default), `simple`, `trace`, `cleanup`
+   - Standardized marker pattern: `[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK`
+   - Supports C# (Logger.Log*), JavaScript (console.log), Comments (// DEBUG-WORKITEM:)
+   - Historical pattern from commit d7639877 and 0a38f051
+
+2. **verbosity Parameter Addition**:
+   - New parameter controlling agent OUTPUT shown to user
+   - Options: `concise` (default), `detailed`
+   - Separates user experience from code implementation concerns
+   - Different defaults per agent (task/refactor/sync=concise, question/analyze-learning=detailed)
+
+3. **Prompt File Updates**:
+   - `task.prompt.md`: Full debug-level documentation + verbosity integration in Steps 2, 3, 5, 7
+   - `refactor.prompt.md`: Added both parameters to Parameters section
+   - `sync.prompt.md`: Added both parameters to Parameters section
+   - `healthcheck.prompt.md`: Read-only agent, verbosity only (no code modification)
+   - `question.prompt.md`: Read-only agent, verbosity with detailed default
+   - `analyze-learning.prompt.md`: Read-only agent, verbosity with detailed default
+
+4. **Completion Workflow Enhancement (Step 9.2)**:
+   - MANDATORY debug marker cleanup on task completion
+   - Searches C#, JavaScript, Razor files for `;CLEANUP_OK` markers
+   - Removes all debug logging lines
+   - Verifies with `git grep "DEBUG-WORKITEM.*CLEANUP_OK"`
+   - Ensures production-ready code
+
+**Outcome**: Debug logging restoration enables troubleshooting complex integrations (SignalR, API flows) while maintaining clean production code. Verbosity parameter improves UX by reducing noise.
+
+**Next**: Update work log and complete task
+
+---
+
