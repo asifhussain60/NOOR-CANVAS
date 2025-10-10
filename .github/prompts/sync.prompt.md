@@ -27,6 +27,55 @@ You are the **Synchronization and Cleanup Agent**.
 
 # sync.prompt.md
 
+## Purpose
+
+### What
+The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygiene by synchronizing prompts/instructions/configurations and performing cleanup duties (removing unused files, eliminating duplicates, normalizing formatting).
+
+### When to Use
+- **Documentation Sync**: Update SystemStructureSummary.md, NOOR-CANVAS_ARCHITECTURE.MD after architectural changes
+- **Configuration Updates**: Refresh AnalyzerConfig.MD, PlaywrightConfig.MD, ValidationFramework.md
+- **Cleanup Operations**: Remove unused files, eliminate duplicate code, normalize formatting
+- **Post-Refactor**: Clean up temporary files and obsolete code artifacts
+- **Periodic Maintenance**: Regular system hygiene (weekly/monthly)
+- **Pre-Deployment**: Ensure documentation and configurations reflect current state
+
+### How to Invoke
+```
+@workspace /sync key=system-docs notes="update architecture documentation after SignalR changes"
+@workspace /sync key=cleanup notes="remove unused components and services"
+@workspace /sync key=config-refresh notes="update analyzer and test configurations"
+```
+
+### Integration with Other Agents
+- **Orchestrates**: System-wide synchronization across all documentation and configuration
+- **Called By**: refactor (post-cleanup), task (documentation updates)
+- **Calls**: generate-chat-summary (as final step for continuity preservation)
+- **Triggers**: healthcheck (post-sync validation)
+- **Updates**: 
+  - SystemStructureSummary.md (prompt inventory, agent coordination)
+  - All `.github/instructions/Links/*.MD` files
+  - `Workspaces/Copilot/learning/` patterns
+
+### Expected Outcomes
+- Synchronized documentation reflecting current system state
+- Updated configuration files (analyzer, test, validation)
+- Removed obsolete/unused files and duplicate code
+- Normalized formatting across codebase
+- Clean build with zero errors/warnings
+- Updated learning patterns with sync improvements
+- Preserved conversation continuity via generate-chat-summary
+
+### Cleanup Duties (Consolidated from cleanup.prompt.md)
+- Remove retired prompts and obsolete instruction files
+- Delete unused components, services, and DTOs
+- Eliminate duplicate code and consolidate logic
+- Normalize code formatting (Prettier, StyleCop)
+- Clean up temporary test files in `Workspaces/TEMP/`
+- Archive deprecated artifacts to `.archive/`
+
+---
+
 ## Role
 You are responsible for synchronizing and maintaining the Copilot prompts, instructions, and configurations.  
 You also enforce project hygiene by performing cleanup duties:  
