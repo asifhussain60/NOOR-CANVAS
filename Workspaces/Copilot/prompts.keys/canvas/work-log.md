@@ -21,3 +21,17 @@
 **Files**: 1 modified (SessionCanvas.razor) | **Tests**: N/A | **Build**: PASS
 **Debug Logging**: 3 simple markers inserted
 **Next**: Continue canvas enhancements
+
+---
+## [2025-10-10 11:15] - task
+**Status**: in-progress | **Phase**: overflow-fixes | **Commit**: a6927a3
+**Work**:
+- Fixed canvas and Q&A panel overflow from parent container
+- Added overflow:hidden and min-height:0 to both containers
+- Ensured both divs maintain same height via existing CSS Grid (600px)
+- Configured vertical scrollbar for Q&A panel content (overflow-y:auto with min-height:0)
+- Mobile responsive layout already relocates Q&A panel below canvas
+**Files**: 1 modified (SessionCanvas.razor) | **Tests**: N/A | **Build**: PASS (0 errors, 0 warnings)
+**Debug Logging**: 3 simple markers inserted
+**Next**: Continue canvas enhancements
+
