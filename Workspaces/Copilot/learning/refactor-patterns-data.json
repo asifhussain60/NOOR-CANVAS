@@ -1,0 +1,59 @@
+{
+  "patterns": [
+    {
+      "pattern_id": "phased-refactoring-scope-all",
+      "name": "Phased Refactoring for scope=all",
+      "category": "structural-change",
+      "scope": "all",
+      "description": "Break large-scale refactoring into discrete functional phases with validation checkpoints. Each phase maintains system stability and allows incremental rollback.",
+      "approach": "1. Analyze codebase for refactoring opportunities\n2. Create phase breakdown strategy (layer-based, component-based, complexity-based, or dependency-based)\n3. Execute each phase with: checkpoint commit → plan approval → execute → validate → phase commit\n4. Mandatory zero-tolerance validation between phases (0 errors, 0 warnings)\n5. Independent rollback capability per phase\n6. Final cross-phase validation and documentation",
+      "risks": [
+        "Test code may have custom implementations not suitable for extraction",
+        "Previous refactorings may have already addressed opportunities",
+        "Aggressive consolidation can break functionality"
+      ],
+      "mitigations": [
+        "Verify before extracting - check if patterns are truly identical",
+        "Review git history and checkpoint.json for completed refactorings",
+        "Start with low-risk phases (documentation, comments) before structural changes",
+        "Skip phases where previous work is sufficient"
+      ],
+      "learned_from": [
+        "canvas (HTML transformation consolidation)",
+        "prompts (phased refactoring strategy implementation)"
+      ],
+      "success_rate": 1.0,
+      "last_updated": "2025-10-10T11:30:00Z",
+      "implementation_notes": {
+        "phase_1_low_risk": "Documentation cleanup, TODO marker updates, XML documentation - minimal risk",
+        "phase_2_test_consolidation": "Test helper extraction - RISK: Custom implementations may not be compatible",
+        "phase_3_service_layer": "Service consolidation - Check if already done (e.g., HtmlTransformPatterns.cs)",
+        "phase_4_debug_infrastructure": "Verify debug markers standardization - may already be complete",
+        "phase_5_documentation": "Final integration and learning pattern updates"
+      },
+      "validation_checkpoints": {
+        "per_phase": [
+          "dotnet build --configuration Release (0 errors, 0 warnings)",
+          "dotnet build --configuration Debug (0 errors, 0 warnings)",
+          "All unit tests passing",
+          "All integration tests passing",
+          "API contracts intact"
+        ],
+        "final": [
+          "Cross-phase validation",
+          "End-to-end workflow testing",
+          "Performance regression check",
+          "Documentation alignment with code"
+        ]
+      },
+      "metrics": {
+        "total_phases_completed": 5,
+        "phases_with_actual_changes": 1,
+        "phases_verification_only": 4,
+        "build_status": "clean",
+        "warnings_resolved": 2,
+        "code_duplication_reduced": "verified existing consolidation"
+      }
+    }
+  ]
+}
