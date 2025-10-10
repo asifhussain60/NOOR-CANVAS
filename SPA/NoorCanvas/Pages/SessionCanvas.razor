@@ -282,6 +282,8 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        overflow: hidden;
+        min-height: 0;
     }
 
 .canvas-content-area {
@@ -362,6 +364,8 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        overflow: hidden;
+        min-height: 0;
     }
 
     .canvas-tabs {
@@ -409,6 +413,7 @@
     .canvas-tab-content {
         flex: 1;
         overflow-y: auto;
+        min-height: 0;
     }
 
     .canvas-tab-content.hidden {
@@ -1026,6 +1031,9 @@
         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionCanvas OnInitialized - SessionToken: '{SessionToken}' (Length: {Length})", 
             requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Canvas and Q&A panel containers set to prevent overflow with overflow:hidden and min-height:0 ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both divs constrained to same height (600px) via CSS Grid with proper flex containment ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel configured with overflow-y:auto for vertical scrollbar on desktop/iPad ;CLEANUP_OK");
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
