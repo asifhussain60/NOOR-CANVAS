@@ -6,6 +6,7 @@ namespace NoorCanvas.Services;
 /// <summary>
 /// Service for extracting UI/UX requirements from annotated screenshots using GPT-4 Vision API.
 /// Supports AI-powered task extraction from visual mockups with annotations (arrows, text overlays, markup).
+/// Supports multiple screenshots via comma-delimited paths for batch requirement extraction.
 /// </summary>
 public interface IScreenshotAnalysisService
 {
@@ -16,6 +17,15 @@ public interface IScreenshotAnalysisService
     /// <param name="additionalContext">Optional context to guide extraction (e.g., "Focus on layout changes").</param>
     /// <returns>List of extracted requirements as structured task descriptions.</returns>
     Task<List<string>> ExtractRequirementsAsync(string imagePath, string? additionalContext = null);
+
+    /// <summary>
+    /// Extracts actionable requirements from multiple annotated screenshots.
+    /// Processes each image and combines requirements into a unified list.
+    /// </summary>
+    /// <param name="commaSeparatedPaths">Comma-delimited list of screenshot paths (extensions optional for .png/.jpg).</param>
+    /// <param name="additionalContext">Optional context to guide extraction.</param>
+    /// <returns>Combined list of extracted requirements from all screenshots.</returns>
+    Task<List<string>> ExtractRequirementsFromMultipleAsync(string commaSeparatedPaths, string? additionalContext = null);
 
     /// <summary>
     /// Validates that the service is properly configured with API credentials.
@@ -159,6 +169,102 @@ Example output format:
             _logger.LogError(ex, "Error extracting requirements from screenshot: {ImagePath}", imagePath);
             throw;
         }
+    }
+
+    /// <summary>
+    /// Extracts requirements from multiple screenshots provided as comma-delimited paths.
+    /// Processes each image and combines requirements into a unified, deduplicated list.
+    /// </summary>
+    /// <param name="commaSeparatedPaths">Comma-delimited list of screenshot paths (extensions optional for .png/.jpg).</param>
+    /// <param name="additionalContext">Optional context to guide requirement extraction across all screenshots.</param>
+    /// <returns>Combined list of unique requirements extracted from all screenshots.</returns>
+    public async Task<List<string>> ExtractRequirementsFromMultipleAsync(string commaSeparatedPaths, string? additionalContext = null)
+    {
+        if (string.IsNullOrWhiteSpace(commaSeparatedPaths))
+        {
+            _logger.LogWarning("No screenshot paths provided");
+            return new List<string>();
+        }
+
+        var allRequirements = new List<string>();
+
+        // Split comma-delimited paths
+        var paths = commaSeparatedPaths
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(p => p.Trim())
+            .ToList();
+
+        _logger.LogInformation("Processing {Count} screenshots for requirement extraction", paths.Count);
+
+        foreach (var path in paths)
+        {
+            try
+            {
+                // Try to find the file with auto-extension detection
+                var resolvedPath = ResolveScreenshotPath(path);
+
+                if (resolvedPath == null)
+                {
+                    _logger.LogWarning("Screenshot not found (tried .png, .jpg extensions): {Path}", path);
+                    continue;
+                }
+
+                _logger.LogInformation("Extracting requirements from screenshot: {Path}", resolvedPath);
+
+                // Extract requirements from this screenshot
+                var requirements = await ExtractRequirementsAsync(resolvedPath, additionalContext);
+
+                // Add to combined list
+                allRequirements.AddRange(requirements);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process screenshot: {Path}", path);
+                // Continue processing other screenshots
+            }
+        }
+
+        // Deduplicate similar requirements (case-insensitive, trim whitespace)
+        var uniqueRequirements = allRequirements
+            .Select(r => r.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        _logger.LogInformation(
+            "Extracted {Total} total requirements ({Unique} unique) from {Count} screenshots",
+            allRequirements.Count,
+            uniqueRequirements.Count,
+            paths.Count);
+
+        return uniqueRequirements;
+    }
+
+    private string? ResolveScreenshotPath(string path)
+    {
+        // If path already has an extension and exists, use it
+        if (Path.HasExtension(path) && File.Exists(path))
+        {
+            return path;
+        }
+
+        // If no extension or file doesn't exist, try common image extensions
+        var basePathWithoutExtension = Path.HasExtension(path)
+            ? Path.ChangeExtension(path, null)
+            : path;
+
+        var extensionsToTry = new[] { ".png", ".jpg", ".jpeg" };
+
+        foreach (var ext in extensionsToTry)
+        {
+            var testPath = basePathWithoutExtension + ext;
+            if (File.Exists(testPath))
+            {
+                return testPath;
+            }
+        }
+
+        // No file found
+        return null;
     }
 
     private List<string> ParseRequirementsFromResponse(string response)

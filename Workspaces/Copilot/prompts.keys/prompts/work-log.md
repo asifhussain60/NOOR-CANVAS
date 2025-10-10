@@ -2,6 +2,58 @@
 
 ---
 
+## [2025-10-10T10:45:00Z] - task agent
+
+**Status**: complete
+**Phase**: refinement
+**Git Checkpoint**: 5b2e119d6dfc59f8e42fdd11c29ceae9c0a97f46
+
+**Work Done**:
+- Implemented conditional screenshot extraction (ONLY when screenshot parameter provided)
+- Added multi-screenshot batch processing via comma-delimited paths
+- Added auto-extension detection for .png/.jpg files
+- Updated screenshot parameter documentation emphasizing conditional behavior
+- Implemented ExtractRequirementsFromMultipleAsync method with deduplication
+- Build validated successfully: 0 errors, 0 warnings
+
+**Files Modified**:
+- `.github/prompts/task.prompt.md` (Lines 56-108)
+  - Emphasized "TRIGGERS AI-POWERED REQUIREMENT EXTRACTION" in parameter header
+  - Added multi-screenshot syntax: `screenshot="mockup1,mockup2,design-final"`
+  - Clarified conditional behavior: WITH parameter = AI extraction, WITHOUT = contextual info
+  - Extensions optional with auto-detection (.png/.jpg fallback)
+  - Added usage examples for single/batch/combined scenarios
+  - 3 code examples demonstrating batch processing workflow
+
+- `SPA/NoorCanvas/Services/ScreenshotAnalysisService.cs` (Lines 6-280)
+  - Updated interface XML docs to mention multi-screenshot support
+  - Added ExtractRequirementsFromMultipleAsync method signature (Lines 27-38)
+  - Implemented batch processing method with:
+    - Comma-delimited path parsing
+    - Auto-extension detection via ResolveScreenshotPath helper
+    - Per-image requirement extraction via existing ExtractRequirementsAsync
+    - Requirement deduplication (case-insensitive)
+    - Comprehensive logging for batch operations
+  - Added ResolveScreenshotPath helper method (Lines 239-265)
+    - Tries exact path first
+    - Falls back to .png, .jpg, .jpeg extensions if no extension or file not found
+    - Returns null for missing files (logged as warnings)
+
+**Implementation Details**:
+- Multi-screenshot processing is fault-tolerant (continues on individual image failures)
+- Deduplication uses StringComparer.OrdinalIgnoreCase (case-insensitive)
+- Logs total requirements, unique requirements, and screenshot count
+- Extensions optional for common formats: .png, .jpg, .jpeg
+- Screenshots without `screenshot` parameter treated as contextual/bug evidence (NO extraction)
+
+**User Decisions**:
+- Screenshot parameter is NOW conditional: extraction only when explicitly provided
+- No `screenshot-type` parameter added (rejected for simplicity)
+- Comma-delimited paths preferred over complex array syntax
+- Screenshots without parameter = contextual info (bug reports, environment details)
+
+---
+
 ## [2025-10-10T10:12:00Z] - task agent
 
 **Status**: in-progress
