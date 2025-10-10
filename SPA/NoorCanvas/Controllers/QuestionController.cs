@@ -492,45 +492,50 @@ namespace NoorCanvas.Controllers
         }
 
         /// <summary>
-        /// Delete a question (only the user who created it can delete).
+        /// Update a question's text (only the user who created it can update).
         /// </summary>
-        /// <param name="questionId">The ID of the question to delete.</param>
-        /// <param name="request">The delete request containing session token and user GUID.</param>
-        /// <returns>The result of the delete operation.</returns>
-        [HttpPost("{questionId}/delete")]
-        public async Task<IActionResult> DeleteQuestion(int questionId, [FromBody] DeleteQuestionRequest request)
+        /// <param name="questionId">The GUID of the question to update.</param>
+        /// <param name="request">The update request containing session token, new question text, and user GUID.</param>
+        /// <returns>The result of the update operation.</returns>
+        [HttpPost("{questionId}/update")]
+        public async Task<IActionResult> UpdateQuestion(string questionId, [FromBody] UpdateQuestionRequest request)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
-            _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question deletion started for QuestionId: {QuestionId}",
-                requestId, questionId);
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question update started for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
 
             try
             {
                 // Validate request
                 if (string.IsNullOrWhiteSpace(request.SessionToken) || request.SessionToken.Length != 8)
                 {
-                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Invalid session token format", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Invalid session token format ;CLEANUP_OK", requestId);
                     return BadRequest(new { Error = "Invalid session token format", RequestId = requestId });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.QuestionText))
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question text cannot be empty ;CLEANUP_OK", requestId);
+                    return BadRequest(new { Error = "Question text cannot be empty", RequestId = requestId });
                 }
 
                 if (string.IsNullOrWhiteSpace(request.UserGuid))
                 {
-                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] UserGuid is required for question deletion", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] UserGuid is required ;CLEANUP_OK", requestId);
                     return BadRequest(new { Error = "UserGuid is required", RequestId = requestId });
                 }
 
-                // Validate session token
-                var session = await _tokenService.ValidateTokenAsync(request.SessionToken, isHostToken: false);
+                // Find session by user token
+                var session = await _context.Sessions
+                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
+                                            (s.Status == "Active" || s.Status == "Configured"));
+
                 if (session == null)
                 {
-                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Invalid session token: {Token}", requestId, request.SessionToken);
-                    return NotFound(new { Error = "Invalid session token", RequestId = requestId });
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Session not found ;CLEANUP_OK", requestId);
+                    return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Session validated - SessionId: {SessionId}",
-                    requestId, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Session found - SessionId: {SessionId} ;CLEANUP_OK", requestId, session.SessionId);
 
                 // Find the question and verify ownership
                 var questionRecord = await _context.SessionData
@@ -542,25 +547,132 @@ namespace NoorCanvas.Controllers
 
                 if (questionRecord == null)
                 {
-                    _logger.LogWarning("NOOR-QA-DELETE: [{RequestId}] Question not found or user not authorized - QuestionId: {QuestionId}, UserGuid: {UserGuid}",
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question not found or user not authorized ;CLEANUP_OK", requestId);
+                    return NotFound(new { Error = "Question not found or you are not authorized to update it", RequestId = requestId });
+                }
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question found and ownership verified ;CLEANUP_OK", requestId);
+
+                // Parse existing question data
+                var questionData = JsonSerializer.Deserialize<Dictionary<string, object>>(questionRecord.Content ?? "{}");
+                if (questionData == null)
+                {
+                    return StatusCode(500, new { Error = "Failed to parse question data", RequestId = requestId });
+                }
+
+                // Update the question text
+                questionData["text"] = request.QuestionText.Trim();
+                questionRecord.Content = JsonSerializer.Serialize(questionData);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully ;CLEANUP_OK", requestId);
+
+                // Broadcast update via SignalR
+                var updatedQuestionData = new
+                {
+                    questionId = questionId,
+                    text = request.QuestionText.Trim(),
+                    userName = questionData.ContainsKey("userName") ? questionData["userName"]?.ToString() : "Anonymous",
+                    userId = questionData.ContainsKey("userId") ? questionData["userId"]?.ToString() : "",
+                    votes = questionData.ContainsKey("votes") ? GetIntFromJsonElement(questionData["votes"]) : 0,
+                    isAnswered = questionData.ContainsKey("isAnswered") ? GetBoolFromJsonElement(questionData["isAnswered"]) : false
+                };
+
+                await _sessionHub.Clients.Group($"Session_{session.SessionId}")
+                    .SendAsync("QuestionUpdated", updatedQuestionData);
+
+                // Notify hosts
+                await _sessionHub.Clients.Group($"Host_{session.SessionId}")
+                    .SendAsync("HostQuestionUpdated", updatedQuestionData);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] SignalR notifications sent ;CLEANUP_OK", requestId);
+
+                return Ok(new UpdateQuestionResponse
+                {
+                    Success = true,
+                    Message = "Question updated successfully",
+                    RequestId = requestId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:canvas:update] [{RequestId}] Exception during question update ;CLEANUP_OK", requestId);
+                return StatusCode(500, new { Error = "Failed to update question", RequestId = requestId });
+            }
+        }
+
+        /// <summary>
+        /// Delete a question (only the user who created it can delete).
+        /// </summary>
+        /// <param name="questionId">The GUID of the question to delete.</param>
+        /// <param name="request">The delete request containing session token and user GUID.</param>
+        /// <returns>The result of the delete operation.</returns>
+        [HttpPost("{questionId}/delete")]
+        public async Task<IActionResult> DeleteQuestion(string questionId, [FromBody] DeleteQuestionRequest request)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deletion started for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+
+            try
+            {
+                // Validate request
+                if (string.IsNullOrWhiteSpace(request.SessionToken) || request.SessionToken.Length != 8)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Invalid session token format ;CLEANUP_OK", requestId);
+                    return BadRequest(new { Error = "Invalid session token format", RequestId = requestId });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.UserGuid))
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] UserGuid is required for question deletion ;CLEANUP_OK", requestId);
+                    return BadRequest(new { Error = "UserGuid is required", RequestId = requestId });
+                }
+
+                // Find session by user token
+                var session = await _context.Sessions
+                    .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
+                                            (s.Status == "Active" || s.Status == "Configured"));
+
+                if (session == null)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Session not found ;CLEANUP_OK", requestId);
+                    return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
+                }
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Session validated - SessionId: {SessionId} ;CLEANUP_OK", requestId, session.SessionId);
+
+                // Find the question and verify ownership
+                var questionRecord = await _context.SessionData
+                    .FirstOrDefaultAsync(sd => sd.SessionId == session.SessionId &&
+                                             sd.DataType == SessionDataTypes.Question &&
+                                             sd.Content != null &&
+                                             sd.Content.Contains($"\"questionId\":\"{questionId}\"") &&
+                                             sd.CreatedBy == request.UserGuid);
+
+                if (questionRecord == null)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question not found or user not authorized - QuestionId: {QuestionId}, UserGuid: {UserGuid} ;CLEANUP_OK",
                         requestId, questionId, request.UserGuid);
                     return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
                 }
 
-                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question found and ownership verified - Content: {Content}",
-                    requestId, questionRecord.Content);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question found and ownership verified ;CLEANUP_OK", requestId);
 
                 // Delete the question
                 _context.SessionData.Remove(questionRecord);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] Question deleted successfully from database", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully from database ;CLEANUP_OK", requestId);
 
-                // Notify all clients in the session via SignalR
+                // Notify all session participants via SignalR
                 await _sessionHub.Clients.Group($"Session_{session.SessionId}")
                     .SendAsync("QuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
 
-                _logger.LogInformation("NOOR-QA-DELETE: [{RequestId}] SignalR notification sent to session group", requestId);
+                // Notify hosts via SignalR
+                await _sessionHub.Clients.Group($"Host_{session.SessionId}")
+                    .SendAsync("HostQuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] SignalR notifications sent to session and host groups ;CLEANUP_OK", requestId);
 
                 return Ok(new DeleteQuestionResponse
                 {
@@ -596,6 +708,27 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// Gets or sets the unique identifier for the user submitting the question.
+        /// </summary>
+        public string UserGuid { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Request model for updating an existing question.
+    /// </summary>
+    public class UpdateQuestionRequest
+    {
+        /// <summary>
+        /// Gets or sets the session token for authentication.
+        /// </summary>
+        public string SessionToken { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the updated text of the question.
+        /// </summary>
+        public string QuestionText { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the user updating the question.
         /// </summary>
         public string UserGuid { get; set; } = string.Empty;
     }
@@ -654,6 +787,27 @@ namespace NoorCanvas.Controllers
 
         /// <summary>
         /// Gets or sets the response message describing the operation result.
+        /// </summary>
+        public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the unique identifier for tracking this request.
+        /// </summary>
+        public string RequestId { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Response model for question update operations.
+    /// </summary>
+    public class UpdateQuestionResponse
+    {
+        /// <summary>
+        /// Gets or sets a value indicating whether the update was successful.
+        /// </summary>
+        public bool Success { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response message describing the update result.
         /// </summary>
         public string Message { get; set; } = string.Empty;
 

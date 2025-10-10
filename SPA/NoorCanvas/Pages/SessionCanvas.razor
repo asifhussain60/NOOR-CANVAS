@@ -1755,18 +1755,27 @@
     private async Task SubmitQuestion()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] SubmitQuestion called - QuestionInput: '{QuestionText}', SessionToken: '{SessionToken}', UserGuid: '{UserGuid}'", 
-            requestId, QuestionInput?.Trim() ?? "NULL", SessionToken ?? "NULL", CurrentUserGuid ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] SubmitQuestion called - EditingQuestionIndex: {EditingIndex}, QuestionInput: '{QuestionText}' ;CLEANUP_OK", 
+            requestId, EditingQuestionIndex?.ToString() ?? "NULL", QuestionInput?.Trim() ?? "NULL");
 
         if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Validation failed - missing required fields", requestId);
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
             return;
         }
 
         try
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Preparing API request payload", requestId);
+            // Check if we're in edit mode
+            if (EditingQuestionIndex.HasValue && Model?.Questions != null && EditingQuestionIndex.Value < Model.Questions.Count)
+            {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Edit mode detected - calling UpdateQuestion ;CLEANUP_OK", requestId);
+                await UpdateQuestion();
+                return;
+            }
+
+            // Create new question
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Preparing API request payload for new question ;CLEANUP_OK", requestId);
             var requestPayload = new
             {
                 SessionToken = SessionToken,
@@ -1774,44 +1783,103 @@
                 UserGuid = CurrentUserGuid
             };
             
-            Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Sending POST request to /api/Question/Submit", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Sending POST request to /api/Question/Submit ;CLEANUP_OK", requestId);
             var response = await Http.PostAsJsonAsync("/api/Question/Submit", requestPayload);
 
-
-
-            Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] API response received - StatusCode: {StatusCode}", requestId, response.StatusCode);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
 
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Question submitted successfully - Response: {Response}", requestId, responseContent);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submitted successfully - Response: {Response} ;CLEANUP_OK", requestId, responseContent);
                 
                 // Question submitted successfully - clear input
                 QuestionInput = "";
                 await InvokeAsync(StateHasChanged);
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Question input cleared and UI refreshed", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question input cleared and UI refreshed ;CLEANUP_OK", requestId);
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogWarning("[DEBUG-WORKITEM:submit-bug] [{RequestId}] User unauthorized - redirecting to landing page. Error: {Error}", requestId, errorContent);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] User unauthorized - redirecting to landing page. Error: {Error} ;CLEANUP_OK", requestId, errorContent);
                 
                 // Redirect to UserLanding.razor with session token for proper authentication
-                // UserLanding.razor will handle session status check and route user to appropriate page after authentication
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
                 return;
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[DEBUG-WORKITEM:submit-bug] [{RequestId}] Question submission failed: {StatusCode} - {Error}", requestId, response.StatusCode, errorContent);
+                Logger.LogError("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Question submission failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:submit-bug] [{RequestId}] Exception during question submission: {ExceptionMessage}", requestId, ex.Message);
-            Console.WriteLine($"[DEBUG-WORKITEM:submit-bug] Error submitting question: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Exception during question submission: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+        }
+    }
+
+    private async Task UpdateQuestion()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        
+        if (!EditingQuestionIndex.HasValue || Model?.Questions == null || EditingQuestionIndex.Value >= Model.Questions.Count)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Invalid edit state ;CLEANUP_OK", requestId);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
+            return;
+        }
+
+        try
+        {
+            var questionToUpdate = Model.Questions[EditingQuestionIndex.Value];
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Updating question - QuestionId: {QuestionId}, NewText: '{NewText}' ;CLEANUP_OK", 
+                requestId, questionToUpdate.QuestionId, QuestionInput.Trim());
+
+            var requestPayload = new
+            {
+                SessionToken = SessionToken,
+                QuestionText = QuestionInput.Trim(),
+                UserGuid = CurrentUserGuid
+            };
+
+            var response = await Http.PostAsJsonAsync($"/api/Question/{questionToUpdate.QuestionId}/update", requestPayload);
+
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully - Response: {Response} ;CLEANUP_OK", requestId, responseContent);
+                
+                // Clear input and reset edit mode
+                QuestionInput = "";
+                EditingQuestionIndex = null;
+                await InvokeAsync(StateHasChanged);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
+                Navigation.NavigateTo($"/user/landing/{SessionToken}");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question update failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:update] [{RequestId}] Exception during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
         }
     }
 
@@ -1864,24 +1932,49 @@
 
     private async Task DeleteConfirmed()
     {
-        if (Http == null || QuestionToDeleteIndex == null || Model?.Questions == null) return;
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        
+        if (Http == null || QuestionToDeleteIndex == null || Model?.Questions == null)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Invalid delete state ;CLEANUP_OK", requestId);
+            IsModalVisible = false;
+            return;
+        }
         
         var index = QuestionToDeleteIndex.Value;
         if (index >= 0 && index < Model.Questions.Count)
         {
-            var questionId = Model.Questions[index].QuestionId;
-            
+            var questionToDelete = Model.Questions[index];
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Deleting question - QuestionId: {QuestionId} ;CLEANUP_OK", 
+                requestId, questionToDelete.QuestionId);
+
             try
             {
-                var response = await Http.DeleteAsync($"/api/Question/Delete/{questionId}?userGuid={CurrentUserGuid}");
+                var requestPayload = new
+                {
+                    SessionToken = SessionToken,
+                    UserGuid = CurrentUserGuid
+                };
+
+                var response = await Http.PostAsJsonAsync($"/api/Question/{questionToDelete.QuestionId}/delete", requestPayload);
+
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
+
                 if (response.IsSuccessStatusCode)
                 {
-                    // Question will be removed via SignalR
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully ;CLEANUP_OK", requestId);
+                    // Question will be removed from UI via SignalR notification
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Logger.LogError("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deletion failed: {StatusCode} - {Error} ;CLEANUP_OK", 
+                        requestId, response.StatusCode, errorContent);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting question: {ex.Message}");
+                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Exception during question deletion: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
             }
         }
         
@@ -1982,6 +2075,36 @@
                 }
             });
 
+            // Handle question updates
+            hubConnection.On<object>("QuestionUpdated", async (questionData) =>
+            {
+                if (Model?.Questions != null && questionData != null)
+                {
+                    try
+                    {
+                        var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        var root = jsonDoc.RootElement;
+                        
+                        var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                        if (questionId != null)
+                        {
+                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId.ToString() == questionId || q.QuestionId == questionId.GetHashCode());
+                            if (question != null)
+                            {
+                                question.Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : question.Text;
+                                await InvokeAsync(StateHasChanged);
+                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Question updated via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Error processing QuestionUpdated event ;CLEANUP_OK");
+                    }
+                }
+            });
+
             hubConnection.On<int, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
             {
                 if (Model?.Questions != null)
@@ -1995,15 +2118,32 @@
                 }
             });
 
-            hubConnection.On<int>("QuestionDeleted", async (questionId) =>
+            // Handle question deletion
+            hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
             {
-                if (Model?.Questions != null)
+                if (Model?.Questions != null && deleteData != null)
                 {
-                    var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
-                    if (question != null)
+                    try
                     {
-                        Model.Questions.Remove(question);
-                        await InvokeAsync(StateHasChanged);
+                        var jsonString = System.Text.Json.JsonSerializer.Serialize(deleteData);
+                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                        var root = jsonDoc.RootElement;
+                        
+                        var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
+                        if (questionId != null)
+                        {
+                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId.ToString() == questionId || q.QuestionId == questionId.GetHashCode());
+                            if (question != null)
+                            {
+                                Model.Questions.Remove(question);
+                                await InvokeAsync(StateHasChanged);
+                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Question deleted via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Error processing QuestionDeleted event ;CLEANUP_OK");
                     }
                 }
             });

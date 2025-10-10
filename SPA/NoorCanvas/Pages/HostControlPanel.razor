@@ -331,6 +331,70 @@
                 }
             });
 
+            // Handle question updates from participants
+            hubConnection.On<object>("HostQuestionUpdated", async (questionData) =>
+            {
+                try
+                {
+                    if (questionData == null || Model?.Questions == null)
+                    {
+                        return;
+                    }
+
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDocument.RootElement;
+                    
+                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    if (questionId != null)
+                    {
+                        var question = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
+                        if (question != null)
+                        {
+                            question.Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? question.Text : question.Text;
+                            await InvokeAsync(StateHasChanged);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Host: Question updated via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Host: Error processing HostQuestionUpdated event ;CLEANUP_OK");
+                }
+            });
+
+            // Handle question deletions from participants
+            hubConnection.On<object>("HostQuestionDeleted", async (deleteData) =>
+            {
+                try
+                {
+                    if (deleteData == null || Model?.Questions == null)
+                    {
+                        return;
+                    }
+
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(deleteData);
+                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDocument.RootElement;
+                    
+                    var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    if (questionId != null)
+                    {
+                        var question = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
+                        if (question != null)
+                        {
+                            Model.Questions.Remove(question);
+                            await InvokeAsync(StateHasChanged);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Host: Question deleted via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Host: Error processing HostQuestionDeleted event ;CLEANUP_OK");
+                }
+            });
+
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 🔗 Starting SignalR connection to /hub/session");
             Logger.LogInformation("COPILOT-DEBUG: Starting SignalR connection to /hub/session");
             await hubConnection.StartAsync();
