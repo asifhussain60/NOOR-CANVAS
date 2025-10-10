@@ -81,8 +81,10 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 - Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure.
 - Query **`Workspaces/Copilot/prompts.keys/`** for historical key data streams.
 - Update **`Workspaces/Copilot/learning/`** with extracted patterns and insights.
+- Follow **`Workspaces/Copilot/learning/PATTERN_SCHEMA.md`** for all pattern file contributions.
 - **READ-ONLY MODE:** This agent analyzes data but does not modify code or configuration files.
 - **EXCEPTION:** May update learning infrastructure files (patterns, insights, recommendations).
+- **KEY DATA STREAM:** Document all analysis results in `Workspaces/Copilot/prompts.keys/learning-analysis/work-log.md`
 
 ---
 
@@ -394,8 +396,70 @@ Debug-Level: simple
 
 ---
 
+## Summary + Key Data Stream Update
+
+After completing analysis:
+
+1. **Update Pattern Files**: Write extracted patterns to appropriate JSON files in `Workspaces/Copilot/learning/`
+2. **Follow Schema**: Ensure all contributions comply with `PATTERN_SCHEMA.md` requirements
+3. **Document Analysis**: Create or update key data stream entry:
+
+**Key Data Stream Path**: `Workspaces/Copilot/prompts.keys/learning-analysis/work-log.md`
+
+**Entry Format**:
+```markdown
+---
+## [ISO-8601-Timestamp] - analyze-learning agent
+
+**Status**: complete
+**Phase**: analysis
+**Git Commit**: [full-sha-hash]
+**Scope**: [recent|all|key=X]
+**Analysis Type**: [comprehensive|success-patterns|failure-patterns|efficiency|quality-trends]
+
+**Patterns Extracted**:
+- [X] task-patterns.json: [N new patterns, M updated patterns]
+- [X] refactor-patterns.json: [N new patterns, M updated patterns]
+- [X] validation-patterns.json: [N new patterns, M updated patterns]
+- [X] integration-patterns.json: [N new patterns, M updated patterns]
+- [X] question-patterns.json: [N new patterns, M updated patterns]
+- [X] analyze-learning-patterns.json: [N meta-patterns identified]
+
+**Key Insights**:
+- [Insight 1 from cross-agent analysis]
+- [Insight 2 from trend analysis]
+- [Insight 3 from efficiency review]
+
+**Success Metrics**:
+- Overall success rate: [X%]
+- Most successful pattern: [pattern-id] (usage: N, success: X%)
+- Highest efficiency gain: [pattern-id] ([X]% time reduction)
+
+**Recommendations**:
+- [Recommendation 1 for system improvement]
+- [Recommendation 2 for workflow optimization]
+- [Recommendation 3 for pattern consolidation]
+
+**Files Modified**:
+- `Workspaces/Copilot/learning/task-patterns.json` ([N additions, M updates])
+- `Workspaces/Copilot/learning/refactor-patterns.json` ([N additions, M updates])
+- `Workspaces/Copilot/learning/analyze-learning-patterns.json` ([N meta-patterns])
+
+**Keys Analyzed**: [N total keys, M completed, P failed, Q in-progress]
+
+**Next Analysis**: Scheduled for [date] or after [X] more completed keys
+
+---
+```
+
+4. **Generate Report**: Provide human-readable summary of findings
+5. **Commit Changes**: Commit all pattern file updates with descriptive message
+
+---
+
 ## Related Documentation
 
+- [Workspaces/Copilot/learning/PATTERN_SCHEMA.md](../../Workspaces/Copilot/learning/PATTERN_SCHEMA.md) - Pattern JSON schema and contribution guide
 - [Workspaces/Copilot/learning/README.md](../../Workspaces/Copilot/learning/README.md) - Learning infrastructure guide
 - [SelfAwareness.instructions.md](../instructions/SelfAwareness.instructions.md) - Global operating guardrails
 - [SystemStructureSummary.md](../instructions/Links/SystemStructureSummary.md) - Agent coordination

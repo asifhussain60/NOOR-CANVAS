@@ -134,7 +134,71 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Provide a human-readable summary of the healthcheck.  
 - Explicitly state whether the system is **Healthy** or **Issues Found**.  
 - Example final line:  
-  `Healthcheck (scope: <scope>) completed: <Healthy | Issues Found>.`  
+  `Healthcheck (scope: <scope>) completed: <Healthy | Issues Found>.`
+
+### 6. Summary + Key Data Stream Update
+
+After completing healthcheck:
+
+1. **Document Findings**: Create or update key data stream entry for audit trail
+2. **Update Learning Patterns**: Contribute discovered validation patterns to `Workspaces/Copilot/learning/validation-patterns.json`
+
+**Key Data Stream Path**: `Workspaces/Copilot/prompts.keys/healthcheck-audits/work-log.md`
+
+**Entry Format**:
+```markdown
+---
+## [ISO-8601-Timestamp] - healthcheck agent
+
+**Status**: complete
+**Phase**: validation
+**Git Commit**: [full-sha-hash]
+**Scope**: [all|component-name]
+
+**Audit Results**: [Healthy | Issues Found]
+
+**Validation Levels Checked**:
+- [X] Level 1: Build Validation
+- [X] Level 2: Analyzer & Linter
+- [X] Level 3: Unit Tests
+- [X] Level 4: API Contract Validation
+- [X] Level 5: Integration Tests
+- [X] Level 6: Structural Integrity
+
+**Issues Found**: [N total issues]
+
+**Contract Mismatches** ([N issues]):
+- UI ↔ API: [Description of mismatch, files affected]
+- API ↔ Database: [Description of mismatch, tables affected]
+
+**Architectural Drift** ([N issues]):
+- Code vs Documentation: [Description, files out of sync]
+- Missing References: [Obsolete references found]
+
+**Configuration Issues** ([N issues]):
+- appsettings.json: [Missing or incorrect settings]
+- Dependency versions: [Outdated or conflicting packages]
+
+**Validation Patterns Updated**:
+- Added pattern: [pattern-id] - [Common issue found and resolution]
+- Updated metrics for: [pattern-id] (occurrence count increased)
+
+**Recommendations**:
+- [Recommendation 1 - assign to sync agent]
+- [Recommendation 2 - assign to refactor agent]
+- [Recommendation 3 - manual review required]
+
+**Files Reviewed**: [N total files across all layers]
+
+**Handoff**: [If issues found, hand off to sync/refactor for remediation]
+
+**Next**: [Healthy: continue | Issues: remediate via sync/refactor]
+
+---
+```
+
+3. **Handoff Protocol**: If issues found, prepare handoff documentation for sync or refactor agents
+4. **Commit Audit**: Record healthcheck execution even in read-only mode for historical tracking
 
 ---
 
@@ -142,7 +206,8 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Default mode is **read-only auditing** — no fixes applied.  
 - Never modify functionality or files unless explicitly told to override.  
 - Always pause for approval before running.  
-- Always begin with a checkpoint commit for rollback consistency.  
+- Always begin with a checkpoint commit for rollback consistency.
+- **ALWAYS update key data stream** with audit findings for complete audit trail.
 
 ---
 
@@ -150,7 +215,8 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 At the end of every healthcheck:
 - The system must build with **zero errors and zero warnings**.  
 - All analyzers, lints, and Playwright tests must pass.  
-- Any mismatches (DTO, API, DB, contracts, or architecture) must be clearly surfaced.  
+- Any mismatches (DTO, API, DB, contracts, or architecture) must be clearly surfaced.
+- **Key data stream must be updated** with audit results.
 
 If issues are found, the healthcheck is marked **Incomplete** and must explicitly report violations.  
 
@@ -160,4 +226,5 @@ If issues are found, the healthcheck is marked **Incomplete** and must explicitl
 - Default state: `In Progress`.  
 - State changes to `complete` only on explicit user instruction.  
 - Healthcheck never applies fixes unless user grants override — it only reports system integrity status.
+- **All audits documented** in key data stream for historical tracking and trend analysis.
 

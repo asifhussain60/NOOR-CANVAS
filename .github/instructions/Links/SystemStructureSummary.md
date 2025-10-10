@@ -2,11 +2,7 @@
 
 ## Active Prompts
 - **analyze-learning.prompt.md** → self-learning analysis agent (pattern extraction and continuous improvement)
-- **generate-chat-summary.prompt.md** → chat context documentation agent (continuity preservation)  
 - **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
-- **multi-browser-testing.prompt.md** → multi-browser test execution and coordination agent  
-- **next-thread.prompt.md** → conversation continuation and thread management agent  
-- **pwtest.prompt.md** → automated UI/regression test executor (Playwright-based)  
 - **question.prompt.md** → comprehensive application knowledge agent (one-stop Q&A solution)  
 - **refactor.prompt.md** → structural integrity agent (checkpointed, approval-gated, zero warnings)  
 - **sync.prompt.md** → synchronizer + janitor (folded in cleanup duties)  
@@ -34,14 +30,10 @@
 
 ## Agent Coordination Protocols
 - **analyze-learning** → analyzes key data streams, updates learning infrastructure, generates recommendations
-- **task** → executes work, hands off to **pwtest** for validation  
+- **task** → executes work, creates Playwright tests automatically (Step 6.1), updates key data stream progressively
 - **refactor** → improves structure, triggers **healthcheck** for validation  
-- **sync** → orchestrates system state, calls **generate-chat-summary** as final step  
+- **sync** → orchestrates system state, maintains documentation and configuration alignment
 - **healthcheck** → validates system integrity, reports to **sync** for fixes  
-- **pwtest** → creates tests, integrates with **task** completion workflow  
-- **multi-browser-testing** → coordinates cross-browser test execution with **pwtest**  
-- **next-thread** → manages conversation continuity and thread transitions  
-- **generate-chat-summary** → captures session state, enables seamless continuity  
 - **question** → analyzes application queries, supports all agents with knowledge and investigation
 
 ## Cross-Agent Learning Infrastructure

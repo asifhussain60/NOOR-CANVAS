@@ -50,7 +50,6 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 ### Integration with Other Agents
 - **Orchestrates**: System-wide synchronization across all documentation and configuration
 - **Called By**: refactor (post-cleanup), task (documentation updates)
-- **Calls**: generate-chat-summary (as final step for continuity preservation)
 - **Triggers**: healthcheck (post-sync validation)
 - **Updates**: 
   - SystemStructureSummary.md (prompt inventory, agent coordination)
@@ -64,7 +63,6 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - Normalized formatting across codebase
 - Clean build with zero errors/warnings
 - Updated learning patterns with sync improvements
-- Preserved conversation continuity via generate-chat-summary
 
 ### Cleanup Duties (Consolidated from cleanup.prompt.md)
 - Remove retired prompts and obsolete instruction files
@@ -138,12 +136,6 @@ This makes you both the **synchronizer** and **janitor** of the system.
   - Eliminate duplicate logic.  
   - Normalize formatting and structure.  
   - Validate results with analyzers, linters, and tests.
-
-- **Chat Context Documentation:**  
-  - Execute `generate-chat-summary` agent to capture current session state.  
-  - Generate comprehensive context documentation for Copilot continuity.  
-  - Update `.github/copilot-chats/INDEX.md` with session information.  
-  - Ensure chat documentation follows standardized format and indexing.  
 
 ### 4. Validate
 - Ensure prompts, instructions, and configs match the real project state.

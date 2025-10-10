@@ -288,6 +288,63 @@ You are the **one-stop solution** for all application-related questions, from fe
 
 ---
 
+## Summary + Learning Pattern Update
+
+After answering questions:
+
+1. **Document Question Pattern**: If question represents common inquiry, contribute to learning infrastructure
+2. **Update Pattern File**: `Workspaces/Copilot/learning/question-patterns.json`
+
+**Pattern Contribution Format** (follow PATTERN_SCHEMA.md):
+```json
+{
+  "id": "question-[category]-[sequence]",
+  "question_category": "feature|troubleshooting|styling|configuration|architecture",
+  "common_questions": [
+    "How does [feature] work?",
+    "Why is [component] not appearing?"
+  ],
+  "investigation_workflow": {
+    "steps": [
+      "1. Check UI layer (razor components)",
+      "2. Trace event handlers and JavaScript",
+      "3. Verify API endpoints and DTOs",
+      "4. Review service layer logic",
+      "5. Validate database queries"
+    ],
+    "files_to_check": [
+      "path/to/Component.razor",
+      "path/to/Controller.cs"
+    ]
+  },
+  "common_answers": {
+    "summary": "High-level explanation",
+    "details": {
+      "ui_layer": "UI implementation details",
+      "api_layer": "API endpoint details",
+      "service_layer": "Business logic details"
+    },
+    "code_references": [
+      "File1.cs:45-67",
+      "Component.razor:123-145"
+    ]
+  },
+  "success_metrics": {
+    "question_frequency": 1,
+    "answer_accuracy": 1.0
+  },
+  "last_updated": "[ISO-8601-timestamp]",
+  "contributed_by": "question"
+}
+```
+
+3. **Frequency Tracking**: If pattern already exists, increment `question_frequency` counter
+4. **Quality Improvement**: Update investigation workflow if better approach discovered
+
+**No Key Data Stream Required**: Question agent operates read-only and updates learning infrastructure only
+
+---
+
 ## Guardrails
 - **Never** make assumptions without code verification
 - **Always** provide file paths and specific locations for evidence
@@ -295,6 +352,7 @@ You are the **one-stop solution** for all application-related questions, from fe
 - **Prioritize** current implementation analysis over speculation
 - **Validate** recommendations against existing architectural patterns
 - **Consider** performance, security, and maintainability implications
+- **Contribute patterns** for frequently asked questions to learning infrastructure
 
 ---
 
@@ -306,3 +364,4 @@ At completion of every question analysis:
 - **Implementation guidance provided** with specific steps and examples
 - **Evidence documented** with exact file locations and code references
 - **Follow-up opportunities surfaced** for related improvements or investigations
+- **Pattern contributed** if question represents common inquiry (update question-patterns.json)
