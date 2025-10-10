@@ -269,7 +269,8 @@
         display: grid;
         grid-template-columns: 1fr 300px;
         gap: 1.5rem;
-        height: 600px;
+        height: auto;
+        align-items: start;
     }
 
     /* Canvas Area Styles */
@@ -281,9 +282,7 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-        min-height: 0;
+        min-height: 400px;
     }
 
 .canvas-content-area {
@@ -363,9 +362,8 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-        min-height: 0;
+        max-height: 600px;
+        overflow-y: auto;
     }
 
     .canvas-tabs {
@@ -1034,6 +1032,9 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Canvas and Q&A panel containers set to prevent overflow with overflow:hidden and min-height:0 ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both divs constrained to same height (600px) via CSS Grid with proper flex containment ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel configured with overflow-y:auto for vertical scrollbar on desktop/iPad ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Canvas container changed from fixed height to auto-expand based on content ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Grid layout changed to height:auto with align-items:start for natural content flow ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel constrained to max-height:600px with overflow-y:auto scrollbar ;CLEANUP_OK");
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
