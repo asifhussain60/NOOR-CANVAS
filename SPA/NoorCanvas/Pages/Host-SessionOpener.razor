@@ -352,7 +352,8 @@
             // Step 3: Auto-populate dropdowns in sequence
             await AutoPopulateSequence(sessionDetails.GroupId.ToString(), sessionDetails.CategoryId.ToString(), sessionDetails.SessionId.ToString());
             
-            Model.InfoMessage = $"<strong>Auto-populated from Token</strong><br/>Successfully loaded session configuration for token <code>{Token}</code>.<br/>You can modify the selections below if needed.";
+            // DEBUG-WORKITEM: session-opener - Removed auto-populated info message ;CLEANUP_OK
+            // Form loads silently without displaying information banner
         }
         catch (Exception ex)
         {
