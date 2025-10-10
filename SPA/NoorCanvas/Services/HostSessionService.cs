@@ -10,7 +10,7 @@ namespace NoorCanvas.Services
     /// Service for managing host session operations
     /// Handles API calls and business logic for session creation and validation.
     /// </summary>
-    public class HostSessionService
+    public partial class HostSessionService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<HostSessionService> _logger;
@@ -33,9 +33,11 @@ namespace NoorCanvas.Services
         public bool ValidateTimeFormat(string time)
         {
             if (string.IsNullOrEmpty(time)) return false;
-            var timeRegex = new Regex(@"^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$", RegexOptions.IgnoreCase);
-            return timeRegex.IsMatch(time);
+            return TimeFormatPattern().IsMatch(time);
         }
+
+        [GeneratedRegex(@"^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$", RegexOptions.IgnoreCase)]
+        private static partial Regex TimeFormatPattern();
 
         /// <summary>
         /// Formats time input to ensure proper AM/PM spacing.
