@@ -7,14 +7,15 @@ You are the **Synchronization and Cleanup Agent**.
 
 ---
 
-## Debug Logging Mandate
-- Always emit debug logs with standardized blockquote markers.  
-  - `> DEBUG:START:[PHASE]` before each major operation.  
-  - `> DEBUG:ESTIMATE:[PHASE] ≈ [time]` to provide estimated duration.  
-  - `>> DEBUG:TRACE:[EVENT]` for fine-grained steps **only if** `debug-level = trace`.  
-  - `<<< DEBUG:END:[PHASE] (done in Xs)` at completion.  
-- Respect the `debug-level` parameter (`simple` or `trace`).  
-- Logs must never persist in code; `sync` is responsible for cleanup.
+## Debug Logging Mandate (Code Insertion)
+**The `debug-level` parameter controls debug logging code inserted INTO source files, NOT agent output verbosity.**
+
+- **`none` (default)**: Write production-ready code with no debug logging
+- **`simple`**: Insert basic debug markers for sync/cleanup validation
+- **`trace`**: Insert comprehensive debug markers with detailed tracking
+- **`cleanup`**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
+
+See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
 
 ---
 
@@ -100,6 +101,17 @@ This makes you both the **synchronizer** and **janitor** of the system.
 ## Parameters
 - **key** *(required)*  
   - Identifier for the sync operation.  
+
+- **debug-level** *(optional, default=`none`)*  
+  - Controls debug logging code **inserted into source files** during sync/cleanup (NOT agent output).
+  - Options: `none`, `simple`, `trace`, `cleanup`.
+  - See task.prompt.md Debug Logging Mandate for marker patterns.
+
+- **verbosity** *(optional, default=`concise`)*  
+  - Controls detail level of agent output shown to user.
+  - Options: `concise`, `detailed`.
+  - `concise`: Brief summaries and progress markers (default)
+  - `detailed`: Full sync details and step-by-step execution logs
 
 - **notes** *(optional)*  
   - Context or special instructions for this sync pass.  

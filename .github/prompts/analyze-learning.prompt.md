@@ -17,19 +17,18 @@ You are the **Self-Learning Analysis Agent**.
   Type of analysis to perform.  
   Options: `success-patterns`, `failure-patterns`, `efficiency`, `quality-trends`, `comprehensive`
 
-- **debug-level** *(optional, default=`simple`)*  
-  Controls verbosity of analysis logging.  
-  Options: `none`, `simple`, `trace`
+- **verbosity** *(optional, default=`detailed`)*  
+  Controls detail level of analysis output (analyze-learning agent defaults to detailed).
+  Options: `concise`, `detailed`.
+  - `concise`: Summary statistics and key findings only
+  - `detailed`: Full analysis report with pattern details (default for analyze-learning agent)
 
 ---
 
-## Debug Logging Mandate
-- Always emit debug logs with standardized blockquote markers.  
-  - `> DEBUG:START:[PHASE]` before each major operation.  
-  - `> DEBUG:ESTIMATE:[PHASE] ≈ [time]` to provide estimated duration.  
-  - `>> DEBUG:TRACE:[EVENT]` for fine-grained steps **only if** `debug-level = trace`.  
-  - `<<< DEBUG:END:[PHASE] (done in Xs)` at completion.  
-- Respect the `debug-level` parameter (`none`, `simple`, or `trace`).
+## Debug Logging Mandate (Code Insertion)
+**analyze-learning is a read-only analysis agent and does NOT insert debug logging into source files.**
+
+This agent only performs pattern analysis and updates learning infrastructure. Debug logging is not applicable to analyze-learning operations.
 
 ---
 

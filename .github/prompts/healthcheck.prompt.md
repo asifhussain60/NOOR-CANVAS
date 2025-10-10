@@ -7,14 +7,10 @@ You are the **Healthcheck Agent**.
 
 ---
 
-## Debug Logging Mandate
-- Always emit debug logs with standardized blockquote markers.  
-  - `> DEBUG:START:[PHASE]` before each major operation.  
-  - `> DEBUG:ESTIMATE:[PHASE] ≈ [time]` to provide estimated duration.  
-  - `>> DEBUG:TRACE:[EVENT]` for fine-grained steps **only if** `debug-level = trace`.  
-  - `<<< DEBUG:END:[PHASE] (done in Xs)` at completion.  
-- Respect the `debug-level` parameter (`simple` or `trace`).  
-- Logs must never persist in code; `sync` is responsible for cleanup.
+## Debug Logging Mandate (Code Insertion)
+**healthcheck is a read-only agent and does NOT insert debug logging into source files.**
+
+This agent only performs validation and reporting. The `debug-level` parameter is not applicable to healthcheck operations.
 
 ---
 
@@ -92,6 +88,12 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - **scope** *(optional, default=`all`)*  
   - `all` → run a full-system health audit.  
   - Component or view name (e.g. `SessionCanvas.razor`, `HostSessionService`) → run healthcheck only for that scope.  
+
+- **verbosity** *(optional, default=`concise`)*  
+  - Controls detail level of agent output shown to user.
+  - Options: `concise`, `detailed`.
+  - `concise`: Brief audit summary with violation counts (default)
+  - `detailed`: Full audit report with all violations listed
 
 - **notes** *(optional)*  
   - Context or areas to prioritize in the health audit.  
