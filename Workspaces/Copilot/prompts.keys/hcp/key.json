@@ -4,49 +4,68 @@
     "mode": "task",
     "debug_level": "simple",
     "created": "2025-10-09T12:00:00Z",
-    "updated": "2025-10-10T12:15:00Z",
+    "updated": "2025-10-10T12:35:00Z",
     "phases": {
         "checkpoint": {
             "status": "completed",
             "duration": "2s",
-            "timestamp": "2025-10-10T12:10:05Z"
+            "timestamp": "2025-10-10T12:20:05Z"
         },
         "plan": {
             "status": "completed",
             "duration": "60s",
-            "timestamp": "2025-10-10T12:11:05Z"
+            "timestamp": "2025-10-10T12:21:05Z"
         },
         "execute": {
             "status": "completed",
-            "duration": "45s",
-            "timestamp": "2025-10-10T12:13:30Z"
+            "duration": "180s",
+            "timestamp": "2025-10-10T12:30:00Z"
         },
         "validate": {
             "status": "completed",
-            "duration": "15s",
-            "timestamp": "2025-10-10T12:14:00Z"
+            "duration": "45s",
+            "timestamp": "2025-10-10T12:32:00Z"
         },
         "confirm": {
             "status": "completed",
             "duration": "5s",
-            "timestamp": "2025-10-10T12:14:15Z"
+            "timestamp": "2025-10-10T12:35:00Z"
         }
     },
     "tasks": [
-        "Update HTML transform function to remove hadees subject tokens"
+        "Test and fix HTML transform function to remove hadees subject tokens",
+        "Implement dual-pattern regex approach for span and plain text formats"
     ],
     "files_modified": [
-        "SPA/NoorCanvas/Services/HtmlParsingService.cs"
+        "SPA/NoorCanvas/Services/HtmlParsingService.cs",
+        "Tests/Unit/HtmlParsingServiceTests.cs",
+        "Workspaces/Copilot/prompts.keys/hcp/test-results.md"
     ],
-    "commits": [],
+    "commits": [
+        "72a4fdef - checkpoint: pre-task hcp - hadees token removal test",
+        "e2428da2 - fix(hcp): hadees token removal - dual-pattern approach for span and plain text formats"
+    ],
     "warnings": [
         "14 pre-existing documentation warnings in HtmlParsingService.cs (unrelated to this change)"
     ],
     "errors": [],
+    "root_cause": {
+        "issue": "Original regex pattern did not match production HTML structure",
+        "expected_format": "<h4>...<i></i>Narrator - Topics</h4> (plain text)",
+        "actual_format": "<h4>...<i></i>Narrator<span>- Topics</span></h4> (span tags)"
+    },
+    "solution": {
+        "approach": "Dual-pattern regex to handle both span tags and plain text",
+        "pattern_1": "<span[^>]*>(\\s*-\\s*[^<]+?)</span> - Removes span tags with tokens",
+        "pattern_2": "(<h4[^>]*>[^<]*<i[^>]*></i>\\s*)([^<]+?)(\\s-\\s[A-Za-z,\\s]+)(</h4>) - Removes plain text tokens",
+        "test_results": "All 4 test cases passed (production HTML, ks-ahadees-subject, legacy, multiple hadees)"
+    },
     "notes": [
         "Host Control Panel related tasks",
         "Hadees header transformation: removes ' - Topics' suffix from narrator headers",
-        "Regex pattern targets h4 hadees headers with icon structure",
-        "Build succeeded with zero compilation errors"
+        "FIXED: Regex now matches both <span> tag format AND plain text format",
+        "Tested with real session212.html production HTML",
+        "Build succeeded with zero compilation errors",
+        "Manual browser testing recommended to verify tokens removed in UI"
     ]
 }
