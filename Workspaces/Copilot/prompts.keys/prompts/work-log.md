@@ -2,6 +2,95 @@
 
 ---
 
+## [2025-10-10T10:12:00Z] - task agent
+
+**Status**: in-progress
+**Phase**: implementation
+**Git Commit**: b86e641e83693ffffd67a750409dbcb5ebd8771c
+
+**Work Done**:
+- Added GPT-4 Vision screenshot annotation extraction capability to task.prompt.md
+- Created ScreenshotAnalysisService with OpenAI GPT-4o integration
+- Configured OpenAI settings in appsettings.json (both Development and Production)
+- Registered IScreenshotAnalysisService in dependency injection container
+- Installed Azure.AI.OpenAI NuGet package (v2.1.0) with OpenAI SDK (v2.1.0)
+- Build validated successfully: 0 errors, 1 pre-existing warning
+
+**Files Modified**:
+- `.github/prompts/task.prompt.md` (NEW PARAMETER)
+  - Added `screenshot` parameter documentation with AI extraction workflow
+  - Documented supported formats: png, jpg, jpeg, gif, bmp, webp
+  - Added usage examples for annotated screenshot processing
+  - Requirements: OpenAI API key, ScreenshotAnalysisService registered
+  
+- `SPA/NoorCanvas/Services/ScreenshotAnalysisService.cs` (NEW - 203 lines)
+  - Interface: IScreenshotAnalysisService with ExtractRequirementsAsync method
+  - Implementation using OpenAI GPT-4o vision model
+  - Base64 image encoding with MIME type detection
+  - Specialized prompt engineering for UI/UX annotation extraction
+  - Requirements parsing from numbered list format
+  - Full XML documentation and structured logging
+  - Configuration validation (IsConfigured method)
+  
+- `SPA/NoorCanvas/appsettings.json`
+  - Added OpenAI configuration section
+  - ApiKey placeholder (empty - user must configure)
+  - VisionDeploymentName: gpt-4o (default model)
+  - Configuration notes with API key URL
+  
+- `SPA/NoorCanvas/appsettings.Development.json`  
+  - Added Development-specific OpenAI configuration
+  - Mirrors production structure for testing
+  
+- `SPA/NoorCanvas/Program.cs`
+  - Registered IScreenshotAnalysisService → ScreenshotAnalysisService (scoped)
+  - Added service registration comment for AI-powered annotation extraction
+  
+- `SPA/NoorCanvas/NoorCanvas.csproj` (Package Reference)
+  - Added Azure.AI.OpenAI v2.1.0
+  - Dependencies: OpenAI v2.1.0, Azure.Core v1.44.1, System.ClientModel v1.2.1
+
+**Implementation Notes**:
+- Service gracefully degrades when API key not configured (logs warning)
+- Supports data URL format for base64 image transmission
+- GPT-4 Vision prompt specifically tuned for:
+  - Red/colored arrows pointing to elements
+  - Text overlays with measurements (e.g., "250px × 250px")
+  - Highlighted areas indicating modifications
+  - Markup annotations with specifications
+- Temperature set to 0.3 for consistent, deterministic extraction
+- Error handling with structured logging at all stages
+- File validation before processing
+- Regex-based requirement parsing removes numbering/bullets
+
+**Testing Required** (Post-Implementation):
+1. Configure OpenAI API key in appsettings.Development.json
+2. Test with sample annotated screenshot
+3. Verify requirements extraction matches visual annotations
+4. Validate error handling when API key missing
+5. Test various image formats (png, jpg, etc.)
+
+**Integration Workflow**:
+```
+User: @workspace /task key=ui screenshot="mockup-annotated.png"
+Agent: Calls ScreenshotAnalysisService.ExtractRequirementsAsync()
+Service: Sends base64 image to GPT-4 Vision API
+GPT-4: Analyzes annotations, returns structured task list
+Agent: Presents extracted requirements to user for approval
+User: Approves/modifies requirements
+Agent: Executes approved tasks
+```
+
+**Key Data Stream Compliance**:
+- Progressive documentation: Work log updated after implementation
+- Git-linked traceability: Full commit hash recorded (b86e641e)
+- Append-only history: Previous entries preserved
+- Timestamp: ISO-8601 format (2025-10-10T10:12:00Z)
+- File-level change tracking: All 6 modified files documented
+- Cross-reference: Checkpoint commit 80f56adc referenced
+
+---
+
 ## [2025-10-10T17:30:00Z] - task agent
 
 **Status**: in-progress
