@@ -27,6 +27,13 @@ You are the **Task Executor Agent**.
 - **tasks** *(optional, multi-line)*  
   Subtasks to be performed in sequence.  
   Each must be addressed one by one, halting on failure if a task fails.  
+  
+  **Special Values:**
+  - **"mark complete"** or **"completed"**: Triggers completion workflow (see Step 9 - Completion Workflow)
+    - Documents complete final workflow across all layers
+    - Removes obsolete/irrelevant information from key data stream
+    - Marks key as `complete`
+    - If new tasks arrive later under same key, status reverts to `in-progress` and normal workflow resumes
 
 ---
 
@@ -157,10 +164,12 @@ All actions must respect the global guardrails and architectural mappings.
 ### 3. Plan
 - **Use the verified/inferred key** from Step 2.
 - Parse `debug-level` and any provided `tasks`.
+- **Detect completion keywords**: If `tasks` contains "mark complete" or "completed", prepare to execute Step 9 (Completion Workflow) instead of normal execution.
 - **Incorporate context** gathered from key data stream verification.
 - Generate a **step-by-step execution plan**, mapping each subtask to the appropriate component, service, or prompt.
 - Identify dependencies and validation requirements.
 - **Document key inference**: If key was inferred (not explicitly provided), clearly state this in the plan output.  
+- **For completion requests**: Plan includes cross-layer analysis, obsolete information cleanup, and final documentation.
 
 ---
 
@@ -245,9 +254,15 @@ All actions must respect the global guardrails and architectural mappings.
 #### 8.1. Key Data Stream Update Requirements
 1. **Locate Key File**: `Workspaces/Copilot/prompts.keys/**/<key>.md`
 
-2. **Update or Create Entry**:
+2. **Retrieve Git Commit Hash**:
+   - Execute: `git rev-parse HEAD` to get the full SHA hash of the current commit
+   - This enables quick access to exact code state for any documented work
+   - Store the full hash (not abbreviated) for precise git operations
+
+3. **Update or Create Entry**:
    - **Status**: Update to reflect current state (`in-progress`, `complete`, `failed`)
    - **Last Updated**: ISO-8601 timestamp of this update
+   - **Git Commit Hash**: Full SHA hash of the commit containing the work (for quick access to past changes)
    - **Work Performed**: Document what was done in this execution
      - Files modified (with paths and line ranges)
      - Features added/changed (with detailed descriptions)
@@ -257,12 +272,13 @@ All actions must respect the global guardrails and architectural mappings.
    - **Outcome**: Success/failure/partial completion with details
    - **Next Steps**: If applicable, document recommended follow-up actions
 
-3. **Append to Work Log** (don't overwrite - maintain cumulative history):
+4. **Append to Work Log** (don't overwrite - maintain cumulative history):
    ```markdown
    ---
    ## [ISO-8601-Timestamp] - [Agent/User]
    **Status**: [new-status]
    **Phase**: [planning|implementation|validation|completion]
+   **Git Commit**: [full-sha-hash]
    **Work Done**: 
    - [bullet point summary]
    - [of all changes made]
@@ -284,11 +300,11 @@ All actions must respect the global guardrails and architectural mappings.
    ---
    ```
 
-4. **Maintain Alphabetical Sorting**:
+5. **Maintain Alphabetical Sorting**:
    - Ensure all keys remain alphabetically sorted in their respective folders
    - Do not duplicate key/keylock status in summary (already in Confirm step)
 
-5. **Cross-Reference Related Work**:
+6. **Cross-Reference Related Work**:
    - Link to related keys or dependencies
    - Note any blocking or blocked-by relationships
 
@@ -302,14 +318,236 @@ All actions must respect the global guardrails and architectural mappings.
 - **Verify key file was updated** before completing this step
 - **Confirm work log entry exists** for this execution
 - **Validate alphabetical sorting** is maintained
+- **Verify git commit hash is recorded** - enables quick access to exact code state
 
 **Failure to update the key data stream constitutes an incomplete task execution.**  
+
+#### 8.4. Git Commit Hash Benefits
+**Why record commit hashes in key data stream:**
+1. **Quick Code Access**: Jump directly to code state at time of work completion
+2. **Historical Context**: Review exact file versions associated with documented work
+3. **Debugging Support**: Trace issues back to specific code changes
+4. **Audit Trail**: Complete record of when and what code changes occurred
+5. **Diff Generation**: Compare current state with past implementations
+6. **Git Operations**: Use hash for checkout, diff, blame, and other git commands
+   - Example: `git show [commit-hash]` - View complete changeset
+   - Example: `git diff [commit-hash] HEAD` - Compare with current state
+   - Example: `git checkout [commit-hash] -- [file]` - Restore specific file version
+
+---
+
+### 9. Completion Workflow (When tasks = "mark complete" or "completed")
+**Triggered when user specifies "mark complete" or "completed" as the tasks parameter value.**
+
+#### 9.1. Cross-Layer Documentation Analysis
+**Document the COMPLETE, FINAL workflow across ALL layers reflecting current application reality:**
+
+1. **Frontend Layer Analysis**:
+   - **Razor Pages/Components**: Document all UI components involved in the feature
+   - **JavaScript/TypeScript**: Client-side interactions, event handlers, SignalR connections
+   - **CSS/Styling**: Bootstrap classes, custom styles, responsive breakpoints
+   - **User Journey**: Step-by-step user interaction flow with screenshots/examples
+   - **Accessibility**: ARIA labels, keyboard navigation, screen reader support
+
+2. **API Layer Analysis**:
+   - **Controllers**: All endpoints involved (HTTP methods, routes, parameters)
+   - **Request/Response DTOs**: Complete data contracts with property descriptions
+   - **Authentication/Authorization**: Required roles, permissions, token validation
+   - **Error Handling**: Exception types, status codes, error messages
+   - **API Contracts**: Reference `.github/instructions/Links/API-Contract-Validation.md`
+
+3. **Service Layer Analysis**:
+   - **Business Logic Services**: All service methods involved in the workflow
+   - **Data Transformations**: DTO mappings, data processing, validation rules
+   - **External Dependencies**: Third-party APIs, libraries, integrations
+   - **Caching**: Cache keys, invalidation strategies, TTL configurations
+   - **Background Jobs**: Scheduled tasks, queue processing, async operations
+
+4. **Database Layer Analysis**:
+   - **Tables/Models**: All entities involved with schema details
+   - **Migrations**: Applied migrations and their purposes
+   - **Queries**: Key SQL queries, LINQ expressions, performance considerations
+   - **Indexes**: Database indexes for query optimization
+   - **Constraints**: Foreign keys, unique constraints, check constraints
+   - **Stored Procedures**: If applicable, document SP logic and parameters
+
+5. **SignalR/Real-Time Layer Analysis** (if applicable):
+   - **Hubs**: Hub methods, client-to-server and server-to-client methods
+   - **Connection Management**: Connection lifecycle, group management
+   - **Message Flow**: Real-time event broadcasting patterns
+   - **State Synchronization**: How client and server states remain synchronized
+
+6. **Configuration Analysis**:
+   - **appsettings.json**: All relevant configuration keys and their values
+   - **Environment Variables**: Required environment-specific settings
+   - **Feature Flags**: Enabled/disabled features affecting this workflow
+   - **Connection Strings**: Database, cache, external service connections
+   - **Logging Configuration**: Log levels, log targets, structured logging settings
+
+7. **Testing Coverage**:
+   - **Unit Tests**: Service layer, business logic, utility methods
+   - **Integration Tests**: API endpoints, database operations
+   - **Playwright Tests**: UI interactions, end-to-end workflows
+   - **Test Results**: Coverage percentages, passing/failing status
+
+8. **Dependencies & Libraries**:
+   - **NuGet Packages**: Versions of all relevant .NET packages
+   - **npm Packages**: Versions of all relevant JavaScript packages
+   - **Framework Versions**: .NET version, Blazor version, Bootstrap version
+
+#### 9.2. Obsolete Information Removal
+**Clean up the key data stream by removing:**
+- Superseded implementations or approaches that were replaced
+- Failed attempts or abandoned strategies
+- Temporary workarounds that were resolved
+- Outdated architecture decisions that changed
+- Irrelevant debug information or experimental code paths
+- Stale dependencies or configurations no longer in use
+
+**Keep only:**
+- Current, working implementation details
+- Final architectural decisions and their rationale
+- Active dependencies and configurations
+- Successful test results and validation outcomes
+- Relevant historical context for future maintenance
+
+#### 9.3. Completion Documentation Template
+**Append to key data stream work log:**
+
+```markdown
+---
+## [ISO-8601-Timestamp] - [Agent/User] - COMPLETION DOCUMENTATION
+
+**Status**: complete
+**Phase**: completion
+**Git Commit**: [full-sha-hash]
+
+### 🎯 Feature Summary
+[High-level description of what this key accomplished]
+
+### 🏗️ Complete Workflow Documentation
+
+#### Frontend Layer
+- **UI Components**: 
+  - `path/to/component1.razor` - [Purpose and functionality]
+  - `path/to/component2.razor` - [Purpose and functionality]
+- **User Journey**:
+  1. [Step 1 description]
+  2. [Step 2 description]
+  3. [Continue...]
+- **Styling**: [CSS classes, custom styles, responsive design notes]
+- **Client-Side Logic**: [JavaScript/TypeScript interactions, event handlers]
+- **SignalR Integration**: [Hub connections, real-time updates]
+
+#### API Layer
+- **Endpoints**:
+  - `[METHOD] /api/path` - [Description, parameters, response]
+  - `[METHOD] /api/path2` - [Description, parameters, response]
+- **DTOs**:
+  - `DtoName1` - [Properties and purpose]
+  - `DtoName2` - [Properties and purpose]
+- **Authentication**: [Required roles, authorization logic]
+- **Validation**: [Input validation rules, business rule validation]
+
+#### Service Layer
+- **Services Used**:
+  - `ServiceName1` - [Methods used and their purposes]
+  - `ServiceName2` - [Methods used and their purposes]
+- **Business Logic**: [Key algorithms, data transformations, validation rules]
+- **External Integrations**: [Third-party APIs, libraries used]
+- **Caching Strategy**: [Cache keys, invalidation, TTL]
+
+#### Database Layer
+- **Tables**:
+  - `TableName1` - [Schema, key columns, relationships]
+  - `TableName2` - [Schema, key columns, relationships]
+- **Migrations**: 
+  - `MigrationName` - [Changes applied]
+- **Key Queries**: [Important SQL/LINQ queries with performance notes]
+- **Indexes**: [Database indexes created for optimization]
+
+#### Configuration
+- **appsettings.json**:
+  ```json
+  {
+    "Section": {
+      "Key": "Value",
+      "Purpose": "Explanation"
+    }
+  }
+  ```
+- **Environment Variables**: [Required variables and their purposes]
+- **Feature Flags**: [Enabled features affecting this workflow]
+
+#### Testing
+- **Unit Tests**: [X tests in path/to/tests, coverage: Y%]
+- **Integration Tests**: [X tests in path/to/tests, coverage: Y%]
+- **Playwright Tests**: [X tests in Workspaces/TEMP/, all passing]
+- **Test Results**: ✅ All tests passing
+
+#### Dependencies
+- **.NET Packages**:
+  - `PackageName` v.X.Y.Z - [Purpose]
+- **npm Packages**:
+  - `package-name` v.X.Y.Z - [Purpose]
+- **Framework Versions**: .NET 8.0, Blazor Server, Bootstrap 5.x
+
+### 📝 Architectural Decisions
+- [Key decision 1 and rationale]
+- [Key decision 2 and rationale]
+
+### ⚠️ Known Limitations
+- [Limitation 1]
+- [Limitation 2]
+
+### 🔄 Future Considerations
+- [Potential improvement 1]
+- [Potential improvement 2]
+
+### ✅ Validation
+- **Build Status**: SUCCESS
+- **Analyzer Status**: CLEAN
+- **Test Results**: All passing
+- **Code Quality**: Meets standards
+
+**Key Status**: COMPLETE
+
+---
+```
+
+#### 9.4. State Management
+1. **Mark key as `complete`** in key data stream metadata
+2. **Archive work log** - all historical entries remain intact
+3. **Update key index** - reflect completion status in `Workspaces/Copilot/prompts.keys/README.md`
+4. **Cross-reference completions** - link to related completed keys
+
+#### 9.5. Resumption Protocol
+**If new tasks arrive for a `complete` key:**
+1. **Automatically revert status** from `complete` to `in-progress`
+2. **Preserve completion documentation** - don't delete the completion entry
+3. **Add new work log entry** documenting resumption:
+   ```markdown
+   ---
+   ## [ISO-8601-Timestamp] - [Agent/User] - RESUMPTION
+   **Status**: in-progress
+   **Phase**: implementation
+   **Git Commit**: [full-sha-hash]
+   **Note**: Key reopened for additional work. Previous completion documentation preserved.
+   **New Tasks**:
+   - [New task 1]
+   - [New task 2]
+   ---
+   ```
+4. **Continue normal workflow** - follow Steps 1-8 as usual
+5. **On next completion** - update completion documentation with new workflow changes
 
 ---
 
 ## Guardrails
 - **ALWAYS query key data stream before planning** (Step 2 is mandatory, not optional).
 - **ALWAYS update key data stream after execution** (Step 8 is mandatory, not optional).
+- **ALWAYS execute completion workflow when tasks = "mark complete" or "completed"** (Step 9 is triggered by special keyword).
+- **ALWAYS preserve completion documentation when resuming completed keys** - don't delete historical completion entries.
 - **ALWAYS infer key from recent work** if not explicitly provided (check thread history first).
 - **Never** modify functionality unless explicitly required.  
 - Always ensure architectural and structural integrity.  
@@ -332,7 +570,11 @@ If any of these conditions fail, the task must be marked **Incomplete** and repo
 ---
 
 ## Lifecycle
-- Default state: `In Progress`.  
-- Tasks transition to `complete` only when explicitly instructed by the user.  
-- Keys and summaries in `prompts.keys` remain the **single source of truth** for lifecycle tracking.  
+- Default state: `in-progress`.  
+- Tasks transition to `complete` when user provides `tasks = "mark complete"` or `tasks = "completed"`.
+- **Completion triggers Step 9** - comprehensive cross-layer documentation and cleanup.
+- **Completed keys can be reopened** - new tasks automatically revert status to `in-progress`.
+- **Resumption preserves history** - completion documentation remains intact when key is reopened.
+- Keys and summaries in `prompts.keys` remain the **single source of truth** for lifecycle tracking.
+
 
