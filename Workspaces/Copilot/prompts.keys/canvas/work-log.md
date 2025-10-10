@@ -8,3 +8,16 @@
 - Added debug logging marker for tracking
 **Files**: 1 modified | **Tests**: N/A | **Build**: PASS
 **Next**: Continue canvas UI improvements
+
+---
+## [2025-10-10 11:00] - task
+**Status**: in-progress | **Phase**: layout-improvements | **Commit**: 5be8797
+**Work**:
+- Centered logo above title with 250px × 250px dimensions
+- Set canvas div to fixed 600px height for shareable assets
+- Added responsive layout - sidebar moves below on mobile (<768px)
+- SignalR status indicator positioned absolutely in header
+- Mobile breakpoints for logo sizing and typography
+**Files**: 1 modified (SessionCanvas.razor) | **Tests**: N/A | **Build**: PASS
+**Debug Logging**: 3 simple markers inserted
+**Next**: Continue canvas enhancements
