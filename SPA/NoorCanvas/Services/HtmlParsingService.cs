@@ -292,6 +292,20 @@ namespace NoorCanvas.Services
                 return $"<img{attrs} data-islamic-content>";
             }, RegexOptions.IgnoreCase);
 
+            // Remove subject tokens from hadees headers (e.g., " - Accountability, Deeds")
+            // Pattern matches: space, hyphen, space, followed by comma-separated words
+            var hadeeSubjectPattern = new Regex(
+                @"(<span[^>]*class[^=]*=[^""]*""[^""]*ks-ahadees-subject[^""]*""[^>]*>)([^<]*?)(\s-\s[^<]+)(</span>)",
+                RegexOptions.IgnoreCase);
+            
+            var hadeesTokensRemoved = 0;
+            cleaned = Regex.Replace(cleaned, @"(<h4[^>]*>[^<]*<i[^>]*></i>\s*)([^<]+?)(\s-\s[A-Za-z,\s]+)(</h4>)", match =>
+            {
+                hadeesTokensRemoved++;
+                // Keep everything except the " - Topics" part (group 3)
+                return $"{match.Groups[1].Value}{match.Groups[2].Value}{match.Groups[4].Value}";
+            }, RegexOptions.IgnoreCase);
+
             // Calculate metrics
             var originalLength = html.Length;
             var cleanedLength = cleaned.Length;
@@ -308,10 +322,11 @@ namespace NoorCanvas.Services
                 "totalRemovedBytes={TotalRemovedBytes}, deleteButtonBytesRemoved={DeleteBytesRemoved}, " +
                 "plainTextButtonBytesRemoved={PlainTextBytesRemoved}, imageStyleBytesRemoved={ImageStyleBytesRemoved}, " +
                 "imageStylesRemoved={ImageStylesRemoved}, exampleElementsMarked={ExampleCount}, " +
-                "quoteElementsMarked={QuoteCount}, imgElementsMarked={ImgCount}, durationMs={Duration} ;CLEANUP_OK",
+                "quoteElementsMarked={QuoteCount}, imgElementsMarked={ImgCount}, " +
+                "hadeesTokensRemoved={HadeesTokensRemoved}, durationMs={Duration} ;CLEANUP_OK",
                 originalLength, cleanedLength, totalRemovedBytes, deleteBytesRemoved,
                 plainTextBytesRemoved, imageStyleBytesRemoved, imageStylesRemoved,
-                exampleCount, quoteCount, imgCount, duration);
+                exampleCount, quoteCount, imgCount, hadeesTokensRemoved, duration);
 
             return cleaned;
         }
