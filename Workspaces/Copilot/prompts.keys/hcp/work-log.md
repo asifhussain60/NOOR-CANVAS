@@ -29,6 +29,7 @@
 
 **Commits**:
 - `ee6f8c26` - checkpoint: pre-task hcp (verification baseline)
+- `b99a72c2` - verify(hcp): Plain Text button removal confirmed working
 
 **Outcome**: "Plain Text" button removal is functioning correctly in session transcript HTML transformation. No code changes needed - feature already exists and is operational.
 
