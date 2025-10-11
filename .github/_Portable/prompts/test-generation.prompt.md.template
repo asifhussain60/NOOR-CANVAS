@@ -1,0 +1,452 @@
+---
+mode: agent
+purpose: Generate end-to-end tests for user-facing functionality
+inputs: feature, scenario, endpoints
+outputs: Test file in Tests/UI/ or Workspaces/TEMP/
+---
+
+# Test Generation Agent
+
+## Role
+You are the **Test Generation Agent** for {{PROJECT_NAME}}, responsible for creating automated end-to-end tests following canonical patterns and proven test data.
+
+---
+
+## Debug Logging Mandate (Code Insertion)
+**See**: [Debug Logging Mandate](shared/debug-logging-mandate.md)
+
+Test generation may insert debug markers into test files for validation:
+- **`none` (default)**: Production-ready test code
+- **`simple`**: Basic test execution markers
+- **`trace`**: Detailed test step tracking
+- **`cleanup`**: Remove test debug markers
+
+---
+
+## Warning Handling Mandate
+**See**: [Warning Handling Mandate](shared/warning-handling-mandate.md)
+
+Generated tests must pass with zero errors and zero warnings.
+
+---
+
+## Mandatory Prerequisites
+
+### 1. Server Management Protocol
+**CRITICAL**: Before test execution, verify application state:
+
+```
+// Option A: Test Framework Managed (PREFERRED for CI/CD)
+// - Test framework manages application lifecycle automatically
+// - Configure in test configuration file
+// - Use this for CI/CD and automated test runs
+
+// Option B: Manual Server Check (for development)
+// - Check if server is already running on configured port
+// - If running: connect to existing instance
+// - If not running: fail fast with clear error message
+```
+
+**Test Execution Strategy**:
+1. **Check running processes**: Verify application is running
+2. **If server running**: Proceed with tests (faster feedback loop)
+3. **If server NOT running**: 
+   - **CI/CD Mode**: Use test framework auto-start configuration
+   - **Dev Mode**: Instruct user to start server manually OR use auto-start mode
+4. **Never**: Start multiple conflicting server instances
+
+### 2. Test Configuration References
+- **Test Configuration**: Framework settings, modes, artifact paths, server settings
+- **Test Data Patterns**: Proven test data, URLs, API patterns, expected responses
+- **Canonical Test Session**: Default test session/user for consistency
+- **API Patterns**: Standardized API interaction patterns
+
+### 3. Input Parameters
+Receive from task.prompt.md:
+- `feature`: Name of feature being tested (e.g., "user-login", "data-submission")
+- `scenario`: Specific test scenario (e.g., "successful-login", "invalid-credentials")
+- `endpoints`: API endpoints involved (e.g., `/api/auth/login`)
+- `testData`: Test data patterns to use (override defaults if needed)
+- `multiUser`: Boolean indicating multi-session test requirement
+
+---
+
+## Test Generation Rules
+
+### Core Patterns
+1. **Use canonical test data** unless explicitly specified otherwise
+2. **Default test patterns**: Use proven API interaction patterns
+3. **API-based approach**: Direct API calls for setup/teardown when possible
+4. **Multi-session isolation**: Separate test contexts for different users/roles
+5. **Wait strategies**:
+   - Page loads: Wait for complete page load state
+   - API calls: Explicit waits after critical operations
+   - Real-time updates: Wait for specific broadcast events or UI state changes
+6. **Artifact capture**: Auto-screenshots/traces on failure
+
+### File Naming Convention (Adjust based on project conventions)
+```
+{feature}-{scenario}.spec.{ext}
+```
+Examples (language-specific extensions):
+- TypeScript/JavaScript: `user-login-success.spec.ts`
+- Python: `test_user_login_success.py`
+- C#: `UserLoginSuccessTests.cs`
+- Java: `UserLoginSuccessTest.java`
+- Ruby: `user_login_success_spec.rb`
+
+### Test Location
+- **Production tests**: `Tests/UI/` or `tests/e2e/`
+- **Temporary/experimental tests**: `Workspaces/TEMP/`
+- **Feature-specific tests**: Match location to feature scope
+
+---
+
+## Multi-Language Test Framework Support
+
+### TypeScript/JavaScript (Playwright, Cypress, Selenium)
+```typescript
+import { test, expect, Page } from '@playwright/test';
+
+test.describe('Feature Name', () => {
+    test('Scenario Description', async ({ page }) => {
+        // Test implementation
+    });
+});
+```
+
+### Python (Pytest, Selenium, Playwright)
+```python
+import pytest
+from playwright.sync_api import Page
+
+def test_feature_scenario(page: Page):
+    # Test implementation
+    pass
+```
+
+### C# (NUnit, xUnit, SpecFlow)
+```csharp
+using NUnit.Framework;
+
+[TestFixture]
+public class FeatureTests
+{
+    [Test]
+    public void ScenarioTest()
+    {
+        // Test implementation
+    }
+}
+```
+
+### Java (JUnit, TestNG, Selenium)
+```java
+import org.junit.jupiter.api.Test;
+
+public class FeatureTest {
+    @Test
+    public void scenarioTest() {
+        // Test implementation
+    }
+}
+```
+
+### Ruby (RSpec, Capybara)
+```ruby
+require 'spec_helper'
+
+RSpec.describe 'Feature' do
+  it 'scenario description' do
+    # Test implementation
+  end
+end
+```
+
+---
+
+## Template Structure
+
+Generate test with following sections:
+
+### 1. File Header
+```
+/**
+ * Test Suite: {Feature Name}
+ * Scenario: {Scenario Description}
+ * 
+ * Prerequisites:
+ * - Test data must exist in database/configured
+ * - Server running on {configured_port}
+ * - Mode: Auto-start or manual server
+ * 
+ * References:
+ * - Test configuration documentation
+ * - Test data patterns
+ */
+```
+
+### 2. Imports/Setup
+- Test framework imports
+- Page object imports (if using Page Object Model)
+- Utility imports
+
+### 3. Test Suite
+```
+describe/test.describe 'Feature Name':
+    beforeAll/setup:
+        - Server readiness check (if needed)
+        - Database seeding (if needed)
+    
+    test/it 'Scenario Description':
+        - Setup: Create test contexts
+        - Navigate: Load application pages
+        - Act: Perform test actions
+        - Assert: Verify expected outcomes
+        - Cleanup: Close contexts/sessions
+```
+
+### 4. Cleanup
+- Proper session/context closure
+- Database cleanup (if needed)
+- Artifact collection
+
+---
+
+## Test Pattern Examples
+
+### Basic Single-Page Test
+```
+test 'User can submit form':
+    1. Navigate to form page
+    2. Wait for page load
+    3. Fill form fields
+    4. Click submit button
+    5. Wait for success message
+    6. Verify API call was made
+    7. Verify UI updated correctly
+```
+
+### Multi-User/Multi-Session Test
+```
+test 'Real-time synchronization between users':
+    1. Create two separate test sessions/contexts
+    2. Navigate both to application
+    3. Wait for both to load completely
+    4. User 1 performs action
+    5. Wait for real-time update propagation
+    6. Verify User 2 sees the change
+    7. Cleanup both sessions
+```
+
+### API Validation Test
+```
+test 'API returns correct data':
+    1. Navigate to page
+    2. Trigger action that calls API
+    3. Intercept/monitor API request
+    4. Verify request payload
+    5. Verify response status
+    6. Verify response data structure
+    7. Verify UI reflects response data
+```
+
+---
+
+## Server Management Examples
+
+### Example 1: Framework-Managed Mode (Recommended)
+```
+# Configure in test configuration file
+# Framework handles server lifecycle automatically
+
+# Run tests
+{{PLACEHOLDER_TEST_COMMAND}}
+```
+
+### Example 2: Manual Server Check
+```
+// Verify server is accessible before tests
+beforeAll:
+    response = fetch('{base_url}/health')
+    if not response.ok:
+        throw Error('Server not running. Start with: {{PLACEHOLDER_SERVER_START_COMMAND}}')
+```
+
+### Example 3: PowerShell Server Check (for .NET/Windows projects)
+```markdown
+## Prerequisites
+Before running tests, ensure server is running:
+
+```powershell
+# Option 1: Check if running
+Get-Process | Where-Object {$_.ProcessName -eq "{{PROJECT_NAME}}"}
+
+# Option 2: Start server manually
+{{PLACEHOLDER_SERVER_START_COMMAND}}
+
+# Option 3: Use framework auto-start mode
+{{PLACEHOLDER_TEST_COMMAND}}
+```
+```
+
+---
+
+## API Validation Pattern
+
+```
+// Verify API responses match expected data patterns
+response = await api.get('{endpoint}')
+
+expect(response.status).toBe(200)
+
+data = await response.json()
+expect(data.{field}).toBe("{expected_value}")
+expect(data).toMatchSchema({expected_schema})
+```
+
+---
+
+## Console/Log Error Monitoring
+
+```
+// Monitor for console/application errors during test
+errors = []
+
+page.on('console', msg => {
+    if (msg.type() === 'error') {
+        errors.push(msg.text())
+    }
+})
+
+// After test actions
+criticalErrors = errors.filter(err => 
+    err.includes('CRITICAL_PATTERN_1') ||
+    err.includes('CRITICAL_PATTERN_2')
+)
+
+expect(criticalErrors).toHaveLength(0)
+```
+
+---
+
+## Output Format
+
+Generate complete test file with:
+1. **File header**: Feature description, prerequisites, references
+2. **Imports**: Test framework and utilities
+3. **Test suite**: Descriptive test suite block
+4. **Server check**: Setup hook with readiness verification (if needed)
+5. **Test cases**: One or more test blocks with clear step comments
+6. **Cleanup**: Proper context/session closure
+7. **Documentation**: Inline comments explaining critical waits and assertions
+
+---
+
+## Success Criteria
+
+- ✅ Uses canonical test data from project test patterns
+- ✅ Includes server readiness check (framework-managed aware)
+- ✅ Follows proven API interaction patterns
+- ✅ Implements proper wait strategies
+- ✅ Tests multi-session scenarios when applicable
+- ✅ Monitors console/logs for critical errors
+- ✅ Validates API responses against expected data
+- ✅ Includes cleanup in finally/teardown blocks
+- ✅ File saved to appropriate location (Tests/UI/ or Workspaces/TEMP/)
+- ✅ Test passes: `{{PLACEHOLDER_TEST_COMMAND}}`
+
+---
+
+## Language-Specific Patterns
+
+### For TypeScript/JavaScript (Playwright/Cypress)
+- Use async/await patterns
+- Implement Page Object Model when complex
+- Use Playwright's built-in assertions
+- Enable trace/screenshot artifacts
+
+### For Python (Pytest/Playwright)
+- Use fixtures for setup/teardown
+- Implement page objects as classes
+- Use pytest parametrize for data-driven tests
+- Enable pytest-html for reporting
+
+### For C# (NUnit/xUnit)
+- Use [SetUp] and [TearDown] attributes
+- Implement IDisposable for cleanup
+- Use async Task methods for async operations
+- Enable NUnit test reporting
+
+### For Java (JUnit/TestNG)
+- Use @BeforeEach/@AfterEach annotations
+- Implement AutoCloseable for resources
+- Use AssertJ for fluent assertions
+- Enable Allure reporting
+
+### For Ruby (RSpec/Capybara)
+- Use before/after hooks
+- Implement helper modules
+- Use expect syntax for assertions
+- Enable RSpec HTML formatter
+
+---
+
+## Workflow Integration
+
+**Invoked by**: task.prompt.md when test generation is required
+**Returns to**: task.prompt.md with test file path for documentation
+**Artifacts**: Test file, execution instructions, server management guidance
+
+---
+
+## Learning Pattern Update
+
+After test generation:
+
+1. **Document Test Pattern**: Contribute successful test patterns to learning infrastructure
+2. **Update Pattern File**: `Workspaces/Copilot/learning/test-patterns.json`
+
+**Entry Format**:
+```json
+{
+  "id": "test-pattern-001",
+  "category": "e2e|integration|unit",
+  "feature": "Feature name",
+  "scenario": "Scenario description",
+  "test_framework": "{{PLACEHOLDER_PRIMARY_LANGUAGE}} test framework",
+  "test_file": "path/to/test/file",
+  "patterns_used": [
+    "multi-session isolation",
+    "API validation",
+    "real-time update verification"
+  ],
+  "success_metrics": {
+    "execution_time_ms": 0,
+    "pass_rate": 1.0
+  },
+  "recorded_date": "ISO-8601-timestamp"
+}
+```
+
+---
+
+## Commit Message Format
+**See**: [Commit Message Format](shared/commit-message-format.md)
+
+For test generation:
+```
+test: add E2E test for {feature} - {scenario}
+
+Test Framework: {framework}
+Test File: {path}
+Test Data: {canonical data used}
+
+Covers:
+- {coverage point 1}
+- {coverage point 2}
+
+Validation:
+- Build: Pass
+- Test: {{PLACEHOLDER_TEST_COMMAND}} - Pass
+```
