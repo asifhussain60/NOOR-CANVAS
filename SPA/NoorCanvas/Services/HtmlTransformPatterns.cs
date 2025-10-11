@@ -91,4 +91,3 @@ namespace NoorCanvas.Services
         public static partial Regex NestedQuotePattern();
     }
 }
-

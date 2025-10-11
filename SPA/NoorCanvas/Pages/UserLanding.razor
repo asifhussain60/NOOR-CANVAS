@@ -185,23 +185,7 @@
         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] UserLanding OnInitialized START - SessionToken: {SessionToken}", 
             requestId, SessionToken ?? "null");
 
-        Model = new UserLandingViewModel
-        {
-            LogoText = "NOOR Canvas",
-            SessionName = "Enter Session Token", // Clear instruction instead of mock loading text
-            ShowTokenPanel = true,
-            ButtonText = "Submit",
-            ButtonIconClass = "fa-solid fa-arrow-right-to-bracket",
-            IsLoading = false
-        };
-
-        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Initial Model state - ShowTokenPanel: {ShowTokenPanel}", 
-            requestId, Model.ShowTokenPanel);
-
-        // NOTE: Countries will be loaded AFTER successful token validation (Issue-114 fix)
-        // Do NOT load countries here to prevent loading during token entry phase
-
-        // Check for token from route parameter or query parameter
+        // Check for token from route parameter or query parameter FIRST
         var token = SessionToken;
         if (string.IsNullOrEmpty(token))
         {
@@ -212,8 +196,27 @@
                 requestId, token ?? "null");
         }
 
+        // Initialize Model with appropriate state based on token presence
+        bool hasToken = !string.IsNullOrEmpty(token);
+        
+        Model = new UserLandingViewModel
+        {
+            LogoText = "NOOR Canvas",
+            SessionName = hasToken ? "[Validating...]" : "Enter Session Token",
+            ShowTokenPanel = !hasToken, // Hide token panel if we have a token from URL
+            ButtonText = "Submit",
+            ButtonIconClass = "fa-solid fa-arrow-right-to-bracket",
+            IsLoading = false
+        };
+
+        Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Initial Model state - ShowTokenPanel: {ShowTokenPanel}, HasToken: {HasToken}", 
+            requestId, Model.ShowTokenPanel, hasToken);
+
+        // NOTE: Countries will be loaded AFTER successful token validation (Issue-114 fix)
+        // Do NOT load countries here to prevent loading during token entry phase
+
         // If session token provided via URL, populate it and load session info
-        if (!string.IsNullOrEmpty(token))
+        if (hasToken && !string.IsNullOrEmpty(token))
         {
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Token found - starting validation for: {Token}", 
                 requestId, token);
@@ -379,6 +382,9 @@
                     if (Model != null)
                     {
                         Model.SessionName = "Invalid Session";
+                        Model.ShowTokenPanel = true; // Show token panel for invalid tokens
+                        Model.ErrorMessage = "Invalid session token. Please check and try again.";
+                        StateHasChanged();
                     }
                 }
             }
@@ -389,6 +395,9 @@
                 if (Model != null)
                 {
                     Model.SessionName = "Session Not Found";
+                    Model.ShowTokenPanel = true; // Show token panel for failed validation
+                    Model.ErrorMessage = "Session not found. Please verify your token.";
+                    StateHasChanged();
                 }
             }
         }
@@ -399,6 +408,9 @@
             if (Model != null)
             {
                 Model.SessionName = "Error Loading Session";
+                Model.ShowTokenPanel = true; // Show token panel on error
+                Model.ErrorMessage = "An error occurred while validating your session. Please try again.";
+                StateHasChanged();
             }
         }
     }
