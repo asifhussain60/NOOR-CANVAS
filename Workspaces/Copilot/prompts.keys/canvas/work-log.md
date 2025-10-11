@@ -1,7 +1,7 @@
 # Canvas Key - Work Log
 
 ## [2025-10-11 - Latest] - task
-**Status**: in-progress | **Phase**: debug-panel-islamic-questions | **Commit**: TBD
+**Status**: in-progress | **Phase**: debug-panel-islamic-questions | **Commit**: 6d251c6
 **Work**:
 - **ENHANCED DEBUG PANEL**: Replaced timestamped debug questions with 50 curated Islamic questions
 - Created static `DebugIslamicQuestions` list with educational content:

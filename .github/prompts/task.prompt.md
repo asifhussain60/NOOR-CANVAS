@@ -152,6 +152,82 @@ When implementing code changes, respect the `debug-level` parameter:
 
 ---
 
+## Automated Test Generation Mandate
+
+When implementing changes, evaluate if Playwright end-to-end tests are needed:
+
+### Generate Tests When:
+- ✅ New user interaction flow (buttons, forms, navigation, modals)
+- ✅ API endpoint creation/modification affecting UI behavior
+- ✅ SignalR real-time feature changes (broadcasts, synchronization)
+- ✅ Bug fixes affecting user-visible behavior
+- ✅ Multi-user/multi-browser scenarios
+- ✅ Question/voting/session management features
+- ✅ Authentication/authorization flow changes
+
+### Skip Tests For:
+- ❌ CSS/styling tweaks without functional changes
+- ❌ Debug logging additions/removals
+- ❌ Documentation updates
+- ❌ Internal code refactoring without behavior change
+- ❌ Configuration file modifications
+- ❌ Comment updates
+
+### Test Generation Requirements:
+1. **Invoke test-generation.prompt.md** with parameters:
+   - `feature`: Descriptive feature name (e.g., "debug-panel-islamic-questions")
+   - `scenario`: Specific test scenario (e.g., "random-question-broadcast")
+   - `endpoints`: API endpoints involved (e.g., "/api/Question/Submit")
+   - `multiUser`: true/false for multi-browser testing
+   
+2. **Read canonical data** from:
+   - `PlaywrightConfig.MD` - Configuration, modes, webServer settings
+   - `PlaywrightTestPaths.MD` - Session 212 tokens, proven patterns, expected responses
+
+3. **Follow proven patterns**:
+   - Session ID: `212` (canonical test session)
+   - Host Token: `PQ9N5YWW`
+   - User Token: `KJAHA99L` (Peter Parker participant)
+   - Base URL: `https://localhost:9091`
+
+4. **Server Management**:
+   - Prefer `PW_MODE=standalone` for automatic .NET app lifecycle
+   - Include server readiness checks in test beforeAll hooks
+   - Document manual server start commands in test file headers
+
+5. **Include in key-data-stream**:
+   - Document test file path in work-log.md
+   - Record test coverage scope
+   - Note test execution results
+
+6. **Naming convention**: `{feature}-{scenario}.spec.ts` in `Tests/UI/` or `Workspaces/TEMP/`
+
+### Test Generation Workflow:
+```
+User Request (via task.prompt.md)
+    ↓
+[Evaluate: Does this need tests?]
+    ↓
+YES → Invoke test-generation.prompt.md
+    ↓
+Generate test using PlaywrightTestPaths.MD patterns
+    ↓
+Include test path in key-data-stream (Step 8)
+    ↓
+Continue with implementation
+```
+
+### Example Triggers:
+```
+✅ "Add delete button to Q&A panel" → Generate deletion test with multi-browser sync
+✅ "Fix SignalR broadcast for updates" → Generate broadcast verification test
+✅ "Add debug panel with random questions" → Generate question submission test
+❌ "Change button color to blue" → Skip test generation
+❌ "Add debug logging to API" → Skip test generation
+```
+
+---
+
 ## Warning Handling Mandate
 - Warnings must be treated as errors — the system must be clean with zero errors and zero warnings.  
 - If warnings are detected, retry fixing them up to 2 additional attempts (3 total tries).  

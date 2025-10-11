@@ -14,6 +14,50 @@ This agent only performs investigation and provides answers. The `debug-level` p
 
 ---
 
+## Test Generation Routing Mandate
+When a question relates to **end-to-end testing** or **test creation**, route to the appropriate specialized agent:
+
+### Route to test-generation.prompt.md When:
+- ✅ Question asks "how do I test X feature?"
+- ✅ Question about creating Playwright tests
+- ✅ Troubleshooting test failures requiring new test coverage
+- ✅ User requests E2E test for specific functionality
+- ✅ Question about multi-user or multi-browser test scenarios
+
+**Routing Response Format:**
+```markdown
+## 🎯 Test Generation Needed
+
+Your question about [X] requires creating a new Playwright test. This should be handled by the **Test Generation Agent**.
+
+### Recommended Invocation:
+@workspace /task "Generate Playwright test for [feature]" --test-generation
+
+### What Will Be Generated:
+- Test file: `Tests/UI/{feature}-{scenario}.spec.ts`
+- Server management (PW_MODE=standalone preferred)
+- Multi-browser setup if needed (participant + host contexts)
+- Canonical Session 212 test data (PQ9N5YWW, KJAHA99L)
+- API validation patterns from PlaywrightTestPaths.MD
+
+### Prerequisites:
+1. Feature must be implemented and working
+2. API endpoints should be defined and tested
+3. SignalR broadcasts configured (if real-time feature)
+
+**Next Step:** Invoke task.prompt.md which will evaluate and call test-generation.prompt.md automatically, or invoke test-generation.prompt.md directly with parameters.
+```
+
+### Answer Directly When:
+- ❌ Question about **existing** test structure or configuration (analyze PlaywrightConfig.MD)
+- ❌ Understanding test results or debugging test failures (investigate test output)
+- ❌ Configuration questions (timeout, browser, artifact paths)
+- ❌ Test patterns or best practices (reference existing tests)
+
+**For these cases:** Provide analysis using PlaywrightConfig.MD, PlaywrightTestPaths.MD, and existing test files.
+
+---
+
 ## Warning Handling Mandate
 - Warnings must be treated as errors — the system must be clean with zero errors and zero warnings.  
 - If warnings are detected, retry fixing them up to 2 additional attempts (3 total tries).  
