@@ -1673,7 +1673,7 @@
 
     public class QuestionData
     {
-        public int QuestionId { get; set; }
+        public string QuestionId { get; set; } = ""; // Changed from int to string to match GUID from API
         public string Text { get; set; } = "";
         public int Votes { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -1883,7 +1883,7 @@
         }
     }
 
-    private async Task VoteQuestion(int questionId)
+    private async Task VoteQuestion(string questionId)
     {
         if (Http == null) return;
         
@@ -2049,7 +2049,7 @@
                         var question = new QuestionData
                         {
                             QuestionId = root.TryGetProperty("questionId", out var qIdProp) ? 
-                                (qIdProp.ValueKind == JsonValueKind.String ? qIdProp.GetString()?.GetHashCode() ?? 0 : qIdProp.GetInt32()) : 0,
+                                (qIdProp.ValueKind == JsonValueKind.String ? qIdProp.GetString() ?? "" : qIdProp.GetInt32().ToString()) : "",
                             Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : "",
                             UserName = root.TryGetProperty("userName", out var userProp) ? userProp.GetString() ?? "Anonymous" : "Anonymous",
                             CreatedBy = root.TryGetProperty("userId", out var userIdProp) ? userIdProp.GetString() ?? "" : "",
@@ -2089,7 +2089,7 @@
                         var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
                         if (questionId != null)
                         {
-                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId.ToString() == questionId || q.QuestionId == questionId.GetHashCode());
+                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
                             if (question != null)
                             {
                                 question.Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : question.Text;
@@ -2105,7 +2105,7 @@
                 }
             });
 
-            hubConnection.On<int, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
+            hubConnection.On<string, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
             {
                 if (Model?.Questions != null)
                 {
@@ -2132,7 +2132,7 @@
                         var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
                         if (questionId != null)
                         {
-                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId.ToString() == questionId || q.QuestionId == questionId.GetHashCode());
+                            var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
                             if (question != null)
                             {
                                 Model.Questions.Remove(question);
