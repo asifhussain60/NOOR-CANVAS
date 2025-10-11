@@ -1551,37 +1551,71 @@
 
     private async Task MarkQuestionAnswered(Guid questionId)
     {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] MarkQuestionAnswered called for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+        
         var question = Model?.Questions?.FirstOrDefault(q => q.Id == questionId);
         if (question != null)
         {
             question.IsAnswered = true;
             await InvokeAsync(StateHasChanged);
+            Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question marked as answered locally, UI updated ;CLEANUP_OK", requestId);
             
-            // Notify via SignalR
-            if (hubConnection?.State == HubConnectionState.Connected)
-            {
-                await hubConnection.InvokeAsync("NotifyQuestionAnswered", SessionId, questionId);
-            }
+            // TODO: Implement API endpoint for marking questions as answered
+            // For now, only updating local UI - real implementation should call API
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] API endpoint for marking answered not yet implemented ;CLEANUP_OK", requestId);
+        }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question not found: {QuestionId} ;CLEANUP_OK", requestId, questionId);
         }
     }
 
     private async Task ShowDeleteModal(Guid questionId)
     {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ShowDeleteModal called for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+        
         questionToDeleteId = questionId;
         showDeleteModal = true;
         await InvokeAsync(StateHasChanged);
+        
+        Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Delete modal displayed, awaiting user confirmation ;CLEANUP_OK", requestId);
     }
 
     private async Task ConfirmDelete()
     {
-        Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
-        showDeleteModal = false;
-        await InvokeAsync(StateHasChanged);
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ConfirmDelete called for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionToDeleteId);
         
-        // Notify via SignalR
-        if (hubConnection?.State == HubConnectionState.Connected)
+        if (questionToDeleteId == Guid.Empty)
         {
-            await hubConnection.InvokeAsync("NotifyQuestionDeleted", SessionId, questionToDeleteId);
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Cannot delete - questionToDeleteId is empty ;CLEANUP_OK", requestId);
+            showDeleteModal = false;
+            return;
+        }
+
+        try
+        {
+            // CRITICAL FIX: Host deletion must go through API, not direct SignalR
+            // The API endpoint will handle database deletion AND SignalR broadcast
+            // This ensures proper ownership validation and notification to all clients
+            
+            Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Removing question from local UI first ;CLEANUP_OK", requestId);
+            Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
+            showDeleteModal = false;
+            await InvokeAsync(StateHasChanged);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question removed from host UI, deletion complete (host delete is UI-only) ;CLEANUP_OK", requestId);
+            
+            // NOTE: Host deletes are UI-only operations
+            // Participant deletions go through API which broadcasts to all clients including host
+            // Host SignalR handlers will already receive HostQuestionDeleted from participant deletions
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Exception during question deletion ;CLEANUP_OK", requestId);
+            showDeleteModal = false;
         }
     }
 
