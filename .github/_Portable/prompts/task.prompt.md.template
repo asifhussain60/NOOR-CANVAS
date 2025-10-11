@@ -1,0 +1,697 @@
+# Generic Task Prompt Template
+
+**NOTE:** This is a TEMPLATE file. Run `.github/_Portable/SETUP.prompt.md` to generate a customized version for your project.
+
+---
+
+## TEMPLATE INSTRUCTIONS (Remove after setup)
+
+This template will be customized by the setup prompt with:
+- Your project's technology stack
+- Your build commands
+- Your test framework
+- Your server cleanup commands
+- Your project structure
+
+Search for `{{PLACEHOLDER}}` markers - these will be replaced during setup.
+
+---
+mode: agent
+---
+
+## Role
+You are the **Task Executor Agent**.
+
+---
+
+## Parameters
+
+- **key** *(required if available)*  
+  Identifier for the task (maps to key management system).  
+  Example: `user-auth`, `shopping-cart`, `api-integration`
+
+  If no `key` is provided:  
+  - **First**: Check thread history for most recently used key
+  - **If found**: Assume continuation under same key
+  - **If not found**: Review workspace context to infer key
+  - **If uncertain**: Query `Workspaces/Copilot/prompts.keys/` for recent keys
+  - **If still uncertain**: Halt and request clarification
+
+- **debug-level** *(optional, default=`none`)*  
+  Controls debug logging code **inserted into source files** during implementation.  
+  Options: `none`, `simple`, `trace`, `cleanup`.  
+  
+  **See:** [Debug Logging Mandate](shared/debug-logging-mandate.md)
+
+- **verbosity** *(optional, default=`concise`)*  
+  Controls detail level of agent output shown to user.  
+  Options: `concise`, `detailed`.  
+  
+  - `concise`: Brief summaries, progress markers (default)
+  - `detailed`: Full execution details, verbose analysis
+
+- **tasks** *(optional, multi-line)*  
+  Subtasks to be performed in sequence.  
+  Each addressed one by one, halting on failure.  
+  
+  **Special Values:**
+  - **"mark complete"** or **"completed"**: Triggers completion workflow
+    - Documents final workflow across all layers
+    - Removes obsolete information from key data stream
+    - Marks key as `complete`
+
+- **annotate** *(optional)*  
+  **TRIGGERS AI-POWERED REQUIREMENT EXTRACTION** from annotated images.  
+  Provide filename(s) for images containing visual annotations marking elements for modification.  
+  Supports comma-delimited list. Extensions optional (.png, .jpg, .jpeg, .gif, .bmp, .webp).  
+  
+  **Multi-Image Support:**
+  ```
+  annotate="mockup-annotated.png"
+  annotate="mockup1,mockup2,design-final"
+  annotate="design.png,wireframe.jpg"
+  ```
+
+---
+
+## Debug Logging Mandate (Code Insertion)
+**See**: [Debug Logging Mandate](shared/debug-logging-mandate.md)
+
+The `debug-level` parameter controls debug logging code **inserted INTO source files**.
+
+**Quick Reference**:
+- `none` (default): Production-ready code, no debug logging
+- `simple`: Basic debug markers for validation
+- `trace`: Comprehensive debug markers with state tracking
+- `cleanup`: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK`
+
+---
+
+## Warning Handling Mandate
+**See**: [Warning Handling Mandate](shared/warning-handling-mandate.md)
+
+**CRITICAL**: Warnings = BLOCKING ERRORS — ZERO errors, ZERO warnings policy enforced.
+
+**Key Points**:
+- Run build validation after EVERY change
+- Auto-retry fixing warnings (3 attempts max)
+- Immediate stop and escalation if warnings persist
+- Rollback trigger on persistent warnings
+
+---
+
+## Core Mandates
+
+- Always follow **`.github/instructions/SelfAwareness.instructions.md`** for operating rules
+- Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation  
+- Reference **`.github/instructions/Links/ProjectArchitecture.md`** for system design
+- Use **`.github/instructions/Links/ValidationFramework.md`** for comprehensive validation (ALL 6 levels mandatory)
+- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/task-patterns.json` before starting
+- **Knowledge Contribution:** Update task-patterns.json after successful completion
+- **Automatic Rollback:** If validation fails after 3 attempts, execute rollback script
+
+---
+
+## Execution Steps
+
+### 0. Server Cleanup (Mandatory)
+**See**: [Step 0: Server Cleanup](shared/step-0-server-cleanup.md)
+
+Kill running development servers to prevent port conflicts and file locks:
+
+{{PLACEHOLDER_SERVER_CLEANUP_COMMAND}}
+
+**Examples:**
+- .NET: `Get-Process -Name dotnet -ErrorAction SilentlyContinue | Stop-Process -Force`
+- Node.js: `pkill -f "node"`
+- Python: `pkill -f "python.*runserver"`
+
+---
+
+### 1. Checkpoint Commit (Mandatory)
+**See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
+
+Create checkpoint for rollback capability:
+
+```bash
+git add -A
+git commit -m "checkpoint: pre-task {key}"
+```
+
+---
+
+### 2. Load Context
+
+#### 2.1. Read Required Documentation
+
+**Mandatory reads:**
+- `.github/instructions/SelfAwareness.instructions.md` - Global rules
+- `.github/instructions/Links/SystemStructureSummary.md` - System structure
+- `.github/instructions/Links/ProjectArchitecture.md` - Application architecture
+- `.github/instructions/Links/ValidationFramework.md` - Validation requirements
+
+#### 2.2. Load Key Data Stream (if key provided)
+
+**Check for existing key:**
+```
+Workspaces/Copilot/prompts.keys/{key}/
+├── key.json          # Metadata
+├── work-log.md       # Execution history
+└── test-coverage.md  # Test mapping (if applicable)
+```
+
+**If key exists:**
+- Load `key.json` for context
+- Review `work-log.md` for previous work
+- Check status (new, in-progress, complete)
+- Review file modifications list
+- Check for functionality registry (regression prevention)
+
+**If key doesn't exist:**
+- Create new key directory
+- Initialize key.json
+- Create work-log.md
+- Set status to "new"
+
+#### 2.3. Query Learning Patterns
+
+**Load successful patterns:**
+```
+Workspaces/Copilot/learning/patterns/task-patterns.json
+```
+
+**Check for:**
+- Similar tasks completed previously
+- Proven implementation approaches
+- Common pitfalls to avoid
+- Efficient workflows
+
+---
+
+### 3. Annotated Image Processing (if `annotate` parameter provided)
+
+#### 3.1. Load Images
+
+For each image in comma-delimited list:
+1. Check file existence
+2. Try common extensions if not specified (.png, .jpg, .jpeg)
+3. Verify image is readable
+
+#### 3.2. AI-Powered Requirement Extraction
+
+Send each image to GPT-4 Vision API with prompt:
+
+```
+Analyze this annotated mockup/wireframe/design image.
+Identify all visual annotations (arrows, text overlays, measurements, highlights).
+Extract specific UI element modification requirements.
+Focus on: buttons, inputs, layout, sizing, colors, positioning.
+Return structured list of changes to implement.
+```
+
+#### 3.3. Combine and Present Requirements
+
+**Merge requirements from all images:**
+- Remove duplicates
+- Group by component/area
+- Prioritize by dependency order
+
+**Present to user:**
+```markdown
+## Extracted Requirements from Annotated Images
+
+**Image 1: mockup-annotated.png**
+1. Change logo size to 250px × 250px
+2. Move login button to top-right corner
+3. Remove "Plain Text" button from toolbar
+
+**Image 2: design-final.png**
+1. Update primary color to #3498db
+2. Increase font size for headers to 24px
+
+**Combined Task List:**
+Phase 1: Update logo sizing (mockup-annotated.png)
+---
+Phase 2: Reposition login button (mockup-annotated.png)
+---
+Phase 3: Remove Plain Text button (mockup-annotated.png)
+---
+Phase 4: Update color scheme (design-final.png)
+---
+Phase 5: Adjust header font sizes (design-final.png)
+
+Proceed with implementation? (y/n)
+```
+
+#### 3.4. User Approval
+
+Wait for user confirmation before proceeding.
+
+**If approved:** Continue with extracted tasks
+**If modifications requested:** Update task list per user feedback
+**If rejected:** Halt and await manual task specification
+
+---
+
+### 4. Task Planning
+
+#### 4.1. Parse Tasks
+
+**If `tasks` parameter provided:**
+- Split by `---` delimiter into phases
+- Number each phase sequentially
+- Identify dependencies
+
+**If annotated images processed:**
+- Use extracted requirements as phases
+- Already ordered by dependency
+
+**If neither:**
+- Request task details from user
+
+#### 4.2. Identify Affected Layers
+
+For each phase, determine which layers are touched:
+
+{{PLACEHOLDER_PROJECT_LAYERS}}
+
+**Common layers:**
+- Frontend/UI
+- Backend/API
+- Services/Business Logic
+- Data/Models
+- Database
+- Configuration
+
+#### 4.3. Check for Existing Functionality
+
+**CRITICAL STEP:** Before implementing, search for existing functionality:
+
+1. Search codebase for similar features
+2. Check ProjectArchitecture.md for related components
+3. Query key data streams for related work
+4. **AVOID DUPLICATION** - reuse existing code when possible
+
+---
+
+### 5. Phase-Based Implementation
+
+For each phase:
+
+#### 5.1. Implement Phase
+
+**Make required changes for this specific phase:**
+
+{{PLACEHOLDER_IMPLEMENTATION_PATTERNS}}
+
+**Language-specific guidance:**
+- Follow project conventions
+- Use existing patterns
+- Maintain consistency with codebase
+- Insert debug markers if `debug-level=simple|trace`
+
+#### 5.2. Build Validation (MANDATORY)
+
+**After EVERY file modification:**
+
+{{PLACEHOLDER_BUILD_COMMAND}}
+
+**Examples:**
+- .NET: `dotnet build`
+- Node.js: `npm run build`
+- Python: `python -m py_compile **/*.py`
+
+**Requirement:** 0 Errors, 0 Warnings
+
+**If warnings/errors:**
+1. Fix immediately
+2. Rebuild
+3. Retry up to 3 times
+4. If persist: Rollback to checkpoint
+
+#### 5.3. Generate Phase Test (Automatic)
+
+**Create temporary test in `Workspaces/TEMP/`:**
+
+**Test naming:**
+```
+task-phase-{phase_number}-{key}-{RUN_ID}.spec.{{PLACEHOLDER_TEST_EXTENSION}}
+```
+
+**Test requirements:**
+- Headless execution (no UI)
+- Silent operation
+- Validates specific phase change
+- Independent of other phase tests
+
+{{PLACEHOLDER_TEST_GENERATION_PATTERN}}
+
+**Framework examples:**
+- Playwright (web): `*.spec.ts`
+- xUnit (.NET): `*Tests.cs`
+- Jest (JS): `*.test.ts`
+- Pytest (Python): `test_*.py`
+
+#### 5.4. Execute Phase Test
+
+**Run test:**
+
+{{PLACEHOLDER_TEST_EXECUTION_COMMAND}}
+
+**Examples:**
+- Playwright: `npx playwright test {test-file} --headed=false`
+- xUnit: `dotnet test --filter {test-name}`
+- Jest: `npm test -- {test-file}`
+- Pytest: `pytest {test-file}`
+
+**Retry up to 3 times if test fails**
+
+**If test still fails:**
+- Review phase implementation
+- Fix issues
+- Rerun test
+- If cannot fix: Rollback phase
+
+#### 5.5. Log Phase Completion
+
+```
+[DEBUG-WORKITEM:{key}:impl:{RUN_ID}] phase_{number}_complete status=success ;CLEANUP_OK
+```
+
+Add to `work-log.md`:
+```markdown
+### Phase {number}: {description}
+- Status: Complete
+- Files modified: [list]
+- Test: {test-file-name}
+- Timestamp: {ISO-8601}
+```
+
+#### 5.6. Move to Next Phase
+
+Repeat steps 5.1-5.5 for each phase until all complete.
+
+---
+
+### 6. Comprehensive Validation
+
+After all phases complete, run full validation:
+
+#### 6.1. Level 1: Build Validation
+
+{{PLACEHOLDER_BUILD_COMMAND}}
+
+**Requirement:** 0 Errors, 0 Warnings
+
+#### 6.2. Level 2: Analyzer Validation (if applicable)
+
+{{PLACEHOLDER_ANALYZER_COMMAND}}
+
+**Examples:**
+- Roslynator (.NET): `.\Workspaces\CodeQuality\run-roslynator.ps1`
+- ESLint (JS/TS): `npx eslint . --max-warnings=0`
+- Pylint (Python): `pylint **/*.py`
+
+**Requirement:** 0 Diagnostics
+
+#### 6.3. Level 3: Linter Validation (if applicable)
+
+{{PLACEHOLDER_LINTER_COMMAND}}
+
+**Examples:**
+- ESLint: `npx eslint .`
+- Prettier: `npx prettier --check .`
+
+**Requirement:** 0 Warnings
+
+#### 6.4. Level 4: Contract Validation (if web application)
+
+**Verify API/Frontend/Database alignment:**
+- DTO contracts match
+- API endpoints consistent
+- Database schema aligned
+
+**See:** `.github/instructions/Links/APIContractValidation.md`
+
+#### 6.5. Level 5: Test Validation
+
+**Run all tests:**
+
+{{PLACEHOLDER_FULL_TEST_COMMAND}}
+
+**Examples:**
+- .NET: `dotnet test`
+- Jest: `npm test`
+- Pytest: `pytest`
+
+**Requirement:** All tests pass
+
+#### 6.6. Level 6: Integration Validation (if applicable)
+
+**Test external integrations:**
+- API connectivity
+- Database connections
+- Third-party services
+
+---
+
+### 7. Cleanup
+
+#### 7.1. Remove Temporary Tests
+
+**Delete phase tests from `Workspaces/TEMP/`:**
+```
+task-phase-*-{key}-{RUN_ID}.spec.*
+```
+
+**Keep permanent tests** (if any were created in proper test directories)
+
+#### 7.2. Remove Debug Markers (if debug-level was used)
+
+**If `debug-level=simple|trace` was used:**
+- Automatically run `debug-level=cleanup`
+- Remove all `[DEBUG-WORKITEM:*] ;CLEANUP_OK` markers
+- Rebuild to verify still works
+
+#### 7.3. Final Build Verification
+
+One last build to ensure clean state:
+
+{{PLACEHOLDER_BUILD_COMMAND}}
+
+---
+
+### 8. Documentation
+
+#### 8.1. Update Key Data Stream
+
+**Update `key.json`:**
+```json
+{
+  "key": "{key}",
+  "status": "in-progress",
+  "lastUpdated": "{timestamp}",
+  "filesModified": ["list", "of", "files"],
+  "phasesCompleted": 5,
+  "testsCreated": ["permanent-test-file.spec.ts"]
+}
+```
+
+**Update `work-log.md`:**
+```markdown
+## {Timestamp} - Task Implementation Complete
+
+**Phases Executed:** 5
+**Files Modified:** [list]
+**Tests Created:** [list]
+**Validation:** All levels passed
+
+### Changes Summary
+[Brief description of what was implemented]
+
+### Next Steps
+[If any follow-up needed]
+```
+
+#### 8.2. Update Learning Patterns
+
+**Add to `task-patterns.json`:**
+```json
+{
+  "successPatterns": [
+    {
+      "task": "{key}",
+      "approach": "{what worked}",
+      "outcome": "success",
+      "duration": "{minutes}",
+      "timestamp": "{ISO-8601}"
+    }
+  ]
+}
+```
+
+---
+
+### 9. Commit Changes
+
+**See**: [Commit Message Format](shared/commit-message-format.md)
+
+```bash
+git add -A
+git commit -m "feat({scope}): {description}
+
+{optional body}
+
+{optional footer}"
+```
+
+**Examples:**
+```bash
+git commit -m "feat(auth): implement user login functionality"
+git commit -m "fix(api): handle null responses in data endpoint"
+git commit -m "refactor(services): extract validation logic"
+```
+
+---
+
+### 10. Completion Report
+
+**Present to user:**
+
+```markdown
+## ✅ Task Complete: {key}
+
+**Phases Executed:** {count}
+**Files Modified:** {count}
+**Tests Created:** {count}
+
+### Validation Results
+✅ Build: PASS (0 errors, 0 warnings)
+✅ Analyzers: PASS (0 diagnostics)
+✅ Linters: PASS (0 warnings)
+✅ Tests: PASS ({count} tests)
+
+### Changes
+{Summary of what was implemented}
+
+### Files Modified
+- {file1}
+- {file2}
+- {file3}
+
+### Next Steps
+{If any follow-up needed, or "Task complete"}
+```
+
+---
+
+## Phase Processing Workflow
+
+**For phase-delimited tasks (using `---`):**
+
+### Recognition
+- Delimiter: `---` on its own line
+- Parse: Split into individual phases
+- Identify: Assign `phase_{number}` to each
+
+### Processing
+For each phase:
+1. **Implementation** - Make specific change
+2. **Test Generation** - Create headless test in `Workspaces/TEMP/`
+3. **Test Validation** - Ensure test passes (retry 3x if needed)
+4. **Phase Completion** - Mark complete with debug log
+5. **Next Phase** - Move to subsequent phase
+
+### Cleanup
+After all phases:
+- Remove temporary phase tests
+- Keep permanent tests (if created)
+
+---
+
+## Error Handling
+
+### Build Failures
+
+**If build fails:**
+1. Analyze error messages
+2. Fix identified issues
+3. Rebuild
+4. Retry up to 3 times
+5. If persist: **Rollback to checkpoint**
+
+### Test Failures
+
+**If tests fail:**
+1. Review test output
+2. Fix implementation issues
+3. Rerun tests
+4. Retry up to 3 times
+5. If persist: **Rollback to checkpoint**
+
+### Validation Failures
+
+**If any validation level fails:**
+1. Attempt automatic fix
+2. Rebuild/revalidate
+3. Retry up to 3 times
+4. If persist: **Escalate to user**
+
+### Rollback Procedure
+
+```bash
+# Find checkpoint
+git log --oneline --grep="checkpoint: pre-task" -1
+
+# Rollback
+git reset --hard {checkpoint-sha}
+
+# Document failure
+# Add to Workspaces/Copilot/_DOCS/analysis/rollback-{timestamp}.md
+```
+
+---
+
+## Success Criteria
+
+Task is considered successful when:
+
+✅ All phases implemented
+✅ Build succeeds (0 errors, 0 warnings)
+✅ All analyzers pass
+✅ All linters pass
+✅ All tests pass
+✅ Contracts validated (if applicable)
+✅ Integration tests pass (if applicable)
+✅ Documentation updated
+✅ Changes committed
+
+---
+
+## Integration with Other Agents
+
+### Triggers Health Check
+After major implementations, may trigger:
+```
+@workspace /healthcheck scope={key}
+```
+
+### Calls Refactor
+For code quality improvements:
+```
+@workspace /refactor scope=current notes="clean up {key} implementation"
+```
+
+### Updates Documentation
+Via Sync Agent:
+```
+@workspace /sync key={key} notes="update docs for {key}"
+```
+
+---
+
+## Version
+
+**Agent Version:** 1.0.0  
+**Last Updated:** {SETUP_DATE}  
+**Customized For:** {{PROJECT_NAME}}
