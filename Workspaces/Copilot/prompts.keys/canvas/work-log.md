@@ -1,7 +1,26 @@
 # Canvas Key - Work Log
 
 ## [2025-10-11 - Latest] - task
-**Status**: in-progress | **Phase**: debug-panel-and-keyboard-shortcuts | **Commit**: TBD
+**Status**: in-progress | **Phase**: debug-panel-islamic-questions | **Commit**: TBD
+**Work**:
+- **ENHANCED DEBUG PANEL**: Replaced timestamped debug questions with 50 curated Islamic questions
+- Created static `DebugIslamicQuestions` list with educational content:
+  - 5 Pillars of Islam, Ramadan, Hajj, Zakat
+  - Prophets, Quran, Hadith, Sunnah
+  - Islamic calendar, prayers, etiquettes
+  - Concepts: Tawheed, Taqwa, Sabr, Ummah
+  - Names of Allah, Day of Judgment, Jannah
+- Updated SimulateRandomQuestion() to randomly select from list (Random.Next)
+- Questions scoped to debug panel only - won't conflict with real user questions
+- Enhanced logging: Includes random index for traceability
+**Files**: 1 modified (SessionCanvas.razor - static list + updated random logic)
+**Tests**: Manual validation - verify Islamic questions post correctly via debug panel
+**Build**: PASS (1 unrelated warning SA1518)
+**Next**: Test question variety, commit changes
+
+---
+## [2025-10-11] - task
+**Status**: completed | **Phase**: debug-panel-and-keyboard-shortcuts | **Commit**: 8836dd5
 **Work**:
 - Added DebugPanel component to SessionCanvas.razor (matching HostControlPanel pattern)
 - Implemented GetSessionCanvasDebugActions() factory method with "Simulate Random Question" action

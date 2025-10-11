@@ -2465,15 +2465,74 @@
         return actions;
     }
 
+    // Static list of Islamic questions for debug panel testing
+    // These are scoped to debug panel only and won't conflict with real user questions
+    private static readonly List<string> DebugIslamicQuestions = new()
+    {
+        "What are the five pillars of Islam?",
+        "How many times a day do Muslims pray?",
+        "What is the significance of Ramadan?",
+        "Who was the first prophet in Islam?",
+        "What does 'Islam' mean?",
+        "What is the Quran?",
+        "What is the difference between Sunni and Shia?",
+        "What is Hajj and why is it important?",
+        "What is Zakat?",
+        "What is the Night of Power (Laylat al-Qadr)?",
+        "Who are the Ahl al-Bayt?",
+        "What is the significance of the Kaaba?",
+        "What does 'Bismillah' mean?",
+        "What is Wudu and why is it performed?",
+        "What are the major prophets mentioned in the Quran?",
+        "What is the Islamic calendar based on?",
+        "What is the significance of Friday in Islam?",
+        "What does 'Alhamdulillah' mean?",
+        "What is Tawheed?",
+        "What are the names of the five daily prayers?",
+        "What is the significance of the month of Muharram?",
+        "What is Sadaqah?",
+        "Who was Prophet Muhammad (PBUH)?",
+        "What is the Sunnah?",
+        "What is the Hadith?",
+        "What is Jannah?",
+        "What is the Day of Judgment in Islam?",
+        "What are the 99 Names of Allah?",
+        "What is the importance of charity in Islam?",
+        "What is Eid al-Fitr?",
+        "What is Eid al-Adha?",
+        "What is the Hijra?",
+        "What is the Shahada?",
+        "What are the manners of making Dua?",
+        "What is the significance of the Night Journey (Isra and Miraj)?",
+        "What is Taqwa?",
+        "What is the importance of seeking knowledge in Islam?",
+        "What are the rights of parents in Islam?",
+        "What is the Islamic view on patience (Sabr)?",
+        "What is the concept of Ummah?",
+        "What are the etiquettes of visiting the mosque?",
+        "What is the significance of Surah Al-Fatiha?",
+        "What is the importance of gratitude in Islam?",
+        "What are the angels in Islam?",
+        "What is the Islamic view on forgiveness?",
+        "What is the importance of honesty in Islam?",
+        "What are the signs of a sincere believer?",
+        "What is the Islamic teaching on treating neighbors?",
+        "What is the significance of the Quran being revealed in Arabic?",
+        "What is the importance of family in Islam?"
+    };
+
     private async Task SimulateRandomQuestion()
     {
-        var timestamp = DateTime.Now.ToString("HH:mm:ss");
-        var randomText = $"Debug Test Question {timestamp}";
+        // Select a random question from the debug Islamic questions list
+        var random = new Random();
+        var randomIndex = random.Next(DebugIslamicQuestions.Count);
+        var randomQuestion = DebugIslamicQuestions[randomIndex];
         
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:debug] Random question simulated: {Text} ;CLEANUP_OK", randomText);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:debug] Random Islamic question simulated (index {Index}): {Question} ;CLEANUP_OK", 
+            randomIndex, randomQuestion);
         
         // Set question input value
-        QuestionInput = randomText;
+        QuestionInput = randomQuestion;
         
         // Submit through existing logic
         await SubmitQuestion();
