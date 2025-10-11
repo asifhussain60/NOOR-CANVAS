@@ -326,8 +326,33 @@ All actions must respect the global guardrails and architectural mappings.
 
 ## Execution Steps
 
+### 0. Kill Running Kestrel Servers (Mandatory)
+**Before any code changes, ensure clean server state by terminating all running Kestrel processes.**
+
+#### 0.1. Execute nckill Command
+```powershell
+nckill
+```
+
+This PowerShell alias kills all `dotnet.exe` processes running Kestrel servers, preventing:
+- Port conflicts (HTTPS 9091 already in use)
+- File lock issues during build/compilation
+- Stale server instances serving outdated code
+- Test failures from multiple server instances
+
+#### 0.2. Verify Clean State
+- Confirm terminal output shows processes terminated
+- If `nckill` command not found, use fallback:
+  ```powershell
+  Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' } | Stop-Process -Force
+  ```
+
+**Rationale**: Prevents "address already in use" errors and ensures fresh server start with latest code changes.
+
+---
+
 ### 1. Checkpoint Commit (Mandatory)
-- Before planning or execution, create a **checkpoint commit** (or equivalent snapshot).  
+- After killing servers, create a **checkpoint commit** (or equivalent snapshot).  
 - Commit message format:  
   `checkpoint: pre-task <key>`  
 - This ensures rollback capability if the task introduces instability.  

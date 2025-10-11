@@ -2,6 +2,144 @@
 
 ---
 
+## [2025-10-11T12:00:00Z] - Workflow Infrastructure Improvements
+
+**Status**: in-progress
+**Phase**: execution
+**Git Commit**: pending
+
+### Phase 1: Server Cleanup Automation ✅
+**Objective**: Prevent common developer errors from forgotten Kestrel servers
+
+**Changes**:
+- Added Step 0 to `.github/prompts/task.prompt.md`: "Kill Running Kestrel Servers (Mandatory)"
+- **Section 0.1**: Execute `nckill` command
+  - Primary method: PowerShell alias killing all dotnet.exe processes
+  - Explanation: Prevents port conflicts (HTTPS 9091), file locks, stale servers, test failures
+- **Section 0.2**: Verify clean state
+  - Confirmation step: Check terminal output for process termination
+  - Fallback command for environments without `nckill` alias:
+    ```powershell
+    Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { 
+        $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' 
+    } | Stop-Process -Force
+    ```
+- Renumbered existing steps (old Step 1 → new Step 2, etc.)
+- Updated Step 1 description: Changed from "Before planning or execution" to "After killing servers, create checkpoint commit"
+
+**Rationale**: 
+- Addresses recurring issue where developers forget to kill servers before tasks
+- Prevents "address already in use" errors on port 9091
+- Ensures fresh server start with latest compiled code
+- Eliminates test failures from multiple server instances
+- Reduces debugging time for port conflicts
+
+**Impact**: All future task executions automatically kill Kestrel servers as first step
+
+### Phase 2: File Mapping System Design ✅
+**Objective**: Enable automatic context loading when working with keys
+
+**Problem Analysis**:
+- Current `canvas.md`: Files mentioned narratively in Dependencies section
+  - Example: "SessionCanvas.razor (participant view)" in prose
+  - Not machine-parseable for automatic context loading
+- Current `hcp/key.json`: Has `files_modified` array
+  - Example: `["SPA/NoorCanvas/Services/HtmlParsingService.cs", ...]`
+  - Good for tracking changes, but:
+    - No categorization (views vs APIs vs database)
+    - No descriptions explaining file purposes
+    - JSON format less human-readable than markdown
+- Inconsistency: Some keys use `.md`, others use `key.json`
+
+**Design Decision**: Format: **Markdown with Structured Sections**
+
+**Schema**:
+```markdown
+## File Mappings
+
+### Frontend (Views)
+- `path/to/file.razor` - Brief description of view's purpose
+
+### Frontend (Components)
+- `path/to/component.razor` - Component description
+
+### Backend (Controllers)
+- `path/to/Controller.cs` - API endpoints description
+
+### Backend (Services)
+- `path/to/Service.cs` - Business logic description
+
+### Backend (DTOs)
+- `path/to/Dto.cs` - Data transfer object description
+
+### Database
+- **Tables**: `schema.TableName` (columns description)
+- **Scripts**: `Scripts/example.sql` - Script purpose
+
+### Tests
+- **E2E (Playwright)**: `Tests/UI/test.spec.ts` - Test description
+- **Unit Tests**: `Tests/Unit/Test.cs` - Test description
+
+### Configuration
+- **appsettings.json**: `Section:Key` - Setting description
+- **Environment Variables**: `VAR_NAME` - Variable purpose
+
+### Documentation
+- `path/to/doc.md` - Documentation description
+```
+
+**Advantages**:
+1. **Human-Readable**: Markdown format with clear sections
+2. **Machine-Parseable**: Structured paths can be extracted with regex
+3. **Context-Rich**: Each file has description explaining its role
+4. **Comprehensive**: Covers all file types (8 categories)
+5. **Categorized**: Files grouped by type (frontend, backend, database, tests, config, docs)
+6. **Git-Friendly**: Markdown diffs show changes clearly
+7. **Flexible**: Easy to add new categories without breaking structure
+
+**Implementation**:
+- Created `Workspaces/Copilot/prompts.keys/_template/key-template.md`
+- Full template with all sections and examples
+- Includes metadata, file mappings, dependencies, summary, current work, related keys, notes
+- Auto-populated execution tracking section (phases, commits, files modified, warnings/errors)
+
+**Migration Path**:
+- New keys: Use `key-template.md` as reference
+- Existing keys: Gradually adopt new format (backwards compatible)
+- Future automation: Could auto-populate File Mappings by analyzing git history and imports
+
+### Phase 3: Prompts Key Metadata ✅
+**Objective**: Self-document the prompts key using new file mapping system
+
+**Files Created**:
+1. **prompts.md**: Complete metadata with file mappings
+   - Status: in-progress
+   - Complexity: moderate
+   - File Mappings: task.prompt.md, key-template.md, key.json, prompts.md, work-log.md
+   - Current Work: Step 0 addition, file mapping design, metadata standardization
+   - Execution Tracking: Checkpoint ✅, Plan ✅, Execute 🔄, Validate ⏳, Confirm ⏳
+
+2. **work-log.md**: This file (chronological work journal)
+   - Phase 1: Server cleanup automation
+   - Phase 2: File mapping system design
+   - Phase 3: Prompts key metadata creation
+
+**Self-Documentation Pattern**:
+The prompts key demonstrates the new file mapping system by documenting itself. This creates a reference implementation for future keys.
+
+**Next Steps**:
+- Commit all changes: task.prompt.md, key-template.md, prompts.md, work-log.md
+- Validate file mapping system with actual usage
+- Consider migrating existing keys to new format
+
+**Files Modified**: 4 files
+- `.github/prompts/task.prompt.md` - Added Step 0 (server cleanup), renumbered steps
+- `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Created new markdown template
+- `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - Created prompts key metadata
+- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Updated with Phase 1-3 details
+
+---
+
 ## [2025-10-10T15:00:00Z] - task
 
 **Status**: in-progress
