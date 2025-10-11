@@ -2,6 +2,116 @@
 
 ---
 
+## [2025-10-11T14:00:00Z] - Cohesion Review Prompt Creation
+
+**Status**: in-progress
+**Phase**: Phase 5 - Prompt System Quality
+**Git Commit**: pending
+
+### Phase 5: Cohesion Review Prompt ✅
+**Objective**: Create comprehensive prompt for reviewing all prompts and instructions holistically
+
+**Changes**:
+- Created `.github/prompts/cohesion-review.prompt.md` - New prompt for system-wide cohesion analysis
+- **7-Dimension Analysis Framework**:
+  1. **Redundancy Detection**: Cross-prompt duplicates, overlapping responsibilities, redundant config
+  2. **Gap Analysis**: Missing agent responsibilities, undefined workflows, incomplete coverage
+  3. **Conflict Detection**: Contradictory instructions, incompatible workflows, conflicting standards
+  4. **Efficiency Opportunities**: Workflow optimization, automation potential, performance improvements
+  5. **Consistency Analysis**: Terminology, structure, formatting consistency
+  6. **Documentation Quality**: Clarity, completeness, maintainability
+  7. **Integration Analysis**: Inter-prompt integration, external system integration, data flow
+
+**Features**:
+- **Comprehensive Report Generation**: Creates detailed markdown report in `Workspaces/Documentation/`
+- **Action Item Creation**: Generates task-specific action items in `Workspaces/Copilot/prompts.keys/cohesion/`
+- **Cohesion Scoring**: Calculates 0-10 score based on redundancies, gaps, conflicts, inconsistencies
+- **Prioritized Recommendations**: High/Medium/Low priority with effort estimates
+- **Implementation Roadmap**: Phased approach (Week 1, Week 2-3, Week 4+)
+- **Self-Review Capability**: Can review itself (meta-analysis)
+
+**Analysis Scope**:
+- **Prompts** (8 files):
+  - task.prompt.md
+  - question.prompt.md
+  - test-generation.prompt.md
+  - refactor.prompt.md
+  - healthcheck.prompt.md
+  - analyze-learning.prompt.md
+  - sync.prompt.md
+  - cohesion-review.prompt.md (self)
+- **Instructions** (10 files):
+  - SelfAwareness.instructions.md
+  - Links/AnalyzerConfig.MD
+  - Links/API-Contract-Validation.md
+  - Links/FileMetrics.md
+  - Links/NOOR-CANVAS_ARCHITECTURE.MD
+  - Links/PlaywrightConfig.MD
+  - Links/PlaywrightTestPaths.MD
+  - Links/ReferenceIndex.md
+  - Links/SystemStructureSummary.md
+  - Links/ValidationFramework.md
+
+**12 Architecture/Efficiency/Quality Recommendations**:
+1. Create shared modules (extract common sections)
+2. Standardize agent protocols (handoff, logging, error handling)
+3. Implement agent registry (agents.json for capability mapping)
+4. Create prompt versioning (v1.0.0, breaking changes)
+5. Establish testing for prompts (test cases, regression, performance)
+6. Lazy loading (on-demand instruction loading)
+7. Parallel execution (independent validation steps)
+8. Incremental analysis (only re-analyze changed prompts)
+9. Automated linting (markdown validation, pre-commit hook)
+10. Prompt templates (standard structure for new prompts)
+11. Documentation generator (auto-generate from prompts)
+12. Metrics dashboard (usage tracking, execution times, success rates)
+
+**Parameters**:
+- `scope`: all | prompts-only | instructions-only (default: all)
+- `verbosity`: concise | detailed | verbose (default: detailed)
+- `output-format`: markdown | json | html (default: markdown)
+- `auto-fix`: true | false (default: false)
+- `create-action-items`: true | false (default: true)
+
+**Expected Outcomes**:
+1. Comprehensive cohesion review report
+2. Prioritized list of recommendations
+3. Action items for each recommendation
+4. Implementation roadmap
+5. Metrics and scoring (cohesion score 0-10)
+6. Git commit with all findings
+
+**Rationale**:
+- Ensures all prompts work together cohesively
+- Identifies redundancies, gaps, conflicts early
+- Provides actionable recommendations for improvement
+- Enables continuous improvement of prompt system
+- Reduces maintenance burden through standardization
+- Improves efficiency through optimization opportunities
+
+**Impact**:
+- Single command reviews entire prompt ecosystem
+- Catches issues before they become problems
+- Provides clear roadmap for prompt system improvements
+- Enables metric-driven prompt quality management
+- Facilitates knowledge transfer (comprehensive documentation)
+
+**Usage Example**:
+```
+Follow instructions in cohesion-review.prompt.md.
+scope: all
+verbosity: detailed
+create-action-items: true
+```
+
+**Next Steps**:
+- Commit cohesion-review.prompt.md
+- Update prompts.md with new prompt reference
+- Test cohesion review on current prompt system
+- Implement high-priority recommendations
+
+---
+
 ## [2025-10-11T12:00:00Z] - Workflow Infrastructure Improvements
 
 **Status**: in-progress

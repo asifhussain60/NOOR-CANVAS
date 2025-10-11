@@ -41,6 +41,13 @@
 
 ### Documentation
 - `.github/prompts/task.prompt.md` - Main task execution workflow specification
+- `.github/prompts/cohesion-review.prompt.md` - Prompt system cohesion analysis agent (NEW)
+- `.github/prompts/question.prompt.md` - Q&A routing logic
+- `.github/prompts/test-generation.prompt.md` - Test automation agent
+- `.github/prompts/refactor.prompt.md` - Code refactoring agent
+- `.github/prompts/healthcheck.prompt.md` - System health validation
+- `.github/prompts/analyze-learning.prompt.md` - Learning pattern analysis
+- `.github/prompts/sync.prompt.md` - Synchronization agent
 - `Workspaces/Copilot/prompts.keys/_template/key-template.md` - New markdown template with file mappings
 - `Workspaces/Copilot/prompts.keys/_template/key.json` - Original JSON template (legacy)
 - `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - This file (self-documenting)
