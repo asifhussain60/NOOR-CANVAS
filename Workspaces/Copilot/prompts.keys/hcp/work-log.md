@@ -2,6 +2,40 @@
 
 ---
 
+## [2025-10-11T18:50:00Z] - task agent
+
+**Status**: verified  
+**Work Done**:
+- ✅ **VERIFIED**: "Plain Text" button removal is already implemented and working
+- **Location**: `HtmlParsingService.TransformHtml()` method (line 222)
+- **Pattern Used**: `HtmlTransformPatterns.PlainTextButtonPattern()`
+- **Regex**: `<button[^>]*class[^=]*=[^""]*""[^""]*(?:poetry-restore-btn|froala-only-btn)[^""]*""[^>]*>.*?</button>`
+- **Evidence**: Server logs show `plainTextButtonBytesRemoved=247` confirming removal is active
+
+**Files Verified**:
+- `SPA/NoorCanvas/Services/HtmlParsingService.cs` - TransformHtml method (lines 220-300)
+- `SPA/NoorCanvas/Services/HtmlTransformPatterns.cs` - PlainTextButtonPattern (line 21)
+
+**Technical Details**:
+- Button removal happens in transformation pipeline phase 2 (after delete buttons)
+- Targets buttons with classes: `poetry-restore-btn` OR `froala-only-btn`
+- Removes entire button element including content
+- Metrics tracked: `plainTextButtonBytesRemoved` logged in transformation results
+
+**Validation**: PASS
+- Build status: SUCCESS (18.2s, zero errors/warnings)
+- Server status: HEALTHY (started on ports 9090/9091)
+- Functionality: CONFIRMED WORKING (logs show bytes removed)
+
+**Commits**:
+- `ee6f8c26` - checkpoint: pre-task hcp (verification baseline)
+
+**Outcome**: "Plain Text" button removal is functioning correctly in session transcript HTML transformation. No code changes needed - feature already exists and is operational.
+
+**User Request Context**: User asked to confirm HTML transform function removes "Plain Text" button from session transcript before rendering. Verification confirms this is already implemented and working correctly.
+
+---
+
 ## [2025-10-10T12:35:00Z] - task agent
 
 **Status**: in-progress  
