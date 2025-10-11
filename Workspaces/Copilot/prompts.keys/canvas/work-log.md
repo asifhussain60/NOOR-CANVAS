@@ -1,7 +1,40 @@
 # Canvas Key - Work Log
 
-## [2025-10-10 - Latest] - task
-**Status**: in-progress | **Phase**: signalr-error-fixes | **Commit**: 75bbb80
+## [2025-10-11 - Latest] - task
+**Status**: in-progress | **Phase**: questionid-type-fix-and-e2e-test | **Commit**: 248bb5f
+**Work**:
+- **CRITICAL TYPE FIX**: Changed `QuestionData.QuestionId` from `int` to `string` (GUID)
+  - Root cause: API returns GUID strings like "038893e4-4476-4e23-aff4-0cfa79e54b9d"
+  - Frontend was treating as int, causing 404 errors on update endpoint
+  - Fixed VoteQuestion(int → string), QuestionVoteUpdated handler, all LINQ comparisons
+- Updated SignalR handlers to properly parse GUID strings:
+  - QuestionReceived: Parse GUID as string (was using GetHashCode())
+  - QuestionUpdated: Direct string comparison (removed GetHashCode() fallback)
+  - QuestionDeleted: Direct string comparison
+  - QuestionVoteUpdated: Changed from `On<int, int>` to `On<string, int>`
+- **COMPREHENSIVE E2E TEST**: Created `canvas-session-212-full-test.spec.ts` (330+ lines)
+  - 8 test scenarios covering full stack: UI → API → DB → SignalR → Multi-client
+  - Dual browser contexts (participant + host) for real-time sync validation
+  - Console error monitoring (NotifyQuestionDeleted, appendChild, interop failures)
+  - Zero-tolerance validation for SignalR errors
+  - Test scenarios:
+    1. Question submission with broadcast verification
+    2. Question update with edit mode workflow
+    3. Question delete with SignalR propagation
+    4. Host marks answered (UI-only, no SignalR calls expected)
+    5. Host delete (UI-only, validates NO NotifyQuestionDeleted error)
+    6. Rapid operations stress test (3 questions, delete first)
+    7. Server-side trace log pattern verification
+    8. Final error summary report
+**Files**: 2 modified (SessionCanvas.razor model + handlers, canvas-session-212-full-test.spec.ts)
+**Tests**: Comprehensive E2E test created, ready for execution
+**Build**: PASS (0 errors, 1 unrelated warning SA1518)
+**Debug Logging**: Trace level markers already present from previous commits
+**Next**: Execute Playwright test against running session 212, verify all layers work correctly
+
+---
+## [2025-10-10 16:24] - task
+**Status**: completed | **Phase**: signalr-error-fixes | **Commit**: 75bbb80
 **Work**:
 - **CRITICAL FIX**: Removed invalid `hubConnection.InvokeAsync("NotifyQuestionDeleted")` from HostControlPanel.ConfirmDelete
 - **CRITICAL FIX**: Removed invalid `hubConnection.InvokeAsync("NotifyQuestionAnswered")` from MarkQuestionAnswered
