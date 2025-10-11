@@ -19,6 +19,7 @@
 @inject NoorCanvas.Services.SimplifiedTokenService TokenService
 @inject NoorCanvas.Services.SessionStateService SessionStateService
 @inject NoorCanvas.Services.HtmlParsingService HtmlParsingService
+@inject NoorCanvas.Services.UnifiedHtmlTransformService HtmlTransform
 
 <PageTitle>Noor Canvas</PageTitle>
 
@@ -2399,8 +2400,8 @@
     }
 
     /// <summary>
-    /// Safely process HTML content using advanced parsing service to replace Blazor DOM parser limitations
-    /// [DEBUG-WORKITEM:signalcomm:impl] Enhanced with HtmlParsingService for robust parsing ;CLEANUP_OK
+    /// Safely process HTML content using unified transformation service
+    /// [DEBUG-WORKITEM:signalcomm:impl] Enhanced with UnifiedHtmlTransformService for consistent transformation ;CLEANUP_OK
     /// </summary>
     private string GetSafeHtmlContent(string? htmlContent)
     {
@@ -2409,31 +2410,18 @@
 
         try
         {
-            // Use the advanced HTML parsing service instead of basic validation
-            var parseResult = HtmlParsingService.ParseHtml(htmlContent, ParseMode.Safe);
+            // Use unified transformation service for participant view (safe rendering only)
+            var transformedHtml = HtmlTransform.TransformForParticipant(htmlContent);
             
-            if (!parseResult.IsValid)
-            {
-                Logger.LogWarning("[DEBUG-WORKITEM:signalcomm:impl] HTML parsing failed: {Error} ;CLEANUP_OK", parseResult.ErrorMessage);
-                return CreateSafeErrorMessage(parseResult.ErrorMessage ?? "Unknown parsing error");
-            }
+            Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] HTML transformed successfully by unified service, length: {Length} ;CLEANUP_OK", 
+                transformedHtml?.Length ?? 0);
 
-            // Log any warnings from the parser
-            if (parseResult.Warnings.Any())
-            {
-                Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] HTML parsing warnings: {Warnings} ;CLEANUP_OK", 
-                    string.Join(", ", parseResult.Warnings));
-            }
-
-            Logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] HTML parsed successfully by advanced parser, length: {Length} ;CLEANUP_OK", 
-                parseResult.Content?.Length ?? 0);
-
-            return parseResult.Content ?? string.Empty;
+            return transformedHtml ?? string.Empty;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:signalcomm:impl] Error in advanced HTML parsing ;CLEANUP_OK");
-            return CreateSafeErrorMessage($"Parser error: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:signalcomm:impl] Error in unified HTML transformation ;CLEANUP_OK");
+            return CreateSafeErrorMessage($"Transformation error: {ex.Message}");
         }
     }
 

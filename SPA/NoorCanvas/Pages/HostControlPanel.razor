@@ -17,6 +17,7 @@
 @inject ILogger<HostControlPanel> Logger
 @inject SessionStateService SessionStateService
 @inject SafeHtmlRenderingService SafeHtmlRenderer
+@inject UnifiedHtmlTransformService HtmlTransform
 @inject AssetProcessingService AssetProcessor
 
 <PageTitle>NOOR Canvas - Host Control Panel</PageTitle>
@@ -2040,8 +2041,8 @@
             shareHandlersInitialized = false;
             Logger.LogDebug("[DEBUG-WORKITEM:sharebutton-debug:fix] Reset shareHandlersInitialized flag for new transcript content ;CLEANUP_OK");
 
-            // Use AssetProcessingService for transformation
-            return await AssetProcessor.TransformTranscriptHtmlAsync(originalHtml, SessionId, Model?.SessionStatus);
+            // Use UnifiedHtmlTransformService for transformation
+            return await HtmlTransform.TransformForHostAsync(originalHtml, SessionId, Model?.SessionStatus);
         }
         catch (Exception ex)
         {
