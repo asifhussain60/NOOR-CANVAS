@@ -1,6 +1,27 @@
 # Canvas Key - Work Log
 
 ## [2025-10-10 - Latest] - task
+**Status**: in-progress | **Phase**: signalr-error-fixes | **Commit**: 75bbb80
+**Work**:
+- **CRITICAL FIX**: Removed invalid `hubConnection.InvokeAsync("NotifyQuestionDeleted")` from HostControlPanel.ConfirmDelete
+- **CRITICAL FIX**: Removed invalid `hubConnection.InvokeAsync("NotifyQuestionAnswered")` from MarkQuestionAnswered
+- Added trace-level debug logging to HostControlPanel delete flow (6 new log statements)
+- Architectural clarification: Host deletes are UI-only; participant deletes trigger API broadcasts
+- Prevents `HubException: Method does not exist` errors that caused Blazor circuit disconnects
+- Created comprehensive Playwright test: `canvas-question-delete-fix.spec.ts` (307 lines, 3 scenarios)
+  - Test 1: Participant delete with SignalR broadcast verification
+  - Test 2: Host UI-only delete validation (no SignalR errors expected)
+  - Test 3: Rapid deletion stress test (3 questions)
+  - Console error monitoring for NotifyQuestionDeleted, appendChild, interop failures
+**Files**: 2 modified (HostControlPanel.razor, canvas-question-delete-fix.spec.ts)
+**Tests**: Playwright test created, awaiting execution
+**Build**: PASS (0 errors, 1 unrelated warning SA1518)
+**Debug Logging**: Trace level markers with ;CLEANUP_OK suffix
+**Known Issue**: Question update endpoint receiving int QuestionId but expects GUID (separate from delete fix)
+**Next**: Execute Playwright test to validate SignalR error elimination
+
+---
+## [2025-10-10 16:10] - task
 **Status**: in-progress | **Phase**: question-update-delete | **Commit**: c20ffa5
 **Work**:
 - Implemented question update functionality with edit mode detection in SubmitQuestion
