@@ -8,25 +8,38 @@ You are the **Structural Integrity Agent**.
 ---
 
 ## Debug Logging Mandate (Code Insertion)
-**The `debug-level` parameter controls debug logging code inserted INTO source files, NOT agent output verbosity.**
+**See**: [Debug Logging Mandate](shared/debug-logging-mandate.md)
 
-- **`none` (default)**: Write production-ready code with no debug logging
-- **`simple`**: Insert basic debug markers for refactoring validation
-- **`trace`**: Insert comprehensive debug markers with before/after state tracking
+The `debug-level` parameter controls debug logging code **inserted INTO source files**.
+
+**Quick Reference**:
+- **`none` (default)**: Production-ready code, no debug logging
+- **`simple`**: Basic debug markers for refactoring validation
+- **`trace`**: Comprehensive debug markers with before/after state tracking
 - **`cleanup`**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
 
-See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
+**See shared/debug-logging-mandate.md for complete marker patterns and rules.**
 
 ---
 
 ## Warning Handling Mandate
-- **CRITICAL**: Warnings must be treated as BLOCKING ERRORS — the system must be 100% clean with zero errors and zero warnings.  
-- **MANDATORY**: Run full build validation after EVERY change to detect issues immediately.  
-- **RETRY POLICY**: If warnings are detected, automatically retry fixing them up to 2 additional attempts (3 total tries).  
-- **ESCALATION**: If warnings persist after retries, IMMEDIATELY stop execution and raise them clearly for manual resolution.  
-- **NO PARTIAL SUCCESS**: Do not accept "mostly clean" or "minor warnings" — ZERO tolerance for build issues.  
-- **VALIDATION FREQUENCY**: Check build status after each file modification, not just at the end.  
-- **ROLLBACK TRIGGER**: Any persistent warning triggers immediate rollback to checkpoint commit.  
+**See**: [Warning Handling Mandate](shared/warning-handling-mandate.md)
+
+**CRITICAL**: Warnings must be treated as BLOCKING ERRORS — ZERO errors, ZERO warnings policy enforced.
+
+**Key Points**:
+- **MANDATORY**: Run full build validation after EVERY change
+- **RETRY POLICY**: Auto-retry fixing warnings up to 3 total attempts
+- **ESCALATION**: If warnings persist, IMMEDIATELY stop and raise for manual resolution
+- **NO PARTIAL SUCCESS**: Do NOT accept "mostly clean" or "minor warnings"
+- **VALIDATION FREQUENCY**: Check after each file modification, not just at end
+- **ROLLBACK TRIGGER**: Persistent warnings trigger immediate rollback to checkpoint
+
+**See shared/warning-handling-mandate.md for**:
+- Complete retry workflow
+- Build output interpretation
+- Warning resolution strategies
+- Rollback procedures
 
 ---
 

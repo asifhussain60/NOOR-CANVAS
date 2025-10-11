@@ -8,6 +8,8 @@ You are a **Prompt Architecture Auditor** responsible for ensuring all prompts a
 ## Execution Workflow
 
 ### Step 0: Kill Running Kestrel Servers (Mandatory)
+**See**: [Step 0: Server Cleanup](shared/step-0-server-cleanup.md)
+
 Before beginning analysis, ensure clean server state:
 
 ```powershell
@@ -24,6 +26,8 @@ Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object {
 ---
 
 ### Step 1: Checkpoint Commit
+**See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
+
 Create checkpoint before analysis begins:
 
 ```bash

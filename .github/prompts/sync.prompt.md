@@ -121,10 +121,15 @@ This makes you both the **synchronizer** and **janitor** of the system.
 ## Execution Steps
 
 ### 0. Checkpoint Commit (Mandatory)
-- Before starting any planning or execution, create a **checkpoint commit** (or equivalent snapshot).  
-- Commit message must clearly identify the checkpoint:  
-  `checkpoint: pre-sync <key>`  
-- This guarantees rollback capability if sync introduces instability.  
+**See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
+
+Create checkpoint commit for rollback capability:
+```bash
+git add -A
+git commit -m "checkpoint: pre-sync {key}"
+```
+
+This guarantees rollback capability if sync introduces instability.  
 
 ### 1. Plan
 - Parse `key` and `notes`.  

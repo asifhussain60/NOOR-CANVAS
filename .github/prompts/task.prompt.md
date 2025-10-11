@@ -119,36 +119,27 @@ You are the **Task Executor Agent**.
 ---
 
 ## Debug Logging Mandate (Code Insertion)
-**The `debug-level` parameter controls debug logging code inserted INTO source files, NOT agent output verbosity.**
+**See**: [Debug Logging Mandate](shared/debug-logging-mandate.md)
 
-When implementing code changes, respect the `debug-level` parameter:
+The `debug-level` parameter controls debug logging code **inserted INTO source files**, NOT agent output verbosity.
 
-- **`none` (default)**: Write production-ready code with no debug logging
-- **`simple`**: Insert basic debug markers at key integration points:
-  ```csharp
-  Logger.LogInformation("[DEBUG-WORKITEM:scope:context] Key event occurred ;CLEANUP_OK");
-  ```
-  ```javascript
-  console.log("[DEBUG-WORKITEM:scope:context] Event triggered ;CLEANUP_OK");
-  ```
-  
-- **`trace`**: Insert comprehensive debug markers with state dumps:
-  ```csharp
-  Logger.LogDebug("[DEBUG-WORKITEM:scope:context] Before: state={State}, value={Value} ;CLEANUP_OK", state, value);
-  // Perform operation
-  Logger.LogDebug("[DEBUG-WORKITEM:scope:context] After: state={State}, value={Value} ;CLEANUP_OK", state, value);
-  ```
+**Quick Reference**:
+- **`none` (default)**: Production-ready code, no debug logging
+- **`simple`**: Basic debug markers at key points: `Logger.LogInformation("[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK")`
+- **`trace`**: Comprehensive debug markers with state dumps
+- **`cleanup`**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK`
 
-- **`cleanup`**: Search for and remove all debug markers matching patterns:
-  - `[DEBUG-WORKITEM:*] ;CLEANUP_OK`
-  - `// DEBUG-WORKITEM:* ;CLEANUP_OK`
-  - `console.log("[DEBUG-WORKITEM:*] ;CLEANUP_OK")`
-
-**Critical Rules:**
-1. All debug logging MUST include `;CLEANUP_OK` suffix for automatic detection
-2. Debug markers must follow pattern: `[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK`
+**Critical Rules**:
+1. All debug logging MUST include `;CLEANUP_OK` suffix
+2. Follow pattern: `[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK`
 3. Never commit debug logging to production without explicit approval
 4. Completion workflow automatically removes all debug markers (see Step 9.2)
+
+**See shared/debug-logging-mandate.md for**:
+- Complete marker patterns for C#, JavaScript, Razor
+- Debug levels with examples
+- Cleanup procedures
+- Integration with completion workflow
 
 ---
 
@@ -327,35 +318,35 @@ All actions must respect the global guardrails and architectural mappings.
 ## Execution Steps
 
 ### 0. Kill Running Kestrel Servers (Mandatory)
-**Before any code changes, ensure clean server state by terminating all running Kestrel processes.**
+**See**: [Step 0: Server Cleanup](shared/step-0-server-cleanup.md)
 
-#### 0.1. Execute nckill Command
+Execute `nckill` (PowerShell alias) to terminate all Kestrel servers.
+- Prevents port conflicts (HTTPS 9091 already in use)
+- Prevents file lock issues during build/compilation
+- Ensures fresh server start with latest code
+
+**Quick Command**:
 ```powershell
 nckill
 ```
 
-This PowerShell alias kills all `dotnet.exe` processes running Kestrel servers, preventing:
-- Port conflicts (HTTPS 9091 already in use)
-- File lock issues during build/compilation
-- Stale server instances serving outdated code
-- Test failures from multiple server instances
-
-#### 0.2. Verify Clean State
-- Confirm terminal output shows processes terminated
-- If `nckill` command not found, use fallback:
-  ```powershell
-  Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' } | Stop-Process -Force
-  ```
-
-**Rationale**: Prevents "address already in use" errors and ensures fresh server start with latest code changes.
+**Fallback** (if alias not found):
+```powershell
+Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' } | Stop-Process -Force
+```
 
 ---
 
 ### 1. Checkpoint Commit (Mandatory)
-- After killing servers, create a **checkpoint commit** (or equivalent snapshot).  
-- Commit message format:  
-  `checkpoint: pre-task <key>`  
-- This ensures rollback capability if the task introduces instability.  
+**See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
+
+Create checkpoint commit for rollback capability:
+```bash
+git add -A
+git commit -m "checkpoint: pre-task {key}"
+```
+
+This ensures rollback capability if the task introduces instability.  
 
 ---
 
