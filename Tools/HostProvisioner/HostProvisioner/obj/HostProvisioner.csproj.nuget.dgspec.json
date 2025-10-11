@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[1.0.7, )"
             },
+            "Azure.AI.OpenAI": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
             "HtmlAgilityPack": {
               "target": "Package",
               "version": "[1.12.3, )"
