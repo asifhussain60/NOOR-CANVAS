@@ -502,12 +502,10 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Participant countries in database: {Countries}",
                     requestId, string.Join(", ", participantCountries.Select(c => $"'{c}'")));
 
-                // [DEBUG-WORKITEM:api:impl:09291900-api] Get country flags from KSESSIONS API instead of direct database access
-                var countryFlags = await GetCountryFlagsFromApiAsync(participantCountries.Where(c => !string.IsNullOrEmpty(c)).Cast<string>().ToArray(), requestId);
-
-                // COPILOT-DEBUG: Log country mapping results
-                _logger.LogInformation("COPILOT-DEBUG: [{RequestId}] Country flag mappings found via API: {Mappings}",
-                    requestId, string.Join(", ", countryFlags.Select(kv => $"'{kv.Key}' -> '{kv.Value}'")));
+                // [DEBUG-WORKITEM:waiting-room:flags] Use country code directly as flag code (ISO2 standard)
+                // Country codes stored in database ARE the ISO2 codes (AU, PK, US, etc.)
+                _logger.LogInformation("[DEBUG-WORKITEM:waiting-room:flags] [{RequestId}] Using country codes directly as flag codes for {Count} countries ;CLEANUP_OK",
+                    requestId, participantCountries.Count);
 
                 // Combine participant data with flag codes
                 var participants = participantsData.Select(p => new
@@ -518,7 +516,7 @@ namespace NoorCanvas.Controllers
                     Role = "participant",
                     City = p.City,
                     Country = p.Country,
-                    CountryFlag = countryFlags.GetValueOrDefault(p.Country ?? "", "un") // Database-driven flag code
+                    CountryFlag = !string.IsNullOrEmpty(p.Country) ? p.Country.ToLowerInvariant() : "un" // Use country code directly as flag code
                 }).ToList();
 
                 _logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Found {Count} participants for session {SessionId}",
