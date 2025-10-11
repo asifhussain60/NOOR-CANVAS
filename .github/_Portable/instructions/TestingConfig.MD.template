@@ -1,0 +1,350 @@
+# Testing Configuration — Canonical Reference
+
+**Version:** 1.0 (Portable Version)
+**Project:** {{PROJECT_NAME}}
+**Primary Language:** {{PLACEHOLDER_PRIMARY_LANGUAGE}}
+
+---
+
+## Overview
+
+This document defines the testing framework configuration and standards for {{PROJECT_NAME}}. All agents must reference this file when creating, running, or validating tests.
+
+---
+
+## Primary Test Framework
+
+**Framework:** Detected based on project type
+**Command:** `{{PLACEHOLDER_TEST_COMMAND}}`
+
+---
+
+## Multi-Framework Configuration Examples
+
+### For Playwright (TypeScript/JavaScript)
+
+**Configuration File:** `config/testing/playwright.config.{js|cjs|ts}`
+
+**Core Settings:**
+```javascript
+{
+    timeout: 30000,
+    testDir: '../../',
+    testMatch: [
+        '**/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'
+    ],
+    retries: 0,
+    use: {
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure'
+    }
+}
+```
+
+**Test Execution:**
+- `npm run test` - Basic test execution
+- `npm run test:headed` - Headed browser mode
+- `npm run test:debug` - Debug mode with DevTools
+- `npm run test:ui-mode` - Interactive UI mode
+
+**Artifact Organization:**
+- **Base Directory:** `Workspaces/TEMP/test-artifacts/`
+- **Reports:** `Workspaces/TEMP/test-report/`
+- **Traces/Screenshots:** Organized by test run
+
+---
+
+### For Pytest (Python)
+
+**Configuration File:** `pytest.ini` or `pyproject.toml`
+
+**Core Settings:**
+```ini
+[pytest]
+testpaths = tests
+python_files = test_*.py
+python_classes = Test*
+python_functions = test_*
+addopts = -v --tb=short --strict-markers
+```
+
+**Test Execution:**
+- `pytest` - Run all tests
+- `pytest -v` - Verbose output
+- `pytest -k "test_name"` - Run specific test
+- `pytest --cov` - With coverage
+
+**Artifact Organization:**
+- **Reports:** `Workspaces/TEMP/pytest-report/`
+- **Coverage:** `.coverage` and `htmlcov/`
+
+---
+
+### For NUnit/xUnit (C#/.NET)
+
+**Configuration:** `.runsettings` file or project properties
+
+**Core Settings:**
+```xml
+<RunSettings>
+  <RunConfiguration>
+    <MaxCpuCount>1</MaxCpuCount>
+    <ResultsDirectory>.\Workspaces\TEMP\test-results</ResultsDirectory>
+  </RunConfiguration>
+</RunSettings>
+```
+
+**Test Execution:**
+- `dotnet test` - Run all tests
+- `dotnet test --filter "FullyQualifiedName~TestName"` - Specific test
+- `dotnet test --logger "trx"` - With TRX output
+
+**Artifact Organization:**
+- **Results:** `Workspaces/TEMP/test-results/`
+- **Coverage:** `coverage.cobertura.xml`
+
+---
+
+### For JUnit/TestNG (Java)
+
+**Configuration:** `pom.xml` (Maven) or `build.gradle` (Gradle)
+
+**Test Execution:**
+- `mvn test` - Maven test execution
+- `gradle test` - Gradle test execution
+- `mvn test -Dtest=TestName` - Specific test
+
+**Artifact Organization:**
+- **Reports:** `target/surefire-reports/` (Maven)
+- **Reports:** `build/reports/tests/` (Gradle)
+
+---
+
+### For RSpec (Ruby)
+
+**Configuration:** `.rspec` or `spec/spec_helper.rb`
+
+**Core Settings:**
+```ruby
+RSpec.configure do |config|
+  config.formatter = :documentation
+  config.color = true
+end
+```
+
+**Test Execution:**
+- `rspec` - Run all tests
+- `rspec spec/specific_spec.rb` - Specific file
+- `rspec --format html --out results.html` - HTML report
+
+**Artifact Organization:**
+- **Reports:** `Workspaces/TEMP/rspec-report/`
+
+---
+
+## Test Types and Execution Strategy
+
+### Unit Tests
+**Purpose:** Test individual components in isolation
+**Execution:** Fast, no external dependencies
+**Coverage Target:** 80%+ for core business logic
+
+### Integration Tests
+**Purpose:** Test component interactions
+**Execution:** May require database, APIs, or services
+**Coverage Target:** Critical integration points
+
+### End-to-End Tests
+**Purpose:** Test complete user workflows
+**Execution:** Full application stack, simulates real user
+**Coverage Target:** Critical user journeys
+
+---
+
+## Server Management Protocol
+
+### For Applications Requiring Server
+**Automatic Management (Preferred):**
+- Test framework manages application lifecycle
+- Configured in test configuration file
+- Use for CI/CD and automated test runs
+
+**Manual Management (Development):**
+- Check if server is running: Varies by platform
+- Start manually if needed: `{{PLACEHOLDER_SERVER_START_COMMAND}}`
+- Stop after testing: `{{PLACEHOLDER_SERVER_CLEANUP_COMMAND}}`
+
+### Server Check Example (Windows/PowerShell)
+```powershell
+# Check if running
+Get-Process | Where-Object {$_.ProcessName -eq "{{PROJECT_NAME}}"}
+
+# Start server
+{{PLACEHOLDER_SERVER_START_COMMAND}}
+
+# Clean up servers
+{{PLACEHOLDER_SERVER_CLEANUP_COMMAND}}
+```
+
+---
+
+## Test Data Management
+
+### Canonical Test Data
+**Location:** Document test data patterns in a separate reference file
+**Principle:** Use consistent, repeatable test data across all tests
+
+### Test Data Organization
+```
+tests/
+├── fixtures/           # Shared test data
+├── mocks/             # Mock objects and responses
+└── data/              # Test datasets
+```
+
+### Data Isolation
+- Each test should be independent
+- Use setup/teardown for data management
+- Clean up after tests to avoid pollution
+
+---
+
+## Artifact Management
+
+### Standard Artifact Structure
+```
+Workspaces/TEMP/
+├── test-artifacts/       # Screenshots, traces, videos
+├── test-report/         # Test execution reports
+├── test-results/        # Test result files (XML, JSON, etc.)
+└── test-coverage/       # Code coverage reports
+```
+
+### Artifact Retention Policy
+- **Success:** Minimal artifacts (basic logs only)
+- **Failure:** Full artifacts (screenshots, traces, videos, logs)
+- **CI/CD:** Configure artifact upload for failed tests
+
+---
+
+## Multi-Browser/Multi-Environment Testing
+
+### Browser Matrix (for E2E frameworks)
+- **Chromium:** Primary browser
+- **Firefox:** Cross-browser validation
+- **WebKit:** Safari compatibility (if applicable)
+
+### Environment Matrix
+- **Development:** Local environment
+- **Staging:** Pre-production validation
+- **Production-like:** Full integration testing
+
+---
+
+## Test Execution Standards
+
+### For All Agents
+
+**test-generation.prompt.md:**
+- Create tests following framework conventions
+- Use canonical test data patterns
+- Ensure tests are independent and isolated
+- Include proper setup/teardown
+
+**task.prompt.md:**
+- Run relevant tests after implementation
+- Ensure all tests pass before completing
+- Create new tests for new functionality
+
+**refactor.prompt.md:**
+- Run full test suite before refactoring
+- Ensure all tests still pass after refactoring
+- Update tests if contracts change
+
+**healthcheck.prompt.md:**
+- Validate test configuration
+- Check test coverage (if applicable)
+- Verify tests can be executed successfully
+
+---
+
+## Test Coverage Standards
+
+### Coverage Targets
+- **Unit Tests:** 80%+ for business logic
+- **Integration Tests:** All critical integration points
+- **E2E Tests:** All major user workflows
+
+### Coverage Reporting
+**Command:** Varies by framework
+- Playwright: Built-in coverage tools
+- Pytest: `pytest --cov`
+- .NET: `dotnet test /p:CollectCoverage=true`
+- Java: JaCoCo plugin
+- Ruby: SimpleCov
+
+**Report Location:** `Workspaces/TEMP/test-coverage/`
+
+---
+
+## Continuous Integration Integration
+
+### Pre-commit Hooks
+- Run unit tests
+- Run linter
+- Check formatting
+
+### Build Pipeline
+- Run all unit tests
+- Run integration tests
+- Run E2E tests (on dedicated environment)
+- Generate coverage reports
+- Upload artifacts on failure
+
+### Quality Gates
+- All tests must pass
+- Coverage thresholds must be met
+- No test warnings or errors
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue:** Tests hang or timeout
+**Solution:** Check server is running, increase timeout, check network
+
+**Issue:** Flaky tests
+**Solution:** Add explicit waits, ensure proper cleanup, check for race conditions
+
+**Issue:** Test data conflicts
+**Solution:** Use unique test data per test, implement proper isolation
+
+**Issue:** Artifacts not generated
+**Solution:** Check artifact configuration, verify output directories exist
+
+---
+
+## Sync Protocol
+
+This file must reflect the **REAL current state** of the project.
+- **sync.prompt.md** is responsible for updating this file automatically
+- Obsolete data must be removed
+- Modified values must be updated to match source of truth
+- Placeholders (`[PLACEHOLDER]`) must be replaced on actual setup
+
+---
+
+## Related Documentation
+
+- [ValidationFramework.md](ValidationFramework.md) - Standard validation pipeline
+- [AnalyzerConfig.MD](AnalyzerConfig.MD) - Code quality configuration
+- [SelfAwareness.instructions.md](SelfAwareness.instructions.md) - Global guardrails
+- Test data patterns documentation (project-specific)
+
+---
+
+**Maintained By:** All Agents (via sync.prompt.md)

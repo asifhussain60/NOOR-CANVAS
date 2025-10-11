@@ -1,0 +1,360 @@
+# {{PROJECT_NAME}} Architecture Documentation
+
+**Version:** 1.0.0
+**Last Updated:** [Auto-generated during setup]
+**Primary Language:** {{PLACEHOLDER_PRIMARY_LANGUAGE}}
+**Architecture:** {{PLACEHOLDER_ARCHITECTURE}}
+
+---
+
+## Overview
+
+This document provides a comprehensive overview of the {{PROJECT_NAME}} architecture, including system components, data flow, integration patterns, and key design decisions.
+
+**Purpose:** This document serves as the single source of truth for architectural decisions and system design. All agents must consult this before making structural changes to prevent duplication and ensure consistency.
+
+---
+
+## System Architecture
+
+### Architecture Pattern
+**Pattern:** {{PLACEHOLDER_ARCHITECTURE}}
+- Monolithic
+- Microservices
+- Layered (N-Tier)
+- Clean Architecture
+- Hexagonal Architecture
+- Event-Driven
+- Serverless
+- Other: [Specify]
+
+### Technology Stack
+
+**Primary Language:** {{PLACEHOLDER_PRIMARY_LANGUAGE}}
+
+**Framework/Runtime:**
+- [Specify framework: ASP.NET Core, React, Django, Spring Boot, Rails, etc.]
+- Version: [Specify version]
+
+**Database:**
+- Type: [SQL/NoSQL/Both]
+- Technology: [PostgreSQL, MySQL, MongoDB, etc.]
+- ORM/Data Access: [Entity Framework, Sequelize, SQLAlchemy, etc.]
+
+**Frontend (if applicable):**
+- Framework: [React, Vue, Angular, Blazor, etc.]
+- State Management: [Redux, Vuex, etc.]
+- UI Library: [Bootstrap, Material-UI, Tailwind, etc.]
+
+**Testing:**
+- Unit Testing: [NUnit, Jest, Pytest, JUnit, RSpec]
+- Integration Testing: [Specify framework]
+- E2E Testing: [Playwright, Cypress, Selenium, etc.]
+
+**Build & Deployment:**
+- Build Tool: [MSBuild, npm, Maven, Gradle, etc.]
+- CI/CD: [GitHub Actions, Azure DevOps, Jenkins, etc.]
+- Deployment: [Docker, Kubernetes, Cloud Platform, etc.]
+
+---
+
+## Project Structure
+
+### Directory Organization
+```
+{{PROJECT_NAME}}/
+├── src/                          # Source code
+│   ├── {{PLACEHOLDER_PROJECT_LAYERS}}
+├── tests/                        # Test files
+│   ├── unit/                    # Unit tests
+│   ├── integration/             # Integration tests
+│   └── e2e/                     # End-to-end tests
+├── docs/                        # Documentation
+├── config/                      # Configuration files
+│   └── testing/                # Test configuration
+├── .github/                     # GitHub/Git configuration
+│   ├── _Portable/              # Portable AI agent system
+│   ├── prompts/                # Agent prompts
+│   └── instructions/           # Agent instructions
+└── Workspaces/                  # Agent workspaces
+    ├── Copilot/                # Agent state and learning
+    ├── CodeQuality/            # Code analysis artifacts
+    └── TEMP/                   # Temporary files
+```
+
+### Layer Responsibilities
+
+**{{PLACEHOLDER_PROJECT_LAYERS}}**
+
+[For each layer, describe:]
+- **Purpose:** What this layer is responsible for
+- **Key Components:** Main components in this layer
+- **Dependencies:** What this layer depends on
+- **Rules:** Constraints and guidelines for this layer
+
+---
+
+## Component Inventory
+
+### Controllers/Endpoints (if applicable)
+[List main API controllers/routes]
+- **Controller Name:** Responsibility, key endpoints
+- **Controller Name:** Responsibility, key endpoints
+
+### Services/Business Logic
+[List main services]
+- **Service Name:** Responsibility, key methods
+- **Service Name:** Responsibility, key methods
+
+### Data Models
+[List main data models/entities]
+- **Model Name:** Purpose, key fields
+- **Model Name:** Purpose, key fields
+
+### UI Components (if applicable)
+[List main UI components]
+- **Component Name:** Purpose, key features
+- **Component Name:** Purpose, key features
+
+---
+
+## API Architecture
+
+### API Endpoints
+[Document main API endpoints]
+
+**Authentication Endpoints:**
+- `POST /api/auth/login` - User authentication
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/validate` - Token validation
+
+**[Category] Endpoints:**
+- `GET /api/[resource]` - List resources
+- `GET /api/[resource]/{id}` - Get specific resource
+- `POST /api/[resource]` - Create resource
+- `PUT /api/[resource]/{id}` - Update resource
+- `DELETE /api/[resource]/{id}` - Delete resource
+
+### Request/Response Patterns
+**Standard Response Format:**
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Operation successful",
+  "errors": []
+}
+```
+
+**Error Response Format:**
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "Error description",
+  "errors": ["Detailed error 1", "Detailed error 2"]
+}
+```
+
+### Authentication & Authorization
+**Authentication Method:** [JWT, OAuth, Cookie-based, etc.]
+**Authorization Pattern:** [Role-based, Claims-based, etc.]
+
+---
+
+## Data Architecture
+
+### Database Schema
+[Document main database tables/collections]
+
+**[Table Name]:**
+- **Purpose:** [What data this stores]
+- **Key Fields:** field_name (type, constraints)
+- **Relationships:** [Foreign keys, references]
+
+### Data Access Patterns
+**Pattern:** [Repository, Active Record, Data Mapper, etc.]
+**Rules:**
+- UI layer must NOT access database directly
+- All database access through designated data access layer
+- Use DTOs for data transfer between layers
+
+---
+
+## Integration Patterns
+
+### Real-time Communication (if applicable)
+**Technology:** [SignalR, WebSockets, Server-Sent Events, etc.]
+**Hubs/Channels:** [List main communication channels]
+**Events:** [List main events and their purposes]
+
+### External Services (if applicable)
+**Service Name:** Purpose, integration method
+**Service Name:** Purpose, integration method
+
+### Message Queue/Event Bus (if applicable)
+**Technology:** [RabbitMQ, Azure Service Bus, Kafka, etc.]
+**Queues/Topics:** [List main queues and their purposes]
+
+---
+
+## Security Architecture
+
+### Authentication Flow
+[Describe how users authenticate]
+1. User submits credentials
+2. System validates credentials
+3. System generates token/session
+4. Token/session returned to client
+5. Client includes token in subsequent requests
+
+### Authorization Flow
+[Describe how permissions are checked]
+- Role-based access control (RBAC)
+- Claims-based authorization
+- Policy-based authorization
+
+### Data Protection
+- Encryption at rest: [Describe approach]
+- Encryption in transit: [HTTPS, TLS, etc.]
+- Sensitive data handling: [PII, passwords, etc.]
+
+---
+
+## Performance Considerations
+
+### Caching Strategy
+**Caching Layers:**
+- Client-side caching: [Browser cache, localStorage, etc.]
+- Application-level caching: [In-memory cache, Redis, etc.]
+- Database-level caching: [Query cache, etc.]
+
+### Optimization Patterns
+- Lazy loading for large datasets
+- Pagination for list endpoints
+- Compression for API responses
+- CDN for static assets (if applicable)
+
+---
+
+## Error Handling & Logging
+
+### Error Handling Strategy
+**Global Error Handler:** [Describe implementation]
+**Error Propagation:** [How errors bubble up through layers]
+**User-Facing Errors:** [Friendly messages vs technical details]
+
+### Logging Strategy
+**Logging Levels:** Debug, Info, Warning, Error, Critical
+**Log Storage:** [File, Database, Cloud service, etc.]
+**Log Format:** [Structured logging, JSON, etc.]
+
+---
+
+## Testing Strategy
+
+### Unit Testing
+**Coverage Target:** 80%+ for business logic
+**Mocking Strategy:** [Mock external dependencies]
+**Key Areas:** Business logic, data validation, calculations
+
+### Integration Testing
+**Coverage:** All API endpoints, service integrations
+**Test Data:** [Use test database, mock external services]
+
+### End-to-End Testing
+**Coverage:** Critical user workflows
+**Framework:** {{PLACEHOLDER_TEST_COMMAND}}
+**Execution:** Automated via CI/CD
+
+---
+
+## Deployment Architecture
+
+### Environments
+- **Development:** Local development environment
+- **Testing/Staging:** Pre-production testing
+- **Production:** Live environment
+
+### Deployment Process
+1. Code commit triggers CI/CD pipeline
+2. Build and run tests
+3. Deploy to staging environment
+4. Run smoke tests
+5. Manual approval (if required)
+6. Deploy to production
+
+### Infrastructure
+- **Hosting:** [Cloud provider, on-premise, etc.]
+- **Scaling:** [Horizontal, vertical, auto-scaling, etc.]
+- **Monitoring:** [Application monitoring, health checks, etc.]
+
+---
+
+## Design Decisions & Rationale
+
+### Key Architectural Decisions
+[Document major architectural decisions and why they were made]
+
+**Decision:** [What was decided]
+**Rationale:** [Why this approach was chosen]
+**Alternatives Considered:** [What other options were considered]
+**Trade-offs:** [What were the trade-offs]
+
+---
+
+## Anti-Patterns & Constraints
+
+### Prohibited Patterns
+- ❌ **Direct Database Access from UI:** All data access must go through APIs
+- ❌ **Hardcoded Configuration:** Use environment variables or config files
+- ❌ **God Objects:** Keep components focused and single-responsibility
+- ❌ **Tight Coupling:** Maintain loose coupling between layers
+
+### Architectural Constraints
+- All external dependencies must be abstracted behind interfaces
+- Cross-layer communication must use DTOs, not domain entities
+- Configuration must be externalized
+- Secrets must never be committed to source control
+
+---
+
+## Evolution & Maintenance
+
+### Future Considerations
+[Document planned architectural changes or improvements]
+- Migration to microservices (if applicable)
+- Introduction of CQRS pattern (if applicable)
+- API versioning strategy
+- Performance optimization plans
+
+### Technical Debt
+[Document known technical debt items]
+- **Item:** Description, impact, planned resolution
+- **Item:** Description, impact, planned resolution
+
+---
+
+## Related Documentation
+
+- [SystemStructureSummary.md](../../.github/instructions/SystemStructureSummary.md) - Agent coordination
+- [ValidationFramework.md](../../.github/instructions/ValidationFramework.md) - Validation standards
+- [AnalyzerConfig.MD](../../.github/instructions/AnalyzerConfig.MD) - Code quality configuration
+- [TestingConfig.MD](../../.github/instructions/TestingConfig.MD) - Testing configuration
+- [API-Contract-Validation.md](../../.github/instructions/API-Contract-Validation.md) - API contracts
+
+---
+
+## Sync Protocol
+
+This file must reflect the **REAL current state** of the project.
+- **sync.prompt.md** is responsible for updating this file automatically
+- New components must be added to the inventory
+- Deprecated components must be marked or removed
+- Architecture decisions should be documented as they're made
+- Keep this document synchronized with actual implementation
+
+---
+
+**Maintained By:** All Agents (via sync.prompt.md)
+**Last Sync:** [Auto-updated by sync agent]

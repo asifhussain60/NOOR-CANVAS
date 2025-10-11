@@ -1,0 +1,202 @@
+# Analyzer Configuration — Canonical Reference
+
+This file defines analyzer and linting tools for **refactor** and code quality tasks in {{PROJECT_NAME}}.
+
+---
+
+## Current State
+
+### Code Quality Analyzers ({{PLACEHOLDER_PRIMARY_LANGUAGE}})
+**Primary Configuration:** Project configuration file
+- **Analysis Command:** `{{PLACEHOLDER_ANALYZER_COMMAND}}`
+- **Zero Tolerance:** All analysis must pass with zero errors and zero warnings
+- **Configuration Location:** Centralized configuration file for consistency
+
+### Linter Configuration
+**Primary Configuration:** Linter configuration file
+- **Lint Command:** `{{PLACEHOLDER_LINTER_COMMAND}}`
+- **Target Files:** Source code files matching project patterns
+- **Key Rules:**
+  - Unused variables/imports: Error/Warning
+  - Code style violations: Based on project standards
+  - Best practice violations: Error
+- **Execution:** `{{PLACEHOLDER_LINTER_COMMAND}}` with zero-tolerance
+
+### Formatter Configuration
+**Configuration:** Formatter configuration file
+- **Format Command:** `{{PLACEHOLDER_FORMATTER_COMMAND}}`
+- **Target Files:** All source code files
+- **Integration:** Centralized configuration for consistency
+- **Execution:** Run before commits to ensure consistent formatting
+
+### Build Validation
+**Build Command:** `{{PLACEHOLDER_BUILD_COMMAND}}`
+- **Zero Tolerance:** Must build with zero errors and zero warnings
+- **Validation:** Run after every code change
+- **Configuration:** Project build configuration
+
+---
+
+## Language-Specific Configurations
+
+### For .NET/C# Projects
+- **Analyzers:** Microsoft.CodeAnalysis.NetAnalyzers, StyleCop.Analyzers, Roslynator
+- **Configuration:** Directory.Build.props, .editorconfig, roslynator.config
+- **Execution:** `dotnet build`, `dotnet format`, Roslynator analysis
+- **Documentation:** Workspaces/CodeQuality/Roslynator/
+
+### For JavaScript/TypeScript Projects
+- **Linter:** ESLint with TypeScript support
+- **Formatter:** Prettier
+- **Configuration:** eslint.config.js, .prettierrc, tsconfig.json
+- **Execution:** `npm run lint`, `npm run format`, `npm run build`
+
+### For Python Projects
+- **Linter:** pylint, flake8, mypy
+- **Formatter:** black, isort
+- **Configuration:** .pylintrc, setup.cfg, pyproject.toml
+- **Execution:** `pylint`, `black`, `mypy`
+
+### For Java Projects
+- **Analyzer:** Checkstyle, PMD, SpotBugs
+- **Formatter:** google-java-format
+- **Configuration:** checkstyle.xml, pmd.xml, spotbugs-exclude.xml
+- **Execution:** Maven/Gradle plugins
+
+### For Ruby Projects
+- **Linter:** RuboCop
+- **Formatter:** RuboCop auto-correct
+- **Configuration:** .rubocop.yml
+- **Execution:** `rubocop`, `rubocop -a`
+
+---
+
+## Code Quality Analysis Organization
+
+### Roslynator/Analyzer Workspace Structure
+```
+Workspaces/CodeQuality/
+├── README.md                         # Comprehensive usage documentation
+├── run-analyzer.{ps1|sh}            # Automated analysis execution script
+├── CONFIGURATION_COMPLETE.md        # Setup completion status
+└── Analyzer/
+    ├── Config/
+    │   └── analyzer.config          # Main analyzer configuration
+    ├── Reports/
+    │   ├── baseline-analysis.json   # Initial baseline for comparison
+    │   ├── latest-analysis.json     # Most recent analysis
+    │   └── analysis_*.json          # Timestamped historical reports
+    └── Logs/
+        ├── latest-analysis.log      # Most recent execution log
+        └── analysis_*.log           # Timestamped historical logs
+```
+
+### Documentation Location
+```
+Workspaces/Documentation/CODE_QUALITY/
+├── latest-analysis-documentation.md    # Most recent analysis documentation
+└── analysis-documentation_*.md         # Timestamped historical documentation
+```
+
+---
+
+## Instructions for Agents
+
+### On Task Execution (task.prompt.md)
+- **Before Implementation:** Run linter to establish baseline
+- **After Implementation:** Validate with full build and linter
+- **Commit Requirement:** All code quality checks must pass
+
+### On Refactor (refactor.prompt.md)
+- **Initial Analysis:** Run {{PLACEHOLDER_ANALYZER_COMMAND}} for baseline
+- **During Refactor:** Fix analyzer violations incrementally
+- **Final Validation:** Zero errors, zero warnings required
+- **Documentation:** Update this file if analyzer configuration changes
+
+### On Sync (sync.prompt.md)
+- **Update This File:** Reflect REAL current state of analyzers
+- **Remove Obsolete:** Delete outdated analyzer references
+- **Add New:** Document newly introduced analyzers
+- **Verify Paths:** Ensure all configuration paths are correct
+
+### On Healthcheck (healthcheck.prompt.md)
+- **Analyzer Validation:** Verify all quality tools are configured
+- **Baseline Check:** Compare current state vs. baseline
+- **Report Issues:** Document any analyzer configuration problems
+
+---
+
+## Execution Rules
+
+### Never Run Analyzers Directly in Project Root
+- **ALWAYS use:** Designated analyzer scripts
+- **For .NET:** `.\Workspaces\CodeQuality\run-roslynator.ps1` (if using Roslynator)
+- **For Other Tools:** Use configured npm scripts, Maven goals, or designated scripts
+
+### Always Use Centralized Configuration
+- **Configuration Files:** Must be in designated config directories
+- **Script Integration:** All scripts reference centralized configs
+- **Path Consistency:** Use relative paths from project root
+
+### Zero-Tolerance Enforcement
+- **Build:** Must pass with zero errors and zero warnings
+- **Linter:** Must pass with zero errors and zero warnings
+- **Formatter:** Code must be properly formatted
+- **Tests:** All tests must pass
+
+---
+
+## Baseline Management
+
+### Initial Baseline
+- Capture initial analysis results as baseline
+- Store in `Workspaces/CodeQuality/Analyzer/Reports/baseline-analysis.json`
+- Use for trend analysis and improvement tracking
+
+### Ongoing Analysis
+- Run analysis regularly (before major commits, weekly, etc.)
+- Compare against baseline to track improvements
+- Update baseline when intentional architectural changes are made
+
+### Health Scoring
+- Track metrics over time (error count, warning count, etc.)
+- Calculate health scores based on analysis results
+- Set improvement targets and track progress
+
+---
+
+## TODO (Placeholder Policy)
+If analyzer configs cannot be located:
+1. Insert `[PLACEHOLDER]` sections in this file
+2. Stop and request confirmation
+3. Replace placeholders with real data on next `/sync`
+
+---
+
+## Sync Protocol
+This file must reflect the **REAL current state** of the project.
+- **sync.prompt.md** is responsible for updating this file automatically
+- Obsolete data must be removed
+- Modified values must be updated to match source of truth in the repo
+- Placeholders (`[PLACEHOLDER]`) must be replaced on the next run
+
+---
+
+## Tool Integration
+
+### VS Code Tasks (if applicable)
+- **Run Analysis:** Task to execute analyzer and generate reports
+- **Open Report:** Task to run analysis and open results in editor
+- **View Documentation:** Quick access to latest analysis documentation
+
+### CI/CD Integration
+- **Pre-commit Hooks:** Run linter and formatter
+- **Build Pipeline:** Run full analysis and tests
+- **Quality Gates:** Block merge if quality standards not met
+
+---
+
+**Version:** 1.0.0 (Portable Version)
+**Last Updated:** Initial portable system release
+**Project:** {{PROJECT_NAME}}
+**Primary Language:** {{PLACEHOLDER_PRIMARY_LANGUAGE}}
