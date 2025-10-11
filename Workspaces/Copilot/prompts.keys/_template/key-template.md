@@ -88,6 +88,47 @@ Brief overview of what this key accomplishes and its role in the application. In
 
 ---
 
+## Functionality Registry
+**Purpose**: Track core behaviors that MUST continue working across all changes to prevent regressions.
+
+### Core Behaviors (Must Always Work)
+- ✅ **Behavior 1**: Description of critical user-facing functionality (e.g., "Valid token in URL → Direct to registration (no flash)")
+- ✅ **Behavior 2**: Another critical behavior (e.g., "Invalid token → Show error message")
+- ✅ **Behavior 3**: Third core behavior (e.g., "Missing token → Show token entry panel")
+
+### Related Test Coverage
+- **Automated Tests**:
+  - `Tests/UI/feature-workflow.spec.ts` - Covers behaviors 1, 2, 3
+  - `Tests/Unit/ServiceTests.cs` - Unit test coverage for service layer
+- **Manual Validation**:
+  - Navigate to `/path/to/feature` with valid data
+  - Verify behavior X occurs without errors
+  - Check browser console for warnings
+
+### Breaking Change Detection
+- **File Watch**: Files that control this functionality (triggers validation if modified)
+  - `SPA/NoorCanvas/Pages/ComponentName.razor`
+  - `SPA/NoorCanvas/Services/ServiceName.cs`
+  - `SPA/NoorCanvas/Controllers/ControllerName.cs`
+- **Method Watch**: Critical methods that must preserve behavior
+  - `ComponentName.OnInitializedAsync()` - Initialization logic
+  - `ServiceName.ProcessData()` - Core business logic
+- **State Watch**: Important state variables and their expected values
+  - `Model.PropertyName` - Expected state transitions
+  - `IsFeatureEnabled` - Configuration flags
+
+### Last Validation
+- **Date**: YYYY-MM-DD HH:MM:SS (ISO-8601)
+- **Method**: automated | manual | hybrid
+- **Result**: PASS | FAIL | PARTIAL
+- **Notes**: Additional context about validation (e.g., "All automated tests passed, manual UX verification pending")
+
+### Regression History
+- YYYY-MM-DD: Regression detected in behavior X (commit: abc1234) - Fixed in commit def5678
+- YYYY-MM-DD: Breaking change prevented by validation system (file watch triggered)
+
+---
+
 ## Execution Tracking (Auto-populated by task.prompt.md)
 
 ### Phases

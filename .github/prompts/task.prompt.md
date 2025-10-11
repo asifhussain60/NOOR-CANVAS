@@ -648,10 +648,110 @@ This ensures rollback capability if the task introduces instability.
 
 5. **Maintain Alphabetical Sorting** of keys in their respective folders
 
-#### 8.2. Validation
+#### 8.2. Functionality Registry Validation (Regression Prevention)
+**Purpose**: Ensure new changes don't break existing functionality tracked in the key's Functionality Registry.
+
+1. **Load Functionality Registry** (if exists):
+   - Read `## Functionality Registry` section from `{key}.md`
+   - Parse **Core Behaviors** list (all ✅ items that must work)
+   - Parse **File Watch** list (files that trigger validation)
+   - Parse **Method Watch** list (critical methods)
+   - Parse **Related Test Coverage** (automated tests available)
+
+2. **Detect Breaking Change Risk**:
+   - **IF** any modified file in Step 5 matches a **File Watch** entry:
+     - Flag: `⚠️ REGRESSION RISK: Modified file controls {X} core behaviors`
+   - **IF** any modified method matches a **Method Watch** entry:
+     - Flag: `⚠️ METHOD RISK: Changes to {method} may affect behavior {Y}`
+   - **IF** no match found:
+     - Log: `✓ No file/method watch matches - low regression risk`
+
+3. **Execute Validation**:
+   - **IF** automated tests exist in **Related Test Coverage**:
+     ```bash
+     # Execute tests for this key's functionality
+     npm test -- Tests/UI/{test-file}.spec.ts
+     # OR for unit tests
+     dotnet test --filter "FullyQualifiedName~{TestClassName}"
+     ```
+     - **PASS**: All tests green → Update Last Validation with PASS
+     - **FAIL**: Tests failed → **BLOCK COMMIT** and report failures
+   
+   - **IF** only manual validation exists:
+     - Prompt user with manual validation checklist:
+       ```
+       ⚠️ Manual Validation Required
+       Please verify the following behaviors still work:
+       □ Behavior 1: {description}
+       □ Behavior 2: {description}
+       □ Behavior 3: {description}
+       
+       Confirm all behaviors work? (yes/no)
+       ```
+     - **User confirms YES**: Update Last Validation with PASS (manual)
+     - **User confirms NO**: **BLOCK COMMIT** and request details
+
+4. **Update Functionality Registry**:
+   - **Add New Behaviors** (if task introduced new functionality):
+     ```markdown
+     - ✅ **Behavior N**: {new functionality description}
+     ```
+   - **Update File/Method Watch** (if new critical files/methods added):
+     ```markdown
+     - `NewFile.cs` - Added in commit {sha}
+     - `NewMethod()` - Critical method added in commit {sha}
+     ```
+   - **Update Last Validation**:
+     ```markdown
+     ### Last Validation
+     - **Date**: {ISO-8601 timestamp}
+     - **Method**: automated | manual
+     - **Result**: PASS
+     - **Commit**: {sha}
+     ```
+
+5. **Output to User** (concise):
+   - **IF validation passed**:
+     ```
+     ✅ Functionality Validation: PASS
+     - Core behaviors: {X} verified
+     - Tests executed: {Y} passed
+     - Registry updated with new behaviors
+     ```
+   
+   - **IF validation failed**:
+     ```
+     ❌ Functionality Validation: FAIL
+     - Failed behaviors: {X}
+     - Test failures: {test details}
+     - COMMIT BLOCKED - fix regressions before proceeding
+     ```
+   
+   - **IF no registry exists**:
+     ```
+     ℹ️ No Functionality Registry found for key '{key}'
+     Consider adding one using template: Workspaces/Copilot/prompts.keys/_template/key-template.md
+     ```
+
+6. **Regression Detection & History**:
+   - **IF regression detected** (test failures or user reports NO):
+     - Append to **Regression History** in Functionality Registry:
+       ```markdown
+       - {timestamp}: Regression detected in {behavior} (commit: {sha}) - Investigation in progress
+       ```
+     - **BLOCK COMMIT** until regression is fixed
+   
+   - **WHEN regression fixed**:
+     - Update Regression History:
+       ```markdown
+       - {timestamp}: Regression detected in {behavior} (commit: {bad-sha}) - Fixed in commit {fix-sha}
+       ```
+
+#### 8.3. Validation
 - **Verify key file was updated** before completing this step
 - **Confirm work log entry exists** for this execution
 - **Validate git commit hash is recorded**
+- **Confirm functionality validation executed** (if registry exists)
 
 **Failure to update the key data stream constitutes an incomplete task execution.**
 
