@@ -9,6 +9,7 @@
 @using System.Text.Json.Serialization
 @using System.Text.Json
 @using NoorCanvas.Services
+@using NoorCanvas.Components.Shared
 
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
@@ -857,6 +858,7 @@
                         </div>
                         <div class="canvas-question-form">
                             <textarea @bind="QuestionInput" 
+                                      @onkeydown="HandleQuestionKeyDown"
                                       class="canvas-form-textarea" 
                                       placeholder="Ask a question..." rows="2"></textarea>
                             <button @onclick="SubmitQuestion" 
@@ -1001,6 +1003,10 @@
         </div>
     </div>
 }
+
+<DebugPanel CurrentViewName="SessionCanvas" 
+            DebugActions="GetSessionCanvasDebugActions()" 
+            GenericMessage="Session Canvas debug actions" />
 
 @implements IAsyncDisposable
 
@@ -2437,5 +2443,51 @@
 <p style=""margin:0;font-size:14px;"">{System.Web.HttpUtility.HtmlEncode(message)}</p>
 <p style=""margin:8px 0 0 0;font-size:12px;opacity:0.8;"">Time: {timestamp} (Advanced Parser)</p>
 </div>";
+    }
+
+    // Debug Panel Support
+    private List<NoorCanvas.Models.Debug.IDebugAction> GetSessionCanvasDebugActions()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:debug] GetSessionCanvasDebugActions called ;CLEANUP_OK");
+        
+        var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Simulate Random Question",
+            "Post a random test question to the session",
+            async () => await SimulateRandomQuestion(),
+            "fa-solid fa-comment"
+        )
+        {
+            IsEnabled = !string.IsNullOrWhiteSpace(SessionToken)
+        });
+        
+        return actions;
+    }
+
+    private async Task SimulateRandomQuestion()
+    {
+        var timestamp = DateTime.Now.ToString("HH:mm:ss");
+        var randomText = $"Debug Test Question {timestamp}";
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:debug] Random question simulated: {Text} ;CLEANUP_OK", randomText);
+        
+        // Set question input value
+        QuestionInput = randomText;
+        
+        // Submit through existing logic
+        await SubmitQuestion();
+    }
+
+    // Enter Key Handler
+    private async Task HandleQuestionKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:keyboard] Enter key submit triggered ;CLEANUP_OK");
+            
+            // Prevent default newline behavior
+            await SubmitQuestion();
+        }
     }
 }

@@ -1,7 +1,23 @@
 # Canvas Key - Work Log
 
 ## [2025-10-11 - Latest] - task
-**Status**: in-progress | **Phase**: questionid-type-fix-and-e2e-test | **Commit**: 248bb5f
+**Status**: in-progress | **Phase**: debug-panel-and-keyboard-shortcuts | **Commit**: TBD
+**Work**:
+- Added DebugPanel component to SessionCanvas.razor (matching HostControlPanel pattern)
+- Implemented GetSessionCanvasDebugActions() factory method with "Simulate Random Question" action
+- Created SimulateRandomQuestion() method - programmatically fills QuestionInput and submits via existing logic
+- Added HandleQuestionKeyDown() event handler - Enter key (without Shift) triggers submit
+- Simple debug logging added:
+  - `[DEBUG-WORKITEM:canvas:debug]` when panel initializes and random question simulates
+  - `[DEBUG-WORKITEM:canvas:keyboard]` when Enter key submit triggers
+**Files**: 1 modified (SessionCanvas.razor - +35 lines: using statement, DebugPanel component, 2 methods)
+**Tests**: Manual validation pending - test random question broadcasts to host, Enter key submits
+**Build**: PASS (1 unrelated warning SA1518)
+**Next**: Manual testing of debug panel and keyboard shortcuts, then mark complete
+
+---
+## [2025-10-11] - task
+**Status**: completed | **Phase**: questionid-type-fix-and-e2e-test | **Commit**: 248bb5f
 **Work**:
 - **CRITICAL TYPE FIX**: Changed `QuestionData.QuestionId` from `int` to `string` (GUID)
   - Root cause: API returns GUID strings like "038893e4-4476-4e23-aff4-0cfa79e54b9d"
@@ -11,7 +27,7 @@
   - QuestionReceived: Parse GUID as string (was using GetHashCode())
   - QuestionUpdated: Direct string comparison (removed GetHashCode() fallback)
   - QuestionDeleted: Direct string comparison
-  - QuestionVoteUpdated: Changed from `On<int, int>` to `On<string, int>`
+  - QuestionVoteUpdated: Changed from `On<string, int>` to `On<string, int>`
 - **COMPREHENSIVE E2E TEST**: Created `canvas-session-212-full-test.spec.ts` (330+ lines)
   - 8 test scenarios covering full stack: UI → API → DB → SignalR → Multi-client
   - Dual browser contexts (participant + host) for real-time sync validation
