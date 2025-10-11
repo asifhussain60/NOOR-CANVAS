@@ -1,7 +1,7 @@
 # Key: prompts
 
 ## Metadata
-- **Status**: in-progress
+- **Status**: completed
 - **Created**: 2025-10-11
 - **Last Updated**: 2025-10-11
 - **Owner**: GitHub Copilot
@@ -73,9 +73,9 @@ The prompts key encompasses meta-improvements to the task execution workflow and
   - Benefit: Consistent structure across all keys for predictable context loading
 
 ## Recent Changes
-- 2025-10-11: Added Step 0 to task.prompt.md - Kestrel server cleanup (commit: pending)
-- 2025-10-11: Created key-template.md with file mapping schema (commit: pending)
-- 2025-10-11: Created prompts.md metadata file (commit: pending)
+- 2025-10-11: Added Step 0 to task.prompt.md - Kestrel server cleanup (commit: e47d1285)
+- 2025-10-11: Created key-template.md with file mapping schema (commit: e47d1285)
+- 2025-10-11: Created prompts.md metadata file (commit: e47d1285)
 
 ## Related Keys
 - **canvas**: Example key with narrative dependencies (to be migrated to new format)
@@ -96,18 +96,18 @@ The prompts key encompasses meta-improvements to the task execution workflow and
 ### Phases
 - **Checkpoint**: ✅ completed (2s, 2025-10-11T12:00:00Z) - commit: 865599ea
 - **Plan**: ✅ completed (120s, 2025-10-11T12:02:00Z) - Analyzed canvas.md and hcp/key.json structures
-- **Execute**: 🔄 in-progress (started 2025-10-11T12:04:00Z)
+- **Execute**: ✅ completed (240s, 2025-10-11T12:08:00Z) - commit: e47d1285
   - Step 0 implementation: DONE
   - File mapping schema design: DONE
   - Template creation: DONE
-  - Prompts metadata creation: IN-PROGRESS
-- **Validate**: ⏳ pending
-- **Confirm**: ⏳ pending
+  - Prompts metadata creation: DONE
+- **Validate**: ✅ completed (30s, 2025-10-11T12:10:00Z) - All files created successfully
+- **Confirm**: ✅ completed (10s, 2025-10-11T12:11:00Z) - Commit e47d1285 created
 
 ### Commits
 - `865599ea` - checkpoint: pre-task prompts
+- `e47d1285` - feat(prompts): Add server cleanup step + file mapping system
 - `7d8902e` - feat(canvas): set canvas-content-area min-height to 400px (previous task)
-- Pending: `feat(prompts): Add server cleanup step + file mapping system`
 
 ### Files Modified
 - `.github/prompts/task.prompt.md` - Added Step 0 (Kestrel server cleanup), renumbered existing steps
