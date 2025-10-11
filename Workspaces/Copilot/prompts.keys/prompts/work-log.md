@@ -5,8 +5,66 @@
 ## [2025-10-11T12:00:00Z] - Workflow Infrastructure Improvements
 
 **Status**: in-progress
-**Phase**: execution
-**Git Commit**: pending
+**Phase**: execution (Phase 4: Auto-Load Implementation)
+**Git Commit**: e47d1285 (Phase 1-3), pending (Phase 4)
+
+### Phase 4: Auto-Load File Mappings Implementation ✅
+**Objective**: Implement automatic file context loading in task.prompt.md Step 2
+
+**Changes**:
+- Updated Step 2 heading: "Key Data Stream Verification & File Context Loading"
+- Added new subsection 2.3: "Auto-Load File Mappings"
+- **Section 2.3.1**: Parse File Mappings section from key metadata
+  - Extract file paths with pattern: `` - `([^`]+)` - (.+)``
+  - Categorize by type: Frontend (Views, Components), Backend (Controllers, Services, DTOs), Database, Tests, Config, Docs
+- **Section 2.3.2**: Prioritize files for loading
+  - Primary: Views, Controllers, Services (load immediately)
+  - Secondary: DTOs, Components (load on demand)
+  - Tertiary: Tests, Config, Database (reference only)
+- **Section 2.3.3**: Load files into context
+  - Use `read_file` tool for primary files
+  - Store paths in agent working memory
+  - Log loaded files with descriptions
+- **Section 2.3.4**: Use loaded context during execution
+  - No need for `#file:` references when key is active
+  - Files automatically available from key metadata
+- **Section 2.3.5**: Handle missing/incomplete File Mappings
+  - Warning if File Mappings section missing
+  - Suggest updating with _template/key-template.md schema
+  - Fallback to manual file specification
+- **Section 2.3.6**: Support legacy key.json format
+  - Use `files_modified` array as fallback
+  - Suggest migration to .md format
+
+**Rationale**:
+- Eliminates need for users to specify `#file:` references
+- Files automatically loaded when key is activated
+- Key metadata becomes true single source of truth
+- Reduces cognitive load on users
+- Aligns with key data stream philosophy
+
+**Impact**: 
+- Users no longer need to remember which files belong to which key
+- File context automatically available when key is active
+- Backwards compatible with keys lacking File Mappings section
+- Works with legacy key.json format
+
+**Example Before**:
+```
+Follow task.prompt.md
+key: canvas
+tasks: Change submit button color to green on #file:SessionCanvas.razor
+```
+
+**Example After**:
+```
+Follow task.prompt.md
+key: canvas
+tasks: Change submit button color to green
+```
+(SessionCanvas.razor auto-loaded from canvas.md File Mappings)
+
+---
 
 ### Phase 1: Server Cleanup Automation ✅
 **Objective**: Prevent common developer errors from forgotten Kestrel servers
@@ -128,8 +186,9 @@
 The prompts key demonstrates the new file mapping system by documenting itself. This creates a reference implementation for future keys.
 
 **Next Steps**:
-- Commit all changes: task.prompt.md, key-template.md, prompts.md, work-log.md
-- Validate file mapping system with actual usage
+- ✅ Commit all changes: task.prompt.md, key-template.md, prompts.md, work-log.md
+- ✅ Validate file mapping system with actual usage
+- 🔄 IN-PROGRESS: Add auto-load logic to task.prompt.md Step 2
 - Consider migrating existing keys to new format
 
 **Files Modified**: 4 files

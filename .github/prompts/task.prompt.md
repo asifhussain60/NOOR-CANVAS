@@ -359,8 +359,8 @@ This PowerShell alias kills all `dotnet.exe` processes running Kestrel servers, 
 
 ---
 
-### 2. Key Data Stream Verification (Mandatory)
-**Before planning, ALWAYS verify and gather context from the key data stream.**
+### 2. Key Data Stream Verification & File Context Loading (Mandatory)
+**Before planning, ALWAYS verify and gather context from the key data stream, then auto-load relevant files.**
 
 #### 2.1. Key Resolution
 - **If key is provided**: Use the provided key.
@@ -374,8 +374,9 @@ This PowerShell alias kills all `dotnet.exe` processes running Kestrel servers, 
 #### 2.2. Key Data Stream Query
 1. **Search for Key File**:
    ```
-   Workspaces/Copilot/prompts.keys/**/<key>.md
+   Workspaces/Copilot/prompts.keys/{key}/{key}.md
    ```
+   - If `.md` file not found, check for `key.json` (legacy format)
 
 2. **Read Key Metadata** (if exists):
    - **Current status**: `new`, `in-progress`, `complete`, `failed`, `locked`
@@ -404,7 +405,74 @@ This PowerShell alias kills all `dotnet.exe` processes running Kestrel servers, 
    - **If `verbosity=concise`**: Use one-line format above
    - **If `verbosity=detailed`**: Show full context with previous work summary, timestamps, dependencies
 
-#### 2.3. Abort Conditions
+#### 2.3. Auto-Load File Mappings (NEW - Eliminates Manual File Specification)
+**Automatically load file context from key metadata to eliminate need for `#file:` references.**
+
+1. **Parse File Mappings Section**:
+   - Locate "## File Mappings" section in `{key}.md` metadata file
+   - Extract file paths using pattern: `` - `([^`]+)` - (.+)``
+   - Categorize by section:
+     - **Frontend (Views)**: Razor pages, Blazor components
+     - **Frontend (Components)**: Shared components, controls
+     - **Backend (Controllers)**: API controllers
+     - **Backend (Services)**: Business logic services
+     - **Backend (DTOs)**: Data transfer objects
+     - **Database**: Table schemas, SQL scripts
+     - **Tests**: E2E (Playwright), Unit tests
+     - **Configuration**: appsettings sections, environment variables
+     - **Documentation**: DocFX articles, API specs
+
+2. **Prioritize Files for Auto-Loading**:
+   - **Primary (Load Immediately)**:
+     - Frontend (Views) - Usually the main UI entry point
+     - Backend (Controllers) - API endpoints related to task
+     - Backend (Services) - Core business logic
+   - **Secondary (Load on Demand)**:
+     - Backend (DTOs) - Load if API changes are involved
+     - Frontend (Components) - Load if UI component changes mentioned
+   - **Tertiary (Reference Only)**:
+     - Tests - Reference for validation, load if task mentions testing
+     - Configuration - Reference for settings, load if config changes mentioned
+     - Database - Reference for schema, load if data model changes mentioned
+
+3. **Load Files into Context**:
+   - **Use `read_file` tool** to load primary files (views, controllers, services)
+   - **Store file paths** in agent working memory for reference
+   - **Log loaded files**:
+     ```
+     > FILE_CONTEXT_LOADING: Auto-loaded 3 primary files from key '{key}' metadata
+     >   - SPA/NoorCanvas/Pages/SessionCanvas.razor (Frontend View)
+     >   - SPA/NoorCanvas/Controllers/QuestionController.cs (Backend API)
+     >   - SPA/NoorCanvas/Services/HtmlParsingService.cs (Backend Service)
+     ```
+   - **If `verbosity=detailed`**: Show file descriptions from metadata
+   - **If `verbosity=concise`**: Show count only: `Loaded 3 files`
+
+4. **Use Loaded Context During Execution**:
+   - When user task mentions "submit button" → Check if SessionCanvas.razor is in loaded context
+   - When user task mentions "API endpoint" → Check if QuestionController.cs is in loaded context
+   - When user task mentions "HTML transformation" → Check if HtmlParsingService.cs is in loaded context
+   - **No need for user to specify `#file:` references** - files are already loaded from key metadata
+
+5. **Handle Missing or Incomplete File Mappings**:
+   - **If File Mappings section is missing**:
+     - Log warning: `[WARN] Key '{key}' missing File Mappings section - manual file specification required`
+     - Suggest: `Consider updating {key}.md with file mapping schema from _template/key-template.md`
+     - Proceed with manual file specification (user provides `#file:` references)
+   - **If File Mappings section exists but incomplete**:
+     - Load available files from metadata
+     - Allow user to specify additional files with `#file:` syntax
+   - **If files listed in metadata don't exist**:
+     - Log error: `[ERROR] File not found: {file-path} (referenced in {key}.md File Mappings)`
+     - Skip non-existent files, continue with available files
+
+6. **Support for Legacy key.json Format**:
+   - If key uses `key.json` instead of `{key}.md`:
+     - Check for `files_modified` array (legacy file tracking)
+     - Load files from `files_modified` array as fallback
+     - Log: `[INFO] Using legacy key.json format - consider migrating to {key}.md with File Mappings`
+
+#### 2.4. Abort Conditions
 - Key is `locked` by another agent (unless `--force` provided)
 - Key is `in-progress` by another agent and not stale
 - Key state is incompatible with requested operation
