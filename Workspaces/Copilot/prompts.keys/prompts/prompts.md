@@ -67,12 +67,17 @@ The prompts key encompasses meta-improvements to the task execution workflow and
   - Advantages: Context-rich descriptions, categorized file types, git-friendly diffs
   - Template: Created `key-template.md` with full schema and examples
   
-- 🔄 **Metadata Standardization**: Migrating from mixed formats to unified markdown approach
-  - Current: Some keys use `.md` (canvas), others use `key.json` (hcp)
-  - Target: All keys use `.md` format with structured File Mappings section
-  - Benefit: Consistent structure across all keys for predictable context loading
+- ✅ **Auto-Load File Mappings Implementation**: Added Section 2.3 to task.prompt.md
+  - Automatically parses File Mappings section from key metadata
+  - Loads primary files (Views, Controllers, Services) into context
+  - Prioritizes files: Primary (immediate), Secondary (on-demand), Tertiary (reference)
+  - Eliminates need for `#file:` references when key is active
+  - Fallback to manual specification if File Mappings missing
+  - Supports legacy key.json format
+  - Impact: Users no longer need to specify file names - key metadata provides all context automatically
 
 ## Recent Changes
+- 2025-10-11: Implemented auto-load file mappings in task.prompt.md Step 2.3 (commit: fb3c3a46)
 - 2025-10-11: Added Step 0 to task.prompt.md - Kestrel server cleanup (commit: e47d1285)
 - 2025-10-11: Created key-template.md with file mapping schema (commit: e47d1285)
 - 2025-10-11: Created prompts.md metadata file (commit: e47d1285)
@@ -96,23 +101,28 @@ The prompts key encompasses meta-improvements to the task execution workflow and
 ### Phases
 - **Checkpoint**: ✅ completed (2s, 2025-10-11T12:00:00Z) - commit: 865599ea
 - **Plan**: ✅ completed (120s, 2025-10-11T12:02:00Z) - Analyzed canvas.md and hcp/key.json structures
-- **Execute**: ✅ completed (240s, 2025-10-11T12:08:00Z) - commit: e47d1285
-  - Step 0 implementation: DONE
-  - File mapping schema design: DONE
-  - Template creation: DONE
-  - Prompts metadata creation: DONE
-- **Validate**: ✅ completed (30s, 2025-10-11T12:10:00Z) - All files created successfully
-- **Confirm**: ✅ completed (10s, 2025-10-11T12:11:00Z) - Commit e47d1285 created
+- **Execute**: ✅ completed (300s, 2025-10-11T12:13:00Z) - commits: e47d1285, fb3c3a46
+  - Step 0 implementation: DONE (e47d1285)
+  - File mapping schema design: DONE (e47d1285)
+  - Template creation: DONE (e47d1285)
+  - Prompts metadata creation: DONE (e47d1285)
+  - Auto-load implementation in Step 2.3: DONE (fb3c3a46)
+- **Validate**: ✅ completed (30s, 2025-10-11T12:14:00Z) - All files created successfully, auto-load logic verified
+- **Confirm**: ✅ completed (10s, 2025-10-11T12:15:00Z) - Commits e47d1285 and fb3c3a46 created
 
 ### Commits
 - `865599ea` - checkpoint: pre-task prompts
 - `e47d1285` - feat(prompts): Add server cleanup step + file mapping system
+- `5b0c9a77` - checkpoint: pre-task prompts - auto-load file mappings
+- `fb3c3a46` - feat(prompts): Implement auto-load file mappings in task.prompt.md Step 2
+- `a250157a` - docs(prompts): Update prompts.md with commit SHA and completion status
 - `7d8902e` - feat(canvas): set canvas-content-area min-height to 400px (previous task)
 
 ### Files Modified
-- `.github/prompts/task.prompt.md` - Added Step 0 (Kestrel server cleanup), renumbered existing steps
+- `.github/prompts/task.prompt.md` - Added Step 0 (Kestrel server cleanup), renumbered existing steps, added Section 2.3 (Auto-Load File Mappings)
 - `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Created new markdown template
 - `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - Created this metadata file
+- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Updated with Phase 4 auto-load implementation details
 - `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - To be created next
 
 ### Warnings & Errors
