@@ -2,6 +2,53 @@
 
 ---
 
+## [2025-10-11T19:15:00Z] - task agent
+
+**Status**: completed  
+**Work Done**:
+- ✅ **UNIFIED**: HTML transformation services consolidated into single entry point
+- **Created**: `UnifiedHtmlTransformService` wrapping both HtmlParsingService + AssetProcessingService
+- **Architecture**: Mode-based transformation (Host vs Participant)
+  - `TransformForHostAsync()`: Core transformation + share button injection
+  - `TransformForParticipant()`: Core transformation only (safe rendering)
+- **Updated Components**:
+  - HostControlPanel.razor: Uses `TransformForHostAsync()` for transcript
+  - SessionCanvas.razor: Uses `TransformForParticipant()` for shared assets
+- **Service Changes**: Made `AssetProcessingService.InjectAssetShareButtonsAsync()` public with XML docs
+
+**Files Modified**:
+- `SPA/NoorCanvas/Services/UnifiedHtmlTransformService.cs` (NEW - 161 lines)
+- `SPA/NoorCanvas/Services/AssetProcessingService.cs` (public method + docs)
+- `SPA/NoorCanvas/Program.cs` (DI registration line 167)
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` (unified service usage)
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor` (unified service usage)
+
+**Technical Details**:
+- UnifiedHtmlTransformService wraps existing services, doesn't replace them
+- HostControlPanel keeps dual injection for debug methods (AssetProcessor still needed)
+- SessionCanvas simplified - no longer needs direct HtmlParsingService access
+- Error handling unified: CreateErrorMessage() provides consistent safe HTML errors
+- Type conversion: sessionId (long) → runId (string) for asset processing
+
+**Validation**: PASS
+- Build status: SUCCESS (9.2s, 1 pre-existing warning)
+- Compile errors: ZERO (resolved accessibility and type conversion issues)
+- Architecture: Wrapper pattern maintains backward compatibility
+
+**Commits**:
+- `249f3755` - refactor(hcp): unify HTML transformation with UnifiedHtmlTransformService
+
+**Benefits Achieved**:
+1. **Single Source of Truth**: All transformations go through one entry point
+2. **Consistent Validation**: Same security and Blazor compatibility checks for all views
+3. **Easier Maintenance**: Centralized transformation logic
+4. **Mode-Based Features**: Host gets share buttons, participants get safe render only
+5. **Clean Architecture**: Wrapper service complements existing services
+
+**User Request Context**: User asked to unify HTML transformation functions used by HostControlPanel and SessionCanvas. Analysis revealed two separate paths - HostControlPanel used AssetProcessingService, SessionCanvas used HtmlParsingService. Solution: Created UnifiedHtmlTransformService that wraps both with mode-based behavior.
+
+---
+
 ## [2025-10-11T18:50:00Z] - task agent
 
 **Status**: verified  
