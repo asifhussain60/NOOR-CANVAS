@@ -15,11 +15,19 @@ Prepare and validate production deployment for Noor Canvas application with prop
 
 ### Database
 - `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Complete canvas schema & data migration script (KSESSIONS_DEV → KSESSIONS)
+- `Workspaces/Scripts/KSESSIONS_DDL_Migration_20251012.sql` - CASCADE DELETE validation and configuration
+- `Scripts/TruncateCanvasSessions.sql` - Safe truncation of canvas.Sessions for fresh start (production: KSESSIONS)
+- `Scripts/canvas.CleanCanvas.sql` - Stored procedure for canvas schema cleanup (development: KSESSIONS_DEV)
 
 ### Configuration
 - `SPA/NoorCanvas/appsettings.Production.json` - Production connection strings (KSESSIONS, KQUR)
 - `publish-temp/web.Release.config` - IIS web.config transformation for production
 - `SPA/NoorCanvas/appsettings.json` - Development connection strings (KSESSIONS_DEV, KQUR_DEV)
+
+### Deployment
+- `ncdeploy.ps1` - Production deployment script with automatic wwwroot cleanup
+- `cleanup-production-wwwroot.ps1` - Manual production wwwroot cleanup script
+- `ncrollback.ps1` - Deployment rollback script
 
 ### Frontend (Components)
 - `SPA/NoorCanvas/Components/Production/ProductionInfoPanel.razor` - Production-safe database info display (NEW)
@@ -80,6 +88,29 @@ Prepare and validate production deployment for Noor Canvas application with prop
 
 **Files**: 7 modified/created | **Tests**: N/A | **Build**: PASS
 **Next**: Deploy to production, test nct-prod.ps1
+---
+
+---
+## [2025-10-12 16:30 UTC] - task
+**Status**: in-progress | **Phase**: deployment-automation | **Commit**: pending
+**Work**:
+- Enhanced ncdeploy.ps1 deployment script:
+  * Added automatic exclusion of dev/test files during deployment
+  * Excluded files: FONT-SYSTEM-SUMMARY.md, test-*.html, session-transcript-*.html, testing/ folder
+  * Prevents dev artifacts from reaching production
+  * Automatic cleanup of production wwwroot after deployment
+  * Cleaner production deployment with reduced disk footprint
+- Created TruncateCanvasSessions.sql script:
+  * Safely truncates canvas.Sessions table in KSESSIONS (production)
+  * Comprehensive safety checks: database validation, CASCADE DELETE verification, dbo schema isolation
+  * Truncates canvas.Sessions, canvas.Participants, canvas.SessionData
+  * Preserves canvas.AssetLookup (no FK dependency)
+  * Verifies dbo.Sessions and all dbo tables remain untouched
+  * Transaction-safe with automatic rollback on error
+  * Ready for fresh session creation without affecting legacy Islamic content
+
+**Files**: 2 modified (ncdeploy.ps1, Scripts/TruncateCanvasSessions.sql) | **Tests**: Pending manual validation | **Build**: N/A
+**Next**: Test deployment script, validate canvas.Sessions truncation in production
 ---
 
 ## Migration Results

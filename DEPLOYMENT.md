@@ -114,8 +114,9 @@ This will:
 2. ✅ Stop the IIS application pool
 3. ✅ Create a timestamped backup
 4. ✅ Deploy new files to `D:\Websites\NOOR-CANVAS`
-5. ✅ Start the IIS application pool
-6. ✅ Verify the deployment
+5. ✅ **Automatically clean production wwwroot** (removes test/dev files)
+6. ✅ Start the IIS application pool
+7. ✅ Verify the deployment
 
 ### Deployment Options
 
@@ -142,13 +143,63 @@ The deployment script copies all published files **except**:
 
 - `appsettings.Production.json` (preserved to keep production settings)
 - `logs/` directory (existing logs are retained)
-- `web.config` (may have production-specific customizations)
+
+### Files Automatically Excluded from Production
+
+The following development/test files are **never deployed** to production:
+
+**wwwroot files excluded**:
+- `FONT-SYSTEM-SUMMARY.md`
+- `session-transcript-redirect.html`
+- `session-transcript-styling.html`
+- `session-transcript-viewer.html`
+- `test-css.html`
+- `test-fonts.html`
+- `test-harness-demo.html`
+- `test-issue-106.html`
+- `testing/` folder
+
+These files are automatically filtered during deployment and removed from production wwwroot if they exist.
 
 ### Backup Management
 
 - Backups are stored in: `D:\Websites\NOOR-CANVAS-Backups\backup-[timestamp]`
 - Only the **5 most recent backups** are kept
 - Older backups are automatically deleted during deployment
+
+---
+
+## Database Management
+
+### Fresh Start with Canvas Sessions
+
+To clear all canvas session data in production without affecting legacy content:
+
+```powershell
+# Execute the truncation script
+sqlcmd -S AHHOME -d KSESSIONS -i "Scripts\TruncateCanvasSessions.sql"
+
+# Or use PowerShell
+Invoke-Sqlcmd -ServerInstance "AHHOME" -Database "KSESSIONS" -InputFile "Scripts\TruncateCanvasSessions.sql" -Verbose
+```
+
+**What gets truncated**:
+- ✅ `canvas.Sessions` - All canvas sessions
+- ✅ `canvas.Participants` - All session participants  
+- ✅ `canvas.SessionData` - All session data
+
+**What gets preserved**:
+- ✅ `canvas.AssetLookup` - Asset mapping reference
+- ✅ **ALL `dbo.*` tables** - Legacy Islamic content (Sessions, Groups, Categories, etc.)
+
+**Safety features**:
+- Database validation (must be KSESSIONS)
+- CASCADE DELETE verification
+- dbo schema isolation check
+- Transaction-safe with rollback on error
+- Comprehensive before/after reporting
+
+See [Scripts/README_TruncateCanvasSessions.md](Scripts/README_TruncateCanvasSessions.md) for detailed documentation.
 
 ---
 
@@ -345,12 +396,27 @@ Current policy (configured in `ncdeploy.ps1`):
 # Emergency rollback
 .\ncrollback.ps1 -Latest -Force
 
+# Truncate canvas sessions (fresh start)
+Invoke-Sqlcmd -ServerInstance "AHHOME" -Database "KSESSIONS" -InputFile "Scripts\TruncateCanvasSessions.sql" -Verbose
+
 # Restart app pool
 Restart-WebAppPool -Name "NoorCanvas"
 
 # View recent logs
 Get-Content "D:\Websites\NOOR-CANVAS\logs\noor-canvas-*.txt" -Tail 100
 ```
+
+### Database Quick Reference
+
+**Production Database**: `KSESSIONS`
+- **Server**: AHHOME
+- **canvas schema**: Canvas sessions (READ-WRITE)
+- **dbo schema**: Legacy Islamic content (READ-ONLY - never modify)
+
+**Development Database**: `KSESSIONS_DEV`
+- **Server**: AHHOME
+- **canvas schema**: Canvas sessions (READ-WRITE)
+- **dbo schema**: Legacy Islamic content copy (READ-ONLY)
 
 ### Directory Structure
 
@@ -362,7 +428,7 @@ D:\Websites\
 │   ├── appsettings.json
 │   ├── appsettings.Production.json
 │   ├── logs\                       # Application logs
-│   └── wwwroot\                    # Static files
+│   └── wwwroot\                    # Static files (cleaned automatically)
 │
 └── NOOR-CANVAS-Backups\            # Automatic backups
     ├── backup-2025-10-12_15-30-45\

@@ -193,18 +193,43 @@ try {
         "appsettings.Production.json",  # Keep production settings
         "logs"                           # Keep existing logs
     )
+    
+    # Files and folders to exclude from deployment (test/dev files)
+    $devOnlyFiles = @(
+        "wwwroot/FONT-SYSTEM-SUMMARY.md",
+        "wwwroot/session-transcript-redirect.html",
+        "wwwroot/session-transcript-styling.html",
+        "wwwroot/session-transcript-viewer.html",
+        "wwwroot/test-css.html",
+        "wwwroot/test-fonts.html",
+        "wwwroot/test-harness-demo.html",
+        "wwwroot/test-issue-106.html",
+        "wwwroot/testing"
+    )
 
     Get-ChildItem -Path $PublishPath -Recurse | ForEach-Object {
         $relativePath = $_.FullName.Substring($PublishPath.Length + 1)
         $shouldExclude = $false
         
-        foreach ($pattern in $excludePatterns) {
-            if ($relativePath -like "$pattern*") {
-                # Only exclude if the file already exists in deployment
-                $targetPath = Join-Path $DeployPath $relativePath
-                if (Test-Path $targetPath) {
-                    $shouldExclude = $true
-                    break
+        # Check if it's a dev-only file/folder that shouldn't be deployed
+        foreach ($devFile in $devOnlyFiles) {
+            if ($relativePath -like "$devFile*") {
+                Write-Host "  Skipping dev file: $relativePath" -ForegroundColor DarkGray
+                $shouldExclude = $true
+                break
+            }
+        }
+        
+        if (-not $shouldExclude) {
+            # Check if it's a file to preserve in production
+            foreach ($pattern in $excludePatterns) {
+                if ($relativePath -like "$pattern*") {
+                    # Only exclude if the file already exists in deployment
+                    $targetPath = Join-Path $DeployPath $relativePath
+                    if (Test-Path $targetPath) {
+                        $shouldExclude = $true
+                        break
+                    }
                 }
             }
         }
@@ -223,6 +248,37 @@ try {
     }
 
     Write-Success "Application files deployed"
+    
+    # Clean up dev/test files from production wwwroot if they exist
+    Write-Step "Cleaning production wwwroot..."
+    $wwwrootPath = Join-Path $DeployPath "wwwroot"
+    $cleanedFiles = 0
+    
+    if (Test-Path $wwwrootPath) {
+        foreach ($devFile in $devOnlyFiles) {
+            # Extract just the wwwroot-relative path
+            $wwwrootRelative = $devFile -replace '^wwwroot[/\\]', ''
+            $fullPath = Join-Path $wwwrootPath $wwwrootRelative
+            
+            if (Test-Path $fullPath) {
+                $isDirectory = Test-Path $fullPath -PathType Container
+                Remove-Item -Path $fullPath -Recurse -Force -ErrorAction SilentlyContinue
+                
+                if ($isDirectory) {
+                    Write-Host "  Removed dev folder: $wwwrootRelative\" -ForegroundColor Gray
+                } else {
+                    Write-Host "  Removed dev file: $wwwrootRelative" -ForegroundColor Gray
+                }
+                $cleanedFiles++
+            }
+        }
+        
+        if ($cleanedFiles -gt 0) {
+            Write-Success "Cleaned $cleanedFiles dev/test items from wwwroot"
+        } else {
+            Write-Success "wwwroot already clean (no dev/test files found)"
+        }
+    }
 
     # Ensure logs directory exists
     $logsPath = Join-Path $DeployPath "logs"
