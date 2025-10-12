@@ -430,23 +430,112 @@ Minimum score: 0, Maximum score: 10
 
 ---
 
-### Step 7: Commit Results
+### Step 7: Review and Consolidate Instructions, Prompts, and Shared Files
+
+**EFFICIENCY**: Consolidate similar files to reduce footprint and maintain efficiency
+
+#### 7.1: Review Instructions Folder
+Analyze all files in `.github/instructions/` and `.github/instructions/Links/`:
+- Architecture.md
+- SystemIndex.md
+- InfrastructureQuickRef.md
+- PlaywrightQuickRef.md
+- ValidationFramework.md
+- API-Contract-Validation.md
+- AnalyzerConfig.MD
+- PlaywrightConfig.MD
+- PlaywrightTestPaths.MD
+- FunctionalityRegistry.md
+- SelfAwareness.instructions.md
+
+**Consolidation Opportunities**:
+- Combine similar files (e.g., PlaywrightQuickRef.md + PlaywrightConfig.MD + PlaywrightTestPaths.MD → single comprehensive file)
+- Merge overlapping content (e.g., Architecture.md + SystemIndex.md redundant sections)
+- Eliminate duplicate information across files
+- Keep footprint small and efficient
+
+#### 7.2: Review Prompts Folder
+Analyze all files in `.github/prompts/` and `.github/prompts/shared/`:
+- task.prompt.md
+- refactor.prompt.md
+- sync.prompt.md
+- healthcheck.prompt.md
+- question.prompt.md
+- analyze-learning.prompt.md
+- test-generation.prompt.md
+- cohesion-review.prompt.md
+
+**Shared Files**:
+- step-0-server-cleanup.md
+- step-1-checkpoint.md
+- debug-logging-mandate.md
+- warning-handling-mandate.md
+- commit-message-format.md
+
+**Consolidation Opportunities**:
+- Identify duplicate sections across prompts
+- Consolidate similar shared files if possible
+- Ensure consistent references to shared files
+- Look for patterns in naming (e.g., "prompt" vs "prompts")
+
+#### 7.3: Apply Consolidation Patterns
+**Use pattern matching to identify similar data streams**:
+- Files with similar names: "prompt" and "prompts"
+- Files with similar purposes: "config" and "configuration"
+- Files with overlapping content: "quick ref" and "paths"
+- Files with duplicate instructions: shared steps, mandates
+
+**Consolidation Guidelines**:
+1. **Merge files with >70% overlapping content**
+2. **Combine related configurations** (Playwright files, Analyzer files)
+3. **Eliminate redundant instructions** (duplicate steps, mandates)
+4. **Preserve critical information** - don't lose data during consolidation
+5. **Update all references** - ensure prompts reference consolidated files correctly
+6. **Keep naming consistent** - use standard patterns (singular vs plural)
+
+#### 7.4: Document Consolidation Actions
+For each consolidation:
+- **Source Files**: List files being merged
+- **Target File**: Single consolidated file
+- **Content Combined**: What sections were merged
+- **References Updated**: Which prompts now reference the new file
+- **Deleted Files**: What was removed
+- **Rationale**: Why this consolidation improves system efficiency
+
+#### 7.5: Update References
+After consolidation:
+- Update all prompt files to reference consolidated files
+- Update SystemIndex.md with new file structure
+- Update README_AI.md to reflect changes
+- Ensure no broken links remain
+
+---
+
+### Step 8: Commit Results
 
 Create comprehensive commit with all findings:
 
 ```bash
 git add Workspaces/Documentation/cohesion-review-*.md
 git add Workspaces/Copilot/prompts.keys/cohesion/
+git add .github/instructions/
+git add .github/prompts/
 git commit -m "docs(cohesion): Prompt system cohesion review - [DATE]
 
 Analysis Results:
 - Prompts analyzed: X
-- Redundancies: Y
-- Gaps: Z
-- Conflicts: A
-- Cohesion score: B/10
+- Instructions analyzed: Y
+- Redundancies: Z
+- Gaps: A
+- Conflicts: B
+- Cohesion score: C/10
 
-Action items created: C
+Consolidation Actions:
+- Files merged: D
+- Files deleted: E
+- References updated: F
+
+Action items created: G
 Priority breakdown: X high, Y medium, Z low
 
 See Workspaces/Documentation/cohesion-review-[DATE].md for full report"

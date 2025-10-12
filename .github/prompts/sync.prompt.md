@@ -167,12 +167,28 @@ This guarantees rollback capability if sync introduces instability.
   - Replace `[PLACEHOLDER]` blocks with live repo data (AnalyzerConfig, PlaywrightConfig, etc.).  
   - Remove obsolete or retired files.  
   - Alphabetically sort all keys and maintain status integrity.  
-
+  - **Consolidate similar data streams using pattern matching:**
+    - Files with similar names (e.g., "prompt" and "prompts", "config" and "configuration")
+    - Files with similar purposes (e.g., multiple Playwright configuration files)
+    - Files with overlapping content (>70% similarity)
+    - Key data streams that can be combined without losing information
+  - **Pattern Matching Rules:**
+    - Match singular/plural variations: "prompt" ↔ "prompts"
+    - Match abbreviations: "config" ↔ "configuration", "ref" ↔ "reference"
+    - Match related terms: "quick ref" ↔ "paths" ↔ "config" (if Playwright-related)
+    - Preserve unique information during consolidation
+    - Update all references to point to consolidated files
+  - **Consolidation Examples:**
+    - Merge: PlaywrightQuickRef.md + PlaywrightConfig.MD + PlaywrightTestPaths.MD → PlaywrightReference.md
+    - Merge: step-0-*.md files if similar across prompts → single shared file
+    - Combine: Duplicate mandate sections → single shared mandate file
+  
 - **Cleanup (folded duties):**  
   - Remove unused files and code.  
   - Eliminate duplicate logic.  
   - Normalize formatting and structure.  
   - Validate results with analyzers, linters, and tests.
+  - Delete obsolete consolidated source files after merging
 
 ### 4. Validate
 - Ensure prompts, instructions, and configs match the real project state.

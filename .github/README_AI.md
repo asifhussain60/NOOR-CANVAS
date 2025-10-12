@@ -471,26 +471,154 @@ Workspaces/Copilot/learning/
 
 ## 📖 Additional Resources
 
-**Core Instructions**:
-- `.github/instructions/SelfAwareness.instructions.md` - Global guardrails for all agents
-- `.github/instructions/Links/SystemStructureSummary.md` - System structure and prompt inventory
-- `.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD` - Complete system architecture (52 endpoints, 15+ services)
-- `.github/instructions/Links/ValidationFramework.md` - Standard validation pipeline (6 levels)
-- `.github/instructions/Links/API-Contract-Validation.md` - API contract safety rules
-- `.github/instructions/Links/AnalyzerConfig.MD` - Roslynator, StyleCop, .NET Analyzers configuration
-- `.github/instructions/Links/PlaywrightConfig.MD` - Test location and naming conventions
+### Prompts (.github/prompts/)
+All agent prompt files that define AI agent behavior and workflows.
 
-**Learning Infrastructure**:
-- `Workspaces/Copilot/learning/PATTERN_SCHEMA.md` - Pattern file format specification
-- `Workspaces/Copilot/prompts.keys/` - Historical work data streams
+#### Main Prompts (Alphabetical)
+- **analyze-learning.prompt.md** - Self-Learning Analysis Agent - Analyzes historical task patterns, extracts success/failure lessons, updates learning infrastructure
+- **cohesion-review.prompt.md** - Prompt Architecture Auditor - Reviews prompt system for redundancies, gaps, conflicts, consolidates similar files
+- **healthcheck.prompt.md** - System Health Auditor - Read-only validation of cross-layer contracts (UI ↔ API ↔ Database), detects drift
+- **question.prompt.md** - Application Knowledge Agent - Expert-level answers about NOOR CANVAS features, styling, config, troubleshooting
+- **refactor.prompt.md** - Structural Integrity Agent - Code quality improvements, zero-tolerance for warnings, preserves contracts
+- **sync.prompt.md** - Synchronization & Cleanup Agent - Maintains documentation sync, removes unused files, consolidates similar data streams
+- **task.prompt.md** - Task Executor Agent - Central execution hub for features, bugs, incremental work, automatic test generation
+- **test-generation.prompt.md** - Test Generation Agent - Creates Playwright E2E tests for UI changes with Session 212 patterns
+
+#### Shared Files (.github/prompts/shared/)
+Common instructions referenced by multiple prompts to reduce duplication.
+
+- **commit-message-format.md** - Conventional Commits v1.0.0 standard with type, scope, subject format
+- **debug-logging-mandate.md** - Standardized debug marker patterns for code insertion and cleanup (`[DEBUG-WORKITEM:*] ;CLEANUP_OK`)
+- **step-0-server-cleanup.md** - Kill running Kestrel servers to prevent port conflicts (referenced by cohesion-review, removed from task)
+- **step-1-checkpoint.md** - Mandatory checkpoint commit workflow (`git commit -m "checkpoint: pre-{agent} {key}"`)
+- **warning-handling-mandate.md** - Zero-tolerance policy for build warnings, retry logic, rollback triggers
+
+---
+
+### Instructions (.github/instructions/)
+Global guardrails and operational rules for all AI agents.
+
+- **SelfAwareness.instructions.md** - Global operating guardrails for all agents - database rules, file organization, runtime rules, Roslynator integration
+
+#### Links (.github/instructions/Links/)
+Quick reference files for architecture, configuration, and system knowledge.
+
+- **AnalyzerConfig.MD** - Roslynator, StyleCop, .NET Analyzer configurations, baseline suppressions, ruleset customizations
+- **API-Contract-Validation.md** - Cross-layer contract validation rules ensuring UI → API → Database alignment
+- **Architecture.md** - Complete system architecture - 52 API endpoints, 15+ services, 4 SignalR hubs, database schemas, auth flows
+- **FunctionalityRegistry.md** - Regression prevention system tracking core behaviors, file/method watch lists, test coverage mapping
+- **InfrastructureQuickRef.md** ⭐ - **MANDATORY for database ops** - KSESSIONS_DEV connection details, schema access rules (canvas.* vs dbo.*), API endpoints
+- **PlaywrightConfig.MD** - Detailed E2E test configuration reference, execution modes (standalone, temp, CI), browser settings
+- **PlaywrightQuickRef.md** ⭐ - **MANDATORY for test creation** - Complete testing guide, Session 212 patterns (KJAHA99L/PQ9N5YWW), test writing patterns
+- **PlaywrightTestPaths.MD** - Canonical test file locations, naming conventions, test data patterns
+- **SystemIndex.md** - Central navigation hub for all architectural references, agent coordination, system snapshots, quick lookups
+- **ValidationFramework.md** - Standard 6-level validation pipeline (build → analyzers → linters → contracts → E2E → docs)
+
+---
+
+## � File Organization Summary
+
+### Prompts System Structure
+```
+.github/
+├── prompts/                    # 8 agent prompt files
+│   ├── shared/                 # 5 common instruction files
+│   │   ├── commit-message-format.md
+│   │   ├── debug-logging-mandate.md
+│   │   ├── step-0-server-cleanup.md
+│   │   ├── step-1-checkpoint.md
+│   │   └── warning-handling-mandate.md
+│   ├── analyze-learning.prompt.md
+│   ├── cohesion-review.prompt.md
+│   ├── healthcheck.prompt.md
+│   ├── question.prompt.md
+│   ├── refactor.prompt.md
+│   ├── sync.prompt.md
+│   ├── task.prompt.md
+│   └── test-generation.prompt.md
+└── instructions/               # Global guardrails
+    ├── SelfAwareness.instructions.md
+    └── Links/                  # 10 quick reference files
+        ├── AnalyzerConfig.MD
+        ├── API-Contract-Validation.md
+        ├── Architecture.md
+        ├── FunctionalityRegistry.md
+        ├── InfrastructureQuickRef.md ⭐
+        ├── PlaywrightConfig.MD
+        ├── PlaywrightQuickRef.md ⭐
+        ├── PlaywrightTestPaths.MD
+        ├── SystemIndex.md
+        └── ValidationFramework.md
+```
+
+### Critical File Markers
+- ⭐ **InfrastructureQuickRef.md** - MANDATORY before ANY database operations
+- ⭐ **PlaywrightQuickRef.md** - MANDATORY before creating ANY Playwright tests
+- **Architecture.md** - Reference for understanding system design (52 endpoints, 15+ services)
+- **SelfAwareness.instructions.md** - Global operating rules ALL agents must follow
+- **SystemIndex.md** - Navigation hub for quick architectural lookups
+
+---
+
+## ⚠️ Critical Operating Rules
+
+### For ALL AI Models Working in NOOR CANVAS:
+
+1. **ALWAYS Read This File First** - Before starting any work, understand which agent to use
+
+2. **Keep This File Updated** - When prompts change, update this README_AI.md immediately
+
+3. **Follow the Agent Coordination Map** - Don't bypass established workflows
+
+4. **Respect Key Data Streams** - Always verify and update key context
+
+5. **Enforce Zero Tolerance** - Zero errors, zero warnings (mandatory clean build)
+
+6. **Use Learning Infrastructure** - Query patterns before execution, update after success
+
+7. **Validate Comprehensively** - Follow ValidationFramework.md for all agents
+
+8. **Document Progressively** - Update key data stream after EVERY sub-task
+
+9. **Preserve Git History** - Always record full commit SHA hashes
+
+10. **Maintain Cross-Layer Alignment** - Verify UI ↔ API ↔ Database contracts
+
+11. **Consult QuickRef Files** - Use InfrastructureQuickRef.md (database) and PlaywrightQuickRef.md (testing) before operations
+
+12. **Check Architecture.md** - Review before implementing new features to avoid duplication
+
+---
+
+## 🎓 Learning Infrastructure
+
+All agents contribute to and read from:
+```
+Workspaces/Copilot/learning/
+├── task-patterns.json          (successful implementation patterns)
+├── refactor-patterns.json      (proven structural improvements)
+├── validation-patterns.json    (known issues and solutions)
+└── PATTERN_SCHEMA.md          (pattern file format specification)
+```
+
+**Pattern Extraction**:
+- Successful task completions → task-patterns.json
+- Effective refactorings → refactor-patterns.json
+- Validation discoveries → validation-patterns.json
+
+**Pattern Usage**:
+- task agent queries before execution
+- refactor agent applies proven approaches
+- healthcheck agent validates against known issues
 
 ---
 
 ## 🔄 Version History
 
-| Date | Change | Updated By |
-|------|--------|------------|
-| 2025-10-10 | Initial creation - Comprehensive prompt documentation | GitHub Copilot |
+| Date | Version | Change | Updated By |
+|------|---------|--------|------------|
+| 2025-10-12 | 2.0.0 | Added comprehensive file listings with descriptions - Prompts, Instructions, Links, Shared files all documented alphabetically | GitHub Copilot |
+| 2025-10-10 | 1.0.0 | Initial creation - Comprehensive prompt documentation | GitHub Copilot |
 
 ---
 

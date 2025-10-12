@@ -343,26 +343,6 @@ All actions must respect the global guardrails and architectural mappings.
 
 ## Execution Steps
 
-### 0. Kill Running Kestrel Servers (Mandatory)
-**See**: [Step 0: Server Cleanup](shared/step-0-server-cleanup.md)
-
-Execute `nckill` (PowerShell alias) to terminate all Kestrel servers.
-- Prevents port conflicts (HTTPS 9091 already in use)
-- Prevents file lock issues during build/compilation
-- Ensures fresh server start with latest code
-
-**Quick Command**:
-```powershell
-nckill
-```
-
-**Fallback** (if alias not found):
-```powershell
-Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like '*Kestrel*' -or $_.Path -like '*NoorCanvas*' } | Stop-Process -Force
-```
-
----
-
 ### 1. Checkpoint Commit (Mandatory)
 **See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
 
