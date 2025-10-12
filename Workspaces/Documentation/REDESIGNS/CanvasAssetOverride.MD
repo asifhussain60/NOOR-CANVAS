@@ -835,6 +835,6 @@ The **Canvas Asset Override** solution provides a clean, maintainable approach t
 ---
 
 **Related Documentation:**
-- [NOOR Canvas Architecture](../../../.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD)
-- [System Structure Summary](../../../.github/instructions/Links/SystemStructureSummary.md)
+- [System Architecture](../../../.github/instructions/Links/Architecture.md)
+- [System Index](../../../.github/instructions/Links/SystemIndex.md)
 - [Session Transcript CSS](../../../SPA/NoorCanvas/wwwroot/css/session-transcript.css)

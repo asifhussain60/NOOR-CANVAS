@@ -32,7 +32,7 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 - **Pre-Deployment**: Verify system health before releases
 - **Post-Refactor**: Validate architectural integrity after structural changes
 - **Contract Verification**: Ensure UI/API/Database contracts remain aligned
-- **Documentation Sync**: Confirm SystemStructureSummary.md reflects reality
+- **Documentation Sync**: Confirm SystemIndex.md reflects reality
 - **Periodic Audits**: Regular system health checks (weekly/monthly)
 - **Troubleshooting**: Identify architectural inconsistencies causing issues
 
@@ -47,7 +47,7 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 - **Triggered By**: refactor (post-structural changes), sync (periodic audits)
 - **Reports To**: sync agent for remediation of discovered issues
 - **Validates**: All 6 levels of ValidationFramework.md (read-only verification)
-- **Reads From**: NOOR-CANVAS_ARCHITECTURE.MD, API-Contract-Validation.md, SystemStructureSummary.md
+- **Reads From**: Architecture.md, API-Contract-Validation.md, SystemIndex.md
 - **Updates**: `Workspaces/Copilot/learning/validation-patterns.json` with newly discovered patterns
 
 ### Expected Outcomes
@@ -76,8 +76,8 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Report all violations with clarity, including contract mismatches, case differences, or outdated references.
 
 ### Validation Scope
-- **SystemStructureSummary.md** - Verify against repo reality
-- **NOOR-CANVAS_ARCHITECTURE.MD** - Verify against code structure
+- **SystemIndex.md** - Verify against repo reality, agent coordination, system snapshots
+- **Architecture.md** - Verify against code structure
 - **InfrastructureQuickRef.md** - Validate API endpoints, SignalR hubs, database connections
 - **API-Contract-Validation.md** - Cross-layer contract verification (frontend ↔ backend models)
 - **AnalyzerConfig.MD** - Analyzer and linter compliance enforcement
@@ -116,7 +116,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 ### 1. Plan
 - Parse `scope` and `notes`.  
 - Identify components, services, APIs, DTOs, and DB entities that fall within the scope.  
-- Build an audit checklist using `SystemStructureSummary.md` and `NOOR-CANVAS_ARCHITECTURE.MD`.  
+- Build an audit checklist using `SystemIndex.md` and `Architecture.md`.  
 
 ### 2. Approval (Mandatory)
 - Present the planned healthcheck audit scope and checklist to the user.  

@@ -1,7 +1,16 @@
 # File Metrics Registry
 
-**Last Updated**: 2025-01-11  
-**Purpose**: Line count tracking for documentation drift detection and integrity checks
+**Last Updated**: 2025-01-22  
+**Version**: 3.1.0  
+**Purpose**: Line count tracking for documentation drift detection and integrity checks  
+**Location**: Moved from `.github/instructions/Links/` to `Workspaces/Global/` for maintenance purposes
+
+---
+
+## Version History
+- **3.1.0** (2025-01-22): Added PlaywrightQuickRef.md, updated task.prompt.md line count
+- **3.0.0** (2025-01-22): File consolidation (ReferenceIndex, SystemStructureSummary, FunctionalityRegistry-QuickRef merged into SystemIndex.md)
+- **2.0.0** (Previous): Relocated to Workspaces/Global/
 
 ---
 
@@ -12,15 +21,13 @@
 | instructions/SelfAwareness.instructions.md | 289 | Global operating guardrails |
 | instructions/Links/AnalyzerConfig.MD | 66 | Code quality analyzers |
 | instructions/Links/API-Contract-Validation.md | 132 | API contract safety rules |
-| instructions/Links/FileMetrics.md | 18 | This file (self-referential) |
 | instructions/Links/FunctionalityRegistry.md | 338 | Feature tracking schema |
-| instructions/Links/FunctionalityRegistry-QuickRef.md | 221 | Quick validation workflow |
-| instructions/Links/InfrastructureQuickRef.md | 254 | NEW: Database, API, test infrastructure |
-| instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD | 364 | System architecture overview |
+| instructions/Links/InfrastructureQuickRef.md | 254 | Database, API, test infrastructure |
+| instructions/Links/PlaywrightQuickRef.md | 423 | **NEW** - Complete Playwright testing guide |
+| instructions/Links/Architecture.md | 447 | System architecture overview |
 | instructions/Links/PlaywrightConfig.MD | 76 | E2E test configuration |
 | instructions/Links/PlaywrightTestPaths.MD | 214 | Test patterns and data |
-| instructions/Links/ReferenceIndex.md | 11 | Central reference hub |
-| instructions/Links/SystemStructureSummary.md | 44 | Agent coordination index |
+| instructions/Links/SystemIndex.md | 273 | Central navigation hub (consolidation) |
 | instructions/Links/ValidationFramework.md | 284 | 6-level validation pipeline |
 
 ---
@@ -35,7 +42,7 @@
 | prompts/question.prompt.md | 322 | Application knowledge agent |
 | prompts/refactor.prompt.md | 537 | Structural integrity agent |
 | prompts/sync.prompt.md | 170 | Synchronization + cleanup |
-| prompts/task.prompt.md | 755 | Canonical task executor |
+| prompts/task.prompt.md | 1020 | Canonical task executor (updated with Step 2.5) |
 | prompts/test-generation.prompt.md | 247 | Playwright test generator |
 
 ---
@@ -65,10 +72,10 @@
 
 **Example**:
 ```
-# Agent reads NOOR-CANVAS_ARCHITECTURE.MD
-Expected: 364 lines (from FileMetrics.md)
-Actual: 412 lines (from read_file)
-Variance: +13% → Acceptable, proceed with analysis
+# Agent reads Architecture.md
+Expected: 447 lines (from FileMetrics.md)
+Actual: 465 lines (from read_file)
+Variance: +4% → Acceptable, proceed with analysis
 ```
 
 ### For Sync Agent
@@ -83,8 +90,32 @@ Get-ChildItem -Path ".github/instructions/Links/*.md", ".github/instructions/*.i
 
 ---
 
+## Summary Documents
+
+| File | Purpose | Location |
+|------|---------|----------|
+| file-consolidation-summary.md | Documents consolidation of Links folder (12→9 files) | Workspaces/Global/ |
+| database-rules-integration-summary.md | Documents integration of database rules into prompts | Workspaces/Global/ |
+| playwright-testing-integration-summary.md | Documents Playwright testing knowledge consolidation | Workspaces/Global/ |
+
+**Note**: These summary documents capture major system changes and serve as historical record for understanding evolution of prompt system architecture.
+
+---
+
 ## Version History
 
+- **v3.1.0** (2025-01-22): Added PlaywrightQuickRef.md and summary documents
+  - Created PlaywrightQuickRef.md (423 lines) - Complete Playwright testing guide
+  - Updated task.prompt.md with Step 2.5 (QuickRef Localization) - now 1020 lines
+  - Created playwright-testing-integration-summary.md
+  - Added Version History section with detailed changelog
+- **v3.0.0** (2025-01-22): File consolidation and relocation
+  - Moved FileMetrics.md from `.github/instructions/Links/` to `Workspaces/Global/`
+  - Consolidated ReferenceIndex.md, SystemStructureSummary.md, FunctionalityRegistry-QuickRef.md into SystemIndex.md
+  - Renamed NOOR-CANVAS_ARCHITECTURE.MD to Architecture.md (generic naming for portability)
+  - Created file-consolidation-summary.md
+  - Created database-rules-integration-summary.md
+  - Updated all references to reflect new file structure
 - **v2.0.0** (2025-01-11): Refreshed with live data
   - Added InfrastructureQuickRef.md (new file)
   - Updated all line counts from current files

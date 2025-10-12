@@ -34,7 +34,7 @@ See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
 The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygiene by synchronizing prompts/instructions/configurations and performing cleanup duties (removing unused files, eliminating duplicates, normalizing formatting).
 
 ### When to Use
-- **Documentation Sync**: Update SystemStructureSummary.md, NOOR-CANVAS_ARCHITECTURE.MD after architectural changes
+- **Documentation Sync**: Update SystemIndex.md, Architecture.md after architectural changes
 - **Configuration Updates**: Refresh AnalyzerConfig.MD, PlaywrightConfig.MD, ValidationFramework.md
 - **Cleanup Operations**: Remove unused files, eliminate duplicate code, normalize formatting
 - **Post-Refactor**: Clean up temporary files and obsolete code artifacts
@@ -53,9 +53,10 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - **Called By**: refactor (post-cleanup), task (documentation updates)
 - **Triggers**: healthcheck (post-sync validation)
 - **Updates**: 
-  - SystemStructureSummary.md (prompt inventory, agent coordination)
+  - SystemIndex.md (prompt inventory, agent coordination, system snapshots - AUTO-UPDATED)
   - All `.github/instructions/Links/*.MD` files
   - `Workspaces/Copilot/learning/` patterns
+  - `Workspaces/Global/FileMetrics.md` (documentation drift tracking)
 
 ### Expected Outcomes
 - Synchronized documentation reflecting current system state
@@ -93,14 +94,21 @@ You also enforce project hygiene by performing cleanup duties:
 - Running analyzers/linters/tests for validation
 
 ### Reference Documentation
-- **SystemStructureSummary.md** - Agent coordination and system structure
-- **InfrastructureQuickRef.md** - Database, API, SignalR, test infrastructure (sync after structural changes)
-- **NOOR-CANVAS_ARCHITECTURE.MD** - System architecture (sync after major changes)
+- **SystemIndex.md** - Central navigation hub (AUTO-UPDATED by sync agent, includes database rules)
+- **Architecture.md** - System architecture (sync after major changes)
+- **InfrastructureQuickRef.md** ⭐ - Database (KSESSIONS_DEV schema rules), API, SignalR, test infrastructure
 - **ValidationFramework.md** - Validation pipeline (Levels 1-3, 6 mandatory for sync)
 - **API-Contract-Validation.md** - Contract validation rules
 - **AnalyzerConfig.MD** - Analyzer and linter configurations
 - **PlaywrightConfig.MD** - Test configuration
-- **FileMetrics.md** - Documentation drift detection (update after any doc changes)
+- **FileMetrics.md** - Documentation drift detection (located in Workspaces/Global/)
+
+### Database Knowledge (For SystemIndex.md Updates)
+When updating SystemIndex.md, ensure database rules remain prominent:
+- Primary database: KSESSIONS_DEV
+- `canvas.*` schema: READ-WRITE
+- `dbo.*` schema: READ-ONLY
+- See InfrastructureQuickRef.md for complete rules
 
 ### Learning Integration
 - **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for sync patterns
@@ -176,7 +184,8 @@ This guarantees rollback capability if sync introduces instability.
   - All prompts have standardized Debug Logging and Warning Handling Mandates.  
   - Parameter formats are consistent across all prompts.  
   - No duplicate YAML headers exist.  
-  - SystemStructureSummary.md accurately reflects all active prompts.  
+  - SystemIndex.md accurately reflects all active prompts and system state.
+  - SystemIndex.md auto-updated with latest architecture changes.
 - Confirm solution builds with **zero errors and zero warnings**.### 5. Confirm
 - Provide a human-readable summary of what was synced and cleaned.  
 - Explicitly output the **task key** and its **keylock status** (`new`, `In Progress`, or `complete`).  
@@ -210,7 +219,7 @@ At the end of every sync:
 - **Prompt structure must be consistent and LLM-optimized:**  
   - All prompts follow standardized format (Debug Logging, Warning Handling, Parameters).  
   - No format variations that could confuse LLM parsing.  
-  - SystemStructureSummary.md is accurate and complete.  
+  - SystemIndex.md is accurate, complete, and auto-updated with latest system changes.  
 - The solution must build with **zero errors and zero warnings**.  
 - Analyzers, linters, and tests must all pass.  
 - **Chat session context must be documented** in `.github/copilot-chats/` for continuity.  

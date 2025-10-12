@@ -511,6 +511,54 @@ verbosity: concise
 4. ✅ Implementation roadmap
 5. ✅ Metrics and scoring
 6. ✅ Git commit with all findings
+7. ✅ **QuickRef files updated** (InfrastructureQuickRef.md, PlaywrightQuickRef.md)
+
+### QuickRef Auto-Update Protocol
+**MANDATORY**: After cohesion review, update QuickRef files to ensure they reflect current system state
+
+#### Files to Update
+1. **InfrastructureQuickRef.md**
+   - Database connection strings (verify against appsettings.json)
+   - API endpoints (verify against Architecture.md)
+   - SignalR hubs (verify against code)
+   - External dependencies (SQL Server, Kestrel ports)
+   - Schema access rules (canvas.* vs dbo.*)
+
+2. **PlaywrightQuickRef.md**
+   - Test patterns (verify against PlaywrightConfig.MD)
+   - Test data (Session 212, tokens)
+   - Execution commands (verify against package.json scripts)
+   - Configuration modes (standalone, temp, CI)
+   - Test writing patterns (verify against actual tests)
+
+#### Update Process
+1. **Read current QuickRef files**
+2. **Compare with source of truth**:
+   - appsettings.json for database connections
+   - Architecture.md for API endpoints
+   - playwright.config.cjs for test configuration
+   - Actual test files for patterns
+3. **Identify drift**:
+   - Missing endpoints
+   - Outdated configuration
+   - New patterns not documented
+   - Deprecated patterns still listed
+4. **Update QuickRef files**:
+   - Add missing information
+   - Remove outdated information
+   - Update changed information
+   - Increment version number
+   - Update "Last Updated" date
+5. **Include in cohesion review report**:
+   - Document changes made
+   - Note version increments
+   - List drift identified and corrected
+
+#### Verification
+- Cross-reference InfrastructureQuickRef.md with SystemIndex.md
+- Ensure database rules are consistent
+- Verify PlaywrightQuickRef.md matches test-generation.prompt.md patterns
+- Confirm all QuickRef files have auto-update protocol section
 
 ### Success Criteria
 - All prompts and instructions analyzed

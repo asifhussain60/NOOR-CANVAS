@@ -1,34 +1,92 @@
 # Infrastructure Quick Reference
 
-**Version**: 1.0.0  
-**Last Updated**: 2025-01-11  
+**Version**: 2.0.0  
+**Last Updated**: 2025-10-12  
 **Purpose**: Authoritative infrastructure reference to eliminate Copilot hallucinations
 
 ---
 
-## Database Connections
+## 🗄️ Database Connections
 
-### Connection String Patterns (DO NOT HARDCODE)
-**Location**: `SPA/NoorCanvas/appsettings.json` → `ConnectionStrings` section
+### Primary Database: KSESSIONS_DEV
+**When user mentions "database", they mean KSESSIONS_DEV unless specified otherwise.**
 
-**Databases**:
-- **KSESSIONS_DEV** - Primary database for sessions, users, questions, votes
-  - Connection key: `"DefaultConnection"` or `"KSessionsDb"`
-  - Server: `AHHOME`
-  - Authentication: SQL Server authentication (credentials in appsettings.json)
+**Connection Details**:
+- **Database Name**: `KSESSIONS_DEV`
+- **Server**: `AHHOME`
+- **Authentication**: SQL Server authentication (credentials in appsettings.json)
+- **Connection Key**: `"DefaultConnection"` or `"KSessionsDb"`
+- **Configuration Location**: `SPA/NoorCanvas/appsettings.json` → `ConnectionStrings` section
+
+### ⚠️ CRITICAL DATABASE RULES
+
+**READ-ONLY RESTRICTION**:
+- ✅ **`canvas.*` schema**: READ-WRITE allowed (Session Canvas features)
+- ❌ **`dbo.*` schema**: **READ-ONLY** - NO modifications allowed
+- ❌ **All other schemas**: **READ-ONLY** - NO modifications allowed
+
+**Schema Usage**:
+- `canvas.*` - Session Canvas feature (questions, votes, participants, annotations)
+  - `canvas.Questions`
+  - `canvas.QuestionVotes`
+  - `canvas.Participants`
+  - `canvas.AssetLookup`
   
-- **KQUR_DEV** - Secondary database for Quranic content
-  - Connection key: `"KQurDb"`
-  - Server: `AHHOME`
+- `dbo.*` - **READ-ONLY** (sessions, users, tokens, transcripts, countries)
+  - `dbo.Sessions`
+  - `dbo.Users`
+  - `dbo.SessionTokens`
+  - `dbo.SessionTranscripts`
+  - `dbo.Countries`
+  - `dbo.Groups` (albums)
+  - `dbo.Categories`
 
-**Schema Prefixes**:
-- `canvas.*` - Session Canvas feature (questions, votes, participants)
-- `dbo.*` - Default schema (sessions, users, tokens)
+### Secondary Database: KQUR_DEV
+- **Database Name**: `KQUR_DEV`
+- **Server**: `AHHOME`
+- **Connection Key**: `"KQurDb"`
+- **Usage**: Quranic content (READ-ONLY)
+- **Access**: Via API endpoints only
 
-**CRITICAL**: Never reference connection strings directly in code. Always use:
+### Connection String Best Practices
+**NEVER hardcode connection strings in code. Always use:**
 ```csharp
+// Correct approach
 _configuration.GetConnectionString("DefaultConnection")
+_configuration.GetConnectionString("KSessionsDb")
+_configuration.GetConnectionString("KQurDb")
+
+// WRONG - Never do this
+var connString = "Server=AHHOME;Database=KSESSIONS_DEV;..."
 ```
+
+---
+
+## 🔌 External Dependencies
+
+### Required Services
+1. **SQL Server** (AHHOME server)
+   - KSESSIONS_DEV database
+   - KQUR_DEV database
+   
+2. **Kestrel Web Server**
+   - HTTPS Port: 9091
+   - HTTP Port: 5000 (redirect to HTTPS)
+
+3. **SignalR Hubs** (Real-time communication)
+   - SessionHub: `/hub/session`
+   - QAHub: `/hub/qa`
+   - AnnotationHub: `/hub/annotation`
+   - TestHub: `/hub/test` (dev only)
+
+### Configuration Files
+- `appsettings.json` - Production settings
+- `appsettings.Development.json` - Development overrides
+- **Location**: `SPA/NoorCanvas/`
+
+### Environment Variables (Optional)
+- `ASPNETCORE_ENVIRONMENT` - Development/Production
+- Connection strings can override appsettings.json values
 
 ---
 

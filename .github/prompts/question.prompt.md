@@ -124,13 +124,24 @@ You are the **one-stop solution** for all application-related questions, from fe
 - **Gap Identification**: Highlight missing implementations, potential improvements, or architectural inconsistencies.  
 - **Actionable Recommendations**: Provide specific, implementable solutions and optimizations.
 
+### 🗄️ Database Knowledge (MANDATORY)
+**When user asks about "database":**
+- Default assumption: **KSESSIONS_DEV** database
+- Server: AHHOME
+- Connection: `_configuration.GetConnectionString("DefaultConnection")`
+- **Schema Rules**:
+  - ✅ `canvas.*` - READ-WRITE (Questions, Votes, Participants, Annotations)
+  - ❌ `dbo.*` - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries, Groups, Categories)
+  - ❌ All other schemas - **READ-ONLY**
+- **Always reference**: `InfrastructureQuickRef.md` for database details
+
 ### Reference Documentation
 - **SelfAwareness.instructions.md** - Global operating guardrails for all agents
-- **NOOR-CANVAS_ARCHITECTURE.MD** - Complete system architecture (52 API endpoints, 15+ services, 4 SignalR hubs)
-- **InfrastructureQuickRef.md** - Database connections, API endpoints, SignalR hubs, Session 212 test data
-- **SystemStructureSummary.md** - Agent coordination and architectural orientation
+- **SystemIndex.md** - Central navigation hub with database rules prominently featured
+- **Architecture.md** - Complete system architecture (52 API endpoints, 15+ services, 4 SignalR hubs)
+- **InfrastructureQuickRef.md** ⭐ **MANDATORY** - Database connections, schema rules, API endpoints, test data
 - **API-Contract-Validation.md** - Cross-layer contract validation rules
-- **FunctionalityRegistry-QuickRef.md** - Feature tracking and quick lookups
+- **FunctionalityRegistry.md** - Feature tracking schema
 - **PlaywrightConfig.MD** - E2E test configuration
 - **PlaywrightTestPaths.MD** - Test patterns and canonical test data
 

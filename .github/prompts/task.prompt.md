@@ -303,19 +303,28 @@ All actions must respect the global guardrails and architectural mappings.
 ### Global Operating Guardrails
 - **ALWAYS** follow **`.github/instructions/SelfAwareness.instructions.md`** for all operating guardrails, file organization, runtime rules, and Roslynator integration.
 
+### 🗄️ Database Access Rules (MANDATORY)
+**PRIMARY DATABASE: KSESSIONS_DEV**
+- When user mentions "database", assume **KSESSIONS_DEV**
+- Connection: Always use `_configuration.GetConnectionString("DefaultConnection")`
+- **SCHEMA RULES**:
+  - ✅ `canvas.*` - READ-WRITE (Questions, Votes, Participants, Annotations)
+  - ❌ `dbo.*` - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+  - ❌ All other schemas - **READ-ONLY**
+- **VIOLATION = IMMEDIATE ROLLBACK**
+- **See**: `InfrastructureQuickRef.md` for complete database rules
+
 ### Architectural Reference Documentation
-- **SystemStructureSummary.md** - Agent index and coordination (understand system structure and available prompts)
-- **NOOR-CANVAS_ARCHITECTURE.MD** - Full system design (controllers, services, DTOs, database, SignalR)
-- **InfrastructureQuickRef.md** - Database connections, API endpoints, SignalR hubs, Session 212 test data
+- **SystemIndex.md** - Central navigation hub (agent coordination, system snapshots, functionality registry quick ref)
+- **Architecture.md** - Full system design (controllers, services, DTOs, database, SignalR)
+- **InfrastructureQuickRef.md** ⭐ **MANDATORY for database operations** - DB connections, schema rules, API endpoints
+- **PlaywrightQuickRef.md** ⭐ **MANDATORY for test creation** - Complete testing guide (patterns, execution, Session 212)
 - **ValidationFramework.md** - Standard 6-level validation pipeline (build, analyzers, linters, contracts, E2E, docs)
 - **API-Contract-Validation.md** - Cross-layer contract validation rules (UI → API → DB)
 - **AnalyzerConfig.MD** - Roslynator, StyleCop, ESLint configurations and baselines
-- **PlaywrightConfig.MD** - E2E test configuration and rules
+- **PlaywrightConfig.MD** - Detailed E2E test configuration reference
 - **PlaywrightTestPaths.MD** - Canonical test patterns and Session 212 data
 - **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
-- **FunctionalityRegistry-QuickRef.md** - Quick validation workflow for Step 8.2
-- **FileMetrics.md** - Line count tracking for documentation drift detection
-- **ReferenceIndex.md** - Central reference hub for all Links
 
 **Usage Pattern**: Consult these files as needed based on task requirements. Not all files are relevant to every task.
 
@@ -486,7 +495,85 @@ This ensures rollback capability if the task introduces instability.
 - Key state is incompatible with requested operation
 - Dependencies are not met
 
-**This step ensures continuity, prevents duplicate work, and builds essential context before planning.**
+#### 2.5. QuickRef Localization (Auto-Populate on First Use)
+**Purpose**: Cache frequently-referenced information from QuickRef files into key metadata for efficiency (avoid re-reading authoritative sources on every task iteration).
+
+**When to Execute**: ONLY if `{key}.md` exists and "QuickRef Localization" section is empty or missing.
+
+**Source Files**:
+- `InfrastructureQuickRef.md` - Database rules, API endpoints, external dependencies
+- `PlaywrightQuickRef.md` - Test patterns, Session 212 data, execution commands
+
+**Localization Rules**:
+
+1. **Check if QuickRef Localization Section Exists**:
+   - Parse `{key}.md` for "## QuickRef Localization" section
+   - If section exists and populated → Skip to Step 3 (use cached data)
+   - If section missing or empty → Proceed with population
+
+2. **Determine What to Localize** (based on task characteristics):
+   - **Database Operations** (if task involves DB queries, schema changes, data persistence):
+     - Extract from `InfrastructureQuickRef.md`:
+       - Primary database name (KSESSIONS_DEV)
+       - Connection string pattern
+       - Schema rules (canvas.* READ-WRITE, dbo.* READ-ONLY)
+       - Specific tables modified/read by this key
+     - Populate "### Database (from InfrastructureQuickRef.md)" subsection
+   
+   - **API Endpoints** (if task involves API calls, controllers, HTTP operations):
+     - Extract from `InfrastructureQuickRef.md`:
+       - Base URL pattern
+       - Specific endpoints used by this key
+       - Authentication requirements
+     - Populate "### API Endpoints (from InfrastructureQuickRef.md)" subsection
+   
+   - **Playwright Testing** (if task involves UI changes, user interactions):
+     - Extract from `PlaywrightQuickRef.md`:
+       - Test file location pattern
+       - Session 212 tokens (KJAHA99L, PQ9N5YWW)
+       - Base URL (https://localhost:9091)
+       - Execution commands
+       - Preferred patterns (API-based, wait for selectors)
+     - Populate "### Playwright Testing (from PlaywrightQuickRef.md)" subsection
+   
+   - **SignalR Hubs** (if task involves real-time communication):
+     - Extract from `InfrastructureQuickRef.md`:
+       - Hub URLs used
+       - Client events relevant to this key
+     - Populate "### SignalR Hubs (from InfrastructureQuickRef.md)" subsection
+
+3. **Update Key Metadata**:
+   - Use `replace_string_in_file` to populate QuickRef Localization section
+   - Follow template structure from `_template/key-template.md`
+   - Include "FIRST_USE_ONLY" markers to indicate auto-population
+   - Add note: "This section populated ONCE on first task iteration, then reused for efficiency"
+
+4. **Log Localization**:
+   - **If `verbosity=concise`**: `Localized QuickRef data: Database, Playwright`
+   - **If `verbosity=detailed`**: Show full list of localized sections with counts
+
+5. **Use Localized Data**:
+   - During execution (Steps 4-8), reference localized data instead of re-reading QuickRef files
+   - Example: When checking database schema rules, use cached rules from key metadata
+   - Example: When creating Playwright tests, use cached Session 212 tokens from key metadata
+
+**Efficiency Benefits**:
+- **First task iteration**: Read InfrastructureQuickRef.md + PlaywrightQuickRef.md (one-time cost)
+- **Subsequent iterations**: Use cached data from key metadata (zero I/O cost)
+- **Consistency**: All task iterations under same key use same reference data
+- **Freshness**: cohesion-review.prompt.md keeps QuickRef files updated (auto-propagates to keys)
+
+**Example Localized Sections**:
+```markdown
+### Database (from InfrastructureQuickRef.md)
+- **Primary Database**: KSESSIONS_DEV (Server: AHHOME)
+- **Connection**: `_configuration.GetConnectionString("DefaultConnection")`
+- **Schemas Used**:
+  - ✅ `canvas.Questions` - READ-WRITE (INSERT, UPDATE)
+  - ❌ `dbo.Sessions` - READ-ONLY
+```
+
+**This step optimizes repeat access to authoritative infrastructure knowledge while maintaining single source of truth.**
 
 ---
 
@@ -547,7 +634,7 @@ This ensures rollback capability if the task introduces instability.
 
 - For each step internally (don't echo unless verbosity=detailed):
   - Apply guardrails from **SelfAwareness**.  
-  - Confirm compliance with **SystemStructureSummary.md**.  
+  - Confirm compliance with **SystemIndex.md**.  
   - Run analyzers, linters, and tests if code/configs are changed.  
   - Validate API contracts if endpoints are touched.  
 
@@ -563,14 +650,18 @@ This ensures rollback capability if the task introduces instability.
 #### 6.1. Automatic Playwright Test Creation (UI Tasks)
 **For tasks involving UI changes, automatically generate Playwright tests:**
 
+**Reference**: `.github/instructions/Links/PlaywrightQuickRef.md` for complete testing patterns and standards
+
 1. **Test Location**: `Workspaces/TEMP/` (per PlaywrightConfig.MD)
 2. **Naming Convention**: `<key>-<feature-description>.spec.ts`
-3. **Test Coverage Requirements**:
+3. **Test Data**: Use Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
+4. **Base URL**: `https://localhost:9091`
+5. **Test Coverage Requirements**:
    - User interaction validation (clicks, inputs, navigation)
    - Visual regression checks (screenshots for critical states)
    - Accessibility validation (ARIA labels, keyboard navigation)
    - Responsive design verification (mobile/tablet/desktop viewports)
-4. **Test Template**:
+6. **Test Template** (from PlaywrightQuickRef.md):
    ```typescript
    import { test, expect } from '@playwright/test';
    
@@ -580,13 +671,22 @@ This ensures rollback capability if the task introduces instability.
      });
      
      test('should <expected behavior>', async ({ page }) => {
-       // Test implementation
+       // Use API-based approach (preferred)
+       // Session 212 test data available
+       // Wait for selectors with timeout
+       // Assert expected behavior
      });
    });
    ```
-5. **Documentation**: Record test file paths in key data stream
-6. **Execution**: Run tests as part of validation step
-7. **Artifacts**: Store test results, screenshots, and traces in `Workspaces/TEMP/playwright-artifacts/`
+7. **Execution**: Run with `npx playwright test Workspaces/TEMP/<test-file>.spec.ts`
+8. **Documentation**: Record test file paths in key data stream
+9. **Artifacts**: Store test results, screenshots, and traces in `Workspaces/TEMP/playwright-artifacts/`
+
+**Consult PlaywrightQuickRef.md for**:
+- Test writing patterns (API-based, multi-browser isolation, waiting strategies)
+- Assertion patterns (visibility, text content, count, URL)
+- Common test scenarios (navigation, forms, SignalR)
+- Execution modes (standalone, temp, CI)
 
 **Skip test creation if:**
 - Task is backend-only (API, database, services without UI impact)

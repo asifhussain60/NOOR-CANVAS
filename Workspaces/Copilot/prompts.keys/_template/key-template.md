@@ -129,6 +129,66 @@ Brief overview of what this key accomplishes and its role in the application. In
 
 ---
 
+## QuickRef Localization
+**Purpose**: Cache frequently-needed information from QuickRef files for efficiency (avoid re-reading on every task iteration)
+
+**Source Files**: `.github/instructions/Links/InfrastructureQuickRef.md`, `.github/instructions/Links/PlaywrightQuickRef.md`
+
+**Auto-populated on first use by task.prompt.md Step 2.1**
+
+### Database (from InfrastructureQuickRef.md)
+**FIRST_USE_ONLY**: If this key involves database operations, task agent copies relevant info here
+
+- **Primary Database**: KSESSIONS_DEV (Server: AHHOME)
+- **Connection**: `_configuration.GetConnectionString("DefaultConnection")`
+- **Schemas Used**:
+  - ✅ `canvas.*` - READ-WRITE (tables: Questions, Votes, Participants, Annotations)
+  - ❌ `dbo.*` - READ-ONLY (tables: Sessions, Users, Tokens)
+- **Tables Modified**: (list specific tables this key modifies)
+  - `canvas.Questions` - INSERT, UPDATE operations
+  - `canvas.Participants` - INSERT operations
+- **Tables Read**: (list specific tables this key reads)
+  - `dbo.Sessions` - READ-ONLY
+  - `dbo.Users` - READ-ONLY
+
+### API Endpoints (from InfrastructureQuickRef.md)
+**FIRST_USE_ONLY**: If this key involves API calls, task agent copies relevant endpoints here
+
+- **Base URL**: `https://localhost:9091/api`
+- **Endpoints Used**:
+  - `POST /api/question/submit` - Submit question
+  - `GET /api/question/session/{sessionToken}` - Get session questions
+  - `POST /api/question/{questionId}/vote` - Vote on question
+
+### Playwright Testing (from PlaywrightQuickRef.md)
+**FIRST_USE_ONLY**: If this key has UI changes, task agent copies relevant test info here
+
+- **Test Location**: `Tests/UI/{key-name}-*.spec.ts` or `Workspaces/TEMP/{key-name}-*.spec.ts`
+- **Test Data**: Session 212
+  - User Token: KJAHA99L (Peter Parker)
+  - Host Token: PQ9N5YWW
+- **Base URL**: `https://localhost:9091`
+- **Test Patterns**:
+  - API-based approach (preferred)
+  - Wait for selectors with timeout
+  - Use Session 212 test data
+- **Execution**: `npx playwright test Tests/UI/{key-name}-*.spec.ts`
+- **Mode**: standalone (for manual debugging), CI (for automation)
+
+### SignalR Hubs (from InfrastructureQuickRef.md)
+**FIRST_USE_ONLY**: If this key involves real-time communication
+
+- **Hubs Used**:
+  - `/hub/qa` - Q&A real-time updates
+  - `/hub/session` - Session management
+- **Client Events**:
+  - `QuestionReceived` - New question broadcast
+  - `QuestionVoted` - Vote update broadcast
+
+**NOTE**: This section populated ONCE on first task iteration, then reused for efficiency. If infrastructure changes significantly, manually update or re-run with `--refresh-quickref` flag.
+
+---
+
 ## Execution Tracking (Auto-populated by task.prompt.md)
 
 ### Phases

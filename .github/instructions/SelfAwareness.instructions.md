@@ -8,8 +8,9 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 
 ## Required Reading
 **CRITICAL:** Before making any architectural decisions, implementing new features, or modifying existing code, agents **MUST** consult:
-- **`.github/instructions/Links/SystemStructureSummary.md`** - Single source of truth for system structure, key mappings, and architectural orientations
-- **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** - Comprehensive application architecture documentation including:
+- **`.github/instructions/Links/SystemIndex.md`** - Central navigation hub for all architectural references, agent coordination, and system snapshots
+- **`.github/instructions/Links/InfrastructureQuickRef.md`** - **MANDATORY** for database operations - contains KSESSIONS_DEV connection details and schema access rules
+- **`.github/instructions/Links/Architecture.md`** - Comprehensive application architecture documentation including:
   - Complete API endpoint catalog (52 endpoints across 11 controllers)
   - Razor pages and component inventory (15+ pages, 10+ components)
   - Service architecture (15+ services with responsibilities)
@@ -19,6 +20,31 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
   - Integration patterns and common workflows
 
 **Purpose:** This prevents duplication of existing functionality and ensures new implementations follow established architectural patterns.
+
+## 🗄️ Database Access Rules (MANDATORY)
+
+**PRIMARY DATABASE: KSESSIONS_DEV**
+- When user mentions "database", assume **KSESSIONS_DEV** unless specified otherwise
+- Server: AHHOME
+- Connection: Always use `_configuration.GetConnectionString("DefaultConnection")`
+
+**SCHEMA ACCESS CONTROL**:
+- ✅ **`canvas.*` schema**: READ-WRITE allowed
+  - canvas.Questions, canvas.QuestionVotes, canvas.Participants, canvas.AssetLookup
+  
+- ❌ **`dbo.*` schema**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
+  - dbo.Sessions, dbo.Users, dbo.SessionTokens, dbo.SessionTranscripts
+  - dbo.Countries, dbo.Groups, dbo.Categories
+  
+- ❌ **All other schemas**: **READ-ONLY**
+
+**VIOLATION CONSEQUENCES**:
+- Any attempt to modify `dbo.*` or other READ-ONLY schemas will result in:
+  - Immediate task failure
+  - Rollback to checkpoint
+  - User notification of violation
+
+**See**: `.github/instructions/Links/InfrastructureQuickRef.md` for complete database documentation
 
 ## Core Principles
 - **Deterministic rails**: follow these rules exactly; do not invent new flows.  
@@ -341,8 +367,8 @@ All agents and scripts must connect only to the specified SQL Server instance ab
 
 ---
 
-## Reference: System Structure Summary
-This instruction set references the central `SystemStructureSummary.md`. Any structural changes must be reflected there.
+## Reference: System Index
+This instruction set references the central `SystemIndex.md`. Any structural changes must be reflected there.
 
 
 ## Git Backup & Rollback Discipline

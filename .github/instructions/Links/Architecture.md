@@ -1,10 +1,10 @@
-# NOOR-CANVAS_ARCHITECTURE.MD
+# Architecture
 
 ## Purpose
 This document contains the **detailed system design and architecture** for the project.  
 It serves as the authoritative reference for developers and Copilot when a deep understanding of the system is required.
 
-**Last Updated:** September 30, 2025 via Retrosync Protocol  
+**Last Updated:** October 12, 2025  
 **Current System Status:** 11 Controllers, 4 SignalR Hubs, 17+ Services, API-First Architecture
 
 ---
@@ -433,14 +433,14 @@ As part of architecture modernization, new APIs have been created to eliminate d
 
 ## Update Rules
 - Whenever the system architecture changes (new API, altered DTO, schema migration, or new component), update this file.  
-- Ensure **SystemStructureSummary.md** contains a summarized snapshot of changes for quick access.  
-- **Retrosync Protocol**: Regular synchronization between requirements, implementation, and documentation  
-
+- Ensure **SystemIndex.md** contains a summarized snapshot of changes for quick access.  
+- **Sync Protocol**: Regular synchronization between requirements, implementation, and documentation  
 
 ---
+
 ## Sync Protocol
 This file must reflect the **REAL current state** of the project.  
-- `/sync` is responsible for updating this file automatically.  
+- `sync` agent is responsible for updating this file automatically.  
 - Obsolete data must be removed.  
 - Modified values must be updated to match source of truth in the repo.  
-- Placeholders (`[PLACEHOLDER]`) must be replaced on the next run.  
+- **SystemIndex.md** is updated in parallel to maintain system snapshot consistency.

@@ -108,8 +108,12 @@ Your mission is to improve the maintainability, readability, and consistency of 
 - Ensure all changes preserve contracts between APIs, services, DTOs, databases, and UI.  
 - Always leave the codebase in a clean, compilable, and functional state.  
 - Follow **`.github/instructions/SelfAwareness.instructions.md`** as the global guardrails.  
-- Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation.  
-- Reference **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for full system design.  
+- Use **`.github/instructions/Links/SystemIndex.md`** for architectural orientation and agent coordination.  
+- Reference **`.github/instructions/Links/Architecture.md`** for full system design.
+- **Database Operations**: Consult **`.github/instructions/Links/InfrastructureQuickRef.md`** - MANDATORY before any database changes
+  - ✅ `canvas.*` schema - READ-WRITE allowed
+  - ❌ `dbo.*` schema - **READ-ONLY** - NO modifications
+  - ❌ Violation = Immediate rollback
 - Enforce API contract safety per **`.github/instructions/Links/API-Contract-Validation.md`**.  
 - Apply analyzers from **`.github/instructions/Links/AnalyzerConfig.MD`** including:  
   - **Roslynator** (C# static analysis and refactoring)  
@@ -368,8 +372,8 @@ After all phases complete successfully:
    - Performance regression check
 
 3. **Documentation**:
-   - Update `SystemStructureSummary.md` with architectural changes
-   - Update `NOOR-CANVAS_ARCHITECTURE.MD` if needed
+   - Update `SystemIndex.md` with architectural changes (sync agent will auto-update)
+   - Update `Architecture.md` if needed
    - Document phased approach in key data stream
    - Record successful phase strategy in `refactor-patterns.json`
 
@@ -436,7 +440,7 @@ Phase 5: Final Integration
   - Review technology stack optimization opportunities.  
   - Generate strategic improvement roadmap with prioritized recommendations.  
   - Identify major refactoring initiatives and their interdependencies.  
-- Map targets using `SystemStructureSummary.md`.  
+- Map targets using `SystemIndex.md`.  
 - Generate a detailed step-by-step refactor plan with **explicit approval requirements**.  
 
 ### 2. Approval (Mandatory)
@@ -511,8 +515,8 @@ Phase 5: Final Integration
   - Verify DTO mappings are correct across UI → Service → API → DB.  
   - **FINAL GATE**: Confirm complete solution builds with **ABSOLUTELY ZERO errors and ZERO warnings**.  
 - **Instruction File Validation:**  
-  - Verify `.github/instructions/Links/SystemStructureSummary.md` reflects any architectural changes.  
-  - Update `.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD` if component relationships changed.  
+  - Verify `.github/instructions/Links/SystemIndex.md` reflects any architectural changes (sync agent auto-updates).  
+  - Update `.github/instructions/Links/Architecture.md` if component relationships changed.  
   - Validate `.github/instructions/Links/API-Contract-Validation.md` for any API modifications.  
 - **Key System Validation:**  
   - Ensure all created/updated keys are properly tracked and alphabetically sorted.  

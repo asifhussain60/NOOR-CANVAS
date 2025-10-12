@@ -1,0 +1,318 @@
+# System Index
+
+**Cen**See**: `InfrastructureQuickRef.md` for complete database documentation
+
+---
+
+## 🧪 Playwright Testing Rules
+
+**When user mentions "Playwright test" or "pwtest":**
+- Test Location: `PlayWright/tests/`, `Tests/UI/`, or `Workspaces/TEMP/` (temporary)
+- Configuration: `config/testing/playwright.config.cjs`
+- Test Data: Session 212 (tokens: KJAHA99L user / PQ9N5YWW host)
+- Base URL: `https://localhost:9091`
+- Execution: `npx playwright test` or `$env:PW_MODE='standalone'; npx playwright test`
+
+**See**: `PlaywrightQuickRef.md` for complete testing documentation
+
+---
+
+## 📋 Quick Navigation
+
+### Architecture & Infrastructure
+- **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
+- **InfrastructureQuickRef.md** ⭐ - DB connections (KSESSIONS_DEV rules), API endpoints, test data
+
+### Validation & Quality
+- **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)ion hub for all architectural and configuration references.**
+
+**Version**: 3.0.0  
+**Last Updated**: 2025-10-12  
+**Maintained By**: Sync Agent  
+**Auto-Update**: This file is automatically updated by Copilot agents when infrastructure, architecture, or configuration changes occur.
+
+---
+
+## �️ Critical Database Rules
+
+**PRIMARY DATABASE: KSESSIONS_DEV**
+- When user mentions "database", they mean **KSESSIONS_DEV**
+- Server: AHHOME
+- Connection: `_configuration.GetConnectionString("DefaultConnection")`
+
+**SCHEMA ACCESS RULES**:
+- ✅ **`canvas.*`** - READ-WRITE (Questions, Votes, Participants, Annotations)
+- ❌ **`dbo.*`** - **READ-ONLY** (Sessions, Users, Tokens, Transcripts, Countries)
+- ❌ **All other schemas** - **READ-ONLY**
+
+**See**: `InfrastructureQuickRef.md` for complete database documentation
+
+---
+
+## �📋 Quick Navigation
+
+### Architecture & Infrastructure
+- **Architecture.md** - Full system design (controllers, services, SignalR hubs, database schema)
+- **InfrastructureQuickRef.md** ⭐ - DB connections (KSESSIONS_DEV rules), API endpoints, test data
+
+### Validation & Quality
+- **ValidationFramework.md** - 6-level validation pipeline (build → analyzers → E2E)
+- **API-Contract-Validation.md** - Cross-layer contract validation rules
+- **AnalyzerConfig.MD** - Code quality tool configurations (Roslynator, StyleCop, ESLint)
+
+### Testing
+- **PlaywrightQuickRef.md** ⭐ - Complete Playwright testing guide (test creation, execution, patterns)
+- **PlaywrightConfig.MD** - Detailed configuration reference
+- **PlaywrightTestPaths.MD** - Canonical test patterns and test data
+
+### Feature Tracking
+- **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
+
+---
+
+## 🤖 Active Prompt Agents
+
+### Primary Agents
+- **task.prompt.md** - Canonical task executor
+  - File auto-loading, checkpoint commits
+  - 9-step workflow with validation gates
+  - Automatic Playwright test generation (Step 6.1)
+  - Functionality registry validation (Step 8.2)
+  - **MUST** consult InfrastructureQuickRef.md for database rules
+  - **MUST** consult PlaywrightQuickRef.md for test creation
+
+- **question.prompt.md** - Application knowledge agent
+  - One-stop Q&A solution
+  - Deep application analysis
+  - Supports all agents with investigation
+  - **MUST** reference InfrastructureQuickRef.md for infrastructure queries
+  - **MUST** reference PlaywrightQuickRef.md for test-related questions
+
+- **refactor.prompt.md** - Structural integrity agent
+  - Checkpointed refactoring workflow
+  - Approval-gated changes
+  - Zero-warning enforcement
+  - Triggers healthcheck for validation
+  - **MUST** respect database schema access rules
+
+- **sync.prompt.md** - Synchronizer + janitor
+  - Documentation alignment
+  - Configuration maintenance
+  - System cleanup duties
+  - Updates this file automatically
+
+- **healthcheck.prompt.md** - System health auditor
+  - Read-only consistency checks
+  - Cross-layer validation
+  - Reports to sync for fixes
+
+- **test-generation.prompt.md** - Playwright test generator
+  - Session 212 canonical patterns
+  - Multi-browser testing support
+  - API-based test approaches
+
+- **analyze-learning.prompt.md** - Self-learning analysis agent
+  - Pattern extraction from completed keys
+  - Continuous improvement recommendations
+  - Learning infrastructure updates
+
+- **cohesion-review.prompt.md** - Prompt system auditor
+  - Redundancy detection
+  - Efficiency optimization
+  - Cross-agent coordination review
+
+### Retired Agents
+- **retrosync.prompt.md** → Replaced by sync
+- **cleanup.prompt.md** → Folded into sync
+- **task.md** → Merged into task.prompt.md
+- **align.prompt.md** → Renamed to healthcheck.prompt.md
+
+---
+
+## 🎯 Functionality Registry Quick Reference
+
+### For Task Agent (Step 8.2)
+
+**Workflow**:
+```
+1. Load {key}.md → Parse registry (behaviors, file watch, test coverage)
+2. Compare modified files vs file watch
+   - Match → High regression risk → Trigger validation
+   - No match → Low risk → Skip validation
+3. Execute validation (automated tests or manual checklist)
+4. Handle result (PASS → allow commit | FAIL → block commit)
+```
+
+### Validation Output Templates
+
+**Registry Exists + Validation PASS**:
+```
+✅ Functionality Validation: PASS
+- Core behaviors: 5 verified
+- Tests executed: 3 manual validations
+- Registry updated (Last Validation: 2025-10-12 14:23:45)
+```
+
+**Registry Exists + Validation FAIL**:
+```
+❌ Functionality Validation: FAIL
+- Failed behaviors: Valid Token Flow
+- Test failures: User saw token panel flash
+- COMMIT BLOCKED - fix regression before proceeding
+```
+
+**No File Watch Match**:
+```
+✓ No file/method watch matches - low regression risk
+- Modified files: 2
+- Watched files: 3 (no overlap)
+- Validation: SKIPPED (optional)
+```
+
+**No Registry Exists**:
+```
+ℹ️ No Functionality Registry found for key 'user-auth'
+Consider adding one to track core behaviors and prevent regressions.
+
+Template: Workspaces/Copilot/prompts.keys/_template/key-template.md
+Guide: .github/instructions/Links/FunctionalityRegistry.md
+```
+
+### Manual Validation Prompt Template
+
+```
+⚠️ REGRESSION RISK: Manual Validation Required
+
+Modified File: UserLanding.razor (File Watch match)
+Affected Behaviors: 3 core behaviors
+
+Please verify the following still work:
+
+□ Behavior 1 description
+  Navigate to: URL
+  Expected: Outcome
+  
+□ Behavior 2 description
+  Navigate to: URL
+  Expected: Outcome
+
+Confirm all behaviors work correctly? (yes/no)
+```
+
+---
+
+## 🔄 Agent Coordination Protocols
+
+### Interaction Patterns
+- **analyze-learning** → Analyzes key data, updates learning infrastructure, generates recommendations
+- **task** → Executes work, creates tests automatically, updates key stream progressively
+- **refactor** → Improves structure, triggers **healthcheck** for validation
+- **sync** → Orchestrates state, maintains documentation alignment, updates **SystemIndex.md**
+- **healthcheck** → Validates integrity, reports to **sync** for fixes
+- **question** → Analyzes queries, supports all agents with knowledge
+
+### Cross-Agent Learning Infrastructure
+- **Directory**: `Workspaces/Copilot/learning/`
+- **Pattern Files**: 
+  - `task-patterns.json`
+  - `refactor-patterns.json`
+  - `validation-patterns.json`
+  - `integration-patterns.json`
+- **Mandate**: All agents query patterns before execution, contribute learnings after success
+- **Analysis Frequency**: Weekly or after 10 completed keys
+- **Knowledge Sharing**: Successful patterns shared across agent boundaries
+
+---
+
+## 📊 Current System Snapshot
+
+**Last Architecture Scan**: 2025-10-12
+
+### API Controllers
+- **Total Controllers**: 11
+- **Total Endpoints**: 52+
+- **Key Controllers**: Admin, Host, Participant, Question, Session, Annotations, Health, Token, HostProvisioner, Issue, Logs
+
+### SignalR Hubs
+- **Total Hubs**: 4
+- **Active Hubs**: SessionHub, QAHub, AnnotationHub, TestHub (dev only)
+
+### Services
+- **Total Services**: 17+
+- **Core Services**: AssetHtmlProcessingService, HostSessionService, SimplifiedTokenService, SessionStateService, ConfigurableLoadingService
+
+### Database Integration
+- **Primary DB**: Canvas (sessions, participants, questions, votes, annotations)
+- **Secondary DB**: KSESSIONS (Islamic content, transcripts, country flags)
+- **Access Pattern**: API-First (no direct DbContext in components)
+
+### Razor Components
+- **Pages**: 15+
+- **Key Routes**: 
+  - `/host/control-panel/{hostToken}`
+  - `/session-canvas/{token}`
+  - `/session-waiting/{token}`
+  - `/user/landing/{token?}`
+  - `/host/session-opener/{hostToken}`
+
+---
+
+## 🔧 Key Management
+
+- **Location**: `Workspaces/Copilot/prompts.keys`
+- **States**: `new`, `In Progress`, `complete`
+- **Sorting**: Always alphabetically sorted
+- **Template**: `_template/key-template.md`
+
+---
+
+## 🎓 LLM Optimization Principles
+
+- **Consistent Structure**: All prompts follow identical format patterns
+- **Clear Parameters**: Standardized parameter names across agents
+- **Explicit Instructions**: No ambiguous language
+- **Error Prevention**: Built-in validation and retry mechanisms
+- **Context Preservation**: Comprehensive state tracking and handoff
+
+---
+
+## 📚 Related Documentation
+
+### Global Instructions
+- **SelfAwareness.instructions.md** - Global guardrails and operating rules
+
+### Testing References
+- **Multi-Browser Testing**: See `../prompts/multi-browser-testing.prompt.md`
+- **Success Stories**: `../copilot-chats/` directory
+
+---
+
+## 🔄 Auto-Update Protocol
+
+This file is automatically updated by the **sync** agent when:
+- New API endpoints are added or removed
+- Controllers, services, or hubs are created/modified
+- Database schema changes occur
+- New Razor components are added
+- SignalR hub functionality changes
+- Prompt agents are created, modified, or retired
+- Learning infrastructure is enhanced
+
+**Update Frequency**: On-demand when changes are detected
+
+**Update Sections**:
+- 📊 Current System Snapshot
+- 🤖 Active Prompt Agents
+- 📋 Quick Navigation (if new reference files added)
+
+**Verification**: After updates, sync agent runs healthcheck to ensure consistency across:
+- Architecture.md
+- InfrastructureQuickRef.md
+- This file (SystemIndex.md)
+
+---
+
+**File Consolidation History**:
+- 2025-10-12: Merged ReferenceIndex.md, SystemStructureSummary.md, FunctionalityRegistry-QuickRef.md into SystemIndex.md
+- 2025-01-11: Added InfrastructureQuickRef.md
+- 2025-01-11: Created FunctionalityRegistry-QuickRef.md
