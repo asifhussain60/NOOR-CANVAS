@@ -23,13 +23,13 @@
     <div class="row">
         <div class="col-12">
             <AnnotationCanvas SessionId="12345" UserId="DemoUser" ShowTools="true">
-                <div class="demo-content" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 10px 0; min-height: 600px;">
+                <div class="demo-content">
                     
                     <h4>🕌 Sample Islamic Content</h4>
                     
-                    <div class="verse-container" style="background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #28a745; border-radius: 4px;">
+                    <div class="verse-container">
                         <h5>Quran - Surah Al-Fatiha (1:1-7)</h5>
-                        <div class="arabic-text" style="font-size: 18px; line-height: 2; text-align: right; color: #2c5530;">
+                        <div class="arabic-text">
                             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ<br>
                             الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
                             الرَّحْمَٰنِ الرَّحِيمِ<br>
@@ -38,7 +38,7 @@
                             اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
                             صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
                         </div>
-                        <div class="translation" style="margin-top: 15px; font-style: italic; color: #666;">
+                        <div class="translation">
                             In the name of Allah, the Entirely Merciful, the Especially Merciful.
                             [All] praise is [due] to Allah, Lord of the worlds -
                             The Entirely Merciful, the Especially Merciful,
@@ -49,31 +49,31 @@
                         </div>
                     </div>
 
-                    <div class="hadith-container" style="background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #007bff; border-radius: 4px;">
+                    <div class="hadith-container">
                         <h5>Hadith - Sahih Bukhari</h5>
-                        <div class="hadith-text" style="font-size: 16px; line-height: 1.8; color: #333;">
+                        <div class="hadith-text">
                             <strong>Narrated by Abu Huraira:</strong><br>
                             Allah's Messenger (ﷺ) said, "Whoever believes in Allah and the Last Day should speak good or keep silent, 
                             and whoever believes in Allah and the Last Day should be generous to his neighbor, and whoever believes in 
                             Allah and the Last Day should be generous to his guest."
                         </div>
-                        <div class="reference" style="margin-top: 10px; font-size: 14px; color: #888;">
+                        <div class="reference">
                             Reference: Sahih al-Bukhari 6475, 6476
                         </div>
                     </div>
 
-                    <div class="content-section" style="background: white; padding: 20px; margin: 20px 0; border-radius: 4px;">
+                    <div class="content-section">
                         <h5>📚 Islamic Teaching Points</h5>
                         <ol>
-                            <li style="margin: 10px 0;"><strong>Gratitude and Praise:</strong> Al-Fatiha begins with praising Allah, teaching us to be grateful.</li>
-                            <li style="margin: 10px 0;"><strong>Divine Mercy:</strong> The repetition of "Ar-Rahman, Ar-Raheem" emphasizes Allah's infinite mercy.</li>
-                            <li style="margin: 10px 0;"><strong>Day of Judgment:</strong> Recognizing Allah as the sovereign of the Day of Recompense.</li>
-                            <li style="margin: 10px 0;"><strong>Seeking Guidance:</strong> The prayer for guidance to the straight path.</li>
-                            <li style="margin: 10px 0;"><strong>Good Conduct:</strong> The hadith emphasizes speaking good, neighbor relations, and hospitality.</li>
+                            <li><strong>Gratitude and Praise:</strong> Al-Fatiha begins with praising Allah, teaching us to be grateful.</li>
+                            <li><strong>Divine Mercy:</strong> The repetition of "Ar-Rahman, Ar-Raheem" emphasizes Allah's infinite mercy.</li>
+                            <li><strong>Day of Judgment:</strong> Recognizing Allah as the sovereign of the Day of Recompense.</li>
+                            <li><strong>Seeking Guidance:</strong> The prayer for guidance to the straight path.</li>
+                            <li><strong>Good Conduct:</strong> The hadith emphasizes speaking good, neighbor relations, and hospitality.</li>
                         </ol>
                     </div>
 
-                    <div class="discussion-points" style="background: #fff3cd; padding: 20px; margin: 20px 0; border-radius: 4px; border: 1px solid #ffeaa7;">
+                    <div class="discussion-points">
                         <h5>💭 Discussion Questions</h5>
                         <ul>
                             <li>How can we apply the principle of "speak good or keep silent" in our daily interactions?</li>
@@ -83,9 +83,9 @@
                         </ul>
                     </div>
 
-                    <div class="annotation-instructions" style="background: #d1ecf1; padding: 15px; margin: 20px 0; border-radius: 4px; border: 1px solid #bee5eb;">
+                    <div class="annotation-instructions">
                         <h6>🎨 Try the Annotation Tools:</h6>
-                        <p style="margin-bottom: 5px;">
+                        <p>
                             <strong>Select Tool:</strong> Default mode for reading<br>
                             <strong>Highlight:</strong> Select text or drag to create highlights<br>
                             <strong>Draw:</strong> Click and drag to draw freely<br>
@@ -104,17 +104,172 @@
     .demo-content {
         position: relative;
         user-select: text;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 10px 0;
+        min-height: 600px;
     }
     
     .arabic-text {
         font-family: 'Amiri', 'Traditional Arabic', serif;
         direction: rtl;
+        font-size: 18px;
+        line-height: 2;
+        text-align: right;
+        color: #2c5530;
     }
     
     .annotation-canvas-container {
         border: 2px dashed #28a745;
         border-radius: 8px;
         background: rgba(40, 167, 69, 0.05);
+    }
+
+    .verse-container {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #28a745;
+        border-radius: 4px;
+    }
+
+    .translation {
+        margin-top: 15px;
+        font-style: italic;
+        color: #666;
+    }
+
+    .hadith-container {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #007bff;
+        border-radius: 4px;
+    }
+
+    .hadith-text {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .reference {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #888;
+    }
+
+    .content-section {
+        background: white;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+    }
+
+    .content-section li {
+        margin: 10px 0;
+    }
+
+    .discussion-points {
+        background: #fff3cd;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+        border: 1px solid #ffeaa7;
+    }
+
+    .annotation-instructions {
+        background: #d1ecf1;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+        border: 1px solid #bee5eb;
+    }
+
+    .annotation-instructions p {
+        margin-bottom: 5px;
+    }
+
+    /* Mobile Responsive Breakpoints */
+    @@media (max-width: 1024px) {
+        .demo-content {
+            padding: 15px;
+            min-height: 500px;
+        }
+
+        .verse-container,
+        .hadith-container,
+        .content-section,
+        .discussion-points,
+        .annotation-instructions {
+            padding: 15px;
+            margin: 15px 0;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .demo-content {
+            padding: 12px;
+            min-height: 400px;
+            margin: 5px 0;
+        }
+
+        .arabic-text {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .hadith-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .verse-container,
+        .hadith-container,
+        .content-section,
+        .discussion-points,
+        .annotation-instructions {
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        h4, h5 {
+            font-size: 1.1rem;
+        }
+
+        h6 {
+            font-size: 1rem;
+        }
+    }
+
+    @@media (max-width: 380px) {
+        .demo-content {
+            padding: 10px;
+            min-height: 300px;
+        }
+
+        .arabic-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .hadith-text {
+            font-size: 13px;
+        }
+
+        .verse-container,
+        .hadith-container,
+        .content-section,
+        .discussion-points,
+        .annotation-instructions {
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .reference {
+            font-size: 12px;
+        }
     }
 </style>
 
