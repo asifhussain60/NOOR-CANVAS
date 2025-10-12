@@ -114,9 +114,17 @@ class Program
             .AddEnvironmentVariables()
             .Build();
 
+        // [DEBUG-WORKITEM:deploy:connection-resolution] Track environment and connection string ;CLEANUP_OK
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Environment: {environment} ;CLEANUP_OK");
+
         // Add Entity Framework with connection string from NoorCanvas project
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
             "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;";
+
+        // [DEBUG-WORKITEM:deploy:connection-resolution] Log which database is being targeted ;CLEANUP_OK
+        var dbName = connectionString.Contains("KSESSIONS_DEV") ? "KSESSIONS_DEV" : "KSESSIONS";
+        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Target Database: {dbName} ;CLEANUP_OK");
 
         // Use simplified schema only - use DefaultConnection for all database contexts
         services.AddDbContext<SimplifiedCanvasDbContext>(options =>
