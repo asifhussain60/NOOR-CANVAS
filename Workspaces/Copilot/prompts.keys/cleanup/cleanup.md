@@ -47,6 +47,7 @@ Comprehensive workspace cleanup system with reusable cleanup.prompt.md for ongoi
 - ✅ **Documentation Organization**: All MD files moved to appropriate Workspaces subfolders
 - ✅ **Script Organization**: All PowerShell scripts moved to Scripts/ folder
 - ✅ **Archival System**: Old summaries and dated files archived with timestamps
+- ✅ **Key Stream Consolidation**: Merge related keys, archive stale/completed keys to reduce prompts.keys footprint
 
 ### File Watch
 - `.github/prompts/cleanup.prompt.md` - Cleanup agent definition
