@@ -54,6 +54,43 @@
                 "warnings_resolved": 2,
                 "code_duplication_reduced": "verified existing consolidation"
             }
+        },
+        {
+            "pattern_id": "unified-service-wrapper",
+            "name": "Unified Service Wrapper Pattern",
+            "category": "structural-change",
+            "scope": "targeted",
+            "description": "Create unified service wrapper that provides mode-based functionality while maintaining backward compatibility with existing services. Useful when multiple services have overlapping responsibilities but different contexts require different feature sets.",
+            "approach": "1. Identify services with overlapping responsibilities\n2. Create wrapper service injecting existing services\n3. Implement mode-based methods (e.g., TransformForHost vs TransformForParticipant)\n4. Preserve original services for backward compatibility\n5. Update consumers to use unified service where appropriate\n6. Document architectural decisions and usage patterns",
+            "risks": [
+                "Over-abstraction can make code harder to understand",
+                "Wrapper adds indirection layer (slight performance cost)",
+                "Components may still need direct service access for specific features",
+                "Inconsistent adoption if some components use wrapper, others use direct services"
+            ],
+            "mitigations": [
+                "Document when to use wrapper vs direct service access",
+                "Keep wrapper thin (delegate to existing services, don't reimplement)",
+                "Maintain clear mode separation (explicit method names)",
+                "Update all new components to use wrapper for consistency",
+                "Provide migration guide for existing components"
+            ],
+            "learned_from": [
+                "hcp (UnifiedHtmlTransformService)"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-12T16:00:00Z",
+            "implementation_notes": {
+                "mode_separation": "Host mode gets full features (transformation + share buttons), Participant mode gets safe rendering only",
+                "backward_compatibility": "Original services (HtmlParsingService, AssetProcessingService) remain available for components needing direct access",
+                "error_handling": "Unified service provides consistent error messages via CreateErrorMessage() helper",
+                "type_conversion": "Handle type conversions in wrapper (e.g., long sessionId → string runId)"
+            },
+            "code_example": {
+                "wrapper_service": "public class UnifiedHtmlTransformService {\n  private readonly HtmlParsingService _parser;\n  private readonly AssetProcessingService _assetProcessor;\n  \n  public async Task<string> TransformForHostAsync(string html, long sessionId) {\n    var transformed = _parser.TransformHtml(html);\n    return await _assetProcessor.InjectAssetShareButtonsAsync(transformed, sessionId.ToString());\n  }\n  \n  public string TransformForParticipant(string html) {\n    return _parser.TransformHtml(html);\n  }\n}",
+                "di_registration": "services.AddScoped<UnifiedHtmlTransformService>();",
+                "consumer_usage": "private readonly UnifiedHtmlTransformService _transform;\n\nvar html = await _transform.TransformForHostAsync(rawHtml, sessionId);"
+            }
         }
     ]
 }

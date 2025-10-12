@@ -1,0 +1,140 @@
+{
+    "meta_patterns": [
+        {
+            "id": "documentation-work-surge-pattern",
+            "name": "Documentation Work Surge Precedes Stability",
+            "description": "Systems alternate between feature development and consolidation phases. High documentation activity indicates preparation for larger feature work or proactive technical debt reduction.",
+            "agents_involved": [
+                "prompts",
+                "sync",
+                "system",
+                "learning-analysis"
+            ],
+            "trend": "observed",
+            "insights": [
+                "50% of recent work focused on documentation and organization",
+                "System complexity reached threshold requiring consolidation",
+                "Team maturity demonstrated by long-term maintainability investment",
+                "Cohesion improvement from 9.3 to 9.5 through cleanup redundancy elimination",
+                "60% footprint reduction through key stream consolidation"
+            ],
+            "recommendations": [
+                "Monitor documentation work ratio (20-30% is healthy baseline)",
+                "Batch documentation updates for efficiency (weekly consolidation vs ad-hoc)",
+                "Automate documentation generation where possible",
+                "Prioritize documentation work that unblocks feature development"
+            ],
+            "evidence": [
+                {
+                    "agent": "prompts",
+                    "pattern_id": "documentation-driven-improvement",
+                    "metric": "cohesion_score: 9.5/10"
+                },
+                {
+                    "agent": "system",
+                    "pattern_id": "archive-before-delete",
+                    "metric": "footprint_reduction: 60%"
+                },
+                {
+                    "agent": "sync",
+                    "metric": "ground_truth_validation: 8/8 passed"
+                }
+            ],
+            "last_updated": "2025-10-12T16:00:00Z",
+            "contributed_by": "analyze-learning"
+        },
+        {
+            "id": "visual-feedback-loop-acceleration",
+            "name": "Visual Feedback Loop Accelerates UI Convergence",
+            "description": "UI development with screenshot-driven iteration converges 3x faster than specification-driven approaches. User screenshots clarify requirements immediately, enabling targeted refinement over upfront perfect interpretation.",
+            "agents_involved": [
+                "task (canvas)"
+            ],
+            "trend": "validated",
+            "insights": [
+                "Canvas key achieved requirements in 2 feedback cycles (~15 minutes total)",
+                "Average iteration time: 3 minutes per cycle",
+                "Checkpoint commits enabled safe experimentation",
+                "Small, targeted changes compound to complete solution",
+                "5 iterations maintained 100% build cleanliness (0 errors, 0 warnings)"
+            ],
+            "recommendations": [
+                "Formalize visual feedback template (standardize screenshot annotations)",
+                "Create CSS pattern library (common Grid/Flexbox solutions)",
+                "Consider Playwright visual regression tests for layout changes",
+                "Document CSS Grid equal-height pattern for reuse"
+            ],
+            "evidence": [
+                {
+                    "agent": "task",
+                    "pattern_id": "visual-feedback-iteration",
+                    "metric": "success_rate: 1.0, avg_iteration_time: 3min"
+                },
+                {
+                    "agent": "task",
+                    "pattern_id": "css-grid-equal-heights",
+                    "metric": "success_rate: 1.0"
+                }
+            ],
+            "last_updated": "2025-10-12T16:00:00Z",
+            "contributed_by": "analyze-learning"
+        },
+        {
+            "id": "type-mismatch-recurrence",
+            "name": "Type Mismatch Patterns Repeat Across Features",
+            "description": "Type mismatches between API (C# backend) and frontend (TypeScript/Blazor) recur because of lack of compile-time contract validation and manual DTO synchronization.",
+            "agents_involved": [
+                "task (canvas)"
+            ],
+            "trend": "concerning",
+            "insights": [
+                "GUID vs int mismatch caused 404 errors and comparison failures",
+                "GetHashCode() workarounds masked root cause instead of fixing type",
+                "No compile-time contract validation between C# and TypeScript",
+                "Manual synchronization between DTOs and models is error-prone",
+                "E2E tests caught issue but only after implementation"
+            ],
+            "recommendations": [
+                "Implement API contract validation (pre-commit hook)",
+                "Generate TypeScript types from C# DTOs automatically",
+                "Create comprehensive E2E test coverage before implementation",
+                "Document API contract requirements clearly in code comments",
+                "Consider using OpenAPI/Swagger for contract-first development"
+            ],
+            "evidence": [
+                {
+                    "agent": "task",
+                    "pattern_id": "guid-type-mismatch-resolution",
+                    "metric": "occurrence_count: 1, severity: high"
+                },
+                {
+                    "agent": "task",
+                    "finding": "SignalR hub validation issues also stem from lack of contract enforcement"
+                }
+            ],
+            "last_updated": "2025-10-12T16:00:00Z",
+            "contributed_by": "analyze-learning"
+        }
+    ],
+    "system_health": {
+        "overall_success_rate": 0.95,
+        "avg_execution_time_seconds": 1800,
+        "most_common_successes": [
+            "Documentation and organization work (50% of keys)",
+            "UI layout refinements (iterative with visual feedback)",
+            "Service consolidation (wrapper pattern)",
+            "Type mismatch fixes (GUID resolution)"
+        ],
+        "most_common_failures": [
+            "Type contract mismatches (API vs frontend)",
+            "SignalR hub method invocations without validation"
+        ],
+        "improvement_areas": [
+            "Increase learning pattern library adoption (mandate in prompts)",
+            "Reduce documentation work ratio through automation",
+            "Consolidate fragmented documentation (Playwright)",
+            "Implement pre-commit contract validation"
+        ],
+        "last_analysis": "2025-10-12T16:00:00Z"
+    }
+}

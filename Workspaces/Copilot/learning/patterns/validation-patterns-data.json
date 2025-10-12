@@ -1,0 +1,40 @@
+{
+    "patterns": [
+        {
+            "pattern_id": "dual-pattern-regex-html",
+            "name": "Dual-Pattern Regex for Production HTML Variations",
+            "validation_level": "tests",
+            "issue_description": "HTML structure varies between development and production environments (e.g., production uses <span> tags, legacy uses plain text). Single regex pattern fails to match all variations.",
+            "symptoms": [
+                "Transformation works in development but fails in production",
+                "Some HTML elements removed, others remain",
+                "Inconsistent behavior across environments",
+                "Test cases pass but production HTML not transformed"
+            ],
+            "root_causes": [
+                "Production HTML uses different tag structure than development",
+                "User-generated content has unpredictable structure",
+                "Legacy data exists alongside new formats",
+                "Third-party HTML integration with inconsistent markup"
+            ],
+            "solution": "Implement multiple regex patterns targeting each HTML variation. Apply patterns sequentially (most specific → most general). Test against all known HTML variations (dev, staging, production, legacy). Log metrics for each pattern to verify coverage.",
+            "prevention": "Collect HTML samples from all environments before implementing transformations. Create comprehensive test suite with all variations. Document expected HTML structures in code comments. Log pattern match metrics in production.",
+            "learned_from": [
+                "hcp (hadees token removal, plain text button removal)"
+            ],
+            "frequency": 2,
+            "last_occurrence": "2025-10-10T12:35:00Z",
+            "code_example": {
+                "dual_pattern": "// Pattern 1: Production HTML with <span> tags\nvar pattern1 = @\"<span[^>]*>(\\s*-\\s*[^<]+?)</span>\";\nhtml = Regex.Replace(html, pattern1, \"\", RegexOptions.IgnoreCase);\n\n// Pattern 2: Legacy HTML with plain text\nvar pattern2 = @\"(<h4[^>]*>[^<]*<i[^>]*></i>\\s*)([^<]+?)(\\s-\\s[A-Za-z,\\s]+)(</h4>)\";\nhtml = Regex.Replace(html, pattern2, \"$1$2$4\", RegexOptions.IgnoreCase);\n\n// Metrics\nLogger.LogInformation($\"Bytes removed: pattern1={bytes1}, pattern2={bytes2}\");"
+            },
+            "test_coverage": {
+                "production_html": "✅ Tested with session212.html",
+                "legacy_plain_text": "✅ Tested with legacy format",
+                "span_with_class": "✅ Tested ks-ahadees-subject span",
+                "multiple_elements": "✅ Tested multiple hadees headers",
+                "total_test_cases": 8,
+                "pass_rate": 1.0
+            }
+        }
+    ]
+}

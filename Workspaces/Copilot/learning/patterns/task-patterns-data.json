@@ -37,7 +37,107 @@
             ],
             "success_rate": 1.0,
             "last_updated": "2025-10-10T11:45:00Z"
+        },
+        {
+            "pattern_id": "documentation-driven-improvement",
+            "name": "Documentation-Driven System Improvement",
+            "category": "planning",
+            "description": "Systematic approach to improving system quality through comprehensive documentation analysis, gap identification, prioritized remediation, and validation. Proven effective for reducing redundancy and improving cohesion.",
+            "context": "System complexity increasing, redundancy detected, documentation drift suspected, or onboarding new team members",
+            "approach": "1) Comprehensive review (cohesion-review.prompt.md), 2) Document gaps and redundancies, 3) Prioritize high-impact fixes, 4) Implement remediation, 5) Synchronize dependent systems, 6) Validate against ground truth",
+            "success_indicators": [
+                "Cohesion score improvement measurable",
+                "Documentation accuracy validated (ground truth tests pass)",
+                "System organization improved (footprint reduction)",
+                "Zero regressions after changes",
+                "Clear audit trail of what changed and why"
+            ],
+            "learned_from": [
+                "prompts",
+                "sync",
+                "system",
+                "learning-analysis"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-12T16:00:00Z"
+        },
+        {
+            "pattern_id": "signalr-hub-validation",
+            "name": "SignalR Hub Method Validation Before Invocation",
+            "category": "error-handling",
+            "description": "Always validate SignalR hub methods exist before invoking from client code. Distinguish between UI-only operations (no SignalR) and broadcast operations (require hub method). Prevents HubException crashes that disconnect Blazor circuits.",
+            "context": "Implementing real-time features with SignalR, debugging HubException errors, refactoring hub methods, or adding new SignalR functionality",
+            "approach": "1) Document all server-side hub methods, 2) Audit all client InvokeAsync calls, 3) Verify each method exists on hub, 4) Remove invalid calls, 5) Clarify UI-only vs broadcast operations, 6) Create E2E tests validating flows",
+            "success_indicators": [
+                "Zero HubException Method does not exist errors",
+                "Blazor circuits remain stable (no disconnects)",
+                "Console errors eliminated",
+                "Clear architectural separation documented",
+                "Comprehensive E2E test coverage for SignalR"
+            ],
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-12T16:00:00Z"
+        },
+        {
+            "pattern_id": "guid-type-mismatch-resolution",
+            "name": "GUID vs Int Type Mismatch Resolution",
+            "category": "error-handling",
+            "description": "When API returns GUID strings but frontend treats them as integers, systematically update all type references, handlers, and comparisons. Remove workarounds like GetHashCode() that mask the root cause.",
+            "context": "404 errors on API endpoints with GUID parameters, type mismatches between API and frontend, SignalR message parsing failures, or database query failures",
+            "approach": "1) Trace 404 to type mismatch, 2) Verify API contract response types, 3) Update frontend model (int → string), 4) Update all event handlers, 5) Replace integer comparisons with string comparisons, 6) Remove GetHashCode workarounds, 7) Create E2E test covering CRUD",
+            "success_indicators": [
+                "Zero 404 errors on API endpoints",
+                "Correct GUID routing to controllers",
+                "All LINQ queries work correctly",
+                "SignalR handlers parse GUIDs properly",
+                "E2E tests validate full stack"
+            ],
+            "learned_from": [
+                "canvas"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-12T16:00:00Z"
+        },
+        {
+            "pattern_id": "archive-before-delete",
+            "name": "Archive-Before-Delete Safety Protocol",
+            "category": "execution",
+            "description": "Always move files/folders to archive structure before permanent deletion. Preserves history, enables recovery, and maintains audit trail while reducing active workspace footprint.",
+            "context": "Cleaning up old project artifacts, consolidating redundant keys, removing deprecated features, or organizing growing workspaces",
+            "approach": "1) Identify obsolete items (no work logs, old activity), 2) Create _archived/ folder with date prefix, 3) Move (don't delete) preserving structure, 4) Update tracking files, 5) Validate no active references, 6) Quarterly review for permanent deletion",
+            "success_indicators": [
+                "Zero data loss during cleanup",
+                "Recovery capability maintained",
+                "Audit trail preserved (what, when, why)",
+                "Active workspace footprint reduced significantly",
+                "No broken references to archived items"
+            ],
+            "learned_from": [
+                "system"
+            ],
+            "success_rate": 1.0,
+            "last_updated": "2025-10-12T16:00:00Z"
         }
     ],
-    "anti_patterns": []
+    "anti_patterns": [
+        {
+            "pattern_id": "insufficient-pre-analysis-cleanup",
+            "name": "Analyzing Patterns Without Pre-Cleanup",
+            "description": "Running analyze-learning without first cleaning up key data streams leads to analyzing stale/obsolete keys, noise obscuring patterns, and inaccurate metrics.",
+            "symptoms": [
+                "Analysis includes archived or obsolete keys",
+                "Success rates skewed by old failures",
+                "Pattern recommendations based on superseded approaches",
+                "Incomplete consolidated history"
+            ],
+            "solution": "Always run cleanup prompt before analyze-learning (unless post-mortem on specific key). Use: @workspace /cleanup target=key-streams consolidate-keys=true",
+            "learned_from": [
+                "learning-analysis"
+            ],
+            "last_updated": "2025-10-12T16:00:00Z"
+        }
+    ]
 }
