@@ -1,13 +1,13 @@
 # Key: prompts
 
 ## Metadata
-- **Status**: completed
+- **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-01-11
+- **Last Updated**: 2025-10-12
 - **Owner**: GitHub Copilot
-- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment
+- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment, _Portable template synchronization
 - **Complexity**: high
-- **Debug Level**: none
+- **Debug Level**: simple
 
 ## File Mappings
 
