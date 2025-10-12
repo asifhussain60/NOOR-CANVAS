@@ -208,6 +208,24 @@ Write-Host ""
 
 Write-Host "Phase 3: Processing Templates..." -ForegroundColor Cyan
 
+# First, ensure templates exist by running conversion if needed
+$templateCount = (Get-ChildItem -Path (Join-Path $PortableRoot "prompts") -Filter "*.template" -ErrorAction SilentlyContinue).Count
+if ($templateCount -eq 0) {
+    Write-Host "  [→] Templates not found, running conversion..." -ForegroundColor Yellow
+    $conversionScript = Join-Path $PortableRoot "convert-to-templates.ps1"
+    if (Test-Path $conversionScript) {
+        & $conversionScript
+    }
+    else {
+        Write-Host "  [ERROR] Conversion script not found!" -ForegroundColor Red
+        Write-Host "  Expected: $conversionScript" -ForegroundColor Red
+        exit 1
+    }
+}
+else {
+    Write-Host "  [→] Found $templateCount template files" -ForegroundColor Green
+}
+
 # Template replacement function
 function Expand-Template {
     param(
