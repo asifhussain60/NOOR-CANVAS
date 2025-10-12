@@ -1,20 +1,30 @@
 # Work Log - session-opener-fix
 
-## 2025-10-12 - Fix EF Core 8.0 SqlQuery Breaking Change
+## 2025-10-12 - Fix EF Core 8.0 SqlQuery Breaking Change + IIS HttpClient Configuration
 
 ### Context
 **Production Issue**: Dropdowns not loading in Session Opener page
 - Albums, Categories, and Sessions dropdowns return empty
 - Token validation works but navigation to session opener fails
 - Same machine, same code, works in Development but NOT in Production
+- **Production Environment**: IIS hosting at `https://noorcanvas.servehttp.com/`
+- **Development Environment**: Kestrel direct at `https://localhost:9091`
 
 **Key Differences Discovered**:
-- **Development**: Uses `KSESSIONS_DEV` database
-- **Production**: Uses `KSESSIONS` database
+- **Development**: Uses `KSESSIONS_DEV` database + Kestrel localhost:9091
+- **Production**: Uses `KSESSIONS` database + IIS public URL
 - **Same Server**: AHHOME (local SQL Server)
 - **Same Stored Procedures**: `dbo.GetAllGroups` and `dbo.GetCategoriesForGroup` exist in BOTH databases (verified with OBJECT_ID query)
 
 ### Root Cause Analysis
+
+**TWO SEPARATE ISSUES IDENTIFIED**:
+
+### Root Cause Analysis
+
+**TWO SEPARATE ISSUES IDENTIFIED**:
+
+#### Issue #1: EF Core 8.0 SqlQuery Composition Error
 
 **Diagnostic Logs Revealed**:
 ```
@@ -31,34 +41,70 @@ the composition on the client side.
 - Cannot call `.ToListAsync()`, `.Take()`, or any LINQ operators directly on `SqlQuery` result
 - **Solution**: Use `SqlQueryRaw<T>($"EXEC StoredProc")` instead (explicitly marked as raw/non-composable)
 
-**Why It Failed in Production But Not Development**:
-This is actually a **timing/loading issue**, not a database difference:
-- Development environment had the app already running (warm start)
-- Production deployment triggered fresh startup with database diagnostics
-- Startup diagnostics in `Program.cs` tried to validate stored procedures with `.Take(1)` composition
-- This caused the SqlQuery composition error to appear immediately on startup
-- **The bug exists in BOTH environments** - it just manifested during production deployment
+#### Issue #2: HttpClient Base URL Misconfiguration for IIS
+
+**Diagnostic Logs Revealed**:
+```
+[ERR] [DEBUG-WORKITEM:session-opener:dropdown-load] Error loading albums - Message: No connection could be made because the target machine actively refused it. (localhost:9091)
+System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it. (localhost:9091)
+```
+
+**Root Cause**:
+- HttpClient was hardcoded to `https://localhost:9091` in Program.cs
+- Production runs under IIS at `https://noorcanvas.servehttp.com/`
+- Blazor frontend components tried to make HTTP calls to localhost:9091 which doesn't exist under IIS
+- **Solution**: Detect environment (Production vs Development) and use appropriate base URL
+
+**Why It Failed in Production But Worked in Development**:
+1. **EF Core Issue**: Appeared during startup diagnostics with fresh deployment (affects both environments potentially)
+2. **HttpClient Issue**: Only manifests when running under IIS (Production) vs Kestrel (Development)
+   - Development: Kestrel listens directly on localhost:9091 ✅
+   - Production: IIS proxies to internal port, public URL is noorcanvas.servehttp.com ❌
 
 ### Implementation
 
-**Phase 1 - Fix Startup Diagnostics** (Program.cs):
-1. **Remove `.Take(1)` composition** from stored procedure test
-   - Changed: `SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups").Take(1).ToListAsync()`
-   - To: `SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
-   - Logs full album count instead of just existence check
+### Implementation
 
-**Phase 2 - Fix HostController Stored Procedure Calls**:
-2. **GetAlbums() endpoint** - Change SqlQuery to SqlQueryRaw
-   - Before: `_kSessionsContext.Database.SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
-   - After: `_kSessionsContext.Database.SqlQueryRaw<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
+**Phase 1 - Fix EF Core 8.0 Stored Procedure Calls**:
 
-3. **GetCategories() endpoint** - Change SqlQuery to SqlQueryRaw  
-   - Before: `_kSessionsContext.Database.SqlQuery<CategoryData>($"EXEC dbo.GetCategoriesForGroup {albumId}").ToListAsync()`
-   - After: `_kSessionsContext.Database.SqlQueryRaw<CategoryData>($"EXEC dbo.GetCategoriesForGroup {albumId}").ToListAsync()`
+1. **Program.cs** - Fix startup diagnostics (line ~296)
+   - Changed: `SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
+   - To: `SqlQueryRaw<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
+   - Logs full album count instead of attempting composition
 
-**Phase 3 - Verify No Other SqlQuery Usages**:
-4. **GetSessions() endpoint** - Uses direct LINQ (no stored procedure, already correct)
-5. **Search entire codebase** for other `SqlQuery` usages that might need conversion
+2. **HostController.GetAlbums()** - Fix albums endpoint (line ~477)
+   - Changed: `_kSessionsContext.Database.SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
+   - To: `_kSessionsContext.Database.SqlQueryRaw<AlbumData>($"EXEC dbo.GetAllGroups").ToListAsync()`
+   - Added comment explaining EF Core 8.0 requirement
+
+3. **HostController.GetCategories()** - Fix categories endpoint (line ~515)
+   - Changed: `_kSessionsContext.Database.SqlQuery<CategoryData>($"EXEC dbo.GetCategoriesForGroup {albumId}").ToListAsync()`
+   - To: `_kSessionsContext.Database.SqlQueryRaw<CategoryData>($"EXEC dbo.GetCategoriesForGroup @p0", albumId).ToListAsync()`
+   - Added parameterization (@p0) to prevent SQL injection warnings
+   - Added comment explaining EF Core 8.0 requirement
+
+**Phase 2 - Fix HttpClient Base URL for IIS Production Hosting**:
+
+4. **Program.cs** - HttpClient "default" configuration (line ~112)
+   - Changed: Hardcoded `"https://localhost:9091"` for both dev and prod
+   - To: Environment detection with proper URLs:
+     ```csharp
+     var baseAddress = builder.Environment.IsProduction()
+         ? "https://noorcanvas.servehttp.com"  // Production IIS site
+         : "https://localhost:9091";           // Development Kestrel
+     ```
+   - Added debug markers for diagnostics
+
+5. **Program.cs** - HttpClient "NoorCanvasApi" configuration (line ~123)
+   - Applied same environment-based URL selection
+   - Ensures both HttpClient instances use correct production URL
+
+6. **HostSessionService.GetBaseUrl()** - Dynamic URL resolution (line ~60)
+   - Added environment detection: `_configuration["ASPNETCORE_ENVIRONMENT"]`
+   - Returns `"https://noorcanvas.servehttp.com"` when `environment == "Production"`
+   - Returns Kestrel URL from config in development
+   - Updated fallback from `7242` to `9091` for consistency
+   - Added comprehensive debug logging at each decision point
 
 ### Technical Details
 

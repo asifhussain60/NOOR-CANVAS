@@ -354,7 +354,9 @@ namespace NoorCanvas.Controllers
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("NOOR-HOST-CREATE: Saved scheduling information to database for session {SessionId}", request.SessionId);
 
-                var joinLink = $"https://localhost:9091/user/landing/{session.UserToken}";
+                // Generate join link using current request's base URL
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var joinLink = $"{baseUrl}/user/landing/{session.UserToken}";
 
                 _logger.LogInformation("NOOR-SUCCESS: Session updated with scheduling info - SessionId: {SessionId}, Date: {Date}, Time: {Time}, Duration: {Duration}, Join Link: {JoinLink}",
                     session.SessionId, request.SessionDate, request.SessionTime, request.SessionDuration, joinLink);
@@ -652,12 +654,15 @@ namespace NoorCanvas.Controllers
                 // For persistent token storage, use SimplifiedTokenService or SecureTokenService.
 
                 _logger.LogInformation("NOOR-SUCCESS: Session token generated for session {SessionId}", sessionId);
+                // Generate join link using current request's base URL
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                
                 return Ok(new
                 {
                     sessionToken = sessionToken.ToString(),
                     sessionId = sessionId,
                     expiresAt = expiresAt,
-                    joinLink = $"https://localhost:9091/session/{sessionToken}"
+                    joinLink = $"{baseUrl}/session/{sessionToken}"
                 });
             }
             catch (Exception ex)

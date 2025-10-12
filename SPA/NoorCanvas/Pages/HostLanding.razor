@@ -511,7 +511,7 @@
                 <div class="host-landing-user-link-box">
                     <div class="host-landing-user-link-content">
                         <input type="text" 
-                               value="https://localhost:9091/user/landing/@UserToken" 
+                               value="@($"{Navigation.BaseUri.TrimEnd('/')}/user/landing/{UserToken}")" 
                                readonly
                                class="host-landing-user-link-input"
                                id="userLinkInput" />
@@ -631,11 +631,12 @@ else
                 requestId, friendlyToken);
 
             using var httpClient = HttpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(Navigation.BaseUri);
             
-            // Use friendly token API endpoint
-            string apiUrl = $"https://localhost:9091/api/host/token/{friendlyToken}/validate";
+            // Use friendly token API endpoint with relative URL
+            string apiUrl = $"/api/host/token/{friendlyToken}/validate";
             
-            Logger.LogInformation("NOOR-HOST: [{RequestId}] API URL: {ApiUrl}", requestId, apiUrl);
+            Logger.LogInformation("NOOR-HOST: [{RequestId}] API URL: {BaseUri}{ApiPath}", requestId, Navigation.BaseUri, apiUrl);
             var response = await httpClient.GetAsync(apiUrl);
             
             Logger.LogInformation("NOOR-HOST: [{RequestId}] Session validation API response: {StatusCode}", 
@@ -767,6 +768,9 @@ else
             if (validationResponse?.Valid == true)
             {
                 Logger.LogInformation("NOOR-HOST: [{RequestId}] Token validation successful", requestId);
+                
+                // Clear any error message from previous LoadSessionInfoAsync call
+                errorMessage = "";
                 
                 // Load session information if available
                 if (validationResponse.Session != null)

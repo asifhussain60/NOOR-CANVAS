@@ -17,6 +17,7 @@
 @inject IConfiguration Configuration
 @inject ITestDataService TestDataService
 @inject LoadingService LoadingService
+@inject IWebHostEnvironment WebHostEnvironment
 
 <PageTitle>NOOR Canvas - User Authentication</PageTitle>
 
@@ -512,17 +513,20 @@
     // Helper method to get base URL from configuration
     private string GetBaseUrl()
     {
-        // Try to get HTTPS URL from Kestrel configuration, fallback to HTTPS default
-        var httpsUrl = Configuration["Kestrel:Endpoints:Https:Url"];
-        if (!string.IsNullOrEmpty(httpsUrl))
+        // PRIORITY 1: Check if running under IIS (production environment)
+        // IIS sets ASPNETCORE_IIS_HTTPCONTEXT which indicates IIS hosting
+        var isIIS = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_IIS_HTTPCONTEXT"));
+        
+        if (isIIS || !WebHostEnvironment.IsDevelopment())
         {
-            Logger.LogInformation("NOOR-USER-LANDING: Using configured HTTPS URL: {HttpsUrl}", httpsUrl);
-            return httpsUrl;
+            Logger.LogInformation("NOOR-USER-LANDING: Production/IIS detected - using https://noorcanvas.servehttp.com");
+            return "https://noorcanvas.servehttp.com";
         }
         
-        // Fallback to default HTTPS port
-        Logger.LogWarning("NOOR-USER-LANDING: No HTTPS configuration found, using default https://localhost:9091");
-        return "https://localhost:9091";
+        // PRIORITY 2: Development - use Navigation.BaseUri (current request URL)
+        var currentBaseUri = Navigation.BaseUri.TrimEnd('/');
+        Logger.LogInformation("NOOR-USER-LANDING: Development mode - using current URL: {BaseUri}", currentBaseUri);
+        return currentBaseUri;
     }
 
     protected override async Task OnInitializedAsync()
