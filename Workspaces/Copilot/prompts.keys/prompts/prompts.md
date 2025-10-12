@@ -3,11 +3,11 @@
 ## Metadata
 - **Status**: completed
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-10-11
+- **Last Updated**: 2025-01-11
 - **Owner**: GitHub Copilot
-- **Description**: Task execution workflow improvements and file mapping system for key metadata
-- **Complexity**: moderate
-- **Debug Level**: detailed
+- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment
+- **Complexity**: high
+- **Debug Level**: none
 
 ## File Mappings
 
@@ -40,16 +40,22 @@
   - `KESTREL_PORT` - Referenced in server cleanup documentation (default: 9091)
 
 ### Documentation
-- `.github/prompts/task.prompt.md` - Main task execution workflow specification
-- `.github/prompts/cohesion-review.prompt.md` - Prompt system cohesion analysis agent (NEW)
-- `.github/prompts/question.prompt.md` - Q&A routing logic
-- `.github/prompts/test-generation.prompt.md` - Test automation agent
-- `.github/prompts/refactor.prompt.md` - Code refactoring agent
-- `.github/prompts/healthcheck.prompt.md` - System health validation
-- `.github/prompts/analyze-learning.prompt.md` - Learning pattern analysis
-- `.github/prompts/sync.prompt.md` - Synchronization agent
-- `Workspaces/Copilot/prompts.keys/_template/key-template.md` - New markdown template with file mappings
-- `Workspaces/Copilot/prompts.keys/_template/key.json` - Original JSON template (legacy)
+- `.github/instructions/Links/InfrastructureQuickRef.md` - NEW: Authoritative infrastructure reference (database, API, SignalR, Session 212)
+- `.github/instructions/Links/FileMetrics.md` - UPDATED: Refreshed with live line counts, usage guide
+- `.github/instructions/Links/FunctionalityRegistry-QuickRef.md` - UPDATED: Added related documentation links
+- `.github/instructions/Links/ValidationFramework.md` - UPDATED: Added InfrastructureQuickRef.md reference
+- `.github/instructions/Links/ReferenceIndex.md` - UPDATED: Restructured with categories, comprehensive catalog
+- `.github/instructions/Links/SystemStructureSummary.md` - UPDATED: All 13 Links files cataloged, version 2.0.0
+- `.github/prompts/task.prompt.md` - UPDATED: Complete Core Mandates restructure, all Links files referenced
+- `.github/prompts/question.prompt.md` - UPDATED: Core Mandates restructure with reference documentation
+- `.github/prompts/healthcheck.prompt.md` - UPDATED: Organized validation scope references
+- `.github/prompts/sync.prompt.md` - UPDATED: Added sync-specific documentation responsibilities
+- `.github/prompts/test-generation.prompt.md` - UPDATED: Added InfrastructureQuickRef.md to canonical references
+- `.github/prompts/cohesion-review.prompt.md` - Prompt system cohesion analysis agent
+- `.github/prompts/refactor.prompt.md` - Code refactoring agent (already comprehensive)
+- `.github/prompts/analyze-learning.prompt.md` - Learning pattern analysis (already comprehensive)
+- `Workspaces/Documentation/prompts-comprehensive-analysis-summary.md` - NEW: Complete execution summary
+- `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Template with file mappings
 - `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - This file (self-documenting)
 - `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Work log for prompts key
 
@@ -59,31 +65,47 @@
 - **npm Packages**: N/A - No npm dependencies
 
 ## Summary
-The prompts key encompasses meta-improvements to the task execution workflow and key metadata system. This includes adding server cleanup automation to prevent common errors (port conflicts, file locks) and implementing a structured file mapping system to enable automatic context loading when working with keys.
+The prompts key encompasses comprehensive refresh and integration of the entire prompts system infrastructure. This includes creating an authoritative infrastructure reference document to eliminate Copilot hallucinations, refreshing all Links folder files with live data, establishing complete cross-reference matrix across all agents, and integrating previously orphaned files into the system.
 
 ## Current Work
-- ✅ **Step 0 Addition**: Added "Kill Running Kestrel Servers" as mandatory first step in task.prompt.md
-  - Primary method: `nckill` PowerShell alias
-  - Fallback: Direct PowerShell process termination command
-  - Rationale: Prevents port 9091 conflicts, file locks, stale servers, test failures
-  - Impact: All future task executions automatically kill servers first
+- ✅ **InfrastructureQuickRef.md Creation**: NEW authoritative reference for database, API endpoints, SignalR hubs, Session 212 test data
+  - Purpose: Eliminate Copilot hallucinations about infrastructure
+  - Contains: 85+ API endpoints, 3 SignalR hubs, Session 212 canonical tokens (PQ9N5YWW, KJAHA99L)
+  - Critical Anti-Patterns section prevents obsolete feature references (e.g., annotation system)
+  - Referenced by: task, question, healthcheck, sync, test-generation prompts
   
-- ✅ **File Mapping System Design**: Created comprehensive schema for key metadata
-  - Format: Markdown with structured sections (human-readable + machine-parseable)
-  - Categories: Frontend (Views, Components), Backend (Controllers, Services, DTOs), Database (Tables, Scripts), Tests (E2E, Unit), Configuration (appsettings, env vars), Documentation
-  - Advantages: Context-rich descriptions, categorized file types, git-friendly diffs
-  - Template: Created `key-template.md` with full schema and examples
+- ✅ **Orphaned Files Integration**: All 3 orphaned Links files now properly referenced
+  - FileMetrics.md → Referenced by sync agent for drift detection, refreshed with live line counts
+  - FunctionalityRegistry-QuickRef.md → Linked to task.prompt.md Step 8.2, question.prompt.md
+  - ValidationFramework.md → Explicitly referenced in all validation workflows
   
-- ✅ **Auto-Load File Mappings Implementation**: Added Section 2.3 to task.prompt.md
-  - Automatically parses File Mappings section from key metadata
-  - Loads primary files (Views, Controllers, Services) into context
-  - Prioritizes files: Primary (immediate), Secondary (on-demand), Tertiary (reference)
-  - Eliminates need for `#file:` references when key is active
-  - Fallback to manual specification if File Mappings missing
-  - Supports legacy key.json format
-  - Impact: Users no longer need to specify file names - key metadata provides all context automatically
+- ✅ **Prompt Core Mandates Restructure**: 5 prompts updated with complete Links catalog
+  - task.prompt.md → Complete architectural reference documentation section (13 files)
+  - question.prompt.md → Restructured into Analysis Approach + Reference Documentation
+  - healthcheck.prompt.md → Organized into Operational Rules + Validation Scope
+  - sync.prompt.md → Added documentation sync responsibilities
+  - test-generation.prompt.md → Added InfrastructureQuickRef.md to canonical references
+  
+- ✅ **Links Folder Refresh**: All files updated with current information
+  - ReferenceIndex.md → Restructured with categories (Architecture, Validation, Testing, Feature Tracking)
+  - SystemStructureSummary.md → Complete Links catalog (13 files), version 2.0.0
+  - FileMetrics.md → Live line counts for 26 files (Instructions, Prompts, Shared)
+  - ValidationFramework.md → Added InfrastructureQuickRef.md reference
+  - FunctionalityRegistry-QuickRef.md → Added related documentation section
+  
+- ✅ **Code Cleanup**: Removed stale annotation system references
+  - Program.cs → Removed AnnotationHub mapping and logging
+  - InfrastructureQuickRef.md → Critical Anti-Patterns section documents annotation system deletion
 
 ## Recent Changes
+- 2025-01-11: Comprehensive prompts system refresh (commit: 4c8211f2)
+  - Created InfrastructureQuickRef.md (254 lines) - anti-hallucination reference
+  - Refreshed FileMetrics.md with live data (18 → 97 lines)
+  - Updated 6 Links files (FunctionalityRegistry-QuickRef, ValidationFramework, ReferenceIndex, SystemStructureSummary)
+  - Restructured Core Mandates in 5 prompts (task, question, healthcheck, sync, test-generation)
+  - Removed AnnotationHub from Program.cs
+  - Created comprehensive execution summary (Workspaces/Documentation/prompts-comprehensive-analysis-summary.md)
+  - Total changes: 12 files, 571 insertions, 71 deletions
 - 2025-10-11: Implemented auto-load file mappings in task.prompt.md Step 2.3 (commit: fb3c3a46)
 - 2025-10-11: Added Step 0 to task.prompt.md - Kestrel server cleanup (commit: e47d1285)
 - 2025-10-11: Created key-template.md with file mapping schema (commit: e47d1285)
@@ -92,14 +114,16 @@ The prompts key encompasses meta-improvements to the task execution workflow and
 ## Related Keys
 - **canvas**: Example key with narrative dependencies (to be migrated to new format)
 - **hcp**: Example key using key.json format (demonstrates files_modified array concept)
+- **test-system**: All prompts now reference InfrastructureQuickRef.md for Session 212 canonical test data
 
 ## Notes
-- **Design Philosophy**: File mappings should be machine-parseable (structured paths) while remaining human-friendly (markdown with descriptions)
-- **Migration Strategy**: Existing keys can gradually adopt new format - backwards compatible
+- **Design Philosophy**: All Links files must be properly referenced by at least one prompt - zero orphaned files
+- **Anti-Hallucination**: InfrastructureQuickRef.md eliminates need for Copilot to guess infrastructure details
+- **Cross-Reference Matrix**: Complete mapping of which prompts reference which Links files
+- **Drift Detection**: FileMetrics.md tracks line counts to detect documentation staleness
 - **Template Location**: `_template/key-template.md` serves as reference for all new keys
 - **Automation Opportunity**: Future enhancement could auto-populate File Mappings section by analyzing git history and file imports
-- **Context Loading**: With structured file paths, agents can automatically read relevant files when key is activated
-- **Server Cleanup**: `nckill` alias expected in PowerShell profile; fallback command provided for environments without alias
+- **Sync Responsibilities**: sync agent updates FileMetrics.md and InfrastructureQuickRef.md after structural changes
 
 ---
 
@@ -123,14 +147,25 @@ The prompts key encompasses meta-improvements to the task execution workflow and
 - `5b0c9a77` - checkpoint: pre-task prompts - auto-load file mappings
 - `fb3c3a46` - feat(prompts): Implement auto-load file mappings in task.prompt.md Step 2
 - `a250157a` - docs(prompts): Update prompts.md with commit SHA and completion status
-- `7d8902e` - feat(canvas): set canvas-content-area min-height to 400px (previous task)
+- `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration (LATEST)
 
 ### Files Modified
-- `.github/prompts/task.prompt.md` - Added Step 0 (Kestrel server cleanup), renumbered existing steps, added Section 2.3 (Auto-Load File Mappings)
+- `.github/instructions/Links/InfrastructureQuickRef.md` - CREATED (254 lines) - Authoritative infrastructure reference
+- `.github/instructions/Links/FileMetrics.md` - UPDATED (18 → 97 lines) - Live line counts, usage guide
+- `.github/instructions/Links/FunctionalityRegistry-QuickRef.md` - UPDATED - Added related documentation
+- `.github/instructions/Links/ValidationFramework.md` - UPDATED - Added InfrastructureQuickRef.md reference
+- `.github/instructions/Links/ReferenceIndex.md` - UPDATED (11 → 48 lines) - Restructured with categories
+- `.github/instructions/Links/SystemStructureSummary.md` - UPDATED (44 → 56 lines) - Complete Links catalog, v2.0.0
+- `.github/prompts/task.prompt.md` - UPDATED - Complete Core Mandates restructure (13 Links files)
+- `.github/prompts/question.prompt.md` - UPDATED - Core Mandates restructure with references
+- `.github/prompts/healthcheck.prompt.md` - UPDATED - Organized validation scope
+- `.github/prompts/sync.prompt.md` - UPDATED - Added sync responsibilities
+- `.github/prompts/test-generation.prompt.md` - UPDATED - Added InfrastructureQuickRef.md
+- `SPA/NoorCanvas/Program.cs` - UPDATED - Removed AnnotationHub references
+- `Workspaces/Documentation/prompts-comprehensive-analysis-summary.md` - CREATED - Execution summary
 - `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Created new markdown template
-- `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - Created this metadata file
-- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Updated with Phase 4 auto-load implementation details
-- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - To be created next
+- `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - This metadata file (updated)
+- `Workspaces/Copilot/prompts.keys/prompts/work-log.md` - Updated with comprehensive analysis phases
 
 ### Warnings & Errors
 - N/A - No warnings or errors encountered
