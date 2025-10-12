@@ -200,6 +200,31 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 
 #### **Code Quality Analysis**
 - **Duplication Identification**: Find repeated code patterns across the entire codebase  
+- **Similar Functionality Consolidation**: Detect and merge code with similar purposes
+  - **Pattern Matching**: Identify methods/classes with similar names but different implementations
+    - Look for naming patterns like `GetSessionById`, `FetchSessionById`, `RetrieveSession`
+    - Find services with overlapping responsibilities (e.g., `SessionService` vs `SessionHelperService`)
+  - **Behavioral Analysis**: Detect methods performing similar operations
+    - Data transformation logic (parsing, formatting, validation)
+    - CRUD operations with minor variations
+    - API calls with similar patterns but different endpoints
+  - **Interface Extraction**: Identify common patterns suitable for abstraction
+    - Multiple implementations of similar workflows
+    - Repeated switch/if-else patterns that could use strategy pattern
+    - Common validation or processing logic
+  - **Service Consolidation Opportunities**:
+    - Multiple services accessing same data with similar queries
+    - Duplicate helper methods across different service classes
+    - Overlapping business logic in controllers that should be in shared services
+  - **Database Access Patterns**: Consolidate similar data access code
+    - Repeated LINQ queries with minor variations
+    - Multiple DbContext methods for similar operations
+    - Redundant repository patterns
+  - **Refactoring Actions**:
+    - Extract common functionality into shared base classes or utility methods
+    - Create unified service interfaces for similar operations
+    - Consolidate duplicate validation/transformation logic
+    - Document why certain similar-looking code should remain separate (domain boundaries)
 - **Naming Convention Audit**: Ensure consistency in naming across all layers  
 - **Error Handling Review**: Validate error handling patterns and exception management  
 - **Performance Pattern Analysis**: Identify inefficient implementations system-wide
@@ -209,6 +234,28 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
 - **Input Validation**: Check data validation patterns throughout the application  
 - **Dependency Security**: Review NuGet packages and npm dependencies for vulnerabilities  
 - **Configuration Security**: Examine connection strings and sensitive configuration handling
+- **Configuration Redundancy Detection**: Identify and consolidate duplicate or redundant configuration entries
+  - **Connection String Consolidation**: Scan all `appsettings*.json` files for redundant connection strings
+    - Verify all connection strings pointing to the same database (same Server/Database/Credentials)
+    - Consolidate to single `DefaultConnection` entry where possible
+    - Update code references (`GetConnectionString()` calls) to use unified connection string name
+    - Common patterns to detect: `KSessionsDb`, `SimplifiedConnection`, `KQurDb` all pointing to same database
+  - **Duplicate Configuration Entries**: Find configuration sections duplicated across files
+    - Identify repeated appsettings blocks (logging, features, endpoints)
+    - Move common settings to base `appsettings.json`
+    - Keep environment-specific overrides in `appsettings.{Environment}.json`
+  - **Service Configuration Analysis**: Review `Program.cs` and `Startup.cs` files
+    - Detect multiple DbContext registrations using different connection string keys for same database
+    - Identify redundant service registrations with identical implementations
+    - Consolidate dependency injection patterns for similar services
+  - **Cross-Project Configuration Sync**: Ensure consistent configuration patterns across projects
+    - Compare `SPA/NoorCanvas` vs `Tools/HostProvisioner` appsettings
+    - Align connection string naming conventions
+    - Standardize feature flags and configuration sections
+  - **Validation Steps**:
+    - After consolidation, run full build to ensure no broken configuration references
+    - Test application startup to verify all services resolve correctly
+    - Document configuration changes in commit messages and architectural docs
 
 #### **Maintainability Assessment** 
 - **Technical Debt Identification**: Find areas requiring modernization or cleanup  

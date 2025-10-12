@@ -118,17 +118,14 @@ class Program
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
             "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=adf4961glo;Connection Timeout=3600;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;";
 
-        var simplifiedConnectionString = configuration.GetConnectionString("SimplifiedConnection") ?? connectionString;
-
-        // Use simplified schema only
+        // Use simplified schema only - use DefaultConnection for all database contexts
         services.AddDbContext<SimplifiedCanvasDbContext>(options =>
-            options.UseSqlServer(simplifiedConnectionString, sqlOptions =>
+            options.UseSqlServer(connectionString, sqlOptions =>
                 sqlOptions.CommandTimeout(3600)));
 
         // Add KSESSIONS Database Context for Session validation (Issue-45)
-        var kSessionsConnectionString = configuration.GetConnectionString("KSessionsDb") ?? connectionString;
         services.AddDbContext<KSessionsDbContext>(options =>
-            options.UseSqlServer(kSessionsConnectionString, sqlOptions =>
+            options.UseSqlServer(connectionString, sqlOptions =>
                 sqlOptions.CommandTimeout(3600)));
 
         // Add logging factory for token services

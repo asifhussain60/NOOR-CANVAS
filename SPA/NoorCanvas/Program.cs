@@ -67,15 +67,13 @@ else
 
     // Add Simplified Schema Context (for migration)
     builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("SimplifiedConnection") ??
-            builder.Configuration.GetConnectionString("DefaultConnection") ??
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
             "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"));
 }
 
 // Add KSESSIONS Database Context (Read-only for Groups, Categories, Sessions)
 builder.Services.AddDbContext<KSessionsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ??
-        builder.Configuration.GetConnectionString("DefaultConnection") ??
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
         "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;")
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Read-only optimization
 

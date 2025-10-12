@@ -83,7 +83,7 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
 **Scan workspace for cleanup targets:**
 
 1. **Build Artifacts**:
-   - `publish-temp/` - .NET publish outputs
+   - `Workspaces/publish-temp/` - .NET publish outputs
    - `bin/`, `obj/` - Compilation outputs (if not in .gitignore)
    - `.tsbuildinfo` - TypeScript build info
    - `*.dll.cache`, `*.pdb` (outside bin/obj)
@@ -166,7 +166,7 @@ Proceed? (yes/no)
 #### 3.1. Build Artifacts Cleanup
 ```powershell
 # Remove publish outputs
-Remove-Item -Path "publish-temp" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "Workspaces\publish-temp" -Recurse -Force -ErrorAction SilentlyContinue
 
 # Clean bin/obj if requested
 Get-ChildItem -Path "." -Recurse -Directory -Include "bin", "obj" | 
@@ -419,7 +419,7 @@ git reset --hard {checkpoint_sha}
 
 | Target | Description | Affected Paths |
 |--------|-------------|----------------|
-| `build-artifacts` | .NET publish outputs, compilation artifacts | `publish-temp/`, `bin/`, `obj/` |
+| `build-artifacts` | .NET publish outputs, compilation artifacts | `Workspaces/publish-temp/`, `bin/`, `obj/` |
 | `test-results` | Playwright test artifacts, screenshots | `test-results/`, `PlayWright/test-results/` |
 | `temp-files` | Temporary files, logs, cache | `TEMP/`, `*.tmp`, `*.log` |
 | `documentation` | Redundant docs, outdated summaries | `Workspaces/**/*.md` (analysis) |
