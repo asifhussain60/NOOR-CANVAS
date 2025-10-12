@@ -1044,7 +1044,7 @@ namespace NoorCanvas.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("sessions/{sessionId}/assets")]
-        public IActionResult GetSessionAssets(long sessionId, [FromQuery] string? type = null, [FromQuery] bool sharedOnly = false)
+        public IActionResult GetSessionAssets(int sessionId, [FromQuery] string? type = null, [FromQuery] bool sharedOnly = false)
         {
             // LEGACY API - SessionAssets table was replaced by simplified AssetLookup approach
             // Asset detection is now handled directly in HostControlPanel.razor using AssetLookup table

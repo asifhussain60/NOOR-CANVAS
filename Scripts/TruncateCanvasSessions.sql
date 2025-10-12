@@ -203,9 +203,10 @@ BEGIN TRY
     TRUNCATE TABLE canvas.Participants;
     PRINT '  ✅ Truncated canvas.Participants';
     
-    -- Truncate Sessions (parent table)
-    TRUNCATE TABLE canvas.Sessions;
-    PRINT '  ✅ Truncated canvas.Sessions';
+    -- Delete from Sessions (parent table) - Cannot use TRUNCATE due to FK reference
+    -- Note: TRUNCATE not allowed on tables referenced by FKs, even if FK is from parent to child
+    DELETE FROM canvas.Sessions;
+    PRINT '  ✅ Deleted all records from canvas.Sessions';
     
     -- AssetLookup is independent (no FK to Sessions), but we'll keep it for reference
     PRINT '  ℹ️  canvas.AssetLookup retained (no dependency on Sessions)';

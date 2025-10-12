@@ -22,7 +22,7 @@ namespace NoorCanvas.Controllers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("session/{sessionId}")]
-        public async Task<IActionResult> GetSessionAnnotations(long sessionId)
+        public async Task<IActionResult> GetSessionAnnotations(int sessionId)
         {
             try
             {
@@ -210,7 +210,7 @@ namespace NoorCanvas.Controllers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpDelete("session/{sessionId}/clear")]
-        public async Task<IActionResult> ClearSessionAnnotations(long sessionId, [FromQuery] string userId)
+        public async Task<IActionResult> ClearSessionAnnotations(int sessionId, [FromQuery] string userId)
         {
             try
             {

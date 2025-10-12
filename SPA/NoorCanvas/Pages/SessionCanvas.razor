@@ -1020,7 +1020,7 @@
     [Parameter] public string? SessionToken { get; set; }
     
     private SessionCanvasViewModel? Model { get; set; }
-    private long? _sessionId;
+    private int? _sessionId;
     private HubConnection? hubConnection;
     private HttpClient? Http;
     private string CurrentUserGuid { get; set; } = string.Empty;
@@ -1650,7 +1650,7 @@
     // ViewModel and Data Classes
     public class SessionCanvasViewModel
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string? LogoText { get; set; }
         public SessionCanvasState CurrentState { get; set; }
         public string? SessionName { get; set; }
@@ -1754,7 +1754,7 @@
 
     public class SessionTokenResponse
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string? HostToken { get; set; }
         public string? UserToken { get; set; }
         public DateTime ExpiresAt { get; set; }

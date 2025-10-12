@@ -116,7 +116,7 @@ public class TokenController : ControllerBase
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [HttpPost("generate/{sessionId}")]
-    public async Task<IActionResult> GenerateTokenPair(long sessionId, [FromQuery] int validHours = 24)
+    public async Task<IActionResult> GenerateTokenPair(int sessionId, [FromQuery] int validHours = 24)
     {
         try
         {
@@ -153,7 +153,7 @@ public class TokenController : ControllerBase
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     [HttpGet("session/{sessionId}")]
-    public async Task<IActionResult> GetSessionToken(long sessionId)
+    public async Task<IActionResult> GetSessionToken(int sessionId)
     {
         try
         {

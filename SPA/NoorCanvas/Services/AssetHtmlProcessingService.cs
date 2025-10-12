@@ -146,7 +146,7 @@ namespace NoorCanvas.Services
                     {
                         Success = true,
                         Message = $"Successfully processed {detectedAssets.Count} assets, injected {shareButtonsInjected} share buttons",
-                        SessionId = sessionId,
+                        sessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -163,7 +163,7 @@ namespace NoorCanvas.Services
                     {
                         Success = false,
                         Message = $"Processing error: {ex.Message}",
-                        SessionId = sessionId,
+                        sessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -215,7 +215,7 @@ namespace NoorCanvas.Services
                     {
                         Success = true,
                         Message = $"Successfully processed {detectedAssets.Count} assets",
-                        SessionId = sessionId,
+                        sessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -232,7 +232,7 @@ namespace NoorCanvas.Services
                     {
                         Success = false,
                         Message = $"Processing error: {ex.Message}",
-                        SessionId = sessionId,
+                        sessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };

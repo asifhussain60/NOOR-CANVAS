@@ -9,7 +9,9 @@
 -- NOT be an auto-increment identity column
 -- =============================================
 
-USE KSESSIONS_DEV; -- Change to KSESSIONS for production
+-- NOTE: Database is specified via sqlcmd -d parameter
+-- Example: sqlcmd -S AHHOME -d KSESSIONS_DEV -E -i Fix_Canvas_Sessions_FK_20251012.sql
+-- Example: sqlcmd -S AHHOME -d KSESSIONS -E -i Fix_Canvas_Sessions_FK_20251012.sql
 GO
 
 SET NOCOUNT ON;
@@ -57,6 +59,7 @@ PRINT '  ✅ dbo.Sessions table exists';
 -- Check current SessionId column definition
 DECLARE @IsIdentity BIT;
 DECLARE @CurrentDataType NVARCHAR(50);
+DECLARE @SessionIdType NVARCHAR(50);
 
 SELECT 
     @IsIdentity = c.is_identity,
@@ -221,8 +224,13 @@ BEGIN TRY
     PRINT '';
     PRINT '  [3.2] Rebuilding canvas.Sessions with correct schema...';
     
-    -- Only rebuild if IDENTITY is currently enabled
-    IF @IsIdentity = 1
+    -- Check if SessionId column type is correct (INT) or needs conversion from BIGINT
+    SELECT @SessionIdType = TYPE_NAME(user_type_id) 
+    FROM sys.columns 
+    WHERE object_id = OBJECT_ID('canvas.Sessions') AND name = 'SessionId';
+    
+    -- Rebuild if IDENTITY is enabled OR if type is BIGINT (needs conversion to INT)
+    IF @IsIdentity = 1 OR @SessionIdType = 'bigint'
     BEGIN
         -- Create temp table with exact structure
         CREATE TABLE [canvas].[Sessions_Temp] (
@@ -248,8 +256,6 @@ BEGIN TRY
         -- Copy existing data
         IF @CanvasSessionCount > 0
         BEGIN
-            SET IDENTITY_INSERT [canvas].[Sessions_Temp] OFF; -- No IDENTITY in temp table
-            
             INSERT INTO [canvas].[Sessions_Temp] (
                 SessionId, AlbumId, HostToken, UserToken, Status,
                 CreatedAt, ModifiedAt, StartedAt, EndedAt, ExpiresAt,
@@ -263,20 +269,19 @@ BEGIN TRY
             FROM [canvas].[Sessions];
             
             PRINT '    ✅ Copied ' + CAST(@CanvasSessionCount AS VARCHAR) + ' records to temp table';
-        END
+        END;
         
         -- Drop original table
         DROP TABLE [canvas].[Sessions];
         PRINT '    ✅ Dropped original canvas.Sessions table';
         
-        -- Rename temp table
+        -- Rename temp table (keep simple PK name)
         EXEC sp_rename '[canvas].[Sessions_Temp]', 'Sessions';
-        EXEC sp_rename '[canvas].[PK_canvas_Sessions_Temp]', 'PK__Sessions__C9F49290FD14F53B', 'OBJECT';
         PRINT '    ✅ Renamed temp table to canvas.Sessions';
     END
     ELSE
     BEGIN
-        PRINT '    ℹ️  SessionId is already non-IDENTITY - skipping table rebuild';
+        PRINT '    ℹ️  SessionId is already INT and non-IDENTITY - skipping table rebuild';
     END
     
     -- STEP 3.3: Add FK to dbo.Sessions
@@ -290,9 +295,72 @@ BEGIN TRY
     
     PRINT '    ✅ Added FK: FK_canvas_Sessions_dbo_Sessions';
     
-    -- STEP 3.4: Recreate dependent foreign keys
+    -- STEP 3.4: Convert SessionId columns in dependent tables from BIGINT to INT
     PRINT '';
-    PRINT '  [3.4] Recreating dependent foreign keys...';
+    PRINT '  [3.4] Converting SessionId columns in dependent tables to INT...';
+    
+    -- Drop indexes on Participants.SessionId
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID('canvas.Participants') AND name = 'IX_Participants_SessionId')
+    BEGIN
+        DROP INDEX [IX_Participants_SessionId] ON [canvas].[Participants];
+        PRINT '    ✅ Dropped index IX_Participants_SessionId';
+    END
+    
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID('canvas.Participants') AND name = 'IX_Participants_SessionUser')
+    BEGIN
+        DROP INDEX [IX_Participants_SessionUser] ON [canvas].[Participants];
+        PRINT '    ✅ Dropped index IX_Participants_SessionUser';
+    END
+    
+    -- Drop indexes on SessionData.SessionId
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID('canvas.SessionData') AND name = 'IX_SessionData_SessionId')
+    BEGIN
+        DROP INDEX [IX_SessionData_SessionId] ON [canvas].[SessionData];
+        PRINT '    ✅ Dropped index IX_SessionData_SessionId';
+    END
+    
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID('canvas.SessionData') AND name = 'IX_SessionData_Session_Type')
+    BEGIN
+        DROP INDEX [IX_SessionData_Session_Type] ON [canvas].[SessionData];
+        PRINT '    ✅ Dropped index IX_SessionData_Session_Type';
+    END
+    
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID('canvas.SessionData') AND name = 'IX_SessionData_Query_Optimized')
+    BEGIN
+        DROP INDEX [IX_SessionData_Query_Optimized] ON [canvas].[SessionData];
+        PRINT '    ✅ Dropped index IX_SessionData_Query_Optimized';
+    END
+    
+    -- Convert Participants.SessionId
+    ALTER TABLE [canvas].[Participants]
+    ALTER COLUMN [SessionId] INT NOT NULL;
+    PRINT '    ✅ Converted Participants.SessionId from BIGINT to INT';
+    
+    -- Convert SessionData.SessionId
+    ALTER TABLE [canvas].[SessionData]
+    ALTER COLUMN [SessionId] INT NOT NULL;
+    PRINT '    ✅ Converted SessionData.SessionId from BIGINT to INT';
+    
+    -- Recreate indexes on Participants.SessionId
+    CREATE NONCLUSTERED INDEX [IX_Participants_SessionId] ON [canvas].[Participants] ([SessionId]);
+    PRINT '    ✅ Recreated index IX_Participants_SessionId';
+    
+    CREATE NONCLUSTERED INDEX [IX_Participants_SessionUser] ON [canvas].[Participants] ([SessionId], [UserGuid]);
+    PRINT '    ✅ Recreated index IX_Participants_SessionUser';
+    
+    -- Recreate indexes on SessionData.SessionId
+    CREATE NONCLUSTERED INDEX [IX_SessionData_SessionId] ON [canvas].[SessionData] ([SessionId]);
+    PRINT '    ✅ Recreated index IX_SessionData_SessionId';
+    
+    CREATE NONCLUSTERED INDEX [IX_SessionData_Session_Type] ON [canvas].[SessionData] ([SessionId], [DataType]);
+    PRINT '    ✅ Recreated index IX_SessionData_Session_Type';
+    
+    CREATE NONCLUSTERED INDEX [IX_SessionData_Query_Optimized] ON [canvas].[SessionData] ([SessionId], [DataType], [IsDeleted], [CreatedAt]);
+    PRINT '    ✅ Recreated index IX_SessionData_Query_Optimized';
+    
+    -- STEP 3.5: Recreate dependent foreign keys
+    PRINT '';
+    PRINT '  [3.5] Recreating dependent foreign keys...';
     
     DECLARE @RecreateFKSQL NVARCHAR(MAX);
     DECLARE @ParentTable NVARCHAR(128);
@@ -314,8 +382,18 @@ BEGIN TRY
             'REFERENCES [canvas].[Sessions]([SessionId]) ' +
             'ON DELETE ' + @DeleteRule;
         
-        EXEC sp_executesql @RecreateFKSQL;
-        PRINT '    ✅ Recreated FK: ' + @FKName + ' (ON DELETE ' + @DeleteRule + ')';
+        BEGIN TRY
+            EXEC sp_executesql @RecreateFKSQL;
+            PRINT '    ✅ Recreated FK: ' + @FKName + ' (ON DELETE ' + @DeleteRule + ')';
+        END TRY
+        BEGIN CATCH
+            PRINT '    ❌ ERROR recreating FK: ' + @FKName;
+            PRINT '       SQL: ' + @RecreateFKSQL;
+            PRINT '       Error: ' + ERROR_MESSAGE();
+            THROW;
+        END CATCH
+
+
         
         FETCH NEXT FROM recreate_cursor INTO @FKName, @ParentTable, @ParentColumn, @DeleteRule;
     END
