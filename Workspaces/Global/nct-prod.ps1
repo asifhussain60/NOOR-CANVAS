@@ -1,0 +1,194 @@
+param(
+    [Parameter(Position=0)]
+    [int]$SessionId,
+    [switch]$Help
+)
+
+Clear-Host
+
+if ($Help) {
+    Write-Host "NOOR Canvas Token - PRODUCTION (nct-prod) - Interactive Host Provisioner" -ForegroundColor Cyan
+    Write-Host "========================================================================"
+    Write-Host ""
+    Write-Host "DESCRIPTION:"
+    Write-Host "  Production version of nct that connects to KSESSIONS database"
+    Write-Host "  Interactive tool to generate Host GUIDs for production NOOR Canvas sessions"
+    Write-Host ""
+    Write-Host "USAGE:"
+    Write-Host "  nct-prod                    # Launch interactive Host Provisioner"
+    Write-Host "  nct-prod 215                # Generate token for session ID 215"
+    Write-Host "  nct-prod [sessionId]        # Generate token for specific session"
+    Write-Host "  nct-prod -Help              # Show this help"
+    Write-Host ""
+    Write-Host "DATABASE: KSESSIONS (Production)" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "FEATURES:"
+    Write-Host "  - Connects to KSESSIONS production database"
+    Write-Host "  - Interactive session ID input OR direct session parameter"
+    Write-Host "  - Automatic Host and User GUID generation"
+    Write-Host "  - Participant session link creation with User GUID attachment"
+    Write-Host "  - Ready-to-use Host GUIDs for authentication"
+    Write-Host "  - Complete session setup including participant access"
+    Write-Host ""
+    Write-Host "EXAMPLE OUTPUT:"
+    Write-Host "  Session ID: 123"
+    Write-Host "  Host Token: AB12CD34"
+    Write-Host "  User Token: XY98ZW76"
+    Write-Host "  Host URL: https://localhost:9091/host/AB12CD34"
+    Write-Host "  Participant URL: https://localhost:9091/user/landing/XY98ZW76"
+    return
+}
+
+# If no session ID provided, prompt user for input
+if ($SessionId -eq 0) {
+    Write-Host "NOOR Canvas Token (nct-prod) - PRODUCTION Host Provisioner" -ForegroundColor Green
+    Write-Host "=============================================================" -ForegroundColor Green
+    Write-Host "DATABASE: KSESSIONS (Production)" -ForegroundColor Yellow
+    Write-Host ""
+    
+    do {
+        $sessionInput = Read-Host "Enter Session ID"
+        if ([int]::TryParse($sessionInput, [ref]$SessionId) -and $SessionId -gt 0) {
+            break
+        }
+        Write-Host "Please enter a valid Session ID (positive number)" -ForegroundColor Red
+    } while ($true)
+    
+    # Clear terminal after getting session ID interactively
+    Clear-Host
+}
+
+if ($SessionId -gt 0) {
+    # Only clear terminal if SessionID was provided as parameter (not interactively)
+    if ($args.Count -gt 0) {
+        Clear-Host
+    }
+    
+    Write-Host "NOOR Canvas Token (nct-prod) - PRODUCTION Session Token Generator" -ForegroundColor Green
+    Write-Host "===================================================================" -ForegroundColor Green
+    Write-Host "DATABASE: KSESSIONS (Production)" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Generating Host Token for Session ID: $SessionId" -ForegroundColor Cyan
+    Write-Host ""
+
+    $originalLocation = Get-Location
+    try {
+        Set-Location "D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner"
+        
+        # Set ASPNETCORE_ENVIRONMENT to Production to use KSESSIONS database
+        $env:ASPNETCORE_ENVIRONMENT = "Production"
+        
+        $provisionerOutput = & dotnet run -- create --session-id $SessionId --created-by "NC Global Command (PRODUCTION)" --dry-run false --create-user 2>&1 | Out-String
+        
+        # Reset environment variable
+        $env:ASPNETCORE_ENVIRONMENT = $null
+        
+        # Extract 8-character Host Token from friendly token logs
+        $hostToken = $null
+        if ($provisionerOutput -match "Host Token:\s*([A-Z0-9]{8})") {
+            $hostToken = $matches[1]
+        }
+
+        # Extract 8-character User Token from friendly token logs
+        $userToken = $null
+        if ($provisionerOutput -match "User Token:\s*([A-Z0-9]{8})") {
+            $userToken = $matches[1]
+        }
+
+        # Extract Host URL from friendly token logs
+        $hostUrl = $null
+        if ($provisionerOutput -match "Host URL:\s*(https?://[^\s]+)") {
+            $hostUrl = $matches[1]
+        }
+
+        # Extract Participant URL from friendly token logs
+        $participantUrl = $null
+        if ($provisionerOutput -match "Participant URL:\s*(https?://[^\s]+)") {
+            $participantUrl = $matches[1]
+        }
+
+        # Extract Session IDs for reference
+        $ksessionsId = $null
+        if ($provisionerOutput -match "KSESSIONS Session ID:\s*(\d+)") {
+            $ksessionsId = $matches[1]
+        }
+        
+        $canvasSessionId = $null
+        if ($provisionerOutput -match "Canvas Session ID:\s*(\d+)") {
+            $canvasSessionId = $matches[1]
+        }
+
+        Write-Host $provisionerOutput
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host ""
+            Write-Host "Host Provisioner failed for Session ID: $SessionId" -ForegroundColor Red
+            Write-Host "Try building the project first or check if session ID exists in KSESSIONS" -ForegroundColor Yellow
+        } else {
+            Write-Host ""
+            Write-Host "Production Session Tokens Generated Successfully!" -ForegroundColor Green
+            Write-Host "====================================================" -ForegroundColor Green
+            
+            if ($ksessionsId -and $canvasSessionId) {
+                Write-Host "KSESSIONS Session ID: $ksessionsId" -ForegroundColor White
+                Write-Host "Canvas Session ID: $canvasSessionId" -ForegroundColor White
+                Write-Host "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') UTC" -ForegroundColor White
+                Write-Host "Database: KSESSIONS (Production)" -ForegroundColor Yellow
+                Write-Host ""
+            }
+            
+            if ($userToken -and $participantUrl) {
+                Write-Host "======================================" -ForegroundColor Cyan
+                Write-Host "USER AUTHENTICATION:" -ForegroundColor Cyan
+                Write-Host "======================================" -ForegroundColor Cyan
+                Write-Host "   Participant Token: " -NoNewline -ForegroundColor White
+                Write-Host $userToken -ForegroundColor Yellow
+                Write-Host "   Participant URL: " -NoNewline -ForegroundColor White  
+                Write-Host $participantUrl -ForegroundColor Cyan
+                Write-Host ""
+            }
+            
+            if ($hostToken -and $hostUrl) {
+                Write-Host "======================================" -ForegroundColor Yellow
+                Write-Host "HOST AUTHENTICATION:" -ForegroundColor Yellow
+                Write-Host "======================================" -ForegroundColor Yellow
+                Write-Host "   Host Token: " -NoNewline -ForegroundColor White
+                Write-Host $hostToken -ForegroundColor Green
+                Write-Host "   Host URL: " -NoNewline -ForegroundColor White
+                Write-Host $hostUrl -ForegroundColor Cyan
+                Write-Host ""
+            }
+            
+            Write-Host "======================================" -ForegroundColor Green
+            Write-Host "DATABASE (PRODUCTION):" -ForegroundColor Green
+            Write-Host "======================================" -ForegroundColor Green
+            Write-Host "   Database: KSESSIONS" -ForegroundColor Yellow
+            Write-Host "   Saved to: canvas.Sessions" -ForegroundColor White
+            if ($canvasSessionId) {
+                Write-Host "   Canvas Session ID: $canvasSessionId" -ForegroundColor White
+            }
+            Write-Host ""
+            
+            # Display tokens for manual access (no automatic launch in production)
+            if ($hostToken) {
+                Write-Host ""
+                Write-Host "PRODUCTION HOST ACCESS:" -ForegroundColor Green -BackgroundColor Black
+                Write-Host "=======================" -ForegroundColor Green -BackgroundColor Black
+                Write-Host "   https://localhost:9091/host/$hostToken" -ForegroundColor Cyan -BackgroundColor Black
+                Write-Host ""
+                Write-Host "⚠️  PRODUCTION MODE: No automatic launch" -ForegroundColor Yellow
+                Write-Host "   Manually navigate to the URL above after starting the production application" -ForegroundColor White
+                Write-Host ""
+            } else {
+                Write-Host "Host Token not found in output. Please check the provisioner logs above." -ForegroundColor Red
+            }
+        }
+    }
+    finally {
+        Set-Location $originalLocation
+        # Ensure environment variable is cleared
+        $env:ASPNETCORE_ENVIRONMENT = $null
+    }
+}
+
+Write-Host ""
