@@ -111,6 +111,7 @@ class Program
         // 2. app.config file (modified by ncdeploy for production)
         // 3. Default to Development
         string? environment = null;
+        string? baseUrl = null;
         
         // Try environment variable first
         environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -128,6 +129,13 @@ class Program
                         .FirstOrDefault(x => x.Attribute("key")?.Value == "ASPNETCORE_ENVIRONMENT");
                     environment = envSetting?.Attribute("value")?.Value;
                     Console.WriteLine($"[TRACE] Environment from app.config: {environment}");
+                    
+                    // Read BaseUrl for the environment
+                    var baseUrlKey = $"BaseUrl_{environment}";
+                    var baseUrlSetting = configDoc.Descendants("add")
+                        .FirstOrDefault(x => x.Attribute("key")?.Value == baseUrlKey);
+                    baseUrl = baseUrlSetting?.Attribute("value")?.Value;
+                    Console.WriteLine($"[TRACE] BaseUrl from app.config: {baseUrl}");
                 }
             }
             catch (Exception ex)
@@ -143,10 +151,17 @@ class Program
         // Default to Development if still not set
         environment ??= "Development";
         
+        // Default BaseUrl if not set from config
+        baseUrl ??= (environment == "Production" ? "https://noorcanvas.servehttp.com" : "https://localhost:9091");
+        
         // Set the environment variable so appsettings loading works correctly
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
         
+        // Store BaseUrl in environment for use in DisplayGuidWithPause
+        Environment.SetEnvironmentVariable("NOORCANVAS_BASE_URL", baseUrl);
+        
         Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Environment: {environment} ;CLEANUP_OK");
+        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Base URL: {baseUrl} ;CLEANUP_OK");
         
         // Load configuration
         var configuration = new ConfigurationBuilder()
@@ -557,9 +572,12 @@ class Program
                 hostToken = generatedHostToken;
                 userToken = generatedUserToken;
                 
-                // Generate friendly URLs using 8-character tokens
-                hostUrl = $"https://localhost:9091/host/{hostToken}";
-                participantUrl = $"https://localhost:9091/user/landing/{userToken}";
+                // Get base URL from environment (set during ConfigureServices)
+                var baseUrl = Environment.GetEnvironmentVariable("NOORCANVAS_BASE_URL") ?? "https://localhost:9091";
+                
+                // Generate friendly URLs using 8-character tokens with environment-specific base URL
+                hostUrl = $"{baseUrl}/host/{hostToken}";
+                participantUrl = $"{baseUrl}/user/landing/{userToken}";
                 
                 Log.Information("PROVISIONER-TOKEN: Generated friendly token pair for Session {SessionId}", canvasSession.SessionId);
                 Log.Information("PROVISIONER-TOKEN: Host Token: {HostToken}", hostToken);
@@ -659,95 +677,164 @@ class Program
 
     private static void DisplayGuidWithPause(Guid hostGuid, int sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null, string? hostToken = null, string? userToken = null)
     {
+        // Get base URL from environment
+        var baseUrl = Environment.GetEnvironmentVariable("NOORCANVAS_BASE_URL") ?? "https://localhost:9091";
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        
+        // Build full URLs with base URL
+        var hostUrl = !string.IsNullOrEmpty(hostToken) ? $"{baseUrl}/host/{hostToken}" : null;
+        var userUrl = !string.IsNullOrEmpty(userToken) ? $"{baseUrl}/user/landing/{userToken}" : participantUrl;
+        
         Console.WriteLine();
-        Console.WriteLine("🎯 Session Tokens Generated Successfully!");
-        Console.WriteLine("==========================================");
-        Console.WriteLine($"KSESSIONS Session ID: {sessionId}");
-        Console.WriteLine($"Canvas Session ID: {hostSessionId}");
-        Console.WriteLine($"Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("║          🎯 NOOR CANVAS - SESSION TOKENS GENERATED! 🎯              ║");
+        Console.ResetColor();
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
         Console.WriteLine();
         
-        // Display friendly token information (prioritize direct tokens over URL extraction)
-        if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(participantUrl))
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"   Environment: {environment}");
+        Console.WriteLine($"   KSESSIONS Session ID: {sessionId}");
+        Console.WriteLine($"   Canvas Session ID: {hostSessionId}");
+        Console.WriteLine($"   Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        Console.ResetColor();
+        Console.WriteLine();
+        
+        // HOST AUTHENTICATION SECTION
+        if (!string.IsNullOrEmpty(hostToken) && !string.IsNullOrEmpty(hostUrl))
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("══════════════════════════════════════");
-            Console.WriteLine("🔗 USER AUTHENTICATION:");
-            Console.WriteLine("══════════════════════════════════════");
+            Console.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("║                    � HOST AUTHENTICATION                            ║");
             Console.ResetColor();
-            Console.WriteLine($"   Participant Token: {userToken}");
-            Console.WriteLine($"   Participant URL: {participantUrl}");
+            Console.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"   Token: {hostToken}");
+            Console.ResetColor();
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine($"   🔗 {hostUrl}");
+            Console.ResetColor();
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("   ✓ Click the link above to open in your browser");
+            Console.ResetColor();
             Console.WriteLine();
         }
-        else if (!string.IsNullOrEmpty(participantUrl) && (participantUrl.Contains("/session/") || participantUrl.Contains("/user/landing/")))
+        
+        // USER AUTHENTICATION SECTION
+        if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(userUrl))
         {
-            // Fallback: Extract friendly token from URL for backward compatibility
-            var tokenMatch = participantUrl.Contains("/user/landing/") 
-                ? participantUrl.Split("/user/landing/").LastOrDefault()?.Split('?').FirstOrDefault()
-                : participantUrl.Split("/session/").LastOrDefault()?.Split('?').FirstOrDefault();
-            if (!string.IsNullOrEmpty(tokenMatch))
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("══════════════════════════════════════");
-                Console.WriteLine("🔗 USER AUTHENTICATION:");
-                Console.WriteLine("══════════════════════════════════════");
-                Console.ResetColor();
-                Console.WriteLine($"   Participant Token: {tokenMatch}");
-                Console.WriteLine($"   Participant URL: {participantUrl}");
-                Console.WriteLine();
-            }
+            Console.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("║                    � USER AUTHENTICATION                            ║");
+            Console.ResetColor();
+            Console.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"   Token: {userToken}");
+            Console.ResetColor();
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine($"   🔗 {userUrl}");
+            Console.ResetColor();
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("   ✓ Share this link with participants");
+            Console.ResetColor();
+            Console.WriteLine();
         }
         
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("══════════════════════════════════════");
-        Console.WriteLine("🔐 HOST AUTHENTICATION:");
-        Console.WriteLine("══════════════════════════════════════");
+        // DATABASE INFO
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine("║                         📊 DATABASE INFO                             ║");
         Console.ResetColor();
-        if (!string.IsNullOrEmpty(hostToken))
-        {
-            Console.WriteLine($"   Host Token: {hostToken}");
-        }
-        else
-        {
-            Console.WriteLine($"   Host GUID: {hostGuid}");
-        }
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
+        Console.WriteLine();
+        Console.WriteLine($"   Schema: Simplified");
+        Console.WriteLine($"   Host Session ID: {hostSessionId}");
         if (userId.HasValue)
         {
             Console.WriteLine($"   User GUID: {userId.Value}");
         }
         Console.WriteLine();
         
+        // INTERACTIVE OPTIONS
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("══════════════════════════════════════");
-        Console.WriteLine("📊 DATABASE:");
-        Console.WriteLine("══════════════════════════════════════");
+        Console.WriteLine("║                         � QUICK ACTIONS                             ║");
         Console.ResetColor();
-        Console.WriteLine($"   Schema: Adaptive (Legacy + Simplified support)");
-        Console.WriteLine($"   Host Session ID: {hostSessionId}");
-        
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Magenta;
-        Console.WriteLine("══════════════════════════════════════");
-        Console.WriteLine("📋 INSTRUCTIONS:");
-        Console.WriteLine("══════════════════════════════════════");
-        Console.ResetColor();
-        Console.WriteLine("   1. Copy the Host GUID for authentication");
-        if (!string.IsNullOrEmpty(participantUrl) && participantUrl.Contains("/session/"))
-        {
-            Console.WriteLine("   2. Share the Participant URL for easy user access");
-        }
-        else if (userId.HasValue)
-        {
-            Console.WriteLine("   2. Share the Participant URL with users to join");
-        }
-        Console.WriteLine("   3. All tokens are stored securely with expiration tracking");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
         Console.WriteLine();
         
-        Console.Write("Press any key to continue...");
-        Console.ReadKey();
+        if (!string.IsNullOrEmpty(hostUrl))
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("   Press [H] to launch Host Authentication page");
+            Console.ResetColor();
+        }
+        
+        if (!string.IsNullOrEmpty(userUrl))
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("   Press [U] to launch User Landing page");
+            Console.ResetColor();
+        }
+        
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("   Press [Any other key] to exit");
+        Console.ResetColor();
         Console.WriteLine();
+        Console.Write("   Your choice: ");
+        
+        var key = Console.ReadKey();
         Console.WriteLine();
-        Console.WriteLine("✅ Host Provisioner completed successfully!");
+        
+        try
+        {
+            if (key.Key == ConsoleKey.H && !string.IsNullOrEmpty(hostUrl))
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("   ✓ Launching Host Authentication page...");
+                Console.ResetColor();
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = hostUrl,
+                    UseShellExecute = true
+                });
+            }
+            else if (key.Key == ConsoleKey.U && !string.IsNullOrEmpty(userUrl))
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("   ✓ Launching User Landing page...");
+                Console.ResetColor();
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = userUrl,
+                    UseShellExecute = true
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"   ✗ Could not launch browser: {ex.Message}");
+            Console.ResetColor();
+        }
+        
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║            ✅ Host Provisioner completed successfully! ✅            ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
+        Console.ResetColor();
+        Console.WriteLine();
         Console.WriteLine("Goodbye! 👋");
         Environment.Exit(0); // Exit the program completely
     }
