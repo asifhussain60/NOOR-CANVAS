@@ -63,6 +63,14 @@
         object-fit: contain;
     }
 
+    /* [DEBUG-WORKITEM:razor-views:logo-size] Phone logo sizing to 175x175px ;CLEANUP_OK */
+    @@media (max-width: 767px) {
+        .user-landing-logo img {
+            width: 175px;
+            height: 175px;
+        }
+    }
+
     /* Main Content */
     .user-landing-content {
         display: flex;

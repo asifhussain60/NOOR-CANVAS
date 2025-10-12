@@ -62,6 +62,14 @@
         object-fit: contain;
     }
 
+    /* [DEBUG-WORKITEM:razor-views:logo-size] Phone logo sizing to 175x175px ;CLEANUP_OK */
+    @@media (max-width: 767px) {
+        .host-landing-logo img {
+            width: 175px;
+            height: 175px;
+        }
+    }
+
     /* Title */
     .host-landing-title {
         font-size: 2.25rem;

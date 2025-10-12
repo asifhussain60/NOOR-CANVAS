@@ -203,6 +203,14 @@
             object-fit: contain;
         }
 
+        /* [DEBUG-WORKITEM:razor-views:logo-size] Phone logo sizing to 175x175px ;CLEANUP_OK */
+        @@media (max-width: 767px) {
+            .noor-canvas-logo img {
+                width: 175px;
+                height: 175px;
+            }
+        }
+
         /* Welcome panel */
         .welcome-panel {
             background-color: #ffffff;
