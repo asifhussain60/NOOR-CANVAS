@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOOR Canvas Font Test</title>
+    <link href="css/fonts/fonts.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 40px;
+            line-height: 1.6;
+        }
+        
+        .font-test {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .font-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .test-inter { font-family: var(--font-inter); }
+        .test-poppins { font-family: var(--font-poppins); }
+        .test-lato { font-family: var(--font-lato); }
+        .test-amiri { font-family: var(--font-amiri); }
+        .test-scheherazade { font-family: var(--font-scheherazade); }
+        .test-playfair { font-family: var(--font-playfair); }
+        
+        .arabic-text {
+            direction: rtl;
+            text-align: right;
+            font-size: 18px;
+        }
+        
+        .weights {
+            margin-top: 10px;
+        }
+        
+        .weight-300 { font-weight: 300; }
+        .weight-400 { font-weight: 400; }
+        .weight-500 { font-weight: 500; }
+        .weight-600 { font-weight: 600; }
+        .weight-700 { font-weight: 700; }
+    </style>
+</head>
+<body>
+    <h1>NOOR Canvas Font System Test</h1>
+    
+    <div class="font-test">
+        <div class="font-name">Inter Font Family</div>
+        <div class="test-inter">
+            <div class="weights">
+                <div class="weight-300">Inter Light (300): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-400">Inter Regular (400): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-500">Inter Medium (500): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-600">Inter SemiBold (600): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-700">Inter Bold (700): The quick brown fox jumps over the lazy dog.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-test">
+        <div class="font-name">Poppins Font Family</div>
+        <div class="test-poppins">
+            <div class="weights">
+                <div class="weight-400">Poppins Regular (400): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-500">Poppins Medium (500): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-600">Poppins SemiBold (600): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-700">Poppins Bold (700): The quick brown fox jumps over the lazy dog.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-test">
+        <div class="font-name">Lato Font Family</div>
+        <div class="test-lato">
+            <div class="weights">
+                <div class="weight-400">Lato Regular (400): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-700">Lato Bold (700): The quick brown fox jumps over the lazy dog.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-test">
+        <div class="font-name">Amiri Font Family (Arabic)</div>
+        <div class="test-amiri arabic-text">
+            <div class="weights">
+                <div class="weight-400">أميري عادي (400): بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div class="weight-700">أميري سميك (700): بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-test">
+        <div class="font-name">Scheherazade New Font Family (Arabic)</div>
+        <div class="test-scheherazade arabic-text">
+            <div class="weights">
+                <div class="weight-400">شهرزاد الجديدة عادي (400): بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                <div class="weight-700">شهرزاد الجديدة سميك (700): بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-test">
+        <div class="font-name">Playfair Display Font Family (Display)</div>
+        <div class="test-playfair">
+            <div class="weights">
+                <div class="weight-400">Playfair Display Regular (400): The quick brown fox jumps over the lazy dog.</div>
+                <div class="weight-700">Playfair Display Bold (700): The quick brown fox jumps over the lazy dog.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="font-test">
+        <div class="font-name">Font Utility Classes Test</div>
+        <div class="font-primary">Primary Font: This uses the primary font family.</div>
+        <div class="font-secondary">Secondary Font: This uses the secondary font family.</div>
+        <div class="font-arabic">Arabic Font: هذا النص باللغة العربية</div>
+        <div class="font-display">Display Font: This is display text for headings.</div>
+    </div>
+    
+    <h2>Session Transcript Sample</h2>
+    <div style="font-family: var(--font-inter);">
+        <p>This text uses the Inter font which should be loaded from our self-hosted files.</p>
+        <p class="font-secondary">This text uses the secondary font (Lato).</p>
+        <p class="font-arabic arabic-text">هذا النص العربي يستخدم خط أميري أو شهرزاد</p>
+    </div>
+</body>
+</html>

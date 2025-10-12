@@ -1,0 +1,783 @@
+﻿hr {
+    border-top: 1px solid #c0c0c0;
+}
+
+.img-786 {
+    width: 350px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.well {
+    background-color: whitesmoke !important;
+    border: 1px solid #948e8e !important;
+    margin-left: 15px;
+}
+
+.border-highlight {
+    border: #206ba4 8px double;
+}
+
+.img-display-border {
+    border: #c0c0c0 2px solid;
+}
+
+.page-header-text {
+    margin-bottom: 10px;
+}
+
+.connection-status {
+    text-align: left;
+    font-size: 14px;
+    padding: 0 !important;
+}
+
+.question-text {
+    height: 50px;
+}
+
+/*.markRed{
+    color: maroon;
+    font-weight: bold;
+}
+
+.badge {
+    background-color: maroon;
+    color: white;
+}*/
+
+.progress {
+    height: 50px;
+    background: #cadeec;
+}
+
+.remaining-time {
+    display: inline-block;
+    padding-top: 10px;
+    font-size: 20px;
+    float: right;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+
+tr.question-row-selected {
+    background-color: #dbc1ff;
+}
+
+.published-question-widget {
+    padding: 35px 5px 35px 5px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f5f6f6+0,dbdce2+21,b8bac6+49,dddfe3+80,f5f6f6+100;Grey+Pipe */
+    background: rgb(245,246,246); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(245,246,246,1) 0%, rgba(219,220,226,1) 21%, rgba(184,186,198,1) 49%, rgba(221,223,227,1) 80%, rgba(245,246,246,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(245,246,246,1) 0%,rgba(219,220,226,1) 21%,rgba(184,186,198,1) 49%,rgba(221,223,227,1) 80%,rgba(245,246,246,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(245,246,246,1) 0%,rgba(219,220,226,1) 21%,rgba(184,186,198,1) 49%,rgba(221,223,227,1) 80%,rgba(245,246,246,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f6f6', endColorstr='#f5f6f6',GradientType=0 ); /* IE6-9 */
+    -ms-border-radius: 10px;
+    border-radius: 10px;
+    border: #a2a2a2 2px solid;
+}
+
+.published-question-title {
+    font-family: 'Tangerine', cursive;
+    font-size: 4em;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+.published-user-question {
+    border: silver 1px solid;
+    padding: 15px 20px 30px 25px;
+    font-size: 1.3em;
+    line-height: 1.4em;
+    background-color: white;
+    -ms-border-radius: 12%;
+    border-radius: 12%;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 90px;
+    text-align: left;
+    -webkit-box-shadow: 0 8px 17px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.19);
+    -ms-box-shadow: 0 8px 17px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.19);
+    box-shadow: 0 8px 17px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.19);
+}
+
+.published-member-icon {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #444242;
+    float: left;
+}
+
+.published-member-asks {
+    margin-bottom: 20px;
+    /*font-size: 20px;*/
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.6em;
+    color: #444242;
+}
+
+.published-question-text {
+    margin-left: 75px;
+    margin-top: 5px;
+    text-align: left;
+    color: #2271ad;
+}
+
+.word-compare-widget {
+    /*width: 400px;
+    display: inherit;
+    text-align: center;*/
+    text-align: center;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    border: #206ba4 2px solid;
+    background-color: white;
+    -ms-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 8px 17px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.19);
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ecf4f4+0,e4eaea+45,e4eaea+49,e4eaea+49,e8edee+50,ecf3f4+72,f5f7f7+100 */
+    background: #ecf4f4; /* Old browsers */
+    background: -moz-linear-gradient(top, #ecf4f4 0%, #e4eaea 45%, #e4eaea 49%, #e4eaea 49%, #e8edee 50%, #ecf3f4 72%, #f5f7f7 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #ecf4f4 0%,#e4eaea 45%,#e4eaea 49%,#e4eaea 49%,#e8edee 50%,#ecf3f4 72%,#f5f7f7 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #ecf4f4 0%,#e4eaea 45%,#e4eaea 49%,#e4eaea 49%,#e8edee 50%,#ecf3f4 72%,#f5f7f7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ecf4f4', endColorstr='#f5f7f7',GradientType=0 ); /* IE6-9 */
+}
+
+.word-compare-arabic {
+    font-family: KashkoleSadaf;
+    font-size: 4em;
+    font-style: normal;
+    color: royalblue;
+    text-align: center;
+    letter-spacing: normal;
+}
+
+.word-compare-1 {
+    position: static;
+    margin-bottom: 30px;
+}
+
+.word-english-small {
+    padding-top: 30px;
+    font-size: 25px;
+    text-transform: capitalize;
+    color: black;
+}
+
+.word-english-large {
+    font-family: 'Tangerine', cursive;
+    font-size: 70px;
+    font-weight: 400;
+    text-transform: capitalize;
+    color: black;
+}
+
+.word-compare-2 {
+}
+
+
+.narration-widget {
+    background: rgb(224,243,250);
+    background: -moz-linear-gradient(top, rgba(224,243,250,1) 0%, rgba(216,240,252,1) 50%, rgba(184,226,246,1) 79%, rgba(182,223,253,1) 100%);
+    background: -webkit-linear-gradient(top, rgba(224,243,250,1) 0%,rgba(216,240,252,1) 50%,rgba(184,226,246,1) 79%,rgba(182,223,253,1) 100%);
+    background: linear-gradient(to bottom, rgba(224,243,250,1) 0%,rgba(216,240,252,1) 50%,rgba(184,226,246,1) 79%,rgba(182,223,253,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0f3fa', endColorstr='#b6dffd',GradientType=0 );
+    border: rgb(8, 7, 90) 2px solid;
+    -ms-border-radius: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 30px 15px;
+    box-shadow: 0 8px 17px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.19);
+}
+
+
+.narration-arabic {
+    font-family: KashkoleGhalib;
+    font-size: 3em !important;
+    text-align: center;
+    word-spacing: 5px;
+    line-height: 60px;
+    padding: 10px;
+    width: 90%;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #0a610a;
+}
+
+.narration-english {
+    margin-top: 10px;
+    color: #00628B;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    padding-bottom: 20px;
+    line-height: 30px;
+}
+
+.green {
+    color: green !important;
+}
+
+.red {
+    color: red !important;
+}
+
+.background-red {
+    background-color: red;
+    color: white;
+}
+
+.background-green {
+    background-color: green;
+    color: white;
+}
+
+.question-div {
+    border: silver 2px solid;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: whitesmoke;
+}
+
+.question-caption {
+    display: inline-block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 17px;
+    width: 100%;
+}
+
+.alert-success {
+    border: #7e8c94 2px solid;
+    margin-left: 15px;
+}
+
+.ready-for-data {
+    border: #7e8c94 2px solid;
+    margin-top: 50px;
+    -ms-border-radius: 15px;
+    border-radius: 15px;
+    padding: 50px 20px;
+    margin-left: 0 !important;
+    text-align: center;
+    color: #3c763d;
+    background-color: #dff0d8;
+}
+
+.sweet-alert h2 {
+    line-height: 25px;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.btn-u {
+    padding: 4px 10px;
+}
+
+.sweet-alert button {
+    background-color: #206ba4 !important;
+}
+
+.arabic-text-tablet {
+    padding: 40px 10px 30px 10px;
+    background-color: whitesmoke;
+    border: 2px #d6d3d3 solid;
+    text-align: center;
+    -ms-border-radius: 7px;
+    border-radius: 7px;
+}
+
+.tab-content {
+    background-color: whitesmoke;
+}
+
+.salaam-content {
+    padding: 10px;
+    border: #c0c0c0 2px solid;
+    background-color: white;
+    -ms-border-radius: 5px;
+    border-radius: 5px;
+}
+
+    .salaam-content .amiriCrimson {
+        text-align: center !important;
+    }
+
+    .salaam-content .salaam-translation {
+        text-align: center;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        font-family: 'Lato', sans-serif;
+        font-size: 1.2em;
+        color: #2271ad !important;
+    }
+
+
+.client-content-separator {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-top: #c0c0c0 2px solid;
+}
+
+.host-question-container {
+    margin-top: 25px;
+    padding: 30px 30px 20px;
+    border: 2px solid #206ba4;
+    width: 70%;
+}
+
+.btn-publish-root {
+    background-color: #438e43;
+    color: white;
+    padding: 20px;
+}
+
+
+
+ul.question-list {
+    margin: 1em 0;
+}
+
+    ul.question-list > li {
+        padding: 0;
+        margin: 5px;
+        margin-left: 1em;
+        list-style: none;
+        color: #206ba4;
+    }
+
+        ul.question-list > li:before {
+            content: '\f059';
+            font-family: 'FontAwesome';
+            float: left;
+            margin-left: -1.3em;
+            color: #206ba4;
+        }
+
+.user-name {
+    color: darkblue;
+    padding-bottom: 25px;
+    font-size: larger;
+}
+
+.vote-container {
+    padding: 20px;
+    border: 1px solid;
+    -ms-border-radius: 10px;
+    border-radius: 10px;
+    background-color: white;
+    margin-bottom: 20px;
+}
+.vote-agenda-caption {
+    font-family: 'Oswald', sans-serif;
+    padding-top: 10px;
+    margin-bottom: 30px;
+    color: #206ba4;
+    font-size: 25px;
+}
+.vote-title {
+    color: green;
+    padding: 20px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 25px;}
+
+.vote-up-caption {
+        font-weight: bold;
+    color: green;
+    font-size: 20px;
+}
+
+.vote-down-caption {
+        font-weight: bold;
+    color: red;
+    font-size: 20px;
+}
+
+.session-info-container {
+    border: #c0c0c0 2px solid;
+    -ms-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.session-info-title {
+    padding: 20px;
+    border-bottom: #c0c0c0 2px solid;
+    background-color: #efede1;
+    color: #206ba4 !important;
+    font-size: 2em;
+}
+
+.session-info-content {
+    background-color: white;
+    padding: 25px;
+    font-size: 1.1em;
+}
+
+.session-content-summary > p > img,
+.session-content-summary > img {
+    max-width: 60% !important;
+    height: auto;
+}
+
+.session-content-summary img.fr-dii.fr-fir {
+    max-width: 45% !important;
+}
+
+.session-content-summary {
+    font-size: 1em !important;
+}
+
+    .session-content-summary span.inlineArabic {
+        font-size: 1.5em !important;
+    }
+
+    .session-content-summary .amiriCrimson {
+        font-size: 1.5em !important;
+        text-align: left;
+    }
+
+    .session-content-summary h2 {
+        font-size: 1.3em;
+    }
+
+.session-content-title {
+    font-size: 1.5em;
+    padding: 20px;
+    text-align: center;
+    color: #206ba4 !important;
+    border-top: #c0c0c0 2px solid;
+    border-bottom: #c0c0c0 2px solid;
+    margin-bottom: 30px;
+}
+
+.quran-hub-ayat-container {
+    direction: rtl;
+    display: inline-block;
+    width: 96%;
+    text-align: right;
+    padding: 20px 5px !important;
+    margin-right: 20px;
+}
+
+.quran-ayats-hub {
+    font-family: KashkoleAmiri;
+    font-size: 2em;
+    font-style: normal;
+    color: #206ba4;
+    line-height: 1.8em !important;
+    word-spacing: 0;
+    letter-spacing: normal;
+    direction: rtl !important;
+    text-align: right;
+}
+
+/* Ensure highlighting preserves font properties for hub Quran text */
+.quran-ayats-hub .highlight-token {
+    font-family: KashkoleAmiri !important;
+    font-size: inherit !important;
+    font-style: normal !important;
+    line-height: inherit !important;
+    word-spacing: inherit !important;
+    letter-spacing: inherit !important;
+    direction: inherit !important;
+    text-align: inherit !important;
+    color: red !important;
+}
+
+/* Hub highlighting with ayah-hub-highlight class */
+.quran-ayats-hub .ayah-hub-highlight {
+    font-family: KashkoleAmiri !important;
+    font-size: 2em !important;
+    font-style: normal !important;
+    line-height: 1.8em !important;
+    word-spacing: 0 !important;
+    letter-spacing: normal !important;
+    direction: rtl !important;
+    text-align: right !important;
+    background-color: #ffff81 !important;
+    color: #206ba4 !important;
+}
+
+.ayah-hub-highlight {
+    background-color: #ffff81 !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    line-height: inherit !important;
+    word-spacing: inherit !important;
+    letter-spacing: inherit !important;
+    direction: inherit !important;
+    text-align: inherit !important;
+}
+
+.user-typing {
+    color: red;
+    font-size: larger;
+    position: fixed;
+    bottom: 50px;
+    right: 30px;
+    padding: 10px;
+    border: #C0C0C0 3px solid !important;
+    border-radius: 20%;
+    background-color: yellow;
+}
+
+
+ul.preloader-list > li {
+    list-style: none;
+}
+
+    ul.preloader-list > li > a {
+        font-size: small;
+        text-transform: capitalize;
+        color: maroon;
+    }
+
+div.user-register > ul > li.uib-typeahead-match > a {
+    font-family: "Tahoma";
+    font-size: medium;
+    text-align: left;
+}
+
+
+/*iphone 5*/
+@media only screen and (min-device-width: 320px) and (max-device-width: 568px) {
+    .img-786 {
+        width: 90%;
+    }
+
+    .well {
+        margin-left: 0 !important;
+    }
+
+    .alert-success {
+        margin-left: 0 !important;
+    }
+
+    .arabic-text-tablet {
+        padding: 20px 10px 15px 10px;
+    }
+
+    .session-info-title {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+
+    .session-content-summary {
+        font-size: 0.9em !important;
+    }
+
+        .session-content-summary ul {
+            padding-left: 20px;
+        }
+
+    .session-info-content {
+        padding: 15px;
+    }
+
+    .session-content-summary > p > img,
+    .session-content-summary > img {
+        max-width: 50% !important;
+        height: auto;
+    }
+
+    .published-member-icon {
+        float: none;
+        text-align: center;
+    }
+
+    .published-question-text {
+        margin-left: 10px;
+        font-size: 20px;
+    }
+
+    .word-compare-1 {
+        position: static;
+        margin-bottom: 20px;
+    }
+
+    .narration-widget {
+        padding: 10px;
+    }
+
+    .narration-arabic {
+        font-size: 2.5em !important;
+        word-spacing: 3px;
+        padding: 5px;
+        line-height: 50px;
+    }
+
+    .word-compare-arabic {
+        font-size: 3.5em;
+    }
+}
+
+/*iphone 6*/
+@media only screen and (min-device-width: 375px) and (max-device-width: 736px) {
+
+    .img-786 {
+        width: 90%;
+    }
+
+    #userToRegister {
+        width: 100% !important;
+    }
+
+    .user-register {
+        text-align: center;
+    }
+
+        .user-register > button {
+            margin-top: 10px;
+        }
+
+    .well {
+        margin-left: 0 !important;
+    }
+
+    .alert-success {
+        margin-left: 0 !important;
+    }
+
+
+    .arabic-text-tablet {
+        padding: 20px 10px 15px 10px;
+    }
+
+    .session-info-title {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+
+    .session-info-content {
+        padding: 15px;
+    }
+
+    .session-content-summary {
+        font-size: 0.9em !important;
+    }
+
+        .session-content-summary ul {
+            padding-left: 20px;
+        }
+
+        .session-content-summary > p > img,
+        .session-content-summary > img {
+            max-width: 50% !important;
+            height: auto;
+        }
+
+    .feedback-question {
+        font-size: 20px;
+    }
+
+    .feedback-rating {
+        text-align: center;
+    }
+
+    .published-member-icon {
+        float: none;
+        text-align: center;
+    }
+
+    .published-question-text {
+        margin-left: 10px;
+        font-size: 20px;
+    }
+
+    .narration-widget {
+        padding: 10px;
+    }
+
+    .narration-arabic {
+        font-size: 2.5em !important;
+        word-spacing: 3px;
+        padding: 5px;
+        line-height: 50px;
+    }
+
+    .word-compare-arabic {
+        font-size: 3.5em;
+    }
+}
+/*iphone 6P*/
+@media only screen and (min-device-width: 414px) and (max-device-width: 736px) {
+    .img-786 {
+        width: 90%;
+    }
+
+
+
+    .well {
+        margin-left: 0 !important;
+    }
+
+    .alert-success {
+        margin-left: 0 !important;
+    }
+
+
+
+    .arabic-text-tablet {
+        padding: 20px 10px 15px 10px;
+    }
+
+    .session-info-title {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+
+    .session-info-content {
+        padding: 15px;
+    }
+
+    .session-content-summary {
+        font-size: 0.9em !important;
+    }
+
+        .session-content-summary ul {
+            padding-left: 20px;
+        }
+
+        .session-content-summary > p > img,
+        .session-content-summary > img {
+            max-width: 50% !important;
+            height: auto;
+        }
+
+    .feedback-question {
+        font-size: 20px;
+    }
+
+    .feedback-rating {
+        text-align: center;
+    }
+
+    .published-member-icon {
+        float: none;
+        text-align: center;
+    }
+
+    .published-question-text {
+        margin-left: 10px;
+        font-size: 20px;
+    }
+
+    .narration-widget {
+        padding: 10px;
+    }
+
+    .narration-arabic {
+        font-size: 2.5em !important;
+        word-spacing: 3px;
+        padding: 5px;
+        line-height: 50px;
+    }
+
+    .word-compare-arabic {
+        font-size: 3.5em;
+    }
+}

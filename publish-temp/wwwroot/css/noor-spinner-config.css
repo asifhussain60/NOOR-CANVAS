@@ -1,0 +1,123 @@
+/* NOOR Canvas Loading Spinner Configuration */
+/* Add this to your site.css or create a custom configuration file */
+
+:root {
+  /* Color Theme Configuration - NOOR Canvas Green Theme */
+  --noor-primary-color: #10b981;        /* Success Green */
+  --noor-secondary-color: #26b050;      /* NOOR Canvas Green */
+  --noor-accent-color: #90EE90;         /* Light Green */
+  --noor-text-primary: #166534;         /* Dark Green */
+  --noor-text-secondary: #16a34a;       /* Medium Green */
+  
+  /* Animation Timing */
+  --noor-animation-duration: 2s;
+  --noor-logo-float-duration: 3s;
+  --noor-dot-animation-duration: 1.4s;
+  
+  /* Size Configuration */
+  --noor-logo-size: 90px;
+  --noor-logo-size-mobile: 70px;
+  --noor-dot-size: 12px;
+  --noor-dot-size-mobile: 10px;
+  
+  /* Backdrop Configuration */
+  --noor-backdrop-blur: 12px;
+  --noor-backdrop-opacity: 0.98;
+  
+  /* Z-Index Configuration */
+  --noor-spinner-z-index: 10000;
+}
+
+/* Custom Theme Overrides */
+.noor-loading-overlay {
+  z-index: var(--noor-spinner-z-index);
+}
+
+.noor-loading-backdrop {
+  backdrop-filter: blur(var(--noor-backdrop-blur));
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, var(--noor-backdrop-opacity)) 0%, 
+    rgba(248, 250, 252, var(--noor-backdrop-opacity)) 50%, 
+    rgba(255, 255, 255, var(--noor-backdrop-opacity)) 100%);
+}
+
+.noor-loading-logo {
+  width: var(--noor-logo-size);
+  height: var(--noor-logo-size);
+  animation-duration: var(--noor-logo-float-duration);
+}
+
+.noor-spinner-dot {
+  width: var(--noor-dot-size);
+  height: var(--noor-dot-size);
+  background: linear-gradient(135deg, 
+    var(--noor-primary-color) 0%, 
+    var(--noor-secondary-color) 100%);
+  animation-duration: var(--noor-dot-animation-duration);
+}
+
+.noor-loading-text h3 {
+  color: var(--noor-text-primary);
+}
+
+.noor-loading-text p {
+  color: var(--noor-text-secondary);
+}
+
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+  .noor-loading-logo {
+    width: var(--noor-logo-size-mobile);
+    height: var(--noor-logo-size-mobile);
+  }
+  
+  .noor-spinner-dot {
+    width: var(--noor-dot-size-mobile);
+    height: var(--noor-dot-size-mobile);
+  }
+}
+
+/* Dark Theme Configuration */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --noor-backdrop-opacity: 0.95;
+    --noor-text-primary: #F5F5F5;
+    --noor-text-secondary: #D1D1D1;
+    --noor-secondary-color: #DEB887;
+  }
+  
+  .noor-loading-backdrop {
+    background: linear-gradient(135deg, 
+      rgba(30, 30, 30, var(--noor-backdrop-opacity)) 0%, 
+      rgba(20, 20, 20, var(--noor-backdrop-opacity)) 50%, 
+      rgba(30, 30, 30, var(--noor-backdrop-opacity)) 100%);
+  }
+}
+
+/* Custom Brand Colors Example */
+.noor-loading-overlay.brand-green {
+  --noor-primary-color: #10b981;      /* Success Green */
+  --noor-secondary-color: #26b050;    /* NOOR Canvas Green */
+  --noor-accent-color: #90EE90;       /* Light Green */
+  --noor-text-primary: #166534;       /* Dark Green */
+  --noor-text-secondary: #16a34a;     /* Medium Green */
+}
+
+.noor-loading-overlay.brand-blue {
+  --noor-primary-color: #1E40AF;
+  --noor-secondary-color: #3B82F6;
+  --noor-accent-color: #93C5FD;
+}
+
+/* Animation Speed Variations */
+.noor-loading-overlay.fast-animation {
+  --noor-animation-duration: 1s;
+  --noor-logo-float-duration: 2s;
+  --noor-dot-animation-duration: 0.8s;
+}
+
+.noor-loading-overlay.slow-animation {
+  --noor-animation-duration: 4s;
+  --noor-logo-float-duration: 6s;
+  --noor-dot-animation-duration: 2s;
+}

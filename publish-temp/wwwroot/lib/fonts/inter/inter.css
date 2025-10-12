@@ -1,0 +1,18 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Inter Font Variables for NOOR Canvas */
+:root {
+  --font-inter: 'Inter', sans-serif;
+}
+
+/* Font weight classes */
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Typography system */
+body {
+  font-family: var(--font-inter);
+  font-weight: 400;
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Transcript - Redirecting to Enhanced Viewer</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full text-center">
+        <div class="mb-6">
+            <i class="fas fa-rocket text-6xl text-blue-500 mb-4 animate-pulse"></i>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Enhanced Session Viewer Available!</h1>
+            <p class="text-gray-600 mb-6">This page has been upgraded with a modern, dynamic session viewer</p>
+        </div>
+        
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-green-800 mb-2">✨ New Features:</h3>
+            <ul class="text-sm text-green-700 text-left space-y-1">
+                <li>✅ <strong>Fixed Arabic Font Rendering</strong> - No more corrupted UTF-8 bytes</li>
+                <li>✅ <strong>Any Session ID</strong> - Load content for any session number</li>
+                <li>✅ <strong>Modern UI</strong> - Responsive design with loading states</li>
+                <li>✅ <strong>URL Parameters</strong> - Direct session access via URL</li>
+                <li>✅ <strong>Performance Metrics</strong> - View load times and content size</li>
+                <li>✅ <strong>Error Handling</strong> - Graceful error messages and retry options</li>
+            </ul>
+        </div>
+        
+        <div class="space-y-4">
+            <a href="/session-transcript-viewer.html?sessionId=212" 
+               class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 text-lg">
+                <i class="fas fa-arrow-right mr-2"></i>
+                Go to Enhanced Viewer (Session 212)
+            </a>
+            
+            <div class="flex justify-center space-x-4 text-sm">
+                <a href="/session-transcript-viewer.html" class="text-blue-600 hover:underline">
+                    📋 Empty Viewer
+                </a>
+                <a href="/session-transcript-viewer.html?sessionId=215" class="text-blue-600 hover:underline">
+                    📖 Session 215
+                </a>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-xs text-gray-400 border-t pt-4">
+            <p>Auto-redirecting in <span id="countdown" class="font-bold text-blue-600">5</span> seconds...</p>
+            <p class="mt-2">The new viewer ensures proper Arabic Unicode rendering and dynamic content loading</p>
+        </div>
+    </div>
+
+    <script>
+        // Get any existing session ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('sessionId') || urlParams.get('session') || '212';
+        
+        // Update the main link to include the session ID
+        const mainLink = document.querySelector('a[href*="session-transcript-viewer.html"]');
+        mainLink.href = `/session-transcript-viewer.html?sessionId=${sessionId}`;
+        
+        // Countdown and auto-redirect
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                window.location.href = `/session-transcript-viewer.html?sessionId=${sessionId}`;
+            }
+        }, 1000);
+        
+        // Allow user to cancel auto-redirect by interacting with the page
+        document.addEventListener('click', () => {
+            clearInterval(timer);
+            countdownElement.parentElement.innerHTML = '<p>Auto-redirect cancelled. Click the button above to continue.</p>';
+        });
+        
+        console.log(`Redirecting from old session viewer to new enhanced viewer with session ID: ${sessionId}`);
+    </script>
+</body>
+</html>
