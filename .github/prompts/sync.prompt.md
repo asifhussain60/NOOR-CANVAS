@@ -57,6 +57,8 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
   - All `.github/instructions/Links/*.MD` files
   - `Workspaces/Copilot/learning/` patterns
   - `Workspaces/Global/FileMetrics.md` (documentation drift tracking)
+  - `.github/_Portable/` templates (prompts, instructions, shared modules)
+  - Template version synchronization and placeholder validation
 
 ### Expected Outcomes
 - Synchronized documentation reflecting current system state
@@ -183,6 +185,25 @@ This guarantees rollback capability if sync introduces instability.
     - Merge: step-0-*.md files if similar across prompts → single shared file
     - Combine: Duplicate mandate sections → single shared mandate file
   
+- **Portable System Synchronization (_Portable/):**
+  - **Keep generic templates in sync** with project-specific prompts/instructions
+  - **Bidirectional sync workflow:**
+    - `.github/prompts/*.md` → `.github/_Portable/prompts/*.md.template`
+    - `.github/instructions/*.md` → `.github/_Portable/instructions/*.md.template`
+    - `.github/prompts/shared/*.md` → `.github/_Portable/prompts/shared/*.md` (no template suffix - these are generic)
+  - **Template Conversion Rules:**
+    - Remove project-specific paths (replace with `{{PROJECT_ROOT}}`, `{{WORKSPACE_ROOT}}`)
+    - Remove hardcoded database names (replace with `{{DATABASE_NAME}}`)
+    - Remove specific URLs/ports (replace with `{{BASE_URL}}`, `{{PORT}}`)
+    - Remove company/project names (replace with `{{PROJECT_NAME}}`)
+    - Keep generic workflow, structure, and mandate patterns intact
+    - Preserve shared modules exactly as-is (step-0-server-cleanup.md, step-1-checkpoint.md, debug-logging-mandate.md, etc.)
+  - **Version synchronization:**
+    - Update version numbers in both locations
+    - Maintain Last Updated timestamps
+    - Ensure feature parity between project-specific and portable versions
+  - **Logger.LogInformation("[DEBUG-WORKITEM:sync:portable] Syncing _Portable templates with source prompts/instructions ;CLEANUP_OK");** (if debug-level=simple/trace)
+  
 - **Cleanup (folded duties):**  
   - Remove unused files and code.  
   - Eliminate duplicate logic.  
@@ -226,6 +247,13 @@ This guarantees rollback capability if sync introduces instability.
   - No duplicate YAML headers exist.  
   - SystemIndex.md accurately reflects all active prompts and system state.
   - SystemIndex.md auto-updated with latest architecture changes.
+- **Validate _Portable templates:**
+  - `.github/_Portable/prompts/` templates match source `.github/prompts/` structure
+  - `.github/_Portable/instructions/` templates match source `.github/instructions/` structure
+  - Shared modules (`.github/_Portable/prompts/shared/`) are identical to source
+  - No project-specific details leaked into templates (database names, URLs, paths)
+  - Template placeholders follow convention: `{{VARIABLE_NAME}}`
+  - Version numbers synchronized between project-specific and portable files
 - Confirm solution builds with **zero errors and zero warnings**.### 5. Confirm
 - Provide a human-readable summary of what was synced and cleaned.  
 - Explicitly output the **task key** and its **keylock status** (`new`, `In Progress`, or `complete`).  
@@ -260,6 +288,11 @@ At the end of every sync:
   - All prompts follow standardized format (Debug Logging, Warning Handling, Parameters).  
   - No format variations that could confuse LLM parsing.  
   - SystemIndex.md is accurate, complete, and auto-updated with latest system changes.  
+- **_Portable templates must be synchronized:**
+  - All templates in `.github/_Portable/` match source structure
+  - Shared modules are identical between project and portable versions
+  - Generic templates have no project-specific details
+  - Version numbers synchronized across both locations
 - The solution must build with **zero errors and zero warnings**.  
 - Analyzers, linters, and tests must all pass.  
 - **Chat session context must be documented** in `.github/copilot-chats/` for continuity.  
