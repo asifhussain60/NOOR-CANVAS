@@ -12,6 +12,7 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
 ### When to Use
 - **Workspace Maintenance**: Regular cleanup of build artifacts and temporary files
 - **Documentation Consolidation**: Merge redundant MD files, eliminate duplication
+- **Key Stream Consolidation**: Merge related keys, archive completed/stale keys
 - **Folder Reorganization**: Move misplaced files to appropriate locations
 - **Root Cleanup**: Keep root directory minimal with only essential files
 - **Post-Deployment**: Clean up deployment artifacts and temporary outputs
@@ -23,9 +24,11 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
 @workspace /cleanup
 @workspace /cleanup target=build-artifacts
 @workspace /cleanup target=documentation
+@workspace /cleanup target=key-streams
 @workspace /cleanup target=temp-files
 @workspace /cleanup scope=root-only
 @workspace /cleanup dry-run=true
+@workspace /cleanup consolidate-keys=false
 ```
 
 ### Integration with Other Agents
@@ -39,6 +42,7 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
 - Organized Workspaces structure
 - Removed build artifacts and temporary files
 - Consolidated documentation
+- Consolidated key data streams (merged related keys, archived stale keys)
 - Updated .gitignore if needed
 - Cleanup report with statistics
 
@@ -48,7 +52,7 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
 
 - **target** *(optional, default=`all`)*  
   Specifies what to clean up.  
-  Options: `all`, `build-artifacts`, `documentation`, `temp-files`, `node-modules`, `test-results`
+  Options: `all`, `build-artifacts`, `documentation`, `temp-files`, `node-modules`, `test-results`, `key-streams`
   
 - **scope** *(optional, default=`workspace`)*  
   Scope of cleanup operation.  
@@ -58,6 +62,11 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
   If true, shows what would be cleaned without making changes.  
   Options: `true`, `false`
   
+- **consolidate-keys** *(optional, default=`true`)*  
+  Whether to consolidate related key data streams.  
+  Options: `true`, `false`
+  - `true`: Merge similar scope keys, archive stale keys (default)
+  - `false`: Leave key data streams untouched
 - **consolidate-docs** *(optional, default=`true`)*  
   Whether to consolidate redundant documentation files.  
   Options: `true`, `false`
@@ -97,12 +106,18 @@ The **Cleanup Agent** performs comprehensive workspace cleanup by removing obsol
    - Outdated completion reports
    - Legacy migration guides (if superseded)
 
-5. **Root Directory**:
+5. **Key Data Stream Consolidation**:
+   - Identify completed keys with similar scope
+   - Find keys that can be merged (e.g., multiple UI fixes under same component)
+   - Locate archived keys with valuable patterns to preserve
+   - Detect stale in-progress keys (>30 days inactive)
+
+6. **Root Directory**:
    - Identify files that should move to Workspaces
    - Standalone scripts that should be in Scripts/
    - Documentation that should be in Workspaces/Documentation/
 
-6. **Node Modules**:
+7. **Node Modules**:
    - Unused packages in package.json
    - Orphaned node_modules (if package.json changed)
 
@@ -114,6 +129,7 @@ Build Artifacts: {X} files ({Y} MB)
 Test Results: {X} files ({Y} MB)
 Temp Files: {X} files ({Y} MB)
 Documentation: {X} redundant files
+Key Data Streams: {X} consolidatable keys
 Root Files: {X} candidates for relocation
 Total Reclaimable: {Y} MB
 
@@ -207,7 +223,61 @@ Get-ChildItem -Path "." -Recurse -Include "*.tmp", "*.log" |
    Move-Item "IIS-CONFIGURATION-SUMMARY.md" -Destination "Workspaces/Documentation/Deployment/"
    ```
 
-#### 3.5. Root Directory Cleanup
+#### 3.5. Key Data Stream Consolidation
+**Merge related keys and clean up stale data:**
+
+1. **Identify consolidation candidates**:
+   ```powershell
+   # Find completed keys
+   Get-ChildItem -Path "Workspaces/Copilot/prompts.keys" -Recurse -Filter "*.md" |
+     Where-Object { $_.Name -notlike "work-log.md" -and $_.Name -notlike "template*" } |
+     Select-String -Pattern "Status.*complete" |
+     Select-Object Path
+   ```
+
+2. **Consolidation rules**:
+   - **Merge similar scope keys**: If 3+ keys all modify same component, consolidate into one
+   - **Preserve git history**: Copy commit SHAs from all merged keys
+   - **Combine work logs**: Append all work log entries chronologically
+   - **Update file mappings**: Merge all file references into unified list
+   - **Archive originals**: Move merged keys to `Workspaces/Copilot/prompts.keys/_archived/consolidated-{date}/`
+
+3. **Example consolidation workflow**:
+   ```markdown
+   # Before: 3 separate keys
+   - hcp-fix-1.md (Status: complete)
+   - hcp-fix-2.md (Status: complete)
+   - hcp-enhancement.md (Status: complete)
+   
+   # After: 1 consolidated key
+   - hcp.md (Status: complete, combined history)
+     - Work log includes all 3 keys' entries
+     - File mappings include all affected files
+     - Git commits preserved from all 3 keys
+     - Functionality registry merged
+   ```
+
+4. **Stale key cleanup**:
+   ```powershell
+   # Find keys inactive >30 days with status=in-progress
+   Get-ChildItem -Path "Workspaces/Copilot/prompts.keys/*/*.md" |
+     Where-Object { 
+       $_.LastWriteTime -lt (Get-Date).AddDays(-30) -and
+       (Get-Content $_.FullName | Select-String "Status.*in-progress")
+     } |
+     ForEach-Object {
+       # Archive or prompt user for decision
+       Write-Host "Stale key found: $($_.Directory.Name) - Last modified: $($_.LastWriteTime)"
+     }
+   ```
+
+5. **Archive completed keys** (optional):
+   - Keys marked complete for >90 days
+   - Move to `_archived/year-quarter/` structure
+   - Preserve for historical reference
+   - Extract patterns to learning infrastructure first
+
+#### 3.6. Root Directory Cleanup
 **Keep only essential files in root:**
 
 **Essential Root Files** (keep):
@@ -291,6 +361,21 @@ npm prune
 |--------------|------|----------|
 | {files} | {target} | {archive_path} |
 
+## Consolidated Key Data Streams
+| Merged Keys | Into | Work Log Entries Preserved | Git Commits |
+|-------------|------|---------------------------|-------------|
+| {key1}, {key2}, {key3} | {consolidated-key} | {X entries} | {Y commits} |
+
+## Archived Keys
+| Key | Status | Last Modified | Archive Location |
+|-----|--------|---------------|------------------|
+| {key} | {status} | {date} | {archive_path} |
+
+## Consolidated Documentation
+| Merged Files | Into | Archived |
+|--------------|------|----------|
+| {files} | {target} | {archive_path} |
+
 ## Validation Results
 - ✅ Build: PASS
 - ✅ Git Status: Clean
@@ -338,6 +423,7 @@ git reset --hard {checkpoint_sha}
 | `test-results` | Playwright test artifacts, screenshots | `test-results/`, `PlayWright/test-results/` |
 | `temp-files` | Temporary files, logs, cache | `TEMP/`, `*.tmp`, `*.log` |
 | `documentation` | Redundant docs, outdated summaries | `Workspaces/**/*.md` (analysis) |
+| `key-streams` | Consolidate related keys, archive stale keys | `Workspaces/Copilot/prompts.keys/` |
 | `node-modules` | Unused npm packages | `node_modules/` |
 | `all` | All of the above | Entire workspace |
 
