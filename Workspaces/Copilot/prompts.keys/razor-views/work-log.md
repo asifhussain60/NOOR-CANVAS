@@ -84,6 +84,28 @@
   - Annotation instructions panel optimized for mobile
 - **Status**: ✅ Built successfully with warnings (unrelated), committed to git
 
+## Logo Size Fix
+
+### ✅ Logo Sizing Update (2025-10-12)
+- **Commit**: fix(razor-views): Constrain logo size to 250x250px across all views (fabc6f7b)
+- **Issue**: Logos displaying too large across all views
+- **Fix Applied**:
+  - Host-SessionOpener.razor: Added `.host-opener-logo img` sizing
+  - UserLanding.razor: Added `.user-landing-logo img` sizing
+  - SessionWaiting.razor: Added `.noor-canvas-logo img` sizing
+  - HostLanding.razor: Added `.host-landing-logo img` sizing
+  - CreateSession.razor: Created `<style>` block with `.noor-canvas-logo img` sizing
+- **CSS Pattern**:
+  ```css
+  .logo-class img {
+      width: 250px;
+      height: 250px;
+      object-fit: contain;
+  }
+  ```
+- **Debug Markers**: Added with simple debug level
+- **Status**: ✅ Built successfully with warnings (unrelated), committed to git
+
 ## Views Requiring Updates
 
 ### ✅ Already Clean (No inline styles found)
