@@ -14,10 +14,28 @@ Prepare and validate production deployment for Noor Canvas application with prop
 ## File Mappings
 
 ### Database
-- `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Complete canvas schema & data migration script (KSESSIONS_DEV → KSESSIONS)
+- `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Complete canvas schema & data migration script (KSESSIONS_DEV → KSESSIONS) [UPDATED: SessionId now INT FK]
 - `Workspaces/Scripts/KSESSIONS_DDL_Migration_20251012.sql` - CASCADE DELETE validation and configuration
+- `Workspaces/Scripts/Fix_Canvas_Sessions_FK_20251012.sql` - **NEW**: Fix SessionId schema (BIGINT IDENTITY → INT FK to dbo.Sessions)
+- `Workspaces/Scripts/README_Fix_Canvas_Sessions_FK.md` - **NEW**: Fix script documentation
 - `Scripts/TruncateCanvasSessions.sql` - Safe truncation of canvas.Sessions for fresh start (production: KSESSIONS)
 - `Scripts/canvas.CleanCanvas.sql` - Stored procedure for canvas schema cleanup (development: KSESSIONS_DEV)
+
+### Models (Updated: long → int)
+- `SPA/NoorCanvas/Models/Simplified/Session.cs` - Canvas session model [UPDATED: SessionId INT FK]
+- `SPA/NoorCanvas/Models/Simplified/Participant.cs` - Participant model [UPDATED: SessionId FK INT]
+- `SPA/NoorCanvas/Models/Simplified/SessionData.cs` - Session data model [UPDATED: SessionId FK INT]
+
+### Services (Updated: long sessionId → int sessionId)
+- `SPA/NoorCanvas/Services/SimplifiedTokenService.cs` - Token management
+- `SPA/NoorCanvas/Services/SecureTokenService.cs` - Secure token operations
+- `SPA/NoorCanvas/Services/AssetHtmlProcessingService.cs` - HTML processing
+- `SPA/NoorCanvas/Services/AssetDetectionService.cs` - Asset detection
+- `SPA/NoorCanvas/Services/HostAssetService.cs` - Host asset management
+- `SPA/NoorCanvas/Services/AnnotationService.cs` - Annotation operations
+
+### Tools (Updated: long → int)
+- `Tools/HostProvisioner/HostProvisioner/Program.cs` - Host GUID provisioning [UPDATED: int sessionId]
 
 ### Configuration
 - `SPA/NoorCanvas/appsettings.Production.json` - Production connection strings (KSESSIONS, KQUR)
@@ -92,7 +110,7 @@ Prepare and validate production deployment for Noor Canvas application with prop
 
 ---
 ## [2025-10-12 16:30 UTC] - task
-**Status**: in-progress | **Phase**: deployment-automation | **Commit**: pending
+**Status**: in-progress | **Phase**: deployment-automation | **Commit**: 2eed0a6
 **Work**:
 - Enhanced ncdeploy.ps1 deployment script:
   * Added automatic exclusion of dev/test files during deployment
@@ -111,6 +129,36 @@ Prepare and validate production deployment for Noor Canvas application with prop
 
 **Files**: 2 modified (ncdeploy.ps1, Scripts/TruncateCanvasSessions.sql) | **Tests**: Pending manual validation | **Build**: N/A
 **Next**: Test deployment script, validate canvas.Sessions truncation in production
+---
+
+---
+## [2025-10-12 17:45 UTC] - task
+**Status**: in-progress | **Phase**: schema-fix | **Commit**: c2b31f7
+**Work**:
+- Fixed canvas.Sessions.SessionId schema issue:
+  * Changed from BIGINT IDENTITY (auto-increment) to INT FK referencing dbo.Sessions.SessionID
+  * Removed auto-increment - SessionId must now reference existing Islamic learning sessions
+  * Allows HostProvisioner to insert explicit SessionId values
+  * Ensures canvas sessions properly linked to dbo.Sessions (legacy Islamic content database)
+- Created Fix_Canvas_Sessions_FK_20251012.sql:
+  * Idempotent DDL migration script for KSESSIONS_DEV and KSESSIONS
+  * Validates existing SessionId values reference valid dbo.Sessions.SessionID
+  * Drops dependent FKs, rebuilds table, migrates data (BIGINT→INT), recreates FKs
+  * Transaction-safe with comprehensive error handling and rollback
+  * Adds FK constraint: canvas.Sessions.SessionId → dbo.Sessions.SessionID (ON DELETE NO ACTION)
+- Updated KSESSIONS_Canvas_Migration_Script.sql with correct schema
+- Updated C# models:
+  * Session.cs: `long SessionId` → `int SessionId` (FK to dbo.Sessions.SessionID)
+  * Participant.cs: SessionId FK updated to INT
+  * SessionData.cs: SessionId FK updated to INT
+- Updated all services and controllers: 74 files changed
+  * SimplifiedTokenService, SecureTokenService, AssetHtmlProcessingService, AssetDetectionService
+  * HostAssetService, AnnotationService, HostController, AdminController
+  * All SessionId parameters changed from `long` to `int`
+- Updated HostProvisioner tool to use `int sessionId`
+
+**Files**: 74 modified | **Tests**: N/A (schema change) | **Build**: PASS (0 errors, 0 warnings)
+**Next**: Execute Fix_Canvas_Sessions_FK_20251012.sql on KSESSIONS_DEV, test HostProvisioner, run sync prompt
 ---
 
 ## Migration Results
