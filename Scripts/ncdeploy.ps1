@@ -22,12 +22,18 @@
 .PARAMETER SkipIIS
     Skip IIS-related operations (stop/start app pool).
 
+.PARAMETER CleanDeploy
+    Delete all files from production directory before deploying (fresh install). DEFAULT: TRUE
+
+.PARAMETER SkipClean
+    Skip the clean deployment step (keep existing files). Use this for incremental updates only.
+
 .PARAMETER AppPool
     Name of the IIS Application Pool to restart. Default: "NoorCanvas"
 
 .EXAMPLE
     .\ncdeploy.ps1
-    Deploy with default settings (build, backup, deploy, restart IIS)
+    Deploy with clean installation (default - deletes all production files first)
 
 .EXAMPLE
     .\ncdeploy.ps1 -SkipBackup
@@ -36,12 +42,17 @@
 .EXAMPLE
     .\ncdeploy.ps1 -SkipIIS
     Deploy without stopping/starting IIS
+
+.EXAMPLE
+    .\ncdeploy.ps1 -SkipClean
+    Deploy without cleaning production directory (incremental update)
 #>
 
 param(
     [switch]$SkipBuild,
     [switch]$SkipBackup,
     [switch]$SkipIIS,
+    [switch]$SkipClean,
     [string]$AppPool = "NoorCanvas"
 )
 
@@ -151,6 +162,36 @@ try {
         }
     } else {
         Write-Warning "Skipping IIS operations as requested"
+    }
+
+    # Step 2.5: Clean deployment directory (DEFAULT - unless SkipClean is specified)
+    if (-not $SkipClean) {
+        Write-Step "Cleaning production deployment directory..."
+        
+        if (Test-Path $DeployPath) {
+            try {
+                $itemCount = (Get-ChildItem -Path $DeployPath -Recurse -Force | Measure-Object).Count
+                Write-Host "  Found $itemCount items to remove" -ForegroundColor Gray
+                
+                Remove-Item -Path "$DeployPath\*" -Recurse -Force -ErrorAction Stop
+                Write-Success "Production directory cleaned (all files deleted)"
+                
+                # Verify cleanup
+                $remainingItems = (Get-ChildItem -Path $DeployPath -Force | Measure-Object).Count
+                if ($remainingItems -eq 0) {
+                    Write-Success "Cleanup verified: 0 items remaining"
+                } else {
+                    Write-Warning "Cleanup incomplete: $remainingItems items remain (may be locked files)"
+                }
+            } catch {
+                Write-Error "Failed to clean deployment directory: $_"
+                Write-Warning "Some files may be locked. Continuing with deployment..."
+            }
+        } else {
+            Write-Host "  Production directory does not exist yet (will be created)" -ForegroundColor Gray
+        }
+    } else {
+        Write-Warning "Skipping clean deployment (incremental update mode - use default for fresh installation)"
     }
 
     # Step 3: Backup existing deployment
@@ -357,6 +398,7 @@ try {
                 # Copy batch files and production config
                 Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\create-token.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
                 Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\token-manager.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
+                Copy-Item "$provisionerSource\create-token-prod.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
                 Copy-Item "$provisionerSource\appsettings.Production.json" -Destination $provisionerDest -Force
                 
                 # Create README if it doesn't exist
