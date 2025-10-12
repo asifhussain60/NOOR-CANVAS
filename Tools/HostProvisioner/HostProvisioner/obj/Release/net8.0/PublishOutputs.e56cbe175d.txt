@@ -7,9 +7,11 @@ D:\Websites\NOOR-CANVAS\HostProvisioner\web.Release.config
 D:\Websites\NOOR-CANVAS\HostProvisioner\appsettings.Development.json
 D:\Websites\NOOR-CANVAS\HostProvisioner\appsettings.json
 D:\Websites\NOOR-CANVAS\HostProvisioner\appsettings.Production.json
+D:\Websites\NOOR-CANVAS\HostProvisioner\app.config
 D:\Websites\NOOR-CANVAS\HostProvisioner\HostProvisioner.dll
 D:\Websites\NOOR-CANVAS\HostProvisioner\HostProvisioner.deps.json
 D:\Websites\NOOR-CANVAS\HostProvisioner\HostProvisioner.runtimeconfig.json
+D:\Websites\NOOR-CANVAS\HostProvisioner\HostProvisioner.dll.config
 D:\Websites\NOOR-CANVAS\HostProvisioner\HostProvisioner.pdb
 D:\Websites\NOOR-CANVAS\HostProvisioner\AngleSharp.dll
 D:\Websites\NOOR-CANVAS\HostProvisioner\Azure.AI.OpenAI.dll
