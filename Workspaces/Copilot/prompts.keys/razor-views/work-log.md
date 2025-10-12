@@ -106,6 +106,30 @@
 - **Debug Markers**: Added with simple debug level
 - **Status**: ✅ Built successfully with warnings (unrelated), committed to git
 
+### ✅ Phone Logo Sizing Update (2025-10-12)
+- **Commit**: fix(razor-views): Adjust logo size to 175x175px on phones (d2f1e173)
+- **Issue**: Logos should be smaller on phone screens for better mobile UX
+- **Fix Applied**:
+  - Host-SessionOpener.razor: Added phone media query for logo sizing
+  - UserLanding.razor: Added phone media query for logo sizing
+  - SessionWaiting.razor: Added phone media query for logo sizing
+  - HostLanding.razor: Added phone media query for logo sizing
+  - CreateSession.razor: Added phone media query for logo sizing
+- **CSS Pattern**:
+  ```css
+  @@media (max-width: 767px) {
+      .logo-class img {
+          width: 175px;
+          height: 175px;
+      }
+  }
+  ```
+- **Responsive Breakpoints**: 
+  - Desktop/Tablet: 250x250px (default)
+  - Phones (≤767px): 175x175px
+- **Debug Markers**: Added with simple debug level
+- **Status**: ✅ Built successfully with 3 warnings (unrelated), committed to git
+
 ## Views Requiring Updates
 
 ### ✅ Already Clean (No inline styles found)
