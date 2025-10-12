@@ -22,59 +22,447 @@
     @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
 </HeadContent>
 
+<style>
+    /* Root Container */
+    .host-landing-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Main Container */
+    .host-landing-container {
+        width: 100%;
+        max-width: 28rem;
+        background-color: #FFFFFF;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border: 1px solid #E5E7EB;
+        text-align: center;
+    }
+
+    /* Logo */
+    .host-landing-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Title */
+    .host-landing-title {
+        font-size: 2.25rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #006400;
+        margin-bottom: 2rem;
+    }
+
+    /* Auth Card */
+    .host-landing-auth-card {
+        width: 100%;
+        background-color: #F8F5F1;
+        border-radius: 1rem;
+        border: 2px solid #C5B358;
+        padding: 2rem;
+        text-align: left;
+        margin-top: 2rem;
+        box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+    }
+
+    /* Error Message */
+    .host-landing-error {
+        background-color: #FEE2E2;
+        border: 1px solid #FECACA;
+        color: #B91C1C;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    /* Icon Section */
+    .host-landing-icon-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .host-landing-icon-circle {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 50%;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    }
+
+    .host-landing-icon {
+        font-size: 3rem;
+        color: #006400;
+    }
+
+    .host-landing-session-title {
+        font-size: 1.5rem;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        color: #4B3C2B;
+        margin-top: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    .host-landing-session-desc {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #706357;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+
+    /* Input Section */
+    .host-landing-input-section {
+        position: relative;
+        margin-top: 1rem;
+    }
+
+    .host-landing-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        color: #4B3C2B;
+        margin-bottom: 0.5rem;
+    }
+
+    .host-landing-input-wrapper {
+        position: relative;
+    }
+
+    .host-landing-input-icon {
+        position: absolute;
+        top: 50%;
+        left: 0.75rem;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #706357;
+    }
+
+    .host-landing-input {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+        font-family: 'Inter', sans-serif;
+        color: #4B3C2B;
+        border: 1px solid #D1D5DB;
+        border-radius: 0.75rem;
+        outline: none;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .host-landing-input:focus {
+        border-color: #006400;
+        box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.1);
+    }
+
+    .host-landing-help-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        color: #706357;
+        margin-top: 0.5rem;
+    }
+
+    /* User Link Panel */
+    .host-landing-user-link-panel {
+        margin-top: 2rem;
+        width: 100%;
+        background-color: #F0F9FF;
+        border-radius: 1rem;
+        border: 1px solid #3B82F6;
+        padding: 1.5rem;
+        text-align: left;
+    }
+
+    .host-landing-user-link-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #3B82F6;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .host-landing-user-link-icon {
+        color: #3B82F6;
+    }
+
+    .host-landing-user-link-box {
+        background-color: white;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        border: 1px solid #E2E8F0;
+    }
+
+    .host-landing-user-link-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .host-landing-user-link-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #374151;
+        font-size: 0.875rem;
+        font-family: monospace;
+        outline: none;
+        text-align: center;
+    }
+
+    .host-landing-copy-button {
+        padding: 0.375rem 0.75rem;
+        background-color: #3B82F6;
+        color: white;
+        border: none;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+    }
+
+    .host-landing-copy-button:hover {
+        background-color: #2563EB;
+    }
+
+    .host-landing-user-link-help {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        color: #706357;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+        text-align: center;
+    }
+
+    /* Button */
+    .host-landing-button-wrapper {
+        margin-top: 2rem;
+    }
+
+    .host-landing-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        color: white;
+        font-weight: 600;
+        background-color: #006400;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        box-shadow: 0 10px 15px -3px rgba(0,100,0,0.4), 0 4px 6px -2px rgba(0,100,0,0.2);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .host-landing-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .host-landing-button:hover:not(:disabled) {
+        transform: scale(1.02);
+    }
+
+    .host-landing-button-icon {
+        margin-right: 0.5rem;
+    }
+
+    .host-landing-spinner {
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        width: 1rem;
+        height: 1rem;
+        animation: spin 1s linear infinite;
+        margin-right: 0.5rem;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Mobile Responsive - Tablets (768px - 1024px) */
+    @@media (max-width: 1024px) {
+        .host-landing-container {
+            max-width: 90%;
+            padding: 1.75rem;
+        }
+
+        .host-landing-auth-card {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Mobile Responsive - Phones (max 767px) */
+    @@media (max-width: 767px) {
+        .host-landing-root {
+            padding: 1rem;
+        }
+
+        .host-landing-container {
+            max-width: 100%;
+            padding: 1.5rem 1rem;
+            border-radius: 1rem;
+        }
+
+        .host-landing-logo img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .host-landing-title {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .host-landing-auth-card {
+            padding: 1.25rem 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .host-landing-icon-circle {
+            padding: 1.5rem;
+        }
+
+        .host-landing-icon {
+            font-size: 2.5rem;
+        }
+
+        .host-landing-session-title {
+            font-size: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .host-landing-session-desc {
+            font-size: 0.8125rem;
+        }
+
+        .host-landing-user-link-panel {
+            padding: 1.25rem 1rem;
+        }
+
+        .host-landing-user-link-input {
+            font-size: 0.8125rem;
+        }
+
+        .host-landing-button {
+            padding: 0.875rem 1.25rem;
+            font-size: 0.9375rem;
+        }
+    }
+
+    /* Extra Small Phones (max 380px) */
+    @@media (max-width: 380px) {
+        .host-landing-container {
+            padding: 1rem 0.75rem;
+        }
+
+        .host-landing-title {
+            font-size: 1.5rem;
+        }
+
+        .host-landing-auth-card {
+            padding: 1rem 0.75rem;
+        }
+
+        .host-landing-icon-circle {
+            padding: 1.25rem;
+        }
+
+        .host-landing-icon {
+            font-size: 2rem;
+        }
+
+        .host-landing-session-title {
+            font-size: 1.125rem;
+        }
+
+        .host-landing-user-link-content {
+            flex-direction: column;
+        }
+
+        .host-landing-user-link-input {
+            text-align: left;
+        }
+    }
+</style>
+
 <!-- Root container from mock -->
-<div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
+<div class="host-landing-root">
     
     <!-- Main card container from mock -->
-    <div style="width:100%;max-width:28rem;background-color:#FFFFFF;border-radius:1.5rem;padding:2rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #E5E7EB;text-align:center;">
+    <div class="host-landing-container">
     @* Adjusted max-width from 35rem to 28rem and padding from 2rem 3rem to 2rem to match mock exactly *@
         
         <!-- Logo -->
-        <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+        <div class="host-landing-logo">
             <img src="/images/NoorCanvas.png?v=20250924" alt="@(Model?.LogoText ?? "NOOR Canvas")" />
         </div>
 
         <!-- Title Section from mock -->
-        <h1 style="font-size:2.25rem;font-family:'Poppins',sans-serif;font-weight:700;color:#006400;margin-bottom:2rem;">
+        <h1 class="host-landing-title">
             Host Authentication
         </h1>
 
         <!-- Host Authentication Card from mock -->
-        <div style="width:100%;background-color:#F8F5F1;border-radius:1rem;border:2px solid #C5B358;padding:2rem;text-align:left;margin-top:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+        <div class="host-landing-auth-card">
             
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div style="background-color:#FEE2E2;border:1px solid #FECACA;color:#B91C1C;padding:1rem;border-radius:0.5rem;margin-bottom:1rem;text-align:center;">
+                <div class="host-landing-error">
                     <span>@errorMessage</span>
                 </div>
             }
             
             <!-- Icon and title section from mock -->
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            <div class="host-landing-icon-section">
                 
                 <!-- Icon circle from mock -->
-                <div style="background-color:white;padding:2rem;border-radius:50%;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);">
-                    <i class="fa-solid fa-people-arrows" style="font-size:3rem;color:#006400;"></i>
+                <div class="host-landing-icon-circle">
+                    <i class="fa-solid fa-people-arrows host-landing-icon"></i>
                 </div>
                 
                 <!-- Session Title and Description from mock -->
-                <h3 style="font-size:1.5rem;font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;margin-top:1.5rem;margin-bottom:0;">HOST SESSION</h3>
-                <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;margin-bottom:0;">Guided Islamic Learning</p>
+                <h3 class="host-landing-session-title">HOST SESSION</h3>
+                <p class="host-landing-session-desc">Guided Islamic Learning</p>
             </div>
 
             <!-- Input Section from mock -->
-            <div style="position:relative;margin-top:1rem;">
+            <div class="host-landing-input-section">
                 
                 <!-- Label from mock -->
-                <p style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;margin-bottom:0.5rem;">
+                <p class="host-landing-label">
                     Enter Your Host Authentication Token
                 </p>
                 
                 <!-- Input container with icon -->
-                <div style="position:relative;">
+                <div class="host-landing-input-wrapper">
                     <!-- Icon from mock -->
-                    <div style="position:absolute;top:50%;left:0.75rem;transform:translateY(-50%);pointer-events:none;">
-                        <i class="fa-solid fa-key" style="color:#706357;"></i>
+                    <div class="host-landing-input-icon">
+                        <i class="fa-solid fa-key"></i>
                     </div>
                     
                     <!-- Input field adapted from mock -->
@@ -85,13 +473,13 @@
                                maxlength="8"
                                @oninput="OnTokenInput"
                                @onkeypress="OnKeyPress"
-                               style="display:block;width:100%;padding:0.5rem 0.5rem 0.5rem 2.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease;text-align:center;text-transform:uppercase;"
+                               class="host-landing-input"
                                @onfocus="@(() => SetFocusStyle(true))"
                                @onblur="@(() => SetFocusStyle(false))" />
                 </div>
                 
                 <!-- Help text from mock -->
-                <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-top:0.5rem;">
+                <p class="host-landing-help-text">
                     Get your Host GUID from the HostProvisioner tool or system administrator
                 </p>
             </div>
@@ -100,46 +488,44 @@
         <!-- User Registration Link Display (shown when session has user token) -->
         @if (!string.IsNullOrEmpty(UserToken))
         {
-            <div style="margin-top:2rem;width:100%;background-color:#F0F9FF;border-radius:1rem;border:1px solid #3B82F6;padding:1.5rem;text-align:left;">
-                <h4 style="display:flex;align-items:center;justify-content:center;gap:0.5rem;font-weight:600;font-size:1rem;color:#3B82F6;margin-bottom:1rem;text-align:center;">
-                    <i class="fa-solid fa-link" style="color:#3B82F6;"></i>
+            <div class="host-landing-user-link-panel">
+                <h4 class="host-landing-user-link-title">
+                    <i class="fa-solid fa-link host-landing-user-link-icon"></i>
                     <span>User Registration Link</span>
                 </h4>
-                <div style="background-color:white;border-radius:0.5rem;padding:0.75rem;border:1px solid #E2E8F0;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                <div class="host-landing-user-link-box">
+                    <div class="host-landing-user-link-content">
                         <input type="text" 
                                value="https://localhost:9091/user/landing/@UserToken" 
                                readonly
-                               style="flex:1;background:transparent;border:none;color:#374151;font-size:0.875rem;font-family:monospace;outline:none;text-align:center;"
+                               class="host-landing-user-link-input"
                                id="userLinkInput" />
                         <button onclick="copyUserLink()" 
-                                style="padding:0.375rem 0.75rem;background-color:#3B82F6;color:white;border:none;border-radius:0.375rem;font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;font-weight:500;"
-                                onmouseover="this.style.backgroundColor='#2563EB'"
-                                onmouseout="this.style.backgroundColor='#3B82F6'">
+                                class="host-landing-copy-button">
                             <i class="fa-solid fa-copy"></i> Copy
                         </button>
                     </div>
                 </div>
-                <p style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#706357;margin-top:0.5rem;margin-bottom:0;text-align:center;">
+                <p class="host-landing-user-link-help">
                     Share this link with session participants for easy registration
                 </p>
             </div>
         }
         
         <!-- Button from mock -->
-        <div style="margin-top:2rem;">
+        <div class="host-landing-button-wrapper">
             <button @onclick="HandleAuthentication" 
                     disabled="@(isLoading || string.IsNullOrWhiteSpace(Model?.FriendlyToken))"
-                    style="width:100%;display:flex;align-items:center;justify-content:center;padding:0.75rem 1.5rem;border-radius:0.75rem;color:white;font-weight:600;background-color:#006400;border:none;cursor:@(isLoading || string.IsNullOrWhiteSpace(Model?.FriendlyToken) ? "not-allowed" : "pointer");opacity:@(isLoading || string.IsNullOrWhiteSpace(Model?.FriendlyToken) ? "0.6" : "1");transition:transform 0.2s ease;box-shadow:0 10px 15px -3px rgba(0,100,0,0.4),0 4px 6px -2px rgba(0,100,0,0.2);font-family:'Inter',sans-serif;">
+                    class="host-landing-button">
                 
                 @if (isLoading)
                 {
-                    <div style="border:2px solid transparent;border-top:2px solid white;border-radius:50%;width:1rem;height:1rem;animation:spin 1s linear infinite;margin-right:0.5rem;"></div>
+                    <div class="host-landing-spinner"></div>
                     <span>Authenticating...</span>
                 }
                 else
                 {
-                    <i class="fa-solid fa-arrow-right" style="margin-right:0.5rem;"></i>
+                    <i class="fa-solid fa-arrow-right host-landing-button-icon"></i>
                     <span>Access Host Control Panel</span>
                 }
             </button>
