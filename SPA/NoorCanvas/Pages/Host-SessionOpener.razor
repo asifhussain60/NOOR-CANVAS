@@ -27,60 +27,363 @@
     @* Fonts are centralized in Pages/_Host.cshtml; do not duplicate here. *@
 </HeadContent>
 
+<style>
+    /* Root Container */
+    .host-opener-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Main Container */
+    .host-opener-container {
+        width: 100%;
+        max-width: 46.4rem;
+        background-color: #FFFFFF;
+        border-radius: 1.5rem;
+        padding: 1.5rem 2rem;
+        gap: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border: 1px solid #e5e7eb;
+    }
+
+    /* Logo Section */
+    .host-opener-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Title Section */
+    .host-opener-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: bold;
+        font-size: 2rem;
+        color: #006400;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .host-opener-title-icon {
+        font-size: 2.5rem;
+        color: #006400;
+    }
+
+    /* Session Panel */
+    .host-opener-panel {
+        width: 100%;
+        background-color: #FFFFFF;
+        border-radius: 1rem;
+        border: 2px solid #C5B358;
+        padding: 1.5rem 2rem;
+        gap: 1.5rem;
+        box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+        text-align: center;
+    }
+
+    .host-opener-panel-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 0 2.5rem;
+    }
+
+    /* Error Message */
+    .host-opener-error {
+        background-color: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .host-opener-error-content {
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .host-opener-error-icon {
+        color: #dc2626;
+        font-size: 1.25rem;
+        margin-top: 0.125rem;
+    }
+
+    .host-opener-error-text {
+        flex: 1;
+    }
+
+    .host-opener-error-title {
+        color: #dc2626;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .host-opener-error-message {
+        color: #991b1b;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    /* Microphone Icon */
+    .host-opener-mic-container {
+        padding: 1rem;
+        border-radius: 50%;
+        border: 4px solid #006400;
+        margin-bottom: 1rem;
+    }
+
+    .host-opener-mic-icon {
+        font-size: 4rem;
+        color: #006400;
+    }
+
+    /* Form Grid */
+    .host-opener-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+        width: 100%;
+        min-width: 25rem;
+    }
+
+    .host-opener-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Form Fields */
+    .host-opener-field {
+        width: 100%;
+    }
+
+    .host-opener-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        text-align: left;
+        margin-bottom: 0.25rem;
+    }
+
+    .host-opener-select,
+    .host-opener-input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        outline: none;
+        transition: all 0.2s;
+        color: #4B3C2B;
+    }
+
+    .host-opener-select.placeholder {
+        color: #9ca3af;
+    }
+
+    .host-opener-select:focus,
+    .host-opener-input:focus {
+        border-color: #006400;
+        box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.1);
+    }
+
+    /* Button */
+    .host-opener-button-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 1.5rem;
+    }
+
+    .host-opener-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 200px;
+        background-color: #006400;
+        color: #ffffff;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .host-opener-button:disabled {
+        background-color: #9ca3af;
+        color: #ffffff;
+        cursor: not-allowed;
+    }
+
+    .host-opener-button:hover:not(:disabled) {
+        background-color: #004d00;
+        box-shadow: 0 6px 8px -1px rgba(0,0,0,0.15);
+    }
+
+    .host-opener-button-icon {
+        margin-right: 0.5rem;
+    }
+
+    /* Mobile Responsive - Tablets (768px - 1024px) */
+    @@media (max-width: 1024px) {
+        .host-opener-container {
+            max-width: 90%;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .host-opener-grid {
+            gap: 1.5rem;
+            min-width: auto;
+        }
+
+        .host-opener-panel-inner {
+            padding: 0 1.5rem;
+        }
+    }
+
+    /* Mobile Responsive - Phones (max 767px) */
+    @@media (max-width: 767px) {
+        .host-opener-root {
+            padding: 1rem;
+        }
+
+        .host-opener-container {
+            max-width: 100%;
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+
+        .host-opener-logo img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .host-opener-title {
+            font-size: 1.5rem;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .host-opener-title-icon {
+            font-size: 2rem;
+        }
+
+        .host-opener-panel {
+            padding: 1rem;
+        }
+
+        .host-opener-panel-inner {
+            padding: 0 0.5rem;
+        }
+
+        .host-opener-mic-container {
+            padding: 0.75rem;
+        }
+
+        .host-opener-mic-icon {
+            font-size: 3rem;
+        }
+
+        .host-opener-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            min-width: auto;
+        }
+
+        .host-opener-button {
+            min-width: 100%;
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .host-opener-error {
+            padding: 0.75rem;
+        }
+
+        .host-opener-error-title {
+            font-size: 0.875rem;
+        }
+
+        .host-opener-error-message {
+            font-size: 0.8125rem;
+        }
+    }
+</style>
+
 <!-- Root Container with NOOR Canvas Background -->
-<div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;font-family:'Inter',sans-serif;">
+<div class="host-opener-root">
     
     <!-- Main Component Container -->
-    <div style="width:100%;max-width:46.4rem;background-color:#FFFFFF;border-radius:1.5rem;padding:1.5rem 2rem;gap:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e5e7eb;">
+    <div class="host-opener-container">
         
         <!-- NOOR Canvas Logo -->
-        <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+        <div class="host-opener-logo">
             <img src="/images/NoorCanvas.png?v=20250924" 
                  alt="@(Model?.LogoText ?? "NOOR Canvas")" />
         </div>
         
         <!-- Title Section -->
-        <h1 style="font-family:'Poppins',sans-serif;font-weight:bold;font-size:2rem;color:#006400;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:1.5rem;">
-            <i class="fa-solid fa-user-tie" style="font-size:2.5rem;color:#006400;"></i>
+        <h1 class="host-opener-title">
+            <i class="fa-solid fa-user-tie host-opener-title-icon"></i>
             <span>Host Session Opener</span>
         </h1>
 
         <!-- Session Panel -->
-        <div style="width:100%;background-color:#FFFFFF;border-radius:1rem;border:2px solid #C5B358;padding:1.5rem 2rem;gap:1.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);text-align:center;">
+        <div class="host-opener-panel">
             
-            <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:0 2.5rem;">
+            <div class="host-opener-panel-inner">
                 
                 <!-- Error message container -->
                 <!-- DEBUG-WORKITEM: session-opener - Removed InfoMessage panel, only ErrorMessage remains ;CLEANUP_OK -->
                 @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
                 {
-                    <div style="background-color:#fef2f2;border:1px solid #fca5a5;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;width:100%;">
-                        <div style="display:flex;align-items:start;gap:0.75rem;">
-                            <i class="fa-solid fa-exclamation-triangle" style="color:#dc2626;font-size:1.25rem;margin-top:0.125rem;"></i>
-                            <div style="flex:1;">
-                                <h4 style="color:#dc2626;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;margin:0 0 0.5rem 0;">Action Required</h4>
-                                <p style="color:#991b1b;font-family:'Inter',sans-serif;font-size:0.875rem;line-height:1.4;margin:0;">@((MarkupString)Model.ErrorMessage)</p>
+                    <div class="host-opener-error">
+                        <div class="host-opener-error-content">
+                            <i class="fa-solid fa-exclamation-triangle host-opener-error-icon"></i>
+                            <div class="host-opener-error-text">
+                                <h4 class="host-opener-error-title">Action Required</h4>
+                                <p class="host-opener-error-message">@((MarkupString)Model.ErrorMessage)</p>
                             </div>
                         </div>
                     </div>
                 }
                 
                 <!-- Microphone Icon -->
-                <div style="padding:1rem;border-radius:50%;border:4px solid #006400;margin-bottom:1rem;">
-                    <i class="fa-solid fa-microphone" style="font-size:4rem;color:#006400;"></i>
+                <div class="host-opener-mic-container">
+                    <i class="fa-solid fa-microphone host-opener-mic-icon"></i>
                 </div>
                 
                 <!-- Host Controls Grid -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;width:100%;min-width:25rem;">
+                <div class="host-opener-grid">
                     
                     <!-- Dropdown controls (Left Column) -->
-                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                    <div class="host-opener-column">
                         
                         <!-- Album Selection -->
-                        <div style="width:100%;">
-                            <label for="album-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Album</label>
+                        <div class="host-opener-field">
+                            <label for="album-select" class="host-opener-label">Album</label>
                             <select id="album-select" @bind="SelectedAlbum" @bind:after="ValidateForm" required autocomplete="off"
-                                    style="@(Model?.SelectedAlbum == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    class="host-opener-select @(Model?.SelectedAlbum == null ? "placeholder" : "")" 
                                     disabled="@(Model?.IsLoadingAlbums ?? false)">
                                 <option value="">@((Model?.IsLoadingAlbums ?? false) ? "Loading albums..." : "Select Album")</option>
                                 @if (!(Model?.IsLoadingAlbums ?? false))
@@ -94,10 +397,10 @@
                         </div>
                         
                         <!-- Category Selection -->
-                        <div style="width:100%;">
-                            <label for="category-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Category</label>
+                        <div class="host-opener-field">
+                            <label for="category-select" class="host-opener-label">Category</label>
                             <select id="category-select" @bind="SelectedCategory" @bind:after="ValidateForm" required autocomplete="off"
-                                    style="@(Model?.SelectedCategory == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    class="host-opener-select @(Model?.SelectedCategory == null ? "placeholder" : "")" 
                                     disabled="@((Model?.IsLoadingCategories ?? false) || string.IsNullOrEmpty(Model?.SelectedAlbum))">
                                 <option value="">@((Model?.IsLoadingCategories ?? false) ? "Loading categories..." : string.IsNullOrEmpty(Model?.SelectedAlbum) ? "Select Album First" : "Select Category")</option>
                                 @if (!(Model?.IsLoadingCategories ?? false))
@@ -111,10 +414,10 @@
                         </div>
                         
                         <!-- Session Selection -->
-                        <div style="width:100%;">
-                            <label for="session-select" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Session</label>
+                        <div class="host-opener-field">
+                            <label for="session-select" class="host-opener-label">Session</label>
                             <select id="session-select" @bind="SelectedSession" @bind:after="OnFormFieldChanged" required autocomplete="off"
-                                    style="@(Model?.SelectedSession == null ? "color:#9ca3af;" : "color:#4B3C2B;") width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;" 
+                                    class="host-opener-select @(Model?.SelectedSession == null ? "placeholder" : "")" 
                                     disabled="@((Model?.IsLoadingSessions ?? false) || string.IsNullOrEmpty(Model?.SelectedCategory))">
                                 <option value="">@((Model?.IsLoadingSessions ?? false) ? "Loading sessions..." : string.IsNullOrEmpty(Model?.SelectedCategory) ? "Select Category First" : "Select Session")</option>
                                 @if (!(Model?.IsLoadingSessions ?? false))
@@ -129,50 +432,50 @@
                     </div>
 
                     <!-- Host Inputs (Right Column) -->
-                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                    <div class="host-opener-column">
                         
                         <!-- Date Input -->
-                        <div style="width:100%;">
-                            <label for="session-date" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Date</label>
+                        <div class="host-opener-field">
+                            <label for="session-date" class="host-opener-label">Date</label>
                             <input type="date" id="session-date" @bind="SessionDate" @bind:after="OnFormFieldChanged" required autocomplete="off"
-                                   style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
+                                   class="host-opener-input">
                         </div>
                         
                         <!-- Time Input -->
-                        <div style="width:100%;">
-                            <label for="session-time" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Start Time (EST)</label>
+                        <div class="host-opener-field">
+                            <label for="session-time" class="host-opener-label">Start Time (EST)</label>
                             <input type="text" id="session-time" @bind="SessionTime" @oninput="OnTimeInput" @bind:after="OnFormFieldChanged" required autocomplete="off"
                                    placeholder="HH:MM AM/PM" 
-                                   style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
+                                   class="host-opener-input">
                         </div>
                         
                         <!-- Duration Input -->
-                        <div style="width:100%;">
-                            <label for="session-duration" style="display:block;font-size:0.875rem;font-weight:500;color:#374151;text-align:left;margin-bottom:0.25rem;">Duration (minutes)</label>
+                        <div class="host-opener-field">
+                            <label for="session-duration" class="host-opener-label">Duration (minutes)</label>
                             <input type="number" id="session-duration" @bind="SessionDuration" @bind:after="OnFormFieldChanged" required autocomplete="off"
                                    placeholder="Enter duration" min="1" max="480"
-                                   style="width:100%;padding:0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;outline:none;transition:all 0.2s;color:#4B3C2B;">
+                                   class="host-opener-input">
                         </div>
                     </div>
                 </div>
 
                 <!-- Open Session Button -->
-                <div style="display:flex;justify-content:center;width:100%;margin-top:1.5rem;">
+                <div class="host-opener-button-container">
                     <button id="openSessionBtn" @onclick="OpenSessionAsync" disabled="@(!(Model?.IsFormValid ?? false) || (Model?.IsProcessingSession ?? false) || (Model?.HasGeneratedToken ?? false))" 
-                            style="@GetButtonStyle()">
+                            class="host-opener-button">
                         @if (Model?.IsProcessingSession ?? false)
                         {
-                            <i class="fa-solid fa-spinner fa-spin" style="margin-right:0.5rem;"></i>
+                            <i class="fa-solid fa-spinner fa-spin host-opener-button-icon"></i>
                             <span>Processing...</span>
                         }
                         else if (Model?.HasGeneratedToken ?? false)
                         {
-                            <i class="fa-solid fa-check" style="margin-right:0.5rem;"></i>
+                            <i class="fa-solid fa-check host-opener-button-icon"></i>
                             <span>Token Generated</span>
                         }
                         else
                         {
-                            <i class="fa-solid fa-key" style="margin-right:0.5rem;"></i>
+                            <i class="fa-solid fa-key host-opener-button-icon"></i>
                             <span>Generate User Token</span>
                         }
                     </button>
@@ -684,18 +987,6 @@
             Model.ErrorMessage = "Failed to load control panel. Please try again.";
         }
         return Task.CompletedTask;
-    }
-
-    private string GetButtonStyle()
-    {
-        var baseStyle = "display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;padding:0.875rem 2rem;border-radius:0.5rem;border:none;cursor:pointer;transition:all 0.2s;min-width:200px;";
-        
-        if (!Model.IsFormValid || Model.IsProcessingSession || Model.HasGeneratedToken)
-        {
-            return baseStyle + "background-color:#9ca3af;color:#ffffff;cursor:not-allowed;";
-        }
-        
-        return baseStyle + "background-color:#006400;color:#ffffff;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);";
     }
     
     // Debug Actions Factory
