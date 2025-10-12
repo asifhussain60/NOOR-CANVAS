@@ -7,6 +7,15 @@
 @inject ILogger<CreateSession> Logger
 @inject IHttpClientFactory HttpClientFactory
 
+<style>
+    /* [DEBUG-WORKITEM:razor-views:logo-size] Logo sizing to 250x250px ;CLEANUP_OK */
+    .noor-canvas-logo img {
+        width: 250px;
+        height: 250px;
+        object-fit: contain;
+    }
+</style>
+
 <div class="noor-page-container">
     <!-- Logo Only - No Header Container -->
     <div class="noor-canvas-logo">
