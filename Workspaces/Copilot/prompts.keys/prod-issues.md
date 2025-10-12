@@ -150,3 +150,62 @@ ALTER TABLE [canvas].[AssetLookup] ADD [CreatedAt] DATETIME2 NULL;
 1. Test share button functionality in production
 2. Monitor logs for successful AssetLookup API calls
 3. Verify share buttons appear in DOM
+
+---
+
+### 2025-10-12 19:15 - CreatedAt NULL Value Fix (In Progress)
+**Issue**: SqlNullValueException - CreatedAt column has NULL values but model expects non-nullable DateTime
+**Error**: `System.Data.SqlTypes.SqlNullValueException: Data is Null. This method or property cannot be called on Null values.`
+
+**Root Cause Analysis**:
+- CreatedAt column was added as NULL to production (safe for existing data)
+- Entity model has `public DateTime CreatedAt { get; set; }` (non-nullable)
+- EF Core cannot map NULL database values to non-nullable DateTime property
+- Share buttons still not appearing because API returns 500 error
+
+**Solution**:
+1. ✅ Update all NULL CreatedAt values to current timestamp
+2. ✅ ALTER column to NOT NULL (match dev schema)
+3. 🔄 Restart IIS app pool
+4. 🔄 Test API endpoint
+5. 🔄 Verify share buttons appear
+
+**Database Commands** (KSESSIONS - Production):
+```sql
+-- Set default values for existing NULLs
+UPDATE canvas.AssetLookup SET CreatedAt = GETDATE() WHERE CreatedAt IS NULL;
+
+-- Make column NOT NULL (match KSESSIONS_DEV)
+ALTER TABLE canvas.AssetLookup ALTER COLUMN CreatedAt DATETIME2 NOT NULL;
+```
+
+**⚠️ TODO: Sync Same Change to KSESSIONS_DEV**:
+- KSESSIONS_DEV already has CreatedAt as NOT NULL (correct)
+- But need to verify no NULL values exist in dev database
+- Run same UPDATE command in dev for consistency
+
+**Resolution Status**: ✅ **FIXED**
+```sql
+-- Commands executed on KSESSIONS (Production):
+UPDATE canvas.AssetLookup SET CreatedAt = GETDATE() WHERE CreatedAt IS NULL; -- (11 rows affected)
+ALTER TABLE canvas.AssetLookup ALTER COLUMN CreatedAt DATETIME2 NOT NULL;
+```
+
+**Verification**:
+- ✅ All 11 records now have CreatedAt value (2025-10-12 19:14:09)
+- ✅ Column constraint changed to NOT NULL
+- ✅ API endpoint now returns HTTP 200
+- ✅ API returns 11 asset lookups with createdAt timestamps
+- ✅ No more SqlNullValueException errors
+
+**Share Button Behavior Clarified**:
+- Share buttons are injected during content broadcasts (via ProcessHtmlForAssetSharing)
+- Existing canvas content from before the fix won't have share buttons
+- **To see share buttons**: Broadcast new content (Ayah, Hadees, etc.) to the canvas
+- The AssetProcessingService will inject share buttons into new broadcasts
+
+**Next Steps**:
+1. Sync same change to KSESSIONS_DEV database
+2. Test by broadcasting content to canvas in production
+3. Verify share buttons appear on newly broadcasted content
+4. Remove debug logging markers when complete
