@@ -597,7 +597,8 @@ BEGIN TRY
     DECLARE @SourceAssetCount INT = 0;
     IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'KSESSIONS_DEV')
     BEGIN
-        EXEC('SELECT @SourceAssetCount = COUNT(*) FROM [KSESSIONS_DEV].[canvas].[AssetLookup]', @SourceAssetCount OUTPUT);
+        DECLARE @SqlCmd NVARCHAR(MAX) = N'SELECT @Count = COUNT(*) FROM [KSESSIONS_DEV].[canvas].[AssetLookup]';
+        EXEC sp_executesql @SqlCmd, N'@Count INT OUTPUT', @Count = @SourceAssetCount OUTPUT;
         PRINT '    Source records in KSESSIONS_DEV.canvas.AssetLookup: ' + CAST(@SourceAssetCount AS VARCHAR(10));
     END
     
@@ -628,7 +629,7 @@ BEGIN TRY
             [DisplayName] = Source.[DisplayName],
             [IsActive] = Source.[IsActive];
     
-    DECLARE @AssetInserted INT = (SELECT COUNT(*) FROM (SELECT 1 FROM [KSESSIONS_DEV].[canvas].[AssetLookup] s 
+    DECLARE @AssetInserted INT = (SELECT COUNT(*) FROM (SELECT 1 AS cnt FROM [KSESSIONS_DEV].[canvas].[AssetLookup] s 
         WHERE NOT EXISTS (SELECT 1 FROM [canvas].[AssetLookup] t WHERE t.AssetIdentifier = s.AssetIdentifier)) x);
     DECLARE @AssetUpdated INT = @@ROWCOUNT - @AssetInserted;
     DECLARE @AssetRecords INT = @@ROWCOUNT;
@@ -726,7 +727,9 @@ BEGIN TRY
     FROM [KSESSIONS_DEV].[canvas].[Sessions] src
     INNER JOIN [canvas].[Sessions] tgt ON src.HostToken = tgt.HostToken;
     
-    PRINT '    Session mapping created: ' + CAST((SELECT COUNT(*) FROM @SessionMapping) AS VARCHAR(10)) + ' sessions mapped';
+    DECLARE @MappingCount INT;
+    SELECT @MappingCount = COUNT(*) FROM @SessionMapping;
+    PRINT '    Session mapping created: ' + CAST(@MappingCount AS VARCHAR(10)) + ' sessions mapped';
     
     -- Migrate participants with correct SessionId mapping (INSERT only new ones)
     INSERT INTO [canvas].[Participants] 

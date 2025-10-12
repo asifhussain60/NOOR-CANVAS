@@ -1,0 +1,68 @@
+================================================================================
+KSESSIONS CANVAS MIGRATION SCRIPT v2.0.0
+Execution ID: 410624C9-1323-4400-89FE-6928B6FA963D
+Started: 2025-10-12 11:50:43 UTC
+Mode: IDEMPOTENT (Safe for repeated execution)
+================================================================================
+ 
+>>> SECTION 1: PRE-FLIGHT VALIDATION
+  [1.1] Database Connection Validation
+    ✅ Connected to KSESSIONS database
+  [1.2] SQL Server Version Check
+    ✅ SQL Server version compatible (15)
+  [1.3] Database Space Check
+Warning: Null value is eliminated by an aggregate or other SET operation.
+    ✅ Data file size: 62.00 MB
+    ✅ Log file size: 160.81 MB
+  [1.4] Schema Conflict Check
+    ✅ No conflicting canvas schema found
+  Pre-flight validation completed. Warnings: 0
+ 
+>>> SECTION 2: TRANSACTION SETUP
+  [2.1] Master transaction started: MigrationTrans
+>>> SECTION 3: CANVAS SCHEMA CREATION
+  [3.1] Canvas Schema Creation
+    ✅ Canvas schema created successfully
+>>> SECTION 4: TABLE CREATION
+  [4.1] EF Migrations History Table
+    ✅ __EFMigrationsHistory table created
+  [4.2] Canvas AssetLookup Table
+    ✅ canvas.AssetLookup table created
+  [4.3] Canvas Sessions Table
+    ✅ canvas.Sessions table created
+  [4.4] Canvas Participants Table
+    ✅ canvas.Participants table created
+  [4.5] Canvas SessionData Table
+    ✅ canvas.SessionData table created
+>>> SECTION 5: CONSTRAINTS AND INDEXES
+  [5.1] AssetLookup Constraints
+    ✅ UQ_AssetLookup_Identifier constraint created
+    ✅ IX_AssetLookup_Type_Active index created
+  [5.2] Sessions Constraints
+    ✅ UQ_Sessions_HostToken constraint created
+    ✅ UQ_Sessions_UserToken constraint created
+    ✅ IX_Sessions_AlbumId index created
+    ✅ IX_Sessions_Status_Expires index created
+  [5.3] Participants Constraints
+    ✅ FK_Participants_Sessions_SessionId foreign key created
+    ✅ IX_Participants_SessionId index created
+    ✅ IX_Participants_Email index created
+    ✅ IX_Participants_UserToken index created
+    ✅ IX_Participants_SessionUser index created
+  [5.4] SessionData Constraints
+    ✅ FK_SessionData_Sessions_SessionId foreign key created
+    ✅ IX_SessionData_SessionId index created
+    ✅ IX_SessionData_Session_Type index created
+    ✅ IX_SessionData_Query_Optimized index created
+>>> SECTION 6: DATA MIGRATION
+  [6.1] Data Migration Preparation
+    ✅ All 4 canvas tables are ready for data migration
+  [6.2] Current record counts in target tables:
+    AssetLookup: 0 records
+    Sessions: 0 records
+    Participants: 0 records
+    SessionData: 0 records
+  [6.3] Migrating AssetLookup data...
+    Source records in KSESSIONS_DEV.canvas.AssetLookup: 11
+Msg 8155, Level 16, State 2, Server AHHOME, Line 632
+No column name was specified for column 1 of 'x'.

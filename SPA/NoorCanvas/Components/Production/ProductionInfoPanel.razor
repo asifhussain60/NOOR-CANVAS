@@ -1,0 +1,157 @@
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject ILogger<ProductionInfoPanel> Logger
+
+@* Production-safe information panel - shows database connection info WITHOUT debug controls *@
+<div class="production-info-panel" 
+     style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    
+    @* Toggle Button *@
+    <button @onclick="TogglePanel" 
+            class="info-toggle-btn bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-lg transition-all duration-200 ease-in-out"
+            style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;">
+        <i class="fas @(_isExpanded ? "fa-times" : "fa-database") text-lg text-white"></i>
+    </button>
+    
+    @* Info Panel Content *@
+    @if (_isExpanded)
+    {
+        <div class="info-content bg-gray-800 border border-gray-600 rounded-lg shadow-xl mt-2 p-4"
+             style="min-width: 320px; max-width: 400px;">
+            
+            @* Header *@
+            <div class="info-header flex items-center justify-between mb-3 pb-2 border-b border-gray-600">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    <i class="fas fa-database text-emerald-400 mr-2"></i>
+                    Database Connection
+                </h3>
+                <span class="text-xs text-gray-300 bg-gray-700 px-2 py-1 rounded">
+                    @_environment
+                </span>
+            </div>
+            
+            @* Database Connection Info *@
+            <div class="info-details space-y-3">
+                <div>
+                    <div class="text-xs text-gray-300 mb-1">Database:</div>
+                    <div class="text-sm font-mono text-white bg-gray-700 px-3 py-2 rounded flex items-center justify-between">
+                        <span>@_databaseName</span>
+                        @if (_databaseName == "KSESSIONS")
+                        {
+                            <i class="fas fa-check-circle text-emerald-400 ml-2"></i>
+                        }
+                        else if (_databaseName == "KSESSIONS_DEV")
+                        {
+                            <i class="fas fa-wrench text-yellow-400 ml-2"></i>
+                        }
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="text-xs text-gray-300 mb-1">Server:</div>
+                    <div class="text-sm font-mono text-white bg-gray-700 px-3 py-2 rounded">
+                        @_serverName
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="text-xs text-gray-300 mb-1">Environment:</div>
+                    <div class="text-sm font-mono text-white bg-gray-700 px-3 py-2 rounded">
+                        @_environment
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="text-xs text-gray-300 mb-1">Timestamp:</div>
+                    <div class="text-sm font-mono text-gray-300 bg-gray-700 px-3 py-2 rounded">
+                        @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    </div>
+                </div>
+            </div>
+            
+            @* Environment Indicator *@
+            <div class="mt-3 pt-3 border-t border-gray-600">
+                @if (_databaseName == "KSESSIONS")
+                {
+                    <div class="flex items-center text-xs text-emerald-400">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        <span>Production Database</span>
+                    </div>
+                }
+                else if (_databaseName == "KSESSIONS_DEV")
+                {
+                    <div class="flex items-center text-xs text-yellow-400">
+                        <i class="fas fa-flask mr-2"></i>
+                        <span>Development Database</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex items-center text-xs text-gray-400">
+                        <i class="fas fa-question-circle mr-2"></i>
+                        <span>Unknown Database</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _isExpanded = false;
+    private string _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+    private string _databaseName = "Unknown";
+    private string _serverName = "Unknown";
+    
+    protected override void OnInitialized()
+    {
+        try
+        {
+            // Extract database name from connection string
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                // Parse connection string to extract database and server
+                var parts = connectionString.Split(';');
+                
+                foreach (var part in parts)
+                {
+                    var keyValue = part.Split('=', 2);
+                    if (keyValue.Length == 2)
+                    {
+                        var key = keyValue[0].Trim();
+                        var value = keyValue[1].Trim();
+                        
+                        if (key.Equals("Database", StringComparison.OrdinalIgnoreCase) || 
+                            key.Equals("Initial Catalog", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _databaseName = value;
+                        }
+                        else if (key.Equals("Server", StringComparison.OrdinalIgnoreCase) || 
+                                 key.Equals("Data Source", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _serverName = value;
+                        }
+                    }
+                }
+            }
+            
+            Logger.LogInformation("NOOR-PRODUCTION-INFO: Database connection info loaded - Database: {Database}, Server: {Server}, Environment: {Environment}", 
+                _databaseName, _serverName, _environment);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-PRODUCTION-INFO: Error loading database connection info");
+            _databaseName = "Error";
+            _serverName = "Error";
+        }
+    }
+    
+    private void TogglePanel()
+    {
+        _isExpanded = !_isExpanded;
+        Logger.LogDebug("NOOR-PRODUCTION-INFO: Info panel toggled - Expanded: {IsExpanded}", _isExpanded);
+        StateHasChanged();
+    }
+}

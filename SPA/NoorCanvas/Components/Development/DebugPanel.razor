@@ -1,9 +1,11 @@
 @using NoorCanvas.Services.Development
 @using NoorCanvas.Models.Debug
+@using Microsoft.Extensions.Configuration
 @implements IDisposable
 @inject IDevModeService DevModeService
 @inject ILogger<DebugPanel> Logger
 @inject DialogService DialogService
+@inject IConfiguration Configuration
 
 @* Only render debug panel in development mode *@
 @if (DevModeService.ShowDevPanels)
@@ -105,6 +107,8 @@
                     {
                         <div class="mt-2 text-xs text-gray-300 space-y-1">
                             <div>Environment: @_environment</div>
+                            <div>Database: @_databaseName</div>
+                            <div>Server: @_serverName</div>
                             <div>Timestamp: @DateTime.Now.ToString("HH:mm:ss")</div>
                             <div>Debug Features: @(DevModeService.EnableDebugFeatures ? "Enabled" : "Disabled")</div>
                             <div>Debug Toasts: @(ShowDebugToasts ? "Enabled" : "Disabled")</div>
@@ -128,10 +132,48 @@
     private bool _isProcessing = false;
     private IDebugAction? _currentAction = null;
     private string _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+    private string _databaseName = "Unknown";
+    private string _serverName = "Unknown";
     
     protected override void OnInitialized()
     {
         Logger.LogDebug("NOOR-DEBUG-PANEL: Initialized debug panel for view: {ViewName}", CurrentViewName);
+        
+        // Extract database connection info
+        try
+        {
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                var parts = connectionString.Split(';');
+                
+                foreach (var part in parts)
+                {
+                    var keyValue = part.Split('=', 2);
+                    if (keyValue.Length == 2)
+                    {
+                        var key = keyValue[0].Trim();
+                        var value = keyValue[1].Trim();
+                        
+                        if (key.Equals("Database", StringComparison.OrdinalIgnoreCase) || 
+                            key.Equals("Initial Catalog", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _databaseName = value;
+                        }
+                        else if (key.Equals("Server", StringComparison.OrdinalIgnoreCase) || 
+                                 key.Equals("Data Source", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _serverName = value;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error extracting database connection info");
+        }
     }
     
     private void TogglePanel()

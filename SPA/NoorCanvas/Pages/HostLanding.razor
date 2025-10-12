@@ -8,11 +8,13 @@
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
 @using NoorCanvas.Controllers
+@using NoorCanvas.Services.Development
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<HostLanding> Logger
 @inject LoadingService LoadingService
+@inject IDevModeService DevModeService
 
 <PageTitle>NOOR Canvas - Host Authentication</PageTitle>
 
@@ -148,6 +150,16 @@
 
     </div>
 </div>
+
+@* Database Info Panel - Show DevPanel in dev mode, ProductionInfoPanel in production *@
+@if (DevModeService.ShowDevPanels)
+{
+    <NoorCanvas.Components.Development.DebugPanel CurrentViewName="HostLanding" />
+}
+else
+{
+    <NoorCanvas.Components.Production.ProductionInfoPanel />
+}
 
 <style>
 @@keyframes spin {
