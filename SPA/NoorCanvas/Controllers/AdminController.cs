@@ -133,7 +133,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("session/{sessionId}/terminate")]
-        public async Task<IActionResult> TerminateSession(long sessionId, [FromQuery] string sessionToken)
+        public async Task<IActionResult> TerminateSession(int sessionId, [FromQuery] string sessionToken)
         {
             try
             {

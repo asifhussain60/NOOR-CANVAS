@@ -9,8 +9,8 @@ public class SessionHub : Hub
 {
     private readonly ILogger<SessionHub> _logger;
     private readonly SimplifiedCanvasDbContext _context;
-    private static readonly Dictionary<string, (long sessionId, string role, DateTime joinedAt)> _connections = new();
-    private static readonly object _connectionsLock = new object();
+    private static readonly Dictionary<string, (int sessionId, string role, DateTime joinedAt)> _connections = new();
+    private static readonly object _connectionsLock = new();
 
     public SessionHub(ILogger<SessionHub> logger, SimplifiedCanvasDbContext context)
     {
@@ -79,7 +79,7 @@ public class SessionHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task JoinSession(long sessionId, string role = "user")
+    public async Task JoinSession(int sessionId, string role = "user")
     {
         var groupName = $"session_{sessionId}";
 
@@ -107,7 +107,7 @@ public class SessionHub : Hub
         _logger.LogDebug("NOOR-HUB-JOIN: Sent UserJoined notification to group {GroupName}", groupName);
     }
 
-    public async Task LeaveSession(long sessionId)
+    public async Task LeaveSession(int sessionId)
     {
         var groupName = $"session_{sessionId}";
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
@@ -122,7 +122,7 @@ public class SessionHub : Hub
         });
     }
 
-    public async Task ShareAsset(long sessionId, object assetData)
+    public async Task ShareAsset(int sessionId, object assetData)
     {
         var groupName = $"session_{sessionId}";
         var hubTrackingId = Guid.NewGuid().ToString("N")[..8];
@@ -177,7 +177,7 @@ public class SessionHub : Hub
     /// <summary>
     /// Simple asset content publishing method - KSESSIONS-style approach for POC
     /// </summary>
-    public async Task PublishAssetContent(long sessionId, string contentHtml)
+    public async Task PublishAssetContent(int sessionId, string contentHtml)
     {
         var groupName = $"session_{sessionId}";
         var hubTrackingId = Guid.NewGuid().ToString("N")[..8];
@@ -408,7 +408,7 @@ public class SessionHub : Hub
     /// Broadcast session began event to all participants.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task BroadcastSessionBegan(long sessionId, object sessionData)
+    public async Task BroadcastSessionBegan(int sessionId, object sessionData)
     {
         var groupName = $"session_{sessionId}";
 
@@ -481,7 +481,7 @@ public class SessionHub : Hub
     /// Broadcast session ended event to all participants.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task BroadcastSessionEnded(long sessionId, string reason = "Host ended session")
+    public async Task BroadcastSessionEnded(int sessionId, string reason = "Host ended session")
     {
         var groupName = $"session_{sessionId}";
 
@@ -502,7 +502,7 @@ public class SessionHub : Hub
     /// Broadcast participant joined event to session group (called from ParticipantController).
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task BroadcastParticipantJoined(long sessionId, string participantId, string displayName, string? country, DateTime joinedAt)
+    public async Task BroadcastParticipantJoined(int sessionId, string participantId, string displayName, string? country, DateTime joinedAt)
     {
         var groupName = $"session_{sessionId}";
 
@@ -526,7 +526,7 @@ public class SessionHub : Hub
     /// Broadcast participant left event to session group.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task BroadcastParticipantLeft(long sessionId, string participantId, string displayName)
+    public async Task BroadcastParticipantLeft(int sessionId, string participantId, string displayName)
     {
         var groupName = $"session_{sessionId}";
 

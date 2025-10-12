@@ -63,20 +63,20 @@ else
     // Use SQL Server for development and production
     builder.Services.AddDbContext<CanvasDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
-            "Server=AHHOME;Database=NoorCanvas;Trusted_Connection=true;MultipleActiveResultSets=true"));
+            "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"));
 
     // Add Simplified Schema Context (for migration)
     builder.Services.AddDbContext<SimplifiedCanvasDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SimplifiedConnection") ??
             builder.Configuration.GetConnectionString("DefaultConnection") ??
-            "Server=AHHOME;Database=NoorCanvasSimplified;Trusted_Connection=true;MultipleActiveResultSets=true"));
+            "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;"));
 }
 
 // Add KSESSIONS Database Context (Read-only for Groups, Categories, Sessions)
 builder.Services.AddDbContext<KSessionsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("KSessionsDb") ??
         builder.Configuration.GetConnectionString("DefaultConnection") ??
-        "Server=AHHOME;Database=KSESSIONS_DEV;Trusted_Connection=true;MultipleActiveResultSets=true")
+        "Server=AHHOME;Database=KSESSIONS;User ID=sa;Password=adf4961glo;MultipleActiveResultSets=true;TrustServerCertificate=True;Encrypt=False;")
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)); // Read-only optimization
 
 // Add SignalR with JSON protocol only (avoiding BlazorPack compatibility issues)
@@ -331,33 +331,47 @@ static void ValidateStartupConfiguration(IServiceProvider services)
         // Database Connection Validation with fail-fast for critical database issues
         try
         {
+            logger.LogInformation("NOOR-DEBUG: Starting database validation...");
             using var scope = services.CreateScope();
+            
+            logger.LogInformation("NOOR-DEBUG: Retrieving CanvasDbContext...");
             var canvasDbContext = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
+            logger.LogInformation("NOOR-DEBUG: CanvasDbContext retrieved. Connection string: {ConnectionString}", 
+                canvasDbContext.Database.GetConnectionString()?.Substring(0, Math.Min(50, canvasDbContext.Database.GetConnectionString()?.Length ?? 0)) + "...");
+            
+            logger.LogInformation("NOOR-DEBUG: Retrieving KSessionsDbContext...");
             var kSessionsDbContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
+            logger.LogInformation("NOOR-DEBUG: KSessionsDbContext retrieved. Connection string: {ConnectionString}", 
+                kSessionsDbContext.Database.GetConnectionString()?.Substring(0, Math.Min(50, kSessionsDbContext.Database.GetConnectionString()?.Length ?? 0)) + "...");
 
+            logger.LogInformation("NOOR-DEBUG: Testing Canvas database connection...");
             var canvasCanConnect = canvasDbContext.Database.CanConnect();
+            logger.LogInformation("NOOR-DEBUG: Canvas CanConnect result: {Result}", canvasCanConnect);
+            
+            logger.LogInformation("NOOR-DEBUG: Testing KSessions database connection...");
             var kSessionsCanConnect = kSessionsDbContext.Database.CanConnect();
+            logger.LogInformation("NOOR-DEBUG: KSessions CanConnect result: {Result}", kSessionsCanConnect);
 
             if (!canvasCanConnect)
             {
                 var error = "Canvas database connection failed. Application cannot function without canvas database.";
                 criticalErrors.Add(error);
-                logger.LogError("❌ NOOR-CRITICAL: {Error}", error);
+                logger.LogError("NOOR-CRITICAL: {Error}", error);
             }
             else
             {
-                logger.LogInformation("✅ NOOR-VALIDATION: Canvas database connection verified");
+                logger.LogInformation("NOOR-VALIDATION: Canvas database connection verified");
             }
 
             if (!kSessionsCanConnect)
             {
                 var warning = "KSESSIONS database connection failed. Some features may be limited.";
                 warnings.Add(warning);
-                logger.LogWarning("⚠️ NOOR-WARNING: {Warning}", warning);
+                logger.LogWarning("NOOR-WARNING: {Warning}", warning);
             }
             else
             {
-                logger.LogInformation("✅ NOOR-VALIDATION: KSESSIONS database connection verified");
+                logger.LogInformation("NOOR-VALIDATION: KSESSIONS database connection verified");
 
                 // [DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table will be created on first access ;CLEANUP_OK
                 logger.LogInformation("[DEBUG-WORKITEM:signalcomm:impl] ContentBroadcasts table migration will run on first broadcast ;CLEANUP_OK");
@@ -367,7 +381,19 @@ static void ValidateStartupConfiguration(IServiceProvider services)
         {
             var error = $"Database connection validation failed: {ex.Message}";
             criticalErrors.Add(error);
-            logger.LogError(ex, "❌ NOOR-CRITICAL: {Error}", error);
+            logger.LogError(ex, "NOOR-CRITICAL: Database validation exception. Message: {Message}, Type: {ExceptionType}", ex.Message, ex.GetType().Name);
+            
+            if (ex.InnerException != null)
+            {
+                logger.LogError("NOOR-CRITICAL: Inner Exception - Message: {InnerMessage}, Type: {InnerType}", 
+                    ex.InnerException.Message, ex.InnerException.GetType().Name);
+                
+                if (ex.InnerException.InnerException != null)
+                {
+                    logger.LogError("NOOR-CRITICAL: Inner-Inner Exception - Message: {InnerInnerMessage}", 
+                        ex.InnerException.InnerException.Message);
+                }
+            }
         }
 
         // FAIL-FAST: If critical errors exist, halt application startup

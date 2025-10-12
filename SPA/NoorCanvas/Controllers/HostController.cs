@@ -360,7 +360,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("session/{sessionId}/start")]
-        public async Task<IActionResult> StartSession(long sessionId)
+        public async Task<IActionResult> StartSession(int sessionId)
         {
             try
             {
@@ -400,7 +400,7 @@ namespace NoorCanvas.Controllers
         }
 
         [HttpPost("session/{sessionId}/end")]
-        public async Task<IActionResult> EndSession(long sessionId)
+        public async Task<IActionResult> EndSession(int sessionId)
         {
             try
             {
@@ -1337,7 +1337,7 @@ namespace NoorCanvas.Controllers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet("sessions/{sessionId}/details")]
-        public async Task<IActionResult> GetSessionWithScheduling(long sessionId)
+        public async Task<IActionResult> GetSessionWithScheduling(int sessionId)
         {
             try
             {

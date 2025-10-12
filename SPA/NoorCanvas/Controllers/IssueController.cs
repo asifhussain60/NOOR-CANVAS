@@ -200,7 +200,7 @@ public class CreateIssueRequest
     [MaxLength(50)]
     public string? Category { get; set; } // Bug, Feature, Enhancement, Documentation
 
-    public long? SessionId { get; set; }
+    public int? SessionId { get; set; }
 
     public Guid? UserId { get; set; }
 

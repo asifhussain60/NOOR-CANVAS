@@ -31,7 +31,7 @@ namespace NoorCanvas.Services
         /// <param name="sessionId">Session ID for asset tracking</param>
         /// <param name="sessionStatus">Session status (Active, Waiting, etc.)</param>
         /// <returns>Transformed HTML with share buttons and asset detection</returns>
-        public async Task<string> TransformForHostAsync(string html, long? sessionId, string? sessionStatus)
+        public async Task<string> TransformForHostAsync(string html, int? sessionId, string? sessionStatus)
         {
             if (string.IsNullOrEmpty(html))
             {

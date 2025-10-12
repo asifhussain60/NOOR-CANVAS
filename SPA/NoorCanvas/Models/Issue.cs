@@ -27,7 +27,7 @@ public class Issue
 
     public DateTime ReportedAt { get; set; } = DateTime.UtcNow;
 
-    public long? SessionId { get; set; }
+    public int? SessionId { get; set; }
 
     public Guid? UserId { get; set; }
 

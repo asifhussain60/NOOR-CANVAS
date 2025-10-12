@@ -15,7 +15,7 @@ public class QAHub : Hub
         _context = context;
     }
 
-    public async Task JoinQASession(long sessionId)
+    public async Task JoinQASession(int sessionId)
     {
         var groupName = $"qa_session_{sessionId}";
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
@@ -24,7 +24,7 @@ public class QAHub : Hub
             Context.ConnectionId, sessionId);
     }
 
-    public async Task AskQuestion(long sessionId, string questionText, Guid userId)
+    public async Task AskQuestion(int sessionId, string questionText, Guid userId)
     {
         try
         {

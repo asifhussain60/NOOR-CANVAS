@@ -35,7 +35,7 @@ public class AssetProcessingService
     /// <param name="sessionId">The session ID for logging and processing.</param>
     /// <param name="sessionStatus">The session status to determine if share buttons should be injected.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, long? sessionId, string? sessionStatus)
+    public async Task<string> TransformTranscriptHtmlAsync(string originalHtml, int? sessionId, string? sessionStatus)
     {
         if (string.IsNullOrEmpty(originalHtml))
         {

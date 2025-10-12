@@ -14,7 +14,7 @@ public class AuditLog
     [MaxLength(64)]
     public string? Actor { get; set; }
 
-    public long? SessionId { get; set; }
+    public int? SessionId { get; set; }
 
     public Guid? UserId { get; set; }
 
