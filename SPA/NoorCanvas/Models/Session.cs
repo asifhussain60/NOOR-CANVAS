@@ -14,7 +14,7 @@ public class Session
     /// Gets or sets kSESSIONS database SessionId - now the primary key for consistent referencing.
     /// </summary>
     [Key]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     /// <summary>
     /// Gets or sets album/Group identifier from KSESSIONS database (formerly GroupId).

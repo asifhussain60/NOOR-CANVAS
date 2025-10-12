@@ -96,7 +96,7 @@ namespace NoorCanvas.Services
         /// <param name="sessionStatus">Session status - share buttons only injected if "Active".</param>
         /// <param name="injectShareButtons">Whether to inject share buttons during processing.</param>
         /// <returns>Processed HTML with asset identifiers, optional share buttons, and metadata.</returns>
-        public AssetProcessingResult ProcessHtmlForAssetSharingWithButtons(string htmlContent, long sessionId, string sessionStatus, bool injectShareButtons = true)
+        public AssetProcessingResult ProcessHtmlForAssetSharingWithButtons(string htmlContent, int sessionId, string sessionStatus, bool injectShareButtons = true)
         {
             try
             {
@@ -176,7 +176,7 @@ namespace NoorCanvas.Services
         /// <param name="htmlContent">Raw HTML content from session transcripts.</param>
         /// <param name="sessionId">Session ID for asset tracking.</param>
         /// <returns>Processed HTML with asset identifiers and metadata.</returns>
-        public AssetProcessingResult ProcessHtmlForAssetSharing(string htmlContent, long sessionId)
+        public AssetProcessingResult ProcessHtmlForAssetSharing(string htmlContent, int sessionId)
         {
             try
             {
@@ -296,7 +296,7 @@ namespace NoorCanvas.Services
         /// <summary>
         /// Detect assets in HTML document using predefined patterns.
         /// </summary>
-        private List<DetectedAsset> DetectAssetsInHtml(HtmlDocument htmlDoc, long sessionId)
+        private List<DetectedAsset> DetectAssetsInHtml(HtmlDocument htmlDoc, int sessionId)
         {
             var detectedAssets = new List<DetectedAsset>();
             var assetIdCounter = 1;
@@ -613,7 +613,7 @@ namespace NoorCanvas.Services
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
-        public long SessionId { get; set; }
+        public int sessionId { get; set; }
         public DateTime ProcessedAt { get; set; }
         public int AssetCount { get; set; }
         public Dictionary<string, int> AssetTypeBreakdown { get; set; } = new();

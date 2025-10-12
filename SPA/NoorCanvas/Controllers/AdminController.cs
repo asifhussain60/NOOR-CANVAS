@@ -301,7 +301,7 @@ namespace NoorCanvas.Controllers
 
     public class AdminSessionSummary
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public int ParticipantCount { get; set; }
@@ -321,7 +321,7 @@ namespace NoorCanvas.Controllers
 
     public class AdminSessionDetails
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;

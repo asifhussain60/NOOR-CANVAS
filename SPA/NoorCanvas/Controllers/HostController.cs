@@ -1563,7 +1563,7 @@ namespace NoorCanvas.Controllers
 
     public class CreateSessionResponse
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string Status { get; set; } = "Success";
         public string JoinLink { get; set; } = string.Empty;
         public string SessionGuid { get; set; } = string.Empty;
@@ -1628,7 +1628,7 @@ namespace NoorCanvas.Controllers
     // [DEBUG-WORKITEM:assetshare:impl:09291233-as1] HtmlAgilityPack asset processing models ;CLEANUP_OK
     public class ProcessHtmlAssetsRequest
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string HtmlContent { get; set; } = string.Empty;
         public string? HostToken { get; set; }
     }
@@ -1655,7 +1655,7 @@ namespace NoorCanvas.Controllers
 
     public class ExtractAssetRequest
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string AssetId { get; set; } = string.Empty;
         public string HtmlContent { get; set; } = string.Empty;
         public string? HostToken { get; set; }

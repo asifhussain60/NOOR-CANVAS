@@ -10,7 +10,7 @@ public class HostSession
     public long HostSessionId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     [Required]
     [MaxLength(128)]

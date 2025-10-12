@@ -10,7 +10,7 @@ public class Registration
     public long RegistrationId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     [Required]
     public Guid UserId { get; set; }

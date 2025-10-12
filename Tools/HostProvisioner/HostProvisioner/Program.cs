@@ -38,7 +38,7 @@ class Program
         var rootCommand = new RootCommand("NOOR Canvas Host Provisioner - Generate and manage Host GUIDs");
 
         // Create command
-        var sessionIdOption = new Option<long>("--session-id", "Session ID to associate with the host GUID") { IsRequired = true };
+        var sessionIdOption = new Option<int>("--session-id", "Session ID to associate with the host GUID (references dbo.Sessions.SessionID)") { IsRequired = true };
         var createdByOption = new Option<string>("--created-by", "Name of the person creating the host session") { IsRequired = false };
         var expiresOption = new Option<string>("--expires", "Expiration date (yyyy-MM-dd)") { IsRequired = false };
         var dryRunOption = new Option<bool>("--dry-run", "Show what would be done without making changes") { IsRequired = false };
@@ -59,7 +59,7 @@ class Program
             rotationReasonOption
         };
 
-        createCommand.SetHandler(async (long sessionId, string? createdBy, string? expires, bool dryRun, bool createUser, bool createRegistration, bool forceNew, string? rotationReason) =>
+        createCommand.SetHandler(async (int sessionId, string? createdBy, string? expires, bool dryRun, bool createUser, bool createRegistration, bool forceNew, string? rotationReason) =>
         {
             await CreateHostGuidWithDatabase(serviceProvider, sessionId, createdBy, expires, dryRun, forceNew, rotationReason, createUser, createRegistration);
         },
@@ -172,7 +172,7 @@ class Program
                         
                     default:
                         // Try to parse as Session ID
-                        if (long.TryParse(input, out long sessionId))
+                        if (int.TryParse(input, out int sessionId))
                         {
                             var success = await ProcessSessionId(serviceProvider, sessionId);
                             if (success)
@@ -258,7 +258,7 @@ class Program
         Console.WriteLine();
     }
 
-    private static async Task<bool> ProcessSessionId(IServiceProvider serviceProvider, long sessionId)
+    private static async Task<bool> ProcessSessionId(IServiceProvider serviceProvider, int sessionId)
     {
         try
         {
@@ -277,7 +277,7 @@ class Program
         }
     }
 
-    private static void ShowUserFriendlyError(Exception ex, long sessionId)
+    private static void ShowUserFriendlyError(Exception ex, int sessionId)
     {
         Console.WriteLine();
         Console.WriteLine("❌ Error Creating Host GUID");
@@ -313,7 +313,7 @@ class Program
         Console.WriteLine();
     }
 
-    private static async Task CreateHostGuid(long sessionId, string? createdBy, string? expires, bool dryRun)
+    private static async Task CreateHostGuid(int sessionId, string? createdBy, string? expires, bool dryRun)
     {
         try
         {
@@ -361,7 +361,7 @@ class Program
         }
     }
 
-    private static async Task CreateHostGuidWithDatabase(IServiceProvider serviceProvider, long sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew = false, string? rotationReason = null, bool createUser = false, bool createRegistration = false)
+    private static async Task CreateHostGuidWithDatabase(IServiceProvider serviceProvider, int sessionId, string? createdBy, string? expires, bool dryRun, bool forceNew = false, string? rotationReason = null, bool createUser = false, bool createRegistration = false)
     {
         try
         {
@@ -614,7 +614,7 @@ class Program
         return Convert.ToBase64String(hashBytes);
     }
 
-    private static void DisplayGuidWithPause(Guid hostGuid, long sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null, string? hostToken = null, string? userToken = null)
+    private static void DisplayGuidWithPause(Guid hostGuid, int sessionId, long hostSessionId, Guid? userId = null, string? participantUrl = null, string? hostToken = null, string? userToken = null)
     {
         Console.WriteLine();
         Console.WriteLine("🎯 Session Tokens Generated Successfully!");

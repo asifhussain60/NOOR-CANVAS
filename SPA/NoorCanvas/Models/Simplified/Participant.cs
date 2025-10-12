@@ -10,7 +10,7 @@ public class Participant
     public int ParticipantId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }  // Changed from long to int - FK to canvas.Sessions.SessionId (INT)
 
     [Required]
     [MaxLength(8)]

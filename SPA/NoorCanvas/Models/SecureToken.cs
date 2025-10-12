@@ -11,7 +11,7 @@ public class SecureToken
     public int Id { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     [Required]
     [MaxLength(8)]

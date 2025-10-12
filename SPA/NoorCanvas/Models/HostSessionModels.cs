@@ -55,7 +55,7 @@ namespace NoorCanvas.Models
 
     public class CreateSessionResponse
     {
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string Status { get; set; } = string.Empty;
         public string JoinLink { get; set; } = string.Empty;
         public string SessionGuid { get; set; } = string.Empty;
@@ -79,7 +79,7 @@ namespace NoorCanvas.Models
         public bool Success { get; set; }
         public string? UserToken { get; set; }
         public string? HostToken { get; set; }
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
         public string? Message { get; set; }
     }
 }

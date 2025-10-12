@@ -247,7 +247,7 @@ BEGIN TRY
     IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'canvas' AND TABLE_NAME = 'Sessions')
     BEGIN
         CREATE TABLE [canvas].[Sessions] (
-            [SessionId] BIGINT IDENTITY(1,1) NOT NULL,
+            [SessionId] INT NOT NULL,  -- FK to dbo.Sessions.SessionID (NOT IDENTITY - references Islamic learning sessions)
             [AlbumId] UNIQUEIDENTIFIER NOT NULL DEFAULT ('00000000-0000-0000-0000-000000000000'),
             [HostToken] NVARCHAR(8) NOT NULL DEFAULT (''),
             [UserToken] NVARCHAR(8) NOT NULL DEFAULT (''),
@@ -262,9 +262,10 @@ BEGIN TRY
             [ScheduledDate] NVARCHAR(20) NULL,
             [ScheduledDuration] NVARCHAR(10) NULL,
             [ScheduledTime] NVARCHAR(20) NULL,
-            CONSTRAINT [PK__Sessions__C9F49290FD14F53B] PRIMARY KEY CLUSTERED ([SessionId])
+            CONSTRAINT [PK__Sessions__C9F49290FD14F53B] PRIMARY KEY CLUSTERED ([SessionId]),
+            CONSTRAINT [FK_canvas_Sessions_dbo_Sessions] FOREIGN KEY ([SessionId]) REFERENCES [dbo].[Sessions]([SessionID]) ON DELETE NO ACTION
         );
-        PRINT '    ✅ canvas.Sessions table created';
+        PRINT '    ✅ canvas.Sessions table created with FK to dbo.Sessions';
     END
     ELSE
         PRINT '    ✅ canvas.Sessions table already exists';
@@ -288,7 +289,7 @@ BEGIN TRY
     BEGIN
         CREATE TABLE [canvas].[Participants] (
             [ParticipantId] INT IDENTITY(1,1) NOT NULL,
-            [SessionId] BIGINT NOT NULL,
+            [SessionId] INT NOT NULL,  -- Changed from BIGINT to INT to match canvas.Sessions.SessionId
             [UserGuid] NVARCHAR(256) NULL,
             [Name] NVARCHAR(100) NULL,
             [Email] NVARCHAR(255) NULL,
@@ -323,7 +324,7 @@ BEGIN TRY
     BEGIN
         CREATE TABLE [canvas].[SessionData] (
             [DataId] INT IDENTITY(1,1) NOT NULL,
-            [SessionId] BIGINT NOT NULL,
+            [SessionId] INT NOT NULL,  -- Changed from BIGINT to INT to match canvas.Sessions.SessionId
             [DataType] NVARCHAR(20) NOT NULL,
             [Content] NVARCHAR(MAX) NULL,
             [CreatedBy] NVARCHAR(100) NULL,

@@ -116,7 +116,7 @@ namespace NoorCanvas.Services
         /// Load session assets from the SessionAssets API.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task<List<SessionAssetDto>?> LoadSessionAssetsAsync(long sessionId)
+        public async Task<List<SessionAssetDto>?> LoadSessionAssetsAsync(int sessionId)
         {
             try
             {
@@ -201,7 +201,7 @@ namespace NoorCanvas.Services
 
         public class SessionAssetsResponse
         {
-            public long SessionId { get; set; }
+            public int sessionId { get; set; }
             public int TotalAssets { get; set; }
             public int SharedAssets { get; set; }
             public Dictionary<string, int> AssetsByType { get; set; } = new();

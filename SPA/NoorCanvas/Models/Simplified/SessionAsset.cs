@@ -20,7 +20,7 @@ public class SessionAsset
     /// Gets or sets foreign key to Sessions table.
     /// </summary>
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     /// <summary>
     /// Gets or sets primary CSS class for this asset type (e.g., 'imgResponsive', 'ayah-card', 'inserted-hadees')
@@ -215,7 +215,7 @@ public class SessionAssetDto
 /// </summary>
 public class SessionAssetsResponse
 {
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
     public int TotalAssets { get; set; }
     public int SharedAssets { get; set; }
     public Dictionary<string, int> AssetsByType { get; set; } = new();

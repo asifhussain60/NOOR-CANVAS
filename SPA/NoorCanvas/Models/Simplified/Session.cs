@@ -7,10 +7,11 @@ namespace NoorCanvas.Models.Simplified;
 public class Session
 {
     /// <summary>
-    /// Gets or sets auto-generated Canvas SessionId - primary key (not the KSESSIONS database SessionId).
+    /// Gets or sets SessionId - FK to dbo.Sessions.SessionID (Islamic learning session identifier).
+    /// NOT auto-generated - must reference an existing dbo.Sessions.SessionID.
     /// </summary>
     [Key]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }  // Changed from long to int - references dbo.Sessions.SessionID
 
     /// <summary>
     /// Gets or sets album/Group identifier from KSESSIONS database (formerly GroupId).

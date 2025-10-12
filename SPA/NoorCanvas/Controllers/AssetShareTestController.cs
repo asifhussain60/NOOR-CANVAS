@@ -190,7 +190,7 @@ public class AssetShareTestController : ControllerBase
 
 public class TestBroadcastRequest
 {
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
     public string? Content { get; set; }
 }
 
@@ -199,13 +199,13 @@ public class TestBroadcastResponse
     public bool Success { get; set; }
     public string TestId { get; set; } = string.Empty;
     public int ContentLength { get; set; }
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
     public DateTime BroadcastTime { get; set; }
 }
 
 public class Session212TestRequest
 {
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 }
 
 public class Session212TestResponse
@@ -213,7 +213,7 @@ public class Session212TestResponse
     public bool Success { get; set; }
     public string TestId { get; set; } = string.Empty;
     public int ContentLength { get; set; }
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
     public int OriginalTranscriptLength { get; set; }
     public DateTime BroadcastTime { get; set; }
 }

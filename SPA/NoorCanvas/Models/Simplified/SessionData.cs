@@ -10,7 +10,7 @@ public class SessionData
     public int DataId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }  // Changed from long to int - FK to canvas.Sessions.SessionId (INT)
 
     [Required, MaxLength(20)]
     public string DataType { get; set; } = string.Empty; // 'SharedAsset', 'Annotation', 'Question', 'QuestionAnswer'

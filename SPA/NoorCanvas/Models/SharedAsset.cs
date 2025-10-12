@@ -10,7 +10,7 @@ public class SharedAsset
     public long AssetId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     public DateTime SharedAt { get; set; } = DateTime.UtcNow;
 

@@ -7,11 +7,11 @@ namespace NoorCanvas.Services
 {
     public interface IAnnotationService
     {
-        Task<IEnumerable<Annotation>> GetSessionAnnotationsAsync(long sessionId);
-        Task<Annotation> CreateAnnotationAsync(long sessionId, string createdBy, object annotationData);
+        Task<IEnumerable<Annotation>> GetSessionAnnotationsAsync(int sessionId);
+        Task<Annotation> CreateAnnotationAsync(int sessionId, string createdBy, object annotationData);
         Task<bool> DeleteAnnotationAsync(long annotationId, string userId);
         Task<bool> UpdateAnnotationAsync(long annotationId, string userId, object annotationData);
-        Task ClearSessionAnnotationsAsync(long sessionId, string userId);
+        Task ClearSessionAnnotationsAsync(int sessionId, string userId);
     }
 
     public class AnnotationService : IAnnotationService
@@ -26,7 +26,7 @@ namespace NoorCanvas.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<Annotation>> GetSessionAnnotationsAsync(long sessionId)
+        public async Task<IEnumerable<Annotation>> GetSessionAnnotationsAsync(int sessionId)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace NoorCanvas.Services
         }
 
         /// <inheritdoc/>
-        public async Task<Annotation> CreateAnnotationAsync(long sessionId, string createdBy, object annotationData)
+        public async Task<Annotation> CreateAnnotationAsync(int sessionId, string createdBy, object annotationData)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace NoorCanvas.Services
         }
 
         /// <inheritdoc/>
-        public async Task ClearSessionAnnotationsAsync(long sessionId, string userId)
+        public async Task ClearSessionAnnotationsAsync(int sessionId, string userId)
         {
             try
             {

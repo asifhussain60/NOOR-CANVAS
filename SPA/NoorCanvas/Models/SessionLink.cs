@@ -10,7 +10,7 @@ public class SessionLink
     public long LinkId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     [Required]
     public Guid Guid { get; set; }

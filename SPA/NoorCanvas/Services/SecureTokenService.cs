@@ -20,7 +20,7 @@ public class SecureTokenService
     }
 
     public async Task<(string hostToken, string userToken)> GenerateTokenPairAsync(
-        long sessionId,
+        int sessionId,
         int validHours = 24,
         string? clientIp = null)
     {
@@ -135,7 +135,7 @@ public class SecureTokenService
         }
     }
 
-    public async Task<SecureToken?> GetTokenBySessionIdAsync(long sessionId)
+    public async Task<SecureToken?> GetTokenBySessionIdAsync(int sessionId)
     {
         return await _context.SecureTokens
             .Include(st => st.Session)
@@ -143,7 +143,7 @@ public class SecureTokenService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<bool> ExpireTokenAsync(long sessionId)
+    public async Task<bool> ExpireTokenAsync(int sessionId)
     {
         var tokens = await _context.SecureTokens
             .Where(st => st.SessionId == sessionId)

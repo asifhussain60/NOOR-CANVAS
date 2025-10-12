@@ -25,7 +25,7 @@ public partial class AssetDetectionService
     /// Replaces existing assets for the session to ensure consistency.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<int> DetectAndStoreAssetsAsync(long sessionId, string transcriptHtml)
+    public async Task<int> DetectAndStoreAssetsAsync(int sessionId, string transcriptHtml)
     {
         try
         {
@@ -71,7 +71,7 @@ public partial class AssetDetectionService
     /// Flexible asset detection using class intersection analysis
     /// Groups assets by primary class and counts instances.
     /// </summary>
-    private Task<List<SessionAsset>> DetectAssetsFlexibleAsync(long sessionId, string transcriptHtml)
+    private Task<List<SessionAsset>> DetectAssetsFlexibleAsync(int sessionId, string transcriptHtml)
     {
         var consolidatedAssets = new List<SessionAsset>();
         var position = 1;
@@ -179,7 +179,7 @@ public partial class AssetDetectionService
     /// <summary>
     /// Legacy method - detect assets of a specific type in the transcript HTML.
     /// </summary>
-    private (List<SessionAsset> Assets, int NewPosition) DetectAssetType(long sessionId, string html, string assetType, int globalPosition)
+    private (List<SessionAsset> Assets, int NewPosition) DetectAssetType(int sessionId, string html, string assetType, int globalPosition)
     {
         var assets = new List<SessionAsset>();
 
@@ -422,7 +422,7 @@ public partial class AssetDetectionService
     /// <summary>
     /// DISABLED: Remove existing assets for a session before detecting new ones.
     /// </summary>
-    private async Task ClearExistingAssetsAsync(long sessionId)
+    private async Task ClearExistingAssetsAsync(int sessionId)
     {
         // DISABLED: SessionAssets table was dropped - replaced by simplified AssetLookup approach
         _logger.LogWarning("ASSET-DETECTION: ClearExistingAssetsAsync disabled - using simplified AssetLookup approach");
@@ -433,7 +433,7 @@ public partial class AssetDetectionService
     /// Get asset statistics for a session.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public Task<Dictionary<string, int>> GetAssetStatsAsync(long sessionId)
+    public Task<Dictionary<string, int>> GetAssetStatsAsync(int sessionId)
     {
         try
         {

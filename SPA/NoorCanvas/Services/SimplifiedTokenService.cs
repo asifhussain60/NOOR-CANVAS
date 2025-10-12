@@ -29,7 +29,7 @@ public class SimplifiedTokenService
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<(string hostToken, string userToken)> GenerateTokenPairForSessionAsync(
-        long sessionId,
+        int sessionId,
         int validHours = 24,
         string? clientIp = null)
     {
@@ -133,7 +133,7 @@ public class SimplifiedTokenService
     /// Get session tokens by SessionId.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<(string? hostToken, string? userToken)?> GetTokensBySessionIdAsync(long sessionId)
+    public async Task<(string? hostToken, string? userToken)?> GetTokensBySessionIdAsync(int sessionId)
     {
         var session = await _context.Sessions
             .Where(s => s.SessionId == sessionId && s.ExpiresAt > DateTime.UtcNow)
@@ -148,7 +148,7 @@ public class SimplifiedTokenService
     /// Expire tokens for a session (set expiry to past).
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<bool> ExpireTokensAsync(long sessionId)
+    public async Task<bool> ExpireTokensAsync(int sessionId)
     {
         var session = await _context.Sessions.FindAsync(sessionId);
         if (session == null) return false;
@@ -164,7 +164,7 @@ public class SimplifiedTokenService
     /// Store annotation data in SessionData table using JSON.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<int> StoreAnnotationAsync(long sessionId, object annotationData, string? userGuid = null)
+    public async Task<int> StoreAnnotationAsync(int sessionId, object annotationData, string? userGuid = null)
     {
         var sessionData = new SessionData
         {
@@ -188,7 +188,7 @@ public class SimplifiedTokenService
     /// Store question data in SessionData table using JSON.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<int> StoreQuestionAsync(long sessionId, object questionData, string? userGuid = null)
+    public async Task<int> StoreQuestionAsync(int sessionId, object questionData, string? userGuid = null)
     {
         var sessionData = new SessionData
         {
@@ -212,7 +212,7 @@ public class SimplifiedTokenService
     /// Get all session data by type (annotations, questions, etc.)
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task<List<T>> GetSessionDataAsync<T>(long sessionId, string dataType) where T : class
+    public async Task<List<T>> GetSessionDataAsync<T>(int sessionId, string dataType) where T : class
     {
         var sessionDataList = await _context.SessionData
             .Where(sd => sd.SessionId == sessionId && sd.DataType == dataType && !sd.IsDeleted)

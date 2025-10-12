@@ -10,7 +10,7 @@ public class Annotation
     public long AnnotationId { get; set; }
 
     [Required]
-    public long SessionId { get; set; }
+    public int SessionId { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

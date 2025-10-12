@@ -244,7 +244,7 @@ namespace NoorCanvas.Controllers
     {
         [Required]
         [Range(1, long.MaxValue)]
-        public long SessionId { get; set; }
+        public int SessionId { get; set; }
 
         [Required]
         [MaxLength(128)]
