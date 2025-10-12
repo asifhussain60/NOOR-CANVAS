@@ -89,30 +89,44 @@ namespace NoorCanvas.Services
 
             try
             {
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Frontend service calling /api/Host/albums - Token: {Token} ;CLEANUP_OK", 
+                    hostToken?.Substring(0, Math.Min(8, hostToken?.Length ?? 0)) ?? "null");
+                
                 var httpClient = CreateHttpClient();
                 var url = "/api/Host/albums";
                 if (!string.IsNullOrEmpty(hostToken))
                 {
                     url += $"?guid={Uri.EscapeDataString(hostToken)}";
                 }
+                
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Request URL: {Url} ;CLEANUP_OK", url);
                 var response = await httpClient.GetAsync(url);
+
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] API response - Status: {Status}, Success: {Success} ;CLEANUP_OK", 
+                    response.StatusCode, response.IsSuccessStatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums response length: {Length} bytes ;CLEANUP_OK", 
+                        jsonContent?.Length ?? 0);
+                    
                     albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<NoorCanvas.Controllers.AlbumData>();
+                    
+                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums deserialized - Count: {Count} ;CLEANUP_OK", albums.Count);
                 }
                 else
                 {
-
+                    _logger.LogWarning("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums API call failed - Status: {Status} ;CLEANUP_OK", 
+                        response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading albums");
+                _logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] Error loading albums - Message: {Message} ;CLEANUP_OK", ex.Message);
             }
 
             return albums;

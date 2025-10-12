@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NoorCanvas.Configuration;
+using NoorCanvas.Controllers;
 using NoorCanvas.Data;
 using NoorCanvas.Hubs;
 using NoorCanvas.Services;
@@ -263,6 +264,52 @@ if (app.Environment.IsDevelopment())
 }
 
 Log.Information("NOOR-STARTUP: NOOR Canvas Phase 1 application starting");
+
+// [DEBUG-WORKITEM:session-opener:database-connection] Log database connection diagnostics ;CLEANUP_OK
+try
+{
+    var connectionString = app.Configuration.GetConnectionString("DefaultConnection");
+    var sanitizedConnection = connectionString?.Split(';')
+        .Where(s => !s.Contains("Password", StringComparison.OrdinalIgnoreCase))
+        .Aggregate((a, b) => $"{a};{b}") ?? "unknown";
+    
+    Log.Information("[DEBUG-WORKITEM:session-opener:database-connection] Database Connection: {Connection} ;CLEANUP_OK", sanitizedConnection);
+    
+    // Test KSessionsDbContext connection
+    using var scope = app.Services.CreateScope();
+    var kSessionsContext = scope.ServiceProvider.GetRequiredService<KSessionsDbContext>();
+    var dbName = kSessionsContext.Database.GetConnectionString()?.Split(';')
+        .FirstOrDefault(s => s.Contains("Database", StringComparison.OrdinalIgnoreCase))?.Split('=').LastOrDefault() ?? "unknown";
+    
+    Log.Information("[DEBUG-WORKITEM:session-opener:database-connection] KSessionsDbContext Database: {Database} ;CLEANUP_OK", dbName);
+    
+    // Test database connectivity
+    var canConnect = await kSessionsContext.Database.CanConnectAsync();
+    Log.Information("[DEBUG-WORKITEM:session-opener:database-connection] Database Connection Test: {Status} ;CLEANUP_OK", 
+        canConnect ? "SUCCESS" : "FAILED");
+    
+    if (canConnect)
+    {
+        // Test stored procedure existence
+        try
+        {
+            var testAlbums = await kSessionsContext.Database
+                .SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups")
+                .Take(1)
+                .ToListAsync();
+            Log.Information("[DEBUG-WORKITEM:session-opener:database-connection] Stored Procedure dbo.GetAllGroups: EXISTS ;CLEANUP_OK");
+        }
+        catch (Exception spEx)
+        {
+            Log.Error(spEx, "[DEBUG-WORKITEM:session-opener:database-connection] Stored Procedure dbo.GetAllGroups: MISSING or ERROR - {Message} ;CLEANUP_OK", 
+                spEx.Message);
+        }
+    }
+}
+catch (Exception dbEx)
+{
+    Log.Error(dbEx, "[DEBUG-WORKITEM:session-opener:database-connection] Database diagnostics failed - {Message} ;CLEANUP_OK", dbEx.Message);
+}
 
 try
 {

@@ -608,17 +608,23 @@
         
         try
         {
+            Logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Razor component calling HostService.LoadAlbumsAsync - Token: {Token} ;CLEANUP_OK", 
+                Model.HostFriendlyToken?.Substring(0, Math.Min(8, Model.HostFriendlyToken?.Length ?? 0)) ?? "null");
+            
             Albums = await HostService.LoadAlbumsAsync(Model.HostFriendlyToken);
+            
+            Logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums loaded in Razor component - Count: {Count} ;CLEANUP_OK", Albums.Count);
             
             if (Albums.Count == 0)
             {
+                Logger.LogWarning("[DEBUG-WORKITEM:session-opener:dropdown-load] No albums returned from service ;CLEANUP_OK");
                 // DEBUG-WORKITEM: session-opener - Removed InfoMessage, no message shown for empty albums ;CLEANUP_OK
                 // No message needed - user will see empty dropdown
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error loading albums");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] Error loading albums in Razor component - Message: {Message} ;CLEANUP_OK", ex.Message);
             Model.ErrorMessage = "<strong>Unable to load albums</strong><br/>• Check your internet connection<br/>• Refresh the page to try again<br/>• Contact support if the problem persists";
         }
         finally

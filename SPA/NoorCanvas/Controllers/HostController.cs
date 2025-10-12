@@ -142,11 +142,15 @@ namespace NoorCanvas.Controllers
             try
             {
                 var requestId = Guid.NewGuid().ToString("N")[..8];
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:token-validation] Starting token validation - Token: {Token}, RequestId: {RequestId} ;CLEANUP_OK", 
+                    friendlyToken, requestId);
+                
                 _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Validating friendly token: {Token}",
                     requestId, friendlyToken);
 
                 if (string.IsNullOrWhiteSpace(friendlyToken))
                 {
+                    _logger.LogWarning("[DEBUG-WORKITEM:session-opener:token-validation] Empty token provided - RequestId: {RequestId} ;CLEANUP_OK", requestId);
                     _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Empty token provided", requestId);
                     return BadRequest(new { error = "Token is required", valid = false, requestId });
                 }
@@ -154,6 +158,8 @@ namespace NoorCanvas.Controllers
                 // Check if token format is valid (8 characters, alphanumeric)
                 if (friendlyToken.Length != 8 || !friendlyToken.All(c => char.IsLetterOrDigit(c)))
                 {
+                    _logger.LogWarning("[DEBUG-WORKITEM:session-opener:token-validation] Invalid token format - Token: {Token}, Length: {Length}, RequestId: {RequestId} ;CLEANUP_OK", 
+                        friendlyToken, friendlyToken.Length, requestId);
                     _logger.LogWarning("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Invalid token format: {Token}",
                         requestId, friendlyToken);
                     return Ok(new HostSessionValidationResponse
@@ -166,18 +172,25 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Look up friendly token in simplified Sessions table
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:token-validation] Looking up token in canvas.Sessions - Token: {Token} ;CLEANUP_OK", friendlyToken);
                 _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Looking up friendly token in database", requestId);
 
                 var session = await _simplifiedTokenService.ValidateTokenAsync(friendlyToken, isHostToken: true);
 
                 if (session != null)
                 {
+                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:token-validation] Token found in canvas.Sessions - SessionId: {SessionId}, Status: {Status} ;CLEANUP_OK", 
+                        session.SessionId, session.Status);
+                    
                     // Fetch fresh session info (title and description) from KSESSIONS database instead of using stale stored data
                     string sessionTitle = "Session " + session.SessionId; // Default fallback, will be overridden from KSESSIONS
                     string sessionDescription = "Session description not available";
 
                     if (session.SessionId > 0) // SessionId now contains the KSESSIONS ID
                     {
+                        _logger.LogDebug("[DEBUG-WORKITEM:session-opener:token-validation] Fetching session details from KSESSIONS - SessionId: {SessionId} ;CLEANUP_OK", 
+                            session.SessionId);
+                        
                         var ksessionInfo = await _kSessionsContext.Sessions
                             .Where(s => s.SessionId == session.SessionId) // Use SessionId directly
                             .Select(s => new { s.SessionName, s.Description })
@@ -195,6 +208,8 @@ namespace NoorCanvas.Controllers
                                 sessionDescription = ksessionInfo.Description;
                             }
 
+                            _logger.LogDebug("[DEBUG-WORKITEM:session-opener:token-validation] Session info updated from KSESSIONS - Title: {Title}, Description: {Desc} ;CLEANUP_OK", 
+                                sessionTitle, sessionDescription);
                             _logger.LogInformation("NOOR-HOST-TOKEN-VALIDATE: [{RequestId}] Updated session info from KSESSIONS: Title='{Title}', Description='{Description}' for session {SessionId}",
                                 requestId, sessionTitle, sessionDescription, session.SessionId);
                         }
@@ -443,6 +458,10 @@ namespace NoorCanvas.Controllers
         {
             try
             {
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Starting GetAlbums - Token: {Token}, Database: {Database} ;CLEANUP_OK", 
+                    guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) ?? "null", 
+                    _kSessionsContext.Database.GetConnectionString()?.Split(';').FirstOrDefault(s => s.Contains("Database"))?.Split('=').LastOrDefault() ?? "unknown");
+                
                 _logger.LogInformation("NOOR-INFO: Loading albums from KSESSIONS database for host token: {Token}", guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required for albums
@@ -451,17 +470,22 @@ namespace NoorCanvas.Controllers
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required
                 // Groups (Albums) are Islamic content available to all authenticated hosts
 
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Executing stored procedure: dbo.GetAllGroups ;CLEANUP_OK");
+                
                 // Use stored procedure to get all groups (albums)
                 var albums = await _kSessionsContext.Database
                     .SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups")
                     .ToListAsync();
 
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums loaded successfully - Count: {Count} ;CLEANUP_OK", albums.Count);
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {AlbumCount} albums from KSESSIONS database", albums.Count);
                 return Ok(albums);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ERROR: Failed to load albums from KSESSIONS database");
+                _logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] NOOR-ERROR: Failed to load albums - Error: {Message}, Database: {Database} ;CLEANUP_OK", 
+                    ex.Message,
+                    _kSessionsContext.Database.GetConnectionString()?.Split(';').FirstOrDefault(s => s.Contains("Database"))?.Split('=').LastOrDefault() ?? "unknown");
                 return StatusCode(500, new { error = "Failed to load albums" });
             }
         }
@@ -471,6 +495,10 @@ namespace NoorCanvas.Controllers
         {
             try
             {
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Starting GetCategories - AlbumId: {AlbumId}, Token: {Token} ;CLEANUP_OK", 
+                    albumId, 
+                    guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) ?? "null");
+                
                 _logger.LogInformation("NOOR-INFO: Loading categories from KSESSIONS database for album: {AlbumId}, host token: {Token}", albumId, guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required for categories
@@ -478,17 +506,21 @@ namespace NoorCanvas.Controllers
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required
 
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Executing stored procedure: dbo.GetCategoriesForGroup {AlbumId} ;CLEANUP_OK", albumId);
+                
                 // Use stored procedure to get categories for the specified group
                 var categories = await _kSessionsContext.Database
                     .SqlQuery<CategoryData>($"EXEC dbo.GetCategoriesForGroup {albumId}")
                     .ToListAsync();
 
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Categories loaded successfully - Count: {Count} ;CLEANUP_OK", categories.Count);
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {CategoryCount} categories from KSESSIONS database for album {AlbumId}", categories.Count, albumId);
                 return Ok(categories);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ERROR: Failed to load categories from KSESSIONS database for album {AlbumId}", albumId);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] NOOR-ERROR: Failed to load categories - AlbumId: {AlbumId}, Error: {Message} ;CLEANUP_OK", 
+                    albumId, ex.Message);
                 return StatusCode(500, new { error = "Failed to load categories" });
             }
         }
@@ -498,6 +530,10 @@ namespace NoorCanvas.Controllers
         {
             try
             {
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Starting GetSessions - CategoryId: {CategoryId}, Token: {Token} ;CLEANUP_OK", 
+                    categoryId, 
+                    guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) ?? "null");
+                
                 _logger.LogInformation("NOOR-INFO: Loading sessions from KSESSIONS database for category: {CategoryId}, host token: {Token}", categoryId, guid?.Substring(0, Math.Min(8, guid?.Length ?? 0)) + "...");
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required for sessions
@@ -505,6 +541,8 @@ namespace NoorCanvas.Controllers
 
                 // KSESSIONS data is read-only and publicly accessible - no GUID validation required
 
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Querying dbo.Sessions table for CategoryId: {CategoryId} ;CLEANUP_OK", categoryId);
+                
                 // Query sessions for the specified category directly (no stored procedure needed)
                 var sessions = await _kSessionsContext.Sessions
                     .Where(s => s.CategoryId == categoryId && s.IsActive == true)
@@ -518,12 +556,15 @@ namespace NoorCanvas.Controllers
                     })
                     .ToListAsync();
 
+                _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Sessions loaded successfully - Count: {Count} ;CLEANUP_OK", sessions.Count);
+
                 _logger.LogInformation("NOOR-SUCCESS: Loaded {SessionCount} sessions from KSESSIONS database for category {CategoryId}", sessions.Count, categoryId);
                 return Ok(sessions);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-ERROR: Failed to load sessions from KSESSIONS database for category {CategoryId}", categoryId);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:session-opener:dropdown-load] NOOR-ERROR: Failed to load sessions - CategoryId: {CategoryId}, Error: {Message} ;CLEANUP_OK", 
+                    categoryId, ex.Message);
                 return StatusCode(500, new { error = "Failed to load sessions" });
             }
         }
