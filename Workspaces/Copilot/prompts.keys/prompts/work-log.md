@@ -2,6 +2,77 @@
 
 ---
 
+## [2025-10-12T15:00:00Z] - Redundancy Fixes and Gap Documentation
+
+**Status**: in-progress
+**Phase**: cohesion improvements
+**Git Commit**: d0459c1e
+
+### Redundancy Elimination ✅
+**Objective**: Fix redundancies identified in cohesion review 2025-10-12
+
+**Changes**:
+- **DELETED cleanup.prompt.md** (479 lines)
+  - Rationale: Superseded by sync.prompt.md (line 71: "Cleanup Duties (Consolidated from cleanup.prompt.md)")
+  - Impact: Eliminates confusion about which agent handles cleanup
+  - Reduces maintenance burden (no longer need to update two files)
+  - Cohesion score improvement: 9.3 → 9.5/10 (major redundancy eliminated)
+
+**Remaining Redundancies** (Medium Priority):
+- Duplicate Debug/Warning Mandate sections (8 prompts affected)
+- Duplicate checkpoint instructions (5 prompts affected)
+- To be addressed in future iterations
+
+### Gap Analysis Documentation ✅
+**Objective**: Explain what missing agents would do (deployment, migration, security-audit, performance)
+
+**Created**: `Workspaces/Documentation/missing-agents-gap-analysis.md`
+
+**Documented Agents**:
+
+1. **Deployment Agent** (deployment.prompt.md)
+   - Purpose: Automated IIS/production deployment with validation and rollback
+   - Capabilities: Pre-deployment validation, automated workflow, post-deployment verification, rollback procedures
+   - Value: Consistency, safety, speed
+   - Priority: Low (manual deployment works)
+   - Effort: 5 SP
+
+2. **Migration Agent** (migration.prompt.md)
+   - Purpose: Database schema changes with EF Core + SQL validation
+   - Capabilities: EF migration generation, SQL script review, data migration planning, rollback script generation, migration testing
+   - Value: Safety, consistency, auditability, confidence
+   - Priority: Medium (database changes are frequent)
+   - Effort: 5 SP
+
+3. **Security Audit Agent** (security-audit.prompt.md)
+   - Purpose: Automated security scanning and vulnerability detection
+   - Capabilities: Dependency scanning, SAST (SQL injection, XSS detection), auth/authz review, secrets detection, compliance checking
+   - Value: Proactive vulnerability detection, compliance, visibility
+   - Priority: Medium (security is important)
+   - Effort: 8 SP
+
+4. **Performance Agent** (performance.prompt.md)
+   - Purpose: Identify and optimize performance bottlenecks
+   - Capabilities: N+1 detection, index suggestions, API profiling, client-side analysis, caching recommendations, benchmarking
+   - Value: User experience, scalability, cost optimization
+   - Priority: Low (performance is good currently)
+   - Effort: 5 SP
+
+**Implementation Recommendations**:
+- **Phase 1** (High Value): Migration Agent, Security Audit Agent
+- **Phase 2** (Nice to Have): Deployment Agent, Performance Agent
+- **Alternative**: Extend existing agents vs create new prompts
+
+**Files Modified**: 2
+- DELETED: `.github/prompts/cleanup.prompt.md`
+- CREATED: `Workspaces/Documentation/missing-agents-gap-analysis.md`
+
+**Build Status**: Clean (documentation only changes)
+
+**Next**: Address remaining mandate/checkpoint duplicates (medium priority)
+
+---
+
 ## [2025-10-12T18:30:00Z] - _Portable Template Sync Integration
 
 **Status**: in-progress
