@@ -244,9 +244,38 @@ None
 **Next**: Full deployment test with provisioner step
 ---
 
+---
+## [2025-10-12 17:21 UTC] - task
+**Status**: in-progress | **Phase**: unified-database-config | **Commit**: 20e4e5c
+**Work**:
+- Created unified database configuration system
+  * config/sharedsettings.json: Single source of truth for connection strings
+  * Development → KSESSIONS_DEV, Production → KSESSIONS
+  * Updated all appsettings files (NoorCanvas + HostProvisioner) with documentation comments
+  * config/README.md: Complete configuration documentation
+- Added debug logging to HostProvisioner for connection tracking
+  * [DEBUG-WORKITEM:deploy:connection-resolution] markers
+  * Logs environment and target database on startup
+- Fresh production deployment executed successfully
+  * ncdeploy.ps1: NoorCanvas deployed to D:\Websites\NOOR-CANVAS
+  * IIS app pool stopped/restarted cleanly
+  * wwwroot cleaned (9 dev/test files removed)
+  * HostProvisioner deployed manually after process lock resolution
+- Verified production connectivity
+  * Session 212: Created successfully (Host=BXUIZK2K, User=LPRYHVJJ)
+  * Session 213: Created successfully (Host=DJYKGMZB, User=EFSRERDA)
+  * Both records confirmed in KSESSIONS database
+  * Production connection string verified in deployed appsettings
+
+**Files**: 11 modified (7 appsettings, 1 Program.cs, 3 docs) | **Tests**: Production Session 212/213 creation PASS | **Build**: PASS (3 pre-existing warnings)
+**Debug**: Simple markers inserted for connection resolution tracking
+**Next**: Remove debug markers after validation complete
+---
+
 ## Next Steps
 1. ✅ Deploy application to IIS with Production configuration - COMPLETE
-2. Validate KSESSIONS database connectivity in production
-3. Verify ProductionInfoPanel displays correct database name
-4. Test canvas functionality with production data
-5. Monitor application logs for database connection issues
+2. ✅ Validate KSESSIONS database connectivity in production - COMPLETE (Session 212/213 created)
+3. ✅ Consolidate connection strings across all projects - COMPLETE (config/sharedsettings.json)
+4. ✅ Deploy HostProvisioner to production - COMPLETE (D:\Websites\NOOR-CANVAS\HostProvisioner)
+5. Test canvas functionality with production tokens
+6. Monitor application logs for database connection issues
