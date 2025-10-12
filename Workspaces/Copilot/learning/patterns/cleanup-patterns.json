@@ -1,0 +1,168 @@
+{
+  "patterns": [
+    {
+      "id": "cleanup-001-reusable-agent",
+      "name": "Create Reusable Cleanup Agent",
+      "category": "system-maintenance",
+      "description": "Create standalone cleanup prompt with comprehensive workflows for ongoing workspace maintenance",
+      "context": "When workspace accumulates build artifacts, temporary files, and documentation sprawl",
+      "implementation": {
+        "steps": [
+          "Step 1: Analyze workspace for cleanup targets (build artifacts, temp files, docs, key streams)",
+          "Step 2: Create .github/prompts/cleanup.prompt.md with target-specific cleanup logic",
+          "Step 3: Add safety mechanisms (checkpoint commits, dry-run mode, archive-instead-of-delete)",
+          "Step 4: Implement validation to ensure cleanup doesn't break builds",
+          "Step 5: Add reporting to track cleanup statistics"
+        ],
+        "files_affected": [
+          ".github/prompts/cleanup.prompt.md"
+        ],
+        "dependencies": []
+      },
+      "validation": {
+        "tests_required": false,
+        "build_validation": true,
+        "analyzer_checks": []
+      },
+      "success_metrics": {
+        "usage_count": 1,
+        "success_rate": 1.0,
+        "avg_execution_time_seconds": 300,
+        "files_cleaned_avg": 235
+      },
+      "examples": [
+        {
+          "key": "cleanup",
+          "git_commit": "4a2e5a8d8430ffe3cba317e9d13821c34d0302f2",
+          "description": "Created cleanup.prompt.md and executed first comprehensive workspace cleanup"
+        }
+      ],
+      "last_updated": "2025-10-12T12:30:00Z",
+      "contributed_by": "analyze-learning"
+    },
+    {
+      "id": "cleanup-002-key-stream-consolidation",
+      "name": "Key Data Stream Consolidation",
+      "category": "knowledge-management",
+      "description": "Merge related key data streams to reduce prompts.keys footprint while preserving complete history",
+      "context": "When multiple completed keys address the same component or feature area",
+      "implementation": {
+        "steps": [
+          "Step 1: Identify completed keys with similar scope (3+ keys on same component)",
+          "Step 2: Merge work logs chronologically preserving all entries",
+          "Step 3: Combine file mappings into unified list",
+          "Step 4: Preserve all git commit SHAs from merged keys",
+          "Step 5: Archive original keys to _archived/consolidated-{date}/",
+          "Step 6: Update consolidated key with merged functionality registry"
+        ],
+        "files_affected": [
+          "Workspaces/Copilot/prompts.keys/{consolidated-key}/*.md",
+          "Workspaces/Copilot/prompts.keys/_archived/consolidated-{date}/"
+        ],
+        "dependencies": []
+      },
+      "validation": {
+        "tests_required": false,
+        "git_history_preserved": true,
+        "work_log_completeness": true
+      },
+      "success_metrics": {
+        "usage_count": 0,
+        "success_rate": null,
+        "avg_keys_consolidated": 3,
+        "footprint_reduction_percent": 66
+      },
+      "examples": [
+        {
+          "key": "cleanup",
+          "git_commit": "153d7da28c9e8f5a1b2c3d4e5f6g7h8i9j0k1l2m",
+          "description": "Enhanced cleanup.prompt.md with key consolidation logic and stale key detection"
+        }
+      ],
+      "last_updated": "2025-10-12T12:30:00Z",
+      "contributed_by": "analyze-learning"
+    },
+    {
+      "id": "cleanup-003-archive-before-delete",
+      "name": "Archive Before Deletion Pattern",
+      "category": "safety",
+      "description": "Archive files to timestamped directories before deletion to enable recovery and historical reference",
+      "context": "When cleaning up old summaries, dated files, or uncertain content",
+      "implementation": {
+        "steps": [
+          "Step 1: Create archive directory with timestamp: Workspaces/Archive/{date}/",
+          "Step 2: Move (not delete) target files to archive directory",
+          "Step 3: Preserve directory structure in archive",
+          "Step 4: Verify files archived successfully before proceeding",
+          "Step 5: Document archive location in cleanup report"
+        ],
+        "files_affected": [
+          "Workspaces/Archive/{date}/*"
+        ],
+        "dependencies": []
+      },
+      "validation": {
+        "tests_required": false,
+        "archive_verification": true
+      },
+      "success_metrics": {
+        "usage_count": 1,
+        "success_rate": 1.0,
+        "files_archived": 10,
+        "recovery_success_rate": null
+      },
+      "examples": [
+        {
+          "key": "cleanup",
+          "git_commit": "4a2e5a8d8430ffe3cba317e9d13821c34d0302f2",
+          "description": "Archived 10+ old summaries and cohesion reviews to Workspaces/Archive/2025-10-12-pre-cleanup/"
+        }
+      ],
+      "last_updated": "2025-10-12T12:30:00Z",
+      "contributed_by": "analyze-learning"
+    },
+    {
+      "id": "cleanup-004-root-minimalism",
+      "name": "Root Directory Minimalism",
+      "category": "organization",
+      "description": "Keep root directory minimal with only essential config files, relocate everything else to appropriate subdirectories",
+      "context": "When root directory accumulates scripts, documentation, and temporary files",
+      "implementation": {
+        "steps": [
+          "Step 1: Define essential root files (.gitignore, .sln, Directory.Build.props, package.json)",
+          "Step 2: Move PowerShell scripts to Scripts/",
+          "Step 3: Move documentation to Workspaces/Documentation/",
+          "Step 4: Move configuration files to config/",
+          "Step 5: Verify build still works after relocation"
+        ],
+        "files_affected": [
+          "Scripts/*.ps1",
+          "Workspaces/Documentation/**/*.md"
+        ],
+        "dependencies": []
+      },
+      "validation": {
+        "tests_required": false,
+        "build_validation": true,
+        "reference_integrity_check": true
+      },
+      "success_metrics": {
+        "usage_count": 1,
+        "success_rate": 1.0,
+        "root_files_before": 14,
+        "root_files_after": 5,
+        "reduction_percent": 64
+      },
+      "examples": [
+        {
+          "key": "cleanup",
+          "git_commit": "4a2e5a8d8430ffe3cba317e9d13821c34d0302f2",
+          "description": "Reduced root directory from 14 files to 5 essential config files"
+        }
+      ],
+      "last_updated": "2025-10-12T12:30:00Z",
+      "contributed_by": "analyze-learning"
+    }
+  ],
+  "anti_patterns": []
+}

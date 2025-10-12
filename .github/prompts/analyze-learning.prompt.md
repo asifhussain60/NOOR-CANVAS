@@ -89,6 +89,28 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 
 ## Execution Steps
 
+### 0. Pre-Analysis Cleanup (Recommended)
+
+**Before analyzing keys, clean up workspace for optimal analysis:**
+
+1. **Run cleanup prompt** to ensure clean workspace:
+   ```
+   @workspace /cleanup target=key-streams consolidate-keys=true
+   ```
+
+2. **Benefits of pre-analysis cleanup**:
+   - **Reduced key count**: Consolidate related keys for clearer pattern analysis
+   - **Better signal-to-noise**: Remove stale/obsolete keys from analysis
+   - **Complete history**: Consolidated keys preserve all git commits and work logs
+   - **Accurate metrics**: Base metrics on active keys, not archived ones
+
+3. **Skip cleanup if**:
+   - Analysis is post-mortem on specific key (`scope=key=X`)
+   - Recent cleanup performed (<7 days ago)
+   - User explicitly requests skip
+
+---
+
 ### 1. Data Collection
 - Query `Workspaces/Copilot/prompts.keys/` based on scope parameter
 - Load all relevant `key.json` files
