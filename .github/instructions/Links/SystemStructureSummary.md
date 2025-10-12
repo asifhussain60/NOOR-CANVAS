@@ -1,27 +1,35 @@
 # System Structure Summary
 
 ## Active Prompts
+- **task.prompt.md** → canonical task executor (file auto-loading, checkpoint commits, 9-step workflow)
+- **question.prompt.md** → comprehensive application knowledge agent (one-stop Q&A solution)
+- **test-generation.prompt.md** → Playwright test generator (Session 212, canonical patterns)
+- **refactor.prompt.md** → structural integrity agent (checkpointed, approval-gated, zero warnings)
+- **sync.prompt.md** → synchronizer + janitor (documentation, configuration, cleanup duties)
+- **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)
 - **analyze-learning.prompt.md** → self-learning analysis agent (pattern extraction and continuous improvement)
-- **healthcheck.prompt.md** → system health auditor (read-only, cross-layer consistency checks)  
-- **question.prompt.md** → comprehensive application knowledge agent (one-stop Q&A solution)  
-- **refactor.prompt.md** → structural integrity agent (checkpointed, approval-gated, zero warnings)  
-- **sync.prompt.md** → synchronizer + janitor (folded in cleanup duties)  
-- **task.prompt.md** → canonical task executor  
+- **cohesion-review.prompt.md** → prompt system auditor (redundancy detection, efficiency optimization)
 
 ## Retired Prompts
-- **retrosync.prompt.md** → replaced by sync  
-- **cleanup.prompt.md** → folded into sync  
-- **task.md** → merged into task.prompt.md  
-- **align.prompt.md** → renamed to healthcheck.prompt.md  
+- **retrosync.prompt.md** → replaced by sync
+- **cleanup.prompt.md** → folded into sync
+- **task.md** → merged into task.prompt.md
+- **align.prompt.md** → renamed to healthcheck.prompt.md
 
 ## Instruction Links
-- **NOOR-CANVAS_ARCHITECTURE.MD** → full system design (controllers, services, DTOs, DB, SignalR, etc.)  
-- **SystemStructureSummary.md** → index of prompts and responsibilities (this file)  
-- **AnalyzerConfig.MD** → analyzer + Roslynator + lint/test rules  
-- **PlaywrightConfig.MD** → UI test configuration (coverage and rules)  
-- **API-Contract-Validation.md** → cross-layer contract validation rules (UI → API → DB)  
-- **ValidationFramework.md** → standard validation pipeline (6 levels, all agents)
-- **SelfAwareness.instructions.md** → global guardrails and operating rules  
+- **SelfAwareness.instructions.md** → global guardrails and operating rules (file organization, runtime rules, Roslynator integration)
+- **InfrastructureQuickRef.md** ⭐ NEW → database connections, API endpoints, SignalR hubs, Session 212 test data
+- **NOOR-CANVAS_ARCHITECTURE.MD** → full system design (52 API endpoints, 15+ services, 4 SignalR hubs)
+- **SystemStructureSummary.md** → index of prompts and responsibilities (this file)
+- **ValidationFramework.md** → standard 6-level validation pipeline (build, analyzers, linters, contracts, E2E, docs)
+- **API-Contract-Validation.md** → cross-layer contract validation rules (UI → API → DB)
+- **AnalyzerConfig.MD** → analyzer + Roslynator + StyleCop + ESLint rules
+- **PlaywrightConfig.MD** → E2E test configuration (modes, artifacts, webServer)
+- **PlaywrightTestPaths.MD** → canonical test patterns and Session 212 data
+- **FunctionalityRegistry.md** → feature tracking schema for regression prevention
+- **FunctionalityRegistry-QuickRef.md** → quick validation workflow for task.prompt.md Step 8.2
+- **FileMetrics.md** → line count tracking for documentation drift detection
+- **ReferenceIndex.md** → central hub for all Links files  
 
 ## Key Management
 - Keys tracked in: `Workspaces/Copilot/prompts.keys`  
@@ -48,4 +56,10 @@
 - **Clear Parameters**: Standardized parameter names and formats across agents  
 - **Explicit Instructions**: No ambiguous language that could lead to misinterpretation  
 - **Error Prevention**: Built-in validation and retry mechanisms in every agent  
-- **Context Preservation**: Comprehensive state tracking and handoff documentation  
+- **Context Preservation**: Comprehensive state tracking and handoff documentation
+
+---
+
+**Last Updated**: 2025-01-11  
+**Maintained By**: Sync Agent  
+**Version**: 2.0.0 (Added InfrastructureQuickRef.md, updated prompt list)  

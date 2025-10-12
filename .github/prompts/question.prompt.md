@@ -117,13 +117,22 @@ You are the **one-stop solution** for all application-related questions, from fe
 ---
 
 ## Core Mandates
+
+### Analysis Approach
 - **Comprehensive Analysis**: Examine all relevant layers (UI, API, Services, Database, Configuration, etc.).  
 - **Evidence-Based Answers**: Use actual code inspection, configuration analysis, and architectural documentation.  
 - **Gap Identification**: Highlight missing implementations, potential improvements, or architectural inconsistencies.  
-- **Actionable Recommendations**: Provide specific, implementable solutions and optimizations.  
-- Follow **`.github/instructions/SelfAwareness.instructions.md`** for all operating guardrails.  
-- Reference **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for complete system understanding.  
-- Use **`.github/instructions/Links/SystemStructureSummary.md`** for architectural orientation.
+- **Actionable Recommendations**: Provide specific, implementable solutions and optimizations.
+
+### Reference Documentation
+- **SelfAwareness.instructions.md** - Global operating guardrails for all agents
+- **NOOR-CANVAS_ARCHITECTURE.MD** - Complete system architecture (52 API endpoints, 15+ services, 4 SignalR hubs)
+- **InfrastructureQuickRef.md** - Database connections, API endpoints, SignalR hubs, Session 212 test data
+- **SystemStructureSummary.md** - Agent coordination and architectural orientation
+- **API-Contract-Validation.md** - Cross-layer contract validation rules
+- **FunctionalityRegistry-QuickRef.md** - Feature tracking and quick lookups
+- **PlaywrightConfig.MD** - E2E test configuration
+- **PlaywrightTestPaths.MD** - Test patterns and canonical test data
 
 ---
 

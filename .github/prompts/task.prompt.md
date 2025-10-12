@@ -299,16 +299,33 @@ All actions must respect the global guardrails and architectural mappings.
 ---
 
 ## Core Mandates
-- Always follow **`.github/instructions/SelfAwareness.instructions.md`** for all operating guardrails.
+
+### Global Operating Guardrails
+- **ALWAYS** follow **`.github/instructions/SelfAwareness.instructions.md`** for all operating guardrails, file organization, runtime rules, and Roslynator integration.
+
+### Architectural Reference Documentation
+- **SystemStructureSummary.md** - Agent index and coordination (understand system structure and available prompts)
+- **NOOR-CANVAS_ARCHITECTURE.MD** - Full system design (controllers, services, DTOs, database, SignalR)
+- **InfrastructureQuickRef.md** - Database connections, API endpoints, SignalR hubs, Session 212 test data
+- **ValidationFramework.md** - Standard 6-level validation pipeline (build, analyzers, linters, contracts, E2E, docs)
+- **API-Contract-Validation.md** - Cross-layer contract validation rules (UI → API → DB)
+- **AnalyzerConfig.MD** - Roslynator, StyleCop, ESLint configurations and baselines
+- **PlaywrightConfig.MD** - E2E test configuration and rules
+- **PlaywrightTestPaths.MD** - Canonical test patterns and Session 212 data
+- **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
+- **FunctionalityRegistry-QuickRef.md** - Quick validation workflow for Step 8.2
+- **FileMetrics.md** - Line count tracking for documentation drift detection
+- **ReferenceIndex.md** - Central reference hub for all Links
+
+**Usage Pattern**: Consult these files as needed based on task requirements. Not all files are relevant to every task.
+
+### Workflow Requirements
 - Always begin with a **checkpoint commit** to guarantee rollback safety.
 - **Always verify key data stream BEFORE planning** to gather context and prevent duplicate work.
-- **Always update key data stream AFTER execution** to maintain continuity and audit trail.  
-- Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure and available prompts.  
-- When relevant, consult **`.github/instructions/Links/NOOR-CANVAS_ARCHITECTURE.MD`** for system-level architectural context.  
-- Use **`.github/instructions/Links/ValidationFramework.md`** for standard validation pipeline.
+- **Always update key data stream AFTER execution** to maintain continuity and audit trail.
 - **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for relevant patterns before execution.
 - **Knowledge Contribution:** Update pattern library after successful completion.
-- Ensure analyzers, linters, and tests remain clean after every operation.  
+- Ensure analyzers, linters, and tests remain clean after every operation.
 - The build must complete with **zero errors and zero warnings**.  
 
 ---

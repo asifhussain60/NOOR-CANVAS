@@ -68,19 +68,25 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 ---
 
 ## Core Mandates
+
+### Operational Rules
 - Always begin with a **checkpoint commit** to ensure rollback safety (even though you are read-only, this enforces consistency with other agents).  
 - Operate in **read-only mode** by default — never mutate code or configs without explicit override.  
 - Validate health across **UI → API → Services → DTOs → Database**.  
-- Report all violations with clarity, including contract mismatches, case differences, or outdated references.  
-- Confirm consistency of:  
-  - **SystemStructureSummary.md** against repo reality.  
-  - **NOOR-CANVAS_ARCHITECTURE.MD** against code structure.  
-  - **API-Contract-Validation.md** across frontend/backend models.  
-  - **AnalyzerConfig.MD** enforcement (linting/analyzer compliance).  
-  - **PlaywrightConfig.MD** for test coverage.  
-- Use **`.github/instructions/Links/ValidationFramework.md`** for comprehensive validation (ALL 6 levels as read-only verification).
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/validation-patterns.json` for known issues.
-- **Knowledge Contribution:** Document newly discovered validation patterns.  
+- Report all violations with clarity, including contract mismatches, case differences, or outdated references.
+
+### Validation Scope
+- **SystemStructureSummary.md** - Verify against repo reality
+- **NOOR-CANVAS_ARCHITECTURE.MD** - Verify against code structure
+- **InfrastructureQuickRef.md** - Validate API endpoints, SignalR hubs, database connections
+- **API-Contract-Validation.md** - Cross-layer contract verification (frontend ↔ backend models)
+- **AnalyzerConfig.MD** - Analyzer and linter compliance enforcement
+- **PlaywrightConfig.MD** - Test coverage validation
+- **ValidationFramework.md** - Comprehensive 6-level validation (read-only verification)
+
+### Learning Integration
+- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/validation-patterns.json` for known issues
+- **Knowledge Contribution:** Document newly discovered validation patterns  
 
 ---
 

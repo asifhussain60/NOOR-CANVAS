@@ -279,3 +279,18 @@ After Step 8.1 (Key Data Stream Update), before git commit
 **Output**: Concise user notifications, detailed registry updates
 
 **Integration**: Seamless addition to existing task workflow (no breaking changes)
+
+---
+
+## Related Documentation
+
+- [FunctionalityRegistry.md](FunctionalityRegistry.md) - Full registry schema and examples
+- [InfrastructureQuickRef.md](InfrastructureQuickRef.md) - Session 212 test data, API endpoints
+- [ValidationFramework.md](ValidationFramework.md) - 6-level validation pipeline
+- [API-Contract-Validation.md](API-Contract-Validation.md) - API contract safety rules
+- [PlaywrightTestPaths.MD](PlaywrightTestPaths.MD) - E2E test patterns
+
+---
+
+**Last Updated**: 2025-01-11  
+**Version**: 1.1.0

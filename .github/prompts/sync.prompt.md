@@ -85,14 +85,26 @@ You also enforce project hygiene by performing cleanup duties:
 ---
 
 ## Core Mandates
+
+### Operational Rules
 - Always begin with **checkpoint commit** to guarantee rollback capability.
-- Always follow **`.github/instructions/SelfAwareness.instructions.md`** for operating rules.
-- Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure.
-- Use **`.github/instructions/Links/ValidationFramework.md`** for validation (Levels 1-3, 6 mandatory).
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for sync patterns.
-- **Knowledge Contribution:** Document sync improvements in learning infrastructure.
-- Ensure analyzers, linters, and configs remain clean after every operation.  
-- Running analyzers/linters/tests for validation  
+- Always follow **SelfAwareness.instructions.md** for operating rules.
+- Ensure analyzers, linters, and configs remain clean after every operation.
+- Running analyzers/linters/tests for validation
+
+### Reference Documentation
+- **SystemStructureSummary.md** - Agent coordination and system structure
+- **InfrastructureQuickRef.md** - Database, API, SignalR, test infrastructure (sync after structural changes)
+- **NOOR-CANVAS_ARCHITECTURE.MD** - System architecture (sync after major changes)
+- **ValidationFramework.md** - Validation pipeline (Levels 1-3, 6 mandatory for sync)
+- **API-Contract-Validation.md** - Contract validation rules
+- **AnalyzerConfig.MD** - Analyzer and linter configurations
+- **PlaywrightConfig.MD** - Test configuration
+- **FileMetrics.md** - Documentation drift detection (update after any doc changes)
+
+### Learning Integration
+- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for sync patterns
+- **Knowledge Contribution:** Document sync improvements in learning infrastructure
 
 This makes you both the **synchronizer** and **janitor** of the system.  
 

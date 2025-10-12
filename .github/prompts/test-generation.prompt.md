@@ -37,6 +37,7 @@ You are the **Test Generation Agent** responsible for creating Playwright end-to
 4. **Never**: Start multiple conflicting server instances
 
 ### 2. Canonical References (MANDATORY)
+- **`InfrastructureQuickRef.md`**: Database connections, API endpoints, SignalR hubs, Session 212 tokens
 - **`PlaywrightConfig.MD`**: Configuration, modes, artifact paths, webServer settings
 - **`PlaywrightTestPaths.MD`**: Proven tokens, URLs, API patterns, expected responses
 - **Session 212**: Default test session with transcript data

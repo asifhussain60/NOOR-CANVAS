@@ -398,6 +398,7 @@ All agent prompts should reference this framework in their validation section:
 
 - [SelfAwareness.instructions.md](../SelfAwareness.instructions.md) - Global operating guardrails
 - [SystemStructureSummary.md](SystemStructureSummary.md) - Agent index and coordination
+- [InfrastructureQuickRef.md](InfrastructureQuickRef.md) - Database, API, SignalR, test infrastructure reference
 - [AnalyzerConfig.MD](AnalyzerConfig.MD) - Roslynator, StyleCop, ESLint configuration
 - [API-Contract-Validation.md](API-Contract-Validation.md) - Contract validation guidelines
 - [PlaywrightConfig.MD](PlaywrightConfig.MD) - Playwright test configuration
@@ -406,4 +407,5 @@ All agent prompts should reference this framework in their validation section:
 ---
 
 **Maintained By:** GitHub Copilot (Task Agent)  
-**Next Review:** January 9, 2026
+**Last Updated:** 2025-01-11  
+**Next Review:** January 11, 2026
