@@ -1,11 +1,43 @@
 # Active Recommendations
 
-**Last Updated:** October 9, 2025  
+**Last Updated:** October 12, 2025  
 **Maintainer:** analyze-learning agent
 
 ---
 
 ## High Priority
+
+### R-010: Mandate Learning Library Queries in All Prompts
+- **Source:** Comprehensive learning analysis, 2025-10-12
+- **Context:** Limited evidence of agents querying learning patterns before execution
+- **Recommendation:** Update all agent prompts with mandatory Step 0: Query Learning Library
+- **Expected Impact:** Reuse proven approaches, avoid repeating failures, faster execution
+- **Effort:** 2 hours (update 8 prompts with learning query step)
+- **Status:** Pending Review
+
+### R-011: Create CSS Pattern Library
+- **Source:** Canvas key analysis (visual feedback pattern), 2025-10-12
+- **Context:** CSS Grid equal-height pattern highly successful and reusable
+- **Recommendation:** Create `CSSPatternLibrary.md` with 10-15 common layout solutions
+- **Expected Impact:** Faster UI development, consistent patterns, reduced trial-and-error
+- **Effort:** 1 day
+- **Status:** Pending Review
+
+### R-012: Consolidate Playwright Documentation
+- **Source:** Cohesion review finding 4.1, 2025-10-12
+- **Context:** Playwright docs split across 3 files (fragmentation)
+- **Recommendation:** Merge PlaywrightQuickRef.md + PlaywrightConfig.MD + PlaywrightTestPaths.MD → PlaywrightReference.md
+- **Expected Impact:** Single source of truth, easier navigation, reduced maintenance
+- **Effort:** 3 SP (~4 hours)
+- **Status:** High Priority (identified in cohesion review)
+
+### R-013: Automate Debug Marker Cleanup
+- **Source:** Quality trend analysis, 2025-10-12
+- **Context:** 12+ debug markers per key with `;CLEANUP_OK` suffix
+- **Recommendation:** Create PowerShell script to remove debug markers on key completion
+- **Expected Impact:** Clean code, automated cleanup, no manual burden
+- **Effort:** 2 hours (script + integration into completion workflow)
+- **Status:** Pending Review
 
 ### R-001: Implement Pre-Commit Contract Validation Hook
 - **Source:** Holistic System Review, 2025-10-09
@@ -26,6 +58,46 @@
 ---
 
 ## Medium Priority
+
+### R-014: Create E2E Test Templates
+- **Source:** Efficiency insight EI-003, 2025-10-12
+- **Context:** E2E test creation overhead ~45 minutes per comprehensive test
+- **Recommendation:** Create test templates for common workflows (CRUD, SignalR, auth, forms, wizards)
+- **Expected Impact:** Faster test creation, consistent test structure, reduced effort
+- **Effort:** 1 day (create 5-6 templates)
+- **Status:** Pending Review
+
+### R-015: Integrate Ground Truth Validation into CI/CD
+- **Source:** Efficiency insight EI-004, 2025-10-12
+- **Context:** Manual validation execution, could be automated
+- **Recommendation:** Add Validate-DocumentationGroundTruth.ps1 to CI/CD pipeline (run on every commit)
+- **Expected Impact:** Automatic validation, early drift detection, confidence boost
+- **Effort:** 2 hours (GitHub Actions integration)
+- **Status:** Pending Review
+
+### R-016: Extract Mandate/Checkpoint Duplicates to Shared Modules
+- **Source:** Cohesion review finding 1.2, 1.3, 2025-10-12
+- **Context:** 8 prompts duplicate Debug/Warning Mandate, 5 duplicate checkpoint instructions
+- **Recommendation:** Standardize all prompts to use reference-only pattern
+- **Expected Impact:** Reduce maintenance burden, improve cohesion score 9.5 → 9.7
+- **Effort:** 3 SP (~4 hours)
+- **Status:** Medium Priority (identified in cohesion review)
+
+### R-017: Create Service Wrapper Registry
+- **Source:** HCP key pattern SP-007, 2025-10-12
+- **Context:** UnifiedHtmlTransformService wrapper pattern successful and reusable
+- **Recommendation:** Document when to create wrapper services vs direct service usage
+- **Expected Impact:** Architectural consistency, clearer service boundaries
+- **Effort:** 1 day (documentation + 2-3 example patterns)
+- **Status:** Pending Review
+
+### R-018: Implement Quarterly Key Consolidation
+- **Source:** System key analysis, 2025-10-12
+- **Context:** Key stream consolidation reduced footprint 60% (25 → 10 folders)
+- **Recommendation:** Schedule quarterly key consolidation (archive old, consolidate completed)
+- **Expected Impact:** Maintain clean workspace, preserve history, reduce clutter
+- **Effort:** 2 hours per quarter
+- **Status:** Pending Review
 
 ### R-003: Formalize Instruction Update Protocol
 - **Source:** Holistic System Review, 2025-10-09
