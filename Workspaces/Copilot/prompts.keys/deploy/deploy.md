@@ -1,0 +1,104 @@
+# Deploy Key - Production Database Migration & Configuration
+
+## Metadata
+- **Key**: deploy
+- **Status**: in-progress
+- **Created**: 2025-10-12
+- **Last Updated**: 2025-10-12 07:51 UTC
+- **Agent**: task
+- **Priority**: high
+
+## Objective
+Prepare and validate production deployment for Noor Canvas application with proper database configuration and environment indicators.
+
+## File Mappings
+
+### Database
+- `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Complete canvas schema & data migration script (KSESSIONS_DEV → KSESSIONS)
+
+### Configuration
+- `SPA/NoorCanvas/appsettings.Production.json` - Production connection strings (KSESSIONS, KQUR)
+- `publish-temp/web.Release.config` - IIS web.config transformation for production
+- `SPA/NoorCanvas/appsettings.json` - Development connection strings (KSESSIONS_DEV, KQUR_DEV)
+
+### Frontend (Components)
+- `SPA/NoorCanvas/Components/Production/ProductionInfoPanel.razor` - Production-safe database info display (NEW)
+- `SPA/NoorCanvas/Components/Development/DebugPanel.razor` - Enhanced with database connection display
+
+### Frontend (Views)
+- `SPA/NoorCanvas/Pages/HostLanding.razor` - Integrated environment-aware info panels
+
+## Work Log
+
+---
+## [2025-10-12 07:51 UTC] - task
+**Status**: in-progress | **Phase**: execution | **Commit**: 10621cb
+**Work**: 
+- Fixed SQL syntax errors in migration script:
+  * Replaced EXEC with sp_executesql for OUTPUT parameters
+  * Added column aliases to subqueries (SELECT 1 AS cnt)
+- Executed migration script against KSESSIONS database:
+  * Created canvas schema with 4 tables (AssetLookup, Sessions, Participants, SessionData)
+  * Migrated 20 total records from KSESSIONS_DEV
+  * Created 9 constraints, 17 indexes, 2 foreign keys
+  * Zero errors, zero warnings, zero data integrity issues
+- Updated appsettings.Production.json with KSESSIONS connection strings
+- Created ProductionInfoPanel.razor component (database info without debug controls)
+- Enhanced DebugPanel.razor with database connection display
+- Integrated environment-aware info panels into HostLanding.razor
+
+**Files**: 9 modified | **Tests**: N/A (database migration) | **Build**: PASS (1 pre-existing warning)
+**Next**: Validate production deployment and database connectivity
+---
+
+## Migration Results
+```
+KSESSIONS CANVAS MIGRATION SCRIPT v2.0.0
+Execution ID: 0F48F640-0530-4FA9-9891-64A374289441
+Duration: 0 seconds
+Warnings: 0
+Errors: 0
+
+FINAL DATA COUNTS:
+  AssetLookup: 11 records
+  Sessions: 6 records
+  Participants: 3 records
+  SessionData: 0 records
+
+DATA INTEGRITY:
+  ✅ No orphaned participants
+  ✅ No orphaned session data
+  ✅ No duplicate host tokens
+  ✅ No duplicate user tokens
+```
+
+## Environment Configuration
+
+### Development Mode
+- **Database**: KSESSIONS_DEV
+- **Server**: AHHOME
+- **Info Panel**: DebugPanel (with debug controls + database info)
+- **Connection String**: Defined in appsettings.json
+
+### Production Mode
+- **Database**: KSESSIONS
+- **Server**: AHHOME
+- **Info Panel**: ProductionInfoPanel (database info only, no debug controls)
+- **Connection String**: Defined in appsettings.Production.json (overrides base settings)
+- **Web.config Transform**: web.Release.config applies KSESSIONS connection strings
+
+## Dependencies
+- canvas schema tables must exist in KSESSIONS database
+- Migration script is idempotent (safe to re-run)
+- IDevModeService must be registered in DI container
+- Configuration service required for connection string parsing
+
+## Known Issues
+None
+
+## Next Steps
+1. Deploy application to IIS with Production configuration
+2. Validate KSESSIONS database connectivity
+3. Verify ProductionInfoPanel displays correct database name
+4. Test canvas functionality with production data
+5. Monitor application logs for database connection issues
