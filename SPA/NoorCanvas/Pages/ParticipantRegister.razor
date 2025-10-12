@@ -72,13 +72,13 @@
                                     <div class="mb-3">
                                         <label class="form-label">Full Name *</label>
                                         <input type="text" class="form-control" @bind="registration.Name" 
-                                               placeholder="Enter your full name" required maxlength="100" />
+                                               placeholder="Enter your full name" required maxlength="100" autocomplete="off" />
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Country *</label>
                                         <select class="form-select" @bind="registration.Country" required 
-                                                disabled="@isLoadingCountries">
+                                                disabled="@isLoadingCountries" autocomplete="off">
                                             <option value="">@(isLoadingCountries ? "Loading countries..." : "Select Country")</option>
                                             @if (!isLoadingCountries)
                                             {

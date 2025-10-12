@@ -3071,7 +3071,9 @@
         {
             if (!string.IsNullOrEmpty(UserToken) && Model != null)
             {
-                var userLink = $"https://localhost:9091/user/landing/{UserToken}";
+                var baseUri = Navigation.BaseUri.TrimEnd('/');
+                Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] CopyUserLink using base URL: {BaseUri} ;CLEANUP_OK", baseUri);
+                var userLink = $"{baseUri}/user/landing/{UserToken}";
                 await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", userLink);
                 Model.UserCopied = true;
                 StateHasChanged();
@@ -3094,7 +3096,9 @@
         {
             if (!string.IsNullOrEmpty(UserToken) && Model != null)
             {
-                var userLink = $"https://localhost:9091/user/landing/{UserToken}";
+                var baseUri = Navigation.BaseUri.TrimEnd('/');
+                Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] HandleUserLinkClick using base URL: {BaseUri} ;CLEANUP_OK", baseUri);
+                var userLink = $"{baseUri}/user/landing/{UserToken}";
                 await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", userLink);
                 
                 // Brief visual feedback that copy occurred

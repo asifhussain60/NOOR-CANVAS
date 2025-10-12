@@ -1059,7 +1059,10 @@ background-color: #effff9;
             StateHasChanged();
 
             using var httpClient = HttpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            var baseUri = new Uri(Navigation.BaseUri);
+            Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] Using base URL: {BaseUri} for session validation ;CLEANUP_OK", Navigation.BaseUri);
+            httpClient.BaseAddress = baseUri;
+            Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] Calling API: api/participant/session/{Token}/validate ;CLEANUP_OK", token);
             var response = await httpClient.GetAsync($"api/participant/session/{token}/validate");
             
             // Session validation completed
@@ -1240,7 +1243,9 @@ background-color: #effff9;
             // Loading participants
             
             using var httpClient = HttpClientFactory.CreateClient("default");
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            var baseUri = new Uri(Navigation.BaseUri);
+            Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] LoadParticipantsAsync using base URL: {BaseUri} ;CLEANUP_OK", Navigation.BaseUri);
+            httpClient.BaseAddress = baseUri;
             
             var apiUrl = $"api/participant/session/{SessionToken}/participants";
             // Making participants API call
@@ -1323,7 +1328,9 @@ background-color: #effff9;
         try
         {
             using var httpClient = HttpClientFactory.CreateClient("default");
-            httpClient.BaseAddress = new Uri("https://localhost:9091/");
+            var baseUri = new Uri(Navigation.BaseUri);
+            Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] LoadCurrentParticipantFromApiAsync using base URL: {BaseUri} ;CLEANUP_OK", Navigation.BaseUri);
+            httpClient.BaseAddress = baseUri;
             
             // First, try to get UserGuid from browser storage
             var storageKey = $"noor_user_guid_{SessionToken}";

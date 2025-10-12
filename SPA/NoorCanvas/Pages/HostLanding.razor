@@ -513,6 +513,7 @@
                         <input type="text" 
                                value="@($"{Navigation.BaseUri.TrimEnd('/')}/user/landing/{UserToken}")" 
                                readonly
+                               autocomplete="off"
                                class="host-landing-user-link-input"
                                id="userLinkInput" />
                         <button onclick="copyUserLink()" 

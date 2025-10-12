@@ -50,7 +50,7 @@
             <!-- User Registration Link Display -->
             @if (!string.IsNullOrEmpty(UserToken))
             {
-                <UserRegistrationLink UserToken="@UserToken" BaseUrl="https://localhost:9091" />
+                <UserRegistrationLink UserToken="@UserToken" BaseUrl="@Navigation.BaseUri.TrimEnd('/')" />
             }
             
             <div style="width:100%;display:flex;justify-content:center;gap:1rem;flex-direction:column;">
@@ -77,4 +77,6 @@
     [Parameter] public Func<string> OnGetSignalRStatusIcon { get; set; } = () => "fa-solid fa-wifi";
     [Parameter] public Func<string?, string> OnFormatSessionDescriptionToProperCase { get; set; } = (desc) => desc ?? "";
     [Parameter] public Func<string?, string> OnFormatDurationFromString { get; set; } = (duration) => duration ?? "";
+    
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
 }

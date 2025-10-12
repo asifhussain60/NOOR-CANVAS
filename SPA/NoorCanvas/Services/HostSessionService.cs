@@ -84,8 +84,12 @@ namespace NoorCanvas.Services
                 _logger.LogWarning(ex, "[DEBUG-WORKITEM:session-opener:http-client] Configuration error when reading base URL ;CLEANUP_OK");
             }
 
-            var fallbackUrl = "https://localhost:9091";
-            _logger.LogDebug("[DEBUG-WORKITEM:session-opener:http-client] Using fallback URL: {Url} ;CLEANUP_OK", fallbackUrl);
+            // Use production URL in production, localhost in development
+            var fallbackUrl = _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production" 
+                ? "https://noorcanvas.servehttp.com" 
+                : "https://localhost:9091";
+            _logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] Using environment-aware fallback URL: {Url} (Environment: {Env}) ;CLEANUP_OK", 
+                fallbackUrl, _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT"));
             return fallbackUrl;
         }
 

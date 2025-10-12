@@ -639,6 +639,8 @@
     private string GetSessionLink()
     {
         if (string.IsNullOrEmpty(currentSessionToken)) return "";
-        return $"https://localhost:9091/session/{currentSessionToken}";
+        var baseUri = Navigation.BaseUri.TrimEnd('/');
+        Logger.LogInformation("[DEBUG-WORKITEM:prod-issues:url-fix] GetSessionLink using base URL: {BaseUri} ;CLEANUP_OK", baseUri);
+        return $"{baseUri}/session/{currentSessionToken}";
     }
 }
