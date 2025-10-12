@@ -190,8 +190,32 @@ This guarantees rollback capability if sync introduces instability.
   - Validate results with analyzers, linters, and tests.
   - Delete obsolete consolidated source files after merging
 
+- **Ground Truth Validation (MANDATORY):**
+  - **Execute validation script before finalizing sync:**
+    ```powershell
+    cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Scripts"
+    .\Validate-DocumentationGroundTruth.ps1 -GenerateReport
+    ```
+  - **Script validates:**
+    - ✅ Database schema (query KSESSIONS_DEV for actual tables)
+    - ✅ Codebase references (grep for actual usage in C# files)
+    - ✅ Documentation accuracy (scan 6 key instruction files)
+    - ✅ Obsolete reference detection (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
+    - ✅ Expected table verification (dbo.Groups, Categories, Sessions, Speakers, SessionTranscripts)
+  - **Expected output:** `✅ Passed: X | ❌ Failed: 0 | ⚠️ Warnings: Y`
+  - **Integration:**
+    - Attach validation report to sync commit
+    - If validation fails, sync CANNOT be marked complete
+    - Include validation summary in sync confirmation output
+  - **Failure handling:**
+    - Document all failures in sync report
+    - Create action items for each validation failure
+    - Mark sync status as "In Progress - Validation Failures"
+    - Do NOT proceed to commit until validation passes
+
 ### 4. Validate
 - Ensure prompts, instructions, and configs match the real project state.
+- **Verify ground truth validation script passed** (see Step 3 Ground Truth Validation).
 - Confirm analyzers/lints/tests are clean.
 - Confirm **no placeholders remain.**
 - Confirm **no obsolete or deprecated prompts remain.**

@@ -32,14 +32,19 @@
   - `canvas.Participants`
   - `canvas.AssetLookup`
   
-- `dbo.*` - **READ-ONLY** (sessions, users, tokens, transcripts, countries)
-  - `dbo.Sessions`
-  - `dbo.Users`
-  - `dbo.SessionTokens`
-  - `dbo.SessionTranscripts`
-  - `dbo.Countries`
-  - `dbo.Groups` (albums)
-  - `dbo.Categories`
+- `dbo.*` - **READ-ONLY** (legacy Islamic content database)
+  - `dbo.Groups` - Islamic content collections (Albums)
+  - `dbo.Categories` - Subdivisions within Groups
+  - `dbo.Sessions` - Individual Islamic learning sessions (LEGACY - different from canvas.Sessions)
+  - `dbo.Speakers` - Session instructors/presenters
+  - `dbo.SessionTranscripts` - Transcript content for annotation
+  
+- `dbo.*` **Stored Procedures** - **READ-ONLY**
+  - `dbo.GetAllGroups` - Retrieves all Groups/Albums
+  - `dbo.GetCategoriesForGroup` - Retrieves Categories for a specific Group
+  
+  > **NOTE**: Tables verified against KSESSIONS_DEV codebase on 2025-10-12.
+  > Only tables with Entity Framework models or direct SQL usage are listed.
 
 ### Secondary Database: KQUR_DEV
 - **Database Name**: `KQUR_DEV`

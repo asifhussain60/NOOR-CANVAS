@@ -30,11 +30,14 @@ Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`
 
 **SCHEMA ACCESS CONTROL**:
 - ✅ **`canvas.*` schema**: READ-WRITE allowed
-  - canvas.Questions, canvas.QuestionVotes, canvas.Participants, canvas.AssetLookup
+  - canvas.Questions, canvas.QuestionVotes, canvas.Participants, canvas.AssetLookup, canvas.Sessions
   
 - ❌ **`dbo.*` schema**: **READ-ONLY ONLY** - NO INSERT, UPDATE, DELETE allowed
-  - dbo.Sessions, dbo.Users, dbo.SessionTokens, dbo.SessionTranscripts
-  - dbo.Countries, dbo.Groups, dbo.Categories
+  - dbo.Groups (Albums), dbo.Categories, dbo.Sessions (LEGACY), dbo.Speakers, dbo.SessionTranscripts
+  - dbo.GetAllGroups (stored procedure), dbo.GetCategoriesForGroup (stored procedure)
+  
+  > **Verified 2025-10-12**: Only dbo tables with EF models or direct SQL usage are listed.
+  > NOOR CANVAS does NOT use dbo.Members, dbo.SessionTokens, dbo.Users, or dbo.Tokens.
   
 - ❌ **All other schemas**: **READ-ONLY**
 

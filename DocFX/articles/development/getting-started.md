@@ -153,9 +153,10 @@ Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"}
 USE KSESSIONS_DEV;
 SELECT COUNT(*) FROM canvas.Sessions;
 
--- Test cross-schema access
-USE KQUR_DEV;
-SELECT COUNT(*) FROM dbo.Users;
+-- Test KSESSIONS_DEV dbo schema access (READ-ONLY)
+USE KSESSIONS_DEV;
+SELECT COUNT(*) FROM dbo.Groups; -- Islamic content collections (Albums)
+SELECT COUNT(*) FROM dbo.SessionTranscripts; -- Transcript content
 ```
 
 ## Common Development Issues

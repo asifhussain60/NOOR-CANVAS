@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Transcript Styling Demo - REDIRECT</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&family=Lora:wght@300;400;500;600;700&family=Comic+Neue:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Session Transcript CSS -->
+    <link href="css/session-transcript.css" rel="stylesheet">
+    <style>
+/* Modern Font Stack */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+/* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 16px 20px;
+    max-width: 400px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #374151;
+    pointer-events: auto;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+    border-left: 4px solid #10b981;
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast.error {
+    border-left-color: #ef4444;
+}
+
+.toast.warning {
+    border-left-color: #f59e0b;
+}
+
+.toast.info {
+    border-left-color: #3b82f6;
+}
+
+.toast-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.toast.success .toast-icon {
+    color: #10b981;
+}
+
+.toast.error .toast-icon {
+    color: #ef4444;
+}
+
+.toast.warning .toast-icon {
+    color: #f59e0b;
+}
+
+.toast.info .toast-icon {
+    color: #3b82f6;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.toast-close:hover {
+    color: #6b7280;
+    background: #f3f4f6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .toast {
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+/* Additional utilities for Bootstrap compatibility */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-xs-12 {
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+    width: 100%;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-maroon {
+    color: #722727 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Force imgResponsive images to use CSS variable width, overriding inline styles */
+[data-islamic-content] .imgResponsive,
+.ks-transcript .imgResponsive,
+.session-transcript-content .imgResponsive,
+.transcript-display .imgResponsive,
+.islamic-content .imgResponsive {
+    width: var(--islamic-asset-width) !important;
+    max-width: var(--islamic-asset-max-width) !important;
+    height: auto !important;
+}
+    </style>
+</head>
+<body style="background-color: #cfc5c5;">
+    <!-- Main wrapper div taking 70% of page width -->
+    <div style="width: 70%; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background-color: white;">
+        <!-- Header -->
+        <div class="bg-white shadow-md border-b">
+            <div class="max-w-4xl mx-auto px-4 py-4">
+                <h1 class="text-2xl font-bold text-gray-800">Session Transcript Styling Demo</h1>
+            <p class="text-gray-600 mt-1">Islamic Content from Session 212 with Enhanced Styling</p>
+            <div class="mt-3 flex items-center space-x-4">
+                <label class="text-sm font-medium text-gray-700">
+                    Session ID:
+                    <input type="number" id="sessionIdInput" value="212" class="ml-2 px-3 py-1 border border-gray-300 rounded-md text-sm w-20">
+                </label>
+                <button onclick="refreshTranscript()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fa fa-refresh mr-2"></i>Refresh from Database
+                </button>
+                <div id="statusIndicator" class="text-sm">
+                    <span class="text-gray-500">Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto px-4 py-8 mt-8" style="padding: 30px; margin-bottom: 40px;">
+            <div class="bg-white rounded-lg shadow-2xl border border-gray-100 p-6 ks-transcript" data-theme="wide" style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                <!-- Dynamic content will be loaded here from database -->
+                <div class="text-center p-8">
+                    <i class="fa fa-file-text-o fa-3x text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-600 mb-2">Session Transcript</h3>
+                    <p class="text-gray-500">Content will be loaded dynamically from the database</p>
+                    <p class="text-sm text-gray-400 mt-2">Click "Refresh from Database" to load fresh content</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-800 text-white py-8 mt-auto">
+            <div class="max-w-4xl mx-auto px-4 text-center">
+                <p class="text-sm text-gray-400">Session Transcript Styling Demo - Enhanced Islamic Content Display</p>
+                <p class="text-xs text-gray-500 mt-2">Created for testing session-transcript.css styling enhancements</p>
+            </div>
+        </div>
+    </div> <!-- End main wrapper div -->
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        // ============================================================================
+        // HTML TRANSFORMATION FUNCTIONS
+        // Based on AssetProcessingService.cs (SPA/NoorCanvas/Services/)
+        // ============================================================================
+        
+        /**
+         * Transform HTML by removing action buttons before rendering
+         * JavaScript port of AssetProcessingService button removal logic
+         * 
+         * Removes any <button> elements with:
+         * - 'delete' in their id or class attributes
+         * - 'poetry-restore-btn' or 'froala-only-btn' classes (Plain Text buttons)
+         * 
+         * This ensures that action buttons from the database are not displayed in the 
+         * throwaway styling demo file.
+         * 
+         * Regex Pattern Explanation:
+         * - Delete buttons: <button[^>]*(?:id="...delete..."|class="...delete...")[^>]*>.*?</button>
+         * - Plain Text buttons: <button[^>]*class="...poetry-restore-btn|froala-only-btn..."[^>]*>.*?</button>
+         * - Case-insensitive matching
+         * - Handles both id and class attributes
+         * 
+         * @param {string} html - The HTML content to transform
+         * @returns {string} - Cleaned HTML with action buttons removed
+         */
+        function transformHtml(html) {
+            if (!html) {
+                console.warn('TRANSFORM: Empty HTML provided');
+                return '';
+            }
+            
+            const startTime = performance.now();
+            
+            // Regex pattern matching AssetProcessingService.cs RemoveDeleteButtons() logic
+            const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>.*?<\/button>/gi;
+            
+            // Pattern to match "Plain Text" buttons (poetry-restore-btn, froala-only-btn classes)
+            const plainTextButtonPattern = /<button[^>]*class[^=]*=[^"]*"[^"]*(?:poetry-restore-btn|froala-only-btn)[^"]*"[^>]*>.*?<\/button>/gi;
+            
+            // Apply transformations in sequence
+            let cleaned = html.replace(deleteButtonPattern, '');
+            const afterDeleteButtons = cleaned.length;
+            
+            cleaned = cleaned.replace(plainTextButtonPattern, '');
+            const afterPlainTextButtons = cleaned.length;
+            
+            // Remove inline width and height styles from images (imgResponsive class)
+            // Simplified approach: Find all imgResponsive images and strip width/height from style attribute
+            let imageStylesRemoved = 0;
+            cleaned = cleaned.replace(/<img([^>]*imgResponsive[^>]*)>/gi, (match) => {
+                // Check if this image has a style attribute
+                if (!match.includes('style=')) {
+                    return match; // No style attribute, return as-is
+                }
+                
+                imageStylesRemoved++;
+                
+                // Remove width and height properties from style attribute
+                let cleaned = match.replace(/style\s*=\s*"([^"]*)"/gi, (styleMatch, styleContent) => {
+                    // Remove width and height properties
+                    let cleanedStyle = styleContent
+                        .replace(/\s*width\s*:\s*[^;]+;?/gi, '')
+                        .replace(/\s*height\s*:\s*[^;]+;?/gi, '')
+                        .trim();
+                    
+                    // Clean up multiple semicolons and trailing semicolons
+                    cleanedStyle = cleanedStyle.replace(/;\s*;/g, ';').replace(/^;|;$/g, '').trim();
+                    
+                    // If style is now empty, remove the attribute entirely
+                    return cleanedStyle ? `style="${cleanedStyle}"` : '';
+                });
+                
+                // Remove any empty style="" attributes left behind
+                cleaned = cleaned.replace(/\s+style\s*=\s*""\s*/gi, ' ');
+                
+                return cleaned;
+            });
+            const afterImageStyles = cleaned.length;
+            
+            // Add data-islamic-content attribute to .example elements (if not already present)
+            let exampleCount = 0;
+            cleaned = cleaned.replace(/<div([^>]*class[^=]*=[^"]*"[^"]*example[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, attrs) => {
+                exampleCount++;
+                return `<div${attrs} data-islamic-content>`;
+            });
+            
+            // Add data-islamic-content attribute to .quote elements (if not already present)
+            let quoteCount = 0;
+            cleaned = cleaned.replace(/<(p|div)([^>]*class[^=]*=[^"]*"[^"]*quote[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, tag, attrs) => {
+                quoteCount++;
+                return `<${tag}${attrs} data-islamic-content>`;
+            });
+            
+            // Add data-islamic-content attribute to .imgResponsive elements (if not already present)
+            let imgCount = 0;
+            cleaned = cleaned.replace(/<img([^>]*class[^=]*=[^"]*"[^"]*imgResponsive[^"]*"[^>]*)(?!.*data-islamic-content)>/gi, (match, attrs) => {
+                imgCount++;
+                return `<img${attrs} data-islamic-content>`;
+            });
+            
+            // Calculate metrics
+            const originalLength = html.length;
+            const cleanedLength = cleaned.length;
+            const totalRemovedBytes = originalLength - cleanedLength;
+            const deleteBytesRemoved = originalLength - afterDeleteButtons;
+            const plainTextBytesRemoved = afterDeleteButtons - afterPlainTextButtons;
+            const imageStyleBytesRemoved = afterPlainTextButtons - afterImageStyles;
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            
+            // Log transformation results
+            console.log('TRANSFORM: HTML transformation completed', {
+                originalBytes: originalLength,
+                cleanedBytes: cleanedLength,
+                totalRemovedBytes: totalRemovedBytes,
+                deleteButtonBytesRemoved: deleteBytesRemoved,
+                plainTextButtonBytesRemoved: plainTextBytesRemoved,
+                imageStyleBytesRemoved: imageStyleBytesRemoved,
+                imageStylesRemoved: imageStylesRemoved,
+                exampleElementsMarked: exampleCount,
+                quoteElementsMarked: quoteCount,
+                imgElementsMarked: imgCount,
+                buttonsRemoved: totalRemovedBytes > 0,
+                durationMs: duration
+            });
+            
+            if (deleteBytesRemoved > 0) {
+                console.info(`✓ TRANSFORM: Removed ${deleteBytesRemoved} bytes of delete button HTML`);
+            }
+            if (plainTextBytesRemoved > 0) {
+                console.info(`✓ TRANSFORM: Removed ${plainTextBytesRemoved} bytes of Plain Text button HTML`);
+            }
+            if (imageStyleBytesRemoved > 0) {
+                console.info(`✓ TRANSFORM: Removed inline width/height styles from ${imageStylesRemoved} image(s) (${imageStyleBytesRemoved} bytes)`);
+            }
+            if (exampleCount > 0) {
+                console.info(`✓ TRANSFORM: Added data-islamic-content to ${exampleCount} .example element(s)`);
+            }
+            if (quoteCount > 0) {
+                console.info(`✓ TRANSFORM: Added data-islamic-content to ${quoteCount} .quote element(s)`);
+            }
+            if (imgCount > 0) {
+                console.info(`✓ TRANSFORM: Added data-islamic-content to ${imgCount} .imgResponsive element(s)`);
+            }
+            if (totalRemovedBytes === 0 && exampleCount === 0 && quoteCount === 0 && imgCount === 0) {
+                console.info(`✓ TRANSFORM: No changes needed (${duration}ms)`);
+            } else {
+                console.info(`✓ TRANSFORM: Total processing: ${totalRemovedBytes} bytes removed, ${exampleCount + quoteCount + imgCount} elements marked in ${duration}ms`);
+            }
+            
+            return cleaned;
+        }
+        
+        /**
+         * Validate that transformation is working correctly
+         * Checks if delete buttons or Plain Text buttons are present in HTML
+         * 
+         * @param {string} html - The HTML content to validate
+         * @returns {object} - Validation results with details
+         */
+        function validateTransformation(html) {
+            if (!html) return { isValid: true, deleteButtonsFound: 0, plainTextButtonsFound: 0 };
+            
+            const deleteButtonPattern = /<button[^>]*(?:id[^=]*=[^"\s]*"[^"]*delete[^"]*"|class[^=]*=[^"\s]*"[^"]*delete[^"]*")[^>]*>/gi;
+            const plainTextButtonPattern = /<button[^>]*class[^=]*=[^"]*"[^"]*(?:poetry-restore-btn|froala-only-btn)[^"]*"[^>]*>/gi;
+            
+            const deleteMatches = html.match(deleteButtonPattern);
+            const plainTextMatches = html.match(plainTextButtonPattern);
+            
+            const deleteButtonsFound = deleteMatches ? deleteMatches.length : 0;
+            const plainTextButtonsFound = plainTextMatches ? plainTextMatches.length : 0;
+            const totalButtonsFound = deleteButtonsFound + plainTextButtonsFound;
+            
+            return {
+                isValid: totalButtonsFound === 0,
+                deleteButtonsFound: deleteButtonsFound,
+                plainTextButtonsFound: plainTextButtonsFound,
+                totalButtonsFound: totalButtonsFound,
+                deleteMatches: deleteMatches || [],
+                plainTextMatches: plainTextMatches || []
+            };
+        }
+        
+        // ============================================================================
+        // TOAST NOTIFICATION SYSTEM
+        // ============================================================================
+        
+        // Toast Notification System
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const toastId = 'toast-' + Date.now();
+            
+            toast.id = toastId;
+            toast.className = `toast ${type}`;
+            
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fa ${iconMap[type]} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="hideToast('${toastId}')">
+                    <i class="fa fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Auto-hide after duration
+            setTimeout(() => {
+                hideToast(toastId);
+            }, duration);
+            
+            return toastId;
+        }
+        
+        function hideToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        }
+        
+        // Dynamic transcript loading from database
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTranscriptFromDatabase();
+        });
+
+        async function refreshTranscript() {
+            const sessionIdInput = document.getElementById('sessionIdInput');
+            const sessionId = sessionIdInput.value || 212;
+            
+            // Show loading toast
+            const loadingToastId = showToast('info', 'Loading Transcript', `Fetching fresh content for Session ${sessionId}...`, 10000);
+            
+            try {
+                await loadTranscriptFromDatabase(sessionId, loadingToastId);
+            } catch (error) {
+                hideToast(loadingToastId);
+                showToast('error', 'Refresh Failed', `Unable to refresh Session ${sessionId}: ${error.message}`);
+            }
+        }
+
+        async function loadTranscriptFromDatabase(sessionId = null, loadingToastId = null) {
+            if (!sessionId) {
+                const sessionIdInput = document.getElementById('sessionIdInput');
+                sessionId = sessionIdInput.value || 212;
+            }
+            const transcriptContainer = document.querySelector('.ks-transcript');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const loadingMessage = document.createElement('div');
+            loadingMessage.innerHTML = '<div class="text-center p-8"><i class="fa fa-spinner fa-spin fa-2x text-blue-500"></i><p class="mt-4 text-gray-600">Loading fresh transcript from database...</p></div>';
+            
+            // Update status
+            statusIndicator.innerHTML = '<span class="text-blue-600"><i class="fa fa-spinner fa-spin mr-1"></i>Loading...</span>';
+            
+            // Show loading message
+            transcriptContainer.innerHTML = '';
+            transcriptContainer.appendChild(loadingMessage);
+
+            try {
+                // Fetch fresh transcript from API
+                const response = await fetch(`/api/session/${sessionId}/transcript`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.transcript) {
+                    // ============================================================================
+                    // TRANSFORMATION STEP: Remove delete buttons before rendering
+                    // Based on AssetProcessingService.TransformTranscriptHtmlAsync()
+                    // ============================================================================
+                    
+                    // Validate original HTML
+                    const originalValidation = validateTransformation(data.transcript);
+                    if (!originalValidation.isValid) {
+                        const buttonSummary = [];
+                        if (originalValidation.deleteButtonsFound > 0) {
+                            buttonSummary.push(`${originalValidation.deleteButtonsFound} delete button(s)`);
+                        }
+                        if (originalValidation.plainTextButtonsFound > 0) {
+                            buttonSummary.push(`${originalValidation.plainTextButtonsFound} Plain Text button(s)`);
+                        }
+                        console.warn(`⚠️ VALIDATION: Found ${buttonSummary.join(', ')} in original HTML - will be removed`);
+                    }
+                    
+                    // Transform HTML to remove action buttons
+                    const transformedHtml = transformHtml(data.transcript);
+                    
+                    // Validate transformed HTML
+                    const transformedValidation = validateTransformation(transformedHtml);
+                    if (transformedValidation.isValid) {
+                        console.info('✓ VALIDATION: Transformed HTML is clean - no action buttons present');
+                    } else {
+                        const remainingSummary = [];
+                        if (transformedValidation.deleteButtonsFound > 0) {
+                            remainingSummary.push(`${transformedValidation.deleteButtonsFound} delete button(s)`);
+                        }
+                        if (transformedValidation.plainTextButtonsFound > 0) {
+                            remainingSummary.push(`${transformedValidation.plainTextButtonsFound} Plain Text button(s)`);
+                        }
+                        console.error(`✗ VALIDATION: Transformation failed - ${remainingSummary.join(', ')} still present!`);
+                    }
+                    
+                    // Insert transformed content (delete buttons removed)
+                    transcriptContainer.innerHTML = transformedHtml;
+                    
+                    // Update page title with timestamp
+                    const timestamp = new Date(data.lastUpdated || Date.now()).toLocaleString();
+                    document.querySelector('h1').textContent = `Session Transcript Styling Demo - Updated: ${timestamp}`;
+                    
+                    // Initialize interactivity after content is loaded
+                    initializeInteractivity();
+                    
+                    // Update status
+                    const loadTimestamp = new Date(data.lastUpdated || Date.now()).toLocaleString();
+                    statusIndicator.innerHTML = `<span class="text-green-600"><i class="fa fa-check mr-1"></i>Loaded ${loadTimestamp}</span>`;
+                    
+                    // Hide loading toast if it exists
+                    if (loadingToastId) {
+                        hideToast(loadingToastId);
+                    }
+                    
+                    // Show success toast with transformation info
+                    const originalLength = (data.transcript.length / 1024).toFixed(1);
+                    const transformedLength = (transformedHtml.length / 1024).toFixed(1);
+                    const transformMsg = originalValidation.isValid 
+                        ? `${originalLength}KB loaded` 
+                        : `${originalLength}KB → ${transformedLength}KB (${originalValidation.deleteButtonsFound} button(s) removed)`;
+                    
+                    showToast('success', 'Transcript Refreshed', 
+                        `Session ${data.sessionId} loaded successfully. ${transformMsg}. Updated ${loadTimestamp}`);
+                    
+                    console.log('TRANSCRIPT-LOADED: Fresh content loaded and transformed', {
+                        sessionId: data.sessionId,
+                        originalLength: data.transcript.length,
+                        transformedLength: transformedHtml.length,
+                        deleteButtonsRemoved: originalValidation.deleteButtonsFound,
+                        lastUpdated: data.lastUpdated
+                    });
+                } else {
+                    transcriptContainer.innerHTML = '<div class="text-center p-8 text-gray-500"><i class="fa fa-exclamation-circle fa-2x"></i><p class="mt-4">No transcript content available for this session.</p></div>';
+                    statusIndicator.innerHTML = '<span class="text-yellow-600"><i class="fa fa-exclamation-triangle mr-1"></i>No content</span>';
+                    
+                    // Hide loading toast if it exists
+                    if (loadingToastId) {
+                        hideToast(loadingToastId);
+                    }
+                    
+                    // Show warning toast
+                    showToast('warning', 'No Content Found', `Session ${sessionId} exists but has no transcript content available.`);
+                }
+            } catch (error) {
+                console.error('TRANSCRIPT-ERROR: Failed to load transcript from database:', error);
+                
+                // Fallback to existing static content on error
+                transcriptContainer.innerHTML = `
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                        <div class="flex">
+                            <i class="fa fa-exclamation-triangle text-yellow-400 mr-2"></i>
+                            <div>
+                                <p class="text-yellow-800 font-medium">Unable to load fresh transcript from database</p>
+                                <p class="text-yellow-700 text-sm">Error: ${error.message}</p>
+                                <p class="text-yellow-700 text-sm">Displaying cached content below...</p>
+                            </div>
+                        </div>
+                    </div>
+                ` + getStaticFallbackContent();
+                
+                // Initialize interactivity even with fallback content
+                initializeInteractivity();
+                
+                // Update status to show error
+                statusIndicator.innerHTML = `<span class="text-red-600"><i class="fa fa-exclamation-triangle mr-1"></i>API Error</span>`;
+                
+                // Hide loading toast if it exists
+                if (loadingToastId) {
+                    hideToast(loadingToastId);
+                }
+                
+                // Show error toast
+                showToast('error', 'Connection Failed', 
+                    `Unable to fetch Session ${sessionId} from database. ${error.message}`);
+            }
+        }
+
+        function getStaticFallbackContent() {
+            // Return a simple fallback message instead of complex HTML
+            return '<div class="text-center p-8"><h2>Fallback Content</h2><p>Unable to load fresh transcript. Please check the API connection.</p></div>';
+        }
+
+        // Simple script to demonstrate interactivity  
+        function initializeInteractivity() {
+            console.log('Session transcript styling demo loaded');
+            
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.ayah-card, .etymology-card, .esotericBlock, .inserted-hadees');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

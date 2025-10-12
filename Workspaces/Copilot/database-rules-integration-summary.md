@@ -266,12 +266,12 @@ Individual Prompts (task, question, refactor, sync)
 - Follows INSERT best practices
 - Validates before execution
 
-### Scenario 3: User says "Update the user's email in the database"
+### Scenario 3: User says "Update a group name in the database"
 **Copilot Response**:
-- Recognizes `dbo.Users` is READ-ONLY
+- Recognizes `dbo.Groups` is READ-ONLY
 - Blocks modification attempt
-- Suggests alternative approach
-- References InfrastructureQuickRef.md for explanation
+- Explains dbo.* schema is for legacy Islamic content
+- References InfrastructureQuickRef.md for schema access rules
 
 ### Scenario 4: User says "What's the database connection?"
 **Copilot Response**:

@@ -142,14 +142,14 @@ Brief overview of what this key accomplishes and its role in the application. In
 - **Primary Database**: KSESSIONS_DEV (Server: AHHOME)
 - **Connection**: `_configuration.GetConnectionString("DefaultConnection")`
 - **Schemas Used**:
-  - ✅ `canvas.*` - READ-WRITE (tables: Questions, Votes, Participants, Annotations)
-  - ❌ `dbo.*` - READ-ONLY (tables: Sessions, Users, Tokens)
+  - ✅ `canvas.*` - READ-WRITE (tables: Questions, Votes, Participants, Annotations, Sessions)
+  - ❌ `dbo.*` - READ-ONLY (tables: Groups, Categories, Sessions-LEGACY, Speakers, SessionTranscripts)
 - **Tables Modified**: (list specific tables this key modifies)
   - `canvas.Questions` - INSERT, UPDATE operations
   - `canvas.Participants` - INSERT operations
 - **Tables Read**: (list specific tables this key reads)
-  - `dbo.Sessions` - READ-ONLY
-  - `dbo.Users` - READ-ONLY
+  - `dbo.Groups` - READ-ONLY (Islamic content collections)
+  - `dbo.Sessions` - READ-ONLY (LEGACY Islamic learning sessions)
 
 ### API Endpoints (from InfrastructureQuickRef.md)
 **FIRST_USE_ONLY**: If this key involves API calls, task agent copies relevant endpoints here

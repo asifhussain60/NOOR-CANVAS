@@ -1,0 +1,97 @@
+/* Debug Panel Styles - Development Only */
+.debug-panel {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.debug-toggle-btn {
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.debug-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.debug-content {
+    animation: debugPanelSlideIn 0.3s ease-out;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@keyframes debugPanelSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.debug-panel.collapsed .debug-content {
+    display: none;
+}
+
+.debug-panel.expanded .debug-toggle-btn {
+    background-color: #ef4444 !important;
+}
+
+.debug-panel.expanded .debug-toggle-btn:hover {
+    background-color: #dc2626 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .debug-content {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        min-width: auto;
+    }
+    
+    .debug-panel {
+        right: 10px !important;
+    }
+}
+
+/* Custom scrollbar for debug content */
+.debug-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.debug-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.debug-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+.debug-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure debug panel is always on top */
+.debug-panel {
+    z-index: 10000 !important;
+}
+
+/* Debug message animations */
+.debug-message {
+    animation: debugMessageFadeIn 0.3s ease-out;
+}
+
+@keyframes debugMessageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

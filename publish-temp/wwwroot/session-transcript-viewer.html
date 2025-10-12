@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noor Canvas - Session Transcript Viewer</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts - Optimized for Arabic -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Scheherazade+New:wght@400;700&family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Session Transcript CSS -->
+    <link href="css/session-transcript.css" rel="stylesheet">
+    
+    <style>
+        /* Enhanced CSS for better Arabic support and modern UI */
+        :root {
+            --primary-color: #1e40af;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-gradient);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Arabic text styling */
+        .inlineArabic, .arabic-text {
+            font-family: 'Scheherazade New', 'Amiri', 'Noto Sans Arabic', 'Noto Nastaliq Urdu', serif !important;
+            direction: rtl;
+            unicode-bidi: embed;
+            font-size: 1.1em;
+            font-weight: 400;
+            line-height: 1.8;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Header styling */
+        .header-container {
+            background: white;
+            box-shadow: var(--card-shadow);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-bottom: 2rem;
+        }
+
+        /* Session selector styling */
+        .session-selector {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .session-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .session-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .session-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+            outline: none;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        /* Content container */
+        .content-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Loading states */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast notification system */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1rem 1.25rem;
+            max-width: 400px;
+            min-width: 300px;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            transform: translateX(420px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.error { border-left-color: var(--error-color); }
+        .toast.warning { border-left-color: var(--warning-color); }
+        .toast.info { border-left-color: var(--info-color); }
+
+        .toast-icon {
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        .toast.success .toast-icon { background-color: var(--success-color); }
+        .toast.error .toast-icon { background-color: var(--error-color); }
+        .toast.warning .toast-icon { background-color: var(--warning-color); }
+        .toast.info .toast-icon { background-color: var(--info-color); }
+
+        /* Session info display */
+        .session-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        /* Content styling improvements */
+        .transcript-content {
+            padding: 2rem;
+            line-height: 1.7;
+        }
+
+        .transcript-content h1, .transcript-content h2, .transcript-content h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+
+        .transcript-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Enhanced card styles */
+        .ayah-card, .etymology-card, .esotericBlock, .inserted-hadees {
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .ayah-card:hover, .etymology-card:hover, .esotericBlock:hover, .inserted-hadees:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .session-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .session-input {
+                width: 100%;
+            }
+            
+            .transcript-content {
+                padding: 1rem;
+            }
+            
+            .toast {
+                min-width: 280px;
+                max-width: calc(100vw - 40px);
+            }
+        }
+
+        /* Error state styling */
+        .error-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--secondary-color);
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            color: var(--error-color);
+            margin-bottom: 1rem;
+        }
+
+        /* URL parameter indicator */
+        .url-param-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="min-h-screen p-4">
+        <!-- Header -->
+        <div class="header-container">
+            <div class="max-w-6xl mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-scroll text-2xl text-blue-600"></i>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800 mb-0">Session Transcript Viewer</h1>
+                            <p class="text-sm text-gray-600 mb-0">Dynamic Islamic content with proper Arabic rendering</p>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-database mr-1"></i>
+                        Live from KSESSIONS_DEV
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+            <!-- Session Selector -->
+            <div class="session-selector">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-0">
+                        <i class="fas fa-search mr-2"></i>
+                        Select Session
+                    </h2>
+                    <div class="text-sm text-gray-500" id="lastLoaded">
+                        Ready to load content
+                    </div>
+                </div>
+
+                <!-- URL Parameter Info (shown if sessionId in URL) -->
+                <div id="urlParamInfo" class="url-param-info hidden">
+                    <i class="fas fa-link mr-2"></i>
+                    Session ID detected from URL parameters
+                </div>
+
+                <div class="session-input-group">
+                    <label for="sessionIdInput" class="text-sm font-medium text-gray-700">
+                        Session ID:
+                    </label>
+                    <input 
+                        type="number" 
+                        id="sessionIdInput" 
+                        class="session-input" 
+                        placeholder="Enter session ID (e.g., 212)"
+                        min="1"
+                        step="1"
+                    >
+                    <button 
+                        id="loadSessionBtn" 
+                        class="btn btn-primary"
+                    >
+                        <i class="fas fa-download"></i>
+                        Load Session
+                    </button>
+                    <button 
+                        id="refreshBtn" 
+                        class="btn btn-secondary"
+                        title="Refresh current session"
+                    >
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Session Info Display -->
+                <div id="sessionInfo" class="session-info hidden">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <span><strong>Session:</strong> <span id="currentSessionId">-</span></span>
+                        <span><strong>Content Size:</strong> <span id="contentSize">-</span></span>
+                        <span><strong>Last Updated:</strong> <span id="lastUpdated">-</span></span>
+                        <span><strong>Load Time:</strong> <span id="loadTime">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Container -->
+            <div class="content-container">
+                <!-- Loading Overlay -->
+                <div id="loadingOverlay" class="loading-overlay hidden">
+                    <div class="text-center">
+                        <div class="loading-spinner mx-auto mb-4"></div>
+                        <p class="text-gray-600 font-medium" id="loadingText">Loading session transcript...</p>
+                        <p class="text-sm text-gray-500" id="loadingSubtext">Connecting to database</p>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div id="transcriptContent" class="transcript-content">
+                    <div class="text-center py-12">
+                        <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-medium text-gray-600 mb-2">No Session Loaded</h3>
+                        <p class="text-gray-500">Enter a session ID above to load transcript content</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="errorState" class="error-state hidden">
+                    <i class="fas fa-exclamation-triangle error-icon"></i>
+                    <h3 class="text-xl font-medium mb-2">Unable to Load Session</h3>
+                    <p id="errorMessage">An error occurred while loading the transcript.</p>
+                    <button class="btn btn-primary mt-4" onclick="retryLoad()">
+                        <i class="fas fa-redo"></i>
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSessionId = null;
+        let toastCounter = 0;
+
+        // Toast notification system
+        function showToast(type, title, message, duration = 5000) {
+            const toastId = `toast-${++toastCounter}`;
+            const icons = {
+                success: 'fas fa-check',
+                error: 'fas fa-times',
+                warning: 'fas fa-exclamation',
+                info: 'fas fa-info'
+            };
+
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="${icons[type]}"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="font-medium text-gray-900">${title}</div>
+                    ${message ? `<div class="text-gray-600 text-sm mt-1">${message}</div>` : ''}
+                </div>
+                <button class="text-gray-400 hover:text-gray-600 ml-2" onclick="hideToast('${toastId}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            document.getElementById('toastContainer').appendChild(toast);
+
+            // Show toast with animation
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            // Auto hide
+            if (duration > 0) {
+                setTimeout(() => hideToast(toastId), duration);
+            }
+
+            return toastId;
+        }
+
+        function hideToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }
+
+        // URL parameter handling
+        function getSessionIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('sessionId') || urlParams.get('session') || urlParams.get('id');
+        }
+
+        function updateUrlWithSessionId(sessionId) {
+            const url = new URL(window.location);
+            url.searchParams.set('sessionId', sessionId);
+            window.history.pushState({}, '', url);
+        }
+
+        // Session loading functionality
+        async function loadSession(sessionId = null, showLoading = true) {
+            if (!sessionId) {
+                sessionId = document.getElementById('sessionIdInput').value?.trim();
+            }
+
+            if (!sessionId || sessionId < 1) {
+                showToast('warning', 'Invalid Session ID', 'Please enter a valid session ID (positive number)');
+                return;
+            }
+
+            sessionId = parseInt(sessionId);
+            currentSessionId = sessionId;
+
+            // Update URL
+            updateUrlWithSessionId(sessionId);
+
+            // Show loading state
+            if (showLoading) {
+                showLoadingState(`Loading Session ${sessionId}`, 'Fetching content from database...');
+            }
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`/api/session/${sessionId}/transcript`);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error(`Session ${sessionId} not found in database`);
+                    } else {
+                        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                    }
+                }
+
+                const data = await response.json();
+                const loadTime = Date.now() - startTime;
+
+                if (!data.transcript) {
+                    showErrorState(`Session ${sessionId} has no transcript content`, 'The session exists but contains no transcript data.');
+                    return;
+                }
+
+                // Successfully loaded - update UI
+                hideLoadingState();
+                displayTranscript(data.transcript);
+                updateSessionInfo(data, loadTime);
+                
+                showToast('success', 'Session Loaded Successfully', 
+                    `Session ${sessionId} loaded (${(data.transcript.length / 1024).toFixed(1)}KB) in ${loadTime}ms`);
+
+            } catch (error) {
+                console.error('Error loading session:', error);
+                hideLoadingState();
+                showErrorState('Failed to Load Session', error.message);
+                showToast('error', 'Load Failed', error.message);
+            }
+        }
+
+        function showLoadingState(title, subtitle) {
+            document.getElementById('loadingText').textContent = title;
+            document.getElementById('loadingSubtext').textContent = subtitle;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('transcriptContent').classList.add('opacity-50');
+            document.getElementById('errorState').classList.add('hidden');
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('transcriptContent').classList.remove('opacity-50');
+        }
+
+        function showErrorState(title, message) {
+            document.getElementById('errorState').querySelector('h3').textContent = title;
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('transcriptContent').classList.add('hidden');
+        }
+
+        function hideErrorState() {
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('transcriptContent').classList.remove('hidden');
+        }
+
+        function displayTranscript(transcriptHtml) {
+            hideErrorState();
+            const contentDiv = document.getElementById('transcriptContent');
+            contentDiv.innerHTML = transcriptHtml;
+            
+            // Add interactivity to newly loaded content
+            addContentInteractivity();
+            
+            // Scroll to top of content
+            contentDiv.scrollTop = 0;
+        }
+
+        function updateSessionInfo(data, loadTime) {
+            document.getElementById('currentSessionId').textContent = data.sessionId;
+            document.getElementById('contentSize').textContent = `${(data.transcript.length / 1024).toFixed(1)} KB`;
+            document.getElementById('lastUpdated').textContent = data.lastUpdated ? 
+                new Date(data.lastUpdated).toLocaleString() : 'Unknown';
+            document.getElementById('loadTime').textContent = `${loadTime}ms`;
+            document.getElementById('lastLoaded').textContent = `Last loaded: ${new Date().toLocaleTimeString()}`;
+            
+            document.getElementById('sessionInfo').classList.remove('hidden');
+        }
+
+        function addContentInteractivity() {
+            // Add hover effects to content cards
+            const cards = document.querySelectorAll('.ayah-card, .etymology-card, .esotericBlock, .inserted-hadees');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Make clickable headers interactive
+            const clickableHeaders = document.querySelectorAll('.clickable-ayah-header');
+            clickableHeaders.forEach(header => {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', function() {
+                    showToast('info', 'Ayah Reference', `Reference: ${this.textContent}`);
+                });
+            });
+        }
+
+        function retryLoad() {
+            if (currentSessionId) {
+                loadSession(currentSessionId);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const sessionInput = document.getElementById('sessionIdInput');
+            const loadBtn = document.getElementById('loadSessionBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            // Check for URL parameters
+            const urlSessionId = getSessionIdFromUrl();
+            if (urlSessionId) {
+                sessionInput.value = urlSessionId;
+                document.getElementById('urlParamInfo').classList.remove('hidden');
+                // Auto-load if session ID is in URL
+                setTimeout(() => loadSession(urlSessionId), 500);
+            } else {
+                // Default to session 212 for demo
+                sessionInput.value = '212';
+            }
+
+            // Load session button
+            loadBtn.addEventListener('click', () => loadSession());
+
+            // Refresh button
+            refreshBtn.addEventListener('click', () => {
+                if (currentSessionId) {
+                    loadSession(currentSessionId);
+                } else {
+                    showToast('warning', 'No Session Loaded', 'Load a session first before refreshing');
+                }
+            });
+
+            // Enter key support
+            sessionInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loadSession();
+                }
+            });
+
+            // Input validation
+            sessionInput.addEventListener('input', function() {
+                const value = this.value;
+                if (value && (isNaN(value) || value < 1)) {
+                    this.setCustomValidity('Please enter a valid positive number');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+
+            console.log('Session Transcript Viewer initialized');
+            showToast('info', 'System Ready', 'Enter a session ID to load transcript content');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+R or F5 for refresh
+            if ((e.ctrlKey && e.key === 'r') || e.key === 'F5') {
+                if (currentSessionId) {
+                    e.preventDefault();
+                    loadSession(currentSessionId);
+                }
+            }
+            
+            // Ctrl+L for focus on session input
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                document.getElementById('sessionIdInput').focus();
+            }
+        });
+
+        // Export for debugging
+        window.SessionViewer = {
+            loadSession,
+            showToast,
+            getCurrentSessionId: () => currentSessionId,
+            retryLoad
+        };
+    </script>
+</body>
+</html>

@@ -434,6 +434,37 @@ Minimum score: 0, Maximum score: 10
 
 **EFFICIENCY**: Consolidate similar files to reduce footprint and maintain efficiency
 
+#### 7.0: Ground Truth Validation (MANDATORY - Execute First)
+
+**Execute validation script BEFORE updating any QuickRef or instruction files:**
+```powershell
+cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Scripts"
+.\Validate-DocumentationGroundTruth.ps1 -GenerateReport
+```
+
+**Expected Output**: `✅ Passed: X | ❌ Failed: 0 | ⚠️ Warnings: Y`
+
+**Script Actions**:
+1. Query KSESSIONS_DEV for actual database schema
+2. Verify obsolete tables do NOT exist (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
+3. Verify expected tables DO exist (dbo.Groups, Categories, Sessions, Speakers, SessionTranscripts)
+4. Search codebase for actual table/proc/view references
+5. Scan 6 key documentation files for accuracy
+6. Generate timestamped report with evidence
+
+**Integration**:
+- Use validation results to guide documentation updates
+- Include validation report in cohesion review commit
+- If validation fails: Document issues, create action items, mark cohesion as "In Progress - Validation Failures"
+- Do NOT proceed to Step 8 (commit) until validation passes
+
+**Failure Handling**:
+- ❌ If script fails to run: Fix script issues first
+- ❌ If validation finds incorrect documentation: Update docs with correct information from database queries
+- ⚠️ If warnings appear: Review and address if critical
+
+---
+
 #### 7.1: Review Instructions Folder
 Analyze all files in `.github/instructions/` and `.github/instructions/Links/`:
 - Architecture.md
@@ -688,21 +719,162 @@ verbosity: concise
    - Architecture.md for API endpoints
    - playwright.config.cjs for test configuration
    - Actual test files for patterns
+   - **ACTUAL DATABASE SCHEMA** (query KSESSIONS_DEV) ⚠️ MANDATORY
+   - **ACTUAL CODEBASE** (grep for table/API usage) ⚠️ MANDATORY
 3. **Identify drift**:
    - Missing endpoints
    - Outdated configuration
    - New patterns not documented
    - Deprecated patterns still listed
+   - **Obsolete table references** (tables that don't exist)
+   - **Missing table references** (tables that do exist but aren't documented)
 4. **Update QuickRef files**:
    - Add missing information
    - Remove outdated information
    - Update changed information
    - Increment version number
    - Update "Last Updated" date
+   - **Add verification timestamp** (e.g., "Verified 2025-10-12")
 5. **Include in cohesion review report**:
    - Document changes made
    - Note version increments
    - List drift identified and corrected
+   - **Include evidence** (database query results, grep output)
+
+#### Ground Truth Validation (NEW - MANDATORY)
+
+**DO NOT compare docs to docs. Compare docs to ACTUAL SYSTEM STATE.**
+
+##### For Database Table References:
+
+**Step 1: Query Actual Database**
+```sql
+-- Connect to KSESSIONS_DEV and list all tables
+USE KSESSIONS_DEV;
+
+-- List canvas schema tables
+SELECT name FROM sys.tables WHERE SCHEMA_NAME(schema_id) = 'canvas';
+
+-- List dbo schema tables
+SELECT name FROM sys.tables WHERE SCHEMA_NAME(schema_id) = 'dbo';
+
+-- Check if specific table exists (returns NULL if not exists)
+SELECT OBJECT_ID('dbo.TableName') AS TableExists;
+```
+
+**Step 2: Search Actual Codebase**
+```powershell
+# Search for database table references in C# code
+grep -r "dbo\.TableName" --include="*.cs" Data/ Services/ Controllers/
+
+# Search for Entity Framework DbSet definitions
+grep -r "DbSet<" --include="*.cs" Data/
+
+# Search for SQL queries in migration scripts
+grep -r "FROM dbo\." --include="*.sql" Scripts/ Migrations/
+```
+
+**Step 3: Validation Rules**
+- ❌ If documentation claims "Table X exists" but `SELECT OBJECT_ID('dbo.X')` returns NULL → **Documentation is WRONG, update it**
+- ❌ If documentation claims "Code uses dbo.X" but grep returns 0 matches → **Documentation is WRONG, update it**
+- ✅ If database query shows table exists AND code references found → Documentation can reference it
+- ⚠️ If table exists but NO code references → Warn in report (orphaned table?)
+
+**Step 4: Evidence Requirements**
+Include in cohesion review report:
+```markdown
+### Database Validation Evidence
+
+**Query Date**: 2025-10-12
+**Database**: KSESSIONS_DEV
+**Server**: AHHOME
+
+**canvas.* Schema Tables** (4 found):
+- canvas.AssetLookup ✅
+- canvas.Sessions ✅
+- canvas.Participants ✅
+- canvas.SessionData ✅
+
+**dbo.* Schema Tables** (sample, 47 total):
+- dbo.Members ✅ (used in code: 12 references)
+- dbo.SessionTokens ✅ (used in code: 8 references)
+- dbo.Sessions ✅ (used in code: 45 references)
+... (see full list in validation script output)
+
+**Obsolete References Removed**:
+- ❌ dbo.Users (does NOT exist in database, removed from docs)
+- ❌ dbo.Tokens (does NOT exist in database, removed from docs)
+
+**Verification Method**: 
+- Database query via sqlcmd
+- Codebase search via grep
+- Automated script: Validate-DocumentationGroundTruth.ps1
+```
+
+##### For API Endpoint References:
+
+**Step 1: Search Actual Controllers**
+```powershell
+# Find all API routes
+grep -r "\[HttpGet\]|\[HttpPost\]|\[Route\]" --include="*.cs" Controllers/
+
+# Search for specific endpoint
+grep -r "api/question/submit" --include="*.cs"
+```
+
+**Step 2: Verify Against Architecture.md**
+- If Architecture.md lists endpoint but grep finds no controller → Drift
+- If controller exists but Architecture.md missing endpoint → Drift
+
+##### For Configuration References:
+
+**Step 1: Read Actual appsettings.json**
+```powershell
+# Extract connection strings
+Get-Content appsettings.json | Select-String -Pattern "ConnectionStrings" -Context 0,10
+
+# Extract specific settings
+Get-Content appsettings.json | Select-String -Pattern "AzureAdB2C" -Context 0,5
+```
+
+**Step 2: Compare to InfrastructureQuickRef.md**
+- Connection string names must match exactly
+- Server names must match exactly
+- Database names must match exactly
+
+#### Automated Validation Script (MANDATORY)
+
+**MUST RUN before finalizing cohesion review**:
+```powershell
+cd "D:\PROJECTS\NOOR CANVAS\Workspaces\Scripts"
+.\Validate-DocumentationGroundTruth.ps1 -GenerateReport
+```
+
+**Expected Output**:
+- ✅ Database schema validation (actual tables vs documented tables)
+- ✅ Codebase reference validation (grep for actual usage)
+- ✅ Documentation accuracy check (6 key files scanned)
+- 📄 Markdown report with evidence (timestamped)
+
+**Script Actions**:
+1. **Queries KSESSIONS_DEV** for actual canvas.* and dbo.* tables
+2. **Verifies obsolete tables** do NOT exist (dbo.Users, dbo.Tokens, dbo.Members, dbo.SessionTokens)
+3. **Verifies expected tables** DO exist (dbo.Groups, dbo.Categories, dbo.Sessions, dbo.Speakers, dbo.SessionTranscripts)
+4. **Searches codebase** for table references in C# files
+5. **Scans documentation** for obsolete references
+6. **Generates report** with pass/fail/warning counts
+
+**Integration**: 
+- Include validation report in cohesion review appendix
+- Attach report file to cohesion review commit
+- If validation fails, cohesion review CANNOT be marked complete
+
+**Failure Handling**:
+If validation script fails or finds issues:
+1. Document failures in cohesion review report
+2. Create high-priority action items for each failure
+3. Mark cohesion review status as "In Progress - Validation Failures"
+4. Do NOT proceed to Step 8 (commit) until issues resolved
 
 #### Verification
 - Cross-reference InfrastructureQuickRef.md with SystemIndex.md

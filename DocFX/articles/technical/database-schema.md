@@ -131,10 +131,10 @@ NOOR CANVAS has read access to existing application data:
 USE KQUR_DEV; -- Development
 USE KQUR;     -- Production
 
--- Available tables
-SELECT * FROM dbo.Users;
-SELECT * FROM dbo.Categories;
+-- Available tables (examples)
 SELECT * FROM dbo.Albums;
+SELECT * FROM dbo.Categories;
+-- Note: Verify actual schema against database before querying
 ```
 
 ### Asset Referencing Strategy
