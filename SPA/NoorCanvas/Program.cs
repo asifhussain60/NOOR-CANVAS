@@ -293,11 +293,11 @@ try
         // Test stored procedure existence
         try
         {
+            // Note: SqlQueryRaw is used for stored procedures in EF Core 8.0+ (non-composable raw SQL)
             var testAlbums = await kSessionsContext.Database
-                .SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups")
-                .Take(1)
+                .SqlQueryRaw<AlbumData>($"EXEC dbo.GetAllGroups")
                 .ToListAsync();
-            Log.Information("[DEBUG-WORKITEM:session-opener:database-connection] Stored Procedure dbo.GetAllGroups: EXISTS ;CLEANUP_OK");
+            Log.Information("[DEBUG-WORKITEM:session-opener:database-connection] Stored Procedure dbo.GetAllGroups: EXISTS (returned {Count} albums) ;CLEANUP_OK", testAlbums.Count);
         }
         catch (Exception spEx)
         {

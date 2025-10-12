@@ -473,8 +473,9 @@ namespace NoorCanvas.Controllers
                 _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Executing stored procedure: dbo.GetAllGroups ;CLEANUP_OK");
                 
                 // Use stored procedure to get all groups (albums)
+                // Note: SqlQueryRaw is used for stored procedures in EF Core 8.0+ (non-composable raw SQL)
                 var albums = await _kSessionsContext.Database
-                    .SqlQuery<AlbumData>($"EXEC dbo.GetAllGroups")
+                    .SqlQueryRaw<AlbumData>($"EXEC dbo.GetAllGroups")
                     .ToListAsync();
 
                 _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums loaded successfully - Count: {Count} ;CLEANUP_OK", albums.Count);
@@ -509,8 +510,10 @@ namespace NoorCanvas.Controllers
                 _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Executing stored procedure: dbo.GetCategoriesForGroup {AlbumId} ;CLEANUP_OK", albumId);
                 
                 // Use stored procedure to get categories for the specified group
+                // Note: SqlQueryRaw is used for stored procedures in EF Core 8.0+ (non-composable raw SQL)
+                // Using FormattableString to prevent SQL injection warnings
                 var categories = await _kSessionsContext.Database
-                    .SqlQuery<CategoryData>($"EXEC dbo.GetCategoriesForGroup {albumId}")
+                    .SqlQueryRaw<CategoryData>($"EXEC dbo.GetCategoriesForGroup @p0", albumId)
                     .ToListAsync();
 
                 _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Categories loaded successfully - Count: {Count} ;CLEANUP_OK", categories.Count);
