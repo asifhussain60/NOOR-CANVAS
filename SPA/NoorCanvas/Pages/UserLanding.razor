@@ -24,42 +24,373 @@
     @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
 </HeadContent>
 
-<div style="background-color:#F8F5F1;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;">
-    <div style="width:100%;max-width:35rem;background-color:#FFFFFF;border:1px solid #e5e7eb;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border-radius:1.5rem;padding:2rem 3rem;text-align:center;">
+<style>
+    /* Root Container */
+    .user-landing-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+    }
+
+    /* Main Container */
+    .user-landing-container {
+        width: 100%;
+        max-width: 35rem;
+        background-color: #FFFFFF;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border-radius: 1.5rem;
+        padding: 2rem 3rem;
+        text-align: center;
+    }
+
+    /* Logo */
+    .user-landing-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Main Content */
+    .user-landing-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Title */
+    .user-landing-title {
+        font-size: 2.5rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #006400;
+        margin: 0;
+    }
+
+    /* Session Info */
+    .user-landing-session-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-top: -0.5rem;
+    }
+
+    .user-landing-session-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 2rem;
+        color: #D4AF37;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .user-landing-session-desc {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: grey;
+        font-weight: normal;
+        margin: 0;
+    }
+
+    /* Form Panel */
+    .user-landing-form-panel {
+        width: 100%;
+        background-color: #F8F5F1;
+        border-radius: 1rem;
+        border: 2px solid;
+        border-image: linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;
+        padding: 2rem 3rem;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+        box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+    }
+
+    /* Error Message */
+    .user-landing-error {
+        background-color: #FEE2E2;
+        border: 1px solid #FECACA;
+        color: #B91C1C;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    /* Panel Animation */
+    .user-landing-panel-animate {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.5s ease-in-out;
+    }
+
+    /* Panel Header */
+    .user-landing-panel-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-landing-panel-header-registration {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+
+    .user-landing-panel-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        color: #4B3C2B;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .user-landing-panel-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #706357;
+        margin-top: 0.5rem;
+        text-align: center;
+    }
+
+    /* Form Fields */
+    .user-landing-field-wrapper {
+        position: relative;
+        margin-top: 1rem;
+    }
+
+    .user-landing-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        color: #4B3C2B;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .user-landing-icon-wrapper {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        padding-left: 0.75rem;
+        pointer-events: none;
+    }
+
+    .user-landing-icon-wrapper-token {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding-left: 0.75rem;
+        pointer-events: none;
+    }
+
+    .user-landing-field-icon {
+        color: #706357;
+    }
+
+    .user-landing-input,
+    .user-landing-select {
+        display: block;
+        width: 100%;
+        padding-left: 2.5rem;
+        padding-right: 1rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        font-family: 'Inter', sans-serif;
+        color: #4B3C2B;
+        border: 1px solid #D1D5DB;
+        border-radius: 0.75rem;
+        outline: none;
+    }
+
+    .user-landing-input-token {
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .user-landing-input:focus,
+    .user-landing-select:focus {
+        border-color: #006400;
+        box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.1);
+    }
+
+    /* Button */
+    .user-landing-button-wrapper {
+        margin-top: 2rem;
+    }
+
+    .user-landing-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        border-radius: 0.75rem;
+        color: white;
+        font-weight: 600;
+        transition: transform 0.2s;
+        transform: scale(1);
+        box-shadow: 0 10px 15px -3px rgba(0,100,0,0.4), 0 4px 6px -2px rgba(0,100,0,0.2);
+        background-color: #006400;
+        border: none;
+        cursor: pointer;
+    }
+
+    .user-landing-button:hover:not(:disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 12px 18px -3px rgba(0,100,0,0.5), 0 5px 8px -2px rgba(0,100,0,0.3);
+    }
+
+    .user-landing-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .user-landing-button-icon {
+        margin-right: 0.5rem;
+    }
+
+    /* Mobile Responsive - Tablets (768px - 1024px) */
+    @@media (max-width: 1024px) {
+        .user-landing-container {
+            max-width: 90%;
+            padding: 1.75rem 2rem;
+        }
+
+        .user-landing-form-panel {
+            padding: 1.5rem 2rem;
+        }
+    }
+
+    /* Mobile Responsive - Phones (max 767px) */
+    @@media (max-width: 767px) {
+        .user-landing-root {
+            padding: 1rem;
+        }
+
+        .user-landing-container {
+            max-width: 100%;
+            padding: 1.5rem 1rem;
+            border-radius: 1rem;
+        }
+
+        .user-landing-logo img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .user-landing-title {
+            font-size: 1.75rem;
+        }
+
+        .user-landing-session-name {
+            font-size: 1.5rem;
+        }
+
+        .user-landing-session-desc {
+            font-size: 11px;
+        }
+
+        .user-landing-form-panel {
+            padding: 1.25rem 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .user-landing-panel-title {
+            font-size: 1.25rem;
+        }
+
+        .user-landing-panel-subtitle {
+            font-size: 0.8125rem;
+        }
+
+        .user-landing-input,
+        .user-landing-select {
+            padding-top: 0.625rem;
+            padding-bottom: 0.625rem;
+            font-size: 0.9375rem;
+        }
+
+        .user-landing-button {
+            padding-top: 0.875rem;
+            padding-bottom: 0.875rem;
+            font-size: 0.9375rem;
+        }
+    }
+
+    /* Extra Small Phones (max 380px) */
+    @@media (max-width: 380px) {
+        .user-landing-container {
+            padding: 1rem 0.75rem;
+        }
+
+        .user-landing-title {
+            font-size: 1.5rem;
+        }
+
+        .user-landing-session-name {
+            font-size: 1.25rem;
+        }
+
+        .user-landing-form-panel {
+            padding: 1rem 0.75rem;
+        }
+    }
+</style>
+
+<div class="user-landing-root">
+    <div class="user-landing-container">
         
         <!-- Logo -->
-        <div class="noor-canvas-logo" style="display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:1.5rem;">
+        <div class="user-landing-logo">
             <img src="/images/NoorCanvas.png?v=20250924" 
                  alt="@(Model?.LogoText ?? "NOOR Canvas")" />
         </div>
         
         <!-- Main Content -->
-        <div style="display:flex;flex-direction:column;gap:1.5rem;">
-            <h1 style="font-size:2.5rem;font-family:'Poppins',sans-serif;font-weight:700;color:#006400;margin:0;">User Authentication</h1>
-            <div style="display:flex;flex-direction:column;gap:0.25rem;margin-top:-0.5rem;">
-                <p data-testid="session-name" style="font-family:'Inter',sans-serif;font-size:2rem;color:#D4AF37;font-weight:600;margin:0;">@(Model?.SessionName ?? "[Session Name]")</p>
-                <p style="font-family:'Inter',sans-serif;font-size:12px;color:grey;font-weight:normal;margin:0;">@(Model?.SessionDescription ?? "[Session Desc]")</p>
+        <div class="user-landing-content">
+            <h1 class="user-landing-title">User Authentication</h1>
+            <div class="user-landing-session-info">
+                <p data-testid="session-name" class="user-landing-session-name">@(Model?.SessionName ?? "[Session Name]")</p>
+                <p class="user-landing-session-desc">@(Model?.SessionDescription ?? "[Session Desc]")</p>
             </div>
 
             <!-- User Authentication Form -->
-            <div style="width:100%;background-color:#F8F5F1;border-radius:1rem;border:2px solid;border-image:linear-gradient(to right, #C5B358, #D4AF37, #C5B358) 1;padding:2rem 3rem;text-align:left;display:flex;flex-direction:column;gap:1rem;margin-top:2rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.06);">
+            <div class="user-landing-form-panel">
                 
                 @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
                 {
-                    <div style="background-color:#FEE2E2;border:1px solid #FECACA;color:#B91C1C;padding:1rem;border-radius:0.5rem;margin-bottom:1rem;text-align:center;">
+                    <div class="user-landing-error">
                         <span>@Model.ErrorMessage</span>
                     </div>
                 }
                 @if (Model?.ShowTokenPanel == true)
                 {
-                    <div style="opacity:1;transform:translateY(0);transition:all 0.5s ease-in-out;">
-                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                            <h3 style="font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;font-size:1.5rem;margin-bottom:0.5rem;">ENTER TOKEN</h3>
-                            <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;text-align:center;">Enter your unique token to join the session.</p>
+                    <div class="user-landing-panel-animate">
+                        <div class="user-landing-panel-header">
+                            <h3 class="user-landing-panel-title">ENTER TOKEN</h3>
+                            <p class="user-landing-panel-subtitle">Enter your unique token to join the session.</p>
                         </div>
-                        <div style="position:relative;margin-top:1rem;">
-                            <div style="position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
-                                <i class="fa-solid fa-user-lock" style="color:#706357;"></i>
+                        <div class="user-landing-field-wrapper">
+                            <div class="user-landing-icon-wrapper-token">
+                                <i class="fa-solid fa-user-lock user-landing-field-icon"></i>
                             </div>
                             @* DEBUG-WORKITEM:user-auth - Token input: maxlength=8, uppercase conversion, Enter key submit, autocomplete=off ;CLEANUP_OK *@
                             <InputText id="token-input"
@@ -68,53 +399,53 @@
                                       @onfocus="ClearError"
                                       @onkeydown="HandleTokenKeyDown"
                                       maxlength="8"
-                                      style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;text-align:center;text-transform:uppercase;"
+                                      class="user-landing-input user-landing-input-token"
                                       autocomplete="off" />
                         </div>
                     </div>
                 }
                 else
                 {
-                    <div style="opacity:1;transform:translateY(0);transition:all 0.5s ease-in-out;">
-                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:0.5rem;">
-                            <h3 style="font-family:'Inter',sans-serif;font-weight:700;color:#4B3C2B;font-size:1.5rem;margin-bottom:0.5rem;">REGISTRATION</h3>
-                            <p style="font-family:'Inter',sans-serif;font-size:0.875rem;color:#706357;margin-top:0.5rem;text-align:center;">Please fill out the form to register for this session.</p>
+                    <div class="user-landing-panel-animate">
+                        <div class="user-landing-panel-header-registration">
+                            <h3 class="user-landing-panel-title">REGISTRATION</h3>
+                            <p class="user-landing-panel-subtitle">Please fill out the form to register for this session.</p>
                         </div>
                         
-                        <div style="position:relative;margin-top:1rem;">
-                            <label style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;display:block;margin-bottom:0.5rem;">Name</label>
-                            <div style="position:absolute;bottom:0;left:0;height:2.5rem;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
-                                <i class="fa-solid fa-user" style="color:#706357;"></i>
+                        <div class="user-landing-field-wrapper">
+                            <label class="user-landing-label">Name</label>
+                            <div class="user-landing-icon-wrapper">
+                                <i class="fa-solid fa-user user-landing-field-icon"></i>
                             </div>
                             <InputText id="name-input"
                                       @bind-Value="Model!.NameInput" 
                                       @onfocus="ClearError" 
                                       placeholder="Enter your name" 
-                                      style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
+                                      class="user-landing-input"
                                       autocomplete="off" />
                         </div>
                         
-                        <div style="position:relative;margin-top:1rem;">
-                            <label style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;display:block;margin-bottom:0.5rem;">Email Address</label>
-                            <div style="position:absolute;bottom:0;left:0;height:2.5rem;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
-                                <i class="fa-solid fa-envelope" style="color:#706357;"></i>
+                        <div class="user-landing-field-wrapper">
+                            <label class="user-landing-label">Email Address</label>
+                            <div class="user-landing-icon-wrapper">
+                                <i class="fa-solid fa-envelope user-landing-field-icon"></i>
                             </div>
                             <InputText @bind-Value="Model!.EmailInput" 
                                       @onfocus="ClearError" 
                                       placeholder="Enter your email" 
-                                      style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
+                                      class="user-landing-input"
                                       autocomplete="off" />
                         </div>
                         
-                        <div style="position:relative;margin-top:1rem;">
-                            <label style="font-family:'Inter',sans-serif;font-weight:600;color:#4B3C2B;display:block;margin-bottom:0.5rem;">Country</label>
-                            <div style="position:absolute;bottom:0;left:0;height:2.5rem;display:flex;align-items:center;padding-left:0.75rem;pointer-events:none;">
-                                <i class="fa-solid fa-globe" style="color:#706357;"></i>
+                        <div class="user-landing-field-wrapper">
+                            <label class="user-landing-label">Country</label>
+                            <div class="user-landing-icon-wrapper">
+                                <i class="fa-solid fa-globe user-landing-field-icon"></i>
                             </div>
                             <InputSelect @bind-Value="Model!.CountrySelect" 
                                         @onfocus="ClearError" 
                                         disabled="@(Model?.IsLoadingCountries ?? false)"
-                                        style="display:block;width:100%;padding-left:2.5rem;padding-right:1rem;padding-top:0.5rem;padding-bottom:0.5rem;font-family:'Inter',sans-serif;color:#4B3C2B;border:1px solid #D1D5DB;border-radius:0.75rem;outline:none;"
+                                        class="user-landing-select"
                                         autocomplete="off">
                                 <option value="">@((Model?.IsLoadingCountries ?? false) ? "Loading countries..." : "Select your country")</option>
                                 @if (!(Model?.IsLoadingCountries ?? false))
@@ -131,17 +462,17 @@
             </div>
 
             <!-- Button -->
-            <div style="margin-top:2rem;">
+            <div class="user-landing-button-wrapper">
                 <button @onclick="HandleButtonClick" 
                         disabled="@Model!.IsLoading"
-                        style="width:100%;display:flex;align-items:center;justify-content:center;padding-top:0.75rem;padding-bottom:0.75rem;padding-left:1.5rem;padding-right:1.5rem;border-radius:0.75rem;color:white;font-weight:600;transition:transform 0.2s;transform:scale(1);box-shadow:0 10px 15px -3px rgba(0,100,0,0.4), 0 4px 6px -2px rgba(0,100,0,0.2);background-color:#006400;border:none;cursor:pointer;">
+                        class="user-landing-button">
                     @if (Model.IsLoading)
                     {
-                        <i class="fa-solid fa-spinner fa-spin" style="margin-right:0.5rem;"></i>
+                        <i class="fa-solid fa-spinner fa-spin user-landing-button-icon"></i>
                     }
                     else
                     {
-                        <i class="@Model.ButtonIconClass" style="margin-right:0.5rem;"></i>
+                        <i class="@Model.ButtonIconClass user-landing-button-icon"></i>
                     }
                     <span>@Model.ButtonText</span>
                 </button>
