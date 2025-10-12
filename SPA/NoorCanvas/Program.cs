@@ -111,10 +111,13 @@ builder.Services.AddCors(options =>
 // Add HttpClient service for dependency injection with base address
 builder.Services.AddHttpClient("default", client =>
 {
-    // Configure base address for relative URL requests
-    var baseAddress = builder.Environment.IsDevelopment()
-        ? "https://localhost:9091"
-        : "https://localhost:9091"; // Update this for production
+    // [DEBUG-WORKITEM:session-opener:http-client] Configure base address for IIS vs Kestrel hosting ;CLEANUP_OK
+    // In production (IIS): Use the public domain URL
+    // In development (Kestrel): Use localhost with configured port
+    var baseAddress = builder.Environment.IsProduction()
+        ? "https://noorcanvas.servehttp.com"  // Production IIS site
+        : "https://localhost:9091";           // Development Kestrel
+    
     client.BaseAddress = new Uri(baseAddress);
     client.DefaultRequestHeaders.Add("User-Agent", "NoorCanvas-BlazorServer");
 });
@@ -122,9 +125,11 @@ builder.Services.AddHttpClient("default", client =>
 // COPILOT-FIX: Add missing NoorCanvasApi HttpClient configuration to resolve SessionCanvas BaseAddress error
 builder.Services.AddHttpClient("NoorCanvasApi", client =>
 {
-    var baseAddress = builder.Environment.IsDevelopment()
-        ? "https://localhost:9091"
-        : "https://localhost:9091"; // Update this for production
+    // [DEBUG-WORKITEM:session-opener:http-client] Configure base address for IIS vs Kestrel hosting ;CLEANUP_OK
+    var baseAddress = builder.Environment.IsProduction()
+        ? "https://noorcanvas.servehttp.com"  // Production IIS site
+        : "https://localhost:9091";           // Development Kestrel
+    
     client.BaseAddress = new Uri(baseAddress);
     client.DefaultRequestHeaders.Add("User-Agent", "NoorCanvas-SessionCanvas");
 });

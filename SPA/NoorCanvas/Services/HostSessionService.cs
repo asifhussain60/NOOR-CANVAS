@@ -59,23 +59,33 @@ namespace NoorCanvas.Services
         /// <returns></returns>
         public string GetBaseUrl()
         {
+            // [DEBUG-WORKITEM:session-opener:http-client] Determine base URL for IIS vs Kestrel ;CLEANUP_OK
             try
             {
+                // Check if running in production (IIS)
+                var environment = _configuration["ASPNETCORE_ENVIRONMENT"];
+                if (environment == "Production")
+                {
+                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:http-client] Using production IIS URL: https://noorcanvas.servehttp.com ;CLEANUP_OK");
+                    return "https://noorcanvas.servehttp.com";
+                }
+                
+                // Development: Try to get Kestrel HTTPS URL from configuration
                 var httpsUrl = _configuration["Kestrel:Endpoints:Https:Url"];
                 if (!string.IsNullOrEmpty(httpsUrl))
                 {
-
+                    _logger.LogDebug("[DEBUG-WORKITEM:session-opener:http-client] Using Kestrel URL from config: {Url} ;CLEANUP_OK", httpsUrl);
                     return httpsUrl;
                 }
             }
             catch (Exception ex)
             {
                 // Log configuration errors and use fallback
-                Console.WriteLine($"Configuration error when reading HTTPS URL: {ex.Message}");
+                _logger.LogWarning(ex, "[DEBUG-WORKITEM:session-opener:http-client] Configuration error when reading base URL ;CLEANUP_OK");
             }
 
-            var fallbackUrl = "https://localhost:7242";
-
+            var fallbackUrl = "https://localhost:9091";
+            _logger.LogDebug("[DEBUG-WORKITEM:session-opener:http-client] Using fallback URL: {Url} ;CLEANUP_OK", fallbackUrl);
             return fallbackUrl;
         }
 
