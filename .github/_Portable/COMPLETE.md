@@ -28,9 +28,9 @@ The portable system is **completely automated**. Users simply:
 - ✅ Complete folder structure
 
 ### 2. Template System (100%)
-**All 20 files converted to generic templates:**
+**All 19 files converted to generic templates:**
 
-**Prompts (9 files):**
+**Prompts (8 files):**
 - ✅ task.prompt.md.template
 - ✅ refactor.prompt.md.template
 - ✅ sync.prompt.md.template
@@ -38,8 +38,9 @@ The portable system is **completely automated**. Users simply:
 - ✅ question.prompt.md.template
 - ✅ test-generation.prompt.md.template
 - ✅ analyze-learning.prompt.md.template
-- ✅ cleanup.prompt.md.template
 - ✅ cohesion-review.prompt.md.template
+
+**Note**: cleanup.prompt.md.template removed (superseded by sync.prompt.md)
 
 **Instructions (11 files):**
 - ✅ SelfAwareness.instructions.md.template

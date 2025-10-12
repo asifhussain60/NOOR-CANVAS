@@ -40,7 +40,7 @@
 
 ## ⏳ Remaining Work
 
-### 1. Prompt Template Files (9 files)
+### 1. Prompt Template Files (8 files)
 **Status**: Conversion script created, needs execution
 
 **Files to create**:
@@ -51,8 +51,9 @@
 - `prompts/question.prompt.md.template`
 - `prompts/test-generation.prompt.md.template`
 - `prompts/analyze-learning.prompt.md.template`
-- `prompts/cleanup.prompt.md.template`
 - `prompts/cohesion-review.prompt.md.template`
+
+**Note**: cleanup.prompt.md.template removed (superseded by sync.prompt.md - see cohesion review 2025-10-12)
 
 **Conversion Strategy**:
 Replace these specific references with template variables:
@@ -219,7 +220,7 @@ django-admin startproject testproject
 
 ## 📝 Template Conversion Checklist
 
-### Prompts
+### Prompts (8 templates)
 - [ ] task.prompt.md.template
 - [ ] refactor.prompt.md.template
 - [ ] sync.prompt.md.template
@@ -227,8 +228,9 @@ django-admin startproject testproject
 - [ ] question.prompt.md.template
 - [ ] test-generation.prompt.md.template
 - [ ] analyze-learning.prompt.md.template
-- [ ] cleanup.prompt.md.template
 - [ ] cohesion-review.prompt.md.template
+
+**Removed**: cleanup.prompt.md.template (superseded by sync.prompt.md)
 
 ### Instructions
 - [ ] SelfAwareness.instructions.md.template
