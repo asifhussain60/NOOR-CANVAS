@@ -106,17 +106,55 @@ class Program
 
     private static void ConfigureServices(ServiceCollection services)
     {
+        // STEP 1: Determine environment from multiple sources (priority order)
+        // 1. Environment variable (set by PowerShell script or system)
+        // 2. app.config file (modified by ncdeploy for production)
+        // 3. Default to Development
+        string? environment = null;
+        
+        // Try environment variable first
+        environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        
+        // If not set, try reading from app.config
+        if (string.IsNullOrEmpty(environment))
+        {
+            try
+            {
+                var appConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "HostProvisioner.dll.config");
+                if (File.Exists(appConfigPath))
+                {
+                    var configDoc = System.Xml.Linq.XDocument.Load(appConfigPath);
+                    var envSetting = configDoc.Descendants("add")
+                        .FirstOrDefault(x => x.Attribute("key")?.Value == "ASPNETCORE_ENVIRONMENT");
+                    environment = envSetting?.Attribute("value")?.Value;
+                    Console.WriteLine($"[TRACE] Environment from app.config: {environment}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[TRACE] Could not read app.config: {ex.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"[TRACE] Environment from environment variable: {environment}");
+        }
+        
+        // Default to Development if still not set
+        environment ??= "Development";
+        
+        // Set the environment variable so appsettings loading works correctly
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
+        
+        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Environment: {environment} ;CLEANUP_OK");
+        
         // Load configuration
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables()
             .Build();
-
-        // [DEBUG-WORKITEM:deploy:connection-resolution] Track environment and connection string ;CLEANUP_OK
-        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-        Console.WriteLine($"[DEBUG-WORKITEM:deploy:connection-resolution] Environment: {environment} ;CLEANUP_OK");
 
         // Add Entity Framework with connection string from NoorCanvas project
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??

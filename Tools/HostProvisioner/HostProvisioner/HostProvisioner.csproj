@@ -22,4 +22,10 @@
     <ProjectReference Include="..\..\..\SPA\NoorCanvas\NoorCanvas.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

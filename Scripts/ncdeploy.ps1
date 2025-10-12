@@ -395,11 +395,27 @@ try {
             $publishOutput = dotnet publish $provisionerProject -c Release -o $provisionerDest --no-self-contained 2>&1
             
             if ($LASTEXITCODE -eq 0) {
-                # Copy batch files and production config
+                # Copy batch files, PowerShell scripts, and production config
                 Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\create-token.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
                 Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\token-manager.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
                 Copy-Item "$provisionerSource\create-token-prod.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
+                Copy-Item "$provisionerSource\create-token-prod.ps1" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
                 Copy-Item "$provisionerSource\appsettings.Production.json" -Destination $provisionerDest -Force
+                
+                # Switch app.config environment to Production
+                $appConfigPath = "$provisionerDest\HostProvisioner.dll.config"
+                if (Test-Path $appConfigPath) {
+                    Write-Host "  Switching app.config to Production environment..." -ForegroundColor Gray
+                    [xml]$configXml = Get-Content $appConfigPath
+                    $envNode = $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "ASPNETCORE_ENVIRONMENT" }
+                    if ($envNode) {
+                        $envNode.value = "Production"
+                        $configXml.Save($appConfigPath)
+                        Write-Host "  [OK] app.config environment set to Production" -ForegroundColor Green
+                    }
+                } else {
+                    Write-Warning "app.config not found at $appConfigPath"
+                }
                 
                 # Create README if it doesn't exist
                 $readmePath = "$provisionerDest\README.md"
