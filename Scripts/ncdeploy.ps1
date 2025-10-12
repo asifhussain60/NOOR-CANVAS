@@ -47,9 +47,10 @@ param(
 
 # Configuration
 $ErrorActionPreference = "Stop"
-$ProjectPath = "$PSScriptRoot\SPA\NoorCanvas"
+$WorkspaceRoot = Split-Path $PSScriptRoot -Parent
+$ProjectPath = "$WorkspaceRoot\SPA\NoorCanvas"
 $ProjectFile = "$ProjectPath\NoorCanvas.csproj"
-$PublishPath = "$PSScriptRoot\publish-temp"
+$PublishPath = "$WorkspaceRoot\publish-temp"
 $DeployPath = "D:\Websites\NOOR-CANVAS"
 $BackupPath = "D:\Websites\NOOR-CANVAS-Backups"
 $Timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
