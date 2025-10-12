@@ -1,0 +1,43 @@
+DatabaseName SchemaName TableName ColumnName DataType MaxLength Precision Scale IsNullable IsIdentity DefaultValue ColumnOrder
+------------ ---------- --------- ---------- -------- --------- --------- ----- ---------- ---------- ------------ -----------
+KSESSIONS canvas AssetLookup AssetId bigint 8 19 0 0 1  1
+KSESSIONS canvas AssetLookup AssetIdentifier nvarchar 200 0 0 0 0  2
+KSESSIONS canvas AssetLookup AssetType nvarchar 100 0 0 0 0  3
+KSESSIONS canvas AssetLookup CssSelector nvarchar 400 0 0 1 0  4
+KSESSIONS canvas AssetLookup DisplayName nvarchar 200 0 0 1 0  5
+KSESSIONS canvas AssetLookup IsActive bit 1 1 0 0 0  6
+KSESSIONS canvas AssetLookup CreatedAt datetime2 8 27 7 1 0  7
+KSESSIONS canvas Participants ParticipantId int 4 10 0 0 1  1
+KSESSIONS canvas Participants SessionId int 4 10 0 0 0  2
+KSESSIONS canvas Participants UserGuid nvarchar 512 0 0 1 0  3
+KSESSIONS canvas Participants Name nvarchar 200 0 0 1 0  4
+KSESSIONS canvas Participants Email nvarchar 510 0 0 1 0  5
+KSESSIONS canvas Participants Country nvarchar 200 0 0 1 0  6
+KSESSIONS canvas Participants City nvarchar 200 0 0 1 0  7
+KSESSIONS canvas Participants JoinedAt datetime2 8 27 7 0 0 (getutcdate()) 8
+KSESSIONS canvas Participants LastSeenAt datetime2 8 27 7 1 0  9
+KSESSIONS canvas Participants UserToken varchar 8 0 0 0 0  10
+KSESSIONS canvas SessionData DataId int 4 10 0 0 1  1
+KSESSIONS canvas SessionData SessionId int 4 10 0 0 0  2
+KSESSIONS canvas SessionData DataType nvarchar 40 0 0 0 0  3
+KSESSIONS canvas SessionData Content nvarchar -1 0 0 1 0  4
+KSESSIONS canvas SessionData CreatedBy nvarchar 200 0 0 1 0  5
+KSESSIONS canvas SessionData CreatedAt datetime2 8 27 7 0 0 (getutcdate()) 6
+KSESSIONS canvas SessionData IsDeleted bit 1 1 0 0 0 ((0)) 7
+KSESSIONS canvas Sessions SessionId int 4 10 0 0 0  1
+KSESSIONS canvas Sessions AlbumId uniqueidentifier 16 0 0 0 0 ('00000000-0000-0000-0000-000000000000') 2
+KSESSIONS canvas Sessions HostToken nvarchar 16 0 0 0 0 ('') 3
+KSESSIONS canvas Sessions UserToken nvarchar 16 0 0 0 0 ('') 4
+KSESSIONS canvas Sessions Status nvarchar 40 0 0 0 0 ('Active') 5
+KSESSIONS canvas Sessions CreatedAt datetime2 8 27 7 0 0 (getutcdate()) 6
+KSESSIONS canvas Sessions ModifiedAt datetime2 8 27 7 0 0 (getutcdate()) 7
+KSESSIONS canvas Sessions StartedAt datetime2 8 27 7 1 0  8
+KSESSIONS canvas Sessions EndedAt datetime2 8 27 7 1 0  9
+KSESSIONS canvas Sessions ExpiresAt datetime2 8 27 7 1 0  10
+KSESSIONS canvas Sessions ParticipantCount int 4 10 0 1 0 ((0)) 11
+KSESSIONS canvas Sessions MaxParticipants int 4 10 0 1 0  12
+KSESSIONS canvas Sessions ScheduledDate nvarchar 40 0 0 1 0  13
+KSESSIONS canvas Sessions ScheduledDuration nvarchar 20 0 0 1 0  14
+KSESSIONS canvas Sessions ScheduledTime nvarchar 40 0 0 1 0  15
+
+(39 rows affected)

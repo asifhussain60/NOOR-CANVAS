@@ -1,0 +1,4 @@
+Issue,TableName,ColumnName,DataType,MaxLength,IsNullable
+-----,---------,----------,--------,---------,----------
+
+(0 rows affected)
