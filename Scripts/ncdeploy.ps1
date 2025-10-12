@@ -340,6 +340,46 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
+    # Step 7: Run Host Provisioner for production token generation (Optional)
+    Write-Step "Running Host Provisioner for production environment..."
+    
+    # [DEBUG-WORKITEM:deploy:provisioner] Integrated Host Provisioner into deployment workflow ;CLEANUP_OK
+    $provisionerPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
+    $provisionerProject = "$provisionerPath\HostProvisioner.csproj"
+    
+    if (Test-Path $provisionerProject) {
+        try {
+            # Set environment to Production for KSESSIONS database
+            $env:ASPNETCORE_ENVIRONMENT = "Production"
+            
+            Write-Host "  Host Provisioner is available for token generation" -ForegroundColor Cyan
+            Write-Host "  Environment: Production (KSESSIONS database)" -ForegroundColor Gray
+            Write-Host "  Location: $provisionerPath" -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "  To generate a host token for a session:" -ForegroundColor Yellow
+            Write-Host "    cd Tools\HostProvisioner\HostProvisioner" -ForegroundColor Gray
+            Write-Host "    `$env:ASPNETCORE_ENVIRONMENT='Production'" -ForegroundColor Gray
+            Write-Host "    dotnet run -- create --session-id <SESSION_ID> --created-by <YOUR_NAME>" -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "  Example:" -ForegroundColor Yellow
+            Write-Host "    dotnet run -- create --session-id 212 --created-by 'Admin'" -ForegroundColor Gray
+            Write-Host ""
+            
+            Write-Success "Host Provisioner ready for production use"
+        }
+        catch {
+            Write-Warning "Host Provisioner check encountered an issue: $_"
+            Write-Host "  You can still use the provisioner manually from: $provisionerPath" -ForegroundColor Gray
+        }
+        finally {
+            # Reset environment
+            Remove-Item Env:\ASPNETCORE_ENVIRONMENT -ErrorAction SilentlyContinue
+        }
+    } else {
+        Write-Warning "Host Provisioner not found at: $provisionerProject"
+        Write-Host "  Token generation will need to be done manually" -ForegroundColor Gray
+    }
+
     # Final summary
     Write-Host "`n========================================" -ForegroundColor Magenta
     Write-Host "  DEPLOYMENT SUCCESSFUL!" -ForegroundColor Green
