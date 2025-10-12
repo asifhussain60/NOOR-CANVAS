@@ -25,6 +25,9 @@ public class SimplifiedCanvasDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure default schema for Canvas tables
+        modelBuilder.HasDefaultSchema("canvas");
+
         // Configure unique constraints for authentication tokens
         modelBuilder.Entity<Models.Simplified.Session>()
             .HasIndex(s => s.HostToken)

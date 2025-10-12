@@ -33,6 +33,9 @@ public class CanvasDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure default schema for Canvas tables
+        modelBuilder.HasDefaultSchema("canvas");
+
         // Configure unique constraints
         modelBuilder.Entity<Registration>()
             .HasIndex(r => new { r.UserId, r.SessionId })
