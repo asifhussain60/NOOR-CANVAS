@@ -30,10 +30,10 @@
 - `build`: Build system changes
 
 **Scope** (optional but recommended): Area affected
-- For features: Use key name or feature area
-- For refactoring: Use component/service name
-- For docs: Use documentation area
-- For tests: Use feature being tested
+- For features: Use key name (e.g., `canvas`, `voting`, `hcp`)
+- For refactoring: Use component (e.g., `HtmlParsingService`, `CanvasController`)
+- For docs: Use area (e.g., `cohesion`, `prompts`, `architecture`)
+- For tests: Use feature (e.g., `canvas`, `voting`)
 
 **Subject** (required): Brief description (50 chars max)
 - Imperative mood ("Add feature" not "Added feature")
@@ -48,6 +48,7 @@
 **Footer** (optional): Breaking changes, issue references
 - `BREAKING CHANGE:` prefix for breaking changes
 - `Closes #123` for issue references
+- Multiple footers allowed
 
 ---
 
@@ -55,123 +56,152 @@
 
 ### Feature
 ```
-feat(auth): add password reset functionality
+feat(canvas): Add delete button to questions
 
-Implement password reset flow with email verification:
-- Add reset token generation
-- Create email template
-- Implement token validation endpoint
+Allows hosts to remove inappropriate questions during session.
 
-Closes #42
+Closes #245
 ```
 
 ### Bug Fix
 ```
-fix(api): handle null values in response serialization
+fix(voting): Handle null vote values
 
-Previously, null values caused serialization errors.
-Now properly handled with null-safe operators.
-
-Fixes #156
+Prevents crash when participant submits vote without selecting option.
 ```
 
-### Refactor
+### Refactoring
 ```
-refactor(services): extract data validation logic
+refactor(HtmlParsingService): Consolidate pattern matching (0E/0W)
 
-Move validation from controllers to service layer
-for better separation of concerns and reusability.
+Extracted duplicate regex patterns to shared constants.
+Reduced code duplication by 120 lines.
 ```
 
 ### Documentation
 ```
-docs(architecture): update API endpoint catalog
+docs(cohesion): Prompt system cohesion review - 2025-10-11
 
-Add newly implemented endpoints to documentation
-and fix typos in existing descriptions.
+Analysis Results:
+- Prompts analyzed: 8
+- Cohesion score: 6.9/10
+- Action items created: 4
 ```
 
 ### Breaking Change
 ```
-feat(api): migrate to v2 authentication
+feat(api): Change question submission endpoint
 
-BREAKING CHANGE: Auth endpoints now require API version header.
-Clients must include `X-API-Version: 2` in all requests.
+BREAKING CHANGE: POST /api/Question/Submit now requires sessionId in body instead of query param.
 
-Migration guide in docs/migrations/auth-v2.md
+Migration: Update client code to pass sessionId in request body.
 ```
 
 ---
 
-## Agent Checkpoint Commits
+## Checkpoint Commits
 
-Special format for agent checkpoints:
+Special format for rollback points:
 
 ```
-checkpoint: pre-{agent} {context}
+checkpoint: pre-<agent> <context>
 ```
 
-Examples:
-- `checkpoint: pre-task user-auth`
+**Examples**:
+- `checkpoint: pre-task canvas`
 - `checkpoint: pre-refactor HtmlParsingService`
-- `checkpoint: pre-sync documentation`
+- `checkpoint: pre-cohesion-review`
 
 ---
 
-## Best Practices
+## Usage in Prompts
 
-1. **Write commits for humans** - Future developers should understand why
-2. **Be specific** - "Fix login bug" is better than "Fix bug"
-3. **Use active voice** - "Add validation" not "Validation added"
-4. **Keep subject short** - Details go in body
-5. **Reference issues** - Link to issue tracker when applicable
-
----
-
-## Validation
-
-A good commit message should answer:
-- **What** changed?
-- **Why** did it change?
-- **What impact** does it have?
-
----
-
-## Integration
-
-This format integrates with:
-- Semantic versioning tools
-- Changelog generators
-- CI/CD pipelines
-- Issue trackers
-
----
-
-## Enforcement
-
-To enforce in your project:
-
-**Git Hook** (optional):
-Create `.git/hooks/commit-msg`:
+### task.prompt.md Pattern
 ```bash
-#!/bin/sh
-commit_msg=$(cat $1)
-pattern="^(feat|fix|docs|refactor|test|chore|perf|ci|build|checkpoint)(\(.+\))?: .{1,50}"
+# Feature implementation
+git commit -m "feat(${key}): ${description}
 
-if ! echo "$commit_msg" | grep -qE "$pattern"; then
-  echo "ERROR: Commit message does not follow format"
-  echo "See .github/prompts/shared/commit-message-format.md"
-  exit 1
-fi
+${details}
+
+Closes #${issue}"
+
+# With validation markers
+git commit -m "feat(${key}): ${description} (0E/0W)"
 ```
 
-**Make executable:**
+### refactor.prompt.md Pattern
 ```bash
-chmod +x .git/hooks/commit-msg
+git commit -m "refactor(${scope}): ${description} (0E/0W)
+
+${what_was_changed}
+${why_it_was_changed}
+${impact}"
+```
+
+### sync.prompt.md Pattern
+```bash
+git commit -m "docs(sync): ${description}
+
+${files_updated}
+${reason}"
+```
+
+### test-generation.prompt.md Pattern
+```bash
+git commit -m "test(${feature}): ${scenario}
+
+Created Playwright E2E test for ${feature}.
+Validates ${what_is_tested}."
 ```
 
 ---
 
-## Reference
+## Validation Suffix
 
-Based on: [Conventional Commits v1.0.0](https://www.conventionalcommits.org/)
+For prompts that enforce zero warnings/errors, append `(0E/0W)`:
+
+```
+feat(canvas): Add question filtering (0E/0W)
+refactor(services): Extract common validation logic (0E/0W)
+```
+
+This confirms build validation passed with **0 Errors, 0 Warnings**.
+
+---
+
+## Usage
+
+**Reference this module** in your prompt:
+```markdown
+## Commit Message Format
+**See**: [Commit Message Format](shared/commit-message-format.md)
+
+Use Conventional Commits: `<type>(<scope>): <subject>`
+```
+
+OR **Include inline**:
+```markdown
+## Commit Message Format
+Format: `<type>(<scope>): <subject>` (Conventional Commits)
+See shared/commit-message-format.md for complete guide.
+```
+
+---
+
+## Automation Benefits
+
+With consistent format:
+- **Automated Changelog**: Generate CHANGELOG.md from commits
+- **Release Notes**: Auto-generate release notes from feat/fix commits
+- **Semantic Versioning**: Auto-bump version based on commit types
+- **Git Hooks**: Validate commit messages before accept
+- **CI/CD**: Trigger different workflows based on commit type
+
+---
+
+## Version History
+
+- **v1.0.0** (2025-10-11): Initial standard adoption
+  - Based on Conventional Commits v1.0.0
+  - Defined types, scopes, format
+  - Integration with all prompts

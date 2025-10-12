@@ -3,7 +3,7 @@ REM ============================================================================
 REM Portable AI Agent System - Automated Setup
 REM ============================================================================
 REM This script automatically configures the AI agent system for your project
-REM Supports: .NET, Node.js, Python, Java, Ruby, Go
+REM Supports: .NET, Node.js, Python, Java, Ruby, Go, and more
 REM ============================================================================
 
 echo.

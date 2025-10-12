@@ -30,9 +30,9 @@
     # Preview changes without applying them
 
 .NOTES
-    Author: Generated from NOOR CANVAS Production System
-    Version: 1.0.0
-    Date: October 11, 2025
+    Author: Portable AI Agent System
+    Version: 2.0.0
+    Date: October 12, 2025
 #>
 
 [CmdletBinding()]
@@ -83,19 +83,21 @@ $ProjectInfo = @{
     TestCommand = ""
     ServerCleanup = ""
     HasGit = Test-Path (Join-Path $ProjectRoot ".git")
+    DatabaseType = "None"
+    DatabaseName = ""
+    ApiEndpoints = @()
 }
 
 # Detect .NET
-if (Test-Path (Join-Path $ProjectRoot "*.sln") -or 
-    (Get-ChildItem -Path $ProjectRoot -Filter "*.csproj" -Recurse -Depth 3 -ErrorAction SilentlyContinue).Count -gt 0) {
+if (Test-Path (Join-Path $ProjectRoot "*.sln")) {
     $ProjectInfo.Type = ".NET"
     $ProjectInfo.Languages += "C#"
     $ProjectInfo.BuildCommand = "dotnet build"
     $ProjectInfo.TestCommand = "dotnet test"
-    $ProjectInfo.ServerCleanup = "Stop-Process -Name 'dotnet' -Force -ErrorAction SilentlyContinue"
+    $ProjectInfo.ServerCleanup = "Get-Process -Name dotnet -ErrorAction SilentlyContinue | Stop-Process -Force"
     
     # Detect framework
-    $csproj = Get-ChildItem -Path $ProjectRoot -Filter "*.csproj" -Recurse -Depth 3 | Select-Object -First 1
+    $csproj = Get-ChildItem -Path $ProjectRoot -Filter "*.csproj" -Recurse | Select-Object -First 1
     if ($csproj) {
         $content = Get-Content $csproj.FullName -Raw
         if ($content -match '<Project Sdk="Microsoft.NET.Sdk.Web">') {
@@ -103,6 +105,9 @@ if (Test-Path (Join-Path $ProjectRoot "*.sln") -or
         }
         if ($content -match 'Microsoft\.AspNetCore\.Components\.WebAssembly') {
             $ProjectInfo.Frameworks += "Blazor WebAssembly"
+        }
+        if ($content -match 'Microsoft\.EntityFrameworkCore') {
+            $ProjectInfo.DatabaseType = "Entity Framework Core"
         }
     }
 }
@@ -135,435 +140,298 @@ if (Test-Path (Join-Path $ProjectRoot "package.json")) {
     if ($packageJson.scripts.test) {
         $ProjectInfo.TestCommand = "npm test"
     }
-    $ProjectInfo.ServerCleanup = "Stop-Process -Name 'node' -Force -ErrorAction SilentlyContinue"
+    $ProjectInfo.ServerCleanup = "Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force"
 }
 
 # Detect Python
-$pythonFiles = Get-ChildItem -Path $ProjectRoot -Filter "*.py" -Recurse -Depth 2 -ErrorAction SilentlyContinue
-if ($pythonFiles.Count -gt 0) {
+if ((Get-ChildItem -Path $ProjectRoot -Filter "*.py" -Recurse -Depth 2 -ErrorAction SilentlyContinue).Count -gt 0) {
     if ($ProjectInfo.Type -eq "Unknown") { $ProjectInfo.Type = "Python" }
     $ProjectInfo.Languages += "Python"
     
-    # Detect framework
     if (Test-Path (Join-Path $ProjectRoot "manage.py")) {
         $ProjectInfo.Frameworks += "Django"
+        $ProjectInfo.BuildCommand = "python manage.py migrate"
+        $ProjectInfo.TestCommand = "python manage.py test"
     }
-    if (Test-Path (Join-Path $ProjectRoot "app.py") -or Test-Path (Join-Path $ProjectRoot "application.py")) {
+    elseif (Test-Path (Join-Path $ProjectRoot "app.py")) {
         $ProjectInfo.Frameworks += "Flask"
+        $ProjectInfo.TestCommand = "pytest"
     }
-    
-    $ProjectInfo.BuildCommand = "python -m pip install -r requirements.txt"
-    $ProjectInfo.TestCommand = "pytest"
-    $ProjectInfo.ServerCleanup = "Stop-Process -Name 'python' -Force -ErrorAction SilentlyContinue"
+    $ProjectInfo.ServerCleanup = "Get-Process -Name python -ErrorAction SilentlyContinue | Stop-Process -Force"
 }
 
-# Detect Java
-if (Test-Path (Join-Path $ProjectRoot "pom.xml") -or Test-Path (Join-Path $ProjectRoot "build.gradle")) {
-    if ($ProjectInfo.Type -eq "Unknown") { $ProjectInfo.Type = "Java" }
-    $ProjectInfo.Languages += "Java"
-    
-    if (Test-Path (Join-Path $ProjectRoot "pom.xml")) {
-        $ProjectInfo.Frameworks += "Maven"
-        $ProjectInfo.BuildCommand = "mvn clean install"
-        $ProjectInfo.TestCommand = "mvn test"
-    } else {
-        $ProjectInfo.Frameworks += "Gradle"
-        $ProjectInfo.BuildCommand = "gradle build"
-        $ProjectInfo.TestCommand = "gradle test"
-    }
-    $ProjectInfo.ServerCleanup = "Stop-Process -Name 'java' -Force -ErrorAction SilentlyContinue"
-}
-
-# Detect Ruby
-if (Test-Path (Join-Path $ProjectRoot "Gemfile")) {
-    if ($ProjectInfo.Type -eq "Unknown") { $ProjectInfo.Type = "Ruby" }
-    $ProjectInfo.Languages += "Ruby"
-    $ProjectInfo.Frameworks += "Bundler"
-    $ProjectInfo.BuildCommand = "bundle install"
-    $ProjectInfo.TestCommand = "bundle exec rspec"
-    $ProjectInfo.ServerCleanup = "Stop-Process -Name 'ruby' -Force -ErrorAction SilentlyContinue"
-}
-
-Write-Host "  ✓ Project Type: $($ProjectInfo.Type)" -ForegroundColor Green
-Write-Host "  ✓ Languages: $($ProjectInfo.Languages -join ', ')" -ForegroundColor Green
-if ($ProjectInfo.Frameworks.Count -gt 0) {
-    Write-Host "  ✓ Frameworks: $($ProjectInfo.Frameworks -join ', ')" -ForegroundColor Green
-}
-Write-Host "  ✓ Build Command: $($ProjectInfo.BuildCommand)" -ForegroundColor Green
-Write-Host "  ✓ Test Command: $($ProjectInfo.TestCommand)" -ForegroundColor Green
+Write-Host "  [✓] Project Type: $($ProjectInfo.Type)" -ForegroundColor Green
+Write-Host "  [✓] Languages: $($ProjectInfo.Languages -join ', ')" -ForegroundColor Green
+Write-Host "  [✓] Frameworks: $($ProjectInfo.Frameworks -join ', ')" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================================
-# PHASE 2: WORKSPACE STRUCTURE
+# PHASE 2: WORKSPACE STRUCTURE CREATION
 # ============================================================================
 
 Write-Host "Phase 2: Creating Workspace Structure..." -ForegroundColor Cyan
 
 $WorkspaceDirs = @(
-    "Workspaces\Copilot\learning\patterns",
-    "Workspaces\Copilot\learning\completed-features",
-    "Workspaces\Copilot\validation",
-    "Workspaces\Copilot\issues",
-    "Workspaces\Documentation",
-    "Workspaces\Testing\results",
-    "Workspaces\Scripts"
+    ".github/prompts/shared",
+    ".github/instructions/Links",
+    "Workspaces/Copilot/_DOCS/summaries",
+    "Workspaces/Copilot/_DOCS/analysis",
+    "Workspaces/Copilot/_DOCS/configs",
+    "Workspaces/Copilot/artifacts",
+    "Workspaces/Copilot/config",
+    "Workspaces/Copilot/prompts.keys",
+    "Workspaces/Copilot/learning",
+    "Workspaces/CodeQuality/Analyzer/Config",
+    "Workspaces/CodeQuality/Analyzer/Reports",
+    "Workspaces/CodeQuality/Analyzer/Logs",
+    "Workspaces/TEMP"
 )
 
 foreach ($dir in $WorkspaceDirs) {
     $fullPath = Join-Path $ProjectRoot $dir
     if (-not (Test-Path $fullPath)) {
         if (-not $DryRun) {
-            New-Item -Path $fullPath -ItemType Directory -Force | Out-Null
+            New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
         }
-        Write-Host "  ✓ Created: $dir" -ForegroundColor Green
-    } else {
-        Write-Host "  ○ Exists: $dir" -ForegroundColor Gray
+        Write-Host "  [✓] Created: $dir" -ForegroundColor Green
     }
-}
-
-# Initialize pattern files
-$patternFiles = @{
-    "Workspaces\Copilot\learning\patterns\successful-patterns.json" = @{
-        metadata = @{
-            project = $ProjectInfo.Name
-            created = Get-Date -Format "yyyy-MM-dd"
-            version = "1.0.0"
-        }
-        patterns = @()
-    }
-    "Workspaces\Copilot\learning\patterns\failed-approaches.json" = @{
-        metadata = @{
-            project = $ProjectInfo.Name
-            created = Get-Date -Format "yyyy-MM-dd"
-        }
-        failures = @()
-    }
-    "Workspaces\Copilot\learning\patterns\refactoring-wins.json" = @{
-        metadata = @{
-            project = $ProjectInfo.Name
-            created = Get-Date -Format "yyyy-MM-dd"
-        }
-        refactorings = @()
-    }
-}
-
-foreach ($file in $patternFiles.Keys) {
-    $fullPath = Join-Path $ProjectRoot $file
-    if (-not (Test-Path $fullPath)) {
-        if (-not $DryRun) {
-            $patternFiles[$file] | ConvertTo-Json -Depth 5 | Set-Content $fullPath
-        }
-        Write-Host "  ✓ Created: $file" -ForegroundColor Green
+    else {
+        Write-Host "  [→] Exists: $dir" -ForegroundColor Gray
     }
 }
 
 Write-Host ""
 
 # ============================================================================
-# PHASE 3: TOOL INSTALLATION
+# PHASE 3: TEMPLATE PROCESSING
 # ============================================================================
 
-Write-Host "Phase 3: Installing Development Tools..." -ForegroundColor Cyan
+Write-Host "Phase 3: Processing Templates..." -ForegroundColor Cyan
 
-if ($SkipToolInstall) {
-    Write-Host "  [SKIPPED] Tool installation disabled" -ForegroundColor Yellow
-    Write-Host ""
-} else {
-    $toolsToInstall = @()
+# Template replacement function
+function Expand-Template {
+    param(
+        [string]$Content,
+        [hashtable]$Variables
+    )
     
-    # .NET tools
-    if ($ProjectInfo.Type -eq ".NET" -or $ProjectInfo.Languages -contains "C#") {
-        $toolsToInstall += @{
-            Name = "Roslynator"
-            Check = { dotnet tool list -g | Select-String "roslynator.dotnet.cli" }
-            Install = { dotnet tool install -g roslynator.dotnet.cli }
-        }
+    $result = $Content
+    foreach ($key in $Variables.Keys) {
+        $result = $result -replace "\{\{$key\}\}", $Variables[$key]
     }
-    
-    # Node.js tools (for all projects - E2E testing)
-    if ($ProjectInfo.Type -ne "Unknown") {
-        $toolsToInstall += @{
-            Name = "Playwright"
-            Check = { npm list -g @playwright/test 2>$null }
-            Install = { 
-                npm install -g @playwright/test
-                npx playwright install
-            }
-        }
-        
-        $toolsToInstall += @{
-            Name = "ESLint"
-            Check = { npm list -g eslint 2>$null }
-            Install = { npm install -g eslint }
-        }
-        
-        $toolsToInstall += @{
-            Name = "Prettier"
-            Check = { npm list -g prettier 2>$null }
-            Install = { npm install -g prettier }
-        }
-    }
-    
-    foreach ($tool in $toolsToInstall) {
-        try {
-            $exists = & $tool.Check
-            if ($exists) {
-                Write-Host "  ○ Already installed: $($tool.Name)" -ForegroundColor Gray
-            } else {
-                if (-not $DryRun) {
-                    Write-Host "  → Installing: $($tool.Name)..." -ForegroundColor Yellow
-                    & $tool.Install
-                }
-                Write-Host "  ✓ Installed: $($tool.Name)" -ForegroundColor Green
-            }
-        } catch {
-            Write-Host "  ✗ Failed to install: $($tool.Name)" -ForegroundColor Red
-            Write-Host "    Error: $_" -ForegroundColor Red
-        }
-    }
-    
-    Write-Host ""
+    return $result
 }
 
-# ============================================================================
-# PHASE 4: PLACEHOLDER REPLACEMENT
-# ============================================================================
-
-Write-Host "Phase 4: Configuring Agent Prompts..." -ForegroundColor Cyan
-
-# Build placeholder replacement map
-$placeholders = @{
-    "{{PROJECT_NAME}}" = $ProjectInfo.Name
-    "{{PROJECT_TYPE}}" = $ProjectInfo.Type
-    "{{PLACEHOLDER_PRIMARY_LANGUAGE}}" = $ProjectInfo.Languages[0]
-    "{{PLACEHOLDER_BUILD_COMMAND}}" = $ProjectInfo.BuildCommand
-    "{{PLACEHOLDER_TEST_COMMAND}}" = $ProjectInfo.TestCommand
-    "{{PLACEHOLDER_SERVER_CLEANUP_COMMAND}}" = $ProjectInfo.ServerCleanup
-    "{{PLACEHOLDER_DATE}}" = Get-Date -Format "MMMM d, yyyy"
-    "{{PLACEHOLDER_YEAR}}" = Get-Date -Format "yyyy"
+# Define replacement variables
+$TemplateVars = @{
+    "PROJECT_NAME" = $ProjectInfo.Name
+    "PROJECT_TYPE" = $ProjectInfo.Type
+    "LANGUAGES" = ($ProjectInfo.Languages -join ", ")
+    "FRAMEWORKS" = ($ProjectInfo.Frameworks -join ", ")
+    "BUILD_COMMAND" = $ProjectInfo.BuildCommand
+    "TEST_COMMAND" = $ProjectInfo.TestCommand
+    "SERVER_CLEANUP" = $ProjectInfo.ServerCleanup
+    "DATABASE_TYPE" = $ProjectInfo.DatabaseType
+    "HAS_GIT" = if ($ProjectInfo.HasGit) { "Yes" } else { "No" }
 }
 
-# Add framework-specific placeholders
-if ($ProjectInfo.Type -eq ".NET") {
-    $placeholders["{{PLACEHOLDER_PROJECT_LAYERS}}"] = "Controllers, Services, Data, Models, Shared"
-    $placeholders["{{PLACEHOLDER_ARCHITECTURE}}"] = "ASP.NET Core MVC/Razor/Blazor with layered architecture"
-    $placeholders["{{PLACEHOLDER_ANALYZER_COMMAND}}"] = "roslynator analyze --output results.xml"
-}
+# Process template files
+$templateFiles = Get-ChildItem -Path $PortableRoot -Filter "*.template" -Recurse
 
-if ($ProjectInfo.Languages -contains "JavaScript/TypeScript") {
-    $placeholders["{{PLACEHOLDER_LINTER_COMMAND}}"] = "eslint . --ext .js,.ts,.jsx,.tsx"
-    $placeholders["{{PLACEHOLDER_FORMATTER_COMMAND}}"] = "prettier --check ."
-}
-
-# Process all template files
-$promptTemplates = Get-ChildItem -Path (Join-Path $PortableRoot "prompts") -Filter "*.template" -Recurse
-$instructionTemplates = Get-ChildItem -Path (Join-Path $PortableRoot "instructions") -Filter "*.template" -Recurse -ErrorAction SilentlyContinue
-
-$allTemplates = $promptTemplates + $instructionTemplates
-
-foreach ($template in $allTemplates) {
+foreach ($template in $templateFiles) {
     $content = Get-Content $template.FullName -Raw
+    $expandedContent = Expand-Template -Content $content -Variables $TemplateVars
     
-    # Replace all placeholders
-    foreach ($placeholder in $placeholders.Keys) {
-        $content = $content -replace [regex]::Escape($placeholder), $placeholders[$placeholder]
-    }
+    # Determine destination path
+    $relativePath = $template.FullName.Substring($PortableRoot.Length + 1)
+    $destinationPath = $relativePath -replace "\.template$", ""
+    $destinationPath = $destinationPath -replace "^prompts\\", ".github\prompts\"
+    $destinationPath = $destinationPath -replace "^instructions\\", ".github\instructions\"
+    $fullDestPath = Join-Path $ProjectRoot $destinationPath
     
-    # Determine output path
-    $relativePath = $template.FullName.Replace($PortableRoot, "").TrimStart('\')
-    $outputPath = Join-Path $ProjectRoot ".github" ($relativePath -replace '\.template$', '')
-    
-    # Create output directory
-    $outputDir = Split-Path $outputPath -Parent
-    if (-not (Test-Path $outputDir)) {
-        if (-not $DryRun) {
-            New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
-        }
-    }
-    
-    # Write configured file
     if (-not $DryRun) {
-        Set-Content -Path $outputPath -Value $content
+        $destDir = Split-Path $fullDestPath -Parent
+        if (-not (Test-Path $destDir)) {
+            New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+        }
+        Set-Content -Path $fullDestPath -Value $expandedContent -Encoding UTF8
     }
     
-    $shortPath = $relativePath -replace '\.template$', ''
-    Write-Host "  ✓ Configured: $shortPath" -ForegroundColor Green
+    Write-Host "  [✓] Generated: $destinationPath" -ForegroundColor Green
 }
 
-# Copy shared modules (no placeholders needed)
-$sharedModules = Get-ChildItem -Path (Join-Path $PortableRoot "prompts\shared") -Filter "*.md"
-foreach ($module in $sharedModules) {
-    $outputPath = Join-Path $ProjectRoot ".github\prompts\shared" $module.Name
-    $outputDir = Split-Path $outputPath -Parent
-    
-    if (-not (Test-Path $outputDir)) {
-        if (-not $DryRun) {
-            New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
-        }
-    }
-    
+# Copy shared files (no templating needed)
+$sharedFiles = Get-ChildItem -Path (Join-Path $PortableRoot "prompts\shared") -File
+foreach ($file in $sharedFiles) {
+    $destPath = Join-Path $ProjectRoot ".github\prompts\shared\$($file.Name)"
     if (-not $DryRun) {
-        Copy-Item $module.FullName -Destination $outputPath -Force
+        Copy-Item -Path $file.FullName -Destination $destPath -Force
     }
-    
-    Write-Host "  ✓ Copied: prompts\shared\$($module.Name)" -ForegroundColor Green
+    Write-Host "  [✓] Copied: .github/prompts/shared/$($file.Name)" -ForegroundColor Green
 }
 
 Write-Host ""
 
 # ============================================================================
-# PHASE 5: VALIDATION
+# PHASE 4: TOOL INSTALLATION (Optional)
 # ============================================================================
 
-Write-Host "Phase 5: Running Validation Checks..." -ForegroundColor Cyan
-
-$validationResults = @{
-    GitRepository = $ProjectInfo.HasGit
-    WorkspaceStructure = Test-Path (Join-Path $ProjectRoot "Workspaces\Copilot")
-    PromptsInstalled = Test-Path (Join-Path $ProjectRoot ".github\prompts")
-    InstructionsInstalled = Test-Path (Join-Path $ProjectRoot ".github\instructions")
-    BuildCommandSet = $ProjectInfo.BuildCommand -ne ""
-}
-
-$allPassed = $true
-foreach ($check in $validationResults.Keys) {
-    if ($validationResults[$check]) {
-        Write-Host "  ✓ $check" -ForegroundColor Green
-    } else {
-        Write-Host "  ✗ $check" -ForegroundColor Red
-        $allPassed = $false
+if (-not $SkipToolInstall) {
+    Write-Host "Phase 4: Installing Development Tools..." -ForegroundColor Cyan
+    
+    # Install based on project type
+    switch ($ProjectInfo.Type) {
+        ".NET" {
+            Write-Host "  [→] Installing Roslynator..." -ForegroundColor Yellow
+            if (-not $DryRun) {
+                dotnet tool install -g Roslynator.DotNet.Cli 2>&1 | Out-Null
+            }
+            Write-Host "  [✓] Roslynator installed" -ForegroundColor Green
+        }
+        "Node.js" {
+            Write-Host "  [→] Installing Playwright..." -ForegroundColor Yellow
+            if (-not $DryRun) {
+                npm install -D @playwright/test 2>&1 | Out-Null
+                npx playwright install 2>&1 | Out-Null
+            }
+            Write-Host "  [✓] Playwright installed" -ForegroundColor Green
+        }
     }
+    
+    Write-Host ""
 }
-
-Write-Host ""
-
-if (-not $allPassed) {
-    Write-Host "[WARNING] Some validation checks failed. System may not work correctly." -ForegroundColor Yellow
+else {
+    Write-Host "Phase 4: Skipping Tool Installation (--SkipToolInstall)" -ForegroundColor Yellow
     Write-Host ""
 }
 
 # ============================================================================
-# PHASE 6: GENERATE PROJECT SUMMARY
+# PHASE 5: GENERATE PROJECT SUMMARY
 # ============================================================================
 
-Write-Host "Phase 6: Generating Setup Summary..." -ForegroundColor Cyan
+Write-Host "Phase 5: Generating Project Summary..." -ForegroundColor Cyan
 
-$summaryPath = Join-Path $ProjectRoot "PROJECT-SETUP-SUMMARY.md"
+$summaryContent = @"
+# Project Setup Summary
 
-$summary = @"
-# AI Agent System - Setup Summary
-
-**Project:** $($ProjectInfo.Name)  
-**Setup Date:** $(Get-Date -Format "MMMM d, yyyy HH:mm")  
-**Setup Version:** 1.0.0
-
----
-
-## Project Detection Results
-
-- **Type:** $($ProjectInfo.Type)
-- **Languages:** $($ProjectInfo.Languages -join ', ')
-- **Frameworks:** $($ProjectInfo.Frameworks -join ', ')
-- **Build Command:** ``$($ProjectInfo.BuildCommand)``
-- **Test Command:** ``$($ProjectInfo.TestCommand)``
+**Generated**: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")  
+**Project**: $($ProjectInfo.Name)  
+**Type**: $($ProjectInfo.Type)  
+**Portable AI Agent System**: v2.0.0
 
 ---
 
-## Installed Components
+## Project Configuration
 
-### Workspace Structure
-- ✅ ``Workspaces/Copilot/learning/patterns`` - Pattern storage
-- ✅ ``Workspaces/Copilot/validation`` - Validation reports
-- ✅ ``Workspaces/Documentation`` - Generated documentation
-- ✅ ``Workspaces/Testing`` - Test results
+### Detected Information
+- **Languages**: $($ProjectInfo.Languages -join ', ')
+- **Frameworks**: $($ProjectInfo.Frameworks -join ', ')
+- **Database**: $($ProjectInfo.DatabaseType)
+- **Git Repository**: $($ProjectInfo.HasGit)
 
-### Agent Prompts
-$(if ($promptTemplates.Count -gt 0) {
-    $promptTemplates | ForEach-Object { "- ✅ ``.github/prompts/$($_.Name -replace '\.template$', '')``" }
-} else {
-    "- ⚠️ No prompt templates found"
-})
+### Build & Test Commands
+- **Build**: ``$($ProjectInfo.BuildCommand)``
+- **Test**: ``$($ProjectInfo.TestCommand)``
+- **Server Cleanup**: ``$($ProjectInfo.ServerCleanup)``
 
-### Shared Modules
-$(if ($sharedModules.Count -gt 0) {
-    $sharedModules | ForEach-Object { "- ✅ ``.github/prompts/shared/$($_.Name)``" }
-} else {
-    "- ⚠️ No shared modules found"
-})
+---
 
-### Development Tools
-$($toolsToInstall | ForEach-Object { "- $($_.Name)" } | Out-String)
+## Installed Agents
+
+### 1. Task Executor (`/task`)
+- **Purpose**: Feature implementation, bug fixes, general development
+- **Key Features**: Progressive documentation, automatic test generation, 0E/0W policy
+- **Usage**: ``@workspace /task key=myfeature tasks="Implement new feature"``
+
+### 2. Refactor Agent (`/refactor`)
+- **Purpose**: Code quality improvements, technical debt reduction
+- **Key Features**: Warning-free commits, systematic refactoring, pattern extraction
+- **Usage**: ``@workspace /refactor scope=MyService tasks="Extract common logic"``
+
+### 3. Sync Agent (`/sync`)
+- **Purpose**: Keep documentation in sync with code
+- **Key Features**: Cross-reference validation, automated updates
+- **Usage**: ``@workspace /sync key=myfeature``
+
+### 4. Health Check Agent (`/healthcheck`)
+- **Purpose**: Validate system integrity and architectural compliance
+- **Key Features**: 6-level validation pipeline, comprehensive reporting
+- **Usage**: ``@workspace /healthcheck``
+
+### 5. Question Agent (`/question`)
+- **Purpose**: Answer questions about codebase, architecture, patterns
+- **Key Features**: Context-aware responses, learning integration
+- **Usage**: ``@workspace /question "How does authentication work?"``
+
+### 6. Test Generation Agent (`/test-generation`)
+- **Purpose**: Create comprehensive E2E tests
+- **Key Features**: Multi-browser support, proven patterns
+- **Usage**: ``@workspace /test-generation feature=login scenario=success``
+
+---
+
+## Workspace Structure
+
+\`\`\`
+.github/
+├── prompts/              # Agent prompt files
+│   └── shared/          # Shared modules
+└── instructions/        # System guidelines
+    └── Links/          # Reference documentation
+
+Workspaces/
+├── Copilot/
+│   ├── _DOCS/          # Analysis and summaries
+│   ├── config/         # Agent configurations
+│   ├── learning/       # Pattern library
+│   └── prompts.keys/   # Key-based work tracking
+├── CodeQuality/        # Analysis tools and reports
+└── TEMP/               # Temporary test files
+\`\`\`
 
 ---
 
 ## Next Steps
 
-### 1. Test Basic Functionality
-``````
-@workspace /question "What agents are available?"
-``````
+1. **Test the System**
+   \`\`\`
+   @workspace /question "What agents are available?"
+   \`\`\`
 
-### 2. Create Your First Feature
-``````
-@workspace /task key=welcome tasks="Add a welcome message to the home page"
-``````
+2. **Start Your First Task**
+   \`\`\`
+   @workspace /task key=setup tasks="Verify setup complete"
+   \`\`\`
 
-### 3. Run Health Check
-``````
-@workspace /healthcheck mode=full
-``````
+3. **Review Documentation**
+   - [.github/prompts/task.prompt.md](.github/prompts/task.prompt.md) - Task agent guide
+   - [.github/instructions/SelfAwareness.instructions.md](.github/instructions/SelfAwareness.instructions.md) - Global rules
 
-### 4. Review Documentation
-- Read ``.github/prompts/task.prompt.md`` to understand task execution
-- Review ``.github/instructions/SelfAwareness.instructions.md`` for operating rules
-- Check ``Workspaces/Copilot/learning/patterns`` for learning system
-
----
-
-## Configuration Details
-
-### Placeholders Replaced
-$(foreach ($key in $placeholders.Keys | Sort-Object) {
-    "- ``$key`` → ``$($placeholders[$key])``"
-})
+4. **Configure Your Environment**
+   - Update database connection strings (if applicable)
+   - Configure API keys (if using AI features)
+   - Set up your preferred IDE integrations
 
 ---
 
-## Troubleshooting
+## Support
 
-### If agents don't respond:
-1. Ensure GitHub Copilot is active
-2. Check ``.github/prompts`` files exist
-3. Verify workspace structure created
-
-### If build fails:
-1. Run: ``$($ProjectInfo.BuildCommand)``
-2. Check for compilation errors
-3. Ensure all dependencies installed
-
-### If tests fail:
-1. Run: ``$($ProjectInfo.TestCommand)``
-2. Review test output
-3. Check test configuration
+For issues or questions:
+1. Check [.github/_Portable/docs/TROUBLESHOOTING.md](../_Portable/docs/TROUBLESHOOTING.md)
+2. Review agent-specific prompt files in `.github/prompts/`
+3. Consult system documentation in `.github/instructions/`
 
 ---
 
-## Support Resources
-
-- **Documentation:** ``D:\PROJECTS\NOOR CANVAS\.github\_Portable\docs\``
-- **Troubleshooting:** ``D:\PROJECTS\NOOR CANVAS\.github\_Portable\docs\TROUBLESHOOTING.md``
-- **Advanced Usage:** ``D:\PROJECTS\NOOR CANVAS\.github\_Portable\docs\ADVANCED-USAGE.md``
-
----
-
-*Generated by Portable AI Agent System Setup v1.0.0*
+**Setup completed successfully!** 🎉
 "@
 
+$summaryPath = Join-Path $ProjectRoot "PROJECT-SETUP-SUMMARY.md"
 if (-not $DryRun) {
-    Set-Content -Path $summaryPath -Value $summary
+    Set-Content -Path $summaryPath -Value $summaryContent -Encoding UTF8
 }
 
-Write-Host "  ✓ Created: PROJECT-SETUP-SUMMARY.md" -ForegroundColor Green
+Write-Host "  [✓] Created: PROJECT-SETUP-SUMMARY.md" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================================
@@ -574,17 +442,8 @@ Write-Host "============================================" -ForegroundColor Green
 Write-Host " Setup Complete!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Project configured successfully for: $($ProjectInfo.Name)" -ForegroundColor Cyan
+Write-Host "Review the generated PROJECT-SETUP-SUMMARY.md for details." -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Quick Start:" -ForegroundColor Yellow
-Write-Host "  1. Open VS Code in this directory" -ForegroundColor White
-Write-Host "  2. Review: PROJECT-SETUP-SUMMARY.md" -ForegroundColor White
-Write-Host "  3. Test: @workspace /question `"What agents are available?`"" -ForegroundColor White
+Write-Host "Test your setup with:" -ForegroundColor Yellow
+Write-Host "  @workspace /question `"What agents are available?`"" -ForegroundColor White
 Write-Host ""
-Write-Host "Full Documentation: .github/_Portable/docs/" -ForegroundColor Gray
-Write-Host ""
-
-if ($DryRun) {
-    Write-Host "[DRY RUN] No files were modified" -ForegroundColor Yellow
-    Write-Host "Run without -DryRun to apply changes" -ForegroundColor Yellow
-}

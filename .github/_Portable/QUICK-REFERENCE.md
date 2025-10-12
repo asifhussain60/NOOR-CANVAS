@@ -1,335 +1,495 @@
-# Quick Reference Card
+# Quick Reference - AI Agent Commands
 
-**Portable AI Agent System v1.0.0**
+**Fast lookup for common agent commands and patterns.**
 
 ---
 
-## 🚀 Installation (2 Steps)
+## Core Agents
 
+### Task Executor
+```
+@workspace /task key=<feature> tasks="<description>"
+@workspace /task key=<feature> verbosity=detailed tasks="<description>"
+@workspace /task key=<feature> debug-level=simple tasks="<description>"
+@workspace /task key=<feature> tasks="mark complete"
+```
+
+### Refactor Agent
+```
+@workspace /refactor scope=<ComponentName> tasks="<description>"
+@workspace /refactor scope=<ComponentName> verbosity=detailed tasks="<description>"
+```
+
+### Sync Agent
+```
+@workspace /sync key=<feature>
+@workspace /sync
+```
+
+### Health Check
+```
+@workspace /healthcheck
+@workspace /healthcheck level=3
+```
+
+### Question Agent
+```
+@workspace /question "<your question>"
+@workspace /question "How does <feature> work?"
+```
+
+### Test Generation
+```
+@workspace /test-generation feature=<name> scenario=<description>
+@workspace /test-generation feature=<name> scenario=<description> multiUser=true
+```
+
+---
+
+## Common Parameters
+
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `key` | Any string | Feature/work identifier (e.g., `auth`, `dashboard`) |
+| `verbosity` | `concise`, `detailed` | Output detail level (default: `concise`) |
+| `debug-level` | `none`, `simple`, `trace`, `cleanup` | Debug logging in code (default: `none`) |
+| `tasks` | Multi-line string | Tasks to perform (use `---` to separate phases) |
+| `scope` | Component/class name | Refactoring target |
+| `feature` | Feature name | Test generation target |
+| `scenario` | Scenario description | Test scenario |
+| `multiUser` | `true`, `false` | Multi-browser testing |
+
+---
+
+## Common Workflows
+
+### Start New Feature
+```
+@workspace /task key=notifications tasks="Implement email notification system"
+```
+
+### Fix Bug with Test
+```
+@workspace /task key=bugfix tasks="Fix login redirect
+---
+Add regression test"
+```
+
+### Multi-Phase Implementation
+```
+@workspace /task key=api tasks="Create new endpoint
+---
+Add validation
+---
+Update documentation
+---
+Generate tests"
+```
+
+### Code Quality Improvement
+```
+@workspace /refactor scope=AuthService tasks="Extract password validation
+---
+Consolidate error handling"
+```
+
+### Complete Work on Feature
+```
+@workspace /task key=notifications tasks="mark complete"
+```
+
+### Validate System
+```
+@workspace /healthcheck
+```
+
+### Sync Documentation
+```
+@workspace /sync key=notifications
+```
+
+### Ask About Code
+```
+@workspace /question "How does authentication work in this project?"
+```
+
+---
+
+## Multi-Phase Tasks
+
+Use `---` on its own line to separate phases:
+
+```
+@workspace /task key=dashboard tasks="Phase 1: Add chart component
+---
+Phase 2: Connect to backend API
+---
+Phase 3: Add filtering controls
+---
+Phase 4: Create E2E tests"
+```
+
+Each phase:
+- Implemented separately
+- Validated independently  
+- Documented progressively
+- Can be rolled back individually
+
+---
+
+## Debug Levels
+
+### none (default)
+Production-ready code, no debug logging.
+
+### simple
+Basic debug markers for troubleshooting:
+```csharp
+Logger.LogInformation("[DEBUG-WORKITEM:auth:Login] User logged in ;CLEANUP_OK");
+```
+
+### trace
+Comprehensive debug markers with state:
+```csharp
+Logger.LogDebug("[DEBUG-WORKITEM:auth:Login] Before: user={User}, state={State} ;CLEANUP_OK", user, state);
+// operation
+Logger.LogDebug("[DEBUG-WORKITEM:auth:Login] After: user={User}, state={State} ;CLEANUP_OK", user, state);
+```
+
+### cleanup
+Remove all debug markers:
+```
+@workspace /task key=auth debug-level=cleanup tasks="Remove debug logging"
+```
+
+---
+
+## Verbosity Levels
+
+### concise (default)
+Brief summaries, essential information only.
+
+**Output**:
+- ✓ Plan summary
+- ✓ Progress markers
+- ✓ Success/failure status
+- ✗ Detailed file contents
+- ✗ Step-by-step analysis
+
+### detailed
+Full execution details and verbose analysis.
+
+**Output**:
+- ✓ Complete plan with all steps
+- ✓ Detailed file analysis
+- ✓ Step-by-step execution logs
+- ✓ Full context dumps
+- ✓ Verbose error messages
+
+---
+
+## Git Integration
+
+### Checkpoint Commits
+Agents automatically create rollback points:
+```bash
+git log --oneline  # View checkpoints
+git reset --hard <sha>  # Rollback if needed
+```
+
+Pattern: `checkpoint: pre-{agent} {key}`
+
+### Work Tracking
+All commits referenced in `work-log.md` with full SHA:
+```markdown
+### Changes Made
+- `a1b2c3d4` - feat(auth): Add login button
+- `e5f6g7h8` - test(auth): Add login E2E test
+```
+
+Quick access:
+```bash
+git show a1b2c3d4  # View specific change
+git checkout a1b2c3d4 -- path/to/file  # Restore specific file
+```
+
+---
+
+## Workspace Structure
+
+```
+Workspaces/Copilot/prompts.keys/
+├── {key1}/
+│   ├── {key1}.md          # Metadata and file mappings
+│   └── work-log.md        # Detailed work history
+├── {key2}/
+│   ├── {key2}.md
+│   └── work-log.md
+└── ...
+
+Workspaces/Copilot/_DOCS/
+├── summaries/             # Completion summaries
+├── analysis/              # Technical analysis
+└── configs/               # Configuration docs
+
+Workspaces/CodeQuality/
+└── Analyzer/
+    ├── Reports/          # Analysis reports
+    └── Logs/             # Execution logs
+
+Workspaces/TEMP/          # Temporary test files
+```
+
+---
+
+## Quick Checks
+
+### View Available Keys
 ```powershell
-# 1. Copy folder
-Copy-Item ".github\_Portable" -Destination "YourProject\.github\_Portable" -Recurse
-
-# 2. Run setup
-cd YourProject\.github\_Portable; .\setup.bat
+ls Workspaces/Copilot/prompts.keys/
 ```
 
-⏱️ **Time:** 5 minutes  
-✅ **Result:** Fully configured AI agent system
-
----
-
-## 🤖 Available Agents
-
-| Command | What It Does | Modifies Code? |
-|---------|-------------|----------------|
-| `@workspace /task` | Implement features, fix bugs | ✅ Yes |
-| `@workspace /refactor` | Improve code quality | ✅ Yes |
-| `@workspace /healthcheck` | Validate system health | ❌ No (safe) |
-| `@workspace /sync` | Update documentation | ⚠️ Docs only |
-| `@workspace /question` | Answer questions | ❌ No (safe) |
-| `@workspace /learning` | Analyze patterns | ❌ No (safe) |
-
----
-
-## 📋 Common Commands
-
-### Daily Work
-```
-@workspace /healthcheck mode=quick
-@workspace /task key=feature-123 tasks="Add login button"
-@workspace /sync target=comments
+### View Work Log
+```powershell
+cat Workspaces/Copilot/prompts.keys/{key}/work-log.md
 ```
 
-### Bug Fix
-```
-@workspace /question "Why does login fail?"
-@workspace /task key=bugfix-456 tasks="Fix login error"
-```
-
-### Code Quality
-```
-@workspace /healthcheck mode=full
-@workspace /refactor scope=Services/ mode=patterns
+### View Recent Commits
+```bash
+git log --oneline -10
 ```
 
-### Weekly Review
+### Check Build Status
+```bash
+# .NET
+dotnet build
+
+# Node.js
+npm run build
+
+# Python
+python manage.py check  # Django
 ```
-@workspace /learning action=report scope=all
-@workspace /healthcheck mode=deep
+
+### Find Debug Markers
+```bash
+grep -r "DEBUG-WORKITEM.*CLEANUP_OK" --include="*.cs" --include="*.js"
 ```
 
 ---
 
-## 🎯 Task Agent Examples
+## Validation Pipeline
 
+### Level 1: Build
+Zero errors, zero warnings enforcement.
+
+### Level 2: Analyzers
+Code quality analysis (Roslynator, ESLint, Pylint).
+
+### Level 3: Unit Tests
+All unit tests must pass.
+
+### Level 4: API Contracts
+Cross-layer contract validation (UI ↔ API ↔ DB).
+
+### Level 5: E2E Tests
+End-to-end integration tests.
+
+### Level 6: Documentation
+Documentation sync validation.
+
+Run all levels:
 ```
-# Simple feature
-@workspace /task key=welcome tasks="Add welcome message to home page"
-
-# Bug fix
-@workspace /task key=issue-123 tasks="Fix null reference in UserService"
-
-# Specific layers
-@workspace /task key=api tasks="Create user profile endpoint" layers="Controllers,Services"
-
-# With annotated image (UI changes)
-@workspace /task key=ui-update tasks="Implement new header" annotated_image="design.png"
+@workspace /healthcheck
 ```
 
----
-
-## 🔍 Question Agent Examples
-
+Run specific level:
 ```
-# General questions
-@workspace /question "What agents are available?"
-@workspace /question "How does authentication work?"
-
-# Specific context
-@workspace /question "What does this method do?" context=Services/UserService.cs
-
-# Debugging
-@workspace /question "Why might users fail to login?"
+@workspace /healthcheck level=3
 ```
 
 ---
 
-## 🏥 Health Check Modes
+## Error Recovery
 
+### Build Fails
+1. Agent retries up to 3 times automatically
+2. If still failing, rolls back to checkpoint
+3. Review error in terminal output
+
+### Persistent Warnings
+1. Agent attempts fixes (3 retries)
+2. Escalates to user if unresolved
+3. Manual fix required
+
+### Lost Context
 ```
-@workspace /healthcheck                          # Quick (default)
-@workspace /healthcheck mode=standard            # Common issues
-@workspace /healthcheck mode=full                # Comprehensive
-@workspace /healthcheck mode=deep focus=security # Deep dive
-```
-
----
-
-## 🔧 Refactor Modes
-
-```
-@workspace /refactor scope=FILE.cs mode=readability   # Improve clarity
-@workspace /refactor scope=FILE.cs mode=patterns      # Apply design patterns
-@workspace /refactor scope=FILE.cs mode=performance   # Optimize speed
-@workspace /refactor scope=project mode=comprehensive # Everything
+@workspace /task key={key} tasks="Resume previous work"
+# Agent reads work-log.md and continues
 ```
 
 ---
 
-## 📚 Sync Targets
+## Best Practices
 
+### ✅ Do This
 ```
-@workspace /sync target=docs      # API documentation
-@workspace /sync target=comments  # Code comments
-@workspace /sync target=readme    # README files
-@workspace /sync target=all       # Everything
+# Descriptive keys
+@workspace /task key=user-authentication tasks="..."
+
+# Break down large tasks
+@workspace /task key=dashboard tasks="Step 1
+---
+Step 2
+---
+Step 3"
+
+# Mark complete when done
+@workspace /task key=feature tasks="mark complete"
+
+# Use verbosity=detailed for learning
+@workspace /task key=test verbosity=detailed tasks="..."
+```
+
+### ❌ Avoid This
+```
+# Vague keys
+@workspace /task key=stuff tasks="..."
+
+# Massive single-phase tasks
+@workspace /task key=everything tasks="Build entire application"
+
+# Leaving work incomplete
+# (Always mark complete or document why stopping)
+
+# Ignoring validation failures
+# (Fix errors/warnings before proceeding)
 ```
 
 ---
 
-## 📊 Learning Actions
+## Platform-Specific Commands
 
+### .NET
+```powershell
+# Build
+dotnet build
+
+# Test
+dotnet test
+
+# Restore
+dotnet restore
+
+# Run analyzers
+dotnet build /p:RunAnalyzers=true
 ```
-@workspace /learning action=analyze              # Review recent patterns
-@workspace /learning action=report scope=all     # Generate insights
-@workspace /learning action=trends               # Show trends
+
+### Node.js
+```bash
+# Build
+npm run build
+
+# Test
+npm test
+
+# Install
+npm install
+
+# Lint
+npm run lint
+```
+
+### Python
+```bash
+# Django
+python manage.py check
+python manage.py test
+python manage.py migrate
+
+# Flask
+pytest
+flask run
 ```
 
 ---
 
-## 📁 Key Files
+## Keyboard Shortcuts (in VS Code)
 
-### After Setup
-- `PROJECT-SETUP-SUMMARY.md` - Your configuration
-- `.github/prompts/` - Agent prompts (configured)
-- `.github/instructions/` - Operating rules
-- `Workspaces/Copilot/learning/patterns/` - Pattern storage
+| Action | Shortcut |
+|--------|----------|
+| Open command palette | `Ctrl+Shift+P` |
+| Trigger Copilot | `Ctrl+I` or `@workspace` |
+| Accept suggestion | `Tab` |
+| Dismiss suggestion | `Esc` |
+| View file | `Ctrl+P` then type filename |
+| Search workspace | `Ctrl+Shift+F` |
+| Git commit | `Ctrl+Enter` (in source control) |
+
+---
+
+## Emergency Commands
+
+### Rollback Everything
+```bash
+git log --oneline  # Find checkpoint
+git reset --hard <checkpoint-sha>
+```
+
+### Kill Running Servers
+```powershell
+# .NET
+Get-Process -Name dotnet | Stop-Process -Force
+
+# Node.js
+Get-Process -Name node | Stop-Process -Force
+
+# Python
+Get-Process -Name python | Stop-Process -Force
+```
+
+### Clean Workspace
+```bash
+# .NET
+dotnet clean
+
+# Node.js
+rm -rf node_modules
+npm install
+
+# Python
+find . -type d -name __pycache__ -exec rm -rf {} +
+```
+
+### Remove All Debug Markers
+```
+@workspace /task key=cleanup debug-level=cleanup tasks="Remove all debug logging"
+```
+
+---
+
+## Getting Help
+
+### In-Agent Help
+```
+@workspace /question "How do I use the task agent?"
+@workspace /question "What parameters does refactor agent support?"
+@workspace /question "How do I mark a task as complete?"
+```
 
 ### Documentation
-- `START-HERE.md` - Entry point
-- `docs/AGENT-REFERENCE.md` - Complete agent guide
-- `docs/TROUBLESHOOTING.md` - Problem solving
-- `docs/ADVANCED-USAGE.md` - Power features
+- **START-HERE.md** - Getting started guide
+- **docs/AGENT-REFERENCE.md** - Complete agent documentation
+- **docs/TROUBLESHOOTING.md** - Common issues
+- **.github/prompts/{agent}.prompt.md** - Full agent specifications
 
----
-
-## 🛡️ Safety Features
-
-✅ **Automatic Checkpoint** - Before every code change  
-✅ **Zero Tolerance** - Must have 0 errors, 0 warnings  
-✅ **Auto Rollback** - After 3 failed attempts  
-✅ **Debug Markers** - Temporary logging (auto-cleaned)  
-✅ **Test Validation** - All tests must pass  
-
----
-
-## ⚙️ Setup Script Options
-
-```powershell
-# Normal setup
-.\setup.ps1
-
-# Skip tool installation
-.\setup.ps1 -SkipToolInstall
-
-# Preview without changes
-.\setup.ps1 -DryRun
-
-# Verbose output
-.\setup.ps1 -Verbose
+### Validate Setup
+```
+@workspace /question "What agents are available?"
 ```
 
 ---
 
-## 🔥 Workflow Examples
+**Bookmark this page for quick reference!**
 
-### Feature Development
-```
-1. @workspace /question "How is the user system structured?"
-2. @workspace /healthcheck mode=quick
-3. @workspace /task key=feature-789 tasks="Add user preferences"
-4. @workspace /refactor scope=Services/UserService.cs mode=patterns
-5. @workspace /sync target=docs
-6. @workspace /healthcheck mode=full
-```
-
-### Emergency Bug Fix
-```
-1. @workspace /question "What causes the login error?"
-2. @workspace /task key=hotfix-urgent tasks="Fix login crash"
-3. @workspace /healthcheck mode=standard focus=security
-```
-
-### Code Quality Sprint
-```
-1. @workspace /healthcheck mode=deep
-2. @workspace /refactor scope=project mode=comprehensive
-3. @workspace /sync target=all
-4. @workspace /learning action=report scope=refactoring
-```
-
----
-
-## 🎨 Agent Coordination
-
-Agents work together automatically:
-
-```
-Task Agent → Creates code
-    ↓
-Validation → Ensures quality
-    ↓
-Refactor Agent → Improves code (if needed)
-    ↓
-Sync Agent → Updates docs
-    ↓
-Health Check → Validates everything
-    ↓
-Learning Agent → Records patterns
-```
-
----
-
-## 🚨 Troubleshooting Quick Fixes
-
-### Agents don't respond?
-```powershell
-# Check files exist
-Test-Path .github\prompts\task.prompt.md
-
-# Reload VS Code
-Ctrl+Shift+P → "Reload Window"
-```
-
-### Build fails?
-```powershell
-# Test build independently
-dotnet build          # .NET
-npm run build         # Node.js
-mvn clean install     # Java
-```
-
-### Tools not found?
-```powershell
-# Re-run setup
-.\setup.ps1
-
-# Or install manually
-dotnet tool install -g roslynator.dotnet.cli
-npm install -g @playwright/test
-```
-
-**Full troubleshooting:** `docs/TROUBLESHOOTING.md`
-
----
-
-## 📞 Getting Help
-
-1. Check `PROJECT-SETUP-SUMMARY.md` - Your configuration
-2. Read `docs/AGENT-REFERENCE.md` - Agent details
-3. Review `docs/TROUBLESHOOTING.md` - Common issues
-4. Run dry setup: `.\setup.ps1 -DryRun` - Preview changes
-
----
-
-## 💡 Pro Tips
-
-✅ **Use specific keys:** `key=issue-123` better than `key=bug`  
-✅ **Break large tasks:** Multiple small tasks > one huge task  
-✅ **Run health checks:** Before and after major changes  
-✅ **Review patterns:** Check learning reports monthly  
-✅ **Sync regularly:** After implementing features  
-✅ **Ask questions:** Before making changes  
-
----
-
-## 📊 Quality Standards
-
-All agents enforce:
-- ✅ **0 Build Errors** - Must compile cleanly
-- ✅ **0 Warnings** - Zero-tolerance policy
-- ✅ **All Tests Pass** - No exceptions
-- ✅ **Code Analysis** - Analyzer rules satisfied
-- ✅ **Linting** - ESLint/Prettier compliant
-- ✅ **Contracts** - API contracts validated
-
----
-
-## 🎯 Success Criteria
-
-After setup, you should be able to:
-
-```
-✅ @workspace /question "What agents are available?"
-   → Lists all 6 agents
-
-✅ @workspace /healthcheck
-   → Reports system health
-
-✅ @workspace /task key=test tasks="Add comment to README"
-   → Successfully modifies README with 0 errors
-
-✅ Review PROJECT-SETUP-SUMMARY.md
-   → Shows your project configuration
-```
-
----
-
-## 🚀 You're Ready!
-
-**Installation:** ✅ Complete (5 minutes)  
-**Configuration:** ✅ Automatic  
-**Agents:** ✅ All 6 available  
-**Quality Tools:** ✅ Installed  
-**Learning System:** ✅ Active  
-
-**Start using:**
-```
-@workspace /question "What should I build first?"
-```
-
----
-
-*Quick Reference Card - Portable AI Agent System v1.0.0*  
-*For full documentation: START-HERE.md*
+**Need more details?** See [START-HERE.md](START-HERE.md) or [docs/AGENT-REFERENCE.md](docs/AGENT-REFERENCE.md)

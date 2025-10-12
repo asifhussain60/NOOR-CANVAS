@@ -1,6 +1,7 @@
 # Debug Logging Mandate (Code Insertion)
 
 **Version**: 1.0.0  
+**Last Updated**: 2025-10-11  
 **Purpose**: Standardize debug logging insertion for troubleshooting and cleanup
 
 ---
@@ -28,26 +29,14 @@ Write production-ready code with **no debug logging** inserted.
 ### `simple`
 Insert **basic debug markers** at key integration points.
 
-**Language-Specific Examples:**
-
-**C# / .NET:**
+**C# Example**:
 ```csharp
 Logger.LogInformation("[DEBUG-WORKITEM:scope:context] Key event occurred ;CLEANUP_OK");
 ```
 
-**JavaScript / TypeScript:**
+**JavaScript Example**:
 ```javascript
 console.log("[DEBUG-WORKITEM:scope:context] Event triggered ;CLEANUP_OK");
-```
-
-**Python:**
-```python
-logger.info("[DEBUG-WORKITEM:scope:context] Process started ;CLEANUP_OK")
-```
-
-**Java:**
-```java
-logger.info("[DEBUG-WORKITEM:scope:context] Operation completed ;CLEANUP_OK");
 ```
 
 **When to use**: Initial implementation, basic troubleshooting
@@ -57,340 +46,260 @@ logger.info("[DEBUG-WORKITEM:scope:context] Operation completed ;CLEANUP_OK");
 ### `trace`
 Insert **comprehensive debug markers** with state dumps.
 
-**C# Example:**
+**C# Example**:
 ```csharp
-Logger.LogInformation("[DEBUG-WORKITEM:scope:context] Before operation: {@State} ;CLEANUP_OK", currentState);
-var result = PerformOperation();
-Logger.LogInformation("[DEBUG-WORKITEM:scope:context] After operation: {@Result} ;CLEANUP_OK", result);
+Logger.LogDebug("[DEBUG-WORKITEM:scope:context] Before: state={State}, value={Value} ;CLEANUP_OK", state, value);
+// Perform operation
+Logger.LogDebug("[DEBUG-WORKITEM:scope:context] After: state={State}, value={Value} ;CLEANUP_OK", state, value);
 ```
 
-**JavaScript Example:**
+**JavaScript Example**:
 ```javascript
-console.log("[DEBUG-WORKITEM:scope:context] Before:", JSON.stringify(state), ";CLEANUP_OK");
-const result = performOperation();
-console.log("[DEBUG-WORKITEM:scope:context] After:", JSON.stringify(result), ";CLEANUP_OK");
+console.log(`[DEBUG-WORKITEM:scope:context] Before: state=${state}, value=${value} ;CLEANUP_OK`);
+// Perform operation
+console.log(`[DEBUG-WORKITEM:scope:context] After: state=${state}, value=${value} ;CLEANUP_OK`);
 ```
 
-**Python Example:**
-```python
-logger.debug(f"[DEBUG-WORKITEM:scope:context] Input: {input_data} ;CLEANUP_OK")
-result = process_data(input_data)
-logger.debug(f"[DEBUG-WORKITEM:scope:context] Output: {result} ;CLEANUP_OK")
-```
-
-**When to use**: Complex debugging, state tracking, integration issues
+**When to use**: Complex debugging, state tracking, multi-step workflows
 
 ---
 
 ### `cleanup`
-**Remove ALL debug markers** from codebase.
+Search for and **remove all debug markers** matching these patterns:
+- `[DEBUG-WORKITEM:*] ;CLEANUP_OK`
+- `// DEBUG-WORKITEM:* ;CLEANUP_OK`
+- `console.log("[DEBUG-WORKITEM:*] ;CLEANUP_OK")`
 
-**Detection Pattern:**
-```regex
-\[DEBUG-WORKITEM:[^\]]+\].*?;CLEANUP_OK
-```
+**Implementation**:
+1. Use `grep_search` to find all debug markers
+2. Remove matching lines/statements
+3. Verify no debug markers remain (use `grep_search` again)
+4. Commit cleanup: `git commit -m "chore({key}): Remove debug logging markers"`
 
-**Process:**
-1. Search for all lines containing `[DEBUG-WORKITEM:` and `;CLEANUP_OK`
-2. Remove entire line including logging statement
-3. Clean up empty blocks or orphaned braces
-4. Verify build still succeeds
-
-**When to use**: Before production deployment, after debugging complete
+**When to use**: Before production deployment, completion workflow, code cleanup
 
 ---
 
 ## Marker Format
 
-### Standard Pattern
+### Pattern
 ```
-[DEBUG-WORKITEM:{scope}:{context}] {message} ;CLEANUP_OK
-```
-
-**Components:**
-- `DEBUG-WORKITEM` - Fixed prefix for detection
-- `scope` - High-level area (key, feature, component)
-- `context` - Specific location or operation
-- `message` - Human-readable debug information
-- `;CLEANUP_OK` - Mandatory suffix for automatic removal
-
-### Examples by Scope
-
-**Feature Implementation:**
-```
-[DEBUG-WORKITEM:user-auth:login] Validating credentials ;CLEANUP_OK
-[DEBUG-WORKITEM:user-auth:session] Creating session token ;CLEANUP_OK
+[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK
 ```
 
-**Refactoring:**
-```
-[DEBUG-WORKITEM:refactor:extract-method] Before extraction ;CLEANUP_OK
-[DEBUG-WORKITEM:refactor:extract-method] After extraction ;CLEANUP_OK
-```
+**Components**:
+- `DEBUG-WORKITEM`: Fixed prefix for detection
+- `scope`: Feature/module (e.g., "canvas", "voting", "auth")
+- `context`: Specific location (e.g., "SubmitQuestion", "BroadcastResults")
+- `message`: Descriptive log message
+- `;CLEANUP_OK`: **MANDATORY** suffix for automatic cleanup
 
-**Integration Testing:**
-```
-[DEBUG-WORKITEM:integration:api-call] Request sent ;CLEANUP_OK
-[DEBUG-WORKITEM:integration:api-call] Response received ;CLEANUP_OK
-```
+### Examples
 
----
-
-## Placement Guidelines
-
-### Where to Place Debug Markers
-
-**Integration Points:**
+**C# Logging**:
 ```csharp
-public async Task<Response> ProcessRequest(Request request)
-{
-    Logger.LogInformation("[DEBUG-WORKITEM:api:process] Request received: {@Request} ;CLEANUP_OK", request);
-    
-    var result = await _service.Process(request);
-    
-    Logger.LogInformation("[DEBUG-WORKITEM:api:process] Response prepared: {@Response} ;CLEANUP_OK", result);
-    return result;
-}
+// Basic info
+Logger.LogInformation("[DEBUG-WORKITEM:voting:SubmitVote] Vote submitted for questionId={QuestionId} ;CLEANUP_OK", questionId);
+
+// Detailed trace
+Logger.LogDebug("[DEBUG-WORKITEM:canvas:LoadQuestions] Loaded {Count} questions for session {SessionId} ;CLEANUP_OK", questions.Count, sessionId);
+
+// Error tracking
+Logger.LogError("[DEBUG-WORKITEM:broadcast:SendMessage] Failed to broadcast: {Error} ;CLEANUP_OK", ex.Message);
 ```
 
-**State Transitions:**
+**JavaScript Logging**:
 ```javascript
-function updateState(newState) {
-    console.log("[DEBUG-WORKITEM:state:update] Before:", currentState, ";CLEANUP_OK");
-    currentState = newState;
-    console.log("[DEBUG-WORKITEM:state:update] After:", currentState, ";CLEANUP_OK");
-}
+// Basic info
+console.log(`[DEBUG-WORKITEM:voting:submitVote] Vote submitted for questionId=${questionId} ;CLEANUP_OK`);
+
+// Detailed trace
+console.log(`[DEBUG-WORKITEM:canvas:loadQuestions] Loaded ${questions.length} questions for session ${sessionId} ;CLEANUP_OK`);
+
+// Error tracking
+console.error(`[DEBUG-WORKITEM:broadcast:sendMessage] Failed to broadcast: ${error} ;CLEANUP_OK`);
 ```
 
-**Error Paths:**
-```python
-try:
-    result = risky_operation()
-    logger.info(f"[DEBUG-WORKITEM:operation:success] Result: {result} ;CLEANUP_OK")
-except Exception as e:
-    logger.error(f"[DEBUG-WORKITEM:operation:failure] Error: {e} ;CLEANUP_OK")
-    raise
-```
-
-### Where NOT to Place
-
-❌ **Inside loops** (creates excessive output):
+**Comments**:
 ```csharp
-// BAD
-foreach (var item in items)
-{
-    Logger.LogInformation("[DEBUG-WORKITEM:loop:item] Processing ;CLEANUP_OK");
-}
-```
+// DEBUG-WORKITEM:canvas:refactor Temporary workaround for issue #123 ;CLEANUP_OK
 
-❌ **In hot paths** (performance impact):
-```javascript
-// BAD
-function frequentlyCalled() {
-    console.log("[DEBUG-WORKITEM:hot:path] Called ;CLEANUP_OK");
-    // This executes thousands of times per second
-}
-```
-
-❌ **In production-only code**:
-```python
-# BAD - Don't add debug markers to stable, production code
-def well_tested_function():
-    logger.info("[DEBUG-WORKITEM:stable:code] Running ;CLEANUP_OK")
+/* DEBUG-WORKITEM:voting:investigation
+   Testing alternative approach for vote aggregation
+   Remove after validation ;CLEANUP_OK */
 ```
 
 ---
 
-## Language-Specific Patterns
+## Critical Rules
 
-### C# / .NET
-```csharp
-// Simple
-_logger.LogInformation("[DEBUG-WORKITEM:{Key}:{Context}] {Message} ;CLEANUP_OK", key, context, message);
-
-// Trace with state
-_logger.LogDebug("[DEBUG-WORKITEM:{Key}:{Context}] State: {@State} ;CLEANUP_OK", key, context, state);
-
-// Comment style (for non-logged debug info)
-// DEBUG-WORKITEM: Temporary implementation for testing ;CLEANUP_OK
-```
-
-### JavaScript / TypeScript
-```typescript
-// Simple
-console.log(`[DEBUG-WORKITEM:${key}:${context}] ${message} ;CLEANUP_OK`);
-
-// Trace with state
-console.log(`[DEBUG-WORKITEM:${key}:${context}] State:`, JSON.stringify(state), `;CLEANUP_OK`);
-
-// Comment style
-// DEBUG-WORKITEM: Testing new approach ;CLEANUP_OK
-```
-
-### Python
-```python
-# Simple
-logger.info(f"[DEBUG-WORKITEM:{key}:{context}] {message} ;CLEANUP_OK")
-
-# Trace with state
-logger.debug(f"[DEBUG-WORKITEM:{key}:{context}] State: {state} ;CLEANUP_OK")
-
-# Comment style
-# DEBUG-WORKITEM: Experimental feature ;CLEANUP_OK
-```
-
-### Java
-```java
-// Simple
-logger.info("[DEBUG-WORKITEM:{}:{}] {} ;CLEANUP_OK", key, context, message);
-
-// Trace with state
-logger.debug("[DEBUG-WORKITEM:{}:{}] State: {} ;CLEANUP_OK", key, context, state);
-
-// Comment style
-// DEBUG-WORKITEM: Legacy code path ;CLEANUP_OK
-```
+1. **ALWAYS include `;CLEANUP_OK` suffix** - Enables automatic detection and removal
+2. **Follow pattern exactly** - `[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK`
+3. **Never commit debug logging to production** without explicit approval
+4. **Use appropriate log level**:
+   - `LogInformation` / `console.log` for simple markers
+   - `LogDebug` / `console.debug` for trace markers
+   - `LogError` / `console.error` for error tracking
+5. **Scope should match key or feature name** for easy filtering
+6. **Context should identify code location** (method, handler, component)
 
 ---
 
-## Cleanup Process
+## Cleanup Procedures
 
-### Automatic Cleanup (debug-level=cleanup)
+### Manual Cleanup
 
-**Step 1: Detection**
 ```bash
-# Find all debug markers (example for Unix-like systems)
-grep -r "\[DEBUG-WORKITEM:" --include="*.cs" --include="*.js" --include="*.ts" --include="*.py" --include="*.java"
+# Search for all debug markers
+grep -r "DEBUG-WORKITEM.*CLEANUP_OK" --include="*.cs" --include="*.js" --include="*.razor"
+
+# Review and remove each marker
+# Then commit
+git commit -m "chore({key}): Remove debug logging markers"
 ```
 
-**Step 2: Removal**
-Agent automatically removes:
-- Logging statements with debug markers
-- Comment-style debug markers
-- Empty lines left after removal
-- Orphaned braces/blocks
+### Automated Cleanup (via task.prompt.md)
 
-**Step 3: Validation**
-- Build project to ensure still compiles
-- Run tests to ensure functionality preserved
-- Review changes before committing
-
-### Manual Cleanup (if needed)
-
-**Search Pattern (Regex):**
-```regex
-.*\[DEBUG-WORKITEM:.*?\].*?;CLEANUP_OK.*
+**Invoke with `debug-level: cleanup`**:
+```
+Follow instructions in task.prompt.md.
+key: {your-key}
+debug-level: cleanup
+tasks: Remove all debug markers
 ```
 
-**Replace With:** (empty)
+Agent will:
+1. Search workspace for all debug markers
+2. Remove matching lines/statements
+3. Verify cleanup complete
+4. Commit changes
+
+### Completion Workflow Auto-Cleanup
+
+When marking task complete, Step 9.2 automatically removes all debug markers:
+```
+Follow instructions in task.prompt.md.
+key: {your-key}
+tasks: mark complete
+```
 
 ---
 
-## Best Practices
+## Usage
 
-1. **Always include `;CLEANUP_OK`** - Required for automatic removal
-2. **Use consistent scope naming** - Match key names when possible
-3. **Include context** - Helps identify where logging occurs
-4. **Avoid sensitive data** - Don't log passwords, tokens, PII
-5. **Remove before production** - Use `debug-level=cleanup`
-6. **Don't commit debug markers** - Unless actively debugging production issue
+**Reference this module** in your prompt:
+```markdown
+## Debug Logging Mandate
+**See**: [Debug Logging Mandate](shared/debug-logging-mandate.md)
 
----
+Respect `debug-level` parameter when implementing code.
+```
 
-## Integration with Agents
-
-### Task Agent
-- Adds debug markers during implementation if `debug-level=simple|trace`
-- Removes at completion if `debug-level=cleanup`
-
-### Refactor Agent
-- Preserves existing debug markers during refactoring
-- Can add markers to track refactoring impact
-- Removes all before completion
-
-### Health Check Agent
-- Detects remaining debug markers
-- Reports as warning if found in production branches
+OR **Include inline**:
+```markdown
+## Debug Logging Mandate
+Insert debug markers following pattern: `[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK`
+Levels: none (default), simple, trace, cleanup. See shared/debug-logging-mandate.md for details.
+```
 
 ---
 
-## Troubleshooting
+## Integration with Parameters
 
-**Q: Debug markers not being removed?**
-A: Ensure `;CLEANUP_OK` suffix is present on same line
+In your prompt's Parameters section:
 
-**Q: Build fails after cleanup?**
-A: Review removed code - may have orphaned braces/blocks
-
-**Q: Too much debug output?**
-A: Use `debug-level=simple` instead of `trace`, or add to hot paths selectively
-
-**Q: Need persistent logging?**
-A: Use standard logging without debug markers for production logging needs
+```markdown
+- **debug-level** *(optional, default=`none`)*  
+  Controls debug logging code inserted into source files.  
+  Options: `none`, `simple`, `trace`, `cleanup`.  
+  See [Debug Logging Mandate](shared/debug-logging-mandate.md) for details.
+```
 
 ---
 
-## Examples
+## Examples by Language
 
-### Complete Example: C# Feature Implementation
+### C# (ASP.NET Core)
 
 ```csharp
-public class UserService
+public async Task<IActionResult> SubmitQuestion([FromBody] QuestionSubmitRequest request)
 {
-    private readonly ILogger<UserService> _logger;
-
-    public async Task<User> CreateUser(CreateUserRequest request)
+    Logger.LogInformation("[DEBUG-WORKITEM:canvas:SubmitQuestion] Received question submission ;CLEANUP_OK");
+    
+    var question = new Question
     {
-        // DEBUG-WORKITEM: Validating input before processing ;CLEANUP_OK
-        _logger.LogInformation("[DEBUG-WORKITEM:user-service:create] Request received: {@Request} ;CLEANUP_OK", request);
-        
-        var user = new User
-        {
-            Email = request.Email,
-            Name = request.Name
-        };
-        
-        _logger.LogInformation("[DEBUG-WORKITEM:user-service:create] User object created: {@User} ;CLEANUP_OK", user);
-        
-        await _repository.SaveAsync(user);
-        
-        _logger.LogInformation("[DEBUG-WORKITEM:user-service:create] User saved to database: {UserId} ;CLEANUP_OK", user.Id);
-        
-        return user;
-    }
+        Text = request.Text,
+        SessionId = request.SessionId
+    };
+    
+    Logger.LogDebug("[DEBUG-WORKITEM:canvas:SubmitQuestion] Created question entity: {@Question} ;CLEANUP_OK", question);
+    
+    await _context.Questions.AddAsync(question);
+    await _context.SaveChangesAsync();
+    
+    Logger.LogInformation("[DEBUG-WORKITEM:canvas:SubmitQuestion] Question saved, ID={QuestionId} ;CLEANUP_OK", question.Id);
+    
+    return Ok(new { questionId = question.Id });
 }
 ```
 
-### Complete Example: JavaScript API Integration
+### JavaScript/Blazor
 
 ```javascript
-async function fetchUserData(userId) {
-    console.log(`[DEBUG-WORKITEM:api:fetch-user] Starting fetch for user: ${userId} ;CLEANUP_OK`);
+async function submitVote(questionId, vote) {
+    console.log(`[DEBUG-WORKITEM:voting:submitVote] Submitting vote for question ${questionId} ;CLEANUP_OK`);
     
     try {
-        const response = await fetch(`/api/users/${userId}`);
-        console.log(`[DEBUG-WORKITEM:api:fetch-user] Response status: ${response.status} ;CLEANUP_OK`);
+        const response = await fetch('/api/Vote/Submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questionId, vote })
+        });
         
-        const data = await response.json();
-        console.log(`[DEBUG-WORKITEM:api:fetch-user] Data received:`, JSON.stringify(data), `;CLEANUP_OK`);
+        console.log(`[DEBUG-WORKITEM:voting:submitVote] Response status: ${response.status} ;CLEANUP_OK`);
         
-        return data;
+        const result = await response.json();
+        console.log(`[DEBUG-WORKITEM:voting:submitVote] Vote submitted successfully ;CLEANUP_OK`);
+        
+        return result;
     } catch (error) {
-        console.error(`[DEBUG-WORKITEM:api:fetch-user] Error: ${error.message} ;CLEANUP_OK`);
+        console.error(`[DEBUG-WORKITEM:voting:submitVote] Failed: ${error.message} ;CLEANUP_OK`);
         throw error;
     }
 }
 ```
 
+### Razor Components
+
+```razor
+@code {
+    private async Task HandleSubmit()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:HandleSubmit] Form submission started ;CLEANUP_OK");
+        
+        // Validation
+        if (string.IsNullOrWhiteSpace(QuestionText))
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:HandleSubmit] Validation failed: empty question ;CLEANUP_OK");
+            return;
+        }
+        
+        Logger.LogDebug("[DEBUG-WORKITEM:canvas:HandleSubmit] Calling API with text: {Text} ;CLEANUP_OK", QuestionText);
+        
+        await SubmitQuestion(QuestionText);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:HandleSubmit] Submission complete ;CLEANUP_OK");
+    }
+}
+```
+
 ---
 
-## Summary
+## Version History
 
-| Level | Use Case | Markers Inserted | Cleanup |
-|-------|----------|------------------|---------|
-| `none` | Production code | None | N/A |
-| `simple` | Basic debugging | Key points only | Manual or auto |
-| `trace` | Deep debugging | Comprehensive | Manual or auto |
-| `cleanup` | Pre-production | N/A | Removes all |
-
-**Remember:** Debug markers are temporary troubleshooting tools, not production logging.
+- **v1.0.0** (2025-10-11): Initial extraction from task.prompt.md
+  - Debug levels: none, simple, trace, cleanup
+  - Marker format specification
+  - Cleanup procedures
+  - Language-specific examples
+  - Integration with completion workflow
