@@ -51,6 +51,37 @@ Prepare and validate production deployment for Noor Canvas application with prop
 **Next**: Validate production deployment and database connectivity
 ---
 
+---
+## [2025-10-12 12:00 UTC] - task
+**Status**: in-progress | **Phase**: ddl-migration-and-cleanup | **Commit**: a881612
+**Work**:
+- Analyzed KSESSIONS_DEV schema for changes
+  * Both databases already have CASCADE DELETE configured on foreign keys
+  * FK_Participants_Sessions_SessionId: ON DELETE CASCADE ✓
+  * FK_SessionData_Sessions_SessionId: ON DELETE CASCADE ✓
+  * canvas.AssetLookup excluded (no FK to Sessions)
+- Created DDL migration script (KSESSIONS_DDL_Migration_20251012.sql)
+  * Validates CASCADE DELETE configuration
+  * Idempotent with automatic fix if needed
+  * Executed successfully: No DDL changes required
+- Cleaned up appsettings.Production.json:
+  * Removed KSessionsDb connection string
+  * Removed KQurDb connection string
+  * Kept only DefaultConnection (KSESSIONS)
+- Created nct-prod.ps1 script:
+  * Production token generation connecting to KSESSIONS
+  * Sets ASPNETCORE_ENVIRONMENT=Production
+  * No automatic app launch (production safety)
+  * Parallel with nct.ps1 (dev) using KSESSIONS_DEV
+- Cleaned production wwwroot folder:
+  * Removed 8 test/documentation files
+  * Removed testing/ folder
+  * Production deployment ready
+
+**Files**: 7 modified/created | **Tests**: N/A | **Build**: PASS
+**Next**: Deploy to production, test nct-prod.ps1
+---
+
 ## Migration Results
 ```
 KSESSIONS CANVAS MIGRATION SCRIPT v2.0.0
