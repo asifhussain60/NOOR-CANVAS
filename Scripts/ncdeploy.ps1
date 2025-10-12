@@ -340,24 +340,80 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
-    # Step 7: Run Host Provisioner for production token generation (Optional)
-    Write-Step "Running Host Provisioner for production environment..."
+    # Step 7: Deploy Host Provisioner tool to production
+    Write-Step "Deploying Host Provisioner tool..."
     
-    # [DEBUG-WORKITEM:deploy:provisioner] Integrated Host Provisioner into deployment workflow ;CLEANUP_OK
-    $provisionerPath = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
-    $provisionerProject = "$provisionerPath\HostProvisioner.csproj"
+    $provisionerSource = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
+    $provisionerDest = "$DeployPath\HostProvisioner"
+    $provisionerProject = "$provisionerSource\HostProvisioner.csproj"
     
     if (Test-Path $provisionerProject) {
+        try {
+            # Publish Host Provisioner to deployment folder
+            Write-Host "  Publishing Host Provisioner..." -ForegroundColor Gray
+            $publishOutput = dotnet publish $provisionerProject -c Release -o $provisionerDest --no-self-contained 2>&1
+            
+            if ($LASTEXITCODE -eq 0) {
+                # Copy batch files and production config
+                Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\create-token.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
+                Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\token-manager.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
+                Copy-Item "$provisionerSource\appsettings.Production.json" -Destination $provisionerDest -Force
+                
+                # Create README if it doesn't exist
+                $readmePath = "$provisionerDest\README.md"
+                if (-not (Test-Path $readmePath)) {
+                    @"
+# NoorCanvas Host Provisioner - Production
+
+Generate host and user tokens for NoorCanvas sessions.
+
+## Usage
+
+Command-line:
+    create-token.bat <SESSION_ID> [CREATED_BY]
+
+Interactive mode:
+    token-manager.bat
+
+## Example
+
+    create-token.bat 212 "Admin"
+
+See full documentation at: D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\README.md
+"@ | Out-File -FilePath $readmePath -Encoding UTF8
+                }
+                
+                Write-Success "Host Provisioner deployed successfully"
+                Write-Host "  Location: $provisionerDest" -ForegroundColor Gray
+                Write-Host "  Usage: cd $provisionerDest ; .\create-token.bat <SESSION_ID>" -ForegroundColor Cyan
+            } else {
+                Write-Warning "Failed to publish Host Provisioner (non-critical)"
+            }
+        }
+        catch {
+            Write-Warning "Could not deploy Host Provisioner: $_"
+        }
+    } else {
+        Write-Warning "Host Provisioner project not found (skipping)"
+    }
+
+    # Step 8: Run Host Provisioner for production token generation (Optional)
+    Write-Step "Host Provisioner production usage..."
+    
+    # [DEBUG-WORKITEM:deploy:provisioner] Integrated Host Provisioner into deployment workflow ;CLEANUP_OK
+    $deployedProvisioner = "$DeployPath\HostProvisioner\create-token.bat"
+    
+    if (Test-Path $deployedProvisioner) {
         try {
             # Set environment to Production for KSESSIONS database
             $env:ASPNETCORE_ENVIRONMENT = "Production"
             
             Write-Host "  Host Provisioner is available for token generation" -ForegroundColor Cyan
             Write-Host "  Environment: Production (KSESSIONS database)" -ForegroundColor Gray
-            Write-Host "  Location: $provisionerPath" -ForegroundColor Gray
+            Write-Host "  Location: $DeployPath\HostProvisioner" -ForegroundColor Gray
             Write-Host ""
             Write-Host "  To generate a host token for a session:" -ForegroundColor Yellow
-            Write-Host "    cd Tools\HostProvisioner\HostProvisioner" -ForegroundColor Gray
+            Write-Host "    cd $DeployPath\HostProvisioner" -ForegroundColor Gray
             Write-Host "    `$env:ASPNETCORE_ENVIRONMENT='Production'" -ForegroundColor Gray
             Write-Host "    dotnet run -- create --session-id <SESSION_ID> --created-by <YOUR_NAME>" -ForegroundColor Gray
             Write-Host ""

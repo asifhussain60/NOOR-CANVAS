@@ -222,6 +222,28 @@ None
 **Next**: Monitor production for stability, verify connection string consolidation works
 ---
 
+---
+## [2025-10-12 15:15 UTC] - task
+**Status**: in-progress | **Phase**: provisioner-integration | **Commit**: d912410
+**Work**:
+- Created production Host Provisioner configuration (appsettings.Production.json)
+  * Connects to KSESSIONS database (production)
+  * Uses simplified schema (canvas.*)
+  * Environment-aware via ASPNETCORE_ENVIRONMENT variable
+- Integrated Host Provisioner into ncdeploy.ps1 deployment script
+  * Added Step 7: Post-deployment token generation guidance
+  * Sets Production environment automatically
+  * Provides clear CLI commands for operators
+  * Non-blocking step - deployment succeeds regardless
+- Verified provisioner builds and runs in Production mode
+  * Dry-run test successful with session 212
+  * Correct database targeting confirmed (KSESSIONS)
+
+**Files**: 2 modified | **Tests**: Dry-run validation | **Build**: PASS (3 pre-existing warnings)
+**Debug**: Simple markers for provisioner integration tracking
+**Next**: Full deployment test with provisioner step
+---
+
 ## Next Steps
 1. ✅ Deploy application to IIS with Production configuration - COMPLETE
 2. Validate KSESSIONS database connectivity in production
