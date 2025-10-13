@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T11:02:00Z
+- **Last Updated**: 2025-10-13T11:28:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -134,6 +134,68 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 - `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Database schema
 
 ## Changes Made
+
+### Commit: c84f796155e7230368a79af96db3ed767903b1d3
+**Date**: 2025-10-13T11:28:00Z
+**Message**: feat(canvas-questions): Show upvote count on both green and orange question cards with trace logging
+
+**Summary**: Modified question rendering to display upvote counts for ALL questions (both own questions with green background and others' questions with orange background). Previously, only orange cards (others' questions) showed the upvote count, while green cards (own questions) had a hidden spacer. Now both show the actual vote count, with own questions displaying a disabled, non-interactive button.
+
+**Files Modified**:
+1. `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+   - **Lines 943-977**: Updated question rendering logic
+     - Moved vote section outside conditional to show for ALL questions
+     - For others' questions (`!isMyQuestion`): Clickable upvote button (disabled if already voted)
+     - For own questions (`isMyQuestion`): Disabled upvote button with actual vote count (not hidden)
+     - Changed `preventDefault` and `stopPropagation` to `true` for better event handling
+     - Added trace logging for upvote button rendering (differentiates clickable vs non-clickable)
+   
+   - **Lines 1980-1988**: Added click event trace logging
+     - Logs when user clicks upvote button (before validation)
+     - Helps track user interaction flow
+   
+   - **Lines 2281-2310**: Enhanced QuestionVoteUpdated SignalR handler
+     - Added trace logs for SignalR reception of vote updates
+     - Logs old vote count vs new vote count
+     - Logs UI refresh confirmation
+   
+   - **Lines 2322-2360**: Enhanced QuestionVoteUpdate SignalR handler (API format)
+     - Added trace logs for alternative vote update event format
+     - Logs vote count changes and UI refresh
+     - Added better error logging
+
+2. `SPA/NoorCanvas/Controllers/QuestionController.cs`
+   - **Lines 289-295**: Added vote calculation trace logging
+     - Logs current vote count before increment/decrement
+     - Logs new vote count calculation
+     - Logs vote direction (up/down)
+   
+   - **Lines 332-340**: Added SignalR broadcast trace logging
+     - Logs before broadcasting vote update to session group
+     - Logs after broadcast completes
+     - Shows session ID, question ID, and new vote count
+
+**Trace Logging Coverage**:
+- ✅ Upvote button rendering (own vs others' questions)
+- ✅ Upvote button click events
+- ✅ Vote processing in API (current → new votes)
+- ✅ SignalR vote update broadcasts
+- ✅ SignalR vote update reception
+- ✅ UI refresh after vote count changes
+
+**Key Behavior Changes**:
+- **BEFORE**: Own questions showed hidden spacer with "0" vote count
+- **AFTER**: Own questions show ACTUAL vote count with disabled button
+- **BEFORE**: `preventDefault="false"` and `stopPropagation="false"`
+- **AFTER**: `preventDefault="true"` and `stopPropagation="true"`
+
+**Testing Requirements**:
+1. Open two browsers to Session 212 (SESS0212)
+2. User A submits question → Verify green card shows vote count "0" with disabled button
+3. User B sees question → Verify orange card shows vote count "0" with clickable button
+4. User B clicks upvote → Verify both cards update to show "1"
+5. User A refreshes → Verify green card still shows "1" with disabled button
+6. Check logs for complete trace of vote flow from click → API → SignalR → UI
 
 ### Commit: 160b8b7cad534a98011838d8e98cc3a41fba48ec
 **Date**: 2025-10-13T11:02:00Z
