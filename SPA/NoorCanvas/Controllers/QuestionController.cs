@@ -143,6 +143,9 @@ namespace NoorCanvas.Controllers
                     isAnswered = false
                 };
                 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] Question created in API - QuestionId={QuestionId}, ParticipantName={ParticipantName}, UserId={UserId}, RequestUserGuid={RequestUserGuid} ;CLEANUP_OK",
+                    questionData.questionId, questionData.userName, questionData.userId, request.UserGuid);
+                
                 _logger.LogTrace("NOOR-QA-SUBMIT-TRACE: [{RequestId}] Created question data: QuestionId={QuestionId}, UserName='{UserName}', UserId='{UserId}', Text='{Text}'", 
                     requestId, questionData.questionId, questionData.userName, questionData.userId ?? "NULL", 
                     request.QuestionText?.Substring(0, Math.Min(50, request.QuestionText?.Length ?? 0)));
@@ -178,6 +181,9 @@ namespace NoorCanvas.Controllers
                 // Broadcast via SignalR to all session participants
                 try
                 {
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] Broadcasting QuestionReceived via SignalR - SessionGroup={SessionGroup}, QuestionId={QuestionId}, UserId={UserId} ;CLEANUP_OK",
+                        sessionGroup, questionData.questionId, questionData.userId);
+                    
                     await _sessionHub.Clients.Group(sessionGroup)
                         .SendAsync("QuestionReceived", questionData);
 

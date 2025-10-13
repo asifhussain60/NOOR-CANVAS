@@ -936,6 +936,9 @@
                                         var upvoteColor = isMyQuestion ? "#006400" : "#CC5500";
                                         var hasVoted = VotedQuestionIds.Contains(question.QuestionId);
 
+                                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion}, BGColor={BGColor} ;CLEANUP_OK", 
+                                            question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion, bgColor);
+                                        
                                         Logger.LogTrace("[DEBUG-WORKITEM:use-questions:render] Rendering question {QuestionId}: IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes} ;CLEANUP_OK", 
                                             question.QuestionId, isMyQuestion, hasVoted, question.Votes);
 
@@ -1455,7 +1458,9 @@
                         if (!string.IsNullOrEmpty(userGuid))
                         {
                             CurrentUserGuid = userGuid;
-                            Logger.LogInformation("[API-PARTICIPANT-ME] [{RequestId}] UserGuid loaded for authentication: {UserGuid}", 
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] [{RequestId}] CurrentUserGuid SET during initialization: {UserGuid} ;CLEANUP_OK", 
+                                requestId, CurrentUserGuid);
+                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ownership] [{RequestId}] UserGuid loaded for authentication: {UserGuid} ;CLEANUP_OK", 
                                 requestId, CurrentUserGuid);
                                 
                             // USERGUID-PERSISTENCE: Store UserGuid for multi-browser isolation
@@ -1838,6 +1843,9 @@
                 UserGuid = CurrentUserGuid
             };
             
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] [{RequestId}] Submitting question - CurrentUserGuid={CurrentUserGuid}, SessionToken={SessionToken} ;CLEANUP_OK", 
+                requestId, CurrentUserGuid, SessionToken);
+            
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:submit] [{RequestId}] Sending POST request to /api/Question/Submit ;CLEANUP_OK", requestId);
             var response = await Http.PostAsJsonAsync("/api/Question/Submit", requestPayload);
 
@@ -2145,6 +2153,12 @@
                             IsMyQuestion = root.TryGetProperty("userId", out var myUserIdProp) ? 
                                 (myUserIdProp.GetString() == CurrentUserGuid) : false
                         };
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] QuestionReceived - QuestionId={QuestionId}, IncomingUserId={IncomingUserId}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK",
+                            question.QuestionId, question.CreatedBy, CurrentUserGuid, question.IsMyQuestion);
+                        
+                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ownership] QuestionReceived details - UserName={UserName}, Text={Text} ;CLEANUP_OK",
+                            question.UserName, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
                         
                         // Only add if not already in the list (prevent duplicates)
                         if (!Model.Questions.Any(q => q.QuestionId == question.QuestionId))
