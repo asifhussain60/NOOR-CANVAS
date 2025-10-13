@@ -33,11 +33,14 @@ You are the **Prompt Generalization Agent**.
 ### What
 The **Prompt Generalization Agent** creates portable, generic versions of all prompts and instructions from NOOR CANVAS that can be adapted to any software project. It generates a complete self-bootstrapping system with a SETUP.BAT that automates the population of project-specific details.
 
+**Key Feature**: **Auto-Discovery** - Dynamically scans `.github/prompts/` directory to detect ALL prompt files, ensuring new prompts are never missed.
+
 ### When to Use
 - **Creating Portable Templates**: Generate generic versions for distribution
 - **Project Scaffolding**: Create reusable prompt system for new projects
 - **Documentation Export**: Share NOOR CANVAS prompt methodology with other teams
 - **System Migration**: Move prompt infrastructure to different codebases
+- **After Adding New Prompts**: Automatically includes new prompts in _Portable generation
 
 ### How to Invoke
 ```
@@ -48,8 +51,9 @@ The **Prompt Generalization Agent** creates portable, generic versions of all pr
 
 ### Integration with Other Agents
 - **Reads From**: 
-  - All files in `.github/prompts/` (8 prompts + 5 shared files)
-  - All files in `.github/instructions/` (SelfAwareness + 10 Links files)
+  - All files in `.github/prompts/` (**auto-detected** - scans for all *.prompt.md files)
+  - All files in `.github/instructions/` (SelfAwareness + Links/*.md files - **auto-detected**)
+  - Shared files in `.github/prompts/shared/` (5 files - **auto-detected**)
   - Project structure metadata (SPA, Tools, Tests, etc.)
 - **Writes To**: 
   - `.github/prompts/_Portable/` - Generic prompts
@@ -96,55 +100,81 @@ git commit -m "checkpoint: pre-generalize-prompts" --allow-empty
 ### Step 2: Analyze Source Files
 **Inventory all prompts and instructions to be generalized.**
 
-#### 2.1. Scan Prompts Directory
+#### 2.1. Scan Prompts Directory (Auto-Discovery)
+**Dynamically discover ALL prompt files - no hardcoded list.**
+
 ```powershell
-# DEBUG-WORKITEM:generalize:scan-prompts Inventory prompt files ;CLEANUP_OK
-$promptFiles = Get-ChildItem ".github/prompts" -Recurse -Include *.md | 
+# DEBUG-WORKITEM:generalize:scan-prompts Auto-discover all prompt files ;CLEANUP_OK
+$promptFiles = Get-ChildItem ".github/prompts" -Filter "*.prompt.md" -File | 
                Where-Object { $_.FullName -notmatch '_Portable' }
 
-Write-Host "📋 Prompt Files Discovered: $($promptFiles.Count)"
-$promptFiles | ForEach-Object { Write-Host "  - $($_.Name)" }
+Write-Host "📋 Prompt Files Discovered: $($promptFiles.Count)" -ForegroundColor Cyan
+$promptFiles | Sort-Object Name | ForEach-Object { 
+    Write-Host "  - $($_.Name)" -ForegroundColor Green 
+}
+
+# Validation: Ensure critical prompts exist
+$criticalPrompts = @('task.prompt.md', 'commit.prompt.md', 'generalize-prompts.prompt.md')
+$missingCritical = $criticalPrompts | Where-Object { $_ -notin $promptFiles.Name }
+
+if ($missingCritical.Count -gt 0) {
+    Write-Host "`n⚠️ WARNING: Critical prompts missing!" -ForegroundColor Red
+    $missingCritical | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+    Write-Host "Continuing with available prompts..." -ForegroundColor Yellow
+}
+
+Write-Host "`n✓ Total prompts to generalize: $($promptFiles.Count)" -ForegroundColor Green
 ```
 
-**Expected Files**:
-- `analyze-learning.prompt.md`
-- `cohesion-review.prompt.md`
-- `commit.prompt.md` (NEW)
-- `healthcheck.prompt.md`
-- `question.prompt.md`
-- `refactor.prompt.md`
-- `sync.prompt.md`
-- `task.prompt.md`
-- `test-generation.prompt.md`
-- `shared/commit-message-format.md`
-- `shared/debug-logging-mandate.md`
-- `shared/step-0-server-cleanup.md`
-- `shared/step-1-checkpoint.md`
-- `shared/warning-handling-mandate.md`
+**Expected Files** (auto-discovered, not hardcoded):
+- ✅ All `*.prompt.md` files in `.github/prompts/` directory
+- ✅ Includes: analyze-learning, cohesion-review, commit, generalize-prompts, healthcheck, question, refactor, sync, task, test-generation
+- ✅ Excludes: Files in `_Portable/` subdirectory (prevents recursion)
 
-#### 2.2. Scan Instructions Directory
+**Key Improvement**: No manual list maintenance - automatically picks up new prompts as they're added.
+
+#### 2.2. Scan Shared Files (Auto-Discovery)
 ```powershell
-# DEBUG-WORKITEM:generalize:scan-instructions Inventory instruction files ;CLEANUP_OK
-$instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md, *.MD
+# DEBUG-WORKITEM:generalize:scan-shared Auto-discover shared files ;CLEANUP_OK
+$sharedFiles = Get-ChildItem ".github/prompts/shared" -Filter "*.md" -File
 
-Write-Host "📋 Instruction Files Discovered: $($instructionFiles.Count)"
-$instructionFiles | ForEach-Object { Write-Host "  - $($_.Name)" }
+Write-Host "📋 Shared Files Discovered: $($sharedFiles.Count)" -ForegroundColor Cyan
+$sharedFiles | Sort-Object Name | ForEach-Object { 
+    Write-Host "  - $($_.Name)" -ForegroundColor Green 
+}
 ```
 
-**Expected Files**:
-- `SelfAwareness.instructions.md`
-- `Links/AnalyzerConfig.MD`
-- `Links/API-Contract-Validation.md`
-- `Links/Architecture.md`
-- `Links/FunctionalityRegistry.md`
-- `Links/InfrastructureQuickRef.md`
-- `Links/PlaywrightConfig.MD`
-- `Links/PlaywrightQuickRef.md`
-- `Links/PlaywrightTestPaths.MD`
-- `Links/SystemIndex.md`
-- `Links/ValidationFramework.md`
+**Expected Files** (auto-discovered):
+- ✅ All `*.md` files in `.github/prompts/shared/` directory
+- ✅ Includes: commit-message-format, debug-logging-mandate, step-0-server-cleanup, step-1-checkpoint, warning-handling-mandate
 
-**Total Files to Generalize**: ~24 files
+#### 2.3. Scan Instructions Directory (Auto-Discovery)
+```powershell
+# DEBUG-WORKITEM:generalize:scan-instructions Auto-discover instruction files ;CLEANUP_OK
+$instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md,*.MD -File
+
+Write-Host "📋 Instruction Files Discovered: $($instructionFiles.Count)" -ForegroundColor Cyan
+$instructionFiles | Sort-Object FullName | ForEach-Object { 
+    $relativePath = $_.FullName -replace [regex]::Escape((Resolve-Path ".github/instructions").Path + "\"), ""
+    Write-Host "  - $relativePath" -ForegroundColor Green 
+}
+
+# Validation: Ensure SelfAwareness exists
+$hasSelfAwareness = $instructionFiles | Where-Object { $_.Name -eq 'SelfAwareness.instructions.md' }
+if (-not $hasSelfAwareness) {
+    Write-Host "`n❌ CRITICAL: SelfAwareness.instructions.md not found!" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "`n✓ Total instructions to generalize: $($instructionFiles.Count)" -ForegroundColor Green
+```
+
+**Expected Files** (auto-discovered):
+- ✅ `SelfAwareness.instructions.md` (root level, mandatory)
+- ✅ All `*.md` and `*.MD` files in `Links/` subdirectory
+- ✅ Includes: AnalyzerConfig.MD, API-Contract-Validation.md, Architecture.md, FunctionalityRegistry.md, InfrastructureQuickRef.md, PlaywrightConfig.MD, PlaywrightQuickRef.md, PlaywrightTestPaths.MD, SystemIndex.md, ValidationFramework.md
+
+**Total Files to Generalize**: ~26+ files (dynamic count based on actual files found)
 
 ---
 
@@ -335,18 +365,20 @@ Write-Host "✓ Created fresh _Portable directory structure"
 ### Step 5: Generalize Prompt Files
 **Apply genericization to all prompt files.**
 
-#### 5.1. Process Each Prompt File
-**For each prompt in `.github/prompts/`:**
+#### 5.1. Process Each Prompt File (Auto-Discovery)
+**For each prompt in `.github/prompts/` - NO HARDCODED LIST:**
 
 ```powershell
-# DEBUG-WORKITEM:generalize:process-prompts Apply genericization to prompts ;CLEANUP_OK
+# DEBUG-WORKITEM:generalize:process-prompts Apply genericization to all discovered prompts ;CLEANUP_OK
+Write-Host "`nProcessing $($promptFiles.Count) prompt files..." -ForegroundColor Cyan
+
 foreach ($promptFile in $promptFiles) {
     $content = Get-Content $promptFile.FullName -Raw
     
     # Apply all replacements from dictionary (Step 3.1)
     $genericContent = $content
     foreach ($pattern in $replacementDictionary.GetEnumerator()) {
-        $genericContent = $genericContent -replace $pattern.specific, $pattern.generic
+        $genericContent = $genericContent -replace [regex]::Escape($pattern.specific), $pattern.generic
     }
     
     # Add header comment
@@ -368,9 +400,17 @@ All {{PLACEHOLDER}} tokens must be replaced with actual values.
     $outputPath = Join-Path $portableRoot $promptFile.Name
     Set-Content -Path $outputPath -Value $genericContent
     
-    Write-Host "✓ Generalized: $($promptFile.Name)"
+    Write-Host "  ✓ Generalized: $($promptFile.Name)" -ForegroundColor Green
 }
+
+Write-Host "`n✅ All $($promptFiles.Count) prompts generalized successfully" -ForegroundColor Green
 ```
+
+**Key Features**:
+- ✅ **Auto-Discovery**: No manual list - processes ALL `*.prompt.md` files found
+- ✅ **Includes New Prompts**: Automatically picks up commit.prompt.md, generalize-prompts.prompt.md
+- ✅ **Self-Updating**: When new prompts are added to `.github/prompts/`, they're automatically included
+- ✅ **No Maintenance**: Never needs updates when prompt ecosystem grows
 
 #### 5.2. Handle Special Cases
 **Prompts requiring additional modifications:**
@@ -691,7 +731,7 @@ $readme = @'
 This directory contains generic, portable versions of all prompts and instructions from the NOOR CANVAS project. These files can be adapted to any software project by running the automated setup script.
 
 ## What's Included
-- **8 Prompt Files**: Complete agent ecosystem (task, question, refactor, sync, etc.)
+- **10 Prompt Files**: Complete agent ecosystem (task, question, refactor, sync, commit, generalize-prompts, etc.)
 - **11 Instruction Files**: SelfAwareness + 10 Links documentation files
 - **5 Shared Files**: Common prompt components (debug logging, checkpoints, etc.)
 - **SETUP.BAT**: Automated setup script for project-specific population
@@ -902,72 +942,100 @@ Write-Host "✓ Created: README.md"
 
 ```powershell
 # DEBUG-WORKITEM:generalize:validate Validate generated files ;CLEANUP_OK
-$expectedFiles = @(
-    'README.md',
-    'SETUP.BAT',
-    'analyze-learning.prompt.md',
-    'cohesion-review.prompt.md',
-    'commit.prompt.md',
-    'healthcheck.prompt.md',
-    'question.prompt.md',
-    'refactor.prompt.md',
-    'sync.prompt.md',
-    'task.prompt.md',
-    'test-generation.prompt.md',
-    'shared/commit-message-format.md',
-    'shared/debug-logging-mandate.md',
-    'shared/step-0-server-cleanup.md',
-    'shared/step-1-checkpoint.md',
-    'shared/warning-handling-mandate.md',
-    'instructions/SelfAwareness.instructions.md',
-    'instructions/Links/AnalyzerConfig.MD',
-    'instructions/Links/API-Contract-Validation.md',
-    'instructions/Links/Architecture.md',
-    'instructions/Links/FunctionalityRegistry.md',
-    'instructions/Links/InfrastructureQuickRef.md',
-    'instructions/Links/PlaywrightConfig.MD',
-    'instructions/Links/PlaywrightQuickRef.md',
-    'instructions/Links/PlaywrightTestPaths.MD',
-    'instructions/Links/SystemIndex.md',
-    'instructions/Links/ValidationFramework.md'
-)
+
+# Build expected file list dynamically
+$expectedPrompts = $promptFiles.Name
+$expectedShared = $sharedFiles.Name | ForEach-Object { "shared/$_" }
+$expectedInstructions = $instructionFiles | ForEach-Object {
+    $relativePath = $_.FullName -replace [regex]::Escape((Resolve-Path ".github/instructions").Path + "\"), ""
+    "instructions/$relativePath"
+}
+
+$expectedFiles = @('README.md', 'SETUP.BAT') + $expectedPrompts + $expectedShared + $expectedInstructions
+
+Write-Host "`n📊 Validation Report" -ForegroundColor Cyan
+Write-Host "Expected Files: $($expectedFiles.Count)" -ForegroundColor Gray
 
 $missingFiles = @()
+$existingFiles = @()
+
 foreach ($file in $expectedFiles) {
     $filePath = Join-Path $portableRoot $file
     if (-not (Test-Path $filePath)) {
         $missingFiles += $file
+    } else {
+        $existingFiles += $file
     }
 }
 
 if ($missingFiles.Count -eq 0) {
-    Write-Host "`n✅ All $($expectedFiles.Count) files created successfully" -ForegroundColor Green
+    Write-Host "✅ All $($expectedFiles.Count) files created successfully" -ForegroundColor Green
 } else {
-    Write-Host "`n❌ Missing files detected:" -ForegroundColor Red
+    Write-Host "❌ Missing $($missingFiles.Count) files:" -ForegroundColor Red
     $missingFiles | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
     exit 1
 }
 
-# Verify no specific NOOR CANVAS references remain (sample check)
-$sampleFile = Get-Content "$portableRoot/task.prompt.md" -Raw
-if ($sampleFile -match 'KSESSIONS_DEV' -or $sampleFile -match 'PQ9N5YWW') {
-    Write-Host "⚠ Warning: Specific NOOR CANVAS references detected in generic files" -ForegroundColor Yellow
+# Verify no specific NOOR CANVAS references remain in critical files
+Write-Host "`n🔍 Checking for project-specific references..." -ForegroundColor Cyan
+
+$criticalFiles = @('task.prompt.md', 'commit.prompt.md', 'generalize-prompts.prompt.md')
+$foundReferences = @()
+
+foreach ($fileName in $criticalFiles) {
+    $filePath = Join-Path $portableRoot $fileName
+    if (Test-Path $filePath) {
+        $content = Get-Content $filePath -Raw
+        
+        # Check for specific references that should be genericized
+        $patterns = @('KSESSIONS_DEV', 'PQ9N5YWW', 'KJAHA99L', 'AHHOME', 'https://localhost:9091')
+        foreach ($pattern in $patterns) {
+            if ($content -match [regex]::Escape($pattern)) {
+                $foundReferences += "$fileName contains: $pattern"
+            }
+        }
+    }
 }
+
+if ($foundReferences.Count -gt 0) {
+    Write-Host "⚠️ WARNING: Project-specific references detected:" -ForegroundColor Yellow
+    $foundReferences | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
+    Write-Host "Note: Some references in examples are acceptable" -ForegroundColor Gray
+} else {
+    Write-Host "✓ No project-specific references found" -ForegroundColor Green
+}
+
+Write-Host "`n📈 Statistics:" -ForegroundColor Cyan
+Write-Host "  - Prompts: $($promptFiles.Count)" -ForegroundColor Green
+Write-Host "  - Shared: $($sharedFiles.Count)" -ForegroundColor Green
+Write-Host "  - Instructions: $($instructionFiles.Count)" -ForegroundColor Green
+Write-Host "  - Total: $($expectedFiles.Count)" -ForegroundColor Green
 ```
+
+**Validation Checks**:
+- ✅ All expected files exist (dynamic count based on auto-discovery)
+- ✅ README.md and SETUP.BAT created
+- ✅ Directory structure preserved
+- ⚠️ Project-specific references checked (warnings only, some acceptable in examples)
+
+**Key Improvement**: File count is dynamic - adapts to actual files found, not hardcoded expectations.
 
 ---
 
 ### Step 11: Summary Report
-**Provide comprehensive generation summary.**
+**Provide comprehensive generation summary with dynamic file counts.**
 
 ```
 ✅ Generalization Complete
 
 📋 Generation Summary:
-- **Source Files Processed**: 24 (8 prompts, 11 instructions, 5 shared)
-- **Generic Files Created**: 24 (100% coverage)
+- **Source Prompts**: {$promptFiles.Count} files
+- **Source Shared**: {$sharedFiles.Count} files
+- **Source Instructions**: {$instructionFiles.Count} files
+- **Total Source Files**: {$promptFiles.Count + $sharedFiles.Count + $instructionFiles.Count}
+- **Generic Files Created**: {Same as total} (100% coverage)
 - **Output Directory**: .github/prompts/_Portable
-- **Total Size**: {X} KB
+- **Total Size**: {X} KB (calculated)
 - **Placeholders Created**: 15+ {{PLACEHOLDER}} tokens
 - **Automation Script**: SETUP.BAT (complete)
 - **Documentation**: README.md (comprehensive)
@@ -981,8 +1049,18 @@ if ($sampleFile -match 'KSESSIONS_DEV' -or $sampleFile -match 'PQ9N5YWW') {
 - Tech stack: Framework-agnostic placeholders
 
 📦 Deliverables:
-✓ Generic prompt files (8)
-✓ Generic instruction files (11)
+✓ Generic prompt files ({$promptFiles.Count})
+✓ Generic instruction files ({$instructionFiles.Count})
+✓ Generic shared files ({$sharedFiles.Count})
+✓ SETUP.BAT automation script
+✓ README.md usage guide
+✓ Directory structure preserved
+
+🚀 Key Improvements in This Version:
+✅ **Auto-Discovery**: No hardcoded file lists - dynamically scans directories
+✅ **Future-Proof**: Automatically includes new prompts when added
+✅ **Zero Maintenance**: Never needs updates when prompt ecosystem grows
+✅ **Self-Validating**: Validates against actual discovered files, not assumptions
 ✓ Generic shared files (5)
 ✓ SETUP.BAT automation script
 ✓ README.md usage guide
@@ -1012,17 +1090,22 @@ if ($sampleFile -match 'KSESSIONS_DEV' -or $sampleFile -match 'PQ9N5YWW') {
 - **NEVER commit project-specific values** to generic files
 - **ALWAYS validate placeholder replacement** in generated files
 - **ALWAYS create README.md** with comprehensive setup instructions
-- If file count doesn't match expected (24 files), abort and report error
+- **ALWAYS use auto-discovery** - never hardcode file lists (prevents missing new prompts)
+- **If critical validation fails** (SelfAwareness missing, no prompts found), abort and report error
+- **Warnings are acceptable** for project-specific references in example sections
 
 ---
 
 ## Clean Exit Guarantee
 At the end of generalization:
-- All 24 files must exist in _Portable directory
+- All discovered files must exist in _Portable directory (dynamic count)
 - SETUP.BAT must be executable and well-formed
 - README.md must be comprehensive and accurate
-- No NOOR CANVAS-specific references in generic files (except examples)
+- No NOOR CANVAS-specific references in generic files (warnings acceptable for examples)
 - Directory structure must match source structure
 - All {{PLACEHOLDER}} tokens must be documented in README.md
+- File count validation uses actual discovered files, not hardcoded expectations
 
-If any of these conditions fail, the workflow must report failure and provide remediation steps.
+**Key Improvement**: Clean exit now validates against **actual discovered files** rather than hardcoded list, ensuring it works correctly when new prompts are added.
+
+If any critical validation fails (missing SelfAwareness, SETUP.BAT creation failure), the workflow must abort and provide remediation steps.
