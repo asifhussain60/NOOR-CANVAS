@@ -3,11 +3,11 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-10-13
+- **Last Updated**: 2025-01-13T16:45:00Z
 - **Owner**: GitHub Copilot
-- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment, _Portable template synchronization, refactor prompt consolidation enhancements
+- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment, _Portable template synchronization, refactor prompt consolidation enhancements, dual-mode annotate parameter
 - **Complexity**: high
-- **Debug Level**: simple
+- **Debug Level**: none
 
 ## File Mappings
 
@@ -54,6 +54,7 @@
 - `.github/prompts/cohesion-review.prompt.md` - Prompt system cohesion analysis agent
 - `.github/prompts/refactor.prompt.md` - Code refactoring agent (already comprehensive)
 - `.github/prompts/analyze-learning.prompt.md` - Learning pattern analysis (already comprehensive)
+- `.github/prompts/task.prompt.md` - UPDATED: Dual-mode annotate parameter (HTML documentation as default)
 - `Workspaces/Documentation/prompts-comprehensive-analysis-summary.md` - NEW: Complete execution summary
 - `Workspaces/Copilot/prompts.keys/_template/key-template.md` - Template with file mappings
 - `Workspaces/Copilot/prompts.keys/prompts/prompts.md` - This file (self-documenting)
@@ -61,11 +62,11 @@
 
 ## Dependencies
 - **Keys**: N/A - Infrastructure key, not dependent on feature keys
-- **External Libraries**: N/A - Documentation only
+- **External Libraries**: OpenAI GPT-4 Vision API (for annotate parameter)
 - **npm Packages**: N/A - No npm dependencies
 
 ## Summary
-The prompts key encompasses comprehensive refresh and integration of the entire prompts system infrastructure. This includes creating an authoritative infrastructure reference document to eliminate Copilot hallucinations, refreshing all Links folder files with live data, establishing complete cross-reference matrix across all agents, and integrating previously orphaned files into the system.
+The prompts key encompasses comprehensive refresh and integration of the entire prompts system infrastructure. This includes creating an authoritative infrastructure reference document to eliminate Copilot hallucinations, refreshing all Links folder files with live data, establishing complete cross-reference matrix across all agents, integrating previously orphaned files into the system, and enhancing the annotate parameter with dual-mode operation (HTML documentation as default, requirement extraction for annotated images).
 
 ## Current Work
 - ✅ **InfrastructureQuickRef.md Creation**: NEW authoritative reference for database, API endpoints, SignalR hubs, Session 212 test data
@@ -96,6 +97,25 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 - ✅ **Code Cleanup**: Removed stale annotation system references
   - Program.cs → Removed AnnotationHub mapping and logging
   - InfrastructureQuickRef.md → Critical Anti-Patterns section documents annotation system deletion
+
+- ✅ **Dual-Mode Annotate Parameter Enhancement** (2025-01-13T16:45:00Z)
+  - **Mode 1 (Default)**: HTML Documentation from plain screenshots
+    - AI identifies view/component (SessionCanvas.razor, HostControlPanel, etc.)
+    - Catalogs HTML elements (interactive, structural, content, state indicators)
+    - Documents in key data stream "## View Documentation" section
+    - Updates existing entries in-place (versioned with timestamps)
+    - No code execution - pure documentation for context building
+  - **Mode 2 (Auto-Detected)**: Requirement Extraction from annotated images
+    - Triggers when AI detects visual annotations (arrows, markup, measurements)
+    - Extracts change requirements → presents for approval → executes
+  - **Key Benefits**:
+    - Context building before implementation
+    - Regression detection (compare documented vs actual)
+    - Handoff documentation for other agents
+    - Dual purpose: documentation AND requirements
+    - Version history tracks view evolution
+  - **Implementation**: Step 2.7 in task.prompt.md execution workflow
+  - **Commit**: 6a5d64fd
 
 ## Recent Changes
 - 2025-10-13: Enhanced task.prompt.md with documentation mode, technical analysis, and library catalog (commit: 0bbd932b)
