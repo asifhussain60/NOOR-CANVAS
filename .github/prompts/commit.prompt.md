@@ -24,6 +24,10 @@ You are the **Commit Orchestrator Agent**.
   Skip analyze-learning step if no completed keys since last run.
   Options: `true`, `false`
 
+- **skip-refactor** *(optional, default=`false`)*  
+  Skip refactor step if no code changes detected or code quality already optimal.
+  Options: `true`, `false`
+
 - **push** *(optional, default=`true`)*  
   Push changes to origin after commit.
   Options: `true`, `false`
@@ -35,7 +39,7 @@ You are the **Commit Orchestrator Agent**.
 ## Purpose
 
 ### What
-The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow that ensures system cohesion, synchronization, and learning extraction before creating commits and pushing to origin. It orchestrates three critical agents in sequence: cohesion-review → sync → analyze-learning.
+The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow that ensures system cohesion, synchronization, learning extraction, and code quality before creating commits and pushing to origin. It orchestrates four critical agents in sequence: cohesion-review → sync → analyze-learning → refactor.
 
 ### When to Use
 - **Before Major Commits**: Validate system state before committing significant changes
@@ -49,6 +53,7 @@ The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow t
 @workspace /commit key=hcp
 @workspace /commit key=prompts skip-cohesion=false
 @workspace /commit key=canvas skip-learning=true push=false
+@workspace /commit skip-refactor=true
 @workspace /commit
 ```
 
@@ -57,6 +62,7 @@ The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow t
   - cohesion-review.prompt.md (Step 1)
   - sync.prompt.md (Step 2)
   - analyze-learning.prompt.md (Step 3)
+  - refactor.prompt.md (Step 3.5)
 - **Triggered By**: 
   - task.prompt.md (Step 9 - Completion Workflow)
   - Manual invocation by user
@@ -73,6 +79,7 @@ The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow t
 - **System Cohesion**: Prompts and instructions validated for consistency
 - **Documentation Sync**: All docs reflect current system state
 - **Learning Extraction**: Patterns captured from completed work
+- **Code Quality**: Refactored code meets all analyzer standards (zero errors, zero warnings)
 - **Clean Remote**: All commits pushed to origin (unless push=false)
 
 ---
@@ -205,6 +212,59 @@ if ($skipLearning -eq $true) {
 
 **Failure Handling**:
 - **If analysis fails**: Log warning but continue (non-blocking)
+
+---
+
+### Step 3.5: Refactor Agent
+**Execute refactor.prompt.md to improve code quality and structural integrity.**
+
+#### 3.5.1. Check Skip Condition
+```powershell
+# DEBUG-WORKITEM:commit:check-refactor Check if refactor can be skipped ;CLEANUP_OK
+if ($skipRefactor -eq $true) {
+    $changedFiles = git diff --name-only HEAD
+    $hasCodeChanges = $changedFiles -match '\.(cs|razor|js|ts|css|scss)$'
+    
+    if (-not $hasCodeChanges) {
+        Write-Host "✓ Skipping refactor (no code changes detected)" -ForegroundColor Green
+        # Skip to Step 4
+    } else {
+        # Check if recent refactor was clean
+        $lastRefactorCommit = git log --grep="refactor:" -1 --format="%H %s"
+        $commitsSinceRefactor = (git log --oneline "$lastRefactorCommit..HEAD").Count
+        
+        if ($commitsSinceRefactor -lt 3) {
+            Write-Host "✓ Skipping refactor (recent refactor within 3 commits)" -ForegroundColor Green
+            # Skip to Step 4
+        }
+    }
+}
+```
+
+#### 3.5.2. Execute Refactor
+**If skip condition not met:**
+
+```
+@workspace /refactor key={key} scope=current notes="pre-commit quality improvements"
+```
+
+**Expected Output**:
+- Files analyzed: X
+- Refactorings applied: Y
+- Build status: Clean (0 errors, 0 warnings)
+- Validation: All 6 levels passed
+- Patterns updated: refactor-patterns.json
+
+**Failure Handling**:
+- **If refactor fails**: Abort commit workflow with refactor error details
+- **If warnings persist**: Abort and require manual resolution
+- **If validation fails**: Rollback to checkpoint and abort
+
+**Benefits**:
+- Ensures code quality meets standards before commit
+- Catches analyzer violations early
+- Maintains zero-error, zero-warning policy
+- Extracts refactoring patterns for future use
 
 ---
 
@@ -404,7 +464,8 @@ $commitMessage = if ($key) {
     "feat($key): commit workflow execution`n`n" +
     "- Cohesion review: $(if ($skipCohesion) { 'skipped' } else { 'executed' })`n" +
     "- Sync: $(if ($skipSync) { 'skipped' } else { 'executed' })`n" +
-    "- Learning analysis: $(if ($skipLearning) { 'skipped' } else { 'executed' })"
+    "- Learning analysis: $(if ($skipLearning) { 'skipped' } else { 'executed' })`n" +
+    "- Refactor: $(if ($skipRefactor) { 'skipped' } else { 'executed' })"
 } else {
     "chore: commit workflow execution`n`n" +
     "Automated commit via commit.prompt.md"
@@ -418,6 +479,7 @@ feat(prompts): commit workflow execution
 - Cohesion review: executed
 - Sync: executed
 - Learning analysis: executed
+- Refactor: executed
 ```
 
 #### 6.2. Stage and Commit
@@ -507,6 +569,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - **Cohesion Review**: {executed | skipped}
 - **Sync**: {executed | skipped}
 - **Learning Analysis**: {executed | skipped}
+- **Refactor**: {executed | skipped}
 - **Key Cleanup**: {executed | skipped}
 - **Commit**: {created | skipped (no changes)}
 - **Push**: {successful | skipped | failed}
@@ -516,6 +579,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - Prompts: cohesive and validated
 - Documentation: synchronized
 - Learning: patterns extracted
+- Code Quality: refactored and optimized
 - Keys: optimized and compact
 - Remote: up to date
 ```
@@ -539,6 +603,7 @@ At the end of every commit workflow:
 - All commits must be pushed to origin (unless push=false)
 - Cohesion review must report zero issues
 - Learning patterns must be extracted and saved
+- Code must meet quality standards (zero errors, zero warnings if refactored)
 - User must receive clear summary of what was committed and pushed
 
 If any of these conditions fail, the workflow must report failure and provide remediation steps.
@@ -549,6 +614,7 @@ If any of these conditions fail, the workflow must report failure and provide re
 - **Skip cohesion review** if recent clean analysis exists (<24 hours)
 - **Skip sync** if no documentation/configuration files changed
 - **Skip learning analysis** if no keys completed since last run
+- **Skip refactor** if no code changes or recent refactor within 3 commits
 - **Skip commit** if no uncommitted changes detected
 - **Skip push** if user specifies push=false
 
