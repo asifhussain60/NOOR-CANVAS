@@ -201,7 +201,7 @@ namespace NoorCanvas.Services
 
         public class SessionAssetsResponse
         {
-            public int sessionId { get; set; }
+            public int SessionId { get; set; }
             public int TotalAssets { get; set; }
             public int SharedAssets { get; set; }
             public Dictionary<string, int> AssetsByType { get; set; } = new();

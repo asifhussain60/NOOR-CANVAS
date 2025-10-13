@@ -1,29 +1,305 @@
-<div class="bg-white shadow-md border-b">
-            <div class="max-w-4xl mx-auto px-4 py-4">
-                <h1 class="text-2xl font-bold text-gray-800">Session Transcript Styling Demo - Updated: 10/9/2025, 4:06:18 PM</h1>
-            <p class="text-gray-600 mt-1">Islamic Content from Session 212 with Enhanced Styling</p>
-            <div class="mt-3 flex items-center space-x-4">
-                <label class="text-sm font-medium text-gray-700">
-                    Session ID:
-                    <input type="number" id="sessionIdInput" value="212" class="ml-2 px-3 py-1 border border-gray-300 rounded-md text-sm w-20">
-                </label>
-                <button onclick="refreshTranscript()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <i class="fa fa-refresh mr-2"></i>Refresh from Database
-                </button>
-                <div id="statusIndicator" class="text-sm"><span class="text-green-600"><i class="fa fa-check mr-1"></i>Loaded 10/9/2025, 4:06:18 PM</span></div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Styles Recreation</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide icons for better visual matching -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Load Roboto font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Setting the default font to Inter (or a safe sans-serif fallback) */
+        html {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom border style for outer panels: 2px solid #D4AF37 (Gold/Bronze) */
+        .border-outer-gold {
+            border: 2px solid #D4AF37;
+        }
+        /* Inner Green Question border: 1px solid #006400 (Dark Green) */
+        .border-inner-dark-green {
+            border: 1px solid #006400;
+        }
+        /* New Inner Orange Question border: 1px solid #CC5500 (Dark Orange) */
+        .border-inner-dark-orange {
+            border: 1px solid #CC5500;
+        }
+        /* Style for the active toggle button */
+        .view-btn.active {
+            background-color: #D4AF37; /* Gold background */
+            color: #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .view-btn {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        // Define 'roboto' font family for use with class 'font-roboto'
+                        'roboto': ['Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        'custom-green': '#34D399',
+                        'light-green': '#ECFDF5', 
+                        'deep-green': '#059669',
+                        /* New light orange background color */
+                        'light-orange': '#FFF7ED', 
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 flex flex-col items-center min-h-screen p-8">
+
+    <!-- MAIN WRAPPER -->
+    <div class="w-full max-w-4xl mx-auto">
+
+        <!-- TOGGLE BUTTONS -->
+        <div class="flex justify-center space-x-4 mb-8">
+            <button id="user-btn" class="view-btn px-8 py-3 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] transition duration-300">
+                USER VIEW
+            </button>
+            <button id="host-btn" class="view-btn px-8 py-3 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] transition duration-300">
+                HOST VIEW
+            </button>
         </div>
 
-        <!-- Main Content -->
-        <div class="max-w-4xl mx-auto px-4 py-8 mt-8" style="padding: 30px; margin-bottom: 40px;">
-            <div class="bg-white rounded-lg shadow-2xl border border-gray-100 p-6 ks-transcript" data-theme="wide" style="box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);"><h2>The Purpose of Messengers: A Call to Awaken from Heedlessness</h2><p><br></p><h2>Truth Concealment as Ingratitude</h2><p>There are many ways to conceal the truth, and sadly, many Muslims are in fact truth concealers. One can perform all the outward obligations of Islam and yet be concealing the truth from themselves. The very essence of truth concealment is ingratitude. A <span class="inlineArabic">کافر</span> is also known as an ingrate. Allah says:</p><p class="example">is ingratitude. A <span class="inlineArabic">کافر</span> is also known as an ingrate. Allah says:</p><p><br></p><p class="quote" data-islamic-content="">is ingratitude. A <span class="inlineArabic">کافر</span> is also known as an ingrate. Allah says:</p><p><br></p><p><br></p><p><br></p><div class="poetry-wrapper" data-content-type="poetry" data-id="0a20d749c5794c3fb0642f4cd617cd80" data-language="bilingual" data-poet="Rumi" data-type="poetry"><div class="poetry-section froala-poetry-container" data-original-text="والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض Leave my slave alone. I know everything about him since the moment والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض Leave my slave alone. I know everything about him since the moment"><div class="poetry-poet-header" style="display: flex; justify-content: space-between; align-items: center;"><h4 style="margin: 0; color: #722727; font-weight: bold; font-size: 1.2em;"><i class="fa fa-feather" style="margin-right: 8px; color: #5c726a;" aria-hidden="true"></i>Rumi</h4></div><div class="row"><div class="col-xs-12"><div class="poetry-couplet"><p class="h3 arabic-text text-center text-maroon" dir="rtl" style="margin-bottom: 5px;">والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض</p><p class="text-center text-muted" dir="ltr" style="font-size: 2rem; margin: 0;">Leave my slave alone. I know everything about him since the moment</p></div><div class="poetry-couplet"><p class="h3 arabic-text text-center text-maroon" dir="rtl" style="margin-bottom: 5px;">والرب تعالى يقول: دَعَوا عَبدي، فأنا أعلمُ به، إذ أنشأتَهُ مِن الأرض</p><p class="text-center text-muted" dir="ltr" style="font-size: 2rem; margin: 0;">Leave my slave alone. I know everything about him since the moment</p></div></div></div></div></div><div class="ayah-card" id="ayah-card-14-34"><div class="golden-surah-header clickable-ayah-header" data-ayats="34" data-original-token="Q|14:34" data-surah="14" id="ayah-header-14-34"><span>Abraham (14:34)</span></div><p class="ayah-arabic">&rlm; &rlm;وَآتَىٰكُم مّن كُلّ مَا سَأَلْتُمُوهُ وَإن تَعُدُّوا۟ نعْمَتَ ٱللَّه لَا تُحْصُوهَا إنَّ ٱلْإنسَنَ لَظَلُومٌۭ كَفَّارٌۭ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-34.png" alt="34">&nbsp;&lrm;</p><div class="translation-header">Translation:.</div><p class="ayah-translation">And he gave you from all you asked of him. And if you should count the favor of Allah, you could not enumerate them. Indeed, mankind is [generally] most unjust and ungrateful.&nbsp;</p></div><p>Indeed man is extremely unjust and an ingrate. The word <span class="inlineArabic">كَفَّار</span> in this verse is not used in the meaning of "disbeliever," but as "ingrate." The sending of messengers is rooted in Allah's profound good intention toward His creation. If Allah had simply created humanity and withheld the manual for life, we would all be left to wander in a state of turmoil and darkness, clueless about our purpose.</p><p><br></p><div class="inserted-hadees ks-ahadees-container" data-collection="unknown" data-id="129" data-token="H|129" data-type="hadees" id="ahadees-1759610378590-646"><div class="hadees-header ks-ahadees-header"><h4><i class="fa fa-comment ks-ahadees-header-icon" aria-hidden="true"></i>Muhammad Ibn Abdullah (SWS)<span class="ks-ahadees-subject">- Accountability, Deeds</span></h4></div><div class="hadees-arabic ks-ahadees-arabic">حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا، وَزِنُوا أَعْمَالَكُمْ قَبْلَ أَنْ تُوزَنُوا</div><div class="hadees-english ks-ahadees-english">Hold yourselves accountable before you are held accountable, and weigh your deeds before they are weighed</div></div><p><img src="Resources/IMAGES/212/8529ad6b-0a82-4c8e-bb53-2950453930b8.jpg" style="width: 425px;" class="fr-fic fr-dib imgResponsive fr-bordered" data-type="image" data-image-id="8529ad6b-0a82-4c8e-bb53-2950453930b8" data-session-id="212" data-insertion-id="17eaed9d-f5f8-4317-917d-30fbca59beea" data-content-type="image"></p><div class="poetry-poet-header" style="display: flex; justify-content: space-between; align-items: center;"><h4 style="margin: 0; color: #722727; font-weight: bold; font-size: 1.2em;"><i class="fa fa-feather" style="margin-right: 8px; color: #5c726a;" aria-hidden="true"></i>Rumi</h4></div><p><br></p><p><br></p><div class="esotericBlock"><div class="esoteric-header"><i class="fa fa-eye" aria-hidden="true"></i><span class="esoteric-title">ESOTERICS</span></div><div class="esotericData"><p>This state of aimless wandering is reminiscent of the stories of Mulla Nasruddin. In one tale, Mulla Nasruddin is wandering the streets in the early morning hours. When a policeman asks him what he is doing, he replies, "If I knew the answer to that, I'd be at home in bed."</p></div></div><div class="etymology-container" data-content-type="etymology-basic" data-id="9bb7060625a542e5bca1293bec2def50" data-type="etymology-basic" style="width: 80%; margin: 40px auto; padding: 0 15px; box-sizing: border-box;"><div class="etymology-card" style="transform: translateY(0px);"><div class="etymology-header"><h3 class="arabic-term">REFLECTION</h3></div><div class="etymology-details">This reflects the reality of many people who wander through life in a stupor, constantly seeking distractions and entertainment to avoid the pain of existence. The great scholar Rumi speaks of the many "wines" Allah has put on Earth to numb people's misery. He notes that Jesus (AS) was "drunk in the love of Allah, while his donkey was high on barley."</div></div></div><p>&nbsp;</p><p><img src="Resources/IMAGES/212/db87d717-8f7f-482d-95ac-8ad5dc3b32e5.jpg" style="width: 435px;" class="fr-fic fr-dib imgResponsive fr-bordered" data-type="image" data-image-id="db87d717-8f7f-482d-95ac-8ad5dc3b32e5" data-session-id="212" data-insertion-id="d5d65529-534a-4a57-9177-2e3dff864c40" data-content-type="image"></p><p>This attitude of "whatever gets you through the night," as John Lennon said, is a form of ingratitude from the Islamic perspective. The messengers have already brought the news and guidance, yet people refuse to accept it.&nbsp;</p><p><br></p><p>It is like being thirsty and given directions to a river, but choosing instead to watch a show or play a video game to forget the thirst. This is ingratitude.</p><p>Another story of Mulla Nasruddin illustrates a similar point: he was searching for his keys under a streetlight, and when someone asked him where he lost them, he pointed to a dark area away from the light. When asked why he was looking where he was, he replied, "The light is better over here, right?" This highlights another type of truth concealment: going where it is easy instead of where it is hard. This is where we begin to dilute religion to make our lives comfortable. Messengers, as human beings, set an incredible precedent by following Allah's Book to the letter, proving that what is decreed is humanly possible to achieve.</p><h2>Heedlessness and the Allegory of Plato's Cave</h2><p>The human condition is defined by heedlessness or forgetfulness, a state the Quran refers to as <span class="inlineArabic">غفلۃ</span>. We are distracted by the fleeting "shine and glimmer" of this world, lost in what can be likened to a "vanity fair." A servant sent by the king to the marketplace gets sidetracked by a fair on the way. He gets lost in the fun, forgets his purpose, and by the time he realizes the sun has set, the marketplace is closed. This metaphor illustrates our immersion in heedlessness, where we become preoccupied with this world's powerful distractions.</p><p>So, how do we remind ourselves daily that this world is temporal and a greater journey awaits? From the Muslim perspective, the answer is remembrance, <span class="inlineArabic">الذکر</span>. This is why the Quran is also called <span class="inlineArabic">الذکر</span>—because it constantly reminds us of our true purpose. In contrast to our forgetful natures, messengers are awakened beings. All prophets share four common qualities:</p><ul><li>Truthfulness: they never lie.</li><li>Trustworthiness: their word is their bond.</li><li>Conveyance: they have the ability to articulate and convey the message.</li><li>Wakefulness: <span class="inlineArabic">فَطانا</span>.</li></ul><p>Messengers are individuals who have woken up to the truth, much like the freed prisoner in Plato's allegory of the cave. In Plato's story, prisoners chained since birth see only the shadows cast on a wall, mistaking these illusions for reality. When one prisoner is freed and dragged into the sunlight, he is initially disoriented and finds the truth hard to believe. But gradually, his eyes adjust until he can finally look at the sun itself—the ultimate source of light. He returns to the cave to share his discovery, but the other prisoners, comfortable in their ignorance, see his newfound "blindness" in the darkness as a sign of madness and violently resist his attempts to free them.</p><p>Plato presents this as an analogy for the challenges messengers face. The cave represents this <span class="inlineArabic">دنیا</span>, and the world outside the cave is the <span class="inlineArabic">آخرۃ</span>. Everything we see in this world is a mere reflection of the Hereafter. But people are often so comfortable in their ignorance that they become hostile to anyone who points out the truth. Worse, they aren't even interested in examining the proposition itself. This spiritual laziness is what is known as "acedia." While often translated as sloth, in Christian theology, acedia was spiritual sloth—an unwillingness to seek the truth due to sheer arrogance.</p><p>Allah describes such individuals as <span class="inlineArabic">مُّقْمَحُونَ</span>. The term <span class="inlineArabic">مُقمَح</span> comes from camels: <span class="inlineArabic">قَمَحَ الجَمَل فَھُوَ قَامِحُون</span>. When a camel is brought to water, it may raise its head, refusing to drink. That is the essence of a <span class="inlineArabic">مقمح</span>. The messenger brings them to the river of knowledge to quench their thirst, but they are too arrogant to bow their heads and drink. They ask, "The Quran? Why should I read that book?" But one in every four people believes it is from Allah, which in itself is a good reason to be interested. It is because of this heedlessness that the Quran always juxtaposes <span class="inlineArabic">غفلۃ</span> (heedlessness) with <span class="inlineArabic">ذکر</span> (remembrance). As Allah says:</p><div class="ayah-card" id="ayah-card-30-7"><div class="golden-surah-header clickable-ayah-header" data-ayats="7" data-original-token="Q|30:7" data-surah="30" id="ayah-header-30-7"><span>The Romans (30:7).</span></div><p class="ayah-arabic">&rlm; &rlm;يَعْلَمُونَ ظَهرًۭا مّنَ ٱلْحَيَوٰة ٱلدُّنْيَا وَهُمْ عَن ٱلْآخرَة هُمْ غَفلُونَ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-7.png" alt="7">&nbsp;&lrm;</p><div class="translation-header">Translation:.</div><p class="ayah-translation">They know what is apparent of the worldly life, but they, of the Hereafter, are unaware.&nbsp;</p></div><p>The universal message of all prophets is <span class="inlineArabic">لا الہ الا اللہ</span>. The second part of the declaration of faith changes with each era, from <span class="inlineArabic">موسی رسول اللہ</span> to <span class="inlineArabic">عیسی رسول اللہ</span>, and finally, for us, <span class="inlineArabic">محمد الرسول اللہ</span>. All messengers were sent to remind humanity about Allah and pull them out of their state of heedlessness.</p><h2>The Debt of Submission: A Call from a Merciful Lord</h2><p>Our religion is called <span class="inlineArabic">دین الاسلام</span>. The word <span class="inlineArabic">اسلام</span> comes from the root <span class="inlineArabic">سلم</span>, meaning to submit, specifically, to willingly submit out of love for Allah. The word <span class="inlineArabic">دین</span> comes from <span class="inlineArabic">دَیْن</span>, which means debt. Therefore, our religion, <span class="inlineArabic">دینُ الاسلام</span>, literally translates to "the debt of willing submission." The idea is that we have been endowed with innumerable blessings by our Lord, and for these blessings, we owe Him a debt of gratitude through our willing submission.</p><div class="ayah-card" id="ayah-card-3-83"><div class="golden-surah-header clickable-ayah-header" data-ayats="83" data-original-token="Q|3:83" data-surah="3" id="ayah-header-3-83"><span>The Family of Imran (3:83).</span></div><p class="ayah-arabic">&rlm; &rlm;أَفَغَيْرَ دين ٱللَّه يَبْغُونَ وَلَهُ أَسْلَمَ مَن فى ٱلسَّمَوَت وَٱلْأَرْض طَوْعًۭا وَكَرْهًۭا وَإلَيْه يُرْجَعُونَ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-83.png" alt="83">&nbsp;&lrm;</p><div class="translation-header">Translation:.</div><p class="ayah-translation">So is it other than the religion of Allah they desire, while to him have submitted [all] those within the heavens and earth, willingly or by compulsion, and to him they will be returned?&nbsp;</p></div><p>&nbsp;Allah questions whether we seek to avoid repaying this debt, when everything in existence is already doing so, willingly or unwillingly. The sun, a celestial body immense in size, rises and sets according to its decree, fulfilling its purpose. It is in a state of submission, yet the human being, insignificant in comparison, is not. The same applies to galaxies, mountains, rivers, and the animal kingdom; they all exist in a state of submission to their Creator. Even human beings must submit to their own nature—eating, drinking, sleeping—and to the limitations of their physical bodies. Everything in existence is paying back its debt of submission to its Creator, willingly or unwillingly—except the human being.</p><p>The crucial difference is that humanity is asked for willing submission (<span class="inlineArabic">طَوْعًۭا</span>), out of love, not by force (<span class="inlineArabic">كَرْهًۭا</span>). We will be held accountable for this debt on the Day of Judgment, <span class="inlineArabic">یوم الدین</span>, the day when this debt of willing submission falls due. It is also called <span class="inlineArabic">یوم الحساب</span>, the Day of Accountability. Rasul Allah (SWS) said in a Hadith:</p><div class="inserted-hadees ks-ahadees-container" data-collection="unknown" data-id="129" data-token="H|129" data-type="hadees" id="ahadees-1757669933719-742"><div class="hadees-header ks-ahadees-header"><h4><i class="fa fa-comment ks-ahadees-header-icon" aria-hidden="true"></i>Muhammad Ibn Abdullah (SWS)<span class="ks-ahadees-subject">- Accountability, Deeds</span></h4></div><div class="hadees-arabic ks-ahadees-arabic">حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا، وَزِنُوا أَعْمَالَكُمْ قَبْلَ أَنْ تُوزَنُوا</div><div class="hadees-english ks-ahadees-english">Hold yourselves accountable before you are held accountable, and weigh your deeds before they are weighed</div></div><p>Interestingly, while we owe a debt to Allah, Allah also has a "debt" to us. When a master gives a command to a slave, the fulfillment of that command incurs a debt on the slave. If the slave obeys, the master owes him a reward. If he disobeys, he owes him a punishment. This is the essence of <span class="inlineArabic">یوم الدین</span>, the day when the debt falls due for both. This is why Allah says in the Quran:</p><p>Allah is asking for a loan, so that He can multiply its rewards and pay it back to His slave many times over. The ultimate reward for this beautiful loan is described as:</p><div class="ayah-card" id="ayah-card-57-11"><div class="golden-surah-header clickable-ayah-header" data-ayats="11" data-original-token="Q|57:11" data-surah="57" id="ayah-header-57-11"><span>Iron (57:11)</span></div><p class="ayah-arabic">&rlm; &rlm;مَّن ذَا ٱلَّذى يُقْرضُ ٱللَّهَ قَرْضًا حَسَنًۭا فَيُضَعفَهُ لَهُ وَلَهُ أَجْرٌۭ كَريمٌۭ &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-11.png" alt="11">&nbsp;&lrm;</p><div class="translation-header">Translation:.</div><p class="ayah-translation">Who is it that would loan Allah a goodly loan so he will multiply it for him and he will have a noble reward?&nbsp;</p></div><p>This wake-up call is the very purpose of the messengers: to rouse humanity from its state of <span class="inlineArabic">غفلۃ</span>. The word <span class="inlineArabic">غفلۃ</span> is particularly interesting. In Arabic linguistics, words beginning with the letter <span class="inlineArabic">غین</span> often imply a covering, hiding, or veiling, such as <span class="inlineArabic">غاب</span> (to be absent) or <span class="inlineArabic">غفر</span> (to forgive). Our intellects, in a state of <span class="inlineArabic">غفلۃ</span>, become veiled by the temptations of this <span class="inlineArabic">دنیا</span>. A simpleton is called a <span class="inlineArabic">مُغَفَّل</span> because they are easily deceived. The term <span class="inlineArabic">غفلۃ</span> also means lactose intolerance, an inability to digest the most beneficial thing for mankind, which serves as powerful imagery for a person's refusal to accept divine benefit. Scholars have said that all sin and wrongdoing are rooted in <span class="inlineArabic">غفلۃ</span>, for if Allah was truly present in your heart, it would be impossible to sin. Allah asks in the Quran:</p><div class="ayah-card" id="ayah-card-82-6"><div class="golden-surah-header clickable-ayah-header" data-ayats="6" data-original-token="Q|82:6" data-surah="82" id="ayah-header-82-6"><span>The Cleaving (82:6).</span></div><p class="ayah-arabic">&rlm; &rlm;يَأَيُّهَا ٱلْإنسَنُ مَا غَرَّكَ برَبّكَ ٱلْكَريم &lrm; <img class="ayah-number-img fr-fic fr-dii" src="https://myislam.sfo3.digitaloceanspaces.com/assets/2024/03/ayat/ayah-6.png" alt="6">&nbsp;&lrm;</p><div class="translation-header">Translation:.</div><p class="ayah-translation">O mankind, what has deceived you concerning your lord, the generous.</p></div><p>As one scholar noted, Allah has put the answer to the question within the question itself. It is Allah's immense generosity, <span class="inlineArabic">کرم</span>, that has made us delusional. We are heedless about our sins because He does not react with immediate punishment. The people who are most loving and generous with us are often the ones we take for granted the most. Allah's immense mercy makes us bold in our transgressions because we forget that He is our Master, and that is <span class="inlineArabic">غفلۃ</span>.</p><p>An incredible Hadith describes a conversation between Allah and His angels, the oceans, and the earth. They say:&nbsp;</p><p><!--ETYMOLOGY_INSERT_MARKER--> <!--AHADEES_INSERT_MARKER--></p><p>Not a single day passes that the oceans do not ask their Lord for permission to drown the children of Adam; and the earth asks its Lord for permission to swallow them; and the angels ask His permission to hasten their destruction and annihilate them. The earth says, "O Allah, grant me permission to swallow them all. They walk on Your earth, eat from it, and do not prostrate to You!" The angels exclaim, "O Allah, grant us permission! In an instant we will annihilate this lot for their arrogance." The earth, oceans, and angels are Allah's creation, and they are filled with anger at seeing their beloved Creator disobeyed. But our Creator, the One we constantly ignore, says:</p><p><br></p></div>
-        </div>
+        <!-- USER VIEW CONTAINER -->
+        <div id="user-view-container" class="w-full">
+            <div class="flex flex-col items-center w-full">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-4 tracking-wider">USER VIEW</h2>
+                
+                <!-- Panel 1 Container: Custom Gold Border Style -->
+                <div class="w-full bg-white rounded-3xl shadow-xl border-outer-gold overflow-hidden">
+                    <div class="p-6">
 
-        <!-- Footer -->
-        <div class="bg-gray-800 text-white py-8 mt-auto">
-            <div class="max-w-4xl mx-auto px-4 text-center">
-                <p class="text-sm text-gray-400">Session Transcript Styling Demo - Enhanced Islamic Content Display</p>
-                <p class="text-xs text-gray-500 mt-2">Created for testing session-transcript.css styling enhancements</p>
+                        <!-- ======================================================= -->
+                        <!-- PANEL STYLE 1: TABBED Q&A INTERFACE -->
+                        <!-- ======================================================= -->
+                        
+                        <!-- Tabs -->
+                        <div class="flex border-b border-gray-200 -mx-6 px-6">
+                            <!-- Active Tab: Q&A -->
+                            <button class="flex items-center space-x-2 py-3 px-6 bg-white rounded-t-xl font-semibold border-b-2 border-green-600 text-green-600 shadow-t-lg -mb-0.5">
+                                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                                <span>Q&A</span>
+                            </button>
+                            <!-- Inactive Tab: Participants -->
+                            <button class="flex items-center space-x-2 py-3 px-6 bg-gray-100 rounded-t-xl font-medium text-gray-500 hover:bg-gray-200">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                                <span>Participants</span>
+                            </button>
+                        </div>
+                        
+                        <h2 class="text-xl font-semibold text-gray-700 mt-6 mb-4">Recent Questions</h2>
+                        
+                        <!-- Question Item 1 (Editable - Green/Default Style) - NO UPVOTE SECTION -->
+                        <div class="flex items-start p-4 mb-4 rounded-xl border-inner-dark-green bg-light-green shadow-md">
+                            <!-- Content Section -->
+                            <div class="flex-grow pl-2"> <!-- Added pl-2 for alignment -->
+                                <p class="font-medium text-gray-800 text-base">Who are the Ahl al-Bayt?</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-sm font-medium text-green-600">Your Question</span>
+                                    <div class="flex space-x-2">
+                                        <!-- UPDATED: Edit Button -->
+                                        <button class="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 transition text-white shadow-md">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </button>
+                                        <!-- UPDATED: Delete Button -->
+                                        <button class="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question Item 2 (Editable - Green/Default Style) - NO UPVOTE SECTION -->
+                        <div class="flex items-start p-4 mb-4 rounded-xl border-inner-dark-green bg-light-green shadow-md">
+                            <!-- Content Section -->
+                            <div class="flex-grow pl-2"> <!-- Added pl-2 for alignment -->
+                                <p class="font-medium text-gray-800 text-base">What is Hajj and why is it important?</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-sm font-medium text-green-600">Your Question</span>
+                                    <div class="flex space-x-2">
+                                        <!-- UPDATED: Edit Button -->
+                                        <button class="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 transition text-white shadow-md">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </button>
+                                        <!-- UPDATED: Delete Button -->
+                                        <button class="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- New Question Item 3 (Read-only - Orange Style) - HAS UPVOTE SECTION -->
+                        <div class="flex items-start p-4 mb-4 rounded-xl border-inner-dark-orange bg-light-orange shadow-md">
+                            <!-- Upvote Section - Added space-y-1 -->
+                            <div class="flex flex-col items-center mr-4 mt-1 space-y-1">
+                                <i data-lucide="arrow-up" class="w-6 h-6 text-[#CC5500]"></i> <!-- Icon color matching border -->
+                                <!-- Removed -mt-1 -->
+                                <span class="text-lg font-bold text-gray-700 bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center shadow-inner">3</span>
+                            </div>
+                            <!-- Content Section -->
+                            <div class="flex-grow">
+                                <!-- Changed from font-serif to font-roboto -->
+                                <p class="font-medium text-gray-800 text-base font-roboto">What are the steps for calculating Zakat?</p>
+                                <!-- No "Your Question" or edit/delete buttons -->
+                            </div>
+                        </div>
+
+                        <!-- New Question Item 4 (Read-only - Orange Style) - HAS UPVOTE SECTION -->
+                        <div class="flex items-start p-4 rounded-xl border-inner-dark-orange bg-light-orange shadow-md">
+                            <!-- Upvote Section - Added space-y-1 -->
+                            <div class="flex flex-col items-center mr-4 mt-1 space-y-1">
+                                <i data-lucide="arrow-up" class="w-6 h-6 text-[#CC5500]"></i> <!-- Icon color matching border -->
+                                <!-- Removed -mt-1 -->
+                                <span class="text-lg font-bold text-gray-700 bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center shadow-inner">15</span>
+                            </div>
+                            <!-- Content Section -->
+                            <div class="flex-grow">
+                                <!-- Changed from font-serif to font-roboto -->
+                                <p class="font-medium text-gray-800 text-base font-roboto">Is fasting valid without having Suhoor?</p>
+                                <!-- No "Your Question" or edit/delete buttons -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
+        
+        <!-- HOST VIEW CONTAINER -->
+        <div id="host-view-container" class="w-full hidden">
+            <div class="flex flex-col items-center w-full">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-4 tracking-wider">HOST VIEW</h2>
+                
+                <!-- Panel 2 Container: Custom Gold Border Style -->
+                <div class="w-full bg-white rounded-3xl shadow-xl border-outer-gold overflow-hidden">
+                    <div class="p-6">
+                        
+                        <!-- ======================================================= -->
+                        <!-- PANEL STYLE 2: QUESTIONS & ANSWERS -->
+                        <!-- ======================================================= -->
+                        
+                        <!-- Header -->
+                        <div class="flex items-center mb-6">
+                            <i data-lucide="book-open-check" class="w-6 h-6 text-green-600 mr-2"></i>
+                            <h1 class="text-xl font-bold text-gray-800">Questions & Answers</h1>
+                        </div>
+
+                        <!-- Question Item 1 -->
+                        <div class="flex items-center justify-between p-4 mb-4 rounded-xl border border-red-500 bg-white shadow-md">
+                            <!-- Question and User Info -->
+                            <div class="flex flex-col flex-grow min-w-0 pr-4">
+                                <div class="flex items-center text-gray-800">
+                                    <i data-lucide="help-circle" class="w-4 h-4 text-blue-500 mr-2 flex-shrink-0"></i>
+                                    <p class="font-medium truncate">Who are the Ahl al-Bayt?</p>
+                                </div>
+                                <span class="flex items-center w-fit mt-1 px-3 py-1 text-xs font-semibold text-white bg-blue-600 rounded-full shadow-sm">
+                                    <i data-lucide="user" class-r="w-3 h-3 mr-1"></i>
+                                    Diana Prince
+                                </span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex space-x-2 flex-shrink-0">
+                                <button class="p-2 rounded-lg bg-green-500 hover:bg-green-600 transition text-white shadow-md">
+                                    <i data-lucide="check" class="w-5 h-5"></i>
+                                </button>
+                                <button class="p-2 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Question Item 2 -->
+                        <div class="flex items-center justify-between p-4 rounded-xl border border-red-500 bg-white shadow-md">
+                            <!-- Question and User Info -->
+                            <div class="flex flex-col flex-grow min-w-0 pr-4">
+                                <div class="flex items-center text-gray-800">
+                                    <i data-lucide="help-circle" class="w-4 h-4 text-blue-500 mr-2 flex-shrink-0"></i>
+                                    <p class="font-medium truncate">What is Hajj and why is it important?</p>
+                                </div>
+                                <span class="flex items-center w-fit mt-1 px-3 py-1 text-xs font-semibold text-white bg-blue-600 rounded-full shadow-sm">
+                                    <i data-lucide="user" class-r="w-3 h-3 mr-1"></i>
+                                    Diana Prince
+                                </span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex space-x-2 flex-shrink-0">
+                                <button class="p-2 rounded-lg bg-green-500 hover:bg-green-600 transition text-white shadow-md">
+                                    <i data-lucide="check" class="w-5 h-5"></i>
+                                </button>
+                                <button class="p-2 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
+    <!-- END MAIN WRAPPER -->
+
+    <!-- Script to render Lucide icons and handle view switching -->
+    <script>
+        lucide.createIcons();
+
+        const userView = document.getElementById('user-view-container');
+        const hostView = document.getElementById('host-view-container');
+        const userBtn = document.getElementById('user-btn');
+        const hostBtn = document.getElementById('host-btn');
+
+        /**
+         * Switches the active view and updates the button styles.
+         * @param {string} viewId - The ID of the view container to show ('user-view-container' or 'host-view-container').
+         */
+        function showView(viewId) {
+            // Hide all views
+            userView.style.display = 'none';
+            hostView.style.display = 'none';
+
+            // Deactivate all buttons
+            userBtn.classList.remove('active');
+            hostBtn.classList.remove('active');
+
+            // Show the selected view and activate the corresponding button
+            if (viewId === 'user-view-container') {
+                userView.style.display = 'block';
+                userBtn.classList.add('active');
+            } else if (viewId === 'host-view-container') {
+                hostView.style.display = 'block';
+                hostBtn.classList.add('active');
+            }
+        }
+
+        // Add event listeners
+        userBtn.addEventListener('click', () => showView('user-view-container'));
+        hostBtn.addEventListener('click', () => showView('host-view-container'));
+
+        // Initialize view on load (default to USER VIEW)
+        window.onload = function() {
+            showView('user-view-container');
+            lucide.createIcons();
+        };
+
+    </script>
+</body>
+</html>

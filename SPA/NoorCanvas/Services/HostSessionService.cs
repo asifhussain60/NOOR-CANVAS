@@ -125,7 +125,7 @@ namespace NoorCanvas.Services
                     _logger.LogDebug("[DEBUG-WORKITEM:session-opener:dropdown-load] Albums response length: {Length} bytes ;CLEANUP_OK", 
                         jsonContent?.Length ?? 0);
                     
-                    albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent, new JsonSerializerOptions
+                    albums = JsonSerializer.Deserialize<List<NoorCanvas.Controllers.AlbumData>>(jsonContent ?? string.Empty, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }) ?? new List<NoorCanvas.Controllers.AlbumData>();

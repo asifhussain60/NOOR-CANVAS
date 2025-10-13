@@ -64,28 +64,28 @@ namespace NoorCanvas.Services
                 bool shouldInjectButtons = sessionId.HasValue &&
                                           (sessionStatus == "Active" || sessionStatus == "Waiting");
 
-                if (shouldInjectButtons)
-                {
-                    _logger.LogInformation(
-                        "UnifiedHtmlTransformService: Injecting share buttons for session {SessionId}",
-                        sessionId);
-
-                    cleanedHtml = await _assetProcessingService.InjectAssetShareButtonsAsync(
-                        cleanedHtml,
-                        sessionId.Value.ToString());
-                }
-                else
-                {
-                    _logger.LogInformation(
-                        "UnifiedHtmlTransformService: Skipping share button injection - SessionId: {SessionId}, Status: {Status}",
-                        sessionId, sessionStatus);
-                }
-
+            if (shouldInjectButtons)
+            {
                 _logger.LogInformation(
-                    "UnifiedHtmlTransformService: Host transformation complete - Original: {OriginalLength}, Final: {FinalLength}",
-                    html.Length, cleanedHtml.Length);
+                    "UnifiedHtmlTransformService: Injecting share buttons for session {SessionId}",
+                    sessionId);
 
-                return cleanedHtml;
+                cleanedHtml = await _assetProcessingService.InjectAssetShareButtonsAsync(
+                    cleanedHtml,
+                    sessionId!.Value.ToString());
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "UnifiedHtmlTransformService: Skipping share button injection - SessionId: {SessionId}, Status: {Status}",
+                    sessionId, sessionStatus);
+            }
+
+            _logger.LogInformation(
+                "UnifiedHtmlTransformService: Host transformation complete - Original: {OriginalLength}, Final: {FinalLength}",
+                html.Length, cleanedHtml.Length);
+
+            return cleanedHtml;
             }
             catch (Exception ex)
             {
@@ -135,7 +135,7 @@ namespace NoorCanvas.Services
                     "UnifiedHtmlTransformService: Participant transformation complete - Original: {OriginalLength}, Final: {FinalLength}",
                     html.Length, cleanedHtml.Length);
 
-                return cleanedHtml;
+            return cleanedHtml;
             }
             catch (Exception ex)
             {

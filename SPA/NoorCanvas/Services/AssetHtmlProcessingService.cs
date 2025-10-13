@@ -146,7 +146,7 @@ namespace NoorCanvas.Services
                     {
                         Success = true,
                         Message = $"Successfully processed {detectedAssets.Count} assets, injected {shareButtonsInjected} share buttons",
-                        sessionId = sessionId,
+                        SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -163,7 +163,7 @@ namespace NoorCanvas.Services
                     {
                         Success = false,
                         Message = $"Processing error: {ex.Message}",
-                        sessionId = sessionId,
+                        SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -215,7 +215,7 @@ namespace NoorCanvas.Services
                     {
                         Success = true,
                         Message = $"Successfully processed {detectedAssets.Count} assets",
-                        sessionId = sessionId,
+                        SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -232,7 +232,7 @@ namespace NoorCanvas.Services
                     {
                         Success = false,
                         Message = $"Processing error: {ex.Message}",
-                        sessionId = sessionId,
+                        SessionId = sessionId,
                         ProcessedAt = DateTime.UtcNow
                     }
                 };
@@ -613,7 +613,7 @@ namespace NoorCanvas.Services
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
-        public int sessionId { get; set; }
+        public int SessionId { get; set; }
         public DateTime ProcessedAt { get; set; }
         public int AssetCount { get; set; }
         public Dictionary<string, int> AssetTypeBreakdown { get; set; } = new();
