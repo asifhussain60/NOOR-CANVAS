@@ -991,8 +991,6 @@
 
                                         @if (isMyQuestion)
                                         {
-                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:action-buttons-trace] Rendering green card for own question - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
-                                                
                                             <!-- GREEN THEME: Own Question Card (Vertical Layout) -->
                                             <div class="canvas-question-item question-item-style-green">
                                                 
@@ -1017,8 +1015,6 @@
                                                 
                                                 <!-- BOTTOM SECTION: Owner Label (NO vote section) -->
                                                 <div class="canvas-question-footer">
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:owner-label-trace] Rendering 'Your Question' label - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
-                                                    
                                                     <span class="canvas-question-owner-label owner-label-color">
                                                         Your Question
                                                     </span>
@@ -1030,11 +1026,7 @@
                                         }
                                         else
                                         {
-                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:vote-active-trace] Rendering sienna card with active vote - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted} ;CLEANUP_OK",
-                                                question.QuestionId, question.Votes, hasVoted);
-                                            
                                             <!-- SIENNA THEME: Other Users' Question Card (Single Row Layout) -->
-                                            
                                             <div class="canvas-question-item question-item-style-sienna" style="flex-direction:row;align-items:flex-start;gap:1rem;">
                                                 
                                                 <!-- LEFT SIDE: Question Text (flex-grow to take most space) -->
@@ -1061,9 +1053,6 @@
                                                 </div>
                                             </div>
                                         }
-                                        
-                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-complete-trace] Question card rendered - QuestionId={QuestionId}, Theme={Theme} ;CLEANUP_OK",
-                                            question.QuestionId, isMyQuestion ? "Green" : "Sienna");
                                     }
                                 }
                                 else
