@@ -348,12 +348,12 @@ namespace NoorCanvas.Controllers
                         questionId, newVotes);
 
                     // Broadcast vote update via SignalR
-                    var sessionGroup = $"Session_{session.SessionId}";
+                    var sessionGroup = $"session_{session.SessionId}";
                     _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ BROADCASTING TO SIGNALR ════════ ;CLEANUP_OK");
                     _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR Group={Group}, Event=QuestionVoteUpdate, Payload={{questionId={QuestionId}, votes={Votes}}} ;CLEANUP_OK",
                         sessionGroup, questionId, newVotes);
                     
-                    _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Broadcasting vote update - SessionGroup=Session_{SessionId}, QuestionId={QuestionId}, NewVotes={NewVotes} ;CLEANUP_OK",
+                    _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Broadcasting vote update - SessionGroup=session_{SessionId}, QuestionId={QuestionId}, NewVotes={NewVotes} ;CLEANUP_OK",
                         session.SessionId, questionId, newVotes);
                     
                     await _sessionHub.Clients.Group(sessionGroup)
@@ -632,13 +632,13 @@ namespace NoorCanvas.Controllers
                     isAnswered = questionData.ContainsKey("isAnswered") ? GetBoolFromJsonElement(questionData["isAnswered"]) : false
                 };
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Preparing SignalR broadcast - QuestionId={QuestionId}, Text={Text}, SessionGroup=Session_{SessionId} ;CLEANUP_OK",
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Preparing SignalR broadcast - QuestionId={QuestionId}, Text={Text}, SessionGroup=session_{SessionId} ;CLEANUP_OK",
                     requestId, updatedQuestionData.questionId, updatedQuestionData.text.Substring(0, Math.Min(30, updatedQuestionData.text.Length)), session.SessionId);
 
-                await _sessionHub.Clients.Group($"Session_{session.SessionId}")
+                await _sessionHub.Clients.Group($"session_{session.SessionId}")
                     .SendAsync("QuestionUpdated", updatedQuestionData);
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] QuestionUpdated broadcast sent to Session_{SessionId} ;CLEANUP_OK",
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] QuestionUpdated broadcast sent to session_{SessionId} ;CLEANUP_OK",
                     requestId, session.SessionId);
 
                 // Notify hosts
@@ -727,7 +727,7 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully from database ;CLEANUP_OK", requestId);
 
                 // Notify all session participants via SignalR
-                await _sessionHub.Clients.Group($"Session_{session.SessionId}")
+                await _sessionHub.Clients.Group($"session_{session.SessionId}")
                     .SendAsync("QuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
 
                 // Notify hosts via SignalR
