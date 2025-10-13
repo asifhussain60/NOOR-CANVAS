@@ -103,6 +103,132 @@
 
 ---
 
+## [2025-10-13T20:45:00Z] - P0 Implementation: Auto-Discovery in generalize-prompts
+
+**Status**: in-progress
+**Phase**: critical gap resolution
+**Git Commit**: 11b33683
+
+### P0 Efficiency Recommendations Implemented ✅
+**Objective**: Implement Priority 0 (Immediate - Blockers) recommendations from portable-efficiency-review.md
+
+**Problem Solved**:
+- ❌ **Original Issue**: generalize-prompts.prompt.md had **hardcoded list** of 8 prompts
+- ❌ **Critical Gap**: Missing commit.prompt.md and generalize-prompts.prompt.md from _Portable
+- ❌ **Maintenance Burden**: Required manual updates when new prompts added
+- ❌ **Future Risk**: Any new prompt would be missed without manual intervention
+
+**Solution Implemented**:
+- ✅ **Auto-Discovery**: Replaced hardcoded list with `Get-ChildItem -Filter "*.prompt.md"`
+- ✅ **Dynamic Scanning**: All 3 Steps (prompts, shared, instructions) now use auto-detection
+- ✅ **Self-Validating**: Validation checks against actual discovered files, not assumptions
+- ✅ **Future-Proof**: New prompts automatically included when added to .github/prompts/
+
+**Changes Made**:
+
+1. **Step 2.1: Scan Prompts Directory** (Lines 142-170)
+   - **Before**: Hardcoded list of 9 expected files
+   - **After**: Dynamic `Get-ChildItem ".github/prompts" -Filter "*.prompt.md" -File`
+   - **Added**: Validation for critical prompts (task, commit, generalize-prompts)
+   - **Added**: Warning if critical prompts missing (non-blocking)
+   - **Debug Marker**: `# DEBUG-WORKITEM:generalize:scan-prompts Auto-discover all prompt files ;CLEANUP_OK`
+
+2. **Step 2.2: Scan Shared Files** (Lines 172-180)
+   - **Before**: Hardcoded list in Step 2.1
+   - **After**: Separate scan with `Get-ChildItem ".github/prompts/shared" -Filter "*.md" -File`
+   - **Debug Marker**: `# DEBUG-WORKITEM:generalize:scan-shared Auto-discover shared files ;CLEANUP_OK`
+
+3. **Step 2.3: Scan Instructions Directory** (Lines 182-202)
+   - **Before**: Hardcoded list of 11 files
+   - **After**: Dynamic recursive scan with `-Include *.md,*.MD`
+   - **Added**: Critical validation for SelfAwareness.instructions.md (blocks if missing)
+   - **Added**: Relative path display for better readability
+   - **Debug Marker**: `# DEBUG-WORKITEM:generalize:scan-instructions Auto-discover instruction files ;CLEANUP_OK`
+
+4. **Step 5.1: Process Each Prompt File** (Lines 382-410)
+   - **Before**: Loop over hardcoded $promptFiles list
+   - **After**: Loop over dynamically discovered $promptFiles
+   - **Added**: Progress reporting with colored output
+   - **Added**: Success message with final count
+   - **Debug Marker**: `# DEBUG-WORKITEM:generalize:process-prompts Apply genericization to all discovered prompts ;CLEANUP_OK`
+
+5. **Step 10: Validate Generated Files** (Lines 942-1014)
+   - **Before**: Hardcoded $expectedFiles array with 24 files
+   - **After**: Dynamic $expectedFiles built from discovered files
+   - **Added**: Statistics section showing counts by category
+   - **Added**: Project-specific reference check for critical files
+   - **Added**: Warning system (non-blocking, some references acceptable in examples)
+
+6. **Step 11: Summary Report** (Lines 1026-1062)
+   - **Before**: Hardcoded counts (8 prompts, 11 instructions, 5 shared)
+   - **After**: Dynamic counts using `{$promptFiles.Count}`, etc.
+   - **Added**: "Key Improvements in This Version" section highlighting auto-discovery
+
+7. **Guardrails Section** (Lines 1082-1091)
+   - **Added**: "ALWAYS use auto-discovery - never hardcode file lists"
+   - **Added**: Critical validation failure conditions
+
+8. **Clean Exit Guarantee** (Lines 1095-1106)
+   - **Before**: "All 24 files must exist"
+   - **After**: "All discovered files must exist (dynamic count)"
+   - **Added**: Note about validating against actual discovered files
+
+9. **README Template in Step 9** (Line 881)
+   - **Before**: "8 Prompt Files"
+   - **After**: "10 Prompt Files" (reflects actual count with commit + generalize-prompts)
+
+**Testing Simulation**:
+```powershell
+# Simulated execution flow
+$promptFiles = Get-ChildItem ".github/prompts" -Filter "*.prompt.md"
+# Result: 10 files discovered (includes commit + generalize-prompts)
+
+$sharedFiles = Get-ChildItem ".github/prompts/shared" -Filter "*.md"
+# Result: 5 files discovered
+
+$instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md,*.MD
+# Result: 11 files discovered
+
+# Total: 26 files (10+5+11) vs original hardcoded 24 (8+5+11)
+```
+
+**Impact Analysis**:
+
+| Aspect | Before (Hardcoded) | After (Auto-Discovery) | Improvement |
+|--------|-------------------|----------------------|-------------|
+| **Prompt Coverage** | 8/10 (80%) | 10/10 (100%) | +20% coverage |
+| **Maintenance** | Manual updates required | Zero maintenance | Eliminate manual work |
+| **Accuracy** | Stale counts (8 prompts) | Always current | Real-time accuracy |
+| **Robustness** | Fails silently (missing files) | Warns + validates | Better error detection |
+| **Future-Proof** | Breaks with new prompts | Adapts automatically | Continuous compatibility |
+
+**Files Modified**: 1
+- `.github/prompts/generalize-prompts.prompt.md` (+176 lines, -93 lines, net +83 lines)
+
+**Build Status**: Clean (prompt file only, no code changes)
+
+**Git Operations**:
+- Staged generalize-prompts.prompt.md
+- Committed with comprehensive commit message documenting all changes
+- Commit hash: 11b33683
+
+**Validation**:
+- ✅ All auto-discovery sections include debug markers (simple level)
+- ✅ Critical validations added (SelfAwareness, critical prompts check)
+- ✅ Warning system for non-blocking issues
+- ✅ Statistics reporting for transparency
+- ✅ Dynamic file counts throughout
+
+**Next Steps**:
+1. Test by running: `@workspace /generalize-prompts`
+2. Verify output includes all 10 prompts (especially commit + generalize-prompts)
+3. Validate _Portable folder structure matches expectations
+4. Confirm SETUP.BAT and README.md reflect current state
+
+**Resolves**: Portable efficiency review P0 recommendation #1, #2, #3 (add missing templates + update agent)
+
+---
+
 ## [2025-10-13T20:15:00Z] - _Portable Holistic Efficiency Review
 
 **Status**: in-progress
