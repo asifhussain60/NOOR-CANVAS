@@ -947,3 +947,13 @@ else
 **Next**: Create Playwright test to verify delete propagation to all connected users and host
 
 ---
+
+## [2025-10-13T19:30:00Z] - task (COMPREHENSIVE DELETION FIX)
+**Status**: in-progress | **Phase**: deletion-flow-complete-rewrite | **Commit**: 9d3adf92  
+**Work**: ? ROOT CAUSE: Host deletion was UI-only (database rows persisted, broadcasts never sent)  
+**Fix**: Complete HostControlPanel.ConfirmDelete() rewrite with API integration + 7-step trace logging  
+**Architecture**: UI ? API ? canvas.SessionData DELETE ? SignalR broadcasts ? All clients update  
+**Files**: 4 modified (HostControlPanel.razor, QuestionController.cs, SessionCanvas.razor, test)  
+**Trace Markers**: [DEBUG-WORKITEM:canvas:delete:TRACE] ;CLEANUP_OK  
+**Build**: ? PASS | **Next**: Manual testing + Playwright verification  
+**Git**: 9d3adf9226d7a66e58150c9232d66ced8e3fe749
