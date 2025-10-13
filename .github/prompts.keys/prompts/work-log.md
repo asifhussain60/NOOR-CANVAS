@@ -1573,3 +1573,18 @@ git checkout [commit-hash] -- [file]      # Restore specific file version
 
 ---
 
+## [2025-10-13T21:30:00Z] - Task Agent
+
+**Status**: in-progress | **Phase**: infrastructure reorganization | **Commit**: e63e964a
+
+**Work**: Infrastructure reorganization and prompt system improvements
+- Moved `prompts.keys/` from `Workspaces/Copilot/` to `.github/` for better organization
+- Renamed `generalize-prompts.prompt.md` → `normalize.prompt.md` (shorter, clearer)
+- Enhanced task.prompt.md with Step 0 for intelligent Kestrel process checking
+
+**Files**: 141 modified | **Tests**: N/A (infrastructure) | **Build**: PASS
+
+**Next**: Continue prompt system improvements
+
+---
+
