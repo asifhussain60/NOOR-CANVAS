@@ -289,8 +289,21 @@ namespace NoorCanvas.Controllers
                 var questionData = JsonSerializer.Deserialize<Dictionary<string, object>>(questionRecord.Content ?? "{}");
                 if (questionData != null)
                 {
-                    var currentVotes = questionData.ContainsKey("votes") ?
-                        Convert.ToInt32(questionData["votes"]) : 0;
+                    var currentVotes = 0;
+                    if (questionData.ContainsKey("votes"))
+                    {
+                        var votesValue = questionData["votes"];
+                        if (votesValue is JsonElement jsonElement)
+                        {
+                            currentVotes = jsonElement.ValueKind == JsonValueKind.Number
+                                ? jsonElement.GetInt32()
+                                : 0;
+                        }
+                        else
+                        {
+                            currentVotes = Convert.ToInt32(votesValue);
+                        }
+                    }
 
                     var newVotes = request.Direction?.ToLower() == "up" ? currentVotes + 1 : currentVotes - 1;
                     questionData["votes"] = newVotes;
@@ -571,6 +584,8 @@ namespace NoorCanvas.Controllers
                 questionRecord.Content = JsonSerializer.Serialize(questionData);
                 await _context.SaveChangesAsync();
 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Question updated in database - QuestionId={QuestionId}, NewText={NewText} ;CLEANUP_OK",
+                    requestId, questionId, request.QuestionText.Trim().Substring(0, Math.Min(50, request.QuestionText.Trim().Length)));
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully ;CLEANUP_OK", requestId);
 
                 // Broadcast update via SignalR
@@ -584,13 +599,21 @@ namespace NoorCanvas.Controllers
                     isAnswered = questionData.ContainsKey("isAnswered") ? GetBoolFromJsonElement(questionData["isAnswered"]) : false
                 };
 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Preparing SignalR broadcast - QuestionId={QuestionId}, Text={Text}, SessionGroup=Session_{SessionId} ;CLEANUP_OK",
+                    requestId, updatedQuestionData.questionId, updatedQuestionData.text.Substring(0, Math.Min(30, updatedQuestionData.text.Length)), session.SessionId);
+
                 await _sessionHub.Clients.Group($"Session_{session.SessionId}")
                     .SendAsync("QuestionUpdated", updatedQuestionData);
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] QuestionUpdated broadcast sent to Session_{SessionId} ;CLEANUP_OK",
+                    requestId, session.SessionId);
 
                 // Notify hosts
                 await _sessionHub.Clients.Group($"Host_{session.SessionId}")
                     .SendAsync("HostQuestionUpdated", updatedQuestionData);
 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] HostQuestionUpdated broadcast sent to Host_{SessionId} ;CLEANUP_OK",
+                    requestId, session.SessionId);
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] SignalR notifications sent ;CLEANUP_OK", requestId);
 
                 return Ok(new UpdateQuestionResponse
