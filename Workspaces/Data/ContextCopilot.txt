@@ -3,43 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Styles Recreation</title>
+    <title>Fixed Question Card</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide icons for better visual matching -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Load Roboto font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght400;500;700&display=swap" rel="stylesheet">
+    <!-- Load Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Setting the default font to Inter (or a safe sans-serif fallback) */
-        html {
+        /* Using Inter font as required */
+        body {
             font-family: 'Inter', sans-serif;
-        }
-        /* Custom border style for outer panels: 2px solid #D4AF37 (Gold/Bronze) */
-        .border-outer-gold {
-            border: 2px solid #D4AF37;
-        }
-        /* Inner Green Question border: 1px solid #006400 (Dark Green) - Used for Right and Bottom only */
-        .border-inner-dark-green {
-            border-right: 1px solid #006400;
-            border-bottom: 1px solid #006400;
-            border-top: 1px solid #006400; /* Reverted to 1px */
-        }
-        /* New Inner Orange Question border: 1px solid #CC5500 (Dark Orange) - Used for Right and Bottom only */
-        .border-inner-dark-orange {
-            border-right: 1px solid #CC5500;
-            border-bottom: 1px solid #CC5500;
-            border-top: 1px solid #CC5500; /* Reverted to 1px */
-        }
-        /* Style for the active toggle button */
-        .view-btn.active {
-            background-color: #D4AF37; /* Gold background */
-            color: #fff;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-        }
-        .view-btn {
             background-color: #f3f4f6;
-            color: #4b5563;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        /* Override specific classes for demonstration while keeping original styling */
+        .canvas-question-text {
+            word-wrap: break-word; /* Ensure long words wrap */
+        }
+        
+        /* --- Refactored Inline Styles --- */
+
+        /* Styles for the main card container (background, colors, custom borders) */
+        .question-item-style {
+            border-color: #006400;
+            background-color: #ECFDF5;
+            border-width: 2px;
+            border-left-width: 6px;
+        }
+
+        /* Color for the question text */
+        .question-text-color {
+            color: #006400;
+        }
+
+        /* Color for "Your Question" owner label (Golden) */
+        .owner-label-color {
+            color: #D4AF37;
+        }
+
+        /* Style for the disabled vote button (Green and translucent) */
+        .vote-button-style {
+            color: #07751f;
+            cursor: default;
+            opacity: 0.5;
+        }
+
+        /* Color for the vote count (Green) */
+        .vote-count-color {
+            color: #07751f;
         }
     </style>
     <script>
@@ -47,263 +60,69 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        // Define 'roboto' font family for use with class 'font-roboto'
-                        'roboto': ['Roboto', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                     },
-                    colors: {
-                        'custom-green': '#34D399',
-                        'light-green': '#ECFDF5', 
-                        'deep-green': '#059669', /* Dark Green for left border */
-                        /* New light orange background color */
-                        'light-orange': '#FFF7ED', 
-                    }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-gray-50 flex flex-col items-center min-h-screen p-8">
+<body>
 
-    <!-- MAIN WRAPPER -->
-    <div class="w-full max-w-4xl mx-auto">
+<!-- Main container for the canvas (to make the card stand out) -->
+<!-- Width is restricted to a maximum of 300px (max-w-[300px]) -->
+<div class="p-6 max-w-[300px] w-full">
 
-        <!-- TOGGLE BUTTONS -->
-        <div class="flex justify-center space-x-4 mb-8">
-            <button id="user-btn" class="view-btn px-8 py-3 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] transition duration-300">
-                USER VIEW
-            </button>
-            <button id="host-btn" class="view-btn px-8 py-3 rounded-xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] transition duration-300">
-                HOST VIEW
-            </button>
+    <!-- Fixed Card Structure. Custom styling now applied via the .question-item-style class. -->
+    <div class="canvas-question-item rounded-xl shadow-lg p-4 sm:p-6 flex flex-col space-y-2 question-item-style">
+        
+        <!-- TOP ROW: Action Buttons (Moved above the question text and pushed to the right) -->
+        <div class="canvas-question-actions flex justify-end w-full space-x-1">
+            
+            <!-- Edit Button with Border - Smaller size (p-1, text-base) -->
+            <span class="canvas-question-edit-button p-1 border border-blue-500 rounded-lg cursor-pointer hover:bg-blue-50 transition duration-150">
+                <i class="fa-solid fa-pen text-base text-blue-500"></i>
+            </span>
+            
+            <!-- Delete Button with Border - Smaller size (p-1, text-base) -->
+            <span class="canvas-question-delete-button p-1 border border-red-500 rounded-lg cursor-pointer hover:bg-red-50 transition duration-150">
+                <i class="fa-solid fa-trash-can text-base text-red-500"></i>
+            </span>
         </div>
 
-        <!-- USER VIEW CONTAINER -->
-        <div id="user-view-container" class="w-full">
-            <div class="flex flex-col items-center w-full">
-                <h2 class="text-3xl font-extrabold text-gray-800 mb-4 tracking-wider">USER VIEW</h2>
-                
-                <!-- Panel 1 Container: Custom Gold Border Style -->
-                <div class="w-full bg-white rounded-3xl shadow-xl border-outer-gold overflow-hidden">
-                    <div class="p-6">
-
-                        <!-- ======================================================= -->
-                        <!-- PANEL STYLE 1: TABBED Q&A INTERFACE -->
-                        <!-- ======================================================= -->
-                        
-                        <!-- Tabs -->
-                        <div class="flex border-b border-gray-200 -mx-6 px-6">
-                            <!-- Active Tab: Q&A -->
-                            <button class="flex items-center space-x-2 py-3 px-6 bg-white rounded-t-xl font-semibold border-b-2 border-green-600 text-green-600 shadow-t-lg -mb-0.5">
-                                <i data-lucide="help-circle" class="w-5 h-5"></i>
-                                <span>Q&A</span>
-                            </button>
-                            <!-- Inactive Tab: Participants -->
-                            <button class="flex items-center space-x-2 py-3 px-6 bg-gray-100 rounded-t-xl font-medium text-gray-500 hover:bg-gray-200">
-                                <i data-lucide="users" class="w-5 h-5"></i>
-                                <span>Participants</span>
-                            </button>
-                        </div>
-                        
-                        <h2 class="text-xl font-semibold text-gray-700 mt-6 mb-4">Recent Questions</h2>
-                        
-                        <!-- Question Item 1 (Editable - Green/Default Style) -->
-                        <div class="flex items-start p-4 mb-4 rounded-r-xl rounded-bl-xl border-inner-dark-green bg-light-green shadow-md border-l-4 border-deep-green">
-                            <!-- Content Section -->
-                            <div class="flex-grow pl-2"> <!-- Added pl-2 for alignment -->
-                                <p class="font-medium text-gray-800 text-base">Who are the Ahl al-Bayt?</p>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="text-sm font-medium text-green-600">Your Question</span>
-                                    <div class="flex space-x-2">
-                                        <!-- UPDATED: Edit Button -->
-                                        <button class="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 transition text-white shadow-md">
-                                            <i data-lucide="pencil" class="w-4 h-4"></i>
-                                        </button>
-                                        <!-- UPDATED: Delete Button -->
-                                        <button class="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Question Item 2 (Editable - Green/Default Style) -->
-                        <div class="flex items-start p-4 mb-4 rounded-r-xl rounded-bl-xl border-inner-dark-green bg-light-green shadow-md border-l-4 border-deep-green">
-                            <!-- Content Section -->
-                            <div class="flex-grow pl-2"> <!-- Added pl-2 for alignment -->
-                                <p class="font-medium text-gray-800 text-base">What is Hajj and why is it important?</p>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="text-sm font-medium text-green-600">Your Question</span>
-                                    <div class="flex space-x-2">
-                                        <!-- UPDATED: Edit Button -->
-                                        <button class="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 transition text-white shadow-md">
-                                            <i data-lucide="pencil" class="w-4 h-4"></i>
-                                        </button>
-                                        <!-- UPDATED: Delete Button -->
-                                        <button class="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- New Question Item 3 (Read-only - Orange Style) - HAS UPVOTE SECTION -->
-                        <div class="flex items-start p-4 mb-4 rounded-r-xl rounded-bl-xl border-inner-dark-orange bg-light-orange shadow-md border-l-4 border-[#CC5500]">
-                            <!-- Upvote Section - Added space-y-1 -->
-                            <div class="flex flex-col items-center mr-4 mt-1 space-y-1">
-                                <i data-lucide="arrow-up" class="w-6 h-6 text-[#CC5500]"></i> <!-- Icon color matching border -->
-                                <!-- Removed -mt-1 -->
-                                <span class="text-lg font-bold text-gray-700 bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center shadow-inner">3</span>
-                            </div>
-                            <!-- Content Section -->
-                            <div class="flex-grow">
-                                <!-- Changed from font-serif to font-roboto -->
-                                <p class="font-medium text-gray-800 text-base font-roboto">What are the steps for calculating Zakat?</p>
-                                <!-- No "Your Question" or edit/delete buttons -->
-                            </div>
-                        </div>
-
-                        <!-- New Question Item 4 (Read-only - Orange Style) - HAS UPVOTE SECTION -->
-                        <div class="flex items-start p-4 rounded-r-xl rounded-bl-xl border-inner-dark-orange bg-light-orange shadow-md border-l-4 border-[#CC5500]">
-                            <!-- Upvote Section - Added space-y-1 -->
-                            <div class="flex flex-col items-center mr-4 mt-1 space-y-1">
-                                <i data-lucide="arrow-up" class="w-6 h-6 text-[#CC5500]"></i> <!-- Icon color matching border -->
-                                <!-- Removed -mt-1 -->
-                                <span class="text-lg font-bold text-gray-700 bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center shadow-inner">15</span>
-                            </div>
-                            <!-- Content Section -->
-                            <div class="flex-grow">
-                                <!-- Changed from font-serif to font-roboto -->
-                                <p class="font-medium text-gray-800 text-base font-roboto">Is fasting valid without having Suhoor?</p>
-                                <!-- No "Your Question" or edit/delete buttons -->
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+        <!-- MIDDLE ROW: Question Text (Spans the full width below the buttons) -->
+        <div class="canvas-question-content w-full">
+            <div class="canvas-question-header">
+                <!-- Color now applied via the .question-text-color class. -->
+                <span class="canvas-question-text text-lg sm:text-xl leading-snug question-text-color">
+                    What are the names of the five daily prayers?
+                </span>
             </div>
         </div>
         
-        <!-- HOST VIEW CONTAINER -->
-        <div id="host-view-container" class="w-full hidden">
-            <div class="flex flex-col items-center w-full">
-                <h2 class="text-3xl font-extrabold text-gray-800 mb-4 tracking-wider">HOST VIEW</h2>
-                
-                <!-- Panel 2 Container: Custom Gold Border Style -->
-                <div class="w-full bg-white rounded-3xl shadow-xl border-outer-gold overflow-hidden">
-                    <div class="p-6">
-                        
-                        <!-- ======================================================= -->
-                        <!-- PANEL STYLE 2: QUESTIONS & ANSWERS -->
-                        <!-- ======================================================= -->
-                        
-                        <!-- Header -->
-                        <div class="flex items-center mb-6">
-                            <i data-lucide="book-open-check" class="w-6 h-6 text-green-600 mr-2"></i>
-                            <h1 class="text-xl font-bold text-gray-800">Questions & Answers</h1>
-                        </div>
+        <!-- BOTTOM SECTION (FOOTER): Owner Label (Left) and Vote Section (Right) -->
+        <div class="flex justify-between items-end w-full pt-3 border-t border-gray-200">
+            
+            <!-- LEFT SIDE: Owner Label - Color now applied via the .owner-label-color class. -->
+            <span class="canvas-question-owner-label text-sm font-medium whitespace-nowrap owner-label-color">
+                Your Question
+            </span>
 
-                        <!-- Question Item 1 -->
-                        <div class="flex items-center justify-between p-4 mb-4 rounded-xl border border-red-500 bg-white shadow-md">
-                            <!-- Question and User Info -->
-                            <div class="flex flex-col flex-grow min-w-0 pr-4">
-                                <div class="flex items-center text-gray-800">
-                                    <i data-lucide="help-circle" class="w-4 h-4 text-blue-500 mr-2 flex-shrink-0"></i>
-                                    <p class="font-medium truncate">Who are the Ahl al-Bayt?</p>
-                                </div>
-                                <span class="flex items-center w-fit mt-1 px-3 py-1 text-xs font-semibold text-white bg-blue-600 rounded-full shadow-sm">
-                                    <i data-lucide="user" class-r="w-3 h-3 mr-1"></i>
-                                    Diana Prince
-                                </span>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="flex space-x-2 flex-shrink-0">
-                                <button class="p-2 rounded-lg bg-green-500 hover:bg-green-600 transition text-white shadow-md">
-                                    <i data-lucide="check" class="w-5 h-5"></i>
-                                </button>
-                                <button class="p-2 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Question Item 2 -->
-                        <div class="flex items-center justify-between p-4 rounded-xl border border-red-500 bg-white shadow-md">
-                            <!-- Question and User Info -->
-                            <div class="flex flex-col flex-grow min-w-0 pr-4">
-                                <div class="flex items-center text-gray-800">
-                                    <i data-lucide="help-circle" class="w-4 h-4 text-blue-500 mr-2 flex-shrink-0"></i>
-                                    <p class="font-medium truncate">What is Hajj and why is it important?</p>
-                                </div>
-                                <span class="flex items-center w-fit mt-1 px-3 py-1 text-xs font-semibold text-white bg-blue-600 rounded-full shadow-sm">
-                                    <i data-lucide="user" class-r="w-3 h-3 mr-1"></i>
-                                    Diana Prince
-                                </span>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="flex space-x-2 flex-shrink-0">
-                                <button class="p-2 rounded-lg bg-green-500 hover:bg-green-600 transition text-white shadow-md">
-                                    <i data-lucide="check" class="w-5 h-5"></i>
-                                </button>
-                                <button class="p-2 rounded-lg bg-red-500 hover:bg-red-600 transition text-white shadow-md">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+            <!-- RIGHT SIDE: Vote Section -->
+            <div class="canvas-question-vote-section flex items-center text-sm">
+                <!-- Style now applied via the .vote-button-style class. -->
+                <button class="canvas-question-vote-button p-1 rounded-full flex items-center" 
+                        disabled="" 
+                        title="You cannot vote on your own question vote-button-style">
+                    <i class="fa-solid fa-thumbs-up text-base"></i>
+                </button>
+                <!-- Color now applied via the .vote-count-color class (removed conflicting text-gray-700). -->
+                <span class="canvas-question-vote-count font-bold ml-1 vote-count-color">0</span>
             </div>
         </div>
-        
+
     </div>
-    <!-- END MAIN WRAPPER -->
+</div>
 
-    <!-- Script to render Lucide icons and handle view switching -->
-    <script>
-        lucide.createIcons();
-
-        const userView = document.getElementById('user-view-container');
-        const hostView = document.getElementById('host-view-container');
-        const userBtn = document.getElementById('user-btn');
-        const hostBtn = document.getElementById('host-btn');
-
-        /**
-         * Switches the active view and updates the button styles.
-         * @param {string} viewId - The ID of the view container to show ('user-view-container' or 'host-view-container').
-         */
-        function showView(viewId) {
-            // Hide all views
-            userView.style.display = 'none';
-            hostView.style.display = 'none';
-
-            // Deactivate all buttons
-            userBtn.classList.remove('active');
-            hostBtn.classList.remove('active');
-
-            // Show the selected view and activate the corresponding button
-            if (viewId === 'user-view-container') {
-                userView.style.display = 'block';
-                userBtn.classList.add('active');
-            } else if (viewId === 'host-view-container') {
-                hostView.style.display = 'block';
-                hostBtn.classList.add('active');
-            }
-        }
-
-        // Add event listeners
-        userBtn.addEventListener('click', () => showView('user-view-container'));
-        hostBtn.addEventListener('click', () => showView('host-view-container'));
-
-        // Initialize view on load (default to USER VIEW)
-        window.onload = function() {
-            showView('user-view-container');
-            lucide.createIcons();
-        };
-
-    </script>
 </body>
 </html>

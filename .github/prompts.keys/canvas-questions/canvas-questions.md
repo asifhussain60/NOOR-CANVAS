@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T12:05:00Z
+- **Last Updated**: 2025-10-13T12:12:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -440,3 +440,202 @@ grep "canvas-questions:ownership.*Rendering question"
 - Session 212 is canonical test session from `PlaywrightTestPaths.MD`
 - UserGuid is stored in sessionStorage key: `noor_user_guid_{SessionToken}`
 - Ownership detection happens in real-time via SignalR, not on page load
+
+## UI Enhancements (2025-10-13)
+
+### Changes Implemented
+Three UI improvements to the question display layout:
+
+#### 1. Added Borders to Edit/Delete Buttons
+**File**: `SessionCanvas.razor` (Lines 649-674)
+**Changes**:
+- Edit button: Added 1.5px solid border in blue (#3B82F6) with 0.25rem border-radius
+- Delete button: Added 1.5px solid border in red (#EF4444) with 0.25rem border-radius
+- Hover states: Border color matches text color transition
+- Purpose: Better visual definition and clickable affordance
+
+**CSS Classes Modified**:
+```css
+.canvas-question-edit-button {
+    border: 1.5px solid #3B82F6;
+    border-radius: 0.25rem;
+}
+
+.canvas-question-delete-button {
+    border: 1.5px solid #EF4444;
+    border-radius: 0.25rem;
+}
+```
+
+#### 2. Moved "Your Question" Label Inline with Vote Section
+**File**: `SessionCanvas.razor` (Lines 956-1010)
+**Changes**:
+- Removed separate owner label section below question text
+- Moved "Your Question" label into `.canvas-question-vote-section`
+- Label now appears on same line as thumbs-up icon and vote badge
+- Label displays BEFORE vote elements for own questions
+
+**HTML Structure Change**:
+```html
+<!-- Before: Label was separate below question text -->
+<div class="canvas-question-content">
+    <span class="canvas-question-owner-label">Your Question</span>
+</div>
+
+<!-- After: Label inside vote section -->
+<div class="canvas-question-vote-section">
+    <span class="canvas-question-owner-label">Your Question</span>
+    <button class="canvas-question-vote-button">...</button>
+    <span class="canvas-question-vote-count">...</span>
+</div>
+```
+
+**CSS Modified**:
+```css
+.canvas-question-owner-label {
+    margin-left: 0.5rem;      /* Changed from margin-top: 0.5rem */
+    display: inline-block;     /* Changed from display: block */
+}
+```
+
+#### 3. Reduced Spacing for Compact Layout
+**File**: `SessionCanvas.razor` (Lines 441-444, 571-583, 585-591)
+**Changes**:
+
+**Questions Container**:
+- Gap reduced from `0.75rem` to `0.5rem` between question items
+
+**Question Item**:
+- Padding reduced from `1rem` to `0.75rem` on all sides
+- Bottom padding reduced from `2.5rem` to `0.75rem` (no longer needed for absolute positioning)
+- Margin-bottom reduced from `0.75rem` to `0.5rem`
+
+**Vote Section**:
+- Changed from `position: absolute` with `bottom/right` positioning
+- Now uses `margin-left: auto` for right alignment (flexbox)
+- Positioned inline with content, not overlaid at bottom
+
+**Before/After Comparison**:
+```css
+/* Before */
+.canvas-questions-container { gap: 0.75rem; }
+.canvas-question-item { padding: 1rem; padding-bottom: 2.5rem; margin-bottom: 0.75rem; }
+.canvas-question-vote-section { position: absolute; bottom: 0.5rem; right: 0.5rem; }
+
+/* After */
+.canvas-questions-container { gap: 0.5rem; }
+.canvas-question-item { padding: 0.75rem; padding-bottom: 0.75rem; margin-bottom: 0.5rem; }
+.canvas-question-vote-section { margin-left: auto; padding-left: 1rem; }
+```
+
+### Visual Impact
+- **Tighter Layout**: Reduced whitespace between and within question cards
+- **Better Definition**: Edit/delete buttons now have clear visual boundaries
+- **Inline Status**: "Your Question" label integrated with vote UI, not floating below
+- **Responsive Flow**: Vote section uses flexbox alignment instead of absolute positioning
+
+### Debug Logging
+No debug logging added (debug-level: trace specified but changes were pure UI/CSS)
+
+### Testing Recommendations
+1. Verify "Your Question" label appears inline with vote badge
+2. Verify edit/delete buttons have visible borders
+3. Verify reduced spacing doesn't cause layout issues on narrow screens
+4. Test responsiveness with long question text
+5. Verify vote section alignment on both own/others' questions
+
+## UI Layout Correction (2025-10-13 12:12)
+
+### Issue Identified
+Previous implementation had incorrect layout:
+- "Your Question" label was positioned on the right inline with vote section
+- Upvote icon and count were still displayed (but disabled) for own questions
+- Did not match the desired design from reference image
+
+### Corrective Changes
+
+#### 1. Repositioned "Your Question" Label
+**File**: `SessionCanvas.razor` (Line 675-681)
+**Change**: Moved label back below question text on the left side
+
+```css
+.canvas-question-owner-label {
+    margin-top: 0.5rem;     /* Changed from margin-left: 0.5rem */
+    display: block;         /* Changed from inline-block */
+}
+```
+
+**HTML Structure**:
+```html
+<div class="canvas-question-content">
+    <div class="canvas-question-header">
+        <span class="canvas-question-text">...</span>
+        <div class="canvas-question-actions">
+            <i class="canvas-question-edit-button">...</i>
+            <i class="canvas-question-delete-button">...</i>
+        </div>
+    </div>
+    <span class="canvas-question-owner-label">Your Question</span>
+</div>
+```
+
+#### 2. Removed Upvote Section for Own Questions
+**File**: `SessionCanvas.razor` (Lines 956-1010)
+**Change**: Vote section now only renders for other users' questions
+
+**Before**:
+```csharp
+<div class="canvas-question-vote-section">
+    @if (isMyQuestion) { /* Show label */ }
+    @if (!isMyQuestion) { /* Show upvote button */ }
+    else { /* Show disabled upvote button */ }  ← REMOVED
+</div>
+```
+
+**After**:
+```csharp
+@if (!isMyQuestion)
+{
+    <div class="canvas-question-vote-section">
+        <button class="canvas-question-vote-button">...</button>
+        <span class="canvas-question-vote-count">...</span>
+    </div>
+}
+else
+{
+    Logger.LogTrace("SKIPPING upvote section for own question");
+}
+```
+
+#### 3. Added Trace Logging
+**Debug markers added**:
+- `[DEBUG-WORKITEM:canvas-questions:ui]` - Edit/delete button rendering
+- `[DEBUG-WORKITEM:canvas-questions:ui]` - "Your Question" label rendering
+- `[DEBUG-WORKITEM:canvas-questions:upvote]` - Upvote section rendering (others only)
+- `[DEBUG-WORKITEM:canvas-questions:upvote]` - SKIPPING upvote for own question
+
+### Final Layout Structure
+
+**Own Questions**:
+```
+┌─────────────────────────────────────────────┐
+│ Question Text                    [✏️] [🗑️]  │
+│ Your Question                               │
+└─────────────────────────────────────────────┘
+```
+
+**Others' Questions**:
+```
+┌─────────────────────────────────────────────┐
+│ Question Text                      [👍] [0] │
+└─────────────────────────────────────────────┘
+```
+
+### Key Differences
+- ✅ "Your Question" label on LEFT below text (not right inline)
+- ✅ Edit/delete buttons on RIGHT in header
+- ✅ Upvote icon/count **completely hidden** for own questions (not just disabled)
+- ✅ Upvote section only rendered conditionally with `@if (!isMyQuestion)`
+
+### Build Status
+✅ Compilation successful (warnings for file lock due to running app)

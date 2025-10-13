@@ -441,7 +441,7 @@
     .canvas-questions-container {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .canvas-participants-container {
@@ -571,12 +571,12 @@
     .canvas-question-item {
         display: flex;
         align-items: flex-start;
-        padding: 1rem;
-        padding-bottom: 2.5rem; /* Extra space for vote section at bottom */
+        padding: 0.75rem;
+        padding-bottom: 0.75rem;
         border-radius: 0.75rem;
         border: 2px solid;
         border-left-width: 4px; /* Thicker left border */
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transition: all 0.2s;
         position: relative; /* For absolute positioning of vote section */
@@ -586,9 +586,8 @@
         display: flex;
         align-items: center;
         gap: 0.375rem;
-        position: absolute;
-        bottom: 0.5rem;
-        right: 0.5rem;
+        margin-left: auto;
+        padding-left: 1rem;
     }
 
     .canvas-question-vote-button {
@@ -652,10 +651,13 @@
         cursor: pointer;
         transition: all 0.2s;
         padding: 0.25rem;
+        border: 1.5px solid #3B82F6;
+        border-radius: 0.25rem;
     }
 
     .canvas-question-edit-button:hover {
         color: #2563EB;
+        border-color: #2563EB;
         transform: scale(1.1);
     }
 
@@ -665,10 +667,13 @@
         cursor: pointer;
         transition: all 0.2s;
         padding: 0.25rem;
+        border: 1.5px solid #EF4444;
+        border-radius: 0.25rem;
     }
 
     .canvas-question-delete-button:hover {
         color: #DC2626;
+        border-color: #DC2626;
         transform: scale(1.1);
     }
 
@@ -954,6 +959,8 @@
                                                     <span class="canvas-question-text" style="color:@(isMyQuestion ? "#006400" : "#CC5500");">@question.Text</span>
                                                     @if (isMyQuestion)
                                                     {
+                                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ui] Rendering edit/delete buttons for own question - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
+                                                        
                                                         <div class="canvas-question-actions">
                                                             <i @onclick="() => EditQuestion(index)" class="fa-solid fa-pen canvas-question-edit-button"></i>
                                                             <i @onclick="() => ShowDeleteModal(index)" class="fa-solid fa-trash-can canvas-question-delete-button"></i>
@@ -962,17 +969,19 @@
                                                 </div>
                                                 @if (isMyQuestion)
                                                 {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ui] Rendering 'Your Question' label below text - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
+                                                    
                                                     <span class="canvas-question-owner-label" style="color:#006400;">Your Question</span>
                                                 }
                                             </div>
                                             
-                                            <!-- Vote section positioned at bottom-right -->
-                                            <div class="canvas-question-vote-section">
-                                                @if (!isMyQuestion)
-                                                {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote button (positioned bottom-right) - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted}, Clickable=true ;CLEANUP_OK",
-                                                        question.QuestionId, question.Votes, hasVoted);
-                                                    
+                                            <!-- Vote section - ONLY shown for other users' questions -->
+                                            @if (!isMyQuestion)
+                                            {
+                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote section for other user's question - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted} ;CLEANUP_OK",
+                                                    question.QuestionId, question.Votes, hasVoted);
+                                                
+                                                <div class="canvas-question-vote-section">
                                                     <button @onclick="() => VoteQuestion(question.QuestionId)" 
                                                             @onclick:preventDefault="true"
                                                             @onclick:stopPropagation="true"
@@ -983,25 +992,16 @@
                                                         <i class="fa-solid fa-thumbs-up"></i>
                                                     </button>
                                                     <span class="canvas-question-vote-count">@question.Votes</span>
-                                                    
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote button rendered (bottom-right position) - QuestionId={QuestionId}, HasVoted={HasVoted}, Disabled={Disabled} ;CLEANUP_OK",
-                                                        question.QuestionId, hasVoted, hasVoted);
-                                                }
-                                                else
-                                                {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote count (own question, bottom-right) - QuestionId={QuestionId}, Votes={Votes}, Clickable=false ;CLEANUP_OK",
-                                                        question.QuestionId, question.Votes);
-                                                    
-                                                    <!-- Show upvote count for own questions but disable interaction -->
-                                                    <button class="canvas-question-vote-button" 
-                                                            style="color:@upvoteColor;cursor:default;opacity:0.5;" 
-                                                            disabled
-                                                            title="You cannot vote on your own question">
-                                                        <i class="fa-solid fa-thumbs-up"></i>
-                                                    </button>
-                                                    <span class="canvas-question-vote-count">@question.Votes</span>
-                                                }
-                                            </div>
+                                                </div>
+                                                
+                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote section rendered - QuestionId={QuestionId}, HasVoted={HasVoted} ;CLEANUP_OK",
+                                                    question.QuestionId, hasVoted);
+                                            }
+                                            else
+                                            {
+                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] SKIPPING upvote section for own question - QuestionId={QuestionId} (votes={Votes}) ;CLEANUP_OK",
+                                                    question.QuestionId, question.Votes);
+                                            }
                                         </div>
                                     }
                                 }
