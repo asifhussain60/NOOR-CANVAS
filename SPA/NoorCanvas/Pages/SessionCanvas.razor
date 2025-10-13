@@ -2619,8 +2619,9 @@
                         using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
                         var root = jsonDoc.RootElement;
                         
-                        var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
-                        var sessionId = root.TryGetProperty("SessionId", out var sIdProp) ? sIdProp.GetInt32() : 0;
+                        // SignalR serializes to camelCase, so use "questionId" not "QuestionId"
+                        var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                        var sessionId = root.TryGetProperty("sessionId", out var sIdProp) ? sIdProp.GetInt32() : 0;
                         
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
