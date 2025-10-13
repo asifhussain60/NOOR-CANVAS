@@ -305,6 +305,93 @@
                 }
             });
 
+            // [DEBUG-WORKITEM:canvas:delete:TRACE] Handle QuestionReceived events to keep HostControlPanel synchronized ;CLEANUP_OK
+            hubConnection.On<object>("QuestionReceived", async (questionData) =>
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 📨 QuestionReceived SIGNALR EVENT RECEIVED (HostControlPanel) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                
+                try
+                {
+                    if (questionData == null)
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Received null questionData ;CLEANUP_OK", requestId);
+                        return;
+                    }
+
+                    if (Model?.Questions == null)
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Model.Questions is null, cannot add question ;CLEANUP_OK", requestId);
+                        return;
+                    }
+
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Payload JSON: {Json} ;CLEANUP_OK", requestId, jsonString);
+                    
+                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDocument.RootElement;
+                    
+                    // SignalR serializes to camelCase
+                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    var questionText = root.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
+                    var userName = root.TryGetProperty("userName", out var userNameProp) ? userNameProp.GetString() : "Anonymous";
+                    var userId = root.TryGetProperty("userId", out var userIdProp) ? userIdProp.GetString() : "";
+                    var submittedAt = DateTime.UtcNow;
+                    if (root.TryGetProperty("submittedAt", out var submittedAtProp) && DateTime.TryParse(submittedAtProp.GetString(), out var parsedDate))
+                    {
+                        submittedAt = parsedDate;
+                    }
+
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Text: {Text} ;CLEANUP_OK", requestId, questionText ?? "NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - UserName: {UserName} ;CLEANUP_OK", requestId, userName);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - UserId: {UserId} ;CLEANUP_OK", requestId, userId);
+
+                    if (questionId != null && !string.IsNullOrEmpty(questionText))
+                    {
+                        // Check if question already exists (prevent duplicates)
+                        var existingQuestion = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
+                        if (existingQuestion != null)
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Question already exists in HostControlPanel, skipping ;CLEANUP_OK", requestId);
+                            return;
+                        }
+
+                        var newQuestion = new QuestionItem
+                        {
+                            Id = Guid.Parse(questionId),
+                            Text = questionText,
+                            UserName = userName,
+                            CreatedBy = userId,
+                            CreatedAt = submittedAt,
+                            IsAnswered = false,
+                            VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0
+                        };
+
+                        Model.Questions.Add(newQuestion);
+                        await InvokeAsync(StateHasChanged);
+
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ Question added to HostControlPanel.Questions ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Total Questions: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Invalid question data (missing ID or text) ;CLEANUP_OK", requestId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION processing QuestionReceived: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] HostControlPanel QuestionReceived handler COMPLETE ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+            });
+
             hubConnection.On<string>("TranscriptUpdated", async (transcript) =>
             {
                 if (Model != null)

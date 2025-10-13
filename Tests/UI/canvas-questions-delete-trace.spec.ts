@@ -1,4 +1,4 @@
-import { test, expect, Page, ConsoleMessage } from '@playwright/test';
+import { ConsoleMessage, expect, Page, test } from '@playwright/test';
 
 /**
  * canvas-questions-delete-trace.spec.ts
@@ -52,9 +52,9 @@ test.describe('Question Deletion with SignalR Trace', () => {
     test.afterAll(async () => {
         // Save console logs for analysis
         const fs = require('fs');
-        fs.writeFileSync('Workspaces/TEMP/delete-trace-userA.log', 
+        fs.writeFileSync('Workspaces/TEMP/delete-trace-userA.log',
             consoleLogsUserA.map(m => m.text()).join('\n'));
-        fs.writeFileSync('Workspaces/TEMP/delete-trace-userB.log', 
+        fs.writeFileSync('Workspaces/TEMP/delete-trace-userB.log',
             consoleLogsUserB.map(m => m.text()).join('\n'));
 
         await userAPage.close();
@@ -65,7 +65,7 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 1: User A joins session');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         await userAPage.goto('https://localhost:9091/user/landing/KJAHA99L');
         await userAPage.waitForTimeout(2000); // Wait for redirect to SessionCanvas
 
@@ -76,7 +76,7 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 2: User B joins session');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         await userBPage.goto('https://localhost:9091/user/landing/KJAHA99L');
         await userBPage.waitForTimeout(2000);
 
@@ -86,15 +86,15 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 3: User A submits question');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         const questionText = `[DELETE-TEST] Question submitted at ${new Date().toISOString()}`;
-        
+
         // Wait for Q&A input to be enabled (session must be active)
         await userAPage.waitForSelector('input[placeholder="Ask a question..."]', { state: 'visible' });
-        
+
         // Fill question input
         await userAPage.fill('input[placeholder="Ask a question..."]', questionText);
-        
+
         // Click submit button
         await userAPage.click('button:has-text("Submit")');
         console.log(`📝 User A submitted question: "${questionText}"`);
@@ -115,17 +115,17 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 4: User A deletes question');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         // Locate the question card that contains our test question
         const questionCard = userAPage.locator(`.canvas-question-item:has-text("${questionText}")`);
-        
+
         // Find the delete button within that question card
         const deleteButton = questionCard.locator('.canvas-question-delete-button');
-        
+
         // Verify delete button exists
         await expect(deleteButton).toBeVisible({ timeout: 2000 });
         console.log('✅ Delete button found in User A UI');
-        
+
         // Click delete button
         await deleteButton.click();
         console.log('🗑️ User A clicked delete button');
@@ -141,23 +141,23 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 5: Wait for API call and SignalR broadcasts');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         // Wait for API call to complete (modal should close)
         await userAPage.waitForSelector('.canvas-modal-overlay', { state: 'hidden', timeout: 5000 });
         console.log('✅ Modal closed (API call completed)');
 
         // Wait for question to disappear from User A UI
-        await userAPage.waitForSelector(`.canvas-question-item:has-text("${questionText}")`, { 
-            state: 'hidden', 
-            timeout: 5000 
+        await userAPage.waitForSelector(`.canvas-question-item:has-text("${questionText}")`, {
+            state: 'hidden',
+            timeout: 5000
         }).catch(() => {
             console.warn('⚠️ Question did NOT disappear from User A UI after 5 seconds');
         });
 
         // Wait for question to disappear from User B UI
-        await userBPage.waitForSelector(`.canvas-question-item:has-text("${questionText}")`, { 
-            state: 'hidden', 
-            timeout: 5000 
+        await userBPage.waitForSelector(`.canvas-question-item:has-text("${questionText}")`, {
+            state: 'hidden',
+            timeout: 5000
         }).catch(() => {
             console.warn('⚠️ Question did NOT disappear from User B UI after 5 seconds');
         });
@@ -165,7 +165,7 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 6: Verify deletion in UI');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         // Get question count after deletion
         const questionsAfterA = await userAPage.locator('.canvas-question-item').count();
         const questionsAfterB = await userBPage.locator('.canvas-question-item').count();
@@ -179,7 +179,7 @@ test.describe('Question Deletion with SignalR Trace', () => {
         // Verify question no longer exists
         const questionExistsA = await userAPage.locator(`.canvas-question-item:has-text("${questionText}")`).count();
         const questionExistsB = await userBPage.locator(`.canvas-question-item:has-text("${questionText}")`).count();
-        
+
         expect(questionExistsA).toBe(0);
         expect(questionExistsB).toBe(0);
         console.log('✅ Question removed from both User A and User B UI');
@@ -187,11 +187,11 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 7: Verify persistence (page refresh)');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         // Refresh User A page
         await userAPage.reload();
         await userAPage.waitForTimeout(2000);
-        
+
         // Verify question still does not exist after refresh
         const questionAfterRefreshA = await userAPage.locator(`.canvas-question-item:has-text("${questionText}")`).count();
         expect(questionAfterRefreshA).toBe(0);
@@ -200,14 +200,14 @@ test.describe('Question Deletion with SignalR Trace', () => {
         console.log('═════════════════════════════════════════════════════════');
         console.log('STEP 8: Analyze trace logs');
         console.log('═════════════════════════════════════════════════════════');
-        
+
         // Check for critical trace markers
-        const userADeleteLogs = consoleLogsUserA.filter(m => 
+        const userADeleteLogs = consoleLogsUserA.filter(m =>
             m.text().includes('DEBUG-WORKITEM:canvas-questions:delete') ||
             m.text().includes('DEBUG-WORKITEM:canvas:delete:TRACE')
         );
-        
-        const userBDeleteLogs = consoleLogsUserB.filter(m => 
+
+        const userBDeleteLogs = consoleLogsUserB.filter(m =>
             m.text().includes('QuestionDeleted') ||
             m.text().includes('DEBUG-WORKITEM:canvas:delete:TRACE')
         );
