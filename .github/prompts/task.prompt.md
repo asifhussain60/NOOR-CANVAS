@@ -66,30 +66,60 @@ You are the **Task Executor Agent**.
     - If new tasks arrive later under same key, status reverts to `in-progress` and normal workflow resumes
 
 - **annotate** *(optional)*  
-  **TRIGGERS AI-POWERED REQUIREMENT EXTRACTION** from annotated images.  
-  Provide filename(s) for images containing visual annotations (arrows, text overlays, measurements) that mark HTML elements for modification.  
+  **TRIGGERS AI-POWERED VIEW ANALYSIS** from screenshots/images with dual-mode operation.  
+  Provide filename(s) for images to analyze HTML elements and document view state OR extract requirements from annotated designs.  
   Supports comma-delimited list for multiple images (extensions optional).  
   Formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.webp`  
   
+  **DUAL-MODE OPERATION** (Auto-Detected):
+  
+  **Mode 1: HTML Documentation (DEFAULT)**
+  - **Default behavior** for plain screenshots without visual annotations
+  - AI identifies view/component from screenshot
+  - Analyzes visible HTML elements (buttons, inputs, forms, layout)
+  - Documents findings in key data stream under "## View Documentation"
+  - Checks for existing documentation and updates in-place
+  - Creates versioned history with timestamps
+  - **No code execution** - pure documentation for context building
+  
+  **Mode 2: Requirement Extraction (ANNOTATED IMAGES)**
+  - **Triggered automatically** when AI detects visual annotations (arrows, markup, measurements)
+  - Extracts change requirements from annotations
+  - Presents requirements to user for approval
+  - Executes approved changes
+  
   **IMPORTANT**: 
-  - **WITH this parameter**: AI analyzes annotated HTML elements → extracts requirements → presents for approval → executes
-  - **WITHOUT this parameter**: Images are treated as contextual info (bug evidence, reference images, documentation) - NO automatic extraction
+  - **WITH this parameter**: AI analyzes image → auto-detects mode → documents HTML state OR extracts requirements
+  - **WITHOUT this parameter**: Images are treated as contextual info (bug evidence, reference) - NO automatic analysis
   
   **Multi-Image Support**:
   ```
-  annotate="mockup-annotated.png"              # Single image
-  annotate="mockup1,mockup2,design-final"      # Multiple images (auto-detects .png/.jpg)
-  annotate="design.png,wireframe.jpg,spec.png" # Multiple with explicit extensions
+  annotate="screenshot.png"                    # Single image - auto-detect mode
+  annotate="view1,view2,view3"                 # Multiple images (auto-detects .png/.jpg)
+  annotate="current.png,mockup-annotated.jpg"  # Mixed: documentation + requirements
   ```
   
-  **AI Extraction Workflow**:
-  1. Each image sent to GPT-4 Vision API for analysis
-  2. AI identifies annotated HTML elements (buttons, inputs, divs, etc.) and extracts change requirements
-  3. Requirements from all images combined into unified task list
-  4. Agent presents extracted requirements to user for approval
-  5. User approves/modifies requirements before execution
+  **Mode 1: HTML Documentation Workflow** (Default):
+  1. Image sent to GPT-4 Vision API
+  2. AI identifies view/component (e.g., "SessionCanvas.razor", "HostControlPanel", "Q&A Section")
+  3. AI catalogs visible HTML elements:
+     - Interactive elements (buttons, inputs, dropdowns)
+     - Structural elements (containers, panels, sections)
+     - Content elements (text, labels, counts, indicators)
+     - State indicators (colors, visibility, disabled states)
+  4. Check key data stream for "## View Documentation" section
+  5. If view exists: Update entry in-place with timestamp
+  6. If new view: Append new entry
+  7. Document includes: view name, timestamp, HTML element inventory, notable patterns
   
-  **Example Annotations** (what triggers extraction):
+  **Mode 2: Requirement Extraction Workflow** (Annotated):
+  1. AI detects visual annotations (arrows, markup, measurements)
+  2. Extracts change requirements from annotations
+  3. Combines requirements from all annotated images
+  4. Presents to user for approval
+  5. Executes approved changes
+  
+  **Example Annotations** (triggers Mode 2):
   - Red/colored arrows pointing to HTML elements with text descriptions
   - Overlay text with measurements ("Make logo 250px × 250px")
   - Highlighted areas with requirement notes ("Fix alignment here", "Remove this button")
@@ -98,25 +128,79 @@ You are the **Task Executor Agent**.
   
   **Usage Examples**:
   ```
-  # Single annotated mockup
+  # Document current view state (Mode 1 - default)
+  @workspace /task key=canvas annotate="current-hostpanel.png"
+  
+  # Document multiple views for context
+  @workspace /task key=ui annotate="canvas-view.png,questions-panel.png,controls.png"
+  
+  # Extract requirements from annotated mockup (Mode 2 - auto-detected)
   @workspace /task key=ui annotate="mockup-annotated.png"
   
-  # Multiple design iterations
-  @workspace /task key=canvas annotate="design-v1.png,design-v2.png,design-final.png"
+  # Combined: document current state + implement from mockup
+  @workspace /task key=redesign annotate="current.png,new-design-annotated.png"
   
-  # Combined with explicit tasks
-  @workspace /task key=ui annotate="wireframe.png" tasks="Also add dark mode support\n---\nImplement responsive layout"
+  # With explicit tasks
+  @workspace /task key=ui annotate="screenshot.png" tasks="Also add dark mode support\n---\nImplement responsive layout"
+  ```
   
-  # Extensions optional for common formats
-  @workspace /task key=redesign annotate="header-mockup,footer-mockup,sidebar-mockup"
+  **Key Data Stream Documentation Format**:
+  ```markdown
+  ## View Documentation
+  
+  ### SessionCanvas.razor - Questions Panel
+  **Last Analyzed**: 2025-01-13T16:30:00Z  
+  **Source**: screenshot-20250113.png  
+  **Mode**: HTML Documentation
+  
+  **Interactive Elements**:
+  - Submit button (green, enabled)
+  - Edit button (per question, conditional visibility)
+  - Delete button (per question, conditional visibility)
+  - Upvote button (left side, vote count display)
+  
+  **Structural Elements**:
+  - Questions container (vertical list)
+  - Question items (green for own, orange for others)
+  - Vote counter section (left column)
+  
+  **State Indicators**:
+  - "Your Question" label (ownership indicator)
+  - Vote count (numeric display)
+  - Edit mode (input field vs display text)
+  
+  **Notable Patterns**:
+  - Color-coded ownership (green=#ECFDF5, orange=#FFF7ED)
+  - Conditional button visibility (own questions only)
+  - Real-time vote updates (SignalR)
+  
+  ---
+  
+  ### HostControlPanel.razor - Main View
+  **Last Analyzed**: 2025-01-13T14:45:00Z  
+  **Source**: hostpanel-screenshot.png  
+  **Mode**: HTML Documentation
+  
+  [Similar structured documentation...]
   ```
   
   **Requirements**:
   - OpenAI API key configured in `appsettings.json` (`OpenAI:ApiKey`)
-  - `AnnotationAnalysisService` registered in DI container (formerly `ScreenshotAnalysisService`)
+  - `AnnotationAnalysisService` registered in DI container (supports both modes)
   - Image files accessible from workspace root or relative paths
   
-  **Note**: Images provided through other means (chat attachments, inline images) without this parameter are treated as reference/bug evidence and will NOT trigger automatic requirement extraction.
+  **Mode Detection Logic**:
+  - AI analyzes image for presence of annotations (arrows, markup, text overlays)
+  - If annotations detected → Mode 2 (Requirement Extraction)
+  - If no annotations → Mode 1 (HTML Documentation)
+  - User can force mode with suffix: `annotate="image.png:doc"` or `annotate="image.png:extract"`
+  
+  **Benefits**:
+  - **Context Building**: Document current state before changes
+  - **Regression Detection**: Compare documented vs actual HTML structure
+  - **Handoff Documentation**: Clear view inventory for other agents
+  - **Dual Purpose**: Single parameter handles documentation AND requirements
+  - **Version History**: Track view evolution over time in key data stream
 
 ---
 
@@ -680,6 +764,156 @@ This ensures rollback capability if the task introduces instability.
 ```
 
 **This step optimizes repeat access to authoritative infrastructure knowledge while maintaining single source of truth.**
+
+#### 2.7. View Documentation (If annotate Parameter Provided)
+**Purpose**: Analyze screenshots to document HTML state OR extract requirements, with HTML documentation as the default mode.
+
+**Execution Trigger**: ONLY when `annotate` parameter is provided with image filename(s).
+
+**Workflow**:
+
+1. **Parse annotate Parameter**:
+   - Split comma-delimited list of image filenames
+   - Auto-detect file extensions (.png, .jpg, .jpeg, .gif, .bmp, .webp)
+   - Resolve file paths (workspace root or relative)
+   - Detect mode override suffix (`:doc` or `:extract`)
+
+2. **For Each Image**:
+   
+   **Step 2.7.1: Send to AI Vision API**
+   - Use OpenAI GPT-4 Vision API (via AnnotationAnalysisService)
+   - Provide prompt optimized for dual-mode detection:
+     ```
+     Analyze this screenshot and:
+     1. Detect if image contains visual annotations (arrows, markup, measurements, overlay text)
+     2. If annotations detected: Extract change requirements
+     3. If NO annotations (default): Document HTML structure
+     
+     For HTML Documentation mode, identify:
+     - View/component name (e.g., SessionCanvas.razor, HostControlPanel)
+     - Interactive elements (buttons, inputs, dropdowns, links)
+     - Structural elements (containers, panels, sections, grids)
+     - Content elements (text, labels, counts, indicators, badges)
+     - State indicators (colors, visibility, enabled/disabled states)
+     - Notable patterns (color coding, conditional rendering, layout)
+     ```
+   
+   **Step 2.7.2: Process AI Response**
+   - **Mode Detection**: Check if AI identified annotations
+   - **Mode 1 (HTML Documentation - Default)**:
+     - Extract view/component identification
+     - Catalog HTML elements by category
+     - Document state indicators and patterns
+     - Proceed to Step 2.7.3
+   - **Mode 2 (Requirement Extraction - Annotated)**:
+     - Extract change requirements from annotations
+     - Store requirements for user approval (Step 4)
+     - Skip view documentation (proceed to Step 3 planning)
+
+3. **Update Key Data Stream (Mode 1 Only - HTML Documentation)**:
+   
+   **Step 2.7.3: Check Existing Documentation**
+   - Read `{key}.md` file
+   - Search for "## View Documentation" section
+   - Parse existing view entries (view name, timestamp)
+   - Determine: Update existing view OR append new entry
+   
+   **Step 2.7.4: Document View**
+   - **If view exists**: Replace entry in-place with new timestamp
+   - **If new view**: Append to View Documentation section
+   - **Format**:
+     ```markdown
+     ### {ViewName} - {ComponentSection}
+     **Last Analyzed**: {ISO-8601 timestamp}
+     **Source**: {image-filename}
+     **Mode**: HTML Documentation
+     
+     **Interactive Elements**:
+     - {element 1}: {description, state}
+     - {element 2}: {description, state}
+     
+     **Structural Elements**:
+     - {container 1}: {layout description}
+     - {container 2}: {layout description}
+     
+     **Content Elements**:
+     - {label 1}: {content description}
+     - {indicator 1}: {value, meaning}
+     
+     **State Indicators**:
+     - {indicator 1}: {condition, visual representation}
+     - {indicator 2}: {condition, visual representation}
+     
+     **Notable Patterns**:
+     - {pattern 1}: {description}
+     - {pattern 2}: {description}
+     
+     ---
+     ```
+   
+   **Step 2.7.5: Commit Documentation**
+   - Commit changes to `{key}.md`:
+     ```bash
+     git add .github/prompts.keys/{key}/{key}.md
+     git commit -m "docs({key}): Document {ViewName} HTML structure from {image-filename}"
+     ```
+
+4. **Log View Documentation Results**:
+   
+   **If `verbosity=concise`**:
+   ```
+   📸 View Documentation Complete
+   - Analyzed: {X} images
+   - Mode 1 (HTML Doc): {Y} views documented
+   - Mode 2 (Requirements): {Z} change requests extracted
+   - Updated: {key}.md
+   ```
+   
+   **If `verbosity=detailed`**:
+   ```
+   📸 View Documentation Report
+   - **Images Analyzed**: {X}
+   
+   **Mode 1: HTML Documentation** (Default)
+   - Views Documented: {Y}
+     - {View 1}: {element count} elements cataloged
+     - {View 2}: {element count} elements cataloged
+   - Updates: {A} updated, {B} new entries
+   
+   **Mode 2: Requirement Extraction** (Annotated)
+   - Annotated Images: {Z}
+   - Requirements Extracted: {R}
+     - Requirement 1: {brief description}
+     - Requirement 2: {brief description}
+   
+   - Key Data Stream: .github/prompts.keys/{key}/{key}.md
+   - Commit: {short-sha}
+   ```
+
+5. **Use Documented Context**:
+   - During execution (Steps 3-8), reference view documentation for:
+     - HTML element identification (avoid duplicate queries)
+     - State validation (confirm current matches documented)
+     - Regression detection (compare documented vs actual)
+   - Example: "According to view documentation, SessionCanvas has 4 interactive elements. Verify all still functional."
+
+**Skip Conditions**:
+- No `annotate` parameter provided → Skip to Step 3
+- Image files not found → Log warning, skip to Step 3
+- AI Vision API unavailable → Log error, skip to Step 3
+
+**Error Handling**:
+- **File not found**: Log warning, continue with remaining images
+- **API failure**: Log error with retry count, skip after 3 failures
+- **Parse error**: Log error, treat as plain documentation mode
+
+**Benefits of This Step**:
+- **Context Building**: Agents have structured view inventory before planning
+- **Prevents Duplication**: Avoid re-analyzing same views in subsequent tasks
+- **Version History**: Track HTML evolution over time
+- **Regression Detection**: Compare documented vs actual structure
+- **Dual Purpose**: Single parameter handles both documentation and requirements
+- **Default Behavior**: HTML documentation (non-annotated) is primary use case
 
 ---
 
