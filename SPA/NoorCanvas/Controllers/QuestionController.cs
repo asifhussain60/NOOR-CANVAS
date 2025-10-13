@@ -589,17 +589,57 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Session found - SessionId: {SessionId} ;CLEANUP_OK", requestId, session.SessionId);
 
-                // Find the question and verify ownership
-                var questionRecord = await _context.SessionData
-                    .FirstOrDefaultAsync(sd => sd.SessionId == session.SessionId &&
-                                             sd.DataType == SessionDataTypes.Question &&
-                                             sd.Content != null &&
-                                             sd.Content.Contains($"\"questionId\":\"{questionId}\"") &&
-                                             sd.CreatedBy == request.UserGuid);
+                // Find all questions for this session
+                var allQuestions = await _context.SessionData
+                    .Where(sd => sd.SessionId == session.SessionId &&
+                                 sd.DataType == SessionDataTypes.Question &&
+                                 sd.Content != null)
+                    .ToListAsync();
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Found {Count} questions in session {SessionId} ;CLEANUP_OK", 
+                    requestId, allQuestions.Count, session.SessionId);
+
+                // Find the specific question by parsing JSON
+                SessionData? questionRecord = null;
+                foreach (var record in allQuestions)
+                {
+                    try
+                    {
+                        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(record.Content ?? "{}");
+                        if (data != null && data.ContainsKey("questionId"))
+                        {
+                            var recordQuestionId = data["questionId"]?.ToString();
+                            _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Checking question: QuestionId={RecordQuestionId}, CreatedBy={CreatedBy}, Target={TargetQuestionId}, RequestUserGuid={RequestUserGuid} ;CLEANUP_OK",
+                                requestId, recordQuestionId, record.CreatedBy, questionId, request.UserGuid);
+                            
+                            if (recordQuestionId == questionId.ToString())
+                            {
+                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Found matching questionId. Checking ownership: CreatedBy={CreatedBy} vs UserGuid={UserGuid}, Match={Match} ;CLEANUP_OK",
+                                    requestId, record.CreatedBy, request.UserGuid, record.CreatedBy == request.UserGuid);
+                                
+                                if (record.CreatedBy == request.UserGuid)
+                                {
+                                    questionRecord = record;
+                                    break;
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question found but ownership mismatch - CreatedBy={CreatedBy}, UserGuid={UserGuid} ;CLEANUP_OK",
+                                        requestId, record.CreatedBy, request.UserGuid);
+                                    return NotFound(new { Error = "Question not found or you are not authorized to update it", RequestId = requestId });
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Failed to parse question record: {Error} ;CLEANUP_OK", requestId, ex.Message);
+                    }
+                }
 
                 if (questionRecord == null)
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question not found or user not authorized ;CLEANUP_OK", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question not found after checking all records ;CLEANUP_OK", requestId);
                     return NotFound(new { Error = "Question not found or you are not authorized to update it", RequestId = requestId });
                 }
 
@@ -706,18 +746,57 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Session validated - SessionId: {SessionId} ;CLEANUP_OK", requestId, session.SessionId);
 
-                // Find the question and verify ownership
-                var questionRecord = await _context.SessionData
-                    .FirstOrDefaultAsync(sd => sd.SessionId == session.SessionId &&
-                                             sd.DataType == SessionDataTypes.Question &&
-                                             sd.Content != null &&
-                                             sd.Content.Contains($"\"questionId\":\"{questionId}\"") &&
-                                             sd.CreatedBy == request.UserGuid);
+                // Find all questions for this session
+                var allQuestions = await _context.SessionData
+                    .Where(sd => sd.SessionId == session.SessionId &&
+                                 sd.DataType == SessionDataTypes.Question &&
+                                 sd.Content != null)
+                    .ToListAsync();
+
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Found {Count} questions in session {SessionId} ;CLEANUP_OK", 
+                    requestId, allQuestions.Count, session.SessionId);
+
+                // Find the specific question by parsing JSON
+                SessionData? questionRecord = null;
+                foreach (var record in allQuestions)
+                {
+                    try
+                    {
+                        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(record.Content ?? "{}");
+                        if (data != null && data.ContainsKey("questionId"))
+                        {
+                            var recordQuestionId = data["questionId"]?.ToString();
+                            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Checking question: QuestionId={RecordQuestionId}, CreatedBy={CreatedBy}, Target={TargetQuestionId}, RequestUserGuid={RequestUserGuid} ;CLEANUP_OK",
+                                requestId, recordQuestionId, record.CreatedBy, questionId, request.UserGuid);
+                            
+                            if (recordQuestionId == questionId.ToString())
+                            {
+                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Found matching questionId. Checking ownership: CreatedBy={CreatedBy} vs UserGuid={UserGuid}, Match={Match} ;CLEANUP_OK",
+                                    requestId, record.CreatedBy, request.UserGuid, record.CreatedBy == request.UserGuid);
+                                
+                                if (record.CreatedBy == request.UserGuid)
+                                {
+                                    questionRecord = record;
+                                    break;
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question found but ownership mismatch - CreatedBy={CreatedBy}, UserGuid={UserGuid} ;CLEANUP_OK",
+                                        requestId, record.CreatedBy, request.UserGuid);
+                                    return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Failed to parse question record: {Error} ;CLEANUP_OK", requestId, ex.Message);
+                    }
+                }
 
                 if (questionRecord == null)
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question not found or user not authorized - QuestionId: {QuestionId}, UserGuid: {UserGuid} ;CLEANUP_OK",
-                        requestId, questionId, request.UserGuid);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question not found after checking all records ;CLEANUP_OK", requestId);
                     return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
                 }
 
