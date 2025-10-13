@@ -716,73 +716,88 @@ namespace NoorCanvas.Controllers
         public async Task<IActionResult> DeleteQuestion(string questionId, [FromBody] DeleteQuestionRequest request)
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
-            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deletion started for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] API DELETE STARTED - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
 
             try
             {
-                // Validate request
+                // STEP 1: Validate request
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 1/7: Validating request payload ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionToken: {SessionToken} ;CLEANUP_OK", requestId, request.SessionToken ?? "NULL");
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - UserGuid: {UserGuid} ;CLEANUP_OK", requestId, request.UserGuid ?? "NULL");
+                
                 if (string.IsNullOrWhiteSpace(request.SessionToken) || request.SessionToken.Length != 8)
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Invalid session token format ;CLEANUP_OK", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ VALIDATION FAILED: Invalid session token format ;CLEANUP_OK", requestId);
                     return BadRequest(new { Error = "Invalid session token format", RequestId = requestId });
                 }
 
                 if (string.IsNullOrWhiteSpace(request.UserGuid))
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] UserGuid is required for question deletion ;CLEANUP_OK", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ VALIDATION FAILED: UserGuid is required ;CLEANUP_OK", requestId);
                     return BadRequest(new { Error = "UserGuid is required", RequestId = requestId });
                 }
 
-                // Find session by user token
+                // STEP 2: Find session by user token
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 2/7: Looking up session by token ;CLEANUP_OK", requestId);
                 var session = await _context.Sessions
                     .FirstOrDefaultAsync(s => s.UserToken == request.SessionToken &&
                                             (s.Status == "Active" || s.Status == "Configured"));
 
                 if (session == null)
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Session not found ;CLEANUP_OK", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ SESSION NOT FOUND for token: {Token} ;CLEANUP_OK", requestId, request.SessionToken);
                     return NotFound(new { Error = "Session not found or inactive", RequestId = requestId });
                 }
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Session validated - SessionId: {SessionId} ;CLEANUP_OK", requestId, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ Session found - SessionId: {SessionId}, Status: {Status} ;CLEANUP_OK", 
+                    requestId, session.SessionId, session.Status);
 
-                // Find all questions for this session
+                // STEP 3: Find all questions for this session
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 3/7: Loading all questions from canvas.SessionData ;CLEANUP_OK", requestId);
                 var allQuestions = await _context.SessionData
                     .Where(sd => sd.SessionId == session.SessionId &&
                                  sd.DataType == SessionDataTypes.Question &&
                                  sd.Content != null)
                     .ToListAsync();
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Found {Count} questions in session {SessionId} ;CLEANUP_OK", 
-                    requestId, allQuestions.Count, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Found {Count} question records in canvas.SessionData ;CLEANUP_OK", 
+                    requestId, allQuestions.Count);
 
-                // Find the specific question by parsing JSON
+                // STEP 4: Find the specific question by parsing JSON
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 4/7: Searching for target question ;CLEANUP_OK", requestId);
                 SessionData? questionRecord = null;
+                int matchAttempts = 0;
+                
                 foreach (var record in allQuestions)
                 {
                     try
                     {
+                        matchAttempts++;
                         var data = JsonSerializer.Deserialize<Dictionary<string, object>>(record.Content ?? "{}");
                         if (data != null && data.ContainsKey("questionId"))
                         {
                             var recordQuestionId = data["questionId"]?.ToString();
-                            _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Checking question: QuestionId={RecordQuestionId}, CreatedBy={CreatedBy}, Target={TargetQuestionId}, RequestUserGuid={RequestUserGuid} ;CLEANUP_OK",
-                                requestId, recordQuestionId, record.CreatedBy, questionId, request.UserGuid);
+                            _logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   Attempt {Attempt}: QuestionId={RecordQuestionId}, CreatedBy={CreatedBy}, Target={TargetQuestionId} ;CLEANUP_OK",
+                                requestId, matchAttempts, recordQuestionId, record.CreatedBy, questionId);
                             
                             if (recordQuestionId == questionId.ToString())
                             {
-                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Found matching questionId. Checking ownership: CreatedBy={CreatedBy} vs UserGuid={UserGuid}, Match={Match} ;CLEANUP_OK",
-                                    requestId, record.CreatedBy, request.UserGuid, record.CreatedBy == request.UserGuid);
+                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🎯 MATCH FOUND! Validating ownership ;CLEANUP_OK", requestId);
+                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Database CreatedBy: {CreatedBy} ;CLEANUP_OK", requestId, record.CreatedBy);
+                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Request UserGuid: {UserGuid} ;CLEANUP_OK", requestId, request.UserGuid);
+                                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Ownership Match: {Match} ;CLEANUP_OK", requestId, record.CreatedBy == request.UserGuid);
                                 
                                 if (record.CreatedBy == request.UserGuid)
                                 {
                                     questionRecord = record;
+                                    _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ OWNERSHIP VERIFIED - Proceeding with deletion ;CLEANUP_OK", requestId);
                                     break;
                                 }
                                 else
                                 {
-                                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question found but ownership mismatch - CreatedBy={CreatedBy}, UserGuid={UserGuid} ;CLEANUP_OK",
-                                        requestId, record.CreatedBy, request.UserGuid);
+                                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ OWNERSHIP MISMATCH - User not authorized ;CLEANUP_OK", requestId);
                                     return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
                                 }
                             }
@@ -790,45 +805,59 @@ namespace NoorCanvas.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Failed to parse question record: {Error} ;CLEANUP_OK", requestId, ex.Message);
+                        _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Failed to parse question record: {Error} ;CLEANUP_OK", requestId, ex.Message);
                     }
                 }
 
                 if (questionRecord == null)
                 {
-                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question not found after checking all records ;CLEANUP_OK", requestId);
+                    _logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND after checking {Attempts} records ;CLEANUP_OK", requestId, matchAttempts);
                     return NotFound(new { Error = "Question not found or you are not authorized to delete it", RequestId = requestId });
                 }
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question found and ownership verified ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question record located - DataId: {DataId} ;CLEANUP_OK", requestId, questionRecord.DataId);
 
-                // Delete the question
+                // STEP 5: Delete from database
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 5/7: Deleting from canvas.SessionData ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Table: canvas.SessionData ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - DataId: {DataId} ;CLEANUP_OK", requestId, questionRecord.DataId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, questionRecord.SessionId);
+                
                 _context.SessionData.Remove(questionRecord);
-                await _context.SaveChangesAsync();
+                int rowsAffected = await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ DATABASE DELETE SUCCESSFUL - Rows affected: {RowsAffected} ;CLEANUP_OK", 
+                    requestId, rowsAffected);
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully from database ;CLEANUP_OK", requestId);
-
-                // Notify all session participants via SignalR
+                // STEP 6: Broadcast to session participants via SignalR
                 var sessionGroup = $"session_{session.SessionId}";
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] Broadcasting QuestionDeleted to group='{SessionGroup}', Payload={{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
-                    requestId, sessionGroup, questionId, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 6/7: Broadcasting to session participants ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SignalR Group: {SessionGroup} ;CLEANUP_OK", requestId, sessionGroup);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Event: QuestionDeleted ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Payload: {{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
+                    requestId, questionId, session.SessionId);
                 
                 await _sessionHub.Clients.Group(sessionGroup)
                     .SendAsync("QuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
                 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] ✅ QuestionDeleted broadcast completed to session group ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ QuestionDeleted broadcast SENT to {Group} ;CLEANUP_OK", requestId, sessionGroup);
 
-                // Notify hosts via SignalR
+                // STEP 7: Broadcast to hosts via SignalR
                 var hostGroup = $"Host_{session.SessionId}";
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] Broadcasting HostQuestionDeleted to group='{HostGroup}', Payload={{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
-                    requestId, hostGroup, questionId, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 7/7: Broadcasting to hosts ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SignalR Group: {HostGroup} ;CLEANUP_OK", requestId, hostGroup);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Event: HostQuestionDeleted ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Payload: {{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
+                    requestId, questionId, session.SessionId);
                 
                 await _sessionHub.Clients.Group(hostGroup)
                     .SendAsync("HostQuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
                 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] ✅ HostQuestionDeleted broadcast completed to host group ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ HostQuestionDeleted broadcast SENT to {Group} ;CLEANUP_OK", requestId, hostGroup);
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] SignalR notifications sent to session and host groups ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] API DELETE COMPLETE - All steps successful ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
 
                 return Ok(new DeleteQuestionResponse
                 {
@@ -839,7 +868,8 @@ namespace NoorCanvas.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "NOOR-QA-DELETE: [{RequestId}] Exception during question deletion", requestId);
+                _logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION during question deletion: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                _logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
                 return StatusCode(500, new { Error = "Failed to delete question", RequestId = requestId });
             }
         }

@@ -1,23 +1,30 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Test: Question Delete Propagation
+ * Test: Question Delete Propagation - COMPREHENSIVE TRACE VALIDATION
  * 
- * Purpose: Verify that when a user deletes their question, the deletion propagates
- * to all connected participants (SessionCanvas) and the host (HostControlPanel)
- * via SignalR broadcasts.
+ * Purpose: Verify question deletion flows through entire system:
+ *   UI → API → Database (canvas.SessionData) → SignalR Broadcast → All Connected Clients
  * 
  * Test Data: Session 212 (KJAHA99L user token, PQ9N5YWW host token)
  * 
+ * Architecture Validation:
+ * 1. Frontend: User clicks delete button in SessionCanvas
+ * 2. API: POST /api/Question/{id}/delete validates ownership
+ * 3. Database: DELETE from canvas.SessionData (row physically removed)
+ * 4. SignalR: Broadcasts QuestionDeleted + HostQuestionDeleted events
+ * 5. All Clients: UI updates in real-time (SessionCanvas + HostControlPanel)
+ * 
  * Test Flow:
  * 1. User A joins session and submits a question
- * 2. User B joins session (sees User A's question)
- * 3. Host joins (sees User A's question)
- * 4. User A deletes their question
- * 5. Verify deletion propagates:
- *    - User A no longer sees the question
- *    - User B no longer sees the question (SignalR broadcast)
- *    - Host no longer sees the question (SignalR broadcast)
+ * 2. User B joins session (sees User A's question - orange card)
+ * 3. Host joins (sees User A's question in Q&A panel)
+ * 4. User A deletes their question (triggers API + SignalR flow)
+ * 5. Verify deletion propagates to:
+ *    - User A: Question removed from UI immediately
+ *    - User B: Question removed via SignalR broadcast
+ *    - Host: Question removed via SignalR broadcast
+ * 6. Verify persistence: Refresh all pages, question stays deleted
  */
 
 const BASE_URL = 'https://localhost:9091';

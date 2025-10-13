@@ -413,45 +413,78 @@
             // Handle question deletions from participants
             hubConnection.On<object>("HostQuestionDeleted", async (deleteData) =>
             {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
                 try
                 {
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] 🗑️ HostQuestionDeleted event received ;CLEANUP_OK");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🗑️ HostQuestionDeleted SIGNALR EVENT RECEIVED (HostControlPanel) ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State BEFORE deletion: ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Model.Questions: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null ? "NULL" : "NOT NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - deleteData: {IsNull} ;CLEANUP_OK", requestId, deleteData == null ? "NULL" : "NOT NULL");
                     
                     if (deleteData == null || Model?.Questions == null)
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] ⚠️ Cannot process delete - deleteData={DeleteDataNull}, Model.Questions={QuestionsNull} ;CLEANUP_OK", 
-                            deleteData == null, Model?.Questions == null);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Cannot process delete - preconditions failed ;CLEANUP_OK", requestId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - deleteData is NULL: {IsNull} ;CLEANUP_OK", requestId, deleteData == null);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Model.Questions is NULL: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
                         return;
                     }
 
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(deleteData);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Payload JSON: {Json} ;CLEANUP_OK", requestId, jsonString);
+                    
                     using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDocument.RootElement;
                     
                     var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] 🔍 Searching for QuestionId={QuestionId} in {Count} questions ;CLEANUP_OK", 
-                        questionId, Model.Questions.Count);
+                    var sessionId = root.TryGetProperty("SessionId", out var sIdProp) ? sIdProp.GetInt32() : 0;
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, sessionId);
                     
                     if (questionId != null)
                     {
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Searching for question in local list... ;CLEANUP_OK", requestId);
+                        
                         var question = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
                         if (question != null)
                         {
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ QUESTION FOUND - Removing from UI ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question Text: '{Text}' ;CLEANUP_OK", requestId, question.Text);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question User: '{UserName}' ;CLEANUP_OK", requestId, question.UserName);
+                            
                             Model.Questions.Remove(question);
                             await InvokeAsync(StateHasChanged);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] ✅ Host: Question deleted via SignalR: {QuestionId}, Remaining={Count} ;CLEANUP_OK", 
-                                questionId, Model.Questions.Count);
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ HostControlPanel UI updated successfully ;CLEANUP_OK", requestId);
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] ❌ Question NOT FOUND in HostControlPanel.Questions - QuestionId={QuestionId} ;CLEANUP_OK", questionId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND in HostControlPanel.Questions ;CLEANUP_OK", requestId);
+                            Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Available Question IDs: {QuestionIds} ;CLEANUP_OK", 
+                                requestId, string.Join(", ", Model.Questions.Select(q => q.Id.ToString())));
                         }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Host: Error processing HostQuestionDeleted event ;CLEANUP_OK");
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION processing HostQuestionDeleted: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                    Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
                 }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] HostControlPanel HostQuestionDeleted handler COMPLETE ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
             });
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 🔗 Starting SignalR connection to /hub/session");
@@ -1667,37 +1700,103 @@
     private async Task ConfirmDelete()
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ConfirmDelete called for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionToDeleteId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] HOST DELETE INITIATED - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionToDeleteId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
         
         if (questionToDeleteId == Guid.Empty)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Cannot delete - questionToDeleteId is empty ;CLEANUP_OK", requestId);
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ ABORT: questionToDeleteId is empty ;CLEANUP_OK", requestId);
             showDeleteModal = false;
             return;
         }
 
+        // Log current state before deletion
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State BEFORE deletion: ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, SessionId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question to Delete: {QuestionId} ;CLEANUP_OK", requestId, questionToDeleteId);
+        
+        // Find the question details before deletion
+        var questionToDelete = Model?.Questions?.FirstOrDefault(q => q.Id == questionToDeleteId);
+        if (questionToDelete != null)
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question Text: '{Text}' ;CLEANUP_OK", requestId, questionToDelete.Text);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question UserName: '{UserName}' ;CLEANUP_OK", requestId, questionToDelete.UserName);
+        }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Question NOT FOUND in local Model.Questions list ;CLEANUP_OK", requestId);
+        }
+
         try
         {
-            // CRITICAL FIX: Host deletion must go through API, not direct SignalR
-            // The API endpoint will handle database deletion AND SignalR broadcast
-            // This ensures proper ownership validation and notification to all clients
+            // CRITICAL FIX: Host deletion MUST go through API to trigger database deletion and SignalR broadcast
+            // Previous implementation was UI-only, causing questions to reappear after page refresh
             
-            Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Removing question from local UI first ;CLEANUP_OK", requestId);
-            Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
-            showDeleteModal = false;
-            await InvokeAsync(StateHasChanged);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🌐 Step 1/4: Calling API endpoint /api/Question/{QuestionId}/delete ;CLEANUP_OK", requestId, questionToDeleteId);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question removed from host UI, deletion complete (host delete is UI-only) ;CLEANUP_OK", requestId);
+            // Prepare API request payload
+            var requestPayload = new
+            {
+                SessionToken = HostToken,  // Use HostToken for host-initiated deletions
+                UserGuid = questionToDelete?.CreatedBy ?? string.Empty  // Use question creator's UserGuid for ownership validation
+            };
             
-            // NOTE: Host deletes are UI-only operations
-            // Participant deletions go through API which broadcasts to all clients including host
-            // Host SignalR handlers will already receive HostQuestionDeleted from participant deletions
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Payload: SessionToken={SessionToken}, UserGuid={UserGuid} ;CLEANUP_OK", 
+                requestId, requestPayload.SessionToken, requestPayload.UserGuid);
+            
+            var httpClient = HttpClientFactory.CreateClient();
+            var response = await httpClient.PostAsJsonAsync($"https://localhost:9091/api/Question/{questionToDeleteId}/delete", requestPayload);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 📡 Step 2/4: API response received - StatusCode: {StatusCode} ;CLEANUP_OK", 
+                requestId, response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ Step 3/4: API deletion successful - Response: {Response} ;CLEANUP_OK", 
+                    requestId, responseContent);
+                
+                // Remove from local UI immediately (SignalR broadcast will also trigger removal)
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🗑️ Step 4/4: Removing question from local UI ;CLEANUP_OK", requestId);
+                Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
+                showDeleteModal = false;
+                await InvokeAsync(StateHasChanged);
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 🎉 HOST DELETE COMPLETE - Database updated, SignalR broadcast sent ;CLEANUP_OK", requestId);
+                
+                // NOTE: SignalR HostQuestionDeleted event will be received by this host AND other connected hosts
+                // SignalR QuestionDeleted event will be received by all participants in the session
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ❌ API deletion FAILED: {StatusCode} - {Error} ;CLEANUP_OK", 
+                    requestId, response.StatusCode, errorContent);
+                
+                // Still remove from UI as fallback (though database won't be updated)
+                Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
+                showDeleteModal = false;
+                await InvokeAsync(StateHasChanged);
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Exception during question deletion ;CLEANUP_OK", requestId);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] 💥 EXCEPTION during question deletion: {Message} ;CLEANUP_OK", 
+                requestId, ex.Message);
+            Logger.LogError("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
+            
+            // Still remove from UI as fallback
+            Model?.Questions?.RemoveAll(q => q.Id == questionToDeleteId);
             showDeleteModal = false;
         }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] HOST DELETE FLOW COMPLETE ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ═══════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
     }
 
     private async Task CancelDelete()
