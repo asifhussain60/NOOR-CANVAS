@@ -3,10 +3,10 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T12:12:00Z
+- **Last Updated**: 2025-10-13T14:30:00Z
 - **Agent**: task
 - **Priority**: high
-- **Category**: bug-fix
+- **Category**: ui-enhancement
 
 ## Issue Summary
 Questions from other users are displaying as "Your Question" with edit/delete buttons instead of showing in orange without action buttons. Additionally, the upvote button and count are not visible on the left side of questions from other users.
@@ -639,3 +639,90 @@ else
 
 ### Build Status
 ✅ Compilation successful (warnings for file lock due to running app)
+
+### Commit: 811c86b5afff6c8a1132652fc1e0bed24c0cbd2c
+**Date**: 2025-10-13T14:30:00Z
+**Message**: feat(canvas-questions): Replace question card with new structure from ContextCopilot.txt
+
+**Summary**: Complete card structure refactoring to match the reference design from ContextCopilot.txt. Replaced inline styles with CSS classes, restructured card layout with action buttons at top, question text in middle, and footer with owner label + vote section at bottom.
+
+**Files Modified**:
+1. `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+   - **Lines 571-692**: Replaced old question item CSS with new refactored classes
+     - Removed old inline flex layout styles
+     - Added `.question-item-style` class for green card styling (border, background)
+     - Added `.question-text-color` (#006400 green)
+     - Added `.owner-label-color` (#D4AF37 golden)
+     - Added `.vote-button-style` (disabled state for own questions)
+     - Added `.vote-count-color` (#07751f green)
+     - Restructured action buttons with border and hover effects
+     - Restructured vote section for footer layout
+   
+   - **Lines 936-1043**: Replaced question rendering HTML structure
+     - **TOP ROW**: Action buttons (edit/delete) in `.canvas-question-actions` div
+     - **MIDDLE ROW**: Question text in `.canvas-question-content` div
+     - **BOTTOM SECTION**: Footer with `.canvas-question-footer` class
+       - LEFT: "Your Question" label (only for own questions)
+       - RIGHT: Vote section (disabled for own questions, active for others)
+     - Added `max-width: 300px` constraint to match reference design
+     - Enhanced box-shadow: `0 8px 16px rgba(0, 0, 0, 0.1)`
+
+**Key Design Changes**:
+1. **Card Structure**:
+   ```
+   ┌───────────────────────────────┐
+   │        [✏️] [🗑️]              │  ← Action buttons (top-right)
+   │                               │
+   │  What are the names of the    │  ← Question text (middle)
+   │  five daily prayers?          │
+   │                               │
+   │  ──────────────────────────── │
+   │  Your Question      [👍] 0    │  ← Footer (owner + vote)
+   └───────────────────────────────┘
+   ```
+
+2. **CSS Refactoring**:
+   - Removed inline `style="color:@color"` attributes
+   - Moved all colors to CSS classes for maintainability
+   - Replaced absolute positioning with flexbox footer layout
+   - Standardized spacing with padding/gap values
+
+3. **Trace-Level Debug Logging**:
+   - `[DEBUG-WORKITEM:canvas-questions:ownership-trace]` - Ownership determination
+   - `[DEBUG-WORKITEM:canvas-questions:card-structure-trace]` - Card layout building
+   - `[DEBUG-WORKITEM:canvas-questions:action-buttons-trace]` - Edit/delete rendering
+   - `[DEBUG-WORKITEM:canvas-questions:owner-label-trace]` - "Your Question" label
+   - `[DEBUG-WORKITEM:canvas-questions:vote-disabled-trace]` - Disabled vote (own)
+   - `[DEBUG-WORKITEM:canvas-questions:vote-active-trace]` - Active vote (others)
+   - `[DEBUG-WORKITEM:canvas-questions:card-complete-trace]` - Rendering completion
+
+4. **Vote Section Behavior**:
+   - **Own Questions**: Shows disabled thumbs-up with vote count (green styling)
+   - **Others' Questions**: Shows clickable thumbs-up with vote count (orange styling)
+   - Vote count always visible in footer for visual consistency
+
+**Visual Match to Reference**:
+- ✅ Action buttons at top-right with borders
+- ✅ Question text spans full width with proper font size
+- ✅ "Your Question" golden label in footer-left
+- ✅ Vote section in footer-right
+- ✅ Max-width constraint (300px)
+- ✅ Enhanced shadow for depth
+- ✅ 6px left border for emphasis
+- ✅ Green color scheme (#006400, #ECFDF5, #D4AF37)
+
+**Build Validation**:
+- ✅ Zero errors
+- ✅ Zero warnings
+- ✅ Clean compilation
+
+**Testing Requirements**:
+1. Visual verification: Card matches pasted image exactly
+2. Functional testing: Edit/delete buttons work
+3. Vote section: Disabled state for own questions, active for others
+4. Responsive: Layout works at 300px max-width
+5. Trace logs: All debug markers visible in console
+
+**Related Reference**:
+- Source: `Workspaces/Data/ContextCopilot.txt` (HTML mockup with inline styles)
+- Design: Pasted image showing final desired layout

@@ -14,19 +14,21 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
             display: flex;
+            flex-direction: column; /* Allow cards to stack vertically */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            gap: 1.5rem; /* Space between cards */
         }
         /* Override specific classes for demonstration while keeping original styling */
         .canvas-question-text {
             word-wrap: break-word; /* Ensure long words wrap */
         }
         
-        /* --- Refactored Inline Styles --- */
+        /* --- Refactored Inline Styles (Green Card Theme) --- */
 
         /* Styles for the main card container (background, colors, custom borders) */
-        .question-item-style {
+        .question-item-style-green {
             border-color: #006400;
             background-color: #ECFDF5;
             border-width: 2px;
@@ -34,25 +36,52 @@
         }
 
         /* Color for the question text */
-        .question-text-color {
+        .question-text-color-green {
             color: #006400;
         }
 
-        /* Color for "Your Question" owner label (Golden) */
+        /* Color for "Your Question" owner label (Maroon) */
         .owner-label-color {
-            color: #D4AF37;
+            color: #800000; /* Updated to Maroon */
         }
 
-        /* Style for the disabled vote button (Green and translucent) */
-        .vote-button-style {
-            color: #07751f;
+        /* Style for the disabled vote button (Maroon, translucent) - KEPT FOR REFERENCE, NOT USED IN CARD 1 */
+        .vote-button-style-green-owner {
+            color: #800000; /* Updated to Maroon */
             cursor: default;
             opacity: 0.5;
         }
 
-        /* Color for the vote count (Green) */
-        .vote-count-color {
-            color: #07751f;
+        /* Color for the vote count (Maroon) - KEPT FOR REFERENCE, NOT USED IN CARD 1 */
+        .vote-count-color-green-owner {
+            color: #800000; /* Updated to Maroon */
+        }
+
+        /* --- New Refactored Inline Styles (Orange/Sienna Card Theme) --- */
+
+        /* Styles for the main card container (background, colors, custom borders) */
+        .question-item-style-sienna {
+            border-color: #A0522D; /* Sienna */
+            background-color: #FAEBD7; /* Antique White */
+            border-width: 2px;
+            border-left-width: 6px;
+        }
+
+        /* Color for the question text */
+        .question-text-color-sienna {
+            color: #A0522D; 
+        }
+        
+        /* Style for the disabled vote button (Sienna and translucent) */
+        .vote-button-style-sienna-owner {
+            color: #A0522D;
+            cursor: default;
+            opacity: 0.5;
+        }
+
+        /* Color for the vote count (Sienna) */
+        .vote-count-color-sienna-owner {
+            color: #A0522D;
         }
     </style>
     <script>
@@ -71,12 +100,12 @@
 
 <!-- Main container for the canvas (to make the card stand out) -->
 <!-- Width is restricted to a maximum of 300px (max-w-[300px]) -->
-<div class="p-6 max-w-[300px] w-full">
+<div class="p-6 max-w-[300px] w-full flex flex-col space-y-4">
 
-    <!-- Fixed Card Structure. Custom styling now applied via the .question-item-style class. -->
-    <div class="canvas-question-item rounded-xl shadow-lg p-4 sm:p-6 flex flex-col space-y-2 question-item-style">
+    <!-- QUESTION CARD 1: GREEN THEME (Original - Owner Card) -->
+    <div class="canvas-question-item rounded-xl shadow-lg p-3 flex flex-col space-y-2 question-item-style-green">
         
-        <!-- TOP ROW: Action Buttons (Moved above the question text and pushed to the right) -->
+        <!-- TOP ROW: Action Buttons (Pushed to the right) -->
         <div class="canvas-question-actions flex justify-end w-full space-x-1">
             
             <!-- Edit Button with Border - Smaller size (p-1, text-base) -->
@@ -93,14 +122,14 @@
         <!-- MIDDLE ROW: Question Text (Spans the full width below the buttons) -->
         <div class="canvas-question-content w-full">
             <div class="canvas-question-header">
-                <!-- Color now applied via the .question-text-color class. -->
-                <span class="canvas-question-text text-lg sm:text-xl leading-snug question-text-color">
+                <!-- Font size reduced to text-base, removed font-bold if present -->
+                <span class="canvas-question-text text-base leading-snug question-text-color-green">
                     What are the names of the five daily prayers?
                 </span>
             </div>
         </div>
         
-        <!-- BOTTOM SECTION (FOOTER): Owner Label (Left) and Vote Section (Right) -->
+        <!-- BOTTOM SECTION (FOOTER): Only Owner Label (Left) remains -->
         <div class="flex justify-between items-end w-full pt-3 border-t border-gray-200">
             
             <!-- LEFT SIDE: Owner Label - Color now applied via the .owner-label-color class. -->
@@ -108,20 +137,46 @@
                 Your Question
             </span>
 
-            <!-- RIGHT SIDE: Vote Section -->
+            <!-- RIGHT SIDE: Vote Section (EMPTY) -->
             <div class="canvas-question-vote-section flex items-center text-sm">
-                <!-- Style now applied via the .vote-button-style class. -->
-                <button class="canvas-question-vote-button p-1 rounded-full flex items-center" 
-                        disabled="" 
-                        title="You cannot vote on your own question vote-button-style">
-                    <i class="fa-solid fa-thumbs-up text-base"></i>
-                </button>
-                <!-- Color now applied via the .vote-count-color class (removed conflicting text-gray-700). -->
-                <span class="canvas-question-vote-count font-bold ml-1 vote-count-color">0</span>
+                <!-- Removed: Thumbs up button and Vote count -->
             </div>
         </div>
 
     </div>
+
+    <!-- QUESTION CARD 2: SIENNA THEME (Compact General Question Item) -->
+    <!-- Reduced padding (p-3) and switched to a single row flex layout -->
+    <div class="canvas-question-item rounded-xl shadow-lg p-3 flex question-item-style-sienna">
+        
+        <!-- Combined Content Row (Question Text and Vote Section) -->
+        <div class="flex justify-between items-start w-full gap-4"> 
+            
+            <!-- LEFT SIDE: Question Text (Takes most space) -->
+            <div class="canvas-question-content flex-grow">
+                <div class="canvas-question-header">
+                    <!-- Font size reduced to text-base, removed font-bold if present -->
+                    <span class="canvas-question-text text-base leading-snug question-text-color-sienna">
+                        What are the steps for calculating Zakat?
+                    </span>
+                </div>
+            </div>
+            
+            <!-- RIGHT SIDE: Compact Vote Section (Flex-shrink to stay small) -->
+            <div class="canvas-question-vote-section flex items-center text-sm flex-shrink-0 pt-1">
+                <!-- Thumbs up icon uses the sienna color #A0522D -->
+                <button class="canvas-question-vote-button p-1 rounded-full flex items-center vote-button-style-sienna-owner" 
+                        disabled="" 
+                        title="You cannot vote on your own question">
+                    <i class="fa-solid fa-thumbs-up text-base"></i>
+                </button>
+                <!-- Vote count uses the sienna color #A0522D -->
+                <span class="canvas-question-vote-count font-bold ml-1 vote-count-color-sienna-owner">3</span>
+            </div>
+        </div>
+        
+    </div>
+
 </div>
 
 </body>
