@@ -726,3 +726,15 @@ else
 **Related Reference**:
 - Source: `Workspaces/Data/ContextCopilot.txt` (HTML mockup with inline styles)
 - Design: Pasted image showing final desired layout
+
+---
+## [2025-10-13T13:10:00Z] - task
+**Status**: in-progress | **Phase**: css-fix | **Commit**: 7ed05c13
+**Work**: 
+- Removed horizontal scrollbars from Q&A and Participants panels
+- Added `overflow-x: hidden` to `.canvas-tab-content` class
+- Added `overflow-x: hidden` and `word-wrap: break-word` to `.canvas-question-item` class
+- Added `overflow-x: hidden` to `.canvas-participant-item` class
+**Files**: 1 modified (SessionCanvas.razor) | **Tests**: Build passed | **Build**: PASS
+**Next**: Visual testing to verify no horizontal scroll appears
+---
