@@ -539,6 +539,13 @@
         color: #4B3C2B;
         background-color: white;
         resize: none;
+        height: 3rem;
+    }
+
+    .canvas-form-textarea:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #F3F4F6;
     }
 
     .canvas-form-submit-button {
@@ -556,6 +563,11 @@
         gap: 0.25rem;
         border: 1px solid #D4AF37;
         cursor: pointer;
+    }
+
+    .canvas-form-submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     .canvas-form-submit-icon {
@@ -956,14 +968,17 @@
                             <h4 class="canvas-question-title">Ask a question</h4>
                         </div>
                         <div class="canvas-question-form">
-                            <textarea @bind="QuestionInput" 
-                                      @onkeydown="HandleQuestionKeyDown"
-                                      class="canvas-form-textarea" 
-                                      placeholder="Ask a question..." rows="2"></textarea>
+                            <input type="text" 
+                                   @bind="QuestionInput" 
+                                   @onkeydown="HandleQuestionKeyDown"
+                                   class="canvas-form-textarea" 
+                                   placeholder="Ask a question..." 
+                                   disabled="@(Model?.SessionStatus != "Active")" />
                             <button @onclick="SubmitQuestion" 
                                     type="button"
                                     class="canvas-form-submit-button shadow-golden"
-                                    style="@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")">
+                                    style="@(EditingQuestionIndex != null ? "background-color:#006400;" : "background-color:#D4AF37;")"
+                                    disabled="@(Model?.SessionStatus != "Active")">
                                 <i class="fa-solid fa-paper-plane canvas-form-submit-icon"></i>
                                 <span class="canvas-form-submit-text">@(EditingQuestionIndex != null ? "Update" : "Submit")</span>
                             </button>
@@ -1367,12 +1382,19 @@
     {
         if (Model == null) return;
 
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:session-status] Updating session data - Status: {Status} ;CLEANUP_OK", 
+            session.Status ?? "null");
+
         Model.SessionId = session.SessionId;
         Model.SessionName = session.Title ?? "Session Canvas";
         Model.SessionDescription = session.Description;
         Model.SessionDate = FormatDate(session.StartTime);
         Model.StartTime = FormatTime(session.StartTime);
         Model.Topic = session.Title ?? "Session Content";
+        Model.SessionStatus = session.Status;
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:session-status] Model.SessionStatus set to: {Status}, Q&A input enabled: {Enabled} ;CLEANUP_OK", 
+            Model.SessionStatus ?? "null", Model.SessionStatus == "Active");
         
         if (session.StartTime.HasValue)
         {
@@ -1802,6 +1824,7 @@
         public DateTime? SessionStartTime { get; set; }
         public string? SharedAssetContent { get; set; }
         public string? CurrentParticipantName { get; set; }
+        public string? SessionStatus { get; set; }
     }
 
     public enum SessionCanvasState
@@ -2620,6 +2643,34 @@
                 }
             });
 
+            // [DEBUG-WORKITEM:canvas-questions:session-status] Listen for session began events to enable Q&A ;CLEANUP_OK
+            hubConnection.On<object>("SessionBegan", async (sessionData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:session-status] SessionBegan event received, enabling Q&A input ;CLEANUP_OK");
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(sessionData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    // Update session status to Active
+                    await InvokeAsync(() =>
+                    {
+                        if (Model != null)
+                        {
+                            Model.SessionStatus = "Active";
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:session-status] Model.SessionStatus updated to Active, Q&A input now enabled ;CLEANUP_OK");
+                            StateHasChanged();
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:session-status] Error processing SessionBegan event ;CLEANUP_OK");
+                }
+            });
+
             // [DEBUG-WORKITEM:session-ended:hub] Listen for session ended events ;CLEANUP_OK
             hubConnection.On<object>("SessionEnded", async (endData) =>
             {
@@ -2943,7 +2994,17 @@
     {
         if (e.Key == "Enter" && !e.ShiftKey)
         {
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas:keyboard] Enter key submit triggered ;CLEANUP_OK");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:keyboard] Enter key pressed - SessionStatus: {Status}, Enabled: {Enabled} ;CLEANUP_OK", 
+                Model?.SessionStatus ?? "null", Model?.SessionStatus == "Active");
+            
+            // Prevent submission if session not active
+            if (Model?.SessionStatus != "Active")
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:keyboard] Question submission blocked - session not active ;CLEANUP_OK");
+                return;
+            }
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:keyboard] Enter key submit triggered ;CLEANUP_OK");
             
             // Prevent default newline behavior
             await SubmitQuestion();
