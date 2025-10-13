@@ -415,8 +415,12 @@
             {
                 try
                 {
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] 🗑️ HostQuestionDeleted event received ;CLEANUP_OK");
+                    
                     if (deleteData == null || Model?.Questions == null)
                     {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] ⚠️ Cannot process delete - deleteData={DeleteDataNull}, Model.Questions={QuestionsNull} ;CLEANUP_OK", 
+                            deleteData == null, Model?.Questions == null);
                         return;
                     }
 
@@ -425,6 +429,9 @@
                     var root = jsonDocument.RootElement;
                     
                     var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] 🔍 Searching for QuestionId={QuestionId} in {Count} questions ;CLEANUP_OK", 
+                        questionId, Model.Questions.Count);
+                    
                     if (questionId != null)
                     {
                         var question = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
@@ -432,7 +439,12 @@
                         {
                             Model.Questions.Remove(question);
                             await InvokeAsync(StateHasChanged);
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Host: Question deleted via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] ✅ Host: Question deleted via SignalR: {QuestionId}, Remaining={Count} ;CLEANUP_OK", 
+                                questionId, Model.Questions.Count);
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] ❌ Question NOT FOUND in HostControlPanel.Questions - QuestionId={QuestionId} ;CLEANUP_OK", questionId);
                         }
                     }
                 }

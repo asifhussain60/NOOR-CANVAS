@@ -552,6 +552,7 @@
         flex: 1;
         min-width: 80px;
         padding: 0.5rem;
+        height: 3rem;
         border-radius: 0.5rem;
         color: white;
         font-weight: 600;
@@ -1076,7 +1077,7 @@
                                                 </div>
                                                 
                                                 <!-- Question Text (full width, with top padding to clear vote section) -->
-                                                <div class="canvas-question-content" style="padding-top:2.5rem;width:100%;">
+                                                <div class="canvas-question-content" style="width:100%;">
                                                     <div class="canvas-question-header">
                                                         <span class="canvas-question-text question-text-color-sienna">
                                                             @question.Text
@@ -2517,6 +2518,8 @@
             // Handle question deletion
             hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] 🗑️ QuestionDeleted event received ;CLEANUP_OK");
+                
                 if (Model?.Questions != null && deleteData != null)
                 {
                     try
@@ -2526,6 +2529,9 @@
                         var root = jsonDoc.RootElement;
                         
                         var questionId = root.TryGetProperty("QuestionId", out var qIdProp) ? qIdProp.GetString() : null;
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] 🔍 Searching for QuestionId={QuestionId} in {Count} questions ;CLEANUP_OK", 
+                            questionId, Model.Questions.Count);
+                        
                         if (questionId != null)
                         {
                             var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
@@ -2533,14 +2539,24 @@
                             {
                                 Model.Questions.Remove(question);
                                 await InvokeAsync(StateHasChanged);
-                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Question deleted via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] ✅ Question deleted via SignalR: {QuestionId}, Remaining={Count} ;CLEANUP_OK", 
+                                    questionId, Model.Questions.Count);
+                            }
+                            else
+                            {
+                                Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] ❌ Question NOT FOUND in SessionCanvas.Questions - QuestionId={QuestionId} ;CLEANUP_OK", questionId);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Error processing QuestionDeleted event ;CLEANUP_OK");
+                        Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete] 💥 Exception processing QuestionDeleted: {Message} ;CLEANUP_OK", ex.Message);
                     }
+                }
+                else
+                {
+                    Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] ⚠️ Cannot process delete - Model.Questions={QuestionsNull}, deleteData={DataNull} ;CLEANUP_OK",
+                        Model?.Questions == null, deleteData == null);
                 }
             });
 
