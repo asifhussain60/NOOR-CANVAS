@@ -42,13 +42,14 @@
         margin-bottom: 1.5rem;
     }
 
+    /* [DEBUG-WORKITEM:session-end:logo-fix] Logo sizing to 250x250px matching UserLanding.razor ;CLEANUP_OK */
     .session-ended-logo img {
         width: 250px;
         height: 250px;
         object-fit: contain;
     }
 
-    /* Phone responsive logo sizing */
+    /* [DEBUG-WORKITEM:session-end:logo-fix] Phone logo sizing to 175x175px matching UserLanding.razor ;CLEANUP_OK */
     @@media (max-width: 767px) {
         .session-ended-logo img {
             width: 175px;
@@ -63,26 +64,14 @@
         gap: 1.5rem;
     }
 
-    /* Icon Container */
-    .session-ended-icon-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
+    /* [DEBUG-WORKITEM:session-end:remove-checkmark] Removed icon container per annotated image requirements ;CLEANUP_OK */
 
-    .session-ended-icon {
-        font-size: 3rem;
-        color: #6B7280;
-    }
-
-    /* Title */
+    /* Title - [DEBUG-WORKITEM:session-end:heading-color] Green color matching UserLanding (#006400) ;CLEANUP_OK */
     .session-ended-title {
         font-size: 2.5rem;
         font-family: 'Poppins', sans-serif;
         font-weight: 700;
-        color: #374151;
+        color: #006400;
         margin: 0;
     }
 
@@ -95,72 +84,9 @@
         line-height: 1.6;
     }
 
-    /* Info Box */
-    .session-ended-info-box {
-        background: linear-gradient(145deg, #F3F4F6 0%, #E5E7EB 100%);
-        border: 1px solid #D1D5DB;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-top: 1rem;
-    }
+    /* [DEBUG-WORKITEM:session-end:remove-info-box] Removed session info box per annotated image requirements ;CLEANUP_OK */
 
-    .session-ended-info-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        font-size: 1rem;
-        color: #374151;
-        margin: 0 0 0.75rem 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-
-    .session-ended-info-text {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
-        color: #6B7280;
-        margin: 0;
-        line-height: 1.5;
-    }
-
-    /* Button Container */
-    .session-ended-button-wrapper {
-        margin-top: 2rem;
-    }
-
-    .session-ended-button {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-        border-radius: 0.75rem;
-        color: white;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.2s ease;
-        transform: scale(1);
-        box-shadow: 0 10px 15px -3px rgba(107, 114, 128, 0.4), 0 4px 6px -2px rgba(107, 114, 128, 0.2);
-        background-color: #6B7280;
-        border: none;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .session-ended-button:hover {
-        transform: scale(1.02);
-        background-color: #4B5563;
-        box-shadow: 0 12px 18px -3px rgba(107, 114, 128, 0.5), 0 5px 8px -2px rgba(107, 114, 128, 0.3);
-    }
-
-    .session-ended-button-icon {
-        margin-right: 0.5rem;
-        font-size: 1.1rem;
-    }
+    /* [DEBUG-WORKITEM:session-end:remove-button] Removed button container per annotated image requirements ;CLEANUP_OK */
 
     /* Timestamp */
     .session-ended-timestamp {
@@ -192,16 +118,13 @@
 
 <div class="session-ended-root">
     <div class="session-ended-container">
-        <!-- Logo -->
+        <!-- Logo - [DEBUG-WORKITEM:session-end:logo-fix] Fixed to match UserLanding.razor path ;CLEANUP_OK -->
         <div class="session-ended-logo">
-            <img src="/images/noor-canvas-logo.png" alt="NOOR Canvas Logo" />
+            <img src="/images/NoorCanvas.png?v=20250924" alt="NOOR Canvas" />
         </div>
 
         <div class="session-ended-content">
-            <!-- Icon and Title -->
-            <div class="session-ended-icon-container">
-                <i class="fa-solid fa-circle-check session-ended-icon"></i>
-            </div>
+            <!-- [DEBUG-WORKITEM:session-end:remove-checkmark] Removed icon container per annotated image requirements ;CLEANUP_OK -->
             
             <h1 class="session-ended-title">Session Ended</h1>
 
@@ -210,29 +133,9 @@
                 This session has been concluded by the host. Thank you for participating in this learning experience.
             </p>
 
-            <!-- Information Box -->
-            <div class="session-ended-info-box">
-                <div class="session-ended-info-title">
-                    <i class="fa-solid fa-info-circle"></i>
-                    <span>Session Information</span>
-                </div>
-                <p class="session-ended-info-text">
-                    The session has been officially closed. All participants have been notified and the session token is no longer valid.
-                    @if (SessionId.HasValue)
-                    {
-                        <br /><br />
-                        <strong>Session ID:</strong> @SessionId.Value
-                    }
-                </p>
-            </div>
+            <!-- [DEBUG-WORKITEM:session-end:remove-info-box] Removed session info box per annotated image requirements ;CLEANUP_OK -->
 
-            <!-- Return Home Button -->
-            <div class="session-ended-button-wrapper">
-                <button @onclick="NavigateToHome" class="session-ended-button">
-                    <i class="fa-solid fa-house session-ended-button-icon"></i>
-                    <span>Return to Home</span>
-                </button>
-            </div>
+            <!-- [DEBUG-WORKITEM:session-end:remove-button] Removed return home button per annotated image requirements ;CLEANUP_OK -->
 
             <!-- Timestamp -->
             <div class="session-ended-timestamp">
@@ -249,15 +152,9 @@
 
     protected override void OnInitialized()
     {
-        Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] SessionEnded page loaded - SessionId: {SessionId} ;CLEANUP_OK", 
+        Logger.LogInformation("[DEBUG-WORKITEM:session-end:page-load] SessionEnded page loaded - SessionId: {SessionId} ;CLEANUP_OK", 
             SessionId?.ToString() ?? "null");
     }
 
-    private void NavigateToHome()
-    {
-        Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] User navigating to home from SessionEnded page ;CLEANUP_OK");
-        
-        // [DEBUG-WORKITEM:prod-issues:url-fix] No hardcoded URLs - Navigation.NavigateTo uses relative path
-        Navigation.NavigateTo("/", forceLoad: true);
-    }
+    // [DEBUG-WORKITEM:session-end:remove-button] NavigateToHome method removed with button per annotated image requirements ;CLEANUP_OK
 }
