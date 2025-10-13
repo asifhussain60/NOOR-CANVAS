@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T14:20:00Z
+- **Last Updated**: 2025-01-13T16:10:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -11,21 +11,25 @@
 ## Issue Summary
 ~~Questions from other users are displaying as "Your Question" with edit/delete buttons instead of showing in orange without action buttons. Additionally, the upvote button and count are not visible on the left side of questions from other users.~~ **[RESOLVED - Issue was ownership detection]**
 
-**Current Issues (2025-10-13T14:20:00Z)**:
-1. ❌ **Upvote counter not incrementing** - User clicks upvote, API succeeds, database updates, but UI counter stays at 0
-2. ❌ **Question edits not propagating** - User edits question, local UI updates, but other users/host don't see changes
+**Current Issue (2025-01-13T16:10:00Z)**:
+❌ **Question edits not propagating to HostControlPanel** - User edits question in SessionCanvas, QuestionController broadcasts `HostQuestionUpdated` to `Host_{sessionId}` group, but HostControlPanel does NOT receive the event.
 
-**Root Cause Identified (2025-10-13T14:20:00Z)**: 
-**SignalR Group Name Case Sensitivity Bug**
-- SessionHub.JoinSession: Clients join group `session_{sessionId}` (lowercase 's')
-- QuestionController: Broadcasting to `Session_{sessionId}` (uppercase 'S')
-- SignalR groups are case-sensitive → broadcasts sent to wrong group → 100% miss rate
+**Root Cause Identified (2025-01-13T16:10:00Z)**: 
+**HostControlPanel Event Handler Registration Confirmed**
+- ✅ HostControlPanel DOES register `HostQuestionUpdated` handler (line 336)
+- ✅ HostControlPanel calls `JoinHostGroup(SessionId)` (line 478)
+- ✅ QuestionController broadcasts to `Host_{sessionId}` group
+- ❌ Logs show NO reception in HostControlPanel (only SessionCanvas receives `QuestionUpdated`)
+- 🔍 Need to verify host connection joins Host_ group successfully
 
-**Fix Applied (Commit 63f9e055)**:
-- ✅ Changed all QuestionController broadcasts from `Session_` to `session_`
-- ✅ VoteQuestion, UpdateQuestion, DeleteQuestion now use lowercase
-- ✅ Matches SessionHub.JoinSession group name
-- ✅ Build successful (zero errors, zero warnings)
+**Trace Logging Added (Commit: TBD)**:
+- ✅ HostControlPanel.HostQuestionUpdated handler - comprehensive payload logging
+- ✅ HostControlPanel.JoinSignalRGroupsAsync - connection state verification
+- ✅ QuestionController.UpdateQuestion - broadcast boundary logging
+- ✅ SessionHub.JoinHostGroup - group addition confirmation logging
+
+**Previous Fixes**:
+- ✅ Upvote counter fixed (Commit 63f9e055) - Case sensitivity bug resolved
 
 ## Expected Behavior
 - **Own Questions**: Green background (#ECFDF5), "Your Question" label, edit/delete buttons visible, upvote section HIDDEN

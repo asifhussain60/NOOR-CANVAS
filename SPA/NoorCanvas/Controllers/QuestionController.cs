@@ -632,21 +632,24 @@ namespace NoorCanvas.Controllers
                     isAnswered = questionData.ContainsKey("isAnswered") ? GetBoolFromJsonElement(questionData["isAnswered"]) : false
                 };
 
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] ════════ BROADCASTING QUESTION UPDATE ════════ ;CLEANUP_OK");
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Preparing SignalR broadcast - QuestionId={QuestionId}, Text={Text}, SessionGroup=session_{SessionId} ;CLEANUP_OK",
                     requestId, updatedQuestionData.questionId, updatedQuestionData.text.Substring(0, Math.Min(30, updatedQuestionData.text.Length)), session.SessionId);
 
+                // Broadcast to participants (session group)
                 await _sessionHub.Clients.Group($"session_{session.SessionId}")
                     .SendAsync("QuestionUpdated", updatedQuestionData);
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] QuestionUpdated broadcast sent to session_{SessionId} ;CLEANUP_OK",
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ QuestionUpdated broadcast sent to session_{SessionId} (participants) ;CLEANUP_OK",
                     requestId, session.SessionId);
 
                 // Notify hosts
                 await _sessionHub.Clients.Group($"Host_{session.SessionId}")
                     .SendAsync("HostQuestionUpdated", updatedQuestionData);
 
-                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] HostQuestionUpdated broadcast sent to Host_{SessionId} ;CLEANUP_OK",
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ HostQuestionUpdated broadcast sent to Host_{SessionId} (host panel) ;CLEANUP_OK",
                     requestId, session.SessionId);
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] ════════ BROADCAST COMPLETE ════════ ;CLEANUP_OK");
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] SignalR notifications sent ;CLEANUP_OK", requestId);
 
                 return Ok(new UpdateQuestionResponse

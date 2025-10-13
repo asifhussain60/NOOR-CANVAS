@@ -335,33 +335,79 @@
             // Handle question updates from participants
             hubConnection.On<object>("HostQuestionUpdated", async (questionData) =>
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ HOST QUESTION UPDATE START ════════ ;CLEANUP_OK");
+                
                 try
                 {
-                    if (questionData == null || Model?.Questions == null)
+                    if (questionData == null)
                     {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ Received null questionData ;CLEANUP_OK");
                         return;
                     }
 
+                    if (Model?.Questions == null)
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ Model.Questions is null, cannot update ;CLEANUP_OK");
+                        return;
+                    }
+
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 📦 Received HostQuestionUpdated event, TotalQuestions={TotalQuestions} ;CLEANUP_OK", Model.Questions.Count);
+
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 📋 Payload: {Payload} ;CLEANUP_OK", jsonString);
+                    
                     using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDocument.RootElement;
                     
                     var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    var newText = root.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 🔍 Parsed - QuestionId={QuestionId}, NewText={NewText} ;CLEANUP_OK", 
+                        questionId ?? "NULL", newText?.Substring(0, Math.Min(50, newText?.Length ?? 0)) ?? "NULL");
+                    
                     if (questionId != null)
                     {
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 🔎 Searching for question in Model.Questions (Count={Count}) ;CLEANUP_OK", Model.Questions.Count);
+                        
+                        // Log all question IDs for debugging
+                        var allIds = string.Join(", ", Model.Questions.Select(q => q.Id.ToString().Substring(0, 8)));
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 📝 Available QuestionIds: {Ids} ;CLEANUP_OK", allIds);
+                        
                         var question = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
+                        
                         if (question != null)
                         {
-                            question.Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? question.Text : question.Text;
+                            var oldText = question.Text;
+                            question.Text = newText ?? question.Text;
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ QUESTION FOUND - Updating text ;CLEANUP_OK");
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update]    OldText: {OldText} ;CLEANUP_OK", oldText?.Substring(0, Math.Min(50, oldText?.Length ?? 0)));
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update]    NewText: {NewText} ;CLEANUP_OK", question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
+                            
                             await InvokeAsync(StateHasChanged);
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 🔄 StateHasChanged called, UI should refresh ;CLEANUP_OK");
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Host: Question updated via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
                         }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ QUESTION NOT FOUND - QuestionId={QuestionId} not in Model.Questions ;CLEANUP_OK", questionId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update]    Searched for: {SearchId} ;CLEANUP_OK", questionId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update]    Available: {Available} ;CLEANUP_OK", allIds);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ QuestionId is null in payload ;CLEANUP_OK");
                     }
                 }
                 catch (Exception ex)
                 {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:host-update] ❌ EXCEPTION in HostQuestionUpdated handler: {Message} ;CLEANUP_OK", ex.Message);
                     Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Host: Error processing HostQuestionUpdated event ;CLEANUP_OK");
                 }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ HOST QUESTION UPDATE END ════════ ;CLEANUP_OK");
             });
 
             // Handle question deletions from participants
@@ -418,31 +464,38 @@
         {
             try
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ JOINING SIGNALR GROUPS ════════ SessionId={SessionId} ;CLEANUP_OK", SessionId.Value);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] 👥 Joining SignalR groups for SessionId: {SessionId}", SessionId.Value);
                 Logger.LogInformation("COPILOT-DEBUG: Joining SignalR groups for SessionId: {SessionId}", SessionId.Value);
                 
                 // Join general session group (for asset sharing, etc.)
                 await hubConnection.InvokeAsync("JoinSession", SessionId.Value, "host");
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ Joined session_{SessionId} as host ;CLEANUP_OK", SessionId.Value);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Joined session group: session_{SessionId} as host", SessionId.Value);
                 Logger.LogInformation("COPILOT-DEBUG: Joined session group session_{SessionId} as host", SessionId.Value);
                 
                 // Join host-specific group (for question notifications)
                 await hubConnection.InvokeAsync("JoinHostGroup", SessionId.Value.ToString());
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ Joined Host_{SessionId} group ;CLEANUP_OK", SessionId.Value);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:HOST] ✅ Joined host group: Host_{SessionId}", SessionId.Value);
                 Logger.LogInformation("COPILOT-DEBUG: Joined host group Host_{SessionId}", SessionId.Value);
                 
                 Logger.LogInformation("NOOR-SIGNALR: Host joined session {SessionId} and host group successfully", SessionId.Value);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ All SignalR groups joined successfully, ready to receive HostQuestionUpdated events ;CLEANUP_OK");
                 
                 // JavaScript interop moved to OnAfterRenderAsync to fix prerendering error
                 Logger.LogInformation("SessionId {SessionId} scheduled for JavaScript assignment", SessionId.Value);
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:host-update] ❌ FAILED to join SignalR groups: {Message} ;CLEANUP_OK", ex.Message);
                 Logger.LogError(ex, "COPILOT-DEBUG: Failed to join SignalR groups for SessionId: {SessionId}", SessionId.Value);
             }
         }
         else
         {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ Cannot join groups - HubState={HubState}, SessionId={SessionId} ;CLEANUP_OK",
+                hubConnection?.State.ToString() ?? "NULL", SessionId?.ToString() ?? "NULL");
             Logger.LogWarning("COPILOT-DEBUG: Cannot join SignalR groups - Connection: {ConnectionState}, SessionId: {SessionId}", 
                 hubConnection?.State.ToString() ?? "null", SessionId?.ToString() ?? "null");
         }

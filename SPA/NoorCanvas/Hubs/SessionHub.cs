@@ -220,6 +220,8 @@ public class SessionHub : Hub
     {
         var hostGroupName = $"Host_{sessionId}";
 
+        _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ JOIN HOST GROUP ════════ SessionId={SessionId}, ConnectionId={ConnectionId} ;CLEANUP_OK",
+            sessionId, Context.ConnectionId);
         _logger.LogInformation("COPILOT-DEBUG: JoinHostGroup called - SessionId: {SessionId}, ConnectionId: {ConnectionId}",
             sessionId, Context.ConnectionId);
         _logger.LogInformation("COPILOT-DEBUG: Adding host connection {ConnectionId} to group {HostGroup}",
@@ -229,6 +231,8 @@ public class SessionHub : Hub
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, hostGroupName);
 
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ Host {ConnectionId} SUCCESSFULLY ADDED to {HostGroup} ;CLEANUP_OK",
+                Context.ConnectionId, hostGroupName);
             _logger.LogInformation("COPILOT-DEBUG: Host connection {ConnectionId} successfully added to group {HostGroup}",
                 Context.ConnectionId, hostGroupName);
             _logger.LogInformation("NOOR-QA-HUB: Host {ConnectionId} joined host group {HostGroup} for session {SessionId}",
