@@ -2049,6 +2049,9 @@
 
     private async Task VoteQuestion(string questionId)
     {
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ VOTE FLOW START ════════ QuestionId={QuestionId}, UserGuid={UserGuid}, SessionToken={SessionToken}, HubConnection={HubState} ;CLEANUP_OK", 
+            questionId, CurrentUserGuid, SessionToken, hubConnection?.State.ToString() ?? "NULL");
+        
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] VoteQuestion CALLED - QuestionId={QuestionId}, UserGuid={UserGuid}, AlreadyVoted={AlreadyVoted} ;CLEANUP_OK", 
             questionId, CurrentUserGuid, VotedQuestionIds.Contains(questionId));
         
@@ -2056,6 +2059,12 @@
             questionId, CurrentUserGuid, VotedQuestionIds.Contains(questionId));
         
         Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] CLICK EVENT - User clicked upvote button for QuestionId={QuestionId} ;CLEANUP_OK", questionId);
+        
+        // Find current vote count BEFORE API call
+        var question = Model?.Questions?.FirstOrDefault(q => q.QuestionId == questionId);
+        var currentVotes = question?.Votes ?? -1;
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] BEFORE API CALL - Current vote count={CurrentVotes}, Question found={Found} ;CLEANUP_OK", 
+            currentVotes, question != null);
         
         if (Http == null || string.IsNullOrEmpty(SessionToken))
         {
@@ -2101,6 +2110,15 @@
                     questionId, VotedQuestionIds.Count);
                 
                 // Vote count will be updated via SignalR
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] WAITING FOR SIGNALR - Vote count should be updated via SignalR broadcast, HubState={HubState} ;CLEANUP_OK", 
+                    hubConnection?.State.ToString() ?? "NULL");
+                
+                // Check vote count after short delay to see if SignalR updated it
+                await Task.Delay(100);
+                var questionAfter = Model?.Questions?.FirstOrDefault(q => q.QuestionId == questionId);
+                var votesAfter = questionAfter?.Votes ?? -1;
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] AFTER 100ms - Vote count={VotesAfter}, Changed={Changed} ;CLEANUP_OK", 
+                    votesAfter, votesAfter != currentVotes);
             }
             else
             {
@@ -2211,11 +2229,15 @@
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔗 Creating SignalR hub connection to /hub/session");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Creating SignalR hub connection to /hub/session");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ INITIALIZING SIGNALR ════════ SessionId={SessionId}, UserGuid={UserGuid} ;CLEANUP_OK",
+                Model?.SessionId ?? 0, CurrentUserGuid);
             
             hubConnection = new HubConnectionBuilder()
                 .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
                 .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) })
                 .Build();
+
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR connection created, State={State} ;CLEANUP_OK", hubConnection.State);
 
             // Connection state change events
             hubConnection.Closed += async (error) =>
@@ -2387,14 +2409,21 @@
             // Also handle QuestionVoteUpdate (without "d") event from API
             hubConnection.On<object>("QuestionVoteUpdate", async (voteData) =>
             {
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ SIGNALR RECEIVED QuestionVoteUpdate ════════ ;CLEANUP_OK");
+                
                 try
                 {
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(voteData);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR payload: {Payload} ;CLEANUP_OK", jsonString);
+                    
                     using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDoc.RootElement;
                     
                     var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
                     var votes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0;
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Parsed - QuestionId={QuestionId}, NewVotes={Votes} ;CLEANUP_OK", 
+                        questionId, votes);
                     
                     Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] QuestionVoteUpdate received - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
                         questionId, votes);
@@ -2404,22 +2433,49 @@
                     
                     if (Model?.Questions != null && questionId != null)
                     {
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Searching for question in Model.Questions, Total={Total} ;CLEANUP_OK", 
+                            Model.Questions.Count);
+                        
                         var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
                         if (question != null)
                         {
+                            var oldVotes = question.Votes;
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] UPDATING VOTE COUNT - QuestionId={QuestionId}, OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
+                                questionId, oldVotes, votes);
+                            
                             Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote count UPDATE (API format) - QuestionId={QuestionId}, OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
                                 questionId, question.Votes, votes);
                             
                             question.Votes = votes;
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Calling StateHasChanged to refresh UI ;CLEANUP_OK");
                             await InvokeAsync(StateHasChanged);
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ UI UPDATED - Question {QuestionId} now shows {Votes} votes ;CLEANUP_OK", 
+                                questionId, votes);
                             
                             Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] UI refreshed with new vote count (API format) - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
                                 questionId, votes);
                         }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] ❌ QUESTION NOT FOUND in Model.Questions - QuestionId={QuestionId}, TotalQuestions={Total} ;CLEANUP_OK", 
+                                questionId, Model.Questions.Count);
+                            
+                            // Log all question IDs for debugging
+                            var allIds = string.Join(", ", Model.Questions.Select(q => q.QuestionId.Substring(0, 8)));
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] Available QuestionIds: {Ids} ;CLEANUP_OK", allIds);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] ❌ Model.Questions is null or QuestionId is null - Questions={QuestionsNull}, QuestionId={QuestionId} ;CLEANUP_OK", 
+                            Model?.Questions == null, questionId ?? "NULL");
                     }
                 }
                 catch (Exception ex)
                 {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:upvote] ❌ EXCEPTION in SignalR handler: {Message} ;CLEANUP_OK", ex.Message);
                     Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:signalr] Error processing QuestionVoteUpdate: {Message} ;CLEANUP_OK", ex.Message);
                 }
             });
@@ -2586,16 +2642,31 @@
 
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ REGISTERING SIGNALR HANDLERS ════════ ;CLEANUP_OK");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Handlers registered: QuestionReceived, QuestionUpdated, QuestionVoteUpdated, QuestionVoteUpdate, QuestionDeleted, ParticipantJoined, ParticipantLeft, SessionEnded ;CLEANUP_OK");
+            
             await hubConnection.StartAsync();
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ SIGNALR CONNECTED - State={State}, ConnectionId={ConnectionId} ;CLEANUP_OK", 
+                hubConnection.State, hubConnection.ConnectionId ?? "NULL");
+            
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ SignalR connected: State={State}, ConnectionId={ConnectionId}", hubConnection.State, hubConnection.ConnectionId);
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] SignalR connection started successfully, State: {State}", hubConnection.State);
             
             if (Model?.SessionId > 0)
             {
                 var connectionTrackingId = Guid.NewGuid().ToString("N")[..8];
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ JOINING SIGNALR GROUP ════════ SessionId={SessionId}, GroupName=Session_{SessionId}, Role=participant ;CLEANUP_OK",
+                    Model.SessionId, Model.SessionId);
+                
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🔄 Attempting to join session group: session_{SessionId}", Model.SessionId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] 🔗 GROUP JOIN: Attempting to join session_{SessionId}, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
+                
                 await hubConnection.SendAsync("JoinSession", Model.SessionId, "participant");
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ JoinSession CALL COMPLETE - Waiting for server confirmation ;CLEANUP_OK");
+                
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] ✅ Joined SignalR group: session_{SessionId}", Model.SessionId);
                 Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CONNECTION-TRACK] ✅ GROUP SUCCESS: Joined session_{SessionId} as participant, connectionTrackingId={ConnectionTrackingId} ;CLEANUP_OK", Model.SessionId, connectionTrackingId);
                 

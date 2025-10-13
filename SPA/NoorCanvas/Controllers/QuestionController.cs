@@ -225,6 +225,9 @@ namespace NoorCanvas.Controllers
         {
             var requestId = Guid.NewGuid().ToString("N")[..8];
 
+            _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ API VOTE REQUEST RECEIVED ════════ QuestionId={QuestionId}, RequestId={RequestId}, SessionToken={SessionToken}, UserGuid={UserGuid}, Direction={Direction} ;CLEANUP_OK",
+                questionId, requestId, request.SessionToken, request.UserGuid, request.Direction);
+
             _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Vote submission started for question {QuestionId}",
                 requestId, questionId);
 
@@ -253,6 +256,9 @@ namespace NoorCanvas.Controllers
 
                 _logger.LogInformation("NOOR-QA-VOTE: [{RequestId}] Session found - SessionId: {SessionId}, Status: {Status}",
                     requestId, session.SessionId, session.Status);
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Database session lookup - SessionId={SessionId}, Status={Status} ;CLEANUP_OK",
+                    session.SessionId, session.Status);
 
                 // Check if user is registered for this session
                 var participant = await _context.Participants
@@ -332,15 +338,30 @@ namespace NoorCanvas.Controllers
                     };
 
                     _context.SessionData.Add(voteRecord);
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] Saving to database - OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK",
+                        currentVotes, newVotes);
+                    
                     await _context.SaveChangesAsync();
+                    
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ DATABASE SAVE COMPLETE - QuestionId={QuestionId}, NewVotes={NewVotes} ;CLEANUP_OK",
+                        questionId, newVotes);
 
                     // Broadcast vote update via SignalR
+                    var sessionGroup = $"Session_{session.SessionId}";
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ BROADCASTING TO SIGNALR ════════ ;CLEANUP_OK");
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR Group={Group}, Event=QuestionVoteUpdate, Payload={{questionId={QuestionId}, votes={Votes}}} ;CLEANUP_OK",
+                        sessionGroup, questionId, newVotes);
+                    
                     _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Broadcasting vote update - SessionGroup=Session_{SessionId}, QuestionId={QuestionId}, NewVotes={NewVotes} ;CLEANUP_OK",
                         session.SessionId, questionId, newVotes);
                     
-                    await _sessionHub.Clients.Group($"Session_{session.SessionId}")
+                    await _sessionHub.Clients.Group(sessionGroup)
                         .SendAsync("QuestionVoteUpdate", new { questionId, votes = newVotes });
 
+                    _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ SIGNALR BROADCAST SENT - Event=QuestionVoteUpdate, Group={Group} ;CLEANUP_OK",
+                        sessionGroup);
+                    
                     _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote update broadcast complete - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK",
                         questionId, newVotes);
 

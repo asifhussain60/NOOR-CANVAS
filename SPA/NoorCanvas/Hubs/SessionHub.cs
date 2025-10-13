@@ -83,6 +83,9 @@ public class SessionHub : Hub
     {
         var groupName = $"session_{sessionId}";
 
+        _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ════════ CLIENT JOINING SESSION ════════ ConnectionId={ConnectionId}, SessionId={SessionId}, GroupName={GroupName}, Role={Role} ;CLEANUP_OK",
+            Context.ConnectionId, sessionId, groupName, role);
+
         _logger.LogDebug("NOOR-HUB-JOIN: Adding connection {ConnectionId} to group {GroupName}",
             Context.ConnectionId, groupName);
 
@@ -93,6 +96,9 @@ public class SessionHub : Hub
         }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+        _logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:upvote] ✅ CLIENT ADDED TO GROUP - ConnectionId={ConnectionId}, GroupName={GroupName}, TotalConnections={Total} ;CLEANUP_OK",
+            Context.ConnectionId, groupName, _connections.Count);
 
         _logger.LogInformation("NOOR-HUB-JOIN: User {ConnectionId} joined session {SessionId} as {Role}",
             Context.ConnectionId, sessionId, role);
