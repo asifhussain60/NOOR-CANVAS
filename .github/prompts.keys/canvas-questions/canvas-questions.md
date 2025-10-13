@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-01-13T16:10:00Z
+- **Last Updated**: 2025-10-13T16:40:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -154,6 +154,58 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 - `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Database schema
 
 ## Changes Made
+
+### Commit: 07c477ab5ef43e132b60162339108856e849c911
+**Date**: 2025-10-13T16:40:00Z
+**Message**: style(canvas-questions): Move upvote section to top-right for orange cards with horizontal layout
+
+**Summary**: Repositioned the upvote section for orange cards (others' questions) from center-right to top-right corner. Changed layout from vertical (badge hovering above icon) to horizontal (badge next to icon with spacing). Question text now spans full width below the vote section.
+
+**Layout Changes (Orange Cards Only)**:
+
+1. **Vote Section Top-Right Positioning**:
+   - Changed from: `position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);`
+   - Changed to: `position: absolute; right: 0.75rem; top: 0.75rem;`
+   - Removes vertical centering, places vote section at top of card
+
+2. **Horizontal Layout for Icon + Badge**:
+   - Changed from: `flex-direction: column` (vertical stack)
+   - Changed to: `flex-direction: row` (horizontal alignment)
+   - Added spacing: `gap: 0.5rem` between thumbs-up icon and vote count
+
+3. **Badge Positioning Change**:
+   - Changed from: `position: absolute; top: -8px; right: -8px;` (hovering above icon)
+   - Changed to: `position: static` (inline next to icon)
+   - Maintains red circular badge styling (#DC2626 background, white text)
+
+4. **Question Content Full Width**:
+   - Removed: `padding-right: 4rem` (no longer needed)
+   - Added: `padding-top: 2.5rem` (clears space for top-right vote section)
+   - Question text now spans full card width below vote section
+
+5. **Green Cards Unchanged**:
+   - Green cards (own questions) retain previous layout
+   - "Your Question" label + edit/delete buttons remain in top row
+   - No vote section displayed on green cards
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+  - **Lines 1045-1073**: Updated orange card HTML structure
+  - Inline styles used for orange card-specific positioning
+  - Global CSS classes remain unchanged (no impact on green cards)
+
+**Visual Impact (Orange Cards Only)**:
+- Cleaner top-right placement for voting UI
+- Horizontal badge layout feels more balanced
+- Question text has more vertical breathing room
+- Full-width text improves readability for longer questions
+- Vote section remains prominent but less intrusive
+
+**UX Improvements**:
+- Easier scanning of vote counts (top-right is natural eye position)
+- Icon and badge grouped together improves UI coherence
+- More space for question content reduces visual crowding
+- Consistent with common card UI patterns (actions top-right)
 
 ### Commit: d17cbfceaec7c40b595c452838c55c887016438d
 **Date**: 2025-10-13T12:05:00Z
