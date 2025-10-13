@@ -2259,6 +2259,37 @@
                 }
             });
 
+            // [DEBUG-WORKITEM:session-ended:hub] Listen for session ended events ;CLEANUP_OK
+            hubConnection.On<object>("SessionEnded", async (endData) =>
+            {
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] SessionEnded event received ;CLEANUP_OK");
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(endData);
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    int sessionId = 0;
+                    if (root.TryGetProperty("sessionId", out var sessionIdElement))
+                    {
+                        sessionId = sessionIdElement.GetInt32();
+                    }
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] Session {SessionId} has ended, redirecting to SessionEnded page ;CLEANUP_OK", sessionId);
+                    
+                    // [DEBUG-WORKITEM:prod-issues:url-fix] No hardcoded URLs - using relative navigation
+                    await InvokeAsync(() =>
+                    {
+                        Navigation.NavigateTo($"/session/ended/{sessionId}", forceLoad: true);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:session-ended:redirect] Error processing SessionEnded event ;CLEANUP_OK");
+                }
+            });
+
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] 🚀 Starting SignalR connection...");
             Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:CANVAS] Starting SignalR connection...");
             await hubConnection.StartAsync();

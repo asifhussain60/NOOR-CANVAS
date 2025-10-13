@@ -238,5 +238,59 @@ namespace NoorCanvas.Controllers
                 return StatusCode(500, new { error = "Failed to retrieve transcript" });
             }
         }
+
+        /// <summary>
+        /// End a session by updating status to "Ended", setting EndedAt timestamp, and expiring the token.
+        /// </summary>
+        /// <param name="sessionId">The ID of the session to end.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [HttpPost("{sessionId}/end")]
+        public async Task<IActionResult> EndSession(int sessionId)
+        {
+            try
+            {
+                _logger.LogInformation("[DEBUG-WORKITEM:session-ended:api] Ending session: {SessionId} ;CLEANUP_OK", sessionId);
+
+                var session = await _context.Sessions
+                    .FirstOrDefaultAsync(s => s.SessionId == sessionId);
+
+                if (session == null)
+                {
+                    _logger.LogWarning("[DEBUG-WORKITEM:session-ended:api] Session not found: {SessionId} ;CLEANUP_OK", sessionId);
+                    return NotFound(new { error = "Session not found" });
+                }
+
+                if (session.Status == "Ended")
+                {
+                    _logger.LogInformation("[DEBUG-WORKITEM:session-ended:api] Session already ended: {SessionId} ;CLEANUP_OK", sessionId);
+                    return Ok(new { message = "Session already ended", sessionId = session.SessionId, endedAt = session.EndedAt });
+                }
+
+                // Update session status to "Ended" and set timestamps
+                session.Status = "Ended";
+                session.EndedAt = DateTime.UtcNow;
+                session.ExpiresAt = DateTime.UtcNow; // Expire token immediately
+                session.ModifiedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("[DEBUG-WORKITEM:session-ended:api] Session ended successfully - SessionId: {SessionId}, EndedAt: {EndedAt} ;CLEANUP_OK", 
+                    session.SessionId, session.EndedAt);
+
+                return Ok(new
+                {
+                    message = "Session ended successfully",
+                    sessionId = session.SessionId,
+                    status = session.Status,
+                    endedAt = session.EndedAt,
+                    expiresAt = session.ExpiresAt
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DEBUG-WORKITEM:session-ended:api] Failed to end session {SessionId} ;CLEANUP_OK", sessionId);
+                return StatusCode(500, new { error = "Failed to end session" });
+            }
+        }
     }
 }

@@ -1149,25 +1149,40 @@
             Model.SessionStatus = "Ending";
             await InvokeAsync(StateHasChanged);
 
-
-
-            // Update session status to "Ended"
-            Model.SessionStatus = "Ended";
+            // [DEBUG-WORKITEM:session-ended:api] Call API endpoint to update database ;CLEANUP_OK
+            using var httpClient = HttpClientFactory.CreateClient("default");
+            var response = await httpClient.PostAsync($"/api/session/{SessionId}/end", null);
             
-            // Notify via SignalR that session has ended
-            if (hubConnection?.State == HubConnectionState.Connected)
+            Logger.LogInformation("[DEBUG-WORKITEM:session-ended:api] End session API response: {StatusCode} ;CLEANUP_OK", response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
             {
-                Logger.LogInformation("COPILOT-SESSION-END: Broadcasting session end notification via SignalR");
-                await hubConnection.InvokeAsync("BroadcastSessionEnded", SessionId, "Host ended session via control panel");
-            }
+                // Update session status to "Ended"
+                Model.SessionStatus = "Ended";
+                
+                // Notify via SignalR that session has ended
+                if (hubConnection?.State == HubConnectionState.Connected)
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:session-ended:hub] Broadcasting session end notification via SignalR ;CLEANUP_OK");
+                    await hubConnection.InvokeAsync("BroadcastSessionEnded", SessionId, "Host ended session via control panel");
+                }
 
-            await ShowMessageAsync("Session ended successfully.");
-            
-            Logger.LogInformation("COPILOT-SESSION-END: Session {SessionId} ended successfully", SessionId);
+                await ShowMessageAsync("Session ended successfully.");
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:session-ended:api] Session {SessionId} ended successfully ;CLEANUP_OK", SessionId);
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError("[DEBUG-WORKITEM:session-ended:api] Failed to end session {SessionId} - {StatusCode}: {Error} ;CLEANUP_OK", 
+                    SessionId, response.StatusCode, errorContent);
+                Model.SessionStatus = "Active"; // Revert to previous status
+                await ShowMessageAsync("Failed to end session. Please try again.");
+            }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "COPILOT-SESSION-END: Exception ending session {SessionId}", SessionId);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:session-ended:api] Exception ending session {SessionId} ;CLEANUP_OK", SessionId);
             Model.SessionStatus = "Active"; // Revert to previous status
             await ShowMessageAsync("Error ending session. Please check your connection and try again.");
         }

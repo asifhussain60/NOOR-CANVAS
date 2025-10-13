@@ -87,8 +87,8 @@ public class TokenController : ControllerBase
                 session = new
                 {
                     sessionId = secureToken.Session?.SessionId,
-                    title = secureToken.Session?.Title,
-                    description = "Session description available via participant API", // Description removed from canvas.Sessions
+                    title = "Session title available via KSESSIONS API", // Title comes from dbo.Sessions via KSessionsDbContext
+                    description = "Session description available via KSESSIONS API", // Description comes from dbo.Sessions
                     status = secureToken.Session?.Status,
                     createdAt = secureToken.Session?.CreatedAt
                 }

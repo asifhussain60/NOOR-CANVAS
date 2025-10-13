@@ -95,8 +95,8 @@ public class SecureTokenService
             {
                 _logger.LogInformation("NOOR-SECURITY-DEBUG: [{ValidationId}] Token validation successful - Session {SessionId}, Access #{AccessCount}, Expires: {ExpiresAt}",
                     validationId, secureToken.SessionId, secureToken.AccessCount + 1, secureToken.ExpiresAt);
-                _logger.LogInformation("NOOR-SECURITY-DEBUG: [{ValidationId}] Session details - Title: '{Title}', Status: '{Status}'",
-                    validationId, secureToken.Session?.Title, secureToken.Session?.Status);
+                _logger.LogInformation("NOOR-SECURITY-DEBUG: [{ValidationId}] Session details - SessionId: {SessionId}, Status: '{Status}'",
+                    validationId, secureToken.SessionId, secureToken.Session?.Status);
 
                 // Update access tracking
                 secureToken.AccessCount++;

@@ -659,8 +659,17 @@
                         Logger.LogInformation("NOOR-DEBUG: [{RequestId}] Updated Model.SessionName to: {SessionName}, SessionDescription to: {SessionDescription}", 
                             requestId, Model.SessionName, Model.SessionDescription);
 
-                        // AUTHENTICATION GATE: Check if session has already started AND user is registered
+                        // [DEBUG-WORKITEM:session-ended:redirect] Check if session has ended or token expired ;CLEANUP_OK
                         var sessionStatus = validationResult.Session?.Status?.ToLowerInvariant();
+                        if (sessionStatus == "ended")
+                        {
+                            Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] Session has ended status, redirecting to SessionEnded page ;CLEANUP_OK");
+                            // [DEBUG-WORKITEM:prod-issues:url-fix] No hardcoded URLs - using relative navigation
+                            Navigation.NavigateTo($"/session/ended/{validationResult.SessionId}", forceLoad: true);
+                            return;
+                        }
+
+                        // AUTHENTICATION GATE: Check if session has already started AND user is registered
                         if (sessionStatus == "active" || sessionStatus == "started" || sessionStatus == "in progress")
                         {
                             // ATOMIC CHECK: Verify registration status with proper synchronization

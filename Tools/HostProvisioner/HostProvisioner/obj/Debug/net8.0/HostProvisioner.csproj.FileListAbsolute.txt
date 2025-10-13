@@ -164,3 +164,5 @@ D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\H
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\Azure.AI.OpenAI.dll
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\OpenAI.dll
 D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\System.ClientModel.dll
+D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\app.config
+D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\HostProvisioner\bin\Debug\net8.0\HostProvisioner.dll.config

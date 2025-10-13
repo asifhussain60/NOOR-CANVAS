@@ -23,12 +23,6 @@ public class Session
 
     // HostAuthToken removed: deprecated in favor of friendly HostToken (8-char) and GUID-based HostToken flows.
 
-    [StringLength(200)]
-    public string? Title { get; set; }
-
-    [StringLength(1000)]
-    public string? Description { get; set; }
-
     [StringLength(50)]
     public string? Status { get; set; } = "Created";
 

@@ -1,0 +1,263 @@
+@page "/session/ended"
+@page "/session/ended/{SessionId:int?}"
+@layout EmptyLayout
+@inject NavigationManager Navigation
+@inject ILogger<SessionEnded> Logger
+
+<PageTitle>Session Ended - NOOR Canvas</PageTitle>
+
+<HeadContent>
+    @* All fonts and CDNs are centralized in Pages/_Host.cshtml *@
+</HeadContent>
+
+<style>
+    /* Root Container - Matching SessionWaiting and UserLanding theme */
+    .session-ended-root {
+        background-color: #F8F5F1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .session-ended-container {
+        width: 100%;
+        max-width: 35rem;
+        background-color: #FFFFFF;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        border-radius: 1.5rem;
+        padding: 2rem 3rem;
+        text-align: center;
+    }
+
+    /* Logo - Matching UserLanding style */
+    .session-ended-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .session-ended-logo img {
+        width: 250px;
+        height: 250px;
+        object-fit: contain;
+    }
+
+    /* Phone responsive logo sizing */
+    @@media (max-width: 767px) {
+        .session-ended-logo img {
+            width: 175px;
+            height: 175px;
+        }
+    }
+
+    /* Content Section */
+    .session-ended-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Icon Container */
+    .session-ended-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .session-ended-icon {
+        font-size: 3rem;
+        color: #6B7280;
+    }
+
+    /* Title */
+    .session-ended-title {
+        font-size: 2.5rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #374151;
+        margin: 0;
+    }
+
+    /* Message */
+    .session-ended-message {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.125rem;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* Info Box */
+    .session-ended-info-box {
+        background: linear-gradient(145deg, #F3F4F6 0%, #E5E7EB 100%);
+        border: 1px solid #D1D5DB;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .session-ended-info-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #374151;
+        margin: 0 0 0.75rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .session-ended-info-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Button Container */
+    .session-ended-button-wrapper {
+        margin-top: 2rem;
+    }
+
+    .session-ended-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        border-radius: 0.75rem;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        transform: scale(1);
+        box-shadow: 0 10px 15px -3px rgba(107, 114, 128, 0.4), 0 4px 6px -2px rgba(107, 114, 128, 0.2);
+        background-color: #6B7280;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .session-ended-button:hover {
+        transform: scale(1.02);
+        background-color: #4B5563;
+        box-shadow: 0 12px 18px -3px rgba(107, 114, 128, 0.5), 0 5px 8px -2px rgba(107, 114, 128, 0.3);
+    }
+
+    .session-ended-button-icon {
+        margin-right: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    /* Timestamp */
+    .session-ended-timestamp {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        color: #9CA3AF;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* Mobile Responsive */
+    @@media (max-width: 767px) {
+        .session-ended-container {
+            padding: 1.5rem 2rem;
+        }
+
+        .session-ended-title {
+            font-size: 2rem;
+        }
+
+        .session-ended-message {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="session-ended-root">
+    <div class="session-ended-container">
+        <!-- Logo -->
+        <div class="session-ended-logo">
+            <img src="/images/noor-canvas-logo.png" alt="NOOR Canvas Logo" />
+        </div>
+
+        <div class="session-ended-content">
+            <!-- Icon and Title -->
+            <div class="session-ended-icon-container">
+                <i class="fa-solid fa-circle-check session-ended-icon"></i>
+            </div>
+            
+            <h1 class="session-ended-title">Session Ended</h1>
+
+            <!-- Main Message -->
+            <p class="session-ended-message">
+                This session has been concluded by the host. Thank you for participating in this learning experience.
+            </p>
+
+            <!-- Information Box -->
+            <div class="session-ended-info-box">
+                <div class="session-ended-info-title">
+                    <i class="fa-solid fa-info-circle"></i>
+                    <span>Session Information</span>
+                </div>
+                <p class="session-ended-info-text">
+                    The session has been officially closed. All participants have been notified and the session token is no longer valid.
+                    @if (SessionId.HasValue)
+                    {
+                        <br /><br />
+                        <strong>Session ID:</strong> @SessionId.Value
+                    }
+                </p>
+            </div>
+
+            <!-- Return Home Button -->
+            <div class="session-ended-button-wrapper">
+                <button @onclick="NavigateToHome" class="session-ended-button">
+                    <i class="fa-solid fa-house session-ended-button-icon"></i>
+                    <span>Return to Home</span>
+                </button>
+            </div>
+
+            <!-- Timestamp -->
+            <div class="session-ended-timestamp">
+                <i class="fa-solid fa-clock"></i>
+                <span>@DateTime.Now.ToString("MMMM d, yyyy h:mm tt")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int? SessionId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] SessionEnded page loaded - SessionId: {SessionId} ;CLEANUP_OK", 
+            SessionId?.ToString() ?? "null");
+    }
+
+    private void NavigateToHome()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:session-ended:redirect] User navigating to home from SessionEnded page ;CLEANUP_OK");
+        
+        // [DEBUG-WORKITEM:prod-issues:url-fix] No hardcoded URLs - Navigation.NavigateTo uses relative path
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}
