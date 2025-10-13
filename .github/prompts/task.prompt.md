@@ -566,19 +566,364 @@ This ensures rollback capability if the task introduces instability.
      - Load files from `files_modified` array as fallback
      - Log: `[INFO] Using legacy key.json format - consider migrating to {key}.md with File Mappings`
 
-#### 2.4. Abort Conditions
+#### 2.4. Error Triage & Classification (When User Reports Error)
+**Trigger**: User request mentions "error", "bug", "not working", "broken", "throws", "fails", "JavaScript error", "console error"
+
+**Purpose**: Classify error type to determine correct investigation path before diving into code analysis.
+
+**Execution Steps**:
+
+1. **Parse Error Description**
+   - Extract key phrases: "JavaScript error", "null reference", "API error", "database error", "console error", "framework error"
+   - Identify error location: "button", "form", "page load", "API call", "database query", "SignalR connection"
+   - Note error frequency: "always fails", "intermittent", "after specific action", "on page load"
+
+2. **Request Browser Console Logs** (If Applicable)
+   - **If user mentions**: "JavaScript error", "browser error", "console error", "client-side error", "Blazor error"
+   - **Request from user**:
+     ```
+     🔍 Browser Diagnostic Needed
+     To accurately diagnose this issue, please provide:
+     
+     1. Browser Console Logs (F12 → Console tab):
+        - Full error message with stack trace
+        - Any warnings before the error
+        - Screenshot of console output
+     
+     2. Error Context:
+        - When does error occur? (page load, button click, form submit, etc.)
+        - Is error consistent or intermittent?
+        - Which browser/version?
+     
+     3. Network Activity (F12 → Network tab):
+        - Failed HTTP requests (red status codes)
+        - SignalR connection status
+        - API call responses
+     
+     Please paste console output or attach screenshot.
+     ```
+   - **Parse console output** (if provided):
+     - Extract error source file (URL + line number)
+     - Identify error type (Uncaught Error, TypeError, ReferenceError, Framework error)
+     - Note related warnings or cascading errors
+     - Check network failures (API calls, SignalR connection)
+
+3. **Classify Error Type**
+   - **Framework/Platform Error** (Blazor, ASP.NET Core, SignalR, Entity Framework):
+     - Error originates from framework files (`blazor.server.js`, `signalr.js`, `System.*`, `Microsoft.*`)
+     - Error messages mention "renderer", "circuit", "interop", "connection", "hub", "DbContext"
+     - Examples: "No interop methods registered", "Circuit not found", "SignalR connection failed", "DbContext disposed"
+     - **Investigation Path**: Check Program.cs, _Host.cshtml/App.razor, framework configuration, service registration, middleware setup
+   
+   - **Component Logic Error** (User Code):
+     - Error originates from Razor components, C# methods, JavaScript functions in user files
+     - Error messages mention null references, validation failures, business logic issues
+     - Examples: "Object reference not set", "Validation failed", "Unauthorized access", "Index out of range"
+     - **Investigation Path**: Check Razor files, C# service methods, API controllers, business logic
+   
+   - **Configuration Error** (Setup/Deployment):
+     - Error mentions missing services, connection strings, environment variables, registration failures
+     - Examples: "Service not registered", "Connection string not found", "Configuration missing", "Unable to resolve service"
+     - **Investigation Path**: Check appsettings.json, Program.cs service registration, environment setup, DI configuration
+   
+   - **API/Backend Error** (Server-Side):
+     - HTTP error codes (400, 401, 403, 404, 500)
+     - API validation failures, authorization issues, routing problems
+     - Examples: "401 Unauthorized", "400 Bad Request", "500 Internal Server Error", "404 Not Found"
+     - **Investigation Path**: Check API controllers, middleware, authentication, authorization, routing
+   
+   - **Database Error** (Data Layer):
+     - Error mentions SQL, EF Core, database connection, query failures, schema issues
+     - Examples: "Foreign key constraint", "Timeout expired", "Invalid column name", "Cannot insert NULL"
+     - **Investigation Path**: Check database schema, EF migrations, query logic, connection strings
+
+4. **Determine Investigation Priority**
+   Based on error classification:
+   
+   **Priority 1: Framework/Configuration Errors** (Check First)
+   - Files to check: Program.cs, _Host.cshtml, App.razor, appsettings.json, middleware configuration
+   - Reason: Framework misconfigurations affect all components, faster to fix, prevents wasted time on component code
+   
+   **Priority 2: API/Backend Errors**
+   - Files to check: Controller endpoints, service methods, authentication middleware, authorization policies
+   - Reason: Backend errors affect multiple frontend components
+   
+   **Priority 3: Component Logic Errors**
+   - Files to check: Specific Razor component, C# methods called by component, component state management
+   - Reason: Localized to single component, less likely to affect other features
+   
+   **Priority 4: Database Errors**
+   - Files to check: Database schema, EF migrations, query logic in services, DbContext configuration
+   - Reason: Data layer issues require schema validation and migration review
+
+5. **Log Triage Results**
+   
+   **If `verbosity=concise`**:
+   ```
+   🔍 Error Triage: {Framework|Component|Configuration|API|Database} | Priority: {1-4}
+   → Investigation Path: {specific files/areas to check first}
+   ```
+   
+   **If `verbosity=detailed`**:
+   ```
+   🔍 Error Triage Results
+   - **Error Type**: {Framework | Component | Configuration | API | Database}
+   - **Error Source**: {framework file or user file or unknown}
+   - **Error Message**: {exact error text}
+   - **Investigation Priority**: {1-4}
+   - **Investigation Path**: {specific files/areas to check first}
+   - **Known Pattern**: {yes/no - if matches documented issue}
+   ```
+
+6. **Update Investigation Plan** (for Step 3)
+   - Route to priority files/areas first (don't start with component code for framework errors)
+   - Include framework configuration validation if Priority 1
+   - Document error classification in key data stream
+
+**Abort Conditions**:
+- Unable to classify error type → Request more information from user
+- Browser console logs needed but not provided → Proceed with warning (lower confidence)
+- Error type conflicts with user description → Clarify with user before proceeding
+
+#### 2.5. Abort Conditions
 - Key is `locked` by another agent (unless `--force` provided)
 - Key is `in-progress` by another agent and not stale
 - Key state is incompatible with requested operation
 - Dependencies are not met
 
-#### 2.5. Technical Architecture Analysis (Anti-Duplication & Spaghetti Prevention)
+#### 2.6. Framework Configuration Validation (When Error Involves Framework)
+**Trigger**: Error triage (Step 2.4) classified error as **Framework/Platform Error** (Priority 1)
+
+**Purpose**: Validate framework-specific setup before investigating component code to prevent wasted time on wrong layer.
+
+**Framework-Specific Checklists**:
+
+**Blazor Server Checklist** (if project uses Blazor Server):
+1. **Render Mode Configuration** (_Host.cshtml or App.razor):
+   - Check `render-mode` attribute value: `Server`, `ServerPrerendered`, `WebAssembly`, `InteractiveServer`
+   - **Known Issue**: `ServerPrerendered` causes dual renderer conflicts with JavaScript interop
+   - Error pattern: "No interop methods are registered for renderer X"
+   - **Solution**: Change to `render-mode="Server"` unless prerendering explicitly required
+   
+2. **JavaScript Interop Setup** (Program.cs):
+   - Verify `builder.Services.AddServerSideBlazor()` is registered
+   - Check for custom IJSRuntime service registrations
+   - Validate JavaScript file references in _Host.cshtml (`_framework/blazor.server.js`)
+   - Verify `@inject IJSRuntime JSRuntime` in components using JS interop
+
+3. **SignalR Circuit Configuration** (Program.cs):
+   - Check `app.MapBlazorHub()` is configured in middleware pipeline
+   - Validate SignalR options (MaximumReceiveMessageSize, DisconnectedCircuitMaxRetained, DisconnectedCircuitRetentionPeriod)
+   - Check for custom circuit handlers
+   - Verify circuit timeout settings match application needs
+
+4. **Service Registration** (Program.cs):
+   - Verify all Blazor components have required services injected and registered
+   - Check for missing HttpClient registrations (`builder.Services.AddHttpClient()`)
+   - Validate NavigationManager, JSRuntime, ILogger registrations
+   - Check component parameter services are available in DI container
+
+**ASP.NET Core API Checklist** (if error involves API endpoints):
+1. **Controller Registration** (Program.cs):
+   - Verify `builder.Services.AddControllers()` is present
+   - Check `app.MapControllers()` is configured in middleware pipeline
+   - Validate custom route patterns and attribute routing
+
+2. **Middleware Order** (Program.cs):
+   - Verify middleware pipeline order (Authentication before Authorization, etc.)
+   - Check CORS configuration if API called from different origin
+   - Validate endpoint routing configuration (UseRouting, UseEndpoints)
+   - Ensure static files middleware placement if serving wwwroot
+
+3. **Dependency Injection** (Program.cs):
+   - Check all services used by controllers are registered
+   - Verify scoped vs singleton vs transient lifetimes are appropriate
+   - Validate DbContext registration for Entity Framework
+   - Check for circular dependency risks
+
+**SignalR Checklist** (if error involves real-time features):
+1. **Hub Configuration** (Program.cs):
+   - Verify `builder.Services.AddSignalR()` is registered
+   - Check `app.MapHub<YourHub>("/hub-route")` is configured with correct route
+   - Validate hub route matches client connection URL
+   - Check SignalR options (MaximumReceiveMessageSize, EnableDetailedErrors, KeepAliveInterval, ClientTimeoutInterval)
+
+2. **Client Configuration** (JavaScript):
+   - Check SignalR client script is loaded (`@microsoft/signalr` npm package or CDN)
+   - Verify hub connection URL is correct and matches server route
+   - Validate connection options (transport, logging level)
+   - Check for proper error handling and reconnection logic
+
+**Entity Framework Checklist** (if error involves database):
+1. **DbContext Registration** (Program.cs):
+   - Verify `builder.Services.AddDbContext<YourContext>()` is present
+   - Check connection string is correctly configured in appsettings.json
+   - Validate database provider registration (SQL Server, SQLite, etc.)
+   - Ensure DbContext lifetime is appropriate (usually Scoped)
+
+2. **Migration Status**:
+   - Check if migrations are up to date: `dotnet ef database update`
+   - Verify migration history matches expected schema
+   - Validate no pending migrations exist
+   - Check for migration conflicts or failed migrations
+
+**Validation Output**:
+
+**If `verbosity=concise`**:
+```
+⚙️ Framework Validation: {PASS | WARN | FAIL}
+- {Framework}: {X} configuration issues found
+- Recommendations: {brief list}
+```
+
+**If `verbosity=detailed`**:
+```
+⚙️ Framework Configuration Validation
+- **Framework**: {Blazor Server | ASP.NET Core API | SignalR | Entity Framework}
+- **Render Mode**: {Server | ServerPrerendered | etc.} (if Blazor)
+- **Service Registration**: {X services validated, Y issues found}
+- **Configuration Issues**:
+  - Issue 1: {description}
+  - Issue 2: {description}
+- **Known Patterns Matched**: {pattern name if applicable}
+- **Recommendations**:
+  - Recommendation 1: {specific fix}
+  - Recommendation 2: {specific fix}
+```
+
+**Abort Conditions**:
+- Critical framework misconfiguration detected (missing required service registration)
+- Framework version incompatibility identified
+- Configuration conflicts found (middleware order, service lifetime issues)
+- User must resolve framework issues before proceeding with component code investigation
+
+#### 2.7. Known Error Pattern Matching (Performance Optimization)
+**Trigger**: ONLY if Step 2.4 classified an error AND pattern library exists
+
+**Purpose**: Match reported error against library of known issues for instant resolution, bypassing lengthy investigation.
+
+**Execution Steps**:
+
+1. **Extract Error Signature**:
+   - Error message text (normalized, case-insensitive)
+   - Error source (framework file, user file, third-party)
+   - Framework/platform (Blazor Server, ASP.NET Core, SignalR, Entity Framework)
+
+2. **Query Pattern Library**:
+   - Check `Workspaces/Copilot/learning/error-patterns.json` (if exists)
+   - Match error signature against known patterns
+   - Retrieve solution and confidence score if match found
+
+3. **Known Blazor Server Patterns**:
+   - **"No interop methods are registered for renderer X"**:
+     - **Cause**: ServerPrerendered render mode creating dual renderers
+     - **Solution**: Change _Host.cshtml to `render-mode="Server"`
+     - **Files**: _Host.cshtml or App.razor
+     - **Confidence**: HIGH
+   
+   - **"Circuit not found"** / **"Circuit has been disposed"**:
+     - **Cause**: SignalR connection lost, circuit timeout expired
+     - **Solution**: Increase DisconnectedCircuitMaxRetained in Program.cs
+     - **Files**: Program.cs (AddServerSideBlazor options)
+     - **Confidence**: HIGH
+   
+   - **"Cannot provide a value for property 'X' on type 'Y'"**:
+     - **Cause**: Service not registered in DI container
+     - **Solution**: Add service registration in Program.cs (AddSingleton/AddScoped/AddTransient)
+     - **Files**: Program.cs
+     - **Confidence**: HIGH
+
+4. **Known SignalR Patterns**:
+   - **"Connection closed with error: Server timeout elapsed"**:
+     - **Cause**: SignalR keep-alive timeout, network instability
+     - **Solution**: Increase ServerTimeout and KeepAliveInterval
+     - **Files**: Program.cs (AddSignalR options)
+     - **Confidence**: HIGH
+   
+   - **"Failed to invoke 'MethodName' due to an error on the server"**:
+     - **Cause**: Hub method threw exception, authorization failed
+     - **Solution**: Check hub method implementation, validate user authorization
+     - **Files**: {HubName}.cs (specific hub class)
+     - **Confidence**: MEDIUM
+
+5. **Known Entity Framework Patterns**:
+   - **"A second operation started on this context before a previous operation completed"**:
+     - **Cause**: Concurrent DbContext operations, improper async/await
+     - **Solution**: Ensure await keywords on all async operations, check DbContext lifetime
+     - **Files**: Services using DbContext
+     - **Confidence**: HIGH
+   
+   - **"The connection is broken and recovery is not possible"**:
+     - **Cause**: Connection timeout, long-running query
+     - **Solution**: Increase CommandTimeout, optimize query, check connection pool
+     - **Files**: DbContext configuration in Program.cs
+     - **Confidence**: MEDIUM
+
+6. **If Pattern Match Found** (HIGH or MEDIUM confidence):
+   - **Skip architecture analysis** (Step 2.8) - known solution available
+   - **Apply solution directly** (with user confirmation in Step 4)
+   - **Log match**:
+     ```
+     ✅ Known Error Pattern Matched: {pattern-name}
+     - Cause: {root cause description}
+     - Solution: {solution description}
+     - Files to modify: {file-list}
+     - Confidence: {HIGH | MEDIUM}
+     - Skipping architecture analysis (known solution)
+     ```
+   - **Update pattern library** after successful resolution with outcome
+
+7. **If No Pattern Match** or **LOW Confidence**:
+   - Proceed with full architecture analysis (Step 2.8)
+   - After successful resolution: **Add new pattern to library** for future use
+   - Pattern library schema:
+     ```json
+     {
+       "id": "unique-pattern-id",
+       "signature": "error message pattern (regex)",
+       "framework": "Blazor Server | ASP.NET Core | SignalR | EF",
+       "cause": "root cause description",
+       "solution": "solution description",
+       "files": ["file1", "file2"],
+       "confidence": "HIGH | MEDIUM | LOW",
+       "occurrences": 0,
+       "last_seen": "ISO-8601 timestamp"
+     }
+     ```
+
+**Output**:
+
+**If `verbosity=concise` and pattern matched**:
+```
+✅ Known Pattern: {pattern-name} | Confidence: {HIGH|MEDIUM} | Solution: {brief}
+```
+
+**If `verbosity=detailed` and pattern matched**:
+```
+✅ Known Error Pattern Matched
+- **Pattern**: {pattern-name}
+- **Confidence**: {HIGH | MEDIUM | LOW}
+- **Cause**: {root cause}
+- **Solution**: {detailed solution}
+- **Files**: {file list}
+- **Occurrences**: {X} times in history
+- **Action**: Applying known solution (skipping architecture analysis)
+```
+
+**Benefits**:
+- **Instant Resolution**: Seconds instead of hours for known issues
+- **Institutional Knowledge**: Builds over time across all task executions
+- **Prevents Repetition**: Same error never investigated twice
+- **High Confidence**: Only applies patterns with documented success
+
+#### 2.8. Technical Architecture Analysis (Anti-Duplication & Spaghetti Prevention)
 **Purpose**: Prevent code duplication and spaghetti code by analyzing existing infrastructure before planning implementation.
 
 **Execution Trigger**: 
 - **MANDATORY** for all code implementation tasks (when `debug-level != doc`)
 - **ENHANCED** when `debug-level: doc` (comprehensive documentation of analysis)
 - **SKIP** for documentation-only tasks
+- **SKIP** if Step 2.7 matched known error pattern with HIGH confidence
 
 **Analysis Steps**:
 
@@ -714,7 +1059,7 @@ This ensures rollback capability if the task introduces instability.
 - **INCOMPLETE data lifecycle** for CRUD operations (UI-only mutation, missing persistence, no broadcast)
 - **Action**: Present findings to user, request approval to proceed or refactor
 
-#### 2.6. QuickRef Localization (Auto-Populate on First Use)
+#### 2.10. QuickRef Localization (Auto-Populate on First Use)
 **Purpose**: Cache frequently-referenced information from QuickRef files into key metadata for efficiency (avoid re-reading authoritative sources on every task iteration).
 
 **When to Execute**: ONLY if `{key}.md` exists and "QuickRef Localization" section is empty or missing.
@@ -794,7 +1139,7 @@ This ensures rollback capability if the task introduces instability.
 
 **This step optimizes repeat access to authoritative infrastructure knowledge while maintaining single source of truth.**
 
-#### 2.7. View Documentation (If annotate Parameter Provided)
+#### 2.9. View Documentation (If annotate Parameter Provided)
 **Purpose**: Analyze screenshots to document HTML state OR extract requirements, with HTML documentation as the default mode.
 
 **Execution Trigger**: ONLY when `annotate` parameter is provided with image filename(s).
