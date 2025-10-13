@@ -1999,11 +1999,22 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ════════ UPDATE QUESTION CALLED ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Current state: ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - EditingQuestionIndex: {Index} ;CLEANUP_OK", requestId, EditingQuestionIndex);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - Model.Questions: {QuestionsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - QuestionInput: '{Input}' ;CLEANUP_OK", requestId, QuestionInput ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - SessionToken: {Token} ;CLEANUP_OK", requestId, SessionToken ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - Http: {HttpNull} ;CLEANUP_OK", requestId, Http == null);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - CurrentUserGuid: {UserGuid} ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - HubConnection State: {State} ;CLEANUP_OK", requestId, hubConnection?.State.ToString() ?? "NULL");
+        
         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] UpdateQuestion CALLED - EditingQuestionIndex={Index} ;CLEANUP_OK", EditingQuestionIndex);
         
         if (!EditingQuestionIndex.HasValue || Model?.Questions == null || EditingQuestionIndex.Value >= Model.Questions.Count)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Invalid edit state - EditingQuestionIndex={Index}, QuestionsCount={Count} ;CLEANUP_OK", 
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Invalid edit state - EditingQuestionIndex={Index}, QuestionsCount={Count} ;CLEANUP_OK", 
                 requestId, EditingQuestionIndex, Model?.Questions?.Count);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Invalid edit state ;CLEANUP_OK", requestId);
             return;
@@ -2011,7 +2022,7 @@
 
         if (string.IsNullOrWhiteSpace(QuestionInput) || string.IsNullOrEmpty(SessionToken) || Http == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Validation failed - QuestionInput empty={Empty}, SessionToken empty={TokenEmpty}, Http null={HttpNull} ;CLEANUP_OK",
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Validation failed - QuestionInput empty={Empty}, SessionToken empty={TokenEmpty}, Http null={HttpNull} ;CLEANUP_OK",
                 requestId, string.IsNullOrWhiteSpace(QuestionInput), string.IsNullOrEmpty(SessionToken), Http == null);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Validation failed - missing required fields ;CLEANUP_OK", requestId);
             return;
@@ -2020,10 +2031,14 @@
         try
         {
             var questionToUpdate = Model.Questions[EditingQuestionIndex.Value];
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Updating question - QuestionId={QuestionId}, OldText='{OldText}', NewText='{NewText}' ;CLEANUP_OK", 
-                requestId, questionToUpdate.QuestionId, 
-                questionToUpdate.Text?.Substring(0, Math.Min(30, questionToUpdate.Text?.Length ?? 0)),
-                QuestionInput.Trim().Substring(0, Math.Min(30, QuestionInput.Trim().Length)));
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Question to update found: ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionToUpdate.QuestionId);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - OldText: '{OldText}' ;CLEANUP_OK", requestId, 
+                questionToUpdate.Text?.Substring(0, Math.Min(50, questionToUpdate.Text?.Length ?? 0)));
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - NewText: '{NewText}' ;CLEANUP_OK", requestId,
+                QuestionInput.Trim().Substring(0, Math.Min(50, QuestionInput.Trim().Length)));
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}]   - API Endpoint: /api/Question/{QuestionId}/update ;CLEANUP_OK", 
+                requestId, questionToUpdate.QuestionId);
             
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Updating question - QuestionId: {QuestionId}, NewText: '{NewText}' ;CLEANUP_OK", 
                 requestId, questionToUpdate.QuestionId, QuestionInput.Trim());
@@ -2035,49 +2050,53 @@
                 UserGuid = CurrentUserGuid
             };
 
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Sending UPDATE request... ;CLEANUP_OK", requestId);
             var response = await Http.PostAsJsonAsync($"/api/Question/{questionToUpdate.QuestionId}/update", requestPayload);
 
-            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] API response received - StatusCode={StatusCode} ;CLEANUP_OK", 
-                requestId, response.StatusCode);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] API response received - StatusCode={StatusCode} ({StatusCodeInt}) ;CLEANUP_OK", 
+                requestId, response.StatusCode, (int)response.StatusCode);
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
 
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Question updated successfully - Response: {Response} ;CLEANUP_OK", 
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ Update API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
                     requestId, responseContent);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question updated successfully - Response: {Response} ;CLEANUP_OK", requestId, responseContent);
                 
                 // Update local model immediately (don't wait for SignalR)
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Updating local model immediately ;CLEANUP_OK", requestId);
                 questionToUpdate.Text = QuestionInput.Trim();
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Local model updated with new text ;CLEANUP_OK", requestId);
                 
                 // Clear input and reset edit mode
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Clearing edit state ;CLEANUP_OK", requestId);
                 QuestionInput = "";
                 EditingQuestionIndex = null;
                 await InvokeAsync(StateHasChanged);
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ✅ Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Waiting for SignalR QuestionUpdated event... ;CLEANUP_OK", requestId);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Edit mode cleared and UI refreshed ;CLEANUP_OK", requestId);
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
+                Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
                 Logger.LogWarning("[DEBUG-WORKITEM:canvas:update] [{RequestId}] User unauthorized - Error: {Error} ;CLEANUP_OK", requestId, errorContent);
                 Navigation.NavigateTo($"/user/landing/{SessionToken}");
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Question update FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
+                Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] ❌ Update API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
                     requestId, response.StatusCode, errorContent);
                 Logger.LogError("[DEBUG-WORKITEM:canvas:update] [{RequestId}] Question update failed: {StatusCode} - {Error} ;CLEANUP_OK", requestId, response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] Exception during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update] [{RequestId}] 💥 EXCEPTION during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
             Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:update] [{RequestId}] Exception during question update: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
         }
     }
@@ -2173,19 +2192,51 @@
 
     private void EditQuestion(int index)
     {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] ════════ EDIT BUTTON CLICKED ════════ Index={Index} ;CLEANUP_OK", requestId, index);
+        
         if (Model?.Questions != null && index >= 0 && index < Model.Questions.Count)
         {
+            var question = Model.Questions[index];
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] Question found - QuestionId={QuestionId}, Text='{Text}' ;CLEANUP_OK", 
+                requestId, question.QuestionId, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
+            
             EditingQuestionIndex = index;
             QuestionInput = Model.Questions[index].Text;
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] Edit mode activated - EditingQuestionIndex={Index}, QuestionInput set ;CLEANUP_OK", 
+                requestId, index);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] User should now see question text in input field and Update button ;CLEANUP_OK", requestId);
+        }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:edit] [{RequestId}] Invalid edit state - Model.Questions={QuestionsNull}, Index={Index}, Count={Count} ;CLEANUP_OK",
+                requestId, Model?.Questions == null, index, Model?.Questions?.Count ?? 0);
         }
     }
 
     private void ShowDeleteModal(int index)
     {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ════════ DELETE BUTTON CLICKED ════════ Index={Index} ;CLEANUP_OK", requestId, index);
+        
         if (Model?.Questions != null && index >= 0 && index < Model.Questions.Count)
         {
+            var question = Model.Questions[index];
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Question found - QuestionId={QuestionId}, Text='{Text}' ;CLEANUP_OK", 
+                requestId, question.QuestionId, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
+            
             QuestionToDeleteIndex = index;
             IsModalVisible = true;
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Delete modal shown - QuestionToDeleteIndex={Index}, IsModalVisible={Visible} ;CLEANUP_OK", 
+                requestId, index, true);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] User should now see confirmation modal ;CLEANUP_OK", requestId);
+        }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Invalid delete state - Model.Questions={QuestionsNull}, Index={Index}, Count={Count} ;CLEANUP_OK",
+                requestId, Model?.Questions == null, index, Model?.Questions?.Count ?? 0);
         }
     }
 
@@ -2199,8 +2250,19 @@
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ════════ DELETE CONFIRMED ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Current state: ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Http: {HttpNull} ;CLEANUP_OK", requestId, Http == null);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - QuestionToDeleteIndex: {Index} ;CLEANUP_OK", requestId, QuestionToDeleteIndex);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Model.Questions: {QuestionsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - SessionToken: {Token} ;CLEANUP_OK", requestId, SessionToken ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - CurrentUserGuid: {UserGuid} ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - HubConnection State: {State} ;CLEANUP_OK", requestId, hubConnection?.State.ToString() ?? "NULL");
+        
         if (Http == null || QuestionToDeleteIndex == null || Model?.Questions == null)
         {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Invalid delete state - aborting ;CLEANUP_OK", requestId);
             Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Invalid delete state ;CLEANUP_OK", requestId);
             IsModalVisible = false;
             return;
@@ -2210,6 +2272,9 @@
         if (index >= 0 && index < Model.Questions.Count)
         {
             var questionToDelete = Model.Questions[index];
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Preparing API call: ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionToDelete.QuestionId);
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}]   - API Endpoint: /api/Question/{QuestionId}/delete ;CLEANUP_OK", requestId, questionToDelete.QuestionId);
             Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Deleting question - QuestionId: {QuestionId} ;CLEANUP_OK", 
                 requestId, questionToDelete.QuestionId);
 
@@ -2221,29 +2286,45 @@
                     UserGuid = CurrentUserGuid
                 };
 
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Sending DELETE request... ;CLEANUP_OK", requestId);
                 var response = await Http.PostAsJsonAsync($"/api/Question/{questionToDelete.QuestionId}/delete", requestPayload);
 
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] API response received - StatusCode={StatusCode} ({StatusCodeInt}) ;CLEANUP_OK", 
+                    requestId, response.StatusCode, (int)response.StatusCode);
                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] API response received - StatusCode: {StatusCode} ;CLEANUP_OK", requestId, response.StatusCode);
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ✅ Delete API call SUCCESS - Response: {Response} ;CLEANUP_OK", 
+                        requestId, responseContent);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Waiting for SignalR QuestionDeleted event to update UI... ;CLEANUP_OK", requestId);
                     Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully ;CLEANUP_OK", requestId);
                     // Question will be removed from UI via SignalR notification
                 }
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Delete API call FAILED - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
+                        requestId, response.StatusCode, errorContent);
                     Logger.LogError("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deletion failed: {StatusCode} - {Error} ;CLEANUP_OK", 
                         requestId, response.StatusCode, errorContent);
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] 💥 EXCEPTION during API call: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
                 Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Exception during question deletion: {ExceptionMessage} ;CLEANUP_OK", requestId, ex.Message);
             }
         }
+        else
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] ❌ Invalid index - Index={Index}, Count={Count} ;CLEANUP_OK", 
+                requestId, index, Model.Questions.Count);
+        }
         
         // Close modal
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:delete] [{RequestId}] Closing modal and resetting state ;CLEANUP_OK", requestId);
         QuestionToDeleteIndex = null;
         IsModalVisible = false;
     }
