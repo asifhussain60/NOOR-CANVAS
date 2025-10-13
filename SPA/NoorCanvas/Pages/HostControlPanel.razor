@@ -422,43 +422,47 @@
             // Handle question updates from participants
             hubConnection.On<object>("HostQuestionUpdated", async (questionData) =>
             {
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ HOST QUESTION UPDATE START ════════ ;CLEANUP_OK");
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 📝 HostQuestionUpdated SIGNALR EVENT RECEIVED (HostControlPanel) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                 
                 try
                 {
-                    if (questionData == null)
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Current State BEFORE update: ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Model.Questions: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null ? "NULL" : "NOT NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model?.Questions?.Count ?? 0);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - questionData: {IsNull} ;CLEANUP_OK", requestId, questionData == null ? "NULL" : "NOT NULL");
+
+                    if (questionData == null || Model?.Questions == null)
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ Received null questionData ;CLEANUP_OK");
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ⚠️ Cannot process update - preconditions failed ;CLEANUP_OK", requestId);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - questionData is NULL: {IsNull} ;CLEANUP_OK", requestId, questionData == null);
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Model.Questions is NULL: {IsNull} ;CLEANUP_OK", requestId, Model?.Questions == null);
                         return;
                     }
-
-                    if (Model?.Questions == null)
-                    {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ Model.Questions is null, cannot update ;CLEANUP_OK");
-                        return;
-                    }
-
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 📦 Received HostQuestionUpdated event, TotalQuestions={TotalQuestions} ;CLEANUP_OK", Model.Questions.Count);
 
                     var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 📋 Payload: {Payload} ;CLEANUP_OK", jsonString);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Payload JSON: {Payload} ;CLEANUP_OK", requestId, jsonString);
                     
                     using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
                     var root = jsonDocument.RootElement;
                     
+                    // SignalR serializes to camelCase
                     var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
                     var newText = root.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
                     
-                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 🔍 Parsed - QuestionId={QuestionId}, NewText={NewText} ;CLEANUP_OK", 
-                        questionId ?? "NULL", newText?.Substring(0, Math.Min(50, newText?.Length ?? 0)) ?? "NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
+                    Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - NewText: {NewText} ;CLEANUP_OK", requestId, newText?.Substring(0, Math.Min(50, newText?.Length ?? 0)) ?? "NULL");
                     
                     if (questionId != null)
                     {
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 🔎 Searching for question in Model.Questions (Count={Count}) ;CLEANUP_OK", Model.Questions.Count);
+                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Searching for question in local list (Count={Count})... ;CLEANUP_OK", requestId, Model.Questions.Count);
                         
                         // Log all question IDs for debugging
                         var allIds = string.Join(", ", Model.Questions.Select(q => q.Id.ToString().Substring(0, 8)));
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 📝 Available QuestionIds: {Ids} ;CLEANUP_OK", allIds);
+                        Logger.LogDebug("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Available QuestionIds: {Ids} ;CLEANUP_OK", requestId, allIds);
                         
                         var question = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
                         
@@ -467,34 +471,38 @@
                             var oldText = question.Text;
                             question.Text = newText ?? question.Text;
                             
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ✅ QUESTION FOUND - Updating text ;CLEANUP_OK");
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update]    OldText: {OldText} ;CLEANUP_OK", oldText?.Substring(0, Math.Min(50, oldText?.Length ?? 0)));
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update]    NewText: {NewText} ;CLEANUP_OK", question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ✅ QUESTION FOUND - Updating text ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - OldText: {OldText} ;CLEANUP_OK", requestId, oldText?.Substring(0, Math.Min(50, oldText?.Length ?? 0)));
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - NewText: {NewText} ;CLEANUP_OK", requestId, question.Text?.Substring(0, Math.Min(50, question.Text?.Length ?? 0)));
                             
                             await InvokeAsync(StateHasChanged);
                             
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] 🔄 StateHasChanged called, UI should refresh ;CLEANUP_OK");
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] Current State AFTER update: ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - Questions Count: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
+                            Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ✅ HostControlPanel UI updated successfully ;CLEANUP_OK", requestId);
                             Logger.LogInformation("[DEBUG-WORKITEM:canvas:signalr] Host: Question updated via SignalR: {QuestionId} ;CLEANUP_OK", questionId);
                         }
                         else
                         {
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ QUESTION NOT FOUND - QuestionId={QuestionId} not in Model.Questions ;CLEANUP_OK", questionId);
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update]    Searched for: {SearchId} ;CLEANUP_OK", questionId);
-                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update]    Available: {Available} ;CLEANUP_OK", allIds);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ❌ QUESTION NOT FOUND in HostControlPanel.Questions ;CLEANUP_OK", requestId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]    Searched for: {SearchId} ;CLEANUP_OK", requestId, questionId);
+                            Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]    Available: {Available} ;CLEANUP_OK", requestId, allIds);
                         }
                     }
                     else
                     {
-                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:host-update] ❌ QuestionId is null in payload ;CLEANUP_OK");
+                        Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ⚠️ QuestionId is NULL in payload ;CLEANUP_OK", requestId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:host-update] ❌ EXCEPTION in HostQuestionUpdated handler: {Message} ;CLEANUP_OK", ex.Message);
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:signalr] Host: Error processing HostQuestionUpdated event ;CLEANUP_OK");
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] 💥 EXCEPTION in HostQuestionUpdated handler: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}]   - StackTrace: {StackTrace} ;CLEANUP_OK", requestId, ex.StackTrace);
                 }
                 
-                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:host-update] ════════ HOST QUESTION UPDATE END ════════ ;CLEANUP_OK");
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] HostControlPanel HostQuestionUpdated handler COMPLETE ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:update:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
             });
 
             // Handle question deletions from participants
