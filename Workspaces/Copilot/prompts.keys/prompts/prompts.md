@@ -3,9 +3,9 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-10-12
+- **Last Updated**: 2025-10-13
 - **Owner**: GitHub Copilot
-- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment, _Portable template synchronization
+- **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment, _Portable template synchronization, refactor prompt consolidation enhancements
 - **Complexity**: high
 - **Debug Level**: simple
 
@@ -98,6 +98,14 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
   - InfrastructureQuickRef.md → Critical Anti-Patterns section documents annotation system deletion
 
 ## Recent Changes
+- 2025-10-13: Enhanced refactor.prompt.md with comprehensive multi-file consolidation strategy (commit: 28e4ca88)
+  - Added Multi-File Consolidation Strategy section with 5-step process
+  - Included grep_search patterns for identifying similar methods across files
+  - Added consolidation decision matrix (when to merge vs keep separate)
+  - Documented consolidation execution workflow and validation steps
+  - Added consolidation documentation template for tracking merged functionality
+  - Enhanced Cross-Service Pattern Detection capabilities
+  - Improved Query Pattern Analysis for database access consolidation
 - 2025-01-11: Comprehensive prompts system refresh (commit: 4c8211f2)
   - Created InfrastructureQuickRef.md (254 lines) - anti-hallucination reference
   - Refreshed FileMetrics.md with live data (18 → 97 lines)
@@ -150,6 +158,7 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 - `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration (LATEST)
 
 ### Files Modified
+- `.github/prompts/refactor.prompt.md` - UPDATED - Enhanced multi-file consolidation strategy (commit: 28e4ca88)
 - `.github/instructions/Links/InfrastructureQuickRef.md` - CREATED (254 lines) - Authoritative infrastructure reference
 - `.github/instructions/Links/FileMetrics.md` - UPDATED (18 → 97 lines) - Live line counts, usage guide
 - `.github/instructions/Links/FunctionalityRegistry-QuickRef.md` - UPDATED - Added related documentation
