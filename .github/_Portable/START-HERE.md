@@ -156,7 +156,7 @@ Think of keys as "feature folders" for tracking work:
 - `key=dashboard` → All dashboard work
 - `key=bugfix` → Bug fixes
 
-Each key gets its own folder in `Workspaces/Copilot/prompts.keys/{key}/` containing:
+Each key gets its own folder in `.github/prompts.keys/{key}/` containing:
 - `{key}.md` - Metadata and file mappings
 - `work-log.md` - Detailed work history with git SHAs
 - Test files and documentation
@@ -368,7 +368,7 @@ Open `PROJECT-SETUP-SUMMARY.md` in your project root to see:
 ### "Can't find key metadata"
 Keys are created automatically on first use. If key folder missing:
 1. Let agent create it
-2. Or manually create: `Workspaces/Copilot/prompts.keys/{key}/`
+2. Or manually create: `.github/prompts.keys/{key}/`
 
 **More help**: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
 

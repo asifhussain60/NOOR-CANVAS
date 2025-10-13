@@ -72,7 +72,7 @@ Read all instruction files from `.github/instructions/`:
 1. SelfAwareness.instructions.md, 2-10. Links/*.md files
 
 Read template:
-- `Workspaces/Copilot/prompts.keys/_template/key-template.md`
+- `.github/prompts.keys/_template/key-template.md`
 
 **For INCREMENTAL RUN** (has previous analysis):
 - Load only files with changed hashes
@@ -375,7 +375,7 @@ Score = A/10
 
 ### Step 5: Create Action Items
 
-Generate task-specific action items in `Workspaces/Copilot/prompts.keys/cohesion/` directory:
+Generate task-specific action items in `.github/prompts.keys/cohesion/` directory:
 
 1. **Create key metadata**: `cohesion.md`
 2. **Create work log**: `work-log.md`
@@ -548,7 +548,7 @@ Create comprehensive commit with all findings:
 
 ```bash
 git add Workspaces/Documentation/cohesion-review-*.md
-git add Workspaces/Copilot/prompts.keys/cohesion/
+git add .github/prompts.keys/cohesion/
 git add .github/instructions/
 git add .github/prompts/
 git commit -m "docs(cohesion): Prompt system cohesion review - [DATE]

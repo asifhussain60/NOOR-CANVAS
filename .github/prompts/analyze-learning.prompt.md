@@ -54,7 +54,7 @@ The **Self-Learning Analysis Agent** transforms NOOR CANVAS from a static instru
 ```
 
 ### Integration with Other Agents
-- **Reads From**: All agent key data streams in `Workspaces/Copilot/prompts.keys/`
+- **Reads From**: All agent key data streams in `.github/prompts.keys/`
 - **Writes To**: `Workspaces/Copilot/learning/{agent}-patterns.json`
 - **Supports**: All agents benefit from extracted patterns (task, refactor, sync, healthcheck)
 - **Coordination**: Read-only analysis mode, does not modify code or configurations
@@ -78,12 +78,12 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 ## Core Mandates
 - Always follow **`.github/instructions/SelfAwareness.instructions.md`** for operating rules.
 - Use **`.github/instructions/Links/SystemStructureSummary.md`** to understand system structure.
-- Query **`Workspaces/Copilot/prompts.keys/`** for historical key data streams.
+- Query **`.github/prompts.keys/`** for historical key data streams.
 - Update **`Workspaces/Copilot/learning/`** with extracted patterns and insights.
 - Follow **`Workspaces/Copilot/learning/PATTERN_SCHEMA.md`** for all pattern file contributions.
 - **READ-ONLY MODE:** This agent analyzes data but does not modify code or configuration files.
 - **EXCEPTION:** May update learning infrastructure files (patterns, insights, recommendations).
-- **KEY DATA STREAM:** Document all analysis results in `Workspaces/Copilot/prompts.keys/learning-analysis/work-log.md`
+- **KEY DATA STREAM:** Document all analysis results in `.github/prompts.keys/learning-analysis/work-log.md`
 
 ---
 
@@ -112,7 +112,7 @@ Your mission is to transform the NOOR CANVAS system from a static instruction se
 ---
 
 ### 1. Data Collection
-- Query `Workspaces/Copilot/prompts.keys/` based on scope parameter
+- Query `.github/prompts.keys/` based on scope parameter
 - Load all relevant `key.json` files
 - Extract execution data:
   - Status (completed, failed, in-progress)
@@ -425,7 +425,7 @@ After completing analysis:
 2. **Follow Schema**: Ensure all contributions comply with `PATTERN_SCHEMA.md` requirements
 3. **Document Analysis**: Create or update key data stream entry:
 
-**Key Data Stream Path**: `Workspaces/Copilot/prompts.keys/learning-analysis/work-log.md`
+**Key Data Stream Path**: `.github/prompts.keys/learning-analysis/work-log.md`
 
 **Entry Format**:
 ```markdown

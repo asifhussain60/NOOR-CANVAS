@@ -261,7 +261,7 @@ This guarantees rollback capability if sync introduces instability.
   `Sync task <key> is currently in <keylock-status>.`  
 
 ### 6. Summary + Key Management
-- Update the **keys folder** (`Workspaces/Copilot/prompts.keys`).  
+- Update the **keys folder** (`.github/prompts.keys`).  
 - Keep keys alphabetically sorted.  
 - Do not repeat key/keylock status here (already surfaced in confirmation phase).  
 - Ensure chat session documentation is properly indexed and accessible for future Copilot interactions.  

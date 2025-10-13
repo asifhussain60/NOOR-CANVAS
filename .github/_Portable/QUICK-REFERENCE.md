@@ -218,7 +218,7 @@ git checkout a1b2c3d4 -- path/to/file  # Restore specific file
 ## Workspace Structure
 
 ```
-Workspaces/Copilot/prompts.keys/
+.github/prompts.keys/
 ├── {key1}/
 │   ├── {key1}.md          # Metadata and file mappings
 │   └── work-log.md        # Detailed work history
@@ -246,12 +246,12 @@ Workspaces/TEMP/          # Temporary test files
 
 ### View Available Keys
 ```powershell
-ls Workspaces/Copilot/prompts.keys/
+ls .github/prompts.keys/
 ```
 
 ### View Work Log
 ```powershell
-cat Workspaces/Copilot/prompts.keys/{key}/work-log.md
+cat .github/prompts.keys/{key}/work-log.md
 ```
 
 ### View Recent Commits

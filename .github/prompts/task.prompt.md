@@ -15,7 +15,7 @@ You are the **Task Executor Agent**.
   - **First**: Check **thread history** for the most recently used key in this session.
   - **If found**: Assume the new work is a continuation under the same key data stream.
   - **If not found or ambiguous**: Review **#Workspaces**, **#terminalLastCommand**, and **#getTerminalOutput** to infer the key.
-  - **If still uncertain**: Query `Workspaces/Copilot/prompts.keys/` for recently modified keys.
+  - **If still uncertain**: Query `.github/prompts.keys/` for recently modified keys.
   - **If inference remains uncertain**: Halt and request clarification.
   - **Rationale**: Work within a session typically relates to the same key context unless explicitly changed.  
 
@@ -257,10 +257,10 @@ The **Task Executor Agent** is the canonical execution engine that breaks down r
   - healthcheck (validation of architectural changes)
 - **Reads From**: 
   - `Workspaces/Copilot/learning/task-patterns.json` (proven implementation patterns)
-  - `Workspaces/Copilot/prompts.keys/{key}/` (previous work context via Step 2)
+  - `.github/prompts.keys/{key}/` (previous work context via Step 2)
   - ValidationFramework.md (Levels 1-5, Level 6 if structural)
 - **Writes To**: 
-  - `Workspaces/Copilot/prompts.keys/{key}/work-log.md` (progressive documentation)
+  - `.github/prompts.keys/{key}/work-log.md` (progressive documentation)
   - `Workspaces/TEMP/` (Playwright tests for UI changes)
   - `Workspaces/Copilot/learning/task-patterns.json` (successful patterns)
 
@@ -343,6 +343,26 @@ All actions must respect the global guardrails and architectural mappings.
 
 ## Execution Steps
 
+### 0. Server Cleanup (If Running) [DEBUG-WORKITEM:task-prompt:kestrel-check] Enhanced with process check before kill ;CLEANUP_OK
+**Before any operations, check if Kestrel/NoorCanvas processes are running and only kill them if needed.**
+
+```powershell
+# Check for running Kestrel/dotnet processes
+$processes = Get-Process -Name dotnet -ErrorAction SilentlyContinue
+if ($processes) {
+    Write-Host "Found $($processes.Count) running dotnet process(es). Stopping them..."
+    Stop-Process -Name dotnet -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    Write-Host "Processes stopped successfully."
+} else {
+    Write-Host "No running Kestrel/dotnet processes found. Proceeding without cleanup."
+}
+```
+
+**Rationale**: Only kill processes if they're actually running to avoid unnecessary errors and warnings.
+
+---
+
 ### 1. Checkpoint Commit (Mandatory)
 **See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
 
@@ -364,14 +384,14 @@ This ensures rollback capability if the task introduces instability.
 - **If key is NOT provided**:
   - Search thread history for the most recently used key (prioritize within last 10 interactions).
   - Check `#terminalLastCommand` and `#getTerminalOutput` for key references.
-  - Query `Workspaces/Copilot/prompts.keys/` for recently modified keys (within last 24 hours).
+  - Query `.github/prompts.keys/` for recently modified keys (within last 24 hours).
   - **Assume continuation**: If a recent key is found and no contradictory context exists, assume new work is under the same key data stream.
   - **Document inference**: Clearly state which key was inferred and why.
 
 #### 2.2. Key Data Stream Query
 1. **Search for Key File**:
    ```
-   Workspaces/Copilot/prompts.keys/{key}/{key}.md
+   .github/prompts.keys/{key}/{key}.md
    ```
    - If `.md` file not found, check for `key.json` (legacy format)
 
@@ -718,7 +738,7 @@ This ensures rollback capability if the task introduces instability.
 **CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
 
 #### 8.1. Key Data Stream Update Requirements
-1. **Locate Key File**: `Workspaces/Copilot/prompts.keys/**/<key>.md`
+1. **Locate Key File**: `.github/prompts.keys/**/<key>.md`
 
 2. **Retrieve Git Commit Hash**:
    - Execute: `git rev-parse HEAD` to get the full SHA hash of the current commit
@@ -737,7 +757,7 @@ This ensures rollback capability if the task introduces instability.
 
 4. **Output to User** (brief acknowledgment only):
    ```
-   📝 Key data stream updated: Workspaces/Copilot/prompts.keys/{key}/work-log.md
+   📝 Key data stream updated: .github/prompts.keys/{key}/work-log.md
    ```
    - **Do NOT echo** the full work log entry to user
    - **Do NOT repeat** file lists already shown in Confirm step
@@ -827,7 +847,7 @@ This ensures rollback capability if the task introduces instability.
    - **IF no registry exists**:
      ```
      ℹ️ No Functionality Registry found for key '{key}'
-     Consider adding one using template: Workspaces/Copilot/prompts.keys/_template/key-template.md
+     Consider adding one using template: .github/prompts.keys/_template/key-template.md
      ```
 
 6. **Regression Detection & History**:
@@ -875,7 +895,7 @@ Documented Layers:
 Cross-layer workflow documented in work-log.md
 ```
 
-**Full Documentation Stored In** `Workspaces/Copilot/prompts.keys/{key}/work-log.md`:
+**Full Documentation Stored In** `.github/prompts.keys/{key}/work-log.md`:
 1. **Frontend Layer**: UI components, user journey, styling, client-side logic, accessibility
 2. **API Layer**: Endpoints, DTOs, authentication, error handling, contracts
 3. **Service Layer**: Business logic, data transformations, external dependencies, caching

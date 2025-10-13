@@ -18,10 +18,10 @@ The `_Portable` system is **well-designed and functionally complete**, but has s
 - ✅ Multi-language support (.NET, Node.js, Python, Java, etc.)
 
 **Critical Issues**:
-1. ❌ **Missing 2 NEW prompts**: commit.prompt.md, generalize-prompts.prompt.md (created 2025-10-13)
+1. ❌ **Missing 2 NEW prompts**: commit.prompt.md, normalize.prompt.md (created 2025-10-13)
 2. ⚠️ **Redundant documentation**: 4 overlapping docs (README, START-HERE, STATUS, COMPLETE)
 3. ⚠️ **Outdated status tracking**: STATUS.md/COMPLETE.md conflict (both claim completion)
-4. ⚠️ **Superseded by generalize-prompts.prompt.md**: Original design replaced by superior automation
+4. ⚠️ **Superseded by normalize.prompt.md**: Original design replaced by superior automation
 
 **Recommendation**: **CONSOLIDATE & SYNC** - 60% reduction in files with improved clarity
 
@@ -98,14 +98,14 @@ COMPLETE.md (443 lines)         → Completion announcement (CONFLICTS with STAT
    - Critical feature: Zero uncommitted changes guarantee
    - Status: ❌ **NOT in _Portable templates**
 
-2. **generalize-prompts.prompt.md** (992 lines)
+2. **normalize.prompt.md** (992 lines)
    - Purpose: Creates portable versions of prompts/instructions
    - Critical feature: **SUPERSEDES** original _Portable design
    - Status: ❌ **NOT in _Portable templates**
 
 **Impact**:
 - Users copying _Portable get **incomplete agent ecosystem**
-- **generalize-prompts.prompt.md** provides **superior automation** vs current convert-to-templates.ps1
+- **normalize.prompt.md** provides **superior automation** vs current convert-to-templates.ps1
 - Missing commit workflow = no automated pre-commit validation
 
 **Recommendation**: **URGENT - Add templates**
@@ -122,7 +122,7 @@ $promptFiles = @(
     'analyze-learning.prompt.md'
     'cohesion-review.prompt.md'
     'commit.prompt.md'              # NEW
-    'generalize-prompts.prompt.md'  # NEW
+    'normalize.prompt.md'  # NEW
 )
 ```
 
@@ -132,7 +132,7 @@ $promptFiles = @(
 
 ### 3. Architectural Supersession (STRATEGIC)
 
-**Problem**: generalize-prompts.prompt.md **replaces** the current _Portable design:
+**Problem**: normalize.prompt.md **replaces** the current _Portable design:
 
 **Current Design** (October 12, 2025):
 ```
@@ -145,7 +145,7 @@ _Portable/
 Workflow: setup.ps1 → convert-to-templates.ps1 → replace {{PLACEHOLDERS}}
 ```
 
-**New Design** (October 13, 2025 - via generalize-prompts.prompt.md):
+**New Design** (October 13, 2025 - via normalize.prompt.md):
 ```
 Run agent: @workspace /generalize-prompts
 
@@ -160,7 +160,7 @@ Workflow: SETUP.BAT → PowerShell replacement → Copilot review
 
 **Key Differences**:
 
-| Feature | Current _Portable | generalize-prompts.prompt.md |
+| Feature | Current _Portable | normalize.prompt.md |
 |---------|-------------------|------------------------------|
 | **Creation Method** | Manual script writing | AI-generated automation |
 | **Completeness** | Missing 2 new prompts | Includes ALL prompts |
@@ -186,7 +186,7 @@ Workflow: SETUP.BAT → PowerShell replacement → Copilot review
 
 **Option C: Hybrid Approach** (Recommended)
 - Keep _Portable as "stable release"
-- Document generalize-prompts.prompt.md as "advanced alternative"
+- Document normalize.prompt.md as "advanced alternative"
 - Add note: "Run `/generalize-prompts` for latest version"
 - Sync _Portable quarterly with generalize-prompts output
 
@@ -210,7 +210,7 @@ Workflow: SETUP.BAT → PowerShell replacement → Copilot review
 | analyze-learning.prompt.md | ✅ | ✅ Up to date |
 | cohesion-review.prompt.md | ✅ | ✅ Up to date |
 | **commit.prompt.md** | ❌ | ⚠️ **MISSING** |
-| **generalize-prompts.prompt.md** | ❌ | ⚠️ **MISSING** |
+| **normalize.prompt.md** | ❌ | ⚠️ **MISSING** |
 
 **Impact**: 20% of agent ecosystem missing from _Portable
 
@@ -304,7 +304,7 @@ Workflow: SETUP.BAT → PowerShell replacement → Copilot review
 
 ### Priority 0 (Immediate - Blockers)
 1. **Add commit.prompt.md.template** to _Portable
-2. **Add generalize-prompts.prompt.md.template** to _Portable
+2. **Add normalize.prompt.md.template** to _Portable
 3. **Update convert-to-templates.ps1** to include new prompts
 
 ### Priority 1 (High - Quality)
@@ -353,10 +353,10 @@ Workflow: SETUP.BAT → PowerShell replacement → Copilot review
 # Task 1: Add missing prompt templates
 cd .github/_Portable
 # Manually create commit.prompt.md.template
-# Manually create generalize-prompts.prompt.md.template
+# Manually create normalize.prompt.md.template
 
 # Task 2: Update convert-to-templates.ps1
-# Add 'commit.prompt.md' and 'generalize-prompts.prompt.md' to $promptFiles array
+# Add 'commit.prompt.md' and 'normalize.prompt.md' to $promptFiles array
 
 # Task 3: Test setup
 .\setup.bat
@@ -392,7 +392,7 @@ Remove-Item STATUS.md, COMPLETE.md, START-HERE.md
 
 ### Phase 4: Strategic Alignment (Optional - 1 day)
 ```powershell
-# Task 1: Test generalize-prompts.prompt.md output
+# Task 1: Test normalize.prompt.md output
 @workspace /generalize-prompts output-dir=".github/_Portable-v2"
 
 # Task 2: Compare outputs
@@ -444,7 +444,7 @@ The `_Portable` system is **functionally sound but operationally incomplete**:
 
 **Immediate Actions Required**:
 1. Add commit.prompt.md.template (critical gap)
-2. Add generalize-prompts.prompt.md.template (critical gap)
+2. Add normalize.prompt.md.template (critical gap)
 3. Consolidate documentation (efficiency + clarity)
 
 **Strategic Decision Needed**:

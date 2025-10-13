@@ -174,7 +174,7 @@
 ℹ️ No Functionality Registry found for key 'user-auth'
 Consider adding one to track core behaviors and prevent regressions.
 
-Template: Workspaces/Copilot/prompts.keys/_template/key-template.md
+Template: .github/prompts.keys/_template/key-template.md
 Guide: .github/instructions/Links/FunctionalityRegistry.md
 ```
 
@@ -259,7 +259,7 @@ Confirm all behaviors work correctly? (yes/no)
 
 ## 🔧 Key Management
 
-- **Location**: `Workspaces/Copilot/prompts.keys`
+- **Location**: `.github/prompts.keys`
 - **States**: `new`, `In Progress`, `complete`
 - **Sorting**: Always alphabetically sorted
 - **Template**: `_template/key-template.md`

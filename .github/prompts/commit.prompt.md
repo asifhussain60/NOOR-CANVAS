@@ -176,7 +176,7 @@ if ($skipLearning -eq $true) {
                     ConvertFrom-Json | 
                     Select-Object -First 1
     
-    $completedKeys = Get-ChildItem "Workspaces/Copilot/prompts.keys/*/prompts.md" | 
+    $completedKeys = Get-ChildItem ".github/prompts.keys/*/prompts.md" | 
                      Where-Object { (Get-Content $_.FullName) -match 'Status.*complete' }
     
     $newCompletions = $completedKeys | Where-Object { 

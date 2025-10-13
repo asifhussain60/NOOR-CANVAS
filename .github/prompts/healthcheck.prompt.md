@@ -151,7 +151,7 @@ After completing healthcheck:
 1. **Document Findings**: Create or update key data stream entry for audit trail
 2. **Update Learning Patterns**: Contribute discovered validation patterns to `Workspaces/Copilot/learning/validation-patterns.json`
 
-**Key Data Stream Path**: `Workspaces/Copilot/prompts.keys/healthcheck-audits/work-log.md`
+**Key Data Stream Path**: `.github/prompts.keys/healthcheck-audits/work-log.md`
 
 **Entry Format**:
 ```markdown

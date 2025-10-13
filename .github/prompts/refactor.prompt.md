@@ -591,7 +591,7 @@ Phase 5: Final Integration
   - Run ESLint + Prettier for JavaScript/TypeScript with --max-warnings 0.  
   - **VALIDATION GATE**: All analyzers must pass with zero issues before proceeding.  
 - **Key Management Updates:**  
-  - Create or update identified keys in `Workspaces/Copilot/prompts.keys`.  
+  - Create or update identified keys in `.github/prompts.keys`.  
   - Update relevant instruction files based on architectural changes.  
 - **Phase Management (for `scope=all` only):**
   - Document current phase number and total phases in commit messages
@@ -646,7 +646,7 @@ Phase 5: Final Integration
 
 ### 6. Summary + Key Management
 - **Key System Updates:**  
-  - If `key` is provided: update the **keys folder** (`Workspaces/Copilot/prompts.keys`).  
+  - If `key` is provided: update the **keys folder** (`.github/prompts.keys`).  
   - For `scope=current`: create new keys for identified refactoring work areas.  
   - Keep all keys alphabetically sorted.  
   - Update key status and lifecycle tracking.  

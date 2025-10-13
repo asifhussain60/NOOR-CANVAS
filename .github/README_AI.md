@@ -56,8 +56,8 @@ The Task Executor is the canonical engine that breaks down development requests 
 - Resuming previously completed tasks
 
 **Triggers**: pwtest (auto), refactor (post-implementation), healthcheck (validation)  
-**Reads From**: `Workspaces/Copilot/learning/task-patterns.json`, `Workspaces/Copilot/prompts.keys/{key}/`  
-**Writes To**: `Workspaces/Copilot/prompts.keys/{key}/work-log.md`, `Workspaces/TEMP/` (Playwright tests)
+**Reads From**: `Workspaces/Copilot/learning/task-patterns.json`, `.github/prompts.keys/{key}/`  
+**Writes To**: `.github/prompts.keys/{key}/work-log.md`, `Workspaces/TEMP/` (Playwright tests)
 
 **Invocation Examples**:
 ```
@@ -295,7 +295,7 @@ The Self-Learning Analysis Agent transforms NOOR CANVAS from a static instructio
 - Quality trend monitoring
 - Knowledge base refresh operations
 
-**Reads From**: All agent key data streams in `Workspaces/Copilot/prompts.keys/`  
+**Reads From**: All agent key data streams in `.github/prompts.keys/`  
 **Writes To**: `Workspaces/Copilot/learning/{agent}-patterns.json`  
 **Supports**: All agents (benefits all through extracted patterns)
 
@@ -401,7 +401,7 @@ The Self-Learning Analysis Agent transforms NOOR CANVAS from a static instructio
 
 All agents maintain work history in:
 ```
-Workspaces/Copilot/prompts.keys/{key}/work-log.md
+.github/prompts.keys/{key}/work-log.md
 ```
 
 **Key Lifecycle**:

@@ -26,7 +26,7 @@ You are the **Prompt Generalization Agent**.
 
 ---
 
-# generalize-prompts.prompt.md
+# normalize.prompt.md
 
 ## Purpose
 
@@ -114,7 +114,7 @@ $promptFiles | Sort-Object Name | ForEach-Object {
 }
 
 # Validation: Ensure critical prompts exist
-$criticalPrompts = @('task.prompt.md', 'commit.prompt.md', 'generalize-prompts.prompt.md')
+$criticalPrompts = @('task.prompt.md', 'commit.prompt.md', 'normalize.prompt.md')
 $missingCritical = $criticalPrompts | Where-Object { $_ -notin $promptFiles.Name }
 
 if ($missingCritical.Count -gt 0) {
@@ -408,7 +408,7 @@ Write-Host "`n✅ All $($promptFiles.Count) prompts generalized successfully" -F
 
 **Key Features**:
 - ✅ **Auto-Discovery**: No manual list - processes ALL `*.prompt.md` files found
-- ✅ **Includes New Prompts**: Automatically picks up commit.prompt.md, generalize-prompts.prompt.md
+- ✅ **Includes New Prompts**: Automatically picks up commit.prompt.md, normalize.prompt.md
 - ✅ **Self-Updating**: When new prompts are added to `.github/prompts/`, they're automatically included
 - ✅ **No Maintenance**: Never needs updates when prompt ecosystem grows
 
@@ -979,7 +979,7 @@ if ($missingFiles.Count -eq 0) {
 # Verify no specific NOOR CANVAS references remain in critical files
 Write-Host "`n🔍 Checking for project-specific references..." -ForegroundColor Cyan
 
-$criticalFiles = @('task.prompt.md', 'commit.prompt.md', 'generalize-prompts.prompt.md')
+$criticalFiles = @('task.prompt.md', 'commit.prompt.md', 'normalize.prompt.md')
 $foundReferences = @()
 
 foreach ($fileName in $criticalFiles) {

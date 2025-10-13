@@ -29,7 +29,7 @@
    - **Exit Guarantee**: Zero uncommitted changes, all commits pushed, clean build
    - **Integration**: Triggered by task.prompt.md Step 9 or manual invocation
 
-2. **generalize-prompts.prompt.md** - Prompt Generalization Agent
+2. **normalize.prompt.md** - Prompt Generalization Agent
    - **Purpose**: Create portable, generic versions of all prompts/instructions for any software project
    - **Key Features**:
      - Step 2: Inventory all prompts (8) + instructions (11) + shared (5) = 24 files
@@ -54,7 +54,7 @@
 
 **Files Created**: 2
 - `.github/prompts/commit.prompt.md` (+431 lines)
-- `.github/prompts/generalize-prompts.prompt.md` (+992 lines)
+- `.github/prompts/normalize.prompt.md` (+992 lines)
 
 **Total Lines Added**: 1,423 lines
 
@@ -94,7 +94,7 @@
 
 **Impact**:
 - **commit.prompt.md**: Provides single-command workflow for comprehensive pre-commit validation
-- **generalize-prompts.prompt.md**: Enables NOOR CANVAS prompt system to be portable to any project
+- **normalize.prompt.md**: Enables NOOR CANVAS prompt system to be portable to any project
 - Both prompts enhance automation and reduce manual workflow steps
 - SETUP.BAT provides self-service onboarding for new projects
 - Complete documentation ensures easy adoption
@@ -113,8 +113,8 @@
 **Objective**: Implement Priority 0 (Immediate - Blockers) recommendations from portable-efficiency-review.md
 
 **Problem Solved**:
-- ❌ **Original Issue**: generalize-prompts.prompt.md had **hardcoded list** of 8 prompts
-- ❌ **Critical Gap**: Missing commit.prompt.md and generalize-prompts.prompt.md from _Portable
+- ❌ **Original Issue**: normalize.prompt.md had **hardcoded list** of 8 prompts
+- ❌ **Critical Gap**: Missing commit.prompt.md and normalize.prompt.md from _Portable
 - ❌ **Maintenance Burden**: Required manual updates when new prompts added
 - ❌ **Future Risk**: Any new prompt would be missed without manual intervention
 
@@ -203,12 +203,12 @@ $instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md,
 | **Future-Proof** | Breaks with new prompts | Adapts automatically | Continuous compatibility |
 
 **Files Modified**: 1
-- `.github/prompts/generalize-prompts.prompt.md` (+176 lines, -93 lines, net +83 lines)
+- `.github/prompts/normalize.prompt.md` (+176 lines, -93 lines, net +83 lines)
 
 **Build Status**: Clean (prompt file only, no code changes)
 
 **Git Operations**:
-- Staged generalize-prompts.prompt.md
+- Staged normalize.prompt.md
 - Committed with comprehensive commit message documenting all changes
 - Commit hash: 11b33683
 
@@ -242,7 +242,7 @@ $instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md,
 
 1. **Critical Gaps Identified** (P0 - Immediate)
    - ❌ **Missing commit.prompt.md.template**: New prompt created 2025-10-13 not in _Portable
-   - ❌ **Missing generalize-prompts.prompt.md.template**: New prompt created 2025-10-13 not in _Portable
+   - ❌ **Missing normalize.prompt.md.template**: New prompt created 2025-10-13 not in _Portable
    - **Impact**: Users copying _Portable get incomplete agent ecosystem (20% missing)
    - **Recommendation**: Add both templates to convert-to-templates.ps1 immediately
 
@@ -255,7 +255,7 @@ $instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md,
    - **Benefit**: 60% fewer docs, 75% less documentation overhead
 
 3. **Architectural Supersession Discovery** (Strategic)
-   - **Finding**: generalize-prompts.prompt.md **replaces** current _Portable design
+   - **Finding**: normalize.prompt.md **replaces** current _Portable design
    - **Current**: Manual convert-to-templates.ps1 with 30 hardcoded replacements
    - **New**: AI-generated automation with dynamic pattern extraction + Copilot review
    - **Key Difference**: generalize-prompts is self-maintaining (re-run agent to update)
@@ -289,7 +289,7 @@ $instructionFiles = Get-ChildItem ".github/instructions" -Recurse -Include *.md,
 
 **Priority 0 (Immediate - Blockers)**:
 1. Add commit.prompt.md.template
-2. Add generalize-prompts.prompt.md.template
+2. Add normalize.prompt.md.template
 3. Update convert-to-templates.ps1 prompt list
 
 **Priority 1 (High - Quality)**:

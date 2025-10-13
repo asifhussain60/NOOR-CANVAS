@@ -343,9 +343,9 @@ const BASE_URL = 'https://localhost:9091';
 - **Instructions**: `.github/instructions/*.instructions.md`
 
 ### Keys (Work Items)
-- **Key Metadata**: `Workspaces/Copilot/prompts.keys/{key}/{key}.md`
-- **Work Logs**: `Workspaces/Copilot/prompts.keys/{key}/work-log.md`
-- **Template**: `Workspaces/Copilot/prompts.keys/_template/key-template.md`
+- **Key Metadata**: `.github/prompts.keys/{key}/{key}.md`
+- **Work Logs**: `.github/prompts.keys/{key}/work-log.md`
+- **Template**: `.github/prompts.keys/_template/key-template.md`
 
 ---
 
