@@ -943,33 +943,39 @@
                                             question.QuestionId, isMyQuestion, hasVoted, question.Votes);
 
                                         <div class="canvas-question-item" style="border-color:@borderColor;background-color:@bgColor;">
-                                            @if (!isMyQuestion)
-                                            {
-                                                <div class="canvas-question-vote-section">
+                                            <div class="canvas-question-vote-section">
+                                                @if (!isMyQuestion)
+                                                {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote button - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted}, Clickable=true ;CLEANUP_OK",
+                                                        question.QuestionId, question.Votes, hasVoted);
+                                                    
                                                     <button @onclick="() => VoteQuestion(question.QuestionId)" 
-                                                            @onclick:preventDefault="false"
-                                                            @onclick:stopPropagation="false"
+                                                            @onclick:preventDefault="true"
+                                                            @onclick:stopPropagation="true"
                                                             class="canvas-question-vote-button"
                                                             style="color:@upvoteColor;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
                                                             disabled="@hasVoted">
                                                         <i class="fa-solid fa-arrow-up"></i>
                                                     </button>
                                                     <span class="canvas-question-vote-count" style="color:@upvoteColor;">@question.Votes</span>
-                                                </div>
-                                                
-                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote button rendered - QuestionId={QuestionId}, HasVoted={HasVoted}, Disabled={Disabled} ;CLEANUP_OK",
-                                                    question.QuestionId, hasVoted, hasVoted);
-                                            }
-                                            else
-                                            {
-                                                <!-- Empty spacer to maintain alignment for user's own questions -->
-                                                <div class="canvas-question-vote-section" style="visibility:hidden;">
-                                                    <button class="canvas-question-vote-button" disabled>
+                                                    
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote button rendered - QuestionId={QuestionId}, HasVoted={HasVoted}, Disabled={Disabled} ;CLEANUP_OK",
+                                                        question.QuestionId, hasVoted, hasVoted);
+                                                }
+                                                else
+                                                {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote count (own question) - QuestionId={QuestionId}, Votes={Votes}, Clickable=false ;CLEANUP_OK",
+                                                        question.QuestionId, question.Votes);
+                                                    
+                                                    <!-- Show upvote count for own questions but disable interaction -->
+                                                    <button class="canvas-question-vote-button" 
+                                                            style="color:@upvoteColor;cursor:default;opacity:0.5;" 
+                                                            disabled>
                                                         <i class="fa-solid fa-arrow-up"></i>
                                                     </button>
-                                                    <span class="canvas-question-vote-count">0</span>
-                                                </div>
-                                            }
+                                                    <span class="canvas-question-vote-count" style="color:@upvoteColor;">@question.Votes</span>
+                                                }
+                                            </div>
                                             <div class="canvas-question-content">
                                                 <div class="canvas-question-header">
                                                     <span class="canvas-question-text" style="color:@(isMyQuestion ? "#006400" : "#CC5500");">@question.Text</span>
@@ -1983,6 +1989,8 @@
         Logger.LogInformation("[DEBUG-WORKITEM:use-questions:vote] VoteQuestion called for QuestionId={QuestionId}, UserGuid={UserGuid}, AlreadyVoted={AlreadyVoted} ;CLEANUP_OK", 
             questionId, CurrentUserGuid, VotedQuestionIds.Contains(questionId));
         
+        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] CLICK EVENT - User clicked upvote button for QuestionId={QuestionId} ;CLEANUP_OK", questionId);
+        
         if (Http == null || string.IsNullOrEmpty(SessionToken))
         {
             Logger.LogWarning("[DEBUG-WORKITEM:canvas-questions:upvote] Vote failed - Http={HttpNull}, SessionToken={TokenNull} ;CLEANUP_OK", 
@@ -2283,6 +2291,9 @@
                 Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] QuestionVoteUpdated received - QuestionId={QuestionId}, NewVoteCount={NewVoteCount} ;CLEANUP_OK", 
                     questionId, newVoteCount);
                 
+                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR QuestionVoteUpdated - QuestionId={QuestionId}, NewVoteCount={NewVoteCount} ;CLEANUP_OK", 
+                    questionId, newVoteCount);
+                
                 if (Model?.Questions != null)
                 {
                     var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
@@ -2290,8 +2301,15 @@
                     {
                         Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] Updating question votes - OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
                             question.Votes, newVoteCount);
+                        
+                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote count UPDATE - QuestionId={QuestionId}, OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
+                            questionId, question.Votes, newVoteCount);
+                        
                         question.Votes = newVoteCount;
                         await InvokeAsync(StateHasChanged);
+                        
+                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] UI refreshed with new vote count - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
+                            questionId, newVoteCount);
                     }
                     else
                     {
@@ -2315,21 +2333,28 @@
                     Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] QuestionVoteUpdate received - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
                         questionId, votes);
                     
+                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] SignalR QuestionVoteUpdate (API format) - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
+                        questionId, votes);
+                    
                     if (Model?.Questions != null && questionId != null)
                     {
                         var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
                         if (question != null)
                         {
-                            Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] Updating question votes - OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
-                                question.Votes, votes);
+                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote count UPDATE (API format) - QuestionId={QuestionId}, OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
+                                questionId, question.Votes, votes);
+                            
                             question.Votes = votes;
                             await InvokeAsync(StateHasChanged);
+                            
+                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] UI refreshed with new vote count (API format) - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
+                                questionId, votes);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:signalr] Error processing QuestionVoteUpdate event ;CLEANUP_OK");
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:signalr] Error processing QuestionVoteUpdate: {Message} ;CLEANUP_OK", ex.Message);
                 }
             });
 

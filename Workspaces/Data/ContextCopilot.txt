@@ -9,7 +9,7 @@
     <!-- Load Lucide icons for better visual matching -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Load Roboto font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght400;500;700&display=swap" rel="stylesheet">
     <style>
         /* Setting the default font to Inter (or a safe sans-serif fallback) */
         html {
@@ -19,13 +19,17 @@
         .border-outer-gold {
             border: 2px solid #D4AF37;
         }
-        /* Inner Green Question border: 1px solid #006400 (Dark Green) */
+        /* Inner Green Question border: 1px solid #006400 (Dark Green) - Used for Right and Bottom only */
         .border-inner-dark-green {
-            border: 1px solid #006400;
+            border-right: 1px solid #006400;
+            border-bottom: 1px solid #006400;
+            border-top: 1px solid #006400; /* Reverted to 1px */
         }
-        /* New Inner Orange Question border: 1px solid #CC5500 (Dark Orange) */
+        /* New Inner Orange Question border: 1px solid #CC5500 (Dark Orange) - Used for Right and Bottom only */
         .border-inner-dark-orange {
-            border: 1px solid #CC5500;
+            border-right: 1px solid #CC5500;
+            border-bottom: 1px solid #CC5500;
+            border-top: 1px solid #CC5500; /* Reverted to 1px */
         }
         /* Style for the active toggle button */
         .view-btn.active {
@@ -49,7 +53,7 @@
                     colors: {
                         'custom-green': '#34D399',
                         'light-green': '#ECFDF5', 
-                        'deep-green': '#059669',
+                        'deep-green': '#059669', /* Dark Green for left border */
                         /* New light orange background color */
                         'light-orange': '#FFF7ED', 
                     }
@@ -102,8 +106,8 @@
                         
                         <h2 class="text-xl font-semibold text-gray-700 mt-6 mb-4">Recent Questions</h2>
                         
-                        <!-- Question Item 1 (Editable - Green/Default Style) - NO UPVOTE SECTION -->
-                        <div class="flex items-start p-4 mb-4 rounded-xl border-inner-dark-green bg-light-green shadow-md">
+                        <!-- Question Item 1 (Editable - Green/Default Style) -->
+                        <div class="flex items-start p-4 mb-4 rounded-r-xl rounded-bl-xl border-inner-dark-green bg-light-green shadow-md border-l-4 border-deep-green">
                             <!-- Content Section -->
                             <div class="flex-grow pl-2"> <!-- Added pl-2 for alignment -->
                                 <p class="font-medium text-gray-800 text-base">Who are the Ahl al-Bayt?</p>
@@ -123,8 +127,8 @@
                             </div>
                         </div>
 
-                        <!-- Question Item 2 (Editable - Green/Default Style) - NO UPVOTE SECTION -->
-                        <div class="flex items-start p-4 mb-4 rounded-xl border-inner-dark-green bg-light-green shadow-md">
+                        <!-- Question Item 2 (Editable - Green/Default Style) -->
+                        <div class="flex items-start p-4 mb-4 rounded-r-xl rounded-bl-xl border-inner-dark-green bg-light-green shadow-md border-l-4 border-deep-green">
                             <!-- Content Section -->
                             <div class="flex-grow pl-2"> <!-- Added pl-2 for alignment -->
                                 <p class="font-medium text-gray-800 text-base">What is Hajj and why is it important?</p>
@@ -145,7 +149,7 @@
                         </div>
 
                         <!-- New Question Item 3 (Read-only - Orange Style) - HAS UPVOTE SECTION -->
-                        <div class="flex items-start p-4 mb-4 rounded-xl border-inner-dark-orange bg-light-orange shadow-md">
+                        <div class="flex items-start p-4 mb-4 rounded-r-xl rounded-bl-xl border-inner-dark-orange bg-light-orange shadow-md border-l-4 border-[#CC5500]">
                             <!-- Upvote Section - Added space-y-1 -->
                             <div class="flex flex-col items-center mr-4 mt-1 space-y-1">
                                 <i data-lucide="arrow-up" class="w-6 h-6 text-[#CC5500]"></i> <!-- Icon color matching border -->
@@ -161,7 +165,7 @@
                         </div>
 
                         <!-- New Question Item 4 (Read-only - Orange Style) - HAS UPVOTE SECTION -->
-                        <div class="flex items-start p-4 rounded-xl border-inner-dark-orange bg-light-orange shadow-md">
+                        <div class="flex items-start p-4 rounded-r-xl rounded-bl-xl border-inner-dark-orange bg-light-orange shadow-md border-l-4 border-[#CC5500]">
                             <!-- Upvote Section - Added space-y-1 -->
                             <div class="flex flex-col items-center mr-4 mt-1 space-y-1">
                                 <i data-lucide="arrow-up" class="w-6 h-6 text-[#CC5500]"></i> <!-- Icon color matching border -->

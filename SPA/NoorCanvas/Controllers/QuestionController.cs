@@ -305,8 +305,14 @@ namespace NoorCanvas.Controllers
                         }
                     }
 
+                    _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Processing vote - QuestionId={QuestionId}, CurrentVotes={CurrentVotes}, Direction={Direction} ;CLEANUP_OK",
+                        questionId, currentVotes, request.Direction);
+
                     var newVotes = request.Direction?.ToLower() == "up" ? currentVotes + 1 : currentVotes - 1;
                     questionData["votes"] = newVotes;
+
+                    _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote calculation - CurrentVotes={CurrentVotes}, NewVotes={NewVotes}, Direction={Direction} ;CLEANUP_OK",
+                        currentVotes, newVotes, request.Direction);
 
                     questionRecord.Content = JsonSerializer.Serialize(questionData);
 
@@ -329,8 +335,14 @@ namespace NoorCanvas.Controllers
                     await _context.SaveChangesAsync();
 
                     // Broadcast vote update via SignalR
+                    _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Broadcasting vote update - SessionGroup=Session_{SessionId}, QuestionId={QuestionId}, NewVotes={NewVotes} ;CLEANUP_OK",
+                        session.SessionId, questionId, newVotes);
+                    
                     await _sessionHub.Clients.Group($"Session_{session.SessionId}")
                         .SendAsync("QuestionVoteUpdate", new { questionId, votes = newVotes });
+
+                    _logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Vote update broadcast complete - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK",
+                        questionId, newVotes);
 
                     // Notify hosts with toast
                     var questionText = questionData.ContainsKey("text") ? questionData["text"]?.ToString() : "Question";
