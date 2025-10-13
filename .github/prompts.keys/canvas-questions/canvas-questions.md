@@ -3,10 +3,10 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T16:40:00Z
+- **Last Updated**: 2025-10-13T17:15:00Z
 - **Agent**: task
 - **Priority**: high
-- **Category**: bug-fix
+- **Category**: feature-enhancement
 
 ## Issue Summary
 ~~Questions from other users are displaying as "Your Question" with edit/delete buttons instead of showing in orange without action buttons. Additionally, the upvote button and count are not visible on the left side of questions from other users.~~ **[RESOLVED - Issue was ownership detection]**
@@ -206,6 +206,74 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 - Icon and badge grouped together improves UI coherence
 - More space for question content reduces visual crowding
 - Consistent with common card UI patterns (actions top-right)
+
+### Commit: c2c50a96da45138fd16422152434d073772ee731
+**Date**: 2025-10-13T17:15:00Z
+**Message**: feat(canvas-questions): Convert Q&A textarea to single-line input with session-status gating
+
+**Summary**: Converted Q&A textarea to single-line input element while maintaining visual height, and added session-status-based disabling to prevent question submission until host starts the session. Enhanced with SessionBegan SignalR handler and comprehensive trace debug logging.
+
+**Form Changes**:
+1. **Textarea → Input Conversion**:
+   - Changed from `<textarea rows="2">` to `<input type="text">`
+   - Added CSS: `height: 3rem` to `.canvas-form-textarea` class
+   - Preserved existing styling (border, padding, colors, font)
+   - Maintains visual consistency with previous height
+
+2. **Session Status Gating**:
+   - Added `SessionStatus` property to `SessionCanvasViewModel`
+   - Input disabled when `Model.SessionStatus != "Active"`
+   - Submit button disabled when `Model.SessionStatus != "Active"`
+   - CSS disabled styling: `opacity: 0.6`, `cursor: not-allowed`, gray background
+
+3. **SignalR Integration**:
+   - Added `SessionBegan` event handler in `InitializeSignalRAsync`
+   - Updates `Model.SessionStatus = "Active"` on session start
+   - Enables Q&A input and button automatically when host starts session
+   - Listens to group `session_{sessionId}` broadcasts
+
+4. **Keyboard Behavior**:
+   - Enhanced `HandleQuestionKeyDown` with session status validation
+   - Enter key submission blocked if `Model.SessionStatus != "Active"`
+   - Logs keyboard event with status check before submission
+   - No change to Shift+Enter behavior (N/A for single-line input)
+
+**Trace Debug Logging** ([DEBUG-WORKITEM:canvas-questions:session-status] and [DEBUG-WORKITEM:canvas-questions:keyboard]):
+- `UpdateSessionData`: Logs session status updates from API
+- `SessionBegan` handler: Logs when SignalR enables Q&A input
+- `HandleQuestionKeyDown`: Logs Enter key with status validation
+- Confirms Q&A input enabled/disabled state at each transition
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+  - **Lines 532-548**: Updated `.canvas-form-textarea` CSS with height and disabled styling
+  - **Lines 551-570**: Added `.canvas-form-submit-button:disabled` CSS
+  - **Lines 973-987**: Replaced textarea with input, added disabled attributes
+  - **Lines 1389-1406**: Updated `UpdateSessionData` to set `Model.SessionStatus`
+  - **Lines 1808**: Added `SessionStatus` property to `SessionCanvasViewModel`
+  - **Lines 2647-2673**: Added `SessionBegan` SignalR event handler
+  - **Lines 2968-2988**: Enhanced `HandleQuestionKeyDown` with status validation
+
+**User Flow**:
+1. User joins SessionCanvas with valid token
+2. Q&A input and button are **disabled** (status = "Waiting" or null)
+3. Host clicks "Start Session" in HostControlPanel
+4. HostController broadcasts `SessionBegan` via SignalR
+5. SessionCanvas receives event, updates `Model.SessionStatus = "Active"`
+6. Q&A input and button automatically **enabled**
+7. User can now type question and press Enter or click Submit
+
+**Visual Impact**:
+- Single-line input reduces vertical space in Q&A panel
+- Cleaner, more compact form layout
+- Disabled state provides clear visual feedback (grayed out, dimmed)
+- Enter key submission feels more natural for single-line entry
+
+**UX Improvements**:
+- Prevents premature question submission before session starts
+- Reduces user confusion about when Q&A is available
+- Enter key behavior matches standard single-line input patterns
+- Disabled styling provides clear affordance about functionality state
 
 ### Commit: d17cbfceaec7c40b595c452838c55c887016438d
 **Date**: 2025-10-13T12:05:00Z
