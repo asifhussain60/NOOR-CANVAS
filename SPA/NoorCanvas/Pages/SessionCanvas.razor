@@ -572,22 +572,27 @@
         display: flex;
         align-items: flex-start;
         padding: 1rem;
+        padding-bottom: 2.5rem; /* Extra space for vote section at bottom */
         border-radius: 0.75rem;
-        border: 1px solid;
+        border: 2px solid;
+        border-left-width: 4px; /* Thicker left border */
         margin-bottom: 0.75rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transition: all 0.2s;
+        position: relative; /* For absolute positioning of vote section */
     }
 
     .canvas-question-vote-section {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-right: 1rem;
+        gap: 0.375rem;
+        position: absolute;
+        bottom: 0.5rem;
+        right: 0.5rem;
     }
 
     .canvas-question-vote-button {
-        font-size: 1.5rem;
+        font-size: 1.125rem;
         transition: all 0.2s;
         cursor: pointer;
         background: none;
@@ -604,16 +609,17 @@
         background-color: #DC2626; /* Red badge background */
         color: #FFFFFF; /* White text */
         border-radius: 9999px;
-        padding: 0.25rem 0.625rem;
-        font-size: 0.875rem;
+        padding: 0.1875rem 0.5rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        min-width: 1.75rem;
+        min-width: 1.5rem;
         text-align: center;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
 
     .canvas-question-content {
         flex: 1;
+        width: 100%; /* Full width for question text */
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -939,45 +945,10 @@
                                         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion}, BGColor={BGColor} ;CLEANUP_OK", 
                                             question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion, bgColor);
                                         
-                                        Logger.LogTrace("[DEBUG-WORKITEM:use-questions:render] Rendering question {QuestionId}: IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes} ;CLEANUP_OK", 
-                                            question.QuestionId, isMyQuestion, hasVoted, question.Votes);
+                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote button - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted}, Clickable=true ;CLEANUP_OK",
+                                            question.QuestionId, question.Votes, hasVoted);
 
                                         <div class="canvas-question-item" style="border-color:@borderColor;background-color:@bgColor;">
-                                            <div class="canvas-question-vote-section">
-                                                @if (!isMyQuestion)
-                                                {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote button - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted}, Clickable=true ;CLEANUP_OK",
-                                                        question.QuestionId, question.Votes, hasVoted);
-                                                    
-                                                    <button @onclick="() => VoteQuestion(question.QuestionId)" 
-                                                            @onclick:preventDefault="true"
-                                                            @onclick:stopPropagation="true"
-                                                            class="canvas-question-vote-button"
-                                                            style="color:@upvoteColor;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
-                                                            disabled="@hasVoted"
-                                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                        <i class="fa-solid fa-thumbs-up"></i>
-                                                    </button>
-                                                    <span class="canvas-question-vote-count">@question.Votes</span>
-                                                    
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote button rendered - QuestionId={QuestionId}, HasVoted={HasVoted}, Disabled={Disabled} ;CLEANUP_OK",
-                                                        question.QuestionId, hasVoted, hasVoted);
-                                                }
-                                                else
-                                                {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote count (own question) - QuestionId={QuestionId}, Votes={Votes}, Clickable=false ;CLEANUP_OK",
-                                                        question.QuestionId, question.Votes);
-                                                    
-                                                    <!-- Show upvote count for own questions but disable interaction -->
-                                                    <button class="canvas-question-vote-button" 
-                                                            style="color:@upvoteColor;cursor:default;opacity:0.5;" 
-                                                            disabled
-                                                            title="You cannot vote on your own question">
-                                                        <i class="fa-solid fa-thumbs-up"></i>
-                                                    </button>
-                                                    <span class="canvas-question-vote-count">@question.Votes</span>
-                                                }
-                                            </div>
                                             <div class="canvas-question-content">
                                                 <div class="canvas-question-header">
                                                     <span class="canvas-question-text" style="color:@(isMyQuestion ? "#006400" : "#CC5500");">@question.Text</span>
@@ -992,6 +963,43 @@
                                                 @if (isMyQuestion)
                                                 {
                                                     <span class="canvas-question-owner-label" style="color:#006400;">Your Question</span>
+                                                }
+                                            </div>
+                                            
+                                            <!-- Vote section positioned at bottom-right -->
+                                            <div class="canvas-question-vote-section">
+                                                @if (!isMyQuestion)
+                                                {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote button (positioned bottom-right) - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted}, Clickable=true ;CLEANUP_OK",
+                                                        question.QuestionId, question.Votes, hasVoted);
+                                                    
+                                                    <button @onclick="() => VoteQuestion(question.QuestionId)" 
+                                                            @onclick:preventDefault="true"
+                                                            @onclick:stopPropagation="true"
+                                                            class="canvas-question-vote-button"
+                                                            style="color:@upvoteColor;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
+                                                            disabled="@hasVoted"
+                                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
+                                                        <i class="fa-solid fa-thumbs-up"></i>
+                                                    </button>
+                                                    <span class="canvas-question-vote-count">@question.Votes</span>
+                                                    
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote button rendered (bottom-right position) - QuestionId={QuestionId}, HasVoted={HasVoted}, Disabled={Disabled} ;CLEANUP_OK",
+                                                        question.QuestionId, hasVoted, hasVoted);
+                                                }
+                                                else
+                                                {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote count (own question, bottom-right) - QuestionId={QuestionId}, Votes={Votes}, Clickable=false ;CLEANUP_OK",
+                                                        question.QuestionId, question.Votes);
+                                                    
+                                                    <!-- Show upvote count for own questions but disable interaction -->
+                                                    <button class="canvas-question-vote-button" 
+                                                            style="color:@upvoteColor;cursor:default;opacity:0.5;" 
+                                                            disabled
+                                                            title="You cannot vote on your own question">
+                                                        <i class="fa-solid fa-thumbs-up"></i>
+                                                    </button>
+                                                    <span class="canvas-question-vote-count">@question.Votes</span>
                                                 }
                                             </div>
                                         </div>
