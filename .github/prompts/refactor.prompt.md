@@ -208,6 +208,38 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
     - Data transformation logic (parsing, formatting, validation)
     - CRUD operations with minor variations
     - API calls with similar patterns but different endpoints
+  - **Multi-File Consolidation Strategy** (NEW - Enhanced Cross-File Analysis):
+    - **Step 1: Identify Candidates** - Use `grep_search` with regex patterns to find similar method signatures:
+      ```
+      grep_search: "public.*Parse.*Html|public.*Transform.*Html|public.*Process.*Html"
+      grep_search: "public.*Validate.*Session|public.*Check.*Session|public.*Verify.*Session"
+      grep_search: "private.*Format.*Date|private.*Convert.*Date|private.*Parse.*Date"
+      ```
+    - **Step 2: Semantic Analysis** - For each match, extract:
+      - Method signature (return type, parameters, visibility)
+      - Method body complexity (lines of code, cyclomatic complexity)
+      - Dependencies (services injected, database access patterns)
+      - Business context (what domain/layer does it belong to)
+    - **Step 3: Consolidation Decision Matrix**:
+      - **CONSOLIDATE** if:
+        - Methods have >80% code similarity (use diff comparison)
+        - Serve same business purpose across different contexts
+        - No domain boundary violations (e.g., don't merge User domain logic into Session domain)
+        - All usages can safely reference unified implementation
+      - **KEEP SEPARATE** if:
+        - Methods serve different business domains (even if implementation similar)
+        - Performance requirements differ significantly
+        - Future evolution paths diverge
+        - Testing isolation requirements differ
+    - **Step 4: Consolidation Execution**:
+      - Create shared utility class or base class method
+      - Update all call sites to use unified implementation
+      - Add comprehensive unit tests for consolidated method
+      - Document consolidation rationale in commit message
+    - **Step 5: Validation**:
+      - Run all affected tests to ensure no behavioral changes
+      - Perform cross-layer contract validation
+      - Check for performance regressions
   - **Interface Extraction**: Identify common patterns suitable for abstraction
     - Multiple implementations of similar workflows
     - Repeated switch/if-else patterns that could use strategy pattern
@@ -216,15 +248,34 @@ When `scope=all`, the refactor agent performs comprehensive application-wide ana
     - Multiple services accessing same data with similar queries
     - Duplicate helper methods across different service classes
     - Overlapping business logic in controllers that should be in shared services
+    - **Cross-Service Pattern Detection**:
+      - Search for services with similar constructor dependencies
+      - Identify services making similar HttpClient calls
+      - Find services with overlapping caching strategies
+      - Detect redundant error handling patterns across services
   - **Database Access Patterns**: Consolidate similar data access code
     - Repeated LINQ queries with minor variations
     - Multiple DbContext methods for similar operations
     - Redundant repository patterns
+    - **Query Pattern Analysis**:
+      - Use `grep_search` for common query patterns: `"\.Where\(.*SessionId|\.FirstOrDefault\(.*Token"`
+      - Extract query logic into reusable repository methods
+      - Identify N+1 query problems across multiple files
   - **Refactoring Actions**:
     - Extract common functionality into shared base classes or utility methods
     - Create unified service interfaces for similar operations
     - Consolidate duplicate validation/transformation logic
     - Document why certain similar-looking code should remain separate (domain boundaries)
+    - **Consolidation Documentation Template**:
+      ```markdown
+      ## Consolidation: {MethodName}
+      **Files Affected**: {File1}, {File2}, {File3}
+      **Similarity Score**: {X}% (based on code diff)
+      **Consolidated Location**: {NewFile}::{NewMethod}
+      **Rationale**: {Why consolidation was safe and beneficial}
+      **Call Sites Updated**: {Count}
+      **Tests Added**: {TestFile}::{TestMethod}
+      ```
 - **Naming Convention Audit**: Ensure consistency in naming across all layers  
 - **Error Handling Review**: Validate error handling patterns and exception management  
 - **Performance Pattern Analysis**: Identify inefficient implementations system-wide
