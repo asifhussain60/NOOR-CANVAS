@@ -636,6 +636,27 @@ This ensures rollback capability if the task introduces instability.
    - Evaluate cohesion (does new code belong in target file?)
    - Query: "Will this create tangled dependencies?"
 
+7. **🔍 Data Lifecycle Validation (CRUD Operations)** ⭐ **NEW - Prevents UI-Only Mutations**:
+   ```
+   [DEBUG-WORKITEM:prompts:data-lifecycle] Validating complete data flow ;CLEANUP_OK
+   ```
+   - **Trigger**: MANDATORY for Create, Update, Delete operations
+   - **Validate Complete Flow**:
+     - ✅ UI Action (button click, form submit)
+     - ✅ API Call (HTTP POST/PUT/DELETE to backend)
+     - ✅ Database Persistence (INSERT/UPDATE/DELETE on canvas.* tables)
+     - ✅ Broadcast Event (SignalR notification to other users)
+     - ✅ UI Update (state refresh in all connected clients)
+   - **Red Flags**:
+     - ❌ UI-only mutations (e.g., `items.Remove()` without API call)
+     - ❌ API call without database operation
+     - ❌ Database change without SignalR broadcast (multi-user scenarios)
+     - ❌ Missing persistence validation (no page refresh test)
+   - **Persistence Test Requirement**:
+     - ALL mutations MUST include: "After change, refresh page, verify state persists"
+     - Document test in Playwright spec or manual validation checklist
+   - **Query**: "Does this mutation persist to database and propagate to all users?"
+
 **Analysis Output**:
 
 **If `verbosity=concise`**:
@@ -646,6 +667,7 @@ This ensures rollback capability if the task introduces instability.
 - Similar Patterns: {Y} from learning library
 - Compliance: {PASS/WARN/FAIL}
 - Duplication Risk: {LOW/MEDIUM/HIGH}
+- Data Lifecycle: {COMPLETE/INCOMPLETE/N/A}
 ```
 
 **If `verbosity=detailed`**:
@@ -672,6 +694,12 @@ This ensures rollback capability if the task introduces instability.
   - Duplication Risk: {LOW/MEDIUM/HIGH} - {reason}
   - Dependency Risk: {LOW/MEDIUM/HIGH} - {reason}
   - Recommendation: {refactor existing | create new | extend existing}
+- **Data Lifecycle Validation** (if CRUD operation):
+  - UI → API: {✅ API call present | ❌ UI-only mutation}
+  - API → Database: {✅ Persists to canvas.* | ❌ No database operation}
+  - Database → Broadcast: {✅ SignalR event sent | ❌ No broadcast}
+  - Persistence Test: {✅ Documented | ❌ Missing}
+  - Overall: {✅ COMPLETE | ⚠️ INCOMPLETE - {missing components}}
 ```
 
 **If `debug-level: doc`**:
@@ -683,6 +711,7 @@ This ensures rollback capability if the task introduces instability.
 - **HIGH duplication risk** detected with existing code
 - **Infrastructure violations** found (e.g., writing to dbo.* schema)
 - **Circular dependency** risk identified
+- **INCOMPLETE data lifecycle** for CRUD operations (UI-only mutation, missing persistence, no broadcast)
 - **Action**: Present findings to user, request approval to proceed or refactor
 
 #### 2.6. QuickRef Localization (Auto-Populate on First Use)
@@ -920,6 +949,7 @@ This ensures rollback capability if the task introduces instability.
 ### 3. Plan
 - **Use the verified/inferred key** from Step 2.
 - **Incorporate architecture analysis** from Step 2.5 (Technical Architecture Analysis).
+- **MANDATORY for CRUD operations**: Verify complete data lifecycle documented in Step 2.5.7 (UI → API → Database → Broadcast → UI).
 - Parse `debug-level`, `verbosity`, and any provided `tasks`.
 - **Detect completion keywords**: If `tasks` contains "mark complete" or "completed", prepare to execute Step 9 (Completion Workflow) instead of normal execution.
 - **Detect documentation mode**: If `debug-level: doc`, prepare to generate implementation documentation instead of code execution.
@@ -931,6 +961,7 @@ This ensures rollback capability if the task introduces instability.
   - **Mode**: {implementation | documentation-only}
   - **Tasks**: {numbered list of tasks}
   - **Architecture Analysis**: {reuse opportunities found}
+  - **Data Lifecycle**: {✅ COMPLETE | ⚠️ INCOMPLETE - see analysis}
   - **Components Affected**: {brief list}
   - **Debug Logging**: {none | simple | trace | cleanup | doc}
   - **Validation**: {validation approach summary}
@@ -938,6 +969,7 @@ This ensures rollback capability if the task introduces instability.
 **If `verbosity=detailed`**:
   - Full step-by-step execution plan with substeps
   - Architecture analysis summary with reuse recommendations
+  - **Data lifecycle validation results** (if CRUD operation)
   - Detailed component mappings
   - File-level change descriptions
   - Comprehensive validation strategy
@@ -954,7 +986,28 @@ This ensures rollback capability if the task introduces instability.
 ---
 
 ### 4. Approval (Mandatory)
-- Present the generated plan to the user for confirmation.  
+- Present the generated plan to the user for confirmation.
+- **⚠️ Early Warning System**: If architecture analysis (Step 2.5.7) detected INCOMPLETE data lifecycle:
+  ```
+  ⚠️ INCOMPLETE DATA LIFECYCLE DETECTED
+  
+  Analysis shows this implementation is missing:
+  - {Missing component 1: e.g., API call}
+  - {Missing component 2: e.g., database persistence}
+  - {Missing component 3: e.g., SignalR broadcast}
+  
+  This will result in:
+  - Changes not persisting after page refresh
+  - Other users not receiving updates
+  - Apparent success but actual failure
+  
+  Recommended approach:
+  {Complete flow with all 5 components}
+  
+  Proceed with incomplete flow? (Not recommended)
+  OR
+  Implement complete data lifecycle? (Recommended)
+  ```
 - Do not proceed until explicit approval is given.  
 - If no approval is given, halt and mark the task as **Pending Approval**.  
 
@@ -1058,6 +1111,11 @@ This ensures rollback capability if the task introduces instability.
    - Visual regression checks (screenshots for critical states)
    - Accessibility validation (ARIA labels, keyboard navigation)
    - Responsive design verification (mobile/tablet/desktop viewports)
+   - **🔄 Persistence Validation (MANDATORY for CRUD operations)**:
+     - After mutation (create/update/delete), refresh page
+     - Verify state persists (data still present/absent after reload)
+     - Example: Delete question → Refresh → Verify question still deleted
+     - Example: Edit question → Refresh → Verify edits still applied
 6. **Test Template** (from PlaywrightQuickRef.md):
    ```typescript
    import { test, expect } from '@playwright/test';
@@ -1072,6 +1130,18 @@ This ensures rollback capability if the task introduces instability.
        // Session 212 test data available
        // Wait for selectors with timeout
        // Assert expected behavior
+     });
+     
+     test('should persist <mutation> after page refresh', async ({ page }) => {
+       // Perform mutation (create/update/delete)
+       // Assert immediate UI update
+       
+       // Refresh page to validate persistence
+       await page.reload();
+       await page.waitForLoadState('networkidle');
+       
+       // Assert state persisted to database
+       // Example: Deleted item still absent after refresh
      });
    });
    ```
@@ -1367,12 +1437,57 @@ Internal template includes:
 
 ---
 
+## Lessons Learned Integration (Historical Context)
+
+### Root Cause: Question Deletion Bug (October 13, 2025)
+**Problem**: User reported "Delete is not working, check logs" for question deletion feature.
+
+**What Went Wrong**:
+- Agent spent 8+ hours across multiple sessions fixing *symptoms* (UI styling, upvote display, SignalR case sensitivity, JSON matching)
+- Root cause (UI-only deletion without API call) was discovered late in the process
+- No early validation of complete data lifecycle (UI → API → Database → Broadcast)
+- No persistence testing (questions reappeared after page refresh)
+- Incremental fixes masked the architectural flaw
+
+**Why It Took So Long**:
+1. **No Data Lifecycle Validation**: Step 2.5 didn't include mandatory check for complete CRUD flow
+2. **No Persistence Test Requirement**: Playwright tests didn't mandate page refresh validation
+3. **Symptom-Driven Fixes**: Each reported symptom was fixed in isolation without verifying root cause
+4. **Missing Early Warning**: No guardrail to detect UI-only mutations during planning phase
+
+**What Changed in task.prompt.md**:
+1. **Added Step 2.5.7 - Data Lifecycle Validation**: Mandatory for all CRUD operations, validates complete flow
+2. **Enhanced Step 4 - Approval**: Early warning system shows incomplete data lifecycle before execution
+3. **Updated Step 6.1 - Playwright Tests**: Mandatory persistence validation with page refresh tests
+4. **Strengthened Guardrails**: Explicit rules against UI-only mutations and missing persistence tests
+5. **Updated Analysis Output**: Data lifecycle status now reported in architecture analysis
+
+**Prevention Strategy**:
+- **Early Detection**: Architecture analysis now flags UI-only mutations BEFORE implementation
+- **User Confirmation**: Incomplete data lifecycle triggers explicit user approval with warning
+- **Test Coverage**: Playwright specs now require page refresh after mutations
+- **Clear Red Flags**: Documentation explicitly calls out UI-only mutations as architectural smell
+
+**Success Criteria for Future CRUD Operations**:
+- ✅ Step 2.5.7 executes and reports COMPLETE data lifecycle
+- ✅ Step 4 approval includes data lifecycle status
+- ✅ Playwright test includes persistence validation with page refresh
+- ✅ All 5 lifecycle components documented: UI → API → Database → Broadcast → UI
+
+---
+
 ## Guardrails
 - **ALWAYS query key data stream before planning** (Step 2 is mandatory, not optional).
+- **ALWAYS execute Step 2.5.7 Data Lifecycle Validation for CRUD operations** (prevents UI-only mutations).
+- **ALWAYS include persistence tests in Playwright specs** (page refresh after mutation is mandatory).
 - **ALWAYS update key data stream after execution** (Step 8 is mandatory, not optional).
 - **ALWAYS execute completion workflow when tasks = "mark complete" or "completed"** (Step 9 is triggered by special keyword).
 - **ALWAYS preserve completion documentation when resuming completed keys** - don't delete historical completion entries.
 - **ALWAYS infer key from recent work** if not explicitly provided (check thread history first).
+- **NEVER implement UI-only mutations** - all Create/Update/Delete operations MUST have complete data lifecycle:
+  1. UI Action → 2. API Call → 3. Database Persistence → 4. SignalR Broadcast → 5. UI Update (all clients)
+- **NEVER skip persistence validation** - after mutation, refresh page and verify state persists.
+- **NEVER assume user symptoms identify root cause** - verify complete flow before implementing fixes.
 - **Never** modify functionality unless explicitly required.  
 - Always ensure architectural and structural integrity.  
 - Always pause and request clarification if uncertain.  
