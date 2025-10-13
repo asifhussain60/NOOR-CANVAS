@@ -98,6 +98,30 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
   - InfrastructureQuickRef.md → Critical Anti-Patterns section documents annotation system deletion
 
 ## Recent Changes
+- 2025-10-13: Enhanced task.prompt.md with documentation mode, technical analysis, and library catalog (commit: 0bbd932b)
+  - Added `debug-level: doc` parameter for documentation-only mode (generates implementation plan without execution)
+  - Created Step 2.5: Technical Architecture Analysis (mandatory anti-duplication & spaghetti prevention)
+    - Architecture layer review consulting Architecture.md
+    - Code duplication detection via semantic_search
+    - Service discovery and dependency checking
+    - Infrastructure compliance validation with InfrastructureQuickRef.md
+    - Cross-agent pattern reuse from Workspaces/Copilot/learning/
+    - Spaghetti code risk assessment with complexity metrics
+  - Updated Step 3 (Plan) to incorporate architecture analysis findings
+  - Updated Step 5 (Execute) with documentation mode workflow:
+    - Generate implementation plan in `.github/prompts.keys/{key}/implementation-plan.md`
+    - Include code examples from discovered patterns
+    - Document architectural decisions and rationale
+    - Skip validation and build steps in doc mode
+  - Created **PromptEnhancementLibraries.md** (585 lines) in Links folder
+    - Documented 8 major libraries: DSPy, Guidance, LangChain, Semantic Kernel, PromptTools, PromptFoo, LangSmith, Langfuse
+    - Comparison matrix with C# support, self-hosting capabilities, licensing
+    - Semantic Kernel recommended for C# compatibility with NOOR Canvas stack
+    - PromptFoo recommended for automated prompt testing in CI/CD
+    - Integration examples and getting started guides
+  - Added PromptEnhancementLibraries.md reference to SystemIndex.md navigation
+  - Added library reference to task.prompt.md Core Mandates section
+  - Addresses requirements: documentation mode, infrastructure-aware planning, external library catalog
 - 2025-10-13: Enhanced refactor.prompt.md with comprehensive multi-file consolidation strategy (commit: 28e4ca88)
   - Added Multi-File Consolidation Strategy section with 5-step process
   - Included grep_search patterns for identifying similar methods across files
@@ -155,9 +179,14 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 - `5b0c9a77` - checkpoint: pre-task prompts - auto-load file mappings
 - `fb3c3a46` - feat(prompts): Implement auto-load file mappings in task.prompt.md Step 2
 - `a250157a` - docs(prompts): Update prompts.md with commit SHA and completion status
-- `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration (LATEST)
+- `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration
+- `28e4ca88` - feat(prompts): Enhanced refactor.prompt.md with multi-file consolidation strategy
+- `0bbd932b` - feat(prompts): Add debug-level:doc mode, technical analysis step, and prompt enhancement libraries (LATEST)
 
 ### Files Modified
+- `.github/prompts/task.prompt.md` - UPDATED - Added debug-level:doc mode, Step 2.5 Technical Analysis, PromptEnhancementLibraries reference (commit: 0bbd932b)
+- `.github/instructions/Links/PromptEnhancementLibraries.md` - CREATED (585 lines) - Comprehensive library catalog (commit: 0bbd932b)
+- `.github/instructions/Links/SystemIndex.md` - UPDATED - Added Prompt Enhancement section to Quick Navigation (commit: 0bbd932b)
 - `.github/prompts/refactor.prompt.md` - UPDATED - Enhanced multi-file consolidation strategy (commit: 28e4ca88)
 - `.github/instructions/Links/InfrastructureQuickRef.md` - CREATED (254 lines) - Authoritative infrastructure reference
 - `.github/instructions/Links/FileMetrics.md` - UPDATED (18 → 97 lines) - Live line counts, usage guide
