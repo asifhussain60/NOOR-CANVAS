@@ -3,10 +3,10 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T17:15:00Z
+- **Last Updated**: 2025-10-13T17:45:00Z
 - **Agent**: task
 - **Priority**: high
-- **Category**: feature-enhancement
+- **Category**: bug-fix
 
 ## Issue Summary
 ~~Questions from other users are displaying as "Your Question" with edit/delete buttons instead of showing in orange without action buttons. Additionally, the upvote button and count are not visible on the left side of questions from other users.~~ **[RESOLVED - Issue was ownership detection]**
@@ -880,5 +880,28 @@ else
 - ✅ Build validation: Zero errors, zero warnings
 **Files**: 1 modified (QuestionController.cs) | **Tests**: Build passed | **Build**: PASS
 **Next**: Manual testing to verify upvote and edit propagation work correctly
+
+---
+## [2025-10-13T17:45:00Z] - task
+**Status**: in-progress | **Phase**: update-delete-fix | **Commit**: 50b3978e
+**Work**: 
+- ?? **ISSUE IDENTIFIED**: Update and delete operations failing with 'Question not found or user not authorized'
+  - Root cause: Fragile string matching on JSON content (`sd.Content.Contains($'\"questionId\":\"' + questionId + '\"')`)
+  - Problem: JSON formatting variations prevent matches
+  - Authorization check failing due to query never finding records
+- ? **FIXED**: Replaced string matching with proper JSON deserialization
+  - Load all questions for session, parse each with JsonSerializer
+  - Match questionId by parsing JSON objects
+  - Separate ownership verification with explicit logging
+- ? **ENHANCED LOGGING**: Comprehensive trace diagnostics
+  - Log total question count in session
+  - Log each question check with QuestionId, CreatedBy, UserGuid comparison
+  - Log ownership match/mismatch explicitly
+  - Show authorization failure reason clearly
+- ? **BOTH OPERATIONS FIXED**: UpdateQuestion (lines 593-643) and DeleteQuestion (lines 709-759)
+- ? Build validation: Zero errors, 4 pre-existing warnings (isolated templates)
+**Files**: 1 modified (QuestionController.cs) | **Lines**: +96, -17 | **Build**: PASS
+**Debug Markers**: [DEBUG-WORKITEM:canvas:update/delete] ;CLEANUP_OK
+**Next**: Manual testing to verify update and delete operations work correctly
 
 ---
