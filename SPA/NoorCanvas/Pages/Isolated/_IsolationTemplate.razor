@@ -1,0 +1,900 @@
+@*
+    ISOLATION VIEW TEMPLATE
+    
+    This is a template for creating isolated functionality testing views.
+    Copy this file and customize for your specific feature.
+    
+    DO NOT use this template directly - it's for reference only.
+    
+    Usage:
+    1. Copy this file to {FeatureName}Isolation.razor
+    2. Update @page route
+    3. Add required @inject services
+    4. Define test parameters
+    5. Implement ExecuteIsolatedFunctionality()
+    6. Extract and include original styling
+*@
+
+@page "/isolated/template"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<_IsolationTemplate> Logger
+@* Add your required service injections here *@
+
+<PageTitle>Isolation Test: Template</PageTitle>
+
+<div class="isolation-container">
+    <!-- Header Section -->
+    <div class="isolation-header">
+        <h1 class="isolation-title">
+            <i class="fas fa-flask"></i>
+            Isolation Test: {Feature Name}
+        </h1>
+        <div class="isolation-subtitle">
+            Testing in isolation for debugging and validation
+        </div>
+        <div class="isolation-meta">
+            <span class="badge">Key: isolate-{feature}</span>
+            <span class="badge">Debug: @debugLevel</span>
+            <span class="badge">Status: @testStatus</span>
+        </div>
+    </div>
+
+    <!-- Parameter Controls Section -->
+    <div class="isolation-controls">
+        <h2 class="section-title">
+            <i class="fas fa-sliders-h"></i>
+            Test Parameters
+        </h2>
+        
+        @foreach (var param in testParameters)
+        {
+            <div class="control-group">
+                <label class="control-label">
+                    @param.Name
+                    @if (param.Required)
+                    {
+                        <span class="required">*</span>
+                    }
+                </label>
+                
+                @if (param.Type == typeof(string))
+                {
+                    <input type="text" 
+                           class="control-input"
+                           @bind="param.Value"
+                           placeholder="@param.Placeholder" />
+                }
+                else if (param.Type == typeof(int))
+                {
+                    <input type="number" 
+                           class="control-input"
+                           @bind="param.Value"
+                           placeholder="@param.Placeholder" />
+                }
+                else if (param.Type == typeof(bool))
+                {
+                    <input type="checkbox" 
+                           class="control-checkbox"
+                           checked="@(param.Value is bool b && b)"
+                           @onchange="@((ChangeEventArgs e) => param.Value = e.Value)" />
+                }
+                else if (param.Type == typeof(DateTime))
+                {
+                    <input type="datetime-local" 
+                           class="control-input"
+                           value="@(param.Value is DateTime dt ? dt.ToString("yyyy-MM-ddTHH:mm") : "")"
+                           @onchange="@((ChangeEventArgs e) => param.Value = DateTime.TryParse(e.Value?.ToString(), out var result) ? result : null)" />
+                }
+                
+                <span class="control-hint">@param.Description</span>
+            </div>
+        }
+    </div>
+
+    <!-- Action Buttons Section -->
+    <div class="isolation-actions">
+        <button class="btn btn-primary" 
+                @onclick="ExecuteTest" 
+                disabled="@isExecuting">
+            @if (isExecuting)
+            {
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Executing...</span>
+            }
+            else
+            {
+                <i class="fas fa-play"></i>
+                <span>Execute Test</span>
+            }
+        </button>
+        
+        <button class="btn btn-secondary" 
+                @onclick="ClearResults">
+            <i class="fas fa-eraser"></i>
+            <span>Clear Results</span>
+        </button>
+        
+        <button class="btn btn-secondary" 
+                @onclick="ResetParameters">
+            <i class="fas fa-undo"></i>
+            <span>Reset Parameters</span>
+        </button>
+    </div>
+
+    <!-- Test Scenarios Section -->
+    @if (testScenarios.Any())
+    {
+        <div class="isolation-scenarios">
+            <h2 class="section-title">
+                <i class="fas fa-list-check"></i>
+                Test Scenarios
+            </h2>
+            
+            <div class="scenario-grid">
+                @foreach (var scenario in testScenarios)
+                {
+                    <button class="scenario-button" 
+                            @onclick="() => LoadScenario(scenario)">
+                        <i class="fas fa-vial"></i>
+                        <span>@scenario.Name</span>
+                    </button>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Results Display Section -->
+    <div class="isolation-results">
+        <h2 class="section-title">
+            <i class="fas fa-chart-bar"></i>
+            Test Results
+        </h2>
+        
+        @if (testResults.Any())
+        {
+            <div class="results-list">
+                @foreach (var result in testResults)
+                {
+                    <div class="result-item @result.StatusClass">
+                        <div class="result-header">
+                            <span class="result-timestamp">@result.Timestamp.ToString("HH:mm:ss.fff")</span>
+                            <span class="result-status">@result.Status</span>
+                        </div>
+                        <div class="result-message">@result.Message</div>
+                        @if (!string.IsNullOrEmpty(result.Details))
+                        {
+                            <div class="result-details">
+                                <pre>@result.Details</pre>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="no-results">
+                <i class="fas fa-inbox"></i>
+                <p>No test results yet. Execute a test to see results here.</p>
+            </div>
+        }
+    </div>
+
+    <!-- Debug Log Viewer Section -->
+    <div class="isolation-logs">
+        <h2 class="section-title">
+            <i class="fas fa-terminal"></i>
+            Debug Logs
+            <button class="btn-icon" @onclick="ClearLogs" title="Clear logs">
+                <i class="fas fa-trash"></i>
+            </button>
+        </h2>
+        
+        <div class="log-viewer">
+            @if (debugLogs.Any())
+            {
+                @foreach (var log in debugLogs)
+                {
+                    <div class="log-entry @log.LevelClass">
+                        <span class="log-timestamp">@log.Timestamp.ToString("HH:mm:ss.fff")</span>
+                        <span class="log-level">[@log.Level]</span>
+                        <span class="log-layer">[@log.Layer]</span>
+                        <span class="log-message">@log.Message</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="log-empty">
+                    <i class="fas fa-terminal"></i>
+                    <p>No debug logs yet. Execute a test with debug logging enabled.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Isolated Functionality Section -->
+    <div class="isolation-preview">
+        <h2 class="section-title">
+            <i class="fas fa-eye"></i>
+            Live Preview
+        </h2>
+        
+        <div class="preview-container">
+            <div class="preview-content">
+                @functionalityPreview
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Isolation Container */
+    .isolation-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    /* Header Styling */
+    .isolation-header {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .isolation-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2d3748;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .isolation-title i {
+        color: #667eea;
+    }
+
+    .isolation-subtitle {
+        color: #718096;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .isolation-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #e2e8f0;
+        color: #4a5568;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Section Styling */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #667eea;
+    }
+
+    /* Controls Styling */
+    .isolation-controls {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .control-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .control-label {
+        display: block;
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .required {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+    }
+
+    .control-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+    .control-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .control-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+    }
+
+    .control-hint {
+        display: block;
+        font-size: 0.75rem;
+        color: #718096;
+        margin-top: 0.25rem;
+    }
+
+    /* Button Styling */
+    .isolation-actions {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: #5a67d8;
+    }
+
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: #cbd5e0;
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-icon {
+        background: transparent;
+        border: none;
+        color: #718096;
+        cursor: pointer;
+        padding: 0.25rem;
+        font-size: 1rem;
+    }
+
+    .btn-icon:hover {
+        color: #2d3748;
+    }
+
+    /* Scenario Styling */
+    .isolation-scenarios {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .scenario-button {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.15s ease-in-out;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #2d3748;
+    }
+
+    .scenario-button:hover {
+        border-color: #667eea;
+        background: #edf2f7;
+    }
+
+    /* Results Styling */
+    .isolation-results {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .results-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .result-item {
+        border-left: 4px solid;
+        background: #f7fafc;
+        border-radius: 6px;
+        padding: 1rem;
+    }
+
+    .result-item.success {
+        border-color: #48bb78;
+    }
+
+    .result-item.error {
+        border-color: #e53e3e;
+    }
+
+    .result-item.warning {
+        border-color: #ed8936;
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-timestamp {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #718096;
+    }
+
+    .result-status {
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+    }
+
+    .result-message {
+        color: #2d3748;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-details {
+        background: #2d3748;
+        border-radius: 4px;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .result-details pre {
+        margin: 0;
+        color: #48bb78;
+        font-size: 0.75rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: #a0aec0;
+    }
+
+    .no-results i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    /* Log Viewer Styling */
+    .isolation-logs {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .log-viewer {
+        background: #1a202c;
+        border-radius: 6px;
+        padding: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+
+    .log-entry {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        align-items: baseline;
+    }
+
+    .log-timestamp {
+        color: #718096;
+        flex-shrink: 0;
+    }
+
+    .log-level {
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .log-layer {
+        color: #90cdf4;
+        flex-shrink: 0;
+    }
+
+    .log-message {
+        color: #e2e8f0;
+        flex-grow: 1;
+    }
+
+    .log-entry.log-info .log-level {
+        color: #4299e1;
+    }
+
+    .log-entry.log-success .log-level {
+        color: #48bb78;
+    }
+
+    .log-entry.log-warning .log-level {
+        color: #ed8936;
+    }
+
+    .log-entry.log-error .log-level {
+        color: #e53e3e;
+    }
+
+    .log-entry.log-trace .log-level {
+        color: #9f7aea;
+    }
+
+    .log-empty {
+        text-align: center;
+        padding: 2rem;
+        color: #718096;
+    }
+
+    .log-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    /* Preview Styling */
+    .isolation-preview {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .preview-container {
+        border: 2px dashed #cbd5e0;
+        border-radius: 8px;
+        padding: 2rem;
+        min-height: 200px;
+    }
+
+    .preview-content {
+        /* Original functionality styles will be preserved here */
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .isolation-container {
+            padding: 1rem;
+        }
+
+        .isolation-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .scenario-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    // Parameters
+    private List<TestParameter> testParameters = new();
+    private List<TestScenario> testScenarios = new();
+    private List<TestResult> testResults = new();
+    private List<DebugLog> debugLogs = new();
+    private string debugLevel = "trace";
+    private string testStatus = "Ready";
+    private bool isExecuting = false;
+    private RenderFragment? functionalityPreview;
+    private string runId = GenerateRunId();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:isolate-template:lifecycle:{RunId}] Isolation view initializing ;CLEANUP_OK", runId);
+        
+        await InitializeTestParameters();
+        await LoadTestScenarios();
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:isolate-template:lifecycle:{RunId}] Isolation view initialized ;CLEANUP_OK", runId);
+    }
+
+    private Task InitializeTestParameters()
+    {
+        Logger.LogTrace("[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Initializing test parameters ;CLEANUP_OK", runId);
+        
+        // TODO: Define your test parameters here
+        testParameters.Add(new TestParameter
+        {
+            Name = "Example Parameter",
+            Type = typeof(string),
+            Required = true,
+            Placeholder = "Enter value",
+            Description = "Description of what this parameter does",
+            Value = null
+        });
+        
+        LogToViewer("INFO", "ui", $"Initialized {testParameters.Count} test parameters");
+        return Task.CompletedTask;
+    }
+
+    private Task LoadTestScenarios()
+    {
+        Logger.LogTrace("[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Loading test scenarios ;CLEANUP_OK", runId);
+        
+        // TODO: Define your test scenarios here
+        testScenarios.Add(new TestScenario
+        {
+            Name = "Happy Path",
+            Description = "Test successful execution with valid inputs",
+            Parameters = new Dictionary<string, object>
+            {
+                ["Example Parameter"] = "Valid Value"
+            }
+        });
+        
+        LogToViewer("INFO", "ui", $"Loaded {testScenarios.Count} test scenarios");
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteTest()
+    {
+        isExecuting = true;
+        testStatus = "Executing";
+        StateHasChanged();
+        
+        var testId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        Logger.LogInformation("[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Starting test - TestId={TestId} ;CLEANUP_OK", runId, testId);
+        LogToViewer("INFO", "ui", $"Test execution started - TestId={testId}");
+
+        try
+        {
+            if (!ValidateParameters())
+            {
+                AddResult("ERROR", "Parameter validation failed", "Check required parameters");
+                LogToViewer("ERROR", "ui", "Parameter validation failed");
+                return;
+            }
+
+            LogToViewer("SUCCESS", "ui", "Parameters validated");
+
+            await ExecuteIsolatedFunctionality();
+
+            testStatus = "Success";
+            AddResult("SUCCESS", "Test completed successfully", null);
+            LogToViewer("SUCCESS", "ui", "Test execution completed");
+        }
+        catch (Exception ex)
+        {
+            testStatus = "Failed";
+            Logger.LogError(ex, "[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Test failed - TestId={TestId} ;CLEANUP_OK", runId, testId);
+            AddResult("ERROR", $"Test failed: {ex.Message}", ex.StackTrace);
+            LogToViewer("ERROR", "ui", $"Test failed: {ex.Message}");
+        }
+        finally
+        {
+            isExecuting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ExecuteIsolatedFunctionality()
+    {
+        Logger.LogTrace("[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Executing isolated functionality ;CLEANUP_OK", runId);
+        LogToViewer("INFO", "ui", "Calling isolated functionality...");
+
+        // TODO: Implement your isolated functionality here
+        // This is where you copy the exact logic from the source files
+        
+        await Task.Delay(100); // Placeholder - remove this
+        
+        AddResult("INFO", "Placeholder execution", "Replace with actual functionality");
+    }
+
+    private bool ValidateParameters()
+    {
+        foreach (var param in testParameters.Where(p => p.Required))
+        {
+            if (param.Value == null)
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Required parameter missing: {ParamName} ;CLEANUP_OK", runId, param.Name);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private T GetParameterValue<T>(string paramName)
+    {
+        var param = testParameters.FirstOrDefault(p => p.Name == paramName);
+        return param != null ? (T)param.Value : default(T);
+    }
+
+    private void AddResult(string status, string message, string? details)
+    {
+        testResults.Add(new TestResult
+        {
+            Timestamp = DateTime.Now,
+            Status = status,
+            StatusClass = status.ToLower(),
+            Message = message,
+            Details = details
+        });
+        StateHasChanged();
+    }
+
+    private void LogToViewer(string level, string layer, string message)
+    {
+        debugLogs.Add(new DebugLog
+        {
+            Timestamp = DateTime.Now,
+            Level = level,
+            Layer = layer,
+            LevelClass = $"log-{level.ToLower()}",
+            Message = message
+        });
+        StateHasChanged();
+    }
+
+    private void ClearResults()
+    {
+        testResults.Clear();
+        testStatus = "Ready";
+        StateHasChanged();
+    }
+
+    private void ClearLogs()
+    {
+        debugLogs.Clear();
+        StateHasChanged();
+    }
+
+    private void ResetParameters()
+    {
+        foreach (var param in testParameters)
+        {
+            param.Value = null;
+        }
+        StateHasChanged();
+    }
+
+    private void LoadScenario(TestScenario scenario)
+    {
+        Logger.LogInformation("[DEBUG-WORKITEM:isolate-template:ui:{RunId}] Loading scenario: {ScenarioName} ;CLEANUP_OK", runId, scenario.Name);
+        
+        foreach (var param in testParameters)
+        {
+            if (scenario.Parameters.ContainsKey(param.Name))
+            {
+                param.Value = scenario.Parameters[param.Name];
+            }
+        }
+        
+        LogToViewer("INFO", "ui", $"Loaded scenario: {scenario.Name}");
+        StateHasChanged();
+    }
+
+    private static string GenerateRunId()
+    {
+        return $"{DateTime.Now:HHmmss}-{Guid.NewGuid().ToString("N").Substring(0, 4)}";
+    }
+
+    // Supporting classes
+    private class TestParameter
+    {
+        public string Name { get; set; } = "";
+        public Type Type { get; set; } = typeof(string);
+        public bool Required { get; set; }
+        public string Placeholder { get; set; } = "";
+        public string Description { get; set; } = "";
+        public object? Value { get; set; }
+    }
+
+    private class TestScenario
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public Dictionary<string, object> Parameters { get; set; } = new();
+    }
+
+    private class TestResult
+    {
+        public DateTime Timestamp { get; set; }
+        public string Status { get; set; } = "";
+        public string StatusClass { get; set; } = "";
+        public string Message { get; set; } = "";
+        public string? Details { get; set; }
+    }
+
+    private class DebugLog
+    {
+        public DateTime Timestamp { get; set; }
+        public string Level { get; set; } = "";
+        public string Layer { get; set; } = "";
+        public string LevelClass { get; set; } = "";
+        public string Message { get; set; } = "";
+    }
+}

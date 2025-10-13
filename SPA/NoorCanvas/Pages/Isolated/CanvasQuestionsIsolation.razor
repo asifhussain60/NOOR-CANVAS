@@ -1,0 +1,1595 @@
+@page "/isolated/canvas-questions"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Net.Http.Json
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject ILogger<CanvasQuestionsIsolation> Logger
+
+<PageTitle>Isolation Test: Canvas Questions (Post & Edit)</PageTitle>
+
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</HeadContent>
+
+<div class="isolation-container">
+    
+    <!-- HEADER SECTION -->
+    <div class="isolation-header">
+        <h1 class="isolation-title">
+            <i class="fa-solid fa-flask"></i>
+            Isolation Test: Canvas Questions
+        </h1>
+        <p class="isolation-subtitle">Testing Question Posting & Editing with SignalR Real-time Updates</p>
+        <div class="isolation-info">
+            <span class="isolation-badge">Key: canvas-questions</span>
+            <span class="isolation-badge isolation-badge-@(isExecuting ? "warning" : "success")">
+                Status: @testStatus
+            </span>
+            <span class="isolation-badge isolation-badge-info">
+                Debug: @debugLevel
+            </span>
+            <span class="isolation-badge isolation-badge-@(GetSignalRStatusClass())">
+                SignalR: @(hubConnection?.State.ToString() ?? "Disconnected")
+            </span>
+        </div>
+    </div>
+
+    <!-- PARAMETER CONTROLS SECTION -->
+    <div class="isolation-section">
+        <h2 class="isolation-section-title">
+            <i class="fa-solid fa-sliders"></i>
+            Test Parameters
+        </h2>
+        <div class="isolation-parameters">
+            <div class="isolation-parameter">
+                <label class="isolation-label">Session Token (8 chars)</label>
+                <input type="text" @bind="sessionToken" class="isolation-input" placeholder="e.g., abc12345" maxlength="8" />
+                <small class="isolation-help">User token to authenticate with the session</small>
+            </div>
+            
+            <div class="isolation-parameter">
+                <label class="isolation-label">User GUID</label>
+                <input type="text" @bind="userGuid" class="isolation-input" placeholder="e.g., 12345678-1234-1234-1234-123456789abc" />
+                <small class="isolation-help">Unique identifier for the current user</small>
+            </div>
+            
+            <div class="isolation-parameter">
+                <label class="isolation-label">Question Text</label>
+                <textarea @bind="questionInput" class="isolation-textarea" rows="3" placeholder="Type your question here..."></textarea>
+                <small class="isolation-help">The question to submit or update (if in edit mode)</small>
+            </div>
+            
+            <div class="isolation-parameter">
+                <label class="isolation-label">Edit Mode</label>
+                <div class="isolation-checkbox-group">
+                    <label class="isolation-checkbox-label">
+                        <input type="checkbox" @bind="isEditMode" class="isolation-checkbox" />
+                        <span>Enable edit mode (requires selecting a question below)</span>
+                    </label>
+                </div>
+                @if (isEditMode && !string.IsNullOrEmpty(selectedQuestionId))
+                {
+                    <small class="isolation-help isolation-help-success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Editing Question ID: @selectedQuestionId
+                    </small>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS SECTION -->
+    <div class="isolation-section">
+        <h2 class="isolation-section-title">
+            <i class="fa-solid fa-play"></i>
+            Actions
+        </h2>
+        <div class="isolation-actions">
+            <button @onclick="SubmitOrUpdateQuestion" 
+                    class="isolation-button isolation-button-primary"
+                    disabled="@isExecuting">
+                <i class="fa-solid @(isEditMode ? "fa-pen" : "fa-paper-plane")"></i>
+                @(isEditMode ? "Update Question" : "Submit Question")
+            </button>
+            
+            <button @onclick="ConnectSignalR" 
+                    class="isolation-button isolation-button-success"
+                    disabled="@(hubConnection?.State == HubConnectionState.Connected || isExecuting)">
+                <i class="fa-solid fa-plug"></i>
+                Connect SignalR
+            </button>
+            
+            <button @onclick="DisconnectSignalR" 
+                    class="isolation-button isolation-button-warning"
+                    disabled="@(hubConnection?.State != HubConnectionState.Connected || isExecuting)">
+                <i class="fa-solid fa-plug-circle-xmark"></i>
+                Disconnect SignalR
+            </button>
+            
+            <button @onclick="ClearResults" 
+                    class="isolation-button isolation-button-secondary"
+                    disabled="@isExecuting">
+                <i class="fa-solid fa-eraser"></i>
+                Clear Results
+            </button>
+            
+            <button @onclick="CancelEdit" 
+                    class="isolation-button isolation-button-danger"
+                    disabled="@(!isEditMode || isExecuting)">
+                <i class="fa-solid fa-times"></i>
+                Cancel Edit
+            </button>
+        </div>
+    </div>
+
+    <!-- TEST SCENARIOS SECTION -->
+    <div class="isolation-section">
+        <h2 class="isolation-section-title">
+            <i class="fa-solid fa-list-check"></i>
+            Pre-configured Test Scenarios
+        </h2>
+        <div class="isolation-scenarios">
+            @foreach (var scenario in testScenarios)
+            {
+                <div class="isolation-scenario-card">
+                    <div class="isolation-scenario-header">
+                        <h3 class="isolation-scenario-name">@scenario.Name</h3>
+                    </div>
+                    <p class="isolation-scenario-description">@scenario.Description</p>
+                    <button @onclick="() => ExecuteScenario(scenario)" 
+                            class="isolation-button isolation-button-sm isolation-button-primary"
+                            disabled="@isExecuting">
+                        <i class="fa-solid fa-play"></i>
+                        Run Scenario
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- LIVE PREVIEW SECTION -->
+    <div class="isolation-section">
+        <h2 class="isolation-section-title">
+            <i class="fa-solid fa-desktop"></i>
+            Live Preview: Questions List
+        </h2>
+        <div class="isolation-preview">
+            <div class="canvas-questions-container">
+                @if (questions.Any())
+                {
+                    @foreach (var question in questions.OrderByDescending(q => q.Votes))
+                    {
+                        var isMyQuestion = question.CreatedBy == userGuid;
+                        var hasVoted = votedQuestionIds.Contains(question.QuestionId);
+
+                        @if (isMyQuestion)
+                        {
+                            <!-- GREEN THEME: Own Question Card -->
+                            <div class="canvas-question-item question-item-style-green">
+                                
+                                <!-- TOP ROW: Action Buttons -->
+                                <div class="canvas-question-actions">
+                                    <span @onclick="() => EditQuestion(question)" class="canvas-question-edit-button">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </span>
+                                    <span @onclick="() => DeleteQuestion(question)" class="canvas-question-delete-button">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </span>
+                                </div>
+
+                                <!-- MIDDLE ROW: Question Text -->
+                                <div class="canvas-question-content">
+                                    <div class="canvas-question-header">
+                                        <span class="canvas-question-text question-text-color-green">
+                                            @question.Text
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- BOTTOM SECTION: Owner Label -->
+                                <div class="canvas-question-footer">
+                                    <span class="canvas-question-owner-label owner-label-color">
+                                        Your Question
+                                    </span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- SIENNA THEME: Other Users' Question Card -->
+                            <div class="canvas-question-item question-item-style-sienna" style="flex-direction:column;align-items:stretch;gap:0.5rem;">
+                                
+                                <!-- TOP ROW: Vote Section -->
+                                <div class="canvas-question-vote-section" style="display:flex;align-items:center;gap:0.5rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(160,82,45,0.2);">
+                                    <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
+                                            class="canvas-question-vote-button"
+                                            style="color:#A0522D;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");display:flex;align-items:center;gap:0.25rem;padding:0.25rem 0.5rem;border:none;background:transparent;"
+                                            disabled="@hasVoted"
+                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
+                                        <i class="fa-solid fa-thumbs-up"></i>
+                                        <span>Upvote</span>
+                                    </button>
+                                    <span class="canvas-question-vote-count vote-count-color-sienna">@question.Votes</span>
+                                </div>
+
+                                <!-- BOTTOM ROW: Question Text -->
+                                <div class="canvas-question-content">
+                                    <div class="canvas-question-header">
+                                        <span class="canvas-question-text question-text-color-sienna">
+                                            @question.Text
+                                        </span>
+                                    </div>
+                                    <div class="canvas-question-meta">
+                                        <span class="canvas-question-author">@question.UserName</span>
+                                        <span class="canvas-question-time">@question.CreatedAt.ToString("h:mm tt")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <p class="isolation-empty-message">No questions yet. Submit a question to see it appear here.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULTS DISPLAY SECTION -->
+    <div class="isolation-section">
+        <h2 class="isolation-section-title">
+            <i class="fa-solid fa-chart-line"></i>
+            Test Results
+        </h2>
+        <div class="isolation-results">
+            @if (testResults.Any())
+            {
+                @foreach (var result in testResults.OrderByDescending(r => r.Timestamp))
+                {
+                    <div class="isolation-result-card isolation-result-@(result.Success ? "success" : "failure")">
+                        <div class="isolation-result-header">
+                            <span class="isolation-result-icon">
+                                @if (result.Success)
+                                {
+                                    <i class="fa-solid fa-circle-check"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                }
+                            </span>
+                            <span class="isolation-result-title">@result.TestName</span>
+                            <span class="isolation-result-time">@result.Timestamp.ToString("HH:mm:ss")</span>
+                        </div>
+                        <div class="isolation-result-details">
+                            <p><strong>Status:</strong> @(result.Success ? "PASS" : "FAIL")</p>
+                            <p><strong>Duration:</strong> @result.Duration ms</p>
+                            @if (!string.IsNullOrEmpty(result.Message))
+                            {
+                                <p><strong>Message:</strong> @result.Message</p>
+                            }
+                            @if (!string.IsNullOrEmpty(result.ErrorDetails))
+                            {
+                                <p class="isolation-result-error"><strong>Error:</strong> @result.ErrorDetails</p>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="isolation-empty-message">No test results yet. Execute actions or scenarios to see results.</p>
+            }
+        </div>
+    </div>
+
+    <!-- DEBUG LOG VIEWER SECTION -->
+    <div class="isolation-section">
+        <h2 class="isolation-section-title">
+            <i class="fa-solid fa-bug"></i>
+            Debug Logs
+        </h2>
+        <div class="isolation-logs">
+            @if (debugLogs.Any())
+            {
+                @foreach (var log in debugLogs.OrderByDescending(l => l.Timestamp).Take(50))
+                {
+                    <div class="isolation-log-entry isolation-log-@log.Level.ToLower()">
+                        <span class="isolation-log-timestamp">@log.Timestamp.ToString("HH:mm:ss.fff")</span>
+                        <span class="isolation-log-level">@log.Level</span>
+                        <span class="isolation-log-layer">@log.Layer</span>
+                        <span class="isolation-log-message">@log.Message</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="isolation-empty-message">No debug logs yet. Execute actions to see debug output.</p>
+            }
+        </div>
+    </div>
+
+</div>
+
+@code {
+    // Test harness variables
+    private string runId = GenerateRunId();
+    private string debugLevel = "trace";
+    private string testStatus = "Ready";
+    private bool isExecuting = false;
+
+    // Test parameters
+    private string sessionToken = "";
+    private string userGuid = "";
+    private string questionInput = "";
+    private bool isEditMode = false;
+    private string? selectedQuestionId = null;
+    private int? sessionId = null;
+
+    // SignalR
+    private HubConnection? hubConnection;
+
+    // Questions data
+    private List<QuestionData> questions = new();
+    private HashSet<string> votedQuestionIds = new();
+
+    // Test tracking
+    private List<TestScenario> testScenarios = new();
+    private List<TestResult> testResults = new();
+    private List<DebugLog> debugLogs = new();
+
+    // HTTP Client
+    private HttpClient? Http;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Http = HttpClientFactory.CreateClient("NoorCanvasApi");
+        
+        AddDebugLog("TRACE", "lifecycle", "Isolation view initialized - RunId: " + runId);
+        
+        // Initialize test scenarios
+        InitializeTestScenarios();
+        
+        AddDebugLog("INFO", "lifecycle", $"Loaded {testScenarios.Count} test scenarios");
+    }
+
+    private void InitializeTestScenarios()
+    {
+        testScenarios.Add(new TestScenario
+        {
+            Name = "Submit New Question",
+            Description = "Submit a new question and verify it appears in the list with SignalR broadcast",
+            Parameters = new Dictionary<string, object>
+            {
+                ["sessionToken"] = "test1234",
+                ["userGuid"] = Guid.NewGuid().ToString(),
+                ["questionText"] = "What is the meaning of Surah Al-Fatiha?"
+            }
+        });
+
+        testScenarios.Add(new TestScenario
+        {
+            Name = "Edit Existing Question",
+            Description = "Edit a question's text and verify the update propagates via SignalR",
+            Parameters = new Dictionary<string, object>
+            {
+                ["sessionToken"] = "test1234",
+                ["userGuid"] = "same-as-submit",
+                ["questionText"] = "UPDATED: What is the meaning of Surah Al-Fatiha?",
+                ["isEditMode"] = true
+            }
+        });
+
+        testScenarios.Add(new TestScenario
+        {
+            Name = "Vote on Question",
+            Description = "Upvote a question and verify vote count updates for all users",
+            Parameters = new Dictionary<string, object>
+            {
+                ["sessionToken"] = "test1234",
+                ["userGuid"] = Guid.NewGuid().ToString(),
+                ["direction"] = "up"
+            }
+        });
+
+        testScenarios.Add(new TestScenario
+        {
+            Name = "Multiple Users Simultaneous Submission",
+            Description = "Simulate multiple users posting questions at the same time",
+            Parameters = new Dictionary<string, object>
+            {
+                ["count"] = 3,
+                ["sessionToken"] = "test1234"
+            }
+        });
+
+        testScenarios.Add(new TestScenario
+        {
+            Name = "SignalR Disconnection Handling",
+            Description = "Disconnect SignalR, submit question, reconnect, and verify state",
+            Parameters = new Dictionary<string, object>
+            {
+                ["sessionToken"] = "test1234",
+                ["userGuid"] = Guid.NewGuid().ToString()
+            }
+        });
+    }
+
+    private async Task SubmitOrUpdateQuestion()
+    {
+        if (isEditMode && !string.IsNullOrEmpty(selectedQuestionId))
+        {
+            await UpdateQuestion();
+        }
+        else
+        {
+            await SubmitQuestion();
+        }
+    }
+
+    private async Task SubmitQuestion()
+    {
+        var startTime = DateTime.Now;
+        isExecuting = true;
+        testStatus = "Submitting Question...";
+        
+        var testName = "Submit Question";
+        AddDebugLog("TRACE", "ui", $"{testName} - STARTED - SessionToken={sessionToken}, UserGuid={userGuid}");
+
+        try
+        {
+            // Validation
+            if (string.IsNullOrWhiteSpace(sessionToken) || sessionToken.Length != 8)
+            {
+                AddTestResult(testName, false, 0, "Invalid session token format (must be 8 characters)");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(userGuid))
+            {
+                AddTestResult(testName, false, 0, "User GUID is required");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(questionInput))
+            {
+                AddTestResult(testName, false, 0, "Question text cannot be empty");
+                return;
+            }
+
+            AddDebugLog("TRACE", "ui", "Validation passed - preparing API request");
+
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                QuestionText = questionInput.Trim(),
+                UserGuid = userGuid
+            };
+
+            AddDebugLog("TRACE", "api", $"Sending POST to /api/Question/Submit - Payload: {JsonSerializer.Serialize(requestPayload)}");
+
+            var response = await Http!.PostAsJsonAsync("/api/Question/Submit", requestPayload);
+
+            AddDebugLog("TRACE", "api", $"API Response - StatusCode: {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                AddDebugLog("INFO", "api", $"Question submitted successfully - Response: {responseContent}");
+
+                // Clear input
+                questionInput = "";
+                
+                var duration = (DateTime.Now - startTime).TotalMilliseconds;
+                AddTestResult(testName, true, (int)duration, "Question submitted successfully. Check SignalR logs for broadcast confirmation.");
+                
+                testStatus = "Ready";
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                AddDebugLog("ERROR", "api", $"Question submission failed - StatusCode: {response.StatusCode}, Error: {errorContent}");
+                
+                var duration = (DateTime.Now - startTime).TotalMilliseconds;
+                AddTestResult(testName, false, (int)duration, $"API returned {response.StatusCode}", errorContent);
+                
+                testStatus = "Error";
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", "ui", $"Exception during question submission: {ex.Message}");
+            var duration = (DateTime.Now - startTime).TotalMilliseconds;
+            AddTestResult(testName, false, (int)duration, "Exception occurred", ex.Message);
+            testStatus = "Error";
+        }
+        finally
+        {
+            isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task UpdateQuestion()
+    {
+        var startTime = DateTime.Now;
+        isExecuting = true;
+        testStatus = "Updating Question...";
+        
+        var testName = "Update Question";
+        AddDebugLog("TRACE", "ui", $"{testName} - STARTED - QuestionId={selectedQuestionId}, SessionToken={sessionToken}");
+
+        try
+        {
+            // Validation
+            if (string.IsNullOrEmpty(selectedQuestionId))
+            {
+                AddTestResult(testName, false, 0, "No question selected for editing");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(sessionToken) || sessionToken.Length != 8)
+            {
+                AddTestResult(testName, false, 0, "Invalid session token format");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(questionInput))
+            {
+                AddTestResult(testName, false, 0, "Question text cannot be empty");
+                return;
+            }
+
+            AddDebugLog("TRACE", "ui", "Validation passed - preparing update request");
+
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                QuestionText = questionInput.Trim(),
+                UserGuid = userGuid
+            };
+
+            AddDebugLog("TRACE", "api", $"Sending POST to /api/Question/{selectedQuestionId}/update - Payload: {JsonSerializer.Serialize(requestPayload)}");
+
+            var response = await Http!.PostAsJsonAsync($"/api/Question/{selectedQuestionId}/update", requestPayload);
+
+            AddDebugLog("TRACE", "api", $"API Response - StatusCode: {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                AddDebugLog("INFO", "api", $"Question updated successfully - Response: {responseContent}");
+
+                // Update local model
+                var question = questions.FirstOrDefault(q => q.QuestionId == selectedQuestionId);
+                if (question != null)
+                {
+                    question.Text = questionInput.Trim();
+                    AddDebugLog("TRACE", "ui", "Local model updated with new text");
+                }
+
+                // Clear edit mode
+                CancelEdit();
+                
+                var duration = (DateTime.Now - startTime).TotalMilliseconds;
+                AddTestResult(testName, true, (int)duration, "Question updated successfully. Check SignalR logs for broadcast confirmation.");
+                
+                testStatus = "Ready";
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                AddDebugLog("ERROR", "api", $"Question update failed - StatusCode: {response.StatusCode}, Error: {errorContent}");
+                
+                var duration = (DateTime.Now - startTime).TotalMilliseconds;
+                AddTestResult(testName, false, (int)duration, $"API returned {response.StatusCode}", errorContent);
+                
+                testStatus = "Error";
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", "ui", $"Exception during question update: {ex.Message}");
+            var duration = (DateTime.Now - startTime).TotalMilliseconds;
+            AddTestResult(testName, false, (int)duration, "Exception occurred", ex.Message);
+            testStatus = "Error";
+        }
+        finally
+        {
+            isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task VoteQuestion(string questionId)
+    {
+        var startTime = DateTime.Now;
+        var testName = "Vote Question";
+        
+        AddDebugLog("TRACE", "ui", $"{testName} - STARTED - QuestionId={questionId}, UserGuid={userGuid}");
+
+        try
+        {
+            if (votedQuestionIds.Contains(questionId))
+            {
+                AddDebugLog("INFO", "ui", $"User already voted on question {questionId}");
+                return;
+            }
+
+            var requestPayload = new
+            {
+                SessionToken = sessionToken,
+                Direction = "up",
+                UserGuid = userGuid
+            };
+
+            AddDebugLog("TRACE", "api", $"Sending POST to /api/Question/{questionId}/vote");
+
+            var response = await Http!.PostAsJsonAsync($"/api/Question/{questionId}/vote", requestPayload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                votedQuestionIds.Add(questionId);
+                AddDebugLog("INFO", "api", $"Vote recorded successfully for question {questionId}");
+                
+                var duration = (DateTime.Now - startTime).TotalMilliseconds;
+                AddTestResult(testName, true, (int)duration, "Vote submitted. Waiting for SignalR update...");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                AddDebugLog("ERROR", "api", $"Vote failed - StatusCode: {response.StatusCode}, Error: {errorContent}");
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", "ui", $"Exception during vote: {ex.Message}");
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void EditQuestion(QuestionData question)
+    {
+        isEditMode = true;
+        selectedQuestionId = question.QuestionId;
+        questionInput = question.Text;
+        
+        AddDebugLog("INFO", "ui", $"Entered edit mode - QuestionId={question.QuestionId}");
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        isEditMode = false;
+        selectedQuestionId = null;
+        questionInput = "";
+        
+        AddDebugLog("INFO", "ui", "Edit mode cancelled");
+        StateHasChanged();
+    }
+
+    private void DeleteQuestion(QuestionData question)
+    {
+        // Placeholder for delete functionality
+        AddDebugLog("INFO", "ui", $"Delete requested for QuestionId={question.QuestionId}");
+    }
+
+    private async Task ConnectSignalR()
+    {
+        try
+        {
+            testStatus = "Connecting to SignalR...";
+            AddDebugLog("TRACE", "signalr", "Initiating SignalR connection");
+
+            if (string.IsNullOrEmpty(sessionToken))
+            {
+                AddDebugLog("ERROR", "signalr", "Cannot connect - sessionToken is empty");
+                testStatus = "Error: No session token";
+                return;
+            }
+
+            // Get SessionId from API first
+            await GetSessionIdFromToken();
+
+            if (!sessionId.HasValue)
+            {
+                AddDebugLog("ERROR", "signalr", "Cannot connect - SessionId not resolved");
+                testStatus = "Error: Session not found";
+                return;
+            }
+
+            var hubUrl = Navigation.BaseUri.TrimEnd('/') + "/sessionHub";
+            AddDebugLog("TRACE", "signalr", $"Building connection to {hubUrl}");
+
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(hubUrl)
+                .WithAutomaticReconnect()
+                .Build();
+
+            // Register SignalR event handlers
+            RegisterSignalRHandlers();
+
+            await hubConnection.StartAsync();
+            AddDebugLog("INFO", "signalr", $"Connected successfully - ConnectionId: {hubConnection.ConnectionId}");
+
+            // Join session group
+            await hubConnection.SendAsync("JoinSession", sessionId.Value, "participant");
+            AddDebugLog("INFO", "signalr", $"Joined session group: session_{sessionId.Value}");
+
+            testStatus = "Connected";
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", "signalr", $"Connection failed: {ex.Message}");
+            testStatus = "Connection Failed";
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task GetSessionIdFromToken()
+    {
+        try
+        {
+            AddDebugLog("TRACE", "api", $"Fetching SessionId for token: {sessionToken}");
+            
+            var response = await Http!.GetAsync($"api/participant/session/{sessionToken}/validate");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var sessionResponse = JsonSerializer.Deserialize<SessionValidationResponse>(content, 
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (sessionResponse?.Valid == true && sessionResponse.Session != null)
+                {
+                    sessionId = sessionResponse.Session.SessionId;
+                    AddDebugLog("INFO", "api", $"SessionId resolved: {sessionId}");
+                }
+            }
+            else
+            {
+                AddDebugLog("ERROR", "api", $"Failed to resolve SessionId - StatusCode: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", "api", $"Exception resolving SessionId: {ex.Message}");
+        }
+    }
+
+    private void RegisterSignalRHandlers()
+    {
+        if (hubConnection == null) return;
+
+        AddDebugLog("TRACE", "signalr", "Registering event handlers");
+
+        // QuestionReceived - New question posted
+        hubConnection.On<object>("QuestionReceived", async (questionData) =>
+        {
+            AddDebugLog("INFO", "signalr", "QuestionReceived event triggered");
+            
+            try
+            {
+                var jsonString = JsonSerializer.Serialize(questionData);
+                AddDebugLog("TRACE", "signalr", $"QuestionReceived payload: {jsonString}");
+                
+                using var jsonDoc = JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+                
+                var question = new QuestionData
+                {
+                    QuestionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() ?? "" : "",
+                    Text = root.TryGetProperty("text", out var textProp) ? textProp.GetString() ?? "" : "",
+                    UserName = root.TryGetProperty("userName", out var userProp) ? userProp.GetString() ?? "Anonymous" : "Anonymous",
+                    CreatedBy = root.TryGetProperty("userId", out var userIdProp) ? userIdProp.GetString() ?? "" : "",
+                    Votes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0,
+                    CreatedAt = root.TryGetProperty("submittedAt", out var dateProp) ? dateProp.GetDateTime() : DateTime.UtcNow,
+                    IsAnswered = root.TryGetProperty("isAnswered", out var answeredProp) ? answeredProp.GetBoolean() : false
+                };
+                
+                if (!questions.Any(q => q.QuestionId == question.QuestionId))
+                {
+                    questions.Add(question);
+                    AddDebugLog("INFO", "signalr", $"Question added to list - QuestionId: {question.QuestionId}");
+                }
+                
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception ex)
+            {
+                AddDebugLog("ERROR", "signalr", $"Error processing QuestionReceived: {ex.Message}");
+            }
+        });
+
+        // QuestionUpdated - Question edited
+        hubConnection.On<object>("QuestionUpdated", async (questionData) =>
+        {
+            AddDebugLog("INFO", "signalr", "QuestionUpdated event triggered");
+            
+            try
+            {
+                var jsonString = JsonSerializer.Serialize(questionData);
+                AddDebugLog("TRACE", "signalr", $"QuestionUpdated payload: {jsonString}");
+                
+                using var jsonDoc = JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+                
+                var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                var newText = root.TryGetProperty("text", out var textProp) ? textProp.GetString() : null;
+                
+                if (questionId != null)
+                {
+                    var question = questions.FirstOrDefault(q => q.QuestionId == questionId);
+                    if (question != null)
+                    {
+                        var oldText = question.Text;
+                        question.Text = newText ?? question.Text;
+                        
+                        AddDebugLog("INFO", "signalr", $"Question updated - QuestionId: {questionId}, OldText: '{oldText?.Substring(0, Math.Min(30, oldText?.Length ?? 0))}', NewText: '{question.Text?.Substring(0, Math.Min(30, question.Text?.Length ?? 0))}'");
+                        
+                        await InvokeAsync(StateHasChanged);
+                    }
+                    else
+                    {
+                        AddDebugLog("WARNING", "signalr", $"Question not found for update - QuestionId: {questionId}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddDebugLog("ERROR", "signalr", $"Error processing QuestionUpdated: {ex.Message}");
+            }
+        });
+
+        // QuestionVoteUpdate - Vote count changed
+        hubConnection.On<object>("QuestionVoteUpdate", async (voteData) =>
+        {
+            AddDebugLog("INFO", "signalr", "QuestionVoteUpdate event triggered");
+            
+            try
+            {
+                var jsonString = JsonSerializer.Serialize(voteData);
+                AddDebugLog("TRACE", "signalr", $"QuestionVoteUpdate payload: {jsonString}");
+                
+                using var jsonDoc = JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+                
+                var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                var newVotes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0;
+                
+                if (questionId != null)
+                {
+                    var question = questions.FirstOrDefault(q => q.QuestionId == questionId);
+                    if (question != null)
+                    {
+                        var oldVotes = question.Votes;
+                        question.Votes = newVotes;
+                        
+                        AddDebugLog("INFO", "signalr", $"Vote count updated - QuestionId: {questionId}, OldVotes: {oldVotes}, NewVotes: {newVotes}");
+                        
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddDebugLog("ERROR", "signalr", $"Error processing QuestionVoteUpdate: {ex.Message}");
+            }
+        });
+
+        AddDebugLog("INFO", "signalr", "Event handlers registered: QuestionReceived, QuestionUpdated, QuestionVoteUpdate");
+    }
+
+    private async Task DisconnectSignalR()
+    {
+        try
+        {
+            if (hubConnection != null)
+            {
+                await hubConnection.StopAsync();
+                await hubConnection.DisposeAsync();
+                hubConnection = null;
+                
+                AddDebugLog("INFO", "signalr", "Disconnected from SignalR");
+                testStatus = "Disconnected";
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            AddDebugLog("ERROR", "signalr", $"Error during disconnect: {ex.Message}");
+        }
+    }
+
+    private void ClearResults()
+    {
+        testResults.Clear();
+        debugLogs.Clear();
+        AddDebugLog("INFO", "ui", "Results and logs cleared");
+        StateHasChanged();
+    }
+
+    private async Task ExecuteScenario(TestScenario scenario)
+    {
+        AddDebugLog("INFO", "ui", $"Executing scenario: {scenario.Name}");
+        
+        // Apply scenario parameters
+        if (scenario.Parameters.ContainsKey("sessionToken"))
+            sessionToken = scenario.Parameters["sessionToken"].ToString() ?? "";
+        
+        if (scenario.Parameters.ContainsKey("userGuid"))
+            userGuid = scenario.Parameters["userGuid"].ToString() ?? "";
+        
+        if (scenario.Parameters.ContainsKey("questionText"))
+            questionInput = scenario.Parameters["questionText"].ToString() ?? "";
+        
+        if (scenario.Parameters.ContainsKey("isEditMode"))
+            isEditMode = (bool)scenario.Parameters["isEditMode"];
+        
+        await InvokeAsync(StateHasChanged);
+        
+        // Execute based on scenario type
+        if (scenario.Name.Contains("Submit"))
+        {
+            await SubmitQuestion();
+        }
+        else if (scenario.Name.Contains("Edit"))
+        {
+            // Would need to select a question first
+            AddDebugLog("WARNING", "ui", "Edit scenario requires selecting a question first");
+            await Task.CompletedTask;
+        }
+        else if (scenario.Name.Contains("Vote"))
+        {
+            // Would need to select a question first
+            AddDebugLog("WARNING", "ui", "Vote scenario requires selecting a question first");
+            await Task.CompletedTask;
+        }
+    }
+
+    private void AddTestResult(string testName, bool success, int duration, string message, string? errorDetails = null)
+    {
+        testResults.Add(new TestResult
+        {
+            TestName = testName,
+            Success = success,
+            Duration = duration,
+            Message = message,
+            ErrorDetails = errorDetails,
+            Timestamp = DateTime.Now
+        });
+        
+        StateHasChanged();
+    }
+
+    private void AddDebugLog(string level, string layer, string message)
+    {
+        debugLogs.Add(new DebugLog
+        {
+            Level = level,
+            Layer = layer,
+            Message = $"[DEBUG-WORKITEM:isolate-canvas-questions:{layer}:{runId}] {message} ;CLEANUP_OK",
+            Timestamp = DateTime.Now
+        });
+        
+        // Also log to console
+        Logger.LogInformation($"[DEBUG-WORKITEM:isolate-canvas-questions:{layer}:{runId}] {message} ;CLEANUP_OK");
+        
+        StateHasChanged();
+    }
+
+    private static string GenerateRunId()
+    {
+        return Guid.NewGuid().ToString("N")[..8];
+    }
+
+    private string GetSignalRStatusClass()
+    {
+        return hubConnection?.State switch
+        {
+            HubConnectionState.Connected => "success",
+            HubConnectionState.Connecting => "warning",
+            HubConnectionState.Reconnecting => "warning",
+            _ => "danger"
+        };
+    }
+
+    // Supporting Classes
+    private class TestScenario
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public Dictionary<string, object> Parameters { get; set; } = new();
+    }
+
+    private class TestResult
+    {
+        public string TestName { get; set; } = "";
+        public bool Success { get; set; }
+        public int Duration { get; set; }
+        public string Message { get; set; } = "";
+        public string? ErrorDetails { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    private class DebugLog
+    {
+        public string Level { get; set; } = "";
+        public string Layer { get; set; } = "";
+        public string Message { get; set; } = "";
+        public DateTime Timestamp { get; set; }
+    }
+
+    private class QuestionData
+    {
+        public string QuestionId { get; set; } = "";
+        public string Text { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string CreatedBy { get; set; } = "";
+        public int Votes { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsAnswered { get; set; }
+    }
+
+    private class SessionValidationResponse
+    {
+        public bool Valid { get; set; }
+        public int SessionId { get; set; }
+        public SessionCanvasData? Session { get; set; }
+    }
+
+    private class SessionCanvasData
+    {
+        public int SessionId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public DateTime? StartTime { get; set; }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
+
+<style>
+    /* Isolation Test Harness Styles */
+    .isolation-container {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+
+    .isolation-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .isolation-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .isolation-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0 0 1rem 0;
+    }
+
+    .isolation-info {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .isolation-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .isolation-badge-success {
+        background: #10b981;
+    }
+
+    .isolation-badge-warning {
+        background: #f59e0b;
+    }
+
+    .isolation-badge-danger {
+        background: #ef4444;
+    }
+
+    .isolation-badge-info {
+        background: #3b82f6;
+    }
+
+    .isolation-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .isolation-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .isolation-parameters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+
+    .isolation-parameter {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .isolation-label {
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .isolation-input,
+    .isolation-textarea {
+        padding: 0.625rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+
+    .isolation-input:focus,
+    .isolation-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .isolation-help {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .isolation-help-success {
+        color: #10b981;
+        font-weight: 500;
+    }
+
+    .isolation-checkbox-group {
+        margin-top: 0.5rem;
+    }
+
+    .isolation-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .isolation-checkbox {
+        width: 1.125rem;
+        height: 1.125rem;
+        cursor: pointer;
+    }
+
+    .isolation-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .isolation-button {
+        padding: 0.625rem 1.25rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .isolation-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .isolation-button-primary {
+        background: #667eea;
+        color: white;
+    }
+
+    .isolation-button-primary:hover:not(:disabled) {
+        background: #5568d3;
+    }
+
+    .isolation-button-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .isolation-button-success:hover:not(:disabled) {
+        background: #059669;
+    }
+
+    .isolation-button-warning {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .isolation-button-warning:hover:not(:disabled) {
+        background: #d97706;
+    }
+
+    .isolation-button-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .isolation-button-secondary:hover:not(:disabled) {
+        background: #4b5563;
+    }
+
+    .isolation-button-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .isolation-button-danger:hover:not(:disabled) {
+        background: #dc2626;
+    }
+
+    .isolation-button-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .isolation-scenarios {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .isolation-scenario-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: box-shadow 0.2s;
+    }
+
+    .isolation-scenario-card:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .isolation-scenario-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .isolation-scenario-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .isolation-scenario-description {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0 0 1rem 0;
+    }
+
+    .isolation-preview {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        min-height: 200px;
+    }
+
+    .isolation-empty-message {
+        text-align: center;
+        color: #9ca3af;
+        font-style: italic;
+        padding: 2rem;
+    }
+
+    .isolation-results {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .isolation-result-card {
+        border-left: 4px solid #e5e7eb;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f9fafb;
+        border-radius: 4px;
+    }
+
+    .isolation-result-success {
+        border-left-color: #10b981;
+    }
+
+    .isolation-result-failure {
+        border-left-color: #ef4444;
+    }
+
+    .isolation-result-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .isolation-result-icon {
+        font-size: 1.25rem;
+    }
+
+    .isolation-result-success .isolation-result-icon {
+        color: #10b981;
+    }
+
+    .isolation-result-failure .isolation-result-icon {
+        color: #ef4444;
+    }
+
+    .isolation-result-title {
+        font-weight: 600;
+        color: #1f2937;
+        flex: 1;
+    }
+
+    .isolation-result-time {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .isolation-result-details p {
+        margin: 0.25rem 0;
+        font-size: 0.875rem;
+        color: #4b5563;
+    }
+
+    .isolation-result-error {
+        color: #dc2626 !important;
+        font-family: 'Courier New', monospace;
+    }
+
+    .isolation-logs {
+        max-height: 500px;
+        overflow-y: auto;
+        background: #1f2937;
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.8125rem;
+    }
+
+    .isolation-log-entry {
+        display: grid;
+        grid-template-columns: 90px 80px 100px 1fr;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        margin-bottom: 0.25rem;
+        border-radius: 4px;
+    }
+
+    .isolation-log-trace {
+        background: rgba(100, 116, 139, 0.2);
+        color: #cbd5e1;
+    }
+
+    .isolation-log-info {
+        background: rgba(59, 130, 246, 0.2);
+        color: #93c5fd;
+    }
+
+    .isolation-log-warning {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fcd34d;
+    }
+
+    .isolation-log-error {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+    }
+
+    .isolation-log-timestamp {
+        color: #9ca3af;
+    }
+
+    .isolation-log-level {
+        font-weight: 600;
+    }
+
+    .isolation-log-layer {
+        color: #a78bfa;
+        font-weight: 500;
+    }
+
+    .isolation-log-message {
+        color: #e5e7eb;
+    }
+
+    /* Canvas Question Styles (copied from SessionCanvas.razor) */
+    .canvas-questions-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .canvas-question-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .canvas-question-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .question-item-style-green {
+        border: 2px solid #006400;
+        background: linear-gradient(135deg, #f0fff4 0%, #e8f5e9 100%);
+    }
+
+    .question-item-style-sienna {
+        border: 2px solid #A0522D;
+        background: linear-gradient(135deg, #FFF8DC 0%, #FAEBD7 100%);
+    }
+
+    .canvas-question-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .canvas-question-edit-button,
+    .canvas-question-delete-button {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .canvas-question-edit-button {
+        background: #006400;
+        color: white;
+    }
+
+    .canvas-question-edit-button:hover {
+        background: #004d00;
+    }
+
+    .canvas-question-delete-button {
+        background: #DC143C;
+        color: white;
+    }
+
+    .canvas-question-delete-button:hover {
+        background: #B22222;
+    }
+
+    .canvas-question-content {
+        flex: 1;
+    }
+
+    .canvas-question-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .canvas-question-text {
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .question-text-color-green {
+        color: #006400;
+    }
+
+    .question-text-color-sienna {
+        color: #A0522D;
+    }
+
+    .canvas-question-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .canvas-question-owner-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .owner-label-color {
+        background: #006400;
+        color: white;
+    }
+
+    .canvas-question-meta {
+        display: flex;
+        gap: 0.75rem;
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+
+    .canvas-question-author {
+        font-weight: 500;
+    }
+
+    .canvas-question-vote-button {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border: none;
+        background: transparent;
+        font-weight: 500;
+    }
+
+    .canvas-question-vote-count {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .vote-count-color-sienna {
+        color: #A0522D;
+    }
+</style>
