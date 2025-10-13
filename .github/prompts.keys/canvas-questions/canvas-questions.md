@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T11:35:00Z
+- **Last Updated**: 2025-10-13T12:05:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -134,6 +134,68 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 - `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Database schema
 
 ## Changes Made
+
+### Commit: d17cbfceaec7c40b595c452838c55c887016438d
+**Date**: 2025-10-13T12:05:00Z
+**Message**: style(canvas-questions): Reposition upvote section to bottom-right with smaller size and add 4px left border
+
+**Summary**: Reorganized question card layout per user request - moved upvote section to bottom-right corner, made it smaller, gave question text full width, and added prominent 4px left border for better visual hierarchy.
+
+**Layout Changes**:
+1. **Vote Section Repositioning**:
+   - Changed from inline left-side placement to absolute positioning at bottom-right
+   - CSS: `position: absolute; bottom: 0.5rem; right: 0.5rem;`
+   - Removed `margin-right: 1rem` (no longer needed)
+
+2. **Vote Section Size Reduction**:
+   - Button icon: `1.5rem` → `1.125rem` (25% smaller)
+   - Badge padding: `0.25rem 0.625rem` → `0.1875rem 0.5rem`
+   - Badge font-size: `0.875rem` → `0.75rem`
+   - Badge min-width: `1.75rem` → `1.5rem`
+   - Gap between icon and badge: `0.5rem` → `0.375rem`
+
+3. **Question Content Full Width**:
+   - Added `width: 100%` to `.canvas-question-content`
+   - Content now spans entire card width (no space reserved for vote section)
+
+4. **Border Enhancement**:
+   - Card border changed from `1px` to `2px` on all sides
+   - Left border specifically set to `4px` via `border-left-width: 4px`
+   - Creates stronger visual anchor for question cards
+
+5. **Card Padding Adjustment**:
+   - Added `padding-bottom: 2.5rem` to `.canvas-question-item`
+   - Prevents vote section from overlapping question content
+   - Original padding: `1rem` all sides
+
+6. **HTML Restructure**:
+   - Moved `<div class="canvas-question-vote-section">` to END of card (after content)
+   - Content renders first, vote section overlays at bottom-right
+   - Maintains same conditional logic (own questions vs others' questions)
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+  - **Lines 582-615**: Updated `.canvas-question-vote-section`, `.canvas-question-vote-button`, `.canvas-question-vote-count` CSS
+  - **Lines 572-580**: Updated `.canvas-question-item` CSS (border, padding, position)
+  - **Lines 620-625**: Updated `.canvas-question-content` CSS (width)
+  - **Lines 950-1010**: Restructured HTML (moved vote section after content div)
+
+**Visual Impact**:
+- Cleaner, more balanced card appearance
+- Upvote badge less prominent but remains fully functional
+- Stronger left-side emphasis with 4px border (matches green/orange color coding)
+- Question text has more breathing room without vote section on left
+- Bottom-right placement follows common UI pattern for secondary actions
+
+**Trace Logging Updates**:
+- Updated log messages to indicate "bottom-right" positioning
+- Helps distinguish new layout in debug output
+
+**Design Rationale**:
+- **Bottom-right placement**: Secondary action (upvoting) doesn't compete with primary content (question text)
+- **Smaller size**: Reduces visual weight while maintaining touch-target accessibility
+- **4px left border**: Reinforces green (own) vs orange (others') distinction
+- **Full-width content**: Maximizes readability, especially for longer questions
 
 ### Commit: 737be47efeb1c088b603336193c9a42b31974656
 **Date**: 2025-10-13T11:35:00Z
