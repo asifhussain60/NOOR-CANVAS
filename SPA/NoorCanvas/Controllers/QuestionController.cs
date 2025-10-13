@@ -809,12 +809,24 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] Question deleted successfully from database ;CLEANUP_OK", requestId);
 
                 // Notify all session participants via SignalR
-                await _sessionHub.Clients.Group($"session_{session.SessionId}")
+                var sessionGroup = $"session_{session.SessionId}";
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] Broadcasting QuestionDeleted to group='{SessionGroup}', Payload={{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
+                    requestId, sessionGroup, questionId, session.SessionId);
+                
+                await _sessionHub.Clients.Group(sessionGroup)
                     .SendAsync("QuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] ✅ QuestionDeleted broadcast completed to session group ;CLEANUP_OK", requestId);
 
                 // Notify hosts via SignalR
-                await _sessionHub.Clients.Group($"Host_{session.SessionId}")
+                var hostGroup = $"Host_{session.SessionId}";
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] Broadcasting HostQuestionDeleted to group='{HostGroup}', Payload={{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
+                    requestId, hostGroup, questionId, session.SessionId);
+                
+                await _sessionHub.Clients.Group(hostGroup)
                     .SendAsync("HostQuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
+                
+                _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:trace] [{RequestId}] ✅ HostQuestionDeleted broadcast completed to host group ;CLEANUP_OK", requestId);
 
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete] [{RequestId}] SignalR notifications sent to session and host groups ;CLEANUP_OK", requestId);
 

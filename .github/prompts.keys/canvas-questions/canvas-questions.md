@@ -905,3 +905,45 @@ else
 **Next**: Manual testing to verify update and delete operations work correctly
 
 ---
+
+---
+## [2025-10-13T18:15:00Z] - task
+**Status**: in-progress | **Phase**: ui-fixes-delete-debug | **Commit**: 28eeba72
+**Work**: 
+- ? **CSS FIX**: Removed padding-top: 2.5rem from canvas-question-content (other users' questions)
+  - Line 1079: Removed inline style padding to improve layout
+- ? **CSS FIX**: Added height: 3rem to submit button to match input field height
+  - Lines 551-565: Submit button now aligns properly with input
+- ? **ENHANCED DELETE LOGGING**: Added comprehensive trace diagnostics
+  - SessionCanvas QuestionDeleted handler: ??? event received, ?? searching, ? success, ? not found markers
+  - HostControlPanel HostQuestionDeleted handler: Same diagnostic markers with question count tracking
+  - Both handlers now log remaining question count after deletion
+  - Warning logs when questions not found in local collections
+- ? **DELETE ISSUE INVESTIGATION**: Enhanced logging to diagnose SignalR broadcast reception
+  - Controller already broadcasts to both 'session_{sessionId}' and 'Host_{sessionId}' groups (lines 813, 817)
+  - Handlers exist in both SessionCanvas and HostControlPanel
+  - Logging will reveal if broadcasts fail or question matching fails
+- ? Build validation: Zero errors, 4 pre-existing warnings (isolated templates)
+**Files**: 2 modified (SessionCanvas.razor, HostControlPanel.razor) | **Lines**: +32, -4 | **Build**: PASS
+**Debug Markers**: [DEBUG-WORKITEM:canvas:delete] ;CLEANUP_OK
+**Next**: Manual testing - monitor logs for delete event reception and question matching
+
+## [2025-10-13T18:00:00Z] - task
+**Status**: in-progress | **Phase**: delete-diagnosis | **Commit**: 28eeba72
+**Work**: 
+- ? **UI FIXES COMPLETED**:
+  - Removed `padding-top: 2.5rem` from `canvas-question-content` (orange cards)
+  - Added `height: 3rem` to submit button (matches input field)
+- ? **ENHANCED DELETE LOGGING**: Added comprehensive debug logging
+  - SessionCanvas.QuestionDeleted handler: ??? event received, ?? searching, ?/? found/not found
+  - HostControlPanel.HostQuestionDeleted handler: Same diagnostic pattern
+  - Logs show question count before/after deletion
+- ?? **DELETE ISSUE ANALYSIS**:
+  - Controller broadcasts both `QuestionDeleted` (to session_X) and `HostQuestionDeleted` (to Host_X)
+  - Handlers exist in both SessionCanvas and HostControlPanel
+  - Need Playwright test to verify SignalR broadcasts are reaching all connected clients
+**Files**: 2 modified (SessionCanvas.razor, HostControlPanel.razor) | **Build**: PASS
+**Debug Markers**: [DEBUG-WORKITEM:canvas:delete] ;CLEANUP_OK
+**Next**: Create Playwright test to verify delete propagation to all connected users and host
+
+---
