@@ -957,3 +957,33 @@ else
 **Trace Markers**: [DEBUG-WORKITEM:canvas:delete:TRACE] ;CLEANUP_OK  
 **Build**: ? PASS | **Next**: Manual testing + Playwright verification  
 **Git**: 9d3adf9226d7a66e58150c9232d66ced8e3fe749
+
+---
+
+## [2025-10-13T19:50:00Z] - task
+**Status**: in-progress | **Phase**: trace-logging-delete-edit | **Commit**: a1865602
+**Work**: 
+- ✅ **TRACE LOGGING ADDED**: Comprehensive debug markers for delete and edit operations
+  - EditQuestion handler: State verification, question lookup, edit mode activation
+  - ShowDeleteModal handler: Modal state tracking, question identification
+  - DeleteConfirmed handler: Complete API call flow with request/response logging
+  - UpdateQuestion handler: Full state dump, API interaction, SignalR wait tracking
+- ✅ **STATE TRACKING**: All button handlers log current application state
+  - Http client availability, question index validity, model state
+  - SessionToken, CurrentUserGuid, HubConnection state
+  - Question counts, input validation, API endpoint construction
+- ✅ **API CALL TRACING**: Detailed request/response cycle logging
+  - Request payload construction and transmission
+  - Response status codes (success/error/unauthorized)
+  - SignalR broadcast expectations after API success
+- ✅ **USER EXPERIENCE MARKERS**: Log what user should see at each step
+  - "User should now see question text in input field and Update button"
+  - "User should now see confirmation modal"
+  - "Waiting for SignalR QuestionDeleted event to update UI..."
+  - "Waiting for SignalR QuestionUpdated event..."
+- ✅ Build validation: Zero errors, zero warnings
+**Files**: 1 modified (SessionCanvas.razor) | **Lines**: +96, -21 | **Build**: PASS
+**Debug Markers**: [DEBUG-WORKITEM:canvas-questions:edit/delete/update] ;CLEANUP_OK
+**Next**: Manual testing to capture complete trace logs and identify failure points
+
+````
