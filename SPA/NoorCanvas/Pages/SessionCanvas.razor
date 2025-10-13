@@ -571,46 +571,57 @@
     .canvas-question-item {
         border-radius: 0.75rem;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        padding: 1rem 1.5rem;
+        padding: 0.75rem;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         max-width: 300px;
         width: 100%;
-    }
-
-    .question-item-style {
-        border-color: #006400;
-        background-color: #ECFDF5;
         border-width: 2px;
         border-left-width: 6px;
         border-style: solid;
     }
 
+    /* Green Theme - Own Question */
+    .question-item-style-green {
+        border-color: #006400;
+        background-color: #ECFDF5;
+    }
+
+    /* Sienna Theme - Other Users' Question */
+    .question-item-style-sienna {
+        border-color: #A0522D;
+        background-color: #FAEBD7;
+    }
+
     .canvas-question-text {
         word-wrap: break-word;
         font-family: 'Inter', sans-serif;
-        font-size: 1.125rem;
-        line-height: 1.5;
-        font-weight: 500;
+        font-size: 1rem;
+        line-height: 1.375;
+        font-weight: normal;
     }
 
-    .question-text-color {
+    .question-text-color-green {
         color: #006400;
     }
 
-    .owner-label-color {
-        color: #D4AF37;
+    .question-text-color-sienna {
+        color: #A0522D;
     }
 
-    .vote-button-style {
-        color: #07751f;
+    .owner-label-color {
+        color: #800000;
+    }
+
+    .vote-button-style-sienna {
+        color: #A0522D;
         cursor: default;
         opacity: 0.5;
     }
 
-    .vote-count-color {
-        color: #07751f;
+    .vote-count-color-sienna {
+        color: #A0522D;
         font-weight: bold;
     }
 
@@ -975,16 +986,17 @@
                                         Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership-trace] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK", 
                                             question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion);
                                         
-                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card structure - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes} ;CLEANUP_OK",
-                                            isMyQuestion, hasVoted, question.Votes);
+                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes}, Theme={Theme} ;CLEANUP_OK",
+                                            isMyQuestion, hasVoted, question.Votes, isMyQuestion ? "Green" : "Sienna");
 
-                                        <div class="canvas-question-item question-item-style">
-                                            
-                                            <!-- TOP ROW: Action Buttons (only for own questions) -->
-                                            @if (isMyQuestion)
-                                            {
-                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:action-buttons-trace] Rendering action buttons for own question - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
+                                        @if (isMyQuestion)
+                                        {
+                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:action-buttons-trace] Rendering green card for own question - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
                                                 
+                                            <!-- GREEN THEME: Own Question Card (Vertical Layout) -->
+                                            <div class="canvas-question-item question-item-style-green">
+                                                
+                                                <!-- TOP ROW: Action Buttons -->
                                                 <div class="canvas-question-actions">
                                                     <span @onclick="() => EditQuestion(index)" class="canvas-question-edit-button">
                                                         <i class="fa-solid fa-pen"></i>
@@ -993,76 +1005,65 @@
                                                         <i class="fa-solid fa-trash-can"></i>
                                                     </span>
                                                 </div>
-                                            }
 
-                                            <!-- MIDDLE ROW: Question Text -->
-                                            <div class="canvas-question-content">
-                                                <div class="canvas-question-header">
-                                                    <span class="canvas-question-text question-text-color">
-                                                        @question.Text
-                                                    </span>
+                                                <!-- MIDDLE ROW: Question Text -->
+                                                <div class="canvas-question-content">
+                                                    <div class="canvas-question-header">
+                                                        <span class="canvas-question-text question-text-color-green">
+                                                            @question.Text
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            
-                                            <!-- BOTTOM SECTION (FOOTER): Owner Label + Vote Section -->
-                                            <div class="canvas-question-footer">
                                                 
-                                                <!-- LEFT SIDE: Owner Label (only for own questions) -->
-                                                @if (isMyQuestion)
-                                                {
+                                                <!-- BOTTOM SECTION: Owner Label (NO vote section) -->
+                                                <div class="canvas-question-footer">
                                                     Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:owner-label-trace] Rendering 'Your Question' label - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
                                                     
                                                     <span class="canvas-question-owner-label owner-label-color">
                                                         Your Question
                                                     </span>
-                                                }
-                                                else
-                                                {
+                                                    
                                                     <!-- Empty span to maintain flex layout -->
                                                     <span></span>
-                                                }
-
-                                                <!-- RIGHT SIDE: Vote Section (only for own questions in disabled state) -->
-                                                @if (isMyQuestion)
-                                                {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:vote-disabled-trace] Rendering disabled vote section for own question - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK",
-                                                        question.QuestionId, question.Votes);
-                                                    
-                                                    <div class="canvas-question-vote-section">
-                                                        <button class="canvas-question-vote-button vote-button-style" 
-                                                                disabled 
-                                                                title="You cannot vote on your own question">
-                                                            <i class="fa-solid fa-thumbs-up"></i>
-                                                        </button>
-                                                        <span class="canvas-question-vote-count vote-count-color">@question.Votes</span>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:vote-active-trace] Rendering active vote section for other user's question - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted} ;CLEANUP_OK",
-                                                        question.QuestionId, question.Votes, hasVoted);
-                                                    
-                                                    <!-- Vote section for other users' questions -->
-                                                    <div class="canvas-question-vote-section">
-                                                        <button @onclick="() => VoteQuestion(question.QuestionId)" 
-                                                                @onclick:preventDefault="true"
-                                                                @onclick:stopPropagation="true"
-                                                                class="canvas-question-vote-button"
-                                                                style="color:#CC5500;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
-                                                                disabled="@hasVoted"
-                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                            <i class="fa-solid fa-thumbs-up"></i>
-                                                        </button>
-                                                        <span class="canvas-question-vote-count" style="color:#CC5500;">@question.Votes</span>
-                                                    </div>
-                                                }
+                                                </div>
                                             </div>
+                                        }
+                                        else
+                                        {
+                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:vote-active-trace] Rendering sienna card with active vote - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted} ;CLEANUP_OK",
+                                                question.QuestionId, question.Votes, hasVoted);
                                             
-                                            @{
-                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-complete-trace] Question card rendered successfully - QuestionId={QuestionId}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK",
-                                                    question.QuestionId, isMyQuestion);
-                                            }
-                                        </div>
+                                            <!-- SIENNA THEME: Other Users' Question Card (Single Row Layout) -->
+                                            
+                                            <div class="canvas-question-item question-item-style-sienna" style="flex-direction:row;align-items:flex-start;gap:1rem;">
+                                                
+                                                <!-- LEFT SIDE: Question Text (flex-grow to take most space) -->
+                                                <div class="canvas-question-content" style="flex-grow:1;">
+                                                    <div class="canvas-question-header">
+                                                        <span class="canvas-question-text question-text-color-sienna">
+                                                            @question.Text
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- RIGHT SIDE: Vote Section (compact, flex-shrink-0) -->
+                                                <div class="canvas-question-vote-section" style="flex-shrink:0;padding-top:0.25rem;">
+                                                    <button @onclick="() => VoteQuestion(question.QuestionId)" 
+                                                            @onclick:preventDefault="true"
+                                                            @onclick:stopPropagation="true"
+                                                            class="canvas-question-vote-button"
+                                                            style="color:#A0522D;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
+                                                            disabled="@hasVoted"
+                                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
+                                                        <i class="fa-solid fa-thumbs-up"></i>
+                                                    </button>
+                                                    <span class="canvas-question-vote-count vote-count-color-sienna">@question.Votes</span>
+                                                </div>
+                                            </div>
+                                        }
+                                        
+                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-complete-trace] Question card rendered - QuestionId={QuestionId}, Theme={Theme} ;CLEANUP_OK",
+                                            question.QuestionId, isMyQuestion ? "Green" : "Sienna");
                                     }
                                 }
                                 else
