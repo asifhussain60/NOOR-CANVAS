@@ -364,8 +364,8 @@
                         {
                             Id = Guid.Parse(questionId),
                             Text = questionText,
-                            UserName = userName,
-                            CreatedBy = userId,
+                            UserName = userName ?? "Anonymous",
+                            CreatedBy = userId ?? string.Empty,
                             CreatedAt = submittedAt,
                             IsAnswered = false,
                             VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0

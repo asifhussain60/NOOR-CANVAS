@@ -352,7 +352,7 @@
     // HTTP Client
     private HttpClient? Http;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         Http = HttpClientFactory.CreateClient("NoorCanvasApi");
         
@@ -362,6 +362,8 @@
         InitializeTestScenarios();
         
         AddDebugLog("INFO", "lifecycle", $"Loaded {testScenarios.Count} test scenarios");
+        
+        return Task.CompletedTask;
     }
 
     private void InitializeTestScenarios()

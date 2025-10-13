@@ -669,7 +669,7 @@
     private string debugLevel = "trace";
     private string testStatus = "Ready";
     private bool isExecuting = false;
-    private RenderFragment? functionalityPreview;
+    private RenderFragment? functionalityPreview = null;
     private string runId = GenerateRunId();
 
     protected override async Task OnInitializedAsync()
@@ -787,10 +787,10 @@
         return true;
     }
 
-    private T GetParameterValue<T>(string paramName)
+    private T? GetParameterValue<T>(string paramName)
     {
         var param = testParameters.FirstOrDefault(p => p.Name == paramName);
-        return param != null ? (T)param.Value : default(T);
+        return param != null ? (T?)param.Value : default(T);
     }
 
     private void AddResult(string status, string message, string? details)
