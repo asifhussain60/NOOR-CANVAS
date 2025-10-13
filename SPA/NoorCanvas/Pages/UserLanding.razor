@@ -57,14 +57,14 @@
         margin-bottom: 1.5rem;
     }
 
-    /* [DEBUG-WORKITEM:razor-views:logo-size] Logo sizing to 250x250px ;CLEANUP_OK */
+    /* [DEBUG-WORKITEM:css:logo-resize] Logo sizing to 200x200px for desktop ;CLEANUP_OK */
     .user-landing-logo img {
-        width: 250px;
-        height: 250px;
+        width: 200px;
+        height: 200px;
         object-fit: contain;
     }
 
-    /* [DEBUG-WORKITEM:razor-views:logo-size] Phone logo sizing to 175x175px ;CLEANUP_OK */
+    /* [DEBUG-WORKITEM:css:logo-resize] Phone logo sizing maintained at 175x175px ;CLEANUP_OK */
     @@media (max-width: 767px) {
         .user-landing-logo img {
             width: 175px;
@@ -385,7 +385,7 @@
             <h1 class="user-landing-title">User Authentication</h1>
             <div class="user-landing-session-info">
                 <p data-testid="session-name" class="user-landing-session-name">@(Model?.SessionName ?? "[Session Name]")</p>
-                <p class="user-landing-session-desc">@(Model?.SessionDescription ?? "[Session Desc]")</p>
+                @* [DEBUG-WORKITEM:css:remove-status] Removed session description showing "Status: Created" ;CLEANUP_OK *@
             </div>
 
             <!-- User Authentication Form -->
