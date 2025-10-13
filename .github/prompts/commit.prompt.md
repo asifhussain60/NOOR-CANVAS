@@ -208,7 +208,165 @@ if ($skipLearning -eq $true) {
 
 ---
 
-### Step 4: Verify Uncommitted Changes
+### Step 4: Key Data Stream Cleanup
+**Optimize prompts.keys data streams by removing redundancies and extracting reusable patterns.**
+
+#### 4.1. Scan All Key Data Streams
+```powershell
+# Locate all key metadata files
+$keyFiles = Get-ChildItem ".github/prompts.keys/*/*.md" -Include "*prompts.md", "*analysis.md", "*notes.md" -Recurse
+
+Write-Host "`n🔍 Key Data Streams Found: $($keyFiles.Count)" -ForegroundColor Cyan
+```
+
+#### 4.2. Analyze for Redundancies
+**For each key data stream, identify:**
+
+1. **Duplicate Information**: Same content repeated in multiple sections
+2. **Outdated Business Rules**: References to deprecated features or workflows
+3. **Verbose Formatting**: Excessive whitespace, redundant headers, repetitive descriptions
+4. **Extractable Patterns**: Common patterns that should be in shared/Links folders
+
+**Example Redundancies to Remove**:
+```markdown
+❌ REDUNDANT:
+## File Mappings
+### Frontend (Views)
+- N/A - No frontend views involved
+### Frontend (Components)  
+- N/A - No frontend components involved
+### Backend (Controllers)
+- N/A - No backend controllers involved
+
+✅ COMPACT:
+## File Mappings
+- **Scope**: Documentation only (no frontend/backend changes)
+```
+
+**Example Outdated Business Rules**:
+```markdown
+❌ OUTDATED:
+- Annotation system integration (removed in Issue #67)
+- Legacy vote counting logic (replaced by VotingService)
+
+✅ REMOVE: Delete references to deleted features
+```
+
+#### 4.3. Extract to Links/Shared
+**Move reusable content to appropriate shared locations:**
+
+1. **Common Patterns → `.github/instructions/Links/`**
+   - Infrastructure references
+   - Standard workflows
+   - Cross-cutting concerns
+
+2. **Prompt Boilerplate → `.github/prompts/shared/`**
+   - Step templates
+   - Commit message formats
+   - Validation procedures
+
+3. **Key Templates → `Workspaces/Copilot/prompts.keys/_template/`**
+   - Standard key structure
+   - Metadata schema
+   - Work log format
+
+**Example Extraction**:
+```markdown
+# Before (in prompts.md):
+## Commit Message Format
+feat(prompts): {description}
+- Changes: {list}
+- Tests: {status}
+
+# After (in shared/commit-message-format.md):
+[Complete template with examples]
+
+# Reference in prompts.md:
+**See**: [Commit Message Format](shared/commit-message-format.md)
+```
+
+#### 4.4. Compact Key Structure
+**Apply compaction rules:**
+
+1. **Consolidate Empty Sections**: Replace multiple "N/A" entries with single scope statement
+2. **Merge Related Metadata**: Combine fragmented information
+3. **Remove Verbose Headers**: Use concise section titles
+4. **Deduplicate Lists**: Merge repeated file references
+
+**Compaction Example**:
+```markdown
+# Before (78 lines):
+## File Mappings
+### Frontend (Views)
+- Path/To/View1.razor - Description
+- Path/To/View2.razor - Description
+### Frontend (Components)
+- Path/To/Component1.razor - Description
+...
+### Documentation
+- Doc1.md - Description
+- Doc2.md - Description
+...
+
+# After (32 lines):
+## File Mappings
+- **Frontend**: View1.razor (description), View2.razor (description), Component1.razor (description)
+- **Documentation**: Doc1.md, Doc2.md
+```
+
+#### 4.5. Execute Cleanup
+```powershell
+foreach ($keyFile in $keyFiles) {
+    $content = Get-Content $keyFile.FullName -Raw
+    
+    # Check if cleanup needed
+    $hasRedundancies = $content -match 'N/A - No \w+ \w+ involved' -or
+                       $content -match 'Description:.*Description:' -or
+                       $content.Length -gt 10000  # Verbose files
+    
+    if ($hasRedundancies) {
+        Write-Host "  📝 Cleaning: $($keyFile.Name)" -ForegroundColor Yellow
+        
+        # Apply cleanup transformations
+        # (Implementation would use regex/string operations)
+        
+        # Optionally commit cleanup
+        git add $keyFile.FullName
+    } else {
+        Write-Host "  ✓ Clean: $($keyFile.Name)" -ForegroundColor Green
+    }
+}
+```
+
+**Expected Output**:
+```
+🔍 Key Data Streams Found: 42
+  ✓ Clean: canvas.md
+  📝 Cleaning: prompts.md (redundant N/A sections)
+  📝 Cleaning: hcp.md (outdated business rules)
+  ✓ Clean: sync.md
+...
+✅ Cleanup Complete: 12 files optimized, 30 files clean
+```
+
+#### 4.6. Update Links/Shared Folders
+**After extraction, update reference files:**
+
+1. **Update SystemStructureSummary.md** with new Links files
+2. **Update ReferenceIndex.md** with extracted patterns
+3. **Regenerate FileMetrics.md** with compacted sizes
+4. **Update key-template.md** with compact format
+
+**Commit extracted content separately**:
+```powershell
+git add .github/instructions/Links/
+git add .github/prompts/shared/
+git commit -m "docs: extract common patterns from key data streams"
+```
+
+---
+
+### Step 5: Verify Uncommitted Changes
 **Check for any uncommitted changes before proceeding to commit.**
 
 ```powershell
@@ -234,10 +392,10 @@ if ($uncommittedCount -eq 0) {
 
 ---
 
-### Step 5: Commit All Changes
+### Step 6: Commit All Changes
 **Create commit with standardized message format.**
 
-#### 5.1. Generate Commit Message
+#### 6.1. Generate Commit Message
 **See**: [Commit Message Format](shared/commit-message-format.md)
 
 ```powershell
@@ -262,7 +420,7 @@ feat(prompts): commit workflow execution
 - Learning analysis: executed
 ```
 
-#### 5.2. Stage and Commit
+#### 6.2. Stage and Commit
 ```powershell
 # DEBUG-WORKITEM:commit:stage-commit Stage all changes and create commit ;CLEANUP_OK
 git add -A
@@ -278,10 +436,10 @@ Write-Host "✓ Commit created successfully" -ForegroundColor Green
 
 ---
 
-### Step 6: Push to Origin
+### Step 7: Push to Origin
 **Push all commits to remote repository.**
 
-#### 6.1. Check Push Flag
+#### 7.1. Check Push Flag
 ```powershell
 # DEBUG-WORKITEM:commit:check-push Check if push is enabled ;CLEANUP_OK
 if ($push -eq $false) {
@@ -290,7 +448,7 @@ if ($push -eq $false) {
 }
 ```
 
-#### 6.2. Execute Push
+#### 7.2. Execute Push
 **If push flag is true (default):**
 
 ```powershell
@@ -308,7 +466,7 @@ Write-Host "✓ Changes pushed to origin successfully" -ForegroundColor Green
 
 ---
 
-### Step 7: Verify Zero Uncommitted Count
+### Step 8: Verify Zero Uncommitted Count
 **Final verification that all changes are committed.**
 
 ```powershell
@@ -338,7 +496,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 
 ---
 
-### Step 8: Summary Report
+### Step 9: Summary Report
 **Provide comprehensive execution summary.**
 
 ```
@@ -349,6 +507,7 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - **Cohesion Review**: {executed | skipped}
 - **Sync**: {executed | skipped}
 - **Learning Analysis**: {executed | skipped}
+- **Key Cleanup**: {executed | skipped}
 - **Commit**: {created | skipped (no changes)}
 - **Push**: {successful | skipped | failed}
 - **Final Status**: {X} commits pushed, 0 uncommitted changes
@@ -357,16 +516,17 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 - Prompts: cohesive and validated
 - Documentation: synchronized
 - Learning: patterns extracted
+- Keys: optimized and compact
 - Remote: up to date
 ```
 
 ---
 
 ## Guardrails
-- **ALWAYS verify zero uncommitted count** after push (Step 7 is mandatory)
+- **ALWAYS verify zero uncommitted count** after push (Step 8 is mandatory)
 - **ALWAYS execute cohesion review** unless skip condition met (recent analysis <24h)
-- **ALWAYS commit before pushing** (Step 5 must complete before Step 6)
-- **NEVER skip Step 7** verification - this is the critical success check
+- **ALWAYS commit before pushing** (Step 6 must complete before Step 7)
+- **NEVER skip Step 8** verification - this is the critical success check
 - **NEVER proceed if cohesion review finds issues** - abort and fix issues first
 - **ALWAYS log skip reasons** when any step is skipped
 - If push fails, notify user but don't fail entire workflow (commits are local)

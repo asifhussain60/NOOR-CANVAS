@@ -356,26 +356,6 @@ All actions must respect the global guardrails and architectural mappings.
 
 ## Execution Steps
 
-### 0. Server Cleanup (If Running) [DEBUG-WORKITEM:task-prompt:kestrel-check] Enhanced with process check before kill ;CLEANUP_OK
-**Before any operations, check if Kestrel/NoorCanvas processes are running and only kill them if needed.**
-
-```powershell
-# Check for running Kestrel/dotnet processes
-$processes = Get-Process -Name dotnet -ErrorAction SilentlyContinue
-if ($processes) {
-    Write-Host "Found $($processes.Count) running dotnet process(es). Stopping them..."
-    Stop-Process -Name dotnet -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 2
-    Write-Host "Processes stopped successfully."
-} else {
-    Write-Host "No running Kestrel/dotnet processes found. Proceeding without cleanup."
-}
-```
-
-**Rationale**: Only kill processes if they're actually running to avoid unnecessary errors and warnings.
-
----
-
 ### 1. Checkpoint Commit (Mandatory)
 **See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
 
@@ -883,8 +863,7 @@ This ensures rollback capability if the task introduces instability.
 
 **If `verbosity=concise` (default)**:
 ```
-✅ Task Summary
-- **Key**: `{key-name}`
+SUMMARY: {key-name}
 - **Status**: {In Progress | Complete | Failed}
 - **Work Done**: {1-2 sentence summary}
 - **Files Modified**: {count} files
@@ -895,8 +874,7 @@ This ensures rollback capability if the task introduces instability.
 
 **If `verbosity=detailed`**:
 ```
-✅ Task Summary
-- **Key**: `{key-name}`
+SUMMARY: {key-name}
 - **Status**: {In Progress | Complete | Failed}
 - **Work Done**: 
   - {detailed bullet point 1}
