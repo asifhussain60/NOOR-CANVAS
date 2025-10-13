@@ -68,6 +68,9 @@
 ### Feature Tracking
 - **FunctionalityRegistry.md** - Feature tracking schema for regression prevention
 
+### Prompt Enhancement (Optional)
+- **PromptEnhancementLibraries.md** 💡 - External libraries for prompt optimization, testing, and orchestration (DSPy, Semantic Kernel, LangChain, PromptFoo, Langfuse)
+
 ---
 
 ## 🤖 Active Prompt Agents
