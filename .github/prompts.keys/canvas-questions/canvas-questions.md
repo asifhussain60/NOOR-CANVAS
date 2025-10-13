@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-13T11:28:00Z
+- **Last Updated**: 2025-10-13T11:35:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -134,6 +134,80 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 - `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Database schema
 
 ## Changes Made
+
+### Commit: 737be47efeb1c088b603336193c9a42b31974656
+**Date**: 2025-10-13T11:35:00Z
+**Message**: style(canvas-questions): Apply HTML mockup styles - thumbs-up icon with red badge
+
+**Summary**: Applied visual styles from HTML mockup reference (ContextCopilot.txt) to match the modern design. Changed upvote icon from arrow-up to thumbs-up and redesigned the vote count as a red notification badge displayed horizontally next to the icon.
+
+**Visual Changes**:
+1. **Icon Change**: `fa-arrow-up` → `fa-thumbs-up`
+   - More intuitive and friendly icon
+   - Matches social media conventions
+   
+2. **Badge Redesign**: Gold/brown badge → Red notification badge
+   - Background: `#DC2626` (Red-600)
+   - Text: `#FFFFFF` (White)
+   - Added subtle shadow for depth
+   - More prominent and attention-grabbing
+
+3. **Layout Change**: Vertical stack → Horizontal row
+   - Icon and count now side-by-side
+   - Better visual balance
+   - Cleaner, more compact design
+
+**Files Modified**:
+1. `SPA/NoorCanvas/Pages/SessionCanvas.razor`
+   - **Lines 582-615**: Updated CSS classes
+     - `.canvas-question-vote-section`: Changed `flex-direction: column` → default row
+     - `.canvas-question-vote-count`: New red badge styling with shadow
+     - Adjusted spacing and alignment
+   
+   - **Lines 945-978**: Updated HTML markup
+     - Changed icon: `<i class="fa-solid fa-arrow-up">` → `<i class="fa-solid fa-thumbs-up">`
+     - Removed inline `style="color:@upvoteColor"` from vote count span
+     - Added tooltips for better UX:
+       - "Upvote this question" (clickable state)
+       - "Already voted" (disabled after voting)
+       - "You cannot vote on your own question" (own questions)
+
+**CSS Before & After**:
+```css
+/* BEFORE */
+.canvas-question-vote-section {
+    display: flex;
+    flex-direction: column;  /* Vertical */
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.canvas-question-vote-count {
+    background-color: #C5B358;  /* Gold */
+    color: #4B3C2B;             /* Brown */
+}
+
+/* AFTER */
+.canvas-question-vote-section {
+    display: flex;               /* Horizontal by default */
+    align-items: center;
+    gap: 0.5rem;                /* Increased spacing */
+}
+
+.canvas-question-vote-count {
+    background-color: #DC2626;  /* Red */
+    color: #FFFFFF;             /* White */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+```
+
+**UX Improvements**:
+- More intuitive thumbs-up gesture
+- High-contrast red badge for better visibility
+- Tooltips provide clear feedback on interaction state
+- Horizontal layout reduces vertical space usage
+
+**Design Reference**: HTML mockup from `Workspaces/Data/ContextCopilot.txt` lines 156-175 (orange question cards with upvote section)
 
 ### Commit: c84f796155e7230368a79af96db3ed767903b1d3
 **Date**: 2025-10-13T11:28:00Z
