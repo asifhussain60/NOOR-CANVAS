@@ -567,122 +567,150 @@
         color: white;
     }
 
-    /* Question Items */
+    /* Question Items - Refactored from ContextCopilot.txt */
     .canvas-question-item {
-        display: flex;
-        align-items: flex-start;
-        padding: 0.75rem;
-        padding-bottom: 0.75rem;
         border-radius: 0.75rem;
-        border: 2px solid;
-        border-left-width: 4px; /* Thicker left border */
-        margin-bottom: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s;
-        position: relative; /* For absolute positioning of vote section */
-    }
-
-    .canvas-question-vote-section {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        margin-left: auto;
-        padding-left: 1rem;
-    }
-
-    .canvas-question-vote-button {
-        font-size: 1.125rem;
-        transition: all 0.2s;
-        cursor: pointer;
-        background: none;
-        border: none;
-        padding: 0;
-        line-height: 1;
-    }
-
-    .canvas-question-vote-button:hover:not(:disabled) {
-        transform: scale(1.1);
-    }
-
-    .canvas-question-vote-count {
-        background-color: #DC2626; /* Red badge background */
-        color: #FFFFFF; /* White text */
-        border-radius: 9999px;
-        padding: 0.1875rem 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        min-width: 1.5rem;
-        text-align: center;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
-
-    .canvas-question-content {
-        flex: 1;
-        width: 100%; /* Full width for question text */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        padding: 1rem 1.5rem;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        gap: 0.5rem;
+        max-width: 300px;
+        width: 100%;
     }
 
-    .canvas-question-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    .question-item-style {
+        border-color: #006400;
+        background-color: #ECFDF5;
+        border-width: 2px;
+        border-left-width: 6px;
+        border-style: solid;
     }
 
     .canvas-question-text {
+        word-wrap: break-word;
         font-family: 'Inter', sans-serif;
-        font-size: 1rem;
+        font-size: 1.125rem;
+        line-height: 1.5;
         font-weight: 500;
-        width: 100%;
-        line-height: 1.4;
+    }
+
+    .question-text-color {
+        color: #006400;
+    }
+
+    .owner-label-color {
+        color: #D4AF37;
+    }
+
+    .vote-button-style {
+        color: #07751f;
+        cursor: default;
+        opacity: 0.5;
+    }
+
+    .vote-count-color {
+        color: #07751f;
+        font-weight: bold;
     }
 
     .canvas-question-actions {
         display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-left: 0.5rem;
+        justify-content: flex-end;
+        width: 100%;
+        gap: 0.25rem;
     }
 
     .canvas-question-edit-button {
-        font-size: 1rem;
-        color: #3B82F6;
-        cursor: pointer;
-        transition: all 0.2s;
         padding: 0.25rem;
-        border: 1.5px solid #3B82F6;
-        border-radius: 0.25rem;
+        border: 1px solid #3B82F6;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: transparent;
     }
 
     .canvas-question-edit-button:hover {
-        color: #2563EB;
-        border-color: #2563EB;
-        transform: scale(1.1);
+        background-color: #EFF6FF;
+    }
+
+    .canvas-question-edit-button i {
+        font-size: 1rem;
+        color: #3B82F6;
     }
 
     .canvas-question-delete-button {
-        font-size: 1rem;
-        color: #EF4444;
-        cursor: pointer;
-        transition: all 0.2s;
         padding: 0.25rem;
-        border: 1.5px solid #EF4444;
-        border-radius: 0.25rem;
+        border: 1px solid #EF4444;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        background: transparent;
     }
 
     .canvas-question-delete-button:hover {
-        color: #DC2626;
-        border-color: #DC2626;
-        transform: scale(1.1);
+        background-color: #FEF2F2;
+    }
+
+    .canvas-question-delete-button i {
+        font-size: 1rem;
+        color: #EF4444;
+    }
+
+    .canvas-question-content {
+        width: 100%;
+    }
+
+    .canvas-question-header {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .canvas-question-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+        padding-top: 0.75rem;
+        border-top: 1px solid #E5E7EB;
     }
 
     .canvas-question-owner-label {
         font-family: 'Inter', sans-serif;
         font-size: 0.875rem;
-        font-weight: 600;
-        margin-top: 0.5rem;
-        display: block;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .canvas-question-vote-section {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .canvas-question-vote-button {
+        padding: 0.25rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        background: none;
+        border: none;
+        transition: transform 0.15s;
+    }
+
+    .canvas-question-vote-button:not(:disabled):hover {
+        transform: scale(1.1);
+    }
+
+    .canvas-question-vote-button i {
+        font-size: 1rem;
+    }
+
+    .canvas-question-vote-count {
+        font-weight: bold;
+        margin-left: 0.25rem;
     }
     }
 
@@ -942,65 +970,97 @@
                                     {
                                         var index = Model.Questions.IndexOf(question);
                                         var isMyQuestion = question.IsMyQuestion;
-                                        var bgColor = isMyQuestion ? "#ECFDF5" : "#FFF7ED";
-                                        var borderColor = isMyQuestion ? "#006400" : "#CC5500";
-                                        var upvoteColor = isMyQuestion ? "#006400" : "#CC5500";
                                         var hasVoted = VotedQuestionIds.Contains(question.QuestionId);
 
-                                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion}, BGColor={BGColor} ;CLEANUP_OK", 
-                                            question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion, bgColor);
+                                        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:ownership-trace] Rendering question - QuestionId={QuestionId}, CreatedBy={CreatedBy}, CurrentUserGuid={CurrentUserGuid}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK", 
+                                            question.QuestionId, question.CreatedBy, CurrentUserGuid, isMyQuestion);
                                         
-                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote button - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted}, Clickable=true ;CLEANUP_OK",
-                                            question.QuestionId, question.Votes, hasVoted);
+                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-structure-trace] Building card structure - IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes} ;CLEANUP_OK",
+                                            isMyQuestion, hasVoted, question.Votes);
 
-                                        <div class="canvas-question-item" style="border-color:@borderColor;background-color:@bgColor;">
+                                        <div class="canvas-question-item question-item-style">
+                                            
+                                            <!-- TOP ROW: Action Buttons (only for own questions) -->
+                                            @if (isMyQuestion)
+                                            {
+                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:action-buttons-trace] Rendering action buttons for own question - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
+                                                
+                                                <div class="canvas-question-actions">
+                                                    <span @onclick="() => EditQuestion(index)" class="canvas-question-edit-button">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </span>
+                                                    <span @onclick="() => ShowDeleteModal(index)" class="canvas-question-delete-button">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                            <!-- MIDDLE ROW: Question Text -->
                                             <div class="canvas-question-content">
                                                 <div class="canvas-question-header">
-                                                    <span class="canvas-question-text" style="color:@(isMyQuestion ? "#006400" : "#CC5500");">@question.Text</span>
-                                                    @if (isMyQuestion)
-                                                    {
-                                                        Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ui] Rendering edit/delete buttons for own question - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
-                                                        
-                                                        <div class="canvas-question-actions">
-                                                            <i @onclick="() => EditQuestion(index)" class="fa-solid fa-pen canvas-question-edit-button"></i>
-                                                            <i @onclick="() => ShowDeleteModal(index)" class="fa-solid fa-trash-can canvas-question-delete-button"></i>
-                                                        </div>
-                                                    }
+                                                    <span class="canvas-question-text question-text-color">
+                                                        @question.Text
+                                                    </span>
                                                 </div>
+                                            </div>
+                                            
+                                            <!-- BOTTOM SECTION (FOOTER): Owner Label + Vote Section -->
+                                            <div class="canvas-question-footer">
+                                                
+                                                <!-- LEFT SIDE: Owner Label (only for own questions) -->
                                                 @if (isMyQuestion)
                                                 {
-                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:ui] Rendering 'Your Question' label below text - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:owner-label-trace] Rendering 'Your Question' label - QuestionId={QuestionId} ;CLEANUP_OK", question.QuestionId);
                                                     
-                                                    <span class="canvas-question-owner-label" style="color:#006400;">Your Question</span>
+                                                    <span class="canvas-question-owner-label owner-label-color">
+                                                        Your Question
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <!-- Empty span to maintain flex layout -->
+                                                    <span></span>
+                                                }
+
+                                                <!-- RIGHT SIDE: Vote Section (only for own questions in disabled state) -->
+                                                @if (isMyQuestion)
+                                                {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:vote-disabled-trace] Rendering disabled vote section for own question - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK",
+                                                        question.QuestionId, question.Votes);
+                                                    
+                                                    <div class="canvas-question-vote-section">
+                                                        <button class="canvas-question-vote-button vote-button-style" 
+                                                                disabled 
+                                                                title="You cannot vote on your own question">
+                                                            <i class="fa-solid fa-thumbs-up"></i>
+                                                        </button>
+                                                        <span class="canvas-question-vote-count vote-count-color">@question.Votes</span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:vote-active-trace] Rendering active vote section for other user's question - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted} ;CLEANUP_OK",
+                                                        question.QuestionId, question.Votes, hasVoted);
+                                                    
+                                                    <!-- Vote section for other users' questions -->
+                                                    <div class="canvas-question-vote-section">
+                                                        <button @onclick="() => VoteQuestion(question.QuestionId)" 
+                                                                @onclick:preventDefault="true"
+                                                                @onclick:stopPropagation="true"
+                                                                class="canvas-question-vote-button"
+                                                                style="color:#CC5500;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
+                                                                disabled="@hasVoted"
+                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
+                                                            <i class="fa-solid fa-thumbs-up"></i>
+                                                        </button>
+                                                        <span class="canvas-question-vote-count" style="color:#CC5500;">@question.Votes</span>
+                                                    </div>
                                                 }
                                             </div>
                                             
-                                            <!-- Vote section - ONLY shown for other users' questions -->
-                                            @if (!isMyQuestion)
-                                            {
-                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Rendering upvote section for other user's question - QuestionId={QuestionId}, Votes={Votes}, HasVoted={HasVoted} ;CLEANUP_OK",
-                                                    question.QuestionId, question.Votes, hasVoted);
-                                                
-                                                <div class="canvas-question-vote-section">
-                                                    <button @onclick="() => VoteQuestion(question.QuestionId)" 
-                                                            @onclick:preventDefault="true"
-                                                            @onclick:stopPropagation="true"
-                                                            class="canvas-question-vote-button"
-                                                            style="color:@upvoteColor;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
-                                                            disabled="@hasVoted"
-                                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                        <i class="fa-solid fa-thumbs-up"></i>
-                                                    </button>
-                                                    <span class="canvas-question-vote-count">@question.Votes</span>
-                                                </div>
-                                                
-                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] Upvote section rendered - QuestionId={QuestionId}, HasVoted={HasVoted} ;CLEANUP_OK",
-                                                    question.QuestionId, hasVoted);
-                                            }
-                                            else
-                                            {
-                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:upvote] SKIPPING upvote section for own question - QuestionId={QuestionId} (votes={Votes}) ;CLEANUP_OK",
-                                                    question.QuestionId, question.Votes);
+                                            @{
+                                                Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:card-complete-trace] Question card rendered successfully - QuestionId={QuestionId}, IsMyQuestion={IsMyQuestion} ;CLEANUP_OK",
+                                                    question.QuestionId, isMyQuestion);
                                             }
                                         </div>
                                     }
