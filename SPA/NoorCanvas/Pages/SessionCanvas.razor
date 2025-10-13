@@ -571,10 +571,11 @@
     .canvas-question-item {
         display: flex;
         align-items: flex-start;
-        padding: 0.75rem;
+        padding: 1rem;
         border-radius: 0.75rem;
         border: 1px solid;
-        color: #4B3C2B;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transition: all 0.2s;
     }
 
@@ -583,25 +584,32 @@
         flex-direction: column;
         align-items: center;
         gap: 0.25rem;
-        margin-right: 0.75rem;
+        margin-right: 1rem;
+        margin-top: 0.25rem;
     }
 
     .canvas-question-vote-button {
-        font-size: 1.125rem;
-        transition: color 0.2s;
+        font-size: 1.5rem;
+        transition: all 0.2s;
         cursor: pointer;
         background: none;
         border: none;
         padding: 0;
     }
 
+    .canvas-question-vote-button:hover:not(:disabled) {
+        transform: scale(1.1);
+    }
+
     .canvas-question-vote-count {
         background-color: #C5B358;
         color: #4B3C2B;
         border-radius: 9999px;
-        padding: 0.125rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
         font-weight: 700;
+        min-width: 2rem;
+        text-align: center;
     }
 
     .canvas-question-content {
@@ -619,37 +627,52 @@
 
     .canvas-question-text {
         font-family: 'Inter', sans-serif;
-        font-size: 0.875rem;
+        font-size: 1rem;
+        font-weight: 500;
         width: 100%;
-        line-height: 1.3;
+        line-height: 1.4;
     }
 
     .canvas-question-actions {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        margin-left: 0.5rem;
     }
 
     .canvas-question-edit-button {
-        font-size: 0.75rem;
-        color: #6B7280;
+        font-size: 1rem;
+        color: #3B82F6;
         cursor: pointer;
-        transition: color 0.2s;
+        transition: all 0.2s;
+        padding: 0.25rem;
+    }
+
+    .canvas-question-edit-button:hover {
+        color: #2563EB;
+        transform: scale(1.1);
     }
 
     .canvas-question-delete-button {
-        font-size: 0.75rem;
-        color: #DC2626;
+        font-size: 1rem;
+        color: #EF4444;
         cursor: pointer;
-        transition: color 0.2s;
+        transition: all 0.2s;
+        padding: 0.25rem;
+    }
+
+    .canvas-question-delete-button:hover {
+        color: #DC2626;
+        transform: scale(1.1);
     }
 
     .canvas-question-owner-label {
         font-family: 'Inter', sans-serif;
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         font-weight: 600;
-        color: #006400;
-        margin-top: 0.25rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
     }
 
     /* Participant Items */
@@ -904,26 +927,45 @@
                             <div class="canvas-questions-container">
                                 @if (Model?.Questions?.Any() == true)
                                 {
-                                    @foreach (var question in Model.Questions)
+                                    @foreach (var question in Model.Questions.OrderByDescending(q => q.Votes))
                                     {
                                         var index = Model.Questions.IndexOf(question);
-                                        var bgColor = question.IsMyQuestion ? "#E6F3EA" : "#FBF9F6";
-                                        var upvoteColor = question.IsMyQuestion ? "#006400" : "#D4AF37";
-                                        var borderColor = question.IsMyQuestion ? "#006400" : "#D4AF37";
+                                        var isMyQuestion = question.IsMyQuestion;
+                                        var bgColor = isMyQuestion ? "#ECFDF5" : "#FFF7ED";
+                                        var borderColor = isMyQuestion ? "#006400" : "#CC5500";
+                                        var upvoteColor = isMyQuestion ? "#006400" : "#CC5500";
+                                        var hasVoted = VotedQuestionIds.Contains(question.QuestionId);
+
+                                        Logger.LogTrace("[DEBUG-WORKITEM:use-questions:render] Rendering question {QuestionId}: IsMyQuestion={IsMyQuestion}, HasVoted={HasVoted}, Votes={Votes} ;CLEANUP_OK", 
+                                            question.QuestionId, isMyQuestion, hasVoted, question.Votes);
 
                                         <div class="canvas-question-item" style="border-color:@borderColor;background-color:@bgColor;">
-                                            <div class="canvas-question-vote-section">
-                                                <button @onclick="() => VoteQuestion(question.QuestionId)" 
-                                                        class="canvas-question-vote-button"
-                                                        style="color:@upvoteColor;">
-                                                    <i class="fa-solid fa-arrow-up"></i>
-                                                </button>
-                                                <span class="canvas-question-vote-count">@question.Votes</span>
-                                            </div>
+                                            @if (!isMyQuestion)
+                                            {
+                                                <div class="canvas-question-vote-section">
+                                                    <button @onclick="() => VoteQuestion(question.QuestionId)" 
+                                                            class="canvas-question-vote-button"
+                                                            style="color:@upvoteColor;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
+                                                            disabled="@hasVoted">
+                                                        <i class="fa-solid fa-arrow-up"></i>
+                                                    </button>
+                                                    <span class="canvas-question-vote-count" style="color:@upvoteColor;">@question.Votes</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <!-- Empty spacer to maintain alignment for user's own questions -->
+                                                <div class="canvas-question-vote-section" style="visibility:hidden;">
+                                                    <button class="canvas-question-vote-button" disabled>
+                                                        <i class="fa-solid fa-arrow-up"></i>
+                                                    </button>
+                                                    <span class="canvas-question-vote-count">0</span>
+                                                </div>
+                                            }
                                             <div class="canvas-question-content">
                                                 <div class="canvas-question-header">
-                                                    <span class="canvas-question-text">@question.Text</span>
-                                                    @if (question.IsMyQuestion)
+                                                    <span class="canvas-question-text" style="color:@(isMyQuestion ? "#006400" : "#CC5500");">@question.Text</span>
+                                                    @if (isMyQuestion)
                                                     {
                                                         <div class="canvas-question-actions">
                                                             <i @onclick="() => EditQuestion(index)" class="fa-solid fa-pen canvas-question-edit-button"></i>
@@ -931,9 +973,9 @@
                                                         </div>
                                                     }
                                                 </div>
-                                                @if (question.IsMyQuestion)
+                                                @if (isMyQuestion)
                                                 {
-                                                    <span class="canvas-question-owner-label">Your Question</span>
+                                                    <span class="canvas-question-owner-label" style="color:#006400;">Your Question</span>
                                                 }
                                             </div>
                                         </div>
@@ -1032,6 +1074,7 @@
     private int? EditingQuestionIndex { get; set; }
     private int? QuestionToDeleteIndex { get; set; }
     private bool IsModalVisible { get; set; } = false;
+    private HashSet<string> VotedQuestionIds { get; set; } = new HashSet<string>();
 
     private enum Tab { QA, Participants }
     private Tab ActiveTab { get; set; } = Tab.QA;
@@ -1897,24 +1940,55 @@
 
     private async Task VoteQuestion(string questionId)
     {
-        if (Http == null) return;
+        Logger.LogInformation("[DEBUG-WORKITEM:use-questions:vote] VoteQuestion called for QuestionId={QuestionId}, UserGuid={UserGuid}, AlreadyVoted={AlreadyVoted} ;CLEANUP_OK", 
+            questionId, CurrentUserGuid, VotedQuestionIds.Contains(questionId));
+        
+        if (Http == null || string.IsNullOrEmpty(SessionToken))
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:use-questions:vote] Vote failed - Http or SessionToken is null ;CLEANUP_OK");
+            return;
+        }
+        
+        // Check if user already voted on this question
+        if (VotedQuestionIds.Contains(questionId))
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:use-questions:vote] User already voted on question {QuestionId} ;CLEANUP_OK", questionId);
+            return;
+        }
         
         try
         {
-            var response = await Http.PostAsJsonAsync("/api/Question/Vote", new
+            Logger.LogDebug("[DEBUG-WORKITEM:use-questions:vote] Sending vote request - QuestionId={QuestionId}, SessionToken={TokenPreview}, Direction=up ;CLEANUP_OK", 
+                questionId, SessionToken.Substring(0, Math.Min(4, SessionToken.Length)) + "...");
+            
+            var response = await Http.PostAsJsonAsync($"/api/Question/{questionId}/vote", new
             {
-                QuestionId = questionId,
+                SessionToken = SessionToken,
+                Direction = "up",
                 UserGuid = CurrentUserGuid
             });
 
+            Logger.LogDebug("[DEBUG-WORKITEM:use-questions:vote] Vote response received - StatusCode={StatusCode} ;CLEANUP_OK", response.StatusCode);
+
             if (response.IsSuccessStatusCode)
             {
-                // Vote will be updated via SignalR
+                // Mark question as voted
+                VotedQuestionIds.Add(questionId);
+                Logger.LogInformation("[DEBUG-WORKITEM:use-questions:vote] Vote successful - Added {QuestionId} to VotedQuestionIds, Total voted: {Count} ;CLEANUP_OK", 
+                    questionId, VotedQuestionIds.Count);
+                
+                // Vote count will be updated via SignalR
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogWarning("[DEBUG-WORKITEM:use-questions:vote] Vote failed - StatusCode={StatusCode}, Error={Error} ;CLEANUP_OK", 
+                    response.StatusCode, errorContent);
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error voting on question: {ex.Message}");
+            Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:vote] Exception during vote: {Message} ;CLEANUP_OK", ex.Message);
         }
     }
 
@@ -2119,14 +2193,56 @@
 
             hubConnection.On<string, int>("QuestionVoteUpdated", async (questionId, newVoteCount) =>
             {
+                Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] QuestionVoteUpdated received - QuestionId={QuestionId}, NewVoteCount={NewVoteCount} ;CLEANUP_OK", 
+                    questionId, newVoteCount);
+                
                 if (Model?.Questions != null)
                 {
                     var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
                     if (question != null)
                     {
+                        Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] Updating question votes - OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
+                            question.Votes, newVoteCount);
                         question.Votes = newVoteCount;
                         await InvokeAsync(StateHasChanged);
                     }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:use-questions:signalr] Question not found for vote update: {QuestionId} ;CLEANUP_OK", questionId);
+                    }
+                }
+            });
+
+            // Also handle QuestionVoteUpdate (without "d") event from API
+            hubConnection.On<object>("QuestionVoteUpdate", async (voteData) =>
+            {
+                try
+                {
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(voteData);
+                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDoc.RootElement;
+                    
+                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    var votes = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0;
+                    
+                    Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] QuestionVoteUpdate received - QuestionId={QuestionId}, Votes={Votes} ;CLEANUP_OK", 
+                        questionId, votes);
+                    
+                    if (Model?.Questions != null && questionId != null)
+                    {
+                        var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+                        if (question != null)
+                        {
+                            Logger.LogDebug("[DEBUG-WORKITEM:use-questions:signalr] Updating question votes - OldVotes={OldVotes}, NewVotes={NewVotes} ;CLEANUP_OK", 
+                                question.Votes, votes);
+                            question.Votes = votes;
+                            await InvokeAsync(StateHasChanged);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:use-questions:signalr] Error processing QuestionVoteUpdate event ;CLEANUP_OK");
                 }
             });
 
