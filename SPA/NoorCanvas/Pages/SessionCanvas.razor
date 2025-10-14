@@ -421,6 +421,7 @@
     }
 
     /* Sidebar Styles */
+    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] CRITICAL FIX - Remove height:100% to prevent vertical expansion ;CLEANUP_OK */
     .canvas-sidebar {
         background-color: white;
         border-radius: 0.75rem;
@@ -429,7 +430,11 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - this was causing sidebar to grow with question count ;CLEANUP_OK */
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Setting min-height instead to ensure initial sizing ;CLEANUP_OK */
+        min-height: 400px;
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] max-height ensures sidebar doesn't exceed grid container ;CLEANUP_OK */
+        max-height: 100%;
         overflow: hidden;
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
         max-width: 100%;
@@ -3342,6 +3347,28 @@
             IsEnabled = !string.IsNullOrWhiteSpace(SessionToken)
         });
         
+        // [DEBUG-WORKITEM:canvas:toastr-test:trace] Test toast button to verify toastr library is working ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Test Toast Notification",
+            "Display a test toast to verify toastr library is working",
+            async () => await TestToastNotification(),
+            "fa-solid fa-bell"
+        )
+        {
+            IsEnabled = true
+        });
+        
+        // [DEBUG-WORKITEM:canvas:sidebar-height:trace] Debug action to log sidebar/container dimensions ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Log Sidebar Dimensions",
+            "Log current dimensions of canvas-area-container and canvas-sidebar",
+            async () => await LogSidebarDimensions(),
+            "fa-solid fa-ruler"
+        )
+        {
+            IsEnabled = true
+        });
+        
         return actions;
     }
 
@@ -3416,6 +3443,108 @@
         
         // Submit through existing logic
         await SubmitQuestion();
+    }
+    
+    // [DEBUG-WORKITEM:canvas:toastr-test:trace] Test toast notification to verify toastr library integration ;CLEANUP_OK
+    private async Task TestToastNotification()
+    {
+        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] 🧪 TEST TOAST BUTTON CLICKED ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] Attempting to invoke showNoorToast via JSRuntime ;CLEANUP_OK", requestId);
+        
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                "This is a test toast notification from SessionCanvas debug panel. If you see this, toastr library is working correctly!", 
+                "🧪 Test Toast", 
+                "info");
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync('showNoorToast') completed successfully ;CLEANUP_OK", requestId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}] 💥 Test toast FAILED: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError("[DEBUG-WORKITEM:canvas:toastr-test:trace] [{RequestId}]   - InnerException: {InnerMessage} ;CLEANUP_OK", requestId, ex.InnerException?.Message ?? "None");
+        }
+    }
+    
+    // [DEBUG-WORKITEM:canvas:sidebar-height:trace] Log dimensions of canvas containers to debug height issue ;CLEANUP_OK
+    private async Task LogSidebarDimensions()
+    {
+        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📏 LOGGING SIDEBAR DIMENSIONS ;CLEANUP_OK", requestId);
+        
+        try
+        {
+            // Get canvas-area-container dimensions
+            var canvasAreaDimensions = await JSRuntime.InvokeAsync<DimensionResult>("eval", @"
+                (function() {
+                    var container = document.querySelector('.canvas-area-container');
+                    if (!container) return { width: 0, height: 0, scrollHeight: 0, found: false };
+                    var rect = container.getBoundingClientRect();
+                    return {
+                        width: rect.width,
+                        height: rect.height,
+                        scrollHeight: container.scrollHeight,
+                        found: true
+                    };
+                })()
+            ");
+            
+            // Get canvas-sidebar dimensions
+            var sidebarDimensions = await JSRuntime.InvokeAsync<DimensionResult>("eval", @"
+                (function() {
+                    var sidebar = document.querySelector('.canvas-sidebar');
+                    if (!sidebar) return { width: 0, height: 0, scrollHeight: 0, found: false };
+                    var rect = sidebar.getBoundingClientRect();
+                    return {
+                        width: rect.width,
+                        height: rect.height,
+                        scrollHeight: sidebar.scrollHeight,
+                        found: true
+                    };
+                })()
+            ");
+            
+            // Get canvas-questions-container dimensions
+            var questionsContainerDimensions = await JSRuntime.InvokeAsync<DimensionResult>("eval", @"
+                (function() {
+                    var container = document.querySelector('.canvas-questions-container');
+                    if (!container) return { width: 0, height: 0, scrollHeight: 0, found: false };
+                    var rect = container.getBoundingClientRect();
+                    return {
+                        width: rect.width,
+                        height: rect.height,
+                        scrollHeight: container.scrollHeight,
+                        found: true
+                    };
+                })()
+            ");
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-AREA-CONTAINER - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Found: {Found} ;CLEANUP_OK", 
+                requestId, canvasAreaDimensions.Width, canvasAreaDimensions.Height, canvasAreaDimensions.ScrollHeight, canvasAreaDimensions.Found);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-SIDEBAR - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Found: {Found} ;CLEANUP_OK", 
+                requestId, sidebarDimensions.Width, sidebarDimensions.Height, sidebarDimensions.ScrollHeight, sidebarDimensions.Found);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📐 CANVAS-QUESTIONS-CONTAINER - Width: {Width}px, Height: {Height}px, ScrollHeight: {ScrollHeight}px, Found: {Found} ;CLEANUP_OK", 
+                requestId, questionsContainerDimensions.Width, questionsContainerDimensions.Height, questionsContainerDimensions.ScrollHeight, questionsContainerDimensions.Found);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 📊 Total Questions in Model: {Count} ;CLEANUP_OK", 
+                requestId, Model?.Questions?.Count ?? 0);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:canvas:sidebar-height:trace] [{RequestId}] 💥 Failed to log dimensions: {Message} ;CLEANUP_OK", requestId, ex.Message);
+        }
+    }
+    
+    // Helper class for dimension logging
+    private class DimensionResult
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double ScrollHeight { get; set; }
+        public bool Found { get; set; }
     }
 
     // Enter Key Handler

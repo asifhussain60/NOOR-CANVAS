@@ -1709,6 +1709,28 @@
             return $"Asset detection failed: {ex.Message}";
         }
     }
+    
+    // [DEBUG-WORKITEM:hcp:toastr-test:trace] Test toast notification to verify toastr library integration ;CLEANUP_OK
+    private async Task TestToastNotificationHCP()
+    {
+        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] 🧪 TEST TOAST BUTTON CLICKED (HostControlPanel) ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] Attempting to invoke showNoorToast via JSRuntime ;CLEANUP_OK", requestId);
+        
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                "This is a test toast notification from HostControlPanel debug panel. If you see this, toastr library is working correctly!", 
+                "🧪 Host Toast Test", 
+                "success");
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync('showNoorToast') completed successfully ;CLEANUP_OK", requestId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}] 💥 Test toast FAILED: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError("[DEBUG-WORKITEM:hcp:toastr-test:trace] [{RequestId}]   - InnerException: {InnerMessage} ;CLEANUP_OK", requestId, ex.InnerException?.Message ?? "None");
+        }
+    }
 
     // SignalR Status Methods
     private string GetSignalRStatusIcon()
@@ -3329,6 +3351,17 @@
         )
         {
             IsEnabled = !isLoading
+        });
+        
+        // [DEBUG-WORKITEM:hcp:toastr-test:trace] Test toast button to verify toastr library is working ;CLEANUP_OK
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Test Toast Notification",
+            "Display a test toast to verify toastr library is working",
+            async () => await TestToastNotificationHCP(),
+            "fa-solid fa-bell"
+        )
+        {
+            IsEnabled = true
         });
         
         return actions;
