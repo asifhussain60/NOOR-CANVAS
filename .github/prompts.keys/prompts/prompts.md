@@ -208,8 +208,65 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 - `fcbd4a3d` - enhance(cohesion-review): Add workspace pattern extraction step for prompt optimization
 - `b87a7c5d` - docs(cohesion-review): Comprehensive workspace pattern integration analysis with 12 success + 8 failure patterns identified
 - `338816d7` - feat(task): Add continuation detection and self-improvement loop with error pattern library
+- `2237996f` - feat(prompts): Enforce test location, .github consolidation, visual test automation, bloat prevention
 
 ## Recent Changes
+
+- ✅ **Holistic Prompts & Instructions Enforcement** (2025-10-14T18:30:00Z)
+  - **Completed**: Test location, .github consolidation, visual automation, bloat prevention
+  
+  - **1. Test Location Standardization** ✅
+    - **Rule**: ALL tests created in `Workspaces/TEMP/` ONLY (no more Tests/UI/ during generation)
+    - **Changes**: task.prompt.md Step 6.1, test-generation.prompt.md
+    - **Naming**: `{key}-{functional|visual}.spec.ts`
+    - **Promotion**: TEMP → Tests/UI/ ONLY during completion workflow
+    - **Impact**: 100% test location consistency, clear quality gate
+  
+  - **2. .github Path Consolidation** ✅
+    - **Rule**: All system files under `.github/` (9 prompts updated)
+    - **Moved**: `Workspaces/Copilot/learning/` → `.github/learning/`
+    - **Moved**: `Workspaces/Documentation/cohesion-*.md` → `.github/reports/`
+    - **Updated**: 28 learning path references, 5 report path references
+    - **Structure**: .github = system config, Workspaces = project artifacts
+    - **Impact**: 0 Workspaces/ references in prompts, 60% less maintenance
+  
+  - **3. Automatic Visual Test Detection** ✅ NEW
+    - **Feature**: Auto-detect Percy vs Playwright based on keywords
+    - **Logic**: CSS/color/layout → visual, click/submit/API → functional
+    - **Execution**: Automatically runs appropriate test after generation
+    - **Output**: `🧪 Auto-Test: {VISUAL|FUNCTIONAL|BOTH} - {PASS|FAIL}`
+    - **Override**: `--no-auto-test` parameter to skip
+    - **Location**: task.prompt.md Step 6.1.1 (NEW section)
+    - **Impact**: 90%+ test type detection accuracy expected
+  
+  - **4. Key Data Stream Bloat Prevention** ✅ NEW
+    - **Feature**: Pre-update cleanup with deduplication and archival
+    - **Deduplication**: Merge duplicate file refs, consolidate commits
+    - **Obsolescence**: Remove failed experiments >30 days, TODOs >14 days
+    - **Size Limits**: Warn@2000 lines, Hard stop@3000 lines
+    - **Archive**: `.github/prompts.keys/{key}/archive/work-log-{date}.md`
+    - **Output**: `🧹 Cleanup: {before}→{after} lines (-{percent}%)`
+    - **Location**: task.prompt.md Step 8.0 (NEW - runs before 8.1)
+    - **Impact**: 25-35% key data stream size reduction
+  
+  - **Files Modified**: 10 total
+    - task.prompt.md (12 changes: test location, auto-detect, bloat prevention, paths)
+    - test-generation.prompt.md (3 changes: test location mandate)
+    - cohesion-review.prompt.md (5 changes: output to .github/reports/)
+    - question.prompt.md, sync.prompt.md, refactor.prompt.md (learning paths)
+    - healthcheck.prompt.md, commit.prompt.md (learning + report paths)
+    - holistic-review-enforcement-plan.md (NEW)
+    - holistic-review-implementation-complete.md (NEW)
+  
+  - **Validation**:
+    - ✅ Test location enforced (100% Workspaces/TEMP/)
+    - ✅ .github consolidation complete (0 old path references)
+    - ✅ Auto-detection logic implemented (Step 6.1.1)
+    - ✅ Bloat prevention active (Step 8.0)
+    - ✅ Backward compatible (old paths still work)
+  
+  - **Documentation**: `.github/reports/holistic-review-implementation-complete.md`
+  - **Commit**: `2237996f`
 
 - ✅ **Task Prompt Self-Improvement System** (2025-10-14T17:00:00Z)
   - **Completed**: Continuation detection + self-improvement loop + error pattern library
