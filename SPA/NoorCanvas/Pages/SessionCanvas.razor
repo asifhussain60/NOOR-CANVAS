@@ -935,27 +935,27 @@
                 </div>
             </div>
             
-            <!-- Welcome Message Panel -->
-            <div class="canvas-welcome-panel">
-                <div class="canvas-welcome-content">
-                    <span class="canvas-welcome-text">
-                        @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
-                        {
-                            @($"{Model.CurrentParticipantName}, Welcome To The Session")
-                        }
-                        else
-                        {
-                            @("Welcome To The Session")
-                        }
-                    </span>
-                </div>
-            </div>
-            
             <!-- Main Canvas Area -->
             <div class="canvas-main-grid">
                 
                 <!-- Canvas Content Area -->
                 <div class="canvas-area-container">
+                    
+                    <!-- Welcome Message Panel -->
+                    <div class="canvas-welcome-panel">
+                        <div class="canvas-welcome-content">
+                            <span class="canvas-welcome-text">
+                                @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
+                                {
+                                    @($"{Model.CurrentParticipantName}, Welcome To The Session")
+                                }
+                                else
+                                {
+                                    @("Welcome To The Session")
+                                }
+                            </span>
+                        </div>
+                    </div>
                     
                     <!-- Canvas Content Area -->
                     <div class="canvas-content-area">
@@ -1223,6 +1223,7 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Grid changed to align-items:stretch to ensure both panels always match height ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both containers set to height:100% within grid for equal stretching ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel overflow:hidden with internal tab content scrolling via overflow-y:auto ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Welcome panel moved inside canvas-area-container div, positioned above canvas-content-area per screenshot annotation ;CLEANUP_OK", requestId);
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
