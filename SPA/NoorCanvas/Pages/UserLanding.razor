@@ -498,7 +498,9 @@
 </div>
 
 @* Debug Panel - Development Only *@
-<DebugPanel CurrentViewName="UserLanding" OnEnterTestData="HandleEnterTestData" />
+<DebugPanel CurrentViewName="UserLanding" 
+            DebugActions="GetUserLandingDebugActions()" 
+            GenericMessage="User Landing debug actions" />
 
 @code {
     // [DEBUG-WORKITEM:hostcanvas:impl] IMPORTANT: This page has TWO PHASES - Token validation phase shows only token input field, 
@@ -1244,6 +1246,30 @@
                 StateHasChanged();
             }
         }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:debug-panel:test-data:TRACE] Debug actions factory for UserLanding debug panel ;CLEANUP_OK
+    /// </summary>
+    private List<NoorCanvas.Models.Debug.IDebugAction> GetUserLandingDebugActions()
+    {
+        var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        // Only show "Enter Test Data" action when on registration panel with countries loaded
+        if (Model != null && !Model.ShowTokenPanel && Countries.Any())
+        {
+            actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+                "Enter Test Data",
+                "Auto-fill registration form with superhero test data",
+                async () => await HandleEnterTestData(),
+                "fa-solid fa-user-plus"
+            )
+            {
+                IsEnabled = !Model.IsLoading && !Model.IsLoadingCountries
+            });
+        }
+        
+        return actions;
     }
 
     /// <summary>
