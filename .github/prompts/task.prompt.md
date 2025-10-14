@@ -485,6 +485,34 @@ All actions must respect the global guardrails and architectural mappings.
 
 ## Execution Steps
 
+### 0. Branch Verification (Mandatory - CRITICAL)
+**ALWAYS verify you're in the correct branch before starting any work.**
+
+**Branch Strategy**:
+- **`master`** - Production only (PROTECTED - deploy target for ncdeploy.ps1)
+- **`development`** - ALL development work (DEFAULT)
+
+**Verification**:
+```bash
+git branch --show-current
+# Expected: development
+```
+
+**If on wrong branch**:
+```bash
+# If on master, switch immediately
+git checkout development
+```
+
+**Enforcement**:
+- ⚠️ **ABORT** task execution if on `master` branch
+- ✅ **PROCEED** only if on `development` branch
+- 📢 **NOTIFY** user if branch switch needed
+
+**See**: SelfAwareness.instructions.md - Branch Strategy section
+
+---
+
 ### 1. Checkpoint Commit (Mandatory)
 **See**: [Step 1: Checkpoint](shared/step-1-checkpoint.md)
 
