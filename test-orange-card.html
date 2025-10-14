@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orange Question Card Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .test-container {
+            max-width: 300px;
+            width: 100%;
+        }
+
+        /* Styles from SessionCanvas.razor - Question Card Base */
+        .canvas-question-item {
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15);
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 300px;
+            width: 100%;
+            border-width: 2px;
+            border-left-width: 6px;
+            border-style: solid;
+            overflow: visible; /* Changed from overflow-x: hidden to allow badge visibility */
+            word-wrap: break-word;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        /* Sienna Theme - Other Users' Question (Updated from ContextCopilot.txt) */
+        .question-item-style-sienna {
+            border-color: #A0522D; /* Sienna */
+            background-color: #FAEBD7; /* Antique White */
+            border-width: 2px;
+            border-left-width: 6px;
+        }
+
+        .canvas-question-text {
+            word-wrap: break-word; /* Ensure long words wrap */
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            line-height: 1.375;
+            font-weight: normal;
+        }
+
+        .question-text-color-sienna {
+            color: #A0522D;
+        }
+
+        .vote-button-style-sienna-owner {
+            color: #8B4513; /* Darker brown for the icon */
+            cursor: default;
+            opacity: 0.5;
+        }
+
+        .vote-count-color-sienna {
+            color: #A0522D;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="test-container">
+    <h2 style="text-align: center; color: #4B3C2B; margin-bottom: 2rem;">Orange Question Card Test</h2>
+
+    <!-- SIENNA THEME: Other Users' Question Card (Compact Single-Row Layout from ContextCopilot.txt) -->
+    <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
+        
+        <!-- Absolute Positioned Vote Badge (Red Circle) -->
+        <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
+            0
+        </div>
+        
+        <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) -->
+        <div class="canvas-question-content" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;">
+            
+            <!-- LEFT SIDE: Question Text (Allows space for the right side) -->
+            <div class="canvas-question-header" style="flex-grow:1;margin-right:1rem;">
+                <span class="canvas-question-text question-text-color-sienna" style="font-size:1rem;line-height:1.375;font-weight:normal;">
+                    What is the importance of family in Islam?
+                </span>
+            </div>
+            
+            <!-- RIGHT SIDE: Compact Vote Button -->
+            <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
+                <button class="canvas-question-vote-button vote-button-style-sienna-owner"
+                        style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
+                        disabled
+                        title="Already voted">
+                    <i class="fa-solid fa-thumbs-up" style="font-size:1.5rem;"></i>
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+    <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 0.5rem;">
+        <h3 style="color: #4B3C2B; margin-bottom: 0.5rem;">Expected Appearance:</h3>
+        <ul style="color: #6B7280; font-size: 0.875rem; line-height: 1.5;">
+            <li>Sienna border (#A0522D) with 6px left border</li>
+            <li>Antique white background (#FAEBD7)</li>
+            <li>Red vote badge (0) in top-right corner</li>
+            <li>Question text on left in sienna color</li>
+            <li>Thumbs-up button on right with white background and sienna border</li>
+            <li>Single-row compact layout (text left, button right)</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

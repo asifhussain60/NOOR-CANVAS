@@ -594,7 +594,7 @@
         border-width: 2px;
         border-left-width: 6px;
         border-style: solid;
-        overflow-x: hidden;
+        overflow: visible;
         word-wrap: break-word;
         margin-bottom: 1rem;
         position: relative;
@@ -615,7 +615,7 @@
     }
 
     .canvas-question-text {
-        word-wrap: break-word;
+        word-wrap: break-word; /* Ensure long words wrap */
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
         line-height: 1.375;
@@ -635,6 +635,12 @@
     }
 
     .vote-button-style-sienna {
+        color: #8B4513; /* Darker brown for the icon */
+        cursor: default;
+        opacity: 0.5;
+    }
+
+    .vote-button-style-sienna-owner {
         color: #8B4513; /* Darker brown for the icon */
         cursor: default;
         opacity: 0.5;
@@ -756,7 +762,6 @@
         min-width: 1.25rem;
         text-align: center;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
     }
 
     /* Participant Items */
@@ -1063,32 +1068,39 @@
                                             Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
                                                 question.QuestionId);
                                             
-                                            <!-- SIENNA THEME: Other Users' Question Card (Vote Section on Top-Right) -->
-                                            <div class="canvas-question-item question-item-style-sienna">
+                                            <!-- SIENNA THEME: Other Users' Question Card (Compact Single-Row Layout from ContextCopilot.txt) -->
+                                            <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
                                                 
-                                                <!-- Vote Section (absolute positioned on top-right) -->
-                                                <div class="canvas-question-vote-section" style="position:absolute;right:0.75rem;top:0.75rem;display:flex;flex-direction:row;align-items:center;gap:0.5rem;">
-                                                    <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
-                                                            @onclick:preventDefault="true"
-                                                            @onclick:stopPropagation="true"
-                                                            class="canvas-question-vote-button"
-                                                            data-question-id="@question.QuestionId"
-                                                            style="color:#8B4513;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");background-color:#FFFFFF;border:2px solid #A0522D;padding:0.5rem;border-radius:9999px;"
-                                                            disabled="@hasVoted"
-                                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                        <i class="fa-solid fa-thumbs-up"></i>
-                                                    </button>
-                                                    <span class="canvas-question-vote-count" data-question-id="@question.QuestionId" style="position:static;background-color:#DC2626;color:#FFFFFF;font-size:0.75rem;font-weight:bold;padding:0.125rem 0.375rem;border-radius:9999px;min-width:1.25rem;text-align:center;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);">@question.Votes</span>
+                                                <!-- Absolute Positioned Vote Badge (Red Circle) -->
+                                                <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
+                                                    @question.Votes
                                                 </div>
                                                 
-                                                <!-- Question Text (full width, with top padding to clear vote section) -->
-                                                <div class="canvas-question-content" style="width:100%;">
-                                                    <div class="canvas-question-header">
-                                                        <span class="canvas-question-text question-text-color-sienna">
+                                                <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) -->
+                                                <div class="canvas-question-content" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;">
+                                                    
+                                                    <!-- LEFT SIDE: Question Text (Allows space for the right side) -->
+                                                    <div class="canvas-question-header" style="flex-grow:1;margin-right:1rem;">
+                                                        <span class="canvas-question-text question-text-color-sienna" style="font-size:1rem;line-height:1.375;font-weight:normal;">
                                                             @question.Text
                                                         </span>
                                                     </div>
+                                                    
+                                                    <!-- RIGHT SIDE: Compact Vote Button -->
+                                                    <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
+                                                        <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
+                                                                @onclick:preventDefault="true"
+                                                                @onclick:stopPropagation="true"
+                                                                class="canvas-question-vote-button vote-button-style-sienna-owner"
+                                                                data-question-id="@question.QuestionId"
+                                                                style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
+                                                                disabled="@hasVoted"
+                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
+                                                            <i class="fa-solid fa-thumbs-up" style="font-size:1.5rem;"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
+                                                
                                             </div>
                                         }
                                     }

@@ -1,0 +1,261 @@
+{
+  "config": {
+    "configFile": "D:\\PROJECTS\\NOOR CANVAS\\config\\testing\\playwright.config.cjs",
+    "rootDir": "D:/PROJECTS/NOOR CANVAS",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\PROJECTS\\NOOR CANVAS\\Workspaces\\TEMP\\playwright-report\\report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/PROJECTS/NOOR CANVAS/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "D:/PROJECTS/NOOR CANVAS",
+        "testIgnore": [],
+        "testMatch": [
+          "**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}",
+          "**/Tests/UI/**/*.{test,spec}.{js,ts,jsx,tsx}",
+          "**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+      "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Canvas Questions - Orange Card Visual Regression (Percy)",
+          "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
+          "line": 28,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should match visual baseline for orange question card",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2840,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:86:21",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+                          "column": 21,
+                          "line": 86
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 84 |\u001b[39m         \u001b[90m// Step 1: User A joins session\u001b[39m\n \u001b[90m 85 |\u001b[39m         console\u001b[33m.\u001b[39mlog(\u001b[32m'[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 86 |\u001b[39m         \u001b[36mawait\u001b[39m pageA\u001b[33m.\u001b[39mgoto(\u001b[32m`${BASE_URL}/user/landing/${SESSION_TOKEN}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 87 |\u001b[39m         \u001b[36mawait\u001b[39m pageA\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'input[placeholder=\"Enter your name\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 88 |\u001b[39m\n \u001b[90m 89 |\u001b[39m         \u001b[36mawait\u001b[39m pageA\u001b[33m.\u001b[39mfill(\u001b[32m'input[placeholder=\"Enter your name\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[33mUSER_A_NAME\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+                            "column": 21,
+                            "line": 86
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n\n  84 |         // Step 1: User A joins session\n  85 |         console.log('[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK');\n> 86 |         await pageA.goto(`${BASE_URL}/user/landing/${SESSION_TOKEN}`);\n     |                     ^\n  87 |         await pageA.waitForSelector('input[placeholder=\"Enter your name\"]', { timeout: 10000 });\n  88 |\n  89 |         await pageA.fill('input[placeholder=\"Enter your name\"]', USER_A_NAME);\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:86:21"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Launching browser contexts for Percy ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Browser contexts created ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-test-start] Beginning visual regression test ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-teardown-trace] Closing browser contexts ;CLEANUP_OK\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-14T10:30:46.192Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--83bea-ne-for-orange-question-card-chromium\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--83bea-ne-for-orange-question-card-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--83bea-ne-for-orange-question-card-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+                        "column": 21,
+                        "line": 86
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "eb1f0f12b18be6b9afce-cf577ba511afff347840",
+              "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
+              "line": 81,
+              "column": 5
+            },
+            {
+              "title": "should capture vote state changes visually",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5186,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:192:36",
+                        "location": {
+                          "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+                          "column": 36,
+                          "line": 192
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 190 |\u001b[39m\n \u001b[90m 191 |\u001b[39m         \u001b[36mconst\u001b[39m questionCard \u001b[33m=\u001b[39m pageB\u001b[33m.\u001b[39mlocator(\u001b[32m'.canvas-question-item.question-item-style-sienna'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 192 |\u001b[39m         \u001b[36mawait\u001b[39m expect(questionCard)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 193 |\u001b[39m\n \u001b[90m 194 |\u001b[39m         \u001b[90m// Capture pre-vote state\u001b[39m\n \u001b[90m 195 |\u001b[39m         \u001b[36mawait\u001b[39m percySnapshot(pageB\u001b[33m,\u001b[39m \u001b[32m'Orange Card - Before Vote'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+                            "column": 36,
+                            "line": 192
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n\n\n  190 |\n  191 |         const questionCard = pageB.locator('.canvas-question-item.question-item-style-sienna').first();\n> 192 |         await expect(questionCard).toBeVisible({ timeout: 5000 });\n      |                                    ^\n  193 |\n  194 |         // Capture pre-vote state\n  195 |         await percySnapshot(pageB, 'Orange Card - Before Vote', {\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:192:36"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Launching browser contexts for Percy ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Browser contexts created ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-vote-test] Testing vote visual state changes ;CLEANUP_OK\n"
+                        },
+                        {
+                          "text": "[DEBUG-WORKITEM:canvas-questions:percy-teardown-trace] Closing browser contexts ;CLEANUP_OK\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-14T10:30:52.577Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-1.png"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts",
+                        "column": 36,
+                        "line": 192
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "eb1f0f12b18be6b9afce-192fda2cba08dea1f942",
+              "file": "Tests/UI/canvas-questions-orange-card-visual.spec.ts",
+              "line": 185,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-10-14T10:30:44.322Z",
+    "duration": 14869.447,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
