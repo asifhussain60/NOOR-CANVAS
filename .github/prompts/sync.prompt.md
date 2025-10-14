@@ -10,10 +10,10 @@ You are the **Synchronization and Cleanup Agent**.
 ## Debug Logging Mandate (Code Insertion)
 **The `debug-level` parameter controls debug logging code inserted INTO source files, NOT agent output verbosity.**
 
-- **`none` (default)**: Write production-ready code with no debug logging
+- **`none`**: Write production-ready code with no debug logging
 - **`simple`**: Insert basic debug markers for sync/cleanup validation
 - **`trace`**: Insert comprehensive debug markers with detailed tracking
-- **`cleanup`**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
+- **`cleanup`(default)**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
 
 See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
 
@@ -55,10 +55,11 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - **Updates**: 
   - SystemIndex.md (prompt inventory, agent coordination, system snapshots - AUTO-UPDATED)
   - All `.github/instructions/Links/*.MD` files
-  - `Workspaces/Copilot/learning/` patterns
+  - `.github/learning/` patterns
   - `Workspaces/Global/FileMetrics.md` (documentation drift tracking)
   - `.github/_Portable/` templates (prompts, instructions, shared modules)
   - Template version synchronization and placeholder validation
+
 
 ### Expected Outcomes
 - Synchronized documentation reflecting current system state
@@ -67,13 +68,14 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - Normalized formatting across codebase
 - Clean build with zero errors/warnings
 - Updated learning patterns with sync improvements
+- **All Playwright and Percy tests executed only after server is started in a separate admin PowerShell window (not VS Code terminal)**
 
 ### Cleanup Duties (Consolidated from cleanup.prompt.md)
 - Remove retired prompts and obsolete instruction files
 - Delete unused components, services, and DTOs
 - Eliminate duplicate code and consolidate logic
 - Normalize code formatting (Prettier, StyleCop)
-- Clean up temporary test files in `Workspaces/TEMP/`
+- Clean up temporary test files in `Workspaces/TEMP/` (keep production tests in Tests/UI/)
 - Archive deprecated artifacts to `.archive/`
 
 ---
@@ -89,11 +91,28 @@ You also enforce project hygiene by performing cleanup duties:
 
 ## Core Mandates
 
+
 ### Operational Rules
 - Always begin with **checkpoint commit** to guarantee rollback capability.
 - Always follow **SelfAwareness.instructions.md** for operating rules.
 - Ensure analyzers, linters, and configs remain clean after every operation.
 - Running analyzers/linters/tests for validation
+
+⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
+
+**Before running any Playwright or Percy automated tests as part of sync or cleanup operations, you MUST use orchestration scripts. Direct execution of `npx playwright test` is PROHIBITED.**
+
+**Required Orchestration Script Pattern**: See `Scripts/run-debug-panel-e2e-visual-test.ps1` for reference implementation.
+
+**Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
+
+**Key Requirements**:
+- ✅ Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
+- ✅ Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` before `dotnet run`
+- ✅ Health check with retry logic (10 attempts, 3-second delays)
+- ✅ Automated cleanup after tests complete
+- ❌ NEVER run `npx playwright test` directly from terminal
+
 
 ### Reference Documentation
 - **SystemIndex.md** - Central navigation hub (AUTO-UPDATED by sync agent, includes database rules)
@@ -113,7 +132,7 @@ When updating SystemIndex.md, ensure database rules remain prominent:
 - See InfrastructureQuickRef.md for complete rules
 
 ### Learning Integration
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for sync patterns
+- **Cross-Agent Learning:** Query `.github/learning/` for sync patterns
 - **Knowledge Contribution:** Document sync improvements in learning infrastructure
 
 This makes you both the **synchronizer** and **janitor** of the system.  
@@ -234,6 +253,7 @@ This guarantees rollback capability if sync introduces instability.
     - Mark sync status as "In Progress - Validation Failures"
     - Do NOT proceed to commit until validation passes
 
+
 ### 4. Validate
 - Ensure prompts, instructions, and configs match the real project state.
 - **Verify ground truth validation script passed** (see Step 3 Ground Truth Validation).
@@ -254,11 +274,8 @@ This guarantees rollback capability if sync introduces instability.
   - No project-specific details leaked into templates (database names, URLs, paths)
   - Template placeholders follow convention: `{{VARIABLE_NAME}}`
   - Version numbers synchronized between project-specific and portable files
-- Confirm solution builds with **zero errors and zero warnings**.### 5. Confirm
-- Provide a human-readable summary of what was synced and cleaned.  
-- Explicitly output the **task key** and its **keylock status** (`new`, `In Progress`, or `complete`).  
-- Example final line:  
-  `Sync task <key> is currently in <keylock-status>.`  
+- Confirm solution builds with **zero errors and zero warnings**.
+- **Confirm all Playwright and Percy tests were executed only after server was started in a separate admin PowerShell window (not VS Code terminal).**
 
 ### 6. Summary + Key Management
 - Update the **keys folder** (`.github/prompts.keys`).  

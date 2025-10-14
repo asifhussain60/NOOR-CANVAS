@@ -1,0 +1,11 @@
+# Build artifacts
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# Logs
+logs/
+*.log

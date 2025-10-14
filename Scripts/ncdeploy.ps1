@@ -1,17 +1,21 @@
-<#
+﻿<#
 .SYNOPSIS
-    Deploy NoorCanvas application to production website location.
+    Deploy NoorCanvas application to production from master branch.
 
 .DESCRIPTION
-    This script builds the NoorCanvas application in Release mode and deploys it
-    to D:\Websites\NOOR-CANVAS. It handles:
-    - Building the application in Release configuration
-    - Publishing to a temporary directory
-    - Stopping IIS Application Pool (if applicable)
-    - Backing up the current deployment
-    - Deploying the new version
-    - Starting the Application Pool
-    - Verifying the deployment
+    This script orchestrates a complete production deployment workflow:
+    1. Ensures starting on development branch
+    2. Merges development → master (with conflict detection)
+    3. Builds and publishes from master in Release mode
+    4. Applies web.config transformations (KSESSIONS production database)
+    5. Deploys to D:\Websites\NOOR-CANVAS with IIS management
+    6. Returns to development branch
+    
+    Web.config transformation ensures ASPNETCORE_ENVIRONMENT=Production and
+    connection strings point to KSESSIONS (production) database.
+
+.PARAMETER SkipMerge
+    Skip the git merge step. Use only if already on master with correct code.
 
 .PARAMETER SkipBuild
     Skip the build step and deploy existing publish output.
@@ -22,37 +26,37 @@
 .PARAMETER SkipIIS
     Skip IIS-related operations (stop/start app pool).
 
-.PARAMETER CleanDeploy
-    Delete all files from production directory before deploying (fresh install). DEFAULT: TRUE
-
-.PARAMETER SkipClean
-    Skip the clean deployment step (keep existing files). Use this for incremental updates only.
-
 .PARAMETER AppPool
     Name of the IIS Application Pool to restart. Default: "NoorCanvas"
 
+.PARAMETER AutoMerge
+    Automatically continue with merge even if there are changes to commit.
+    USE WITH CAUTION - only when you're certain changes should be merged.
+
 .EXAMPLE
     .\ncdeploy.ps1
-    Deploy with clean installation (default - deletes all production files first)
+    Full deployment: merge development→master, build, deploy, return to development
 
 .EXAMPLE
-    .\ncdeploy.ps1 -SkipBackup
-    Deploy without creating a backup
+    .\ncdeploy.ps1 -SkipMerge
+    Deploy from current master branch without merging development
 
 .EXAMPLE
-    .\ncdeploy.ps1 -SkipIIS
-    Deploy without stopping/starting IIS
+    .\ncdeploy.ps1 -SkipBackup -SkipIIS
+    Quick deployment without backup or IIS operations
 
-.EXAMPLE
-    .\ncdeploy.ps1 -SkipClean
-    Deploy without cleaning production directory (incremental update)
+.NOTES
+    Author: NOOR CANVAS Team
+    Always begins and ends on development branch (unless -SkipMerge is used)
+    Web.config transforms automatically set Production environment and KSESSIONS database
 #>
 
 param(
+    [switch]$SkipMerge,
     [switch]$SkipBuild,
     [switch]$SkipBackup,
     [switch]$SkipIIS,
-    [switch]$SkipClean,
+    [switch]$AutoMerge,
     [string]$AppPool = "NoorCanvas"
 )
 
@@ -87,17 +91,130 @@ function Write-Error {
     Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
+function Write-Info {
+    param([string]$Message)
+    Write-Host "[INFO] $Message" -ForegroundColor Gray
+}
+
+# Store original branch for cleanup
+$OriginalBranch = $null
+
 # Main deployment process
 try {
     Write-Host "`n========================================" -ForegroundColor Magenta
-    Write-Host "  NoorCanvas Deployment Script" -ForegroundColor Magenta
+    Write-Host "  NoorCanvas Production Deployment" -ForegroundColor Magenta
     Write-Host "  Target: $DeployPath" -ForegroundColor Magenta
+    Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Magenta
     Write-Host "  Time: $Timestamp" -ForegroundColor Magenta
     Write-Host "========================================`n" -ForegroundColor Magenta
 
+    # Step 0: Git branch management (merge development → master)
+    if (-not $SkipMerge) {
+        Write-Step "Git: Preparing for deployment merge..."
+        
+        # Change to workspace root for git operations
+        Push-Location $WorkspaceRoot
+        
+        try {
+            # Get current branch
+            $OriginalBranch = git branch --show-current
+            Write-Info "Current branch: $OriginalBranch"
+            
+            # Ensure we're starting from development
+            if ($OriginalBranch -ne "development") {
+                Write-Warning "Not on development branch. Switching to development..."
+                git checkout development
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Failed to switch to development branch"
+                }
+                $OriginalBranch = "development"
+                Write-Success "Switched to development branch"
+            }
+            
+            # Check for uncommitted changes
+            $gitStatus = git status --porcelain
+            if ($gitStatus) {
+                Write-Warning "Uncommitted changes detected:"
+                Write-Host $gitStatus -ForegroundColor Yellow
+                
+                if (-not $AutoMerge) {
+                    Write-Host "`nOptions:" -ForegroundColor Cyan
+                    Write-Host "  1. Commit your changes first, then re-run ncdeploy.ps1" -ForegroundColor Gray
+                    Write-Host "  2. Stash your changes: git stash" -ForegroundColor Gray
+                    Write-Host "  3. Use -AutoMerge flag to continue anyway (not recommended)" -ForegroundColor Gray
+                    throw "Please commit or stash changes before deploying"
+                } else {
+                    Write-Warning "Continuing with deployment despite uncommitted changes (AutoMerge enabled)"
+                }
+            }
+            
+            # Fetch latest changes
+            Write-Info "Fetching latest changes..."
+            git fetch origin
+            
+            # Switch to master
+            Write-Info "Switching to master branch..."
+            git checkout master
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to switch to master branch"
+            }
+            Write-Success "On master branch"
+            
+            # Pull latest master
+            Write-Info "Pulling latest master changes..."
+            git pull origin master
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Failed to pull master (may not exist remotely). Continuing..."
+            }
+            
+            # Merge development into master
+            Write-Info "Merging development → master..."
+            git merge development --no-ff -m "Deploy: Merge development to master ($Timestamp)"
+            
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "Merge conflicts detected!"
+                Write-Host "`nPlease resolve conflicts manually:" -ForegroundColor Yellow
+                Write-Host "  1. Run: git status" -ForegroundColor Gray
+                Write-Host "  2. Edit conflicting files" -ForegroundColor Gray
+                Write-Host "  3. Run: git add <resolved-files>" -ForegroundColor Gray
+                Write-Host "  4. Run: git commit" -ForegroundColor Gray
+                Write-Host "  5. Re-run: .\ncdeploy.ps1 -SkipMerge" -ForegroundColor Cyan
+                throw "Merge conflicts require manual resolution"
+            }
+            
+            Write-Success "Successfully merged development → master"
+            
+            # Show merge summary
+            $commitCount = git rev-list --count master..development
+            Write-Info "Merged changes from development to master"
+            
+        } finally {
+            Pop-Location
+        }
+    } else {
+        Write-Warning "Skipping git merge (using current branch as-is)"
+        
+        # Still need to verify we're on master
+        Push-Location $WorkspaceRoot
+        try {
+            $currentBranch = git branch --show-current
+            if ($currentBranch -ne "master") {
+                Write-Warning "Not on master branch (on: $currentBranch)"
+                Write-Host "Switching to master..." -ForegroundColor Yellow
+                git checkout master
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Failed to switch to master branch"
+                }
+            }
+            Write-Success "On master branch"
+        } finally {
+            Pop-Location
+        }
+    }
+
     # Step 1: Build the application
     if (-not $SkipBuild) {
-        Write-Step "Building application in Release mode..."
+        Write-Step "Building application in Release mode from master branch..."
         
         # Clean previous publish output
         if (Test-Path $PublishPath) {
@@ -105,7 +222,8 @@ try {
             Write-Success "Cleaned previous publish output"
         }
 
-        # Publish the application
+        # Publish the application with Release configuration
+        # This triggers web.Release.config transformation
         $publishArgs = @(
             "publish"
             $ProjectFile
@@ -113,9 +231,12 @@ try {
             "-o", $PublishPath
             "--no-self-contained"
             "/p:PublishReadyToRun=false"
+            "/p:EnvironmentName=Production"
         )
 
-        Write-Host "Running: dotnet $($publishArgs -join ' ')" -ForegroundColor Gray
+        Write-Info "Running: dotnet $($publishArgs -join ' ')"
+        Write-Info "Web.config transformation: web.Release.config → Production settings"
+        
         & dotnet $publishArgs
 
         if ($LASTEXITCODE -ne 0) {
@@ -123,6 +244,19 @@ try {
         }
 
         Write-Success "Application built and published successfully"
+        
+        # Verify web.config transformation
+        $webConfigPath = "$PublishPath\web.config"
+        if (Test-Path $webConfigPath) {
+            $webConfigContent = Get-Content $webConfigPath -Raw
+            if ($webConfigContent -match 'ASPNETCORE_ENVIRONMENT.*Production' -and 
+                $webConfigContent -match 'KSESSIONS') {
+                Write-Success "Web.config verified: Production environment, KSESSIONS database"
+            } else {
+                Write-Warning "Web.config may not have correct transformations. Please verify manually."
+            }
+        }
+        
     } else {
         Write-Warning "Skipping build step as requested"
         if (-not (Test-Path $PublishPath)) {
@@ -164,36 +298,6 @@ try {
         Write-Warning "Skipping IIS operations as requested"
     }
 
-    # Step 2.5: Clean deployment directory (DEFAULT - unless SkipClean is specified)
-    if (-not $SkipClean) {
-        Write-Step "Cleaning production deployment directory..."
-        
-        if (Test-Path $DeployPath) {
-            try {
-                $itemCount = (Get-ChildItem -Path $DeployPath -Recurse -Force | Measure-Object).Count
-                Write-Host "  Found $itemCount items to remove" -ForegroundColor Gray
-                
-                Remove-Item -Path "$DeployPath\*" -Recurse -Force -ErrorAction Stop
-                Write-Success "Production directory cleaned (all files deleted)"
-                
-                # Verify cleanup
-                $remainingItems = (Get-ChildItem -Path $DeployPath -Force | Measure-Object).Count
-                if ($remainingItems -eq 0) {
-                    Write-Success "Cleanup verified: 0 items remaining"
-                } else {
-                    Write-Warning "Cleanup incomplete: $remainingItems items remain (may be locked files)"
-                }
-            } catch {
-                Write-Error "Failed to clean deployment directory: $_"
-                Write-Warning "Some files may be locked. Continuing with deployment..."
-            }
-        } else {
-            Write-Host "  Production directory does not exist yet (will be created)" -ForegroundColor Gray
-        }
-    } else {
-        Write-Warning "Skipping clean deployment (incremental update mode - use default for fresh installation)"
-    }
-
     # Step 3: Backup existing deployment
     if (-not $SkipBackup) {
         Write-Step "Creating backup of existing deployment..."
@@ -210,7 +314,7 @@ try {
             if ($backups.Count -gt 5) {
                 $backups | Select-Object -Skip 5 | ForEach-Object {
                     Remove-Item -Path $_.FullName -Recurse -Force
-                    Write-Host "  Removed old backup: $($_.Name)" -ForegroundColor Gray
+                    Write-Info "Removed old backup: $($_.Name)"
                 }
             }
         } else {
@@ -220,107 +324,35 @@ try {
         Write-Warning "Skipping backup as requested"
     }
 
-    # Step 4: Deploy the application
-    Write-Step "Deploying application to $DeployPath..."
+    # Step 4: Clean production directory
+    Write-Step "Cleaning production deployment directory..."
     
-    # Create deploy directory if it doesn't exist
-    if (-not (Test-Path $DeployPath)) {
+    if (Test-Path $DeployPath) {
+        try {
+            # Preserve logs and production appsettings
+            $preservePaths = @("logs", "appsettings.Production.json")
+            
+            Get-ChildItem -Path $DeployPath | Where-Object { 
+                $preservePaths -notcontains $_.Name 
+            } | ForEach-Object {
+                Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction Stop
+            }
+            
+            Write-Success "Production directory cleaned (preserved logs and production settings)"
+        } catch {
+            Write-Warning "Some files may be locked. Continuing with deployment..."
+        }
+    } else {
         New-Item -ItemType Directory -Path $DeployPath -Force | Out-Null
         Write-Success "Created deployment directory"
     }
 
+    # Step 5: Deploy the application
+    Write-Step "Deploying application to $DeployPath..."
+    
     # Copy published files to deployment location
-    # Exclude certain files that shouldn't be overwritten IF they already exist
-    $excludePatterns = @(
-        "appsettings.Production.json",  # Keep production settings
-        "logs"                           # Keep existing logs
-    )
-    
-    # Files and folders to exclude from deployment (test/dev files)
-    $devOnlyFiles = @(
-        "wwwroot/FONT-SYSTEM-SUMMARY.md",
-        "wwwroot/session-transcript-redirect.html",
-        "wwwroot/session-transcript-styling.html",
-        "wwwroot/session-transcript-viewer.html",
-        "wwwroot/test-css.html",
-        "wwwroot/test-fonts.html",
-        "wwwroot/test-harness-demo.html",
-        "wwwroot/test-issue-106.html",
-        "wwwroot/testing"
-    )
-
-    Get-ChildItem -Path $PublishPath -Recurse | ForEach-Object {
-        $relativePath = $_.FullName.Substring($PublishPath.Length + 1)
-        $shouldExclude = $false
-        
-        # Check if it's a dev-only file/folder that shouldn't be deployed
-        foreach ($devFile in $devOnlyFiles) {
-            if ($relativePath -like "$devFile*") {
-                Write-Host "  Skipping dev file: $relativePath" -ForegroundColor DarkGray
-                $shouldExclude = $true
-                break
-            }
-        }
-        
-        if (-not $shouldExclude) {
-            # Check if it's a file to preserve in production
-            foreach ($pattern in $excludePatterns) {
-                if ($relativePath -like "$pattern*") {
-                    # Only exclude if the file already exists in deployment
-                    $targetPath = Join-Path $DeployPath $relativePath
-                    if (Test-Path $targetPath) {
-                        $shouldExclude = $true
-                        break
-                    }
-                }
-            }
-        }
-        
-        if (-not $shouldExclude) {
-            $targetPath = Join-Path $DeployPath $relativePath
-            
-            if ($_.PSIsContainer) {
-                if (-not (Test-Path $targetPath)) {
-                    New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
-                }
-            } else {
-                Copy-Item -Path $_.FullName -Destination $targetPath -Force
-            }
-        }
-    }
-
+    Copy-Item -Path "$PublishPath\*" -Destination $DeployPath -Recurse -Force
     Write-Success "Application files deployed"
-    
-    # Clean up dev/test files from production wwwroot if they exist
-    Write-Step "Cleaning production wwwroot..."
-    $wwwrootPath = Join-Path $DeployPath "wwwroot"
-    $cleanedFiles = 0
-    
-    if (Test-Path $wwwrootPath) {
-        foreach ($devFile in $devOnlyFiles) {
-            # Extract just the wwwroot-relative path
-            $wwwrootRelative = $devFile -replace '^wwwroot[/\\]', ''
-            $fullPath = Join-Path $wwwrootPath $wwwrootRelative
-            
-            if (Test-Path $fullPath) {
-                $isDirectory = Test-Path $fullPath -PathType Container
-                Remove-Item -Path $fullPath -Recurse -Force -ErrorAction SilentlyContinue
-                
-                if ($isDirectory) {
-                    Write-Host "  Removed dev folder: $wwwrootRelative\" -ForegroundColor Gray
-                } else {
-                    Write-Host "  Removed dev file: $wwwrootRelative" -ForegroundColor Gray
-                }
-                $cleanedFiles++
-            }
-        }
-        
-        if ($cleanedFiles -gt 0) {
-            Write-Success "Cleaned $cleanedFiles dev/test items from wwwroot"
-        } else {
-            Write-Success "wwwroot already clean (no dev/test files found)"
-        }
-    }
 
     # Ensure logs directory exists
     $logsPath = Join-Path $DeployPath "logs"
@@ -329,7 +361,7 @@ try {
         Write-Success "Created logs directory"
     }
 
-    # Step 5: Start IIS Application Pool
+    # Step 6: Start IIS Application Pool
     if (-not $SkipIIS) {
         Write-Step "Starting IIS Application Pool: $AppPool..."
         
@@ -355,7 +387,7 @@ try {
         }
     }
 
-    # Step 6: Verify deployment
+    # Step 7: Verify deployment
     Write-Step "Verifying deployment..."
     
     $requiredFiles = @(
@@ -368,9 +400,9 @@ try {
     foreach ($file in $requiredFiles) {
         $filePath = Join-Path $DeployPath $file
         if (Test-Path $filePath) {
-            Write-Host "  [OK] $file" -ForegroundColor Green
+            Write-Host "  ✓ $file" -ForegroundColor Green
         } else {
-            Write-Host "  [ERROR] $file MISSING!" -ForegroundColor Red
+            Write-Host "  ✗ $file MISSING!" -ForegroundColor Red
             $allFilesPresent = $false
         }
     }
@@ -381,142 +413,56 @@ try {
         throw "Deployment verification failed - missing required files"
     }
 
-    # Step 7: Deploy Host Provisioner tool to production
-    Write-Step "Deploying Host Provisioner tool..."
-    
-    $provisionerSource = "$WorkspaceRoot\Tools\HostProvisioner\HostProvisioner"
-    $provisionerDest = "$DeployPath\HostProvisioner"
-    $provisionerProject = "$provisionerSource\HostProvisioner.csproj"
-    
-    if (Test-Path $provisionerProject) {
+    # Step 8: Return to development branch
+    if (-not $SkipMerge) {
+        Write-Step "Git: Returning to development branch..."
+        
+        Push-Location $WorkspaceRoot
         try {
-            # Publish Host Provisioner to deployment folder
-            Write-Host "  Publishing Host Provisioner..." -ForegroundColor Gray
-            $publishOutput = dotnet publish $provisionerProject -c Release -o $provisionerDest --no-self-contained 2>&1
-            
-            if ($LASTEXITCODE -eq 0) {
-                # Copy batch files, PowerShell scripts, and production config
-                Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\create-token.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
-                Copy-Item "$WorkspaceRoot\Workspaces\Copilot\scripts\token-manager.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
-                Copy-Item "$provisionerSource\create-token-prod.bat" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
-                Copy-Item "$provisionerSource\create-token-prod.ps1" -Destination $provisionerDest -Force -ErrorAction SilentlyContinue
-                Copy-Item "$provisionerSource\appsettings.Production.json" -Destination $provisionerDest -Force
-                
-                # Switch app.config environment to Production
-                $appConfigPath = "$provisionerDest\HostProvisioner.dll.config"
-                if (Test-Path $appConfigPath) {
-                    Write-Host "  Switching app.config to Production environment..." -ForegroundColor Gray
-                    [xml]$configXml = Get-Content $appConfigPath
-                    $envNode = $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "ASPNETCORE_ENVIRONMENT" }
-                    if ($envNode) {
-                        $envNode.value = "Production"
-                        $configXml.Save($appConfigPath)
-                        Write-Host "  [OK] app.config environment set to Production" -ForegroundColor Green
-                    }
-                } else {
-                    Write-Warning "app.config not found at $appConfigPath"
-                }
-                
-                # Create README if it doesn't exist
-                $readmePath = "$provisionerDest\README.md"
-                if (-not (Test-Path $readmePath)) {
-                    @"
-# NoorCanvas Host Provisioner - Production
-
-Generate host and user tokens for NoorCanvas sessions.
-
-## Usage
-
-Command-line:
-    create-token.bat <SESSION_ID> [CREATED_BY]
-
-Interactive mode:
-    token-manager.bat
-
-## Example
-
-    create-token.bat 212 "Admin"
-
-See full documentation at: D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\README.md
-"@ | Out-File -FilePath $readmePath -Encoding UTF8
-                }
-                
-                Write-Success "Host Provisioner deployed successfully"
-                Write-Host "  Location: $provisionerDest" -ForegroundColor Gray
-                Write-Host "  Usage: cd $provisionerDest ; .\create-token.bat <SESSION_ID>" -ForegroundColor Cyan
-            } else {
-                Write-Warning "Failed to publish Host Provisioner (non-critical)"
+            git checkout development
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to switch back to development branch"
             }
-        }
-        catch {
-            Write-Warning "Could not deploy Host Provisioner: $_"
-        }
-    } else {
-        Write-Warning "Host Provisioner project not found (skipping)"
-    }
-
-    # Step 8: Run Host Provisioner for production token generation (Optional)
-    Write-Step "Host Provisioner production usage..."
-    
-    # [DEBUG-WORKITEM:deploy:provisioner] Integrated Host Provisioner into deployment workflow ;CLEANUP_OK
-    $deployedProvisioner = "$DeployPath\HostProvisioner\create-token.bat"
-    
-    if (Test-Path $deployedProvisioner) {
-        try {
-            # Set environment to Production for KSESSIONS database
-            $env:ASPNETCORE_ENVIRONMENT = "Production"
+            Write-Success "Back on development branch"
             
-            Write-Host "  Host Provisioner is available for token generation" -ForegroundColor Cyan
-            Write-Host "  Environment: Production (KSESSIONS database)" -ForegroundColor Gray
-            Write-Host "  Location: $DeployPath\HostProvisioner" -ForegroundColor Gray
-            Write-Host ""
-            Write-Host "  To generate a host token for a session:" -ForegroundColor Yellow
-            Write-Host "    cd $DeployPath\HostProvisioner" -ForegroundColor Gray
-            Write-Host "    `$env:ASPNETCORE_ENVIRONMENT='Production'" -ForegroundColor Gray
-            Write-Host "    dotnet run -- create --session-id <SESSION_ID> --created-by <YOUR_NAME>" -ForegroundColor Gray
-            Write-Host ""
-            Write-Host "  Example:" -ForegroundColor Yellow
-            Write-Host "    dotnet run -- create --session-id 212 --created-by 'Admin'" -ForegroundColor Gray
-            Write-Host ""
+            # Optionally push master to remote
+            Write-Host "`nTo push master branch to remote:" -ForegroundColor Cyan
+            Write-Host "  git push origin master" -ForegroundColor Gray
             
-            Write-Success "Host Provisioner ready for production use"
+        } finally {
+            Pop-Location
         }
-        catch {
-            Write-Warning "Host Provisioner check encountered an issue: $_"
-            Write-Host "  You can still use the provisioner manually from: $provisionerPath" -ForegroundColor Gray
-        }
-        finally {
-            # Reset environment
-            Remove-Item Env:\ASPNETCORE_ENVIRONMENT -ErrorAction SilentlyContinue
-        }
-    } else {
-        Write-Warning "Host Provisioner not found at: $provisionerProject"
-        Write-Host "  Token generation will need to be done manually" -ForegroundColor Gray
     }
 
     # Final summary
-    Write-Host "`n========================================" -ForegroundColor Magenta
+    Write-Host "`n========================================" -ForegroundColor Green
     Write-Host "  DEPLOYMENT SUCCESSFUL!" -ForegroundColor Green
-    Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "Deployed to: $DeployPath" -ForegroundColor White
-    Write-Host "Timestamp: $Timestamp" -ForegroundColor White
+    Write-Host "========================================" -ForegroundColor Green
+    
+    Write-Host "`nDeployment Details:" -ForegroundColor White
+    Write-Host "  Location: $DeployPath" -ForegroundColor Gray
+    Write-Host "  Database: KSESSIONS (Production)" -ForegroundColor Gray
+    Write-Host "  Environment: Production" -ForegroundColor Gray
+    Write-Host "  Branch: master" -ForegroundColor Gray
+    Write-Host "  Timestamp: $Timestamp" -ForegroundColor Gray
     
     if (-not $SkipBackup -and (Test-Path "$BackupPath\backup-$Timestamp")) {
-        Write-Host "Backup: $BackupPath\backup-$Timestamp" -ForegroundColor White
+        Write-Host "  Backup: $BackupPath\backup-$Timestamp" -ForegroundColor Gray
     }
     
     Write-Host "`nNext steps:" -ForegroundColor Cyan
     Write-Host "  1. Verify the application is accessible" -ForegroundColor Gray
     Write-Host "  2. Check logs at: $logsPath" -ForegroundColor Gray
     Write-Host "  3. Monitor for any errors" -ForegroundColor Gray
+    Write-Host "  4. Continue development work in 'development' branch" -ForegroundColor Gray
     Write-Host ""
 
 } catch {
     Write-Host "`n========================================" -ForegroundColor Red
     Write-Host "  DEPLOYMENT FAILED!" -ForegroundColor Red
     Write-Host "========================================" -ForegroundColor Red
-    Write-Error $_.Exception.Message
-    Write-Host "`nError Details:" -ForegroundColor Yellow
+    Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "`nStack Trace:" -ForegroundColor Yellow
     Write-Host $_.ScriptStackTrace -ForegroundColor Gray
     
     # Try to restart the app pool if we stopped it
@@ -529,11 +475,27 @@ See full documentation at: D:\PROJECTS\NOOR CANVAS\Tools\HostProvisioner\README.
         }
     }
     
+    # Try to return to original branch
+    if ($OriginalBranch -and -not $SkipMerge) {
+        Write-Host "Attempting to return to $OriginalBranch branch..." -ForegroundColor Yellow
+        Push-Location $WorkspaceRoot
+        try {
+            git checkout $OriginalBranch -ErrorAction SilentlyContinue
+        } finally {
+            Pop-Location
+        }
+    }
+    
+    Write-Host "`nRecovery options:" -ForegroundColor Cyan
+    Write-Host "  - Check git status: git status" -ForegroundColor Gray
+    Write-Host "  - Restore backup if needed" -ForegroundColor Gray
+    Write-Host "  - Review error message above" -ForegroundColor Gray
+    
     exit 1
 } 
 finally {
-    # Clean up temporary publish folder
+    # Information about temporary files
     if (Test-Path $PublishPath) {
-        Write-Host "Publish files retained at: $PublishPath" -ForegroundColor Gray
+        Write-Info "Publish files retained at: $PublishPath"
     }
 }

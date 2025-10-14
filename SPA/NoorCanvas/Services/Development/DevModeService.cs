@@ -42,9 +42,16 @@ namespace NoorCanvas.Services.Development
         /// <inheritdoc/>
         public bool IsDevelopmentMode =>
 #if DEBUG
-            _environment.IsDevelopment();
+            // [DEBUG-WORKITEM:debug-panel:devmode:TRACE] Force enable in DEBUG builds for development ;CLEANUP_OK
+            // During development (DEBUG build), always return true
+            // This ensures debug panels work even if ASPNETCORE_ENVIRONMENT isn't set
+            // Production deployment (ncdeploy.ps1) uses Release build, so this will be false
+            true;
 #else
-            false;
+            // [DEBUG-WORKITEM:debug-panel:devmode:TRACE] Production mode (RELEASE build) ;CLEANUP_OK
+            // In Release builds, only enable if explicitly running in Development environment
+            // This provides an override for testing Release builds locally
+            _environment.IsDevelopment();
 #endif
 
         /// <inheritdoc/>

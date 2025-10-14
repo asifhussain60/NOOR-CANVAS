@@ -368,6 +368,55 @@
 			],
 			"isBackground": false,
 			"group": "test"
+		},
+		{
+			"label": "test-debug-panel-percy",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/Scripts/run-debug-panel-percy-tests.ps1"
+			],
+			"isBackground": false,
+			"group": "test",
+			"detail": "Run debug panel Percy visual regression tests (launches app in separate window)",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "test-debug-panel-percy-keep-app",
+			"type": "shell",
+			"command": "powershell.exe",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/Scripts/run-debug-panel-percy-tests.ps1",
+				"-KeepAppRunning"
+			],
+			"isBackground": false,
+			"group": "test",
+			"detail": "Run debug panel Percy tests and keep app running for manual verification",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": []
 		}
 	]
 }

@@ -43,7 +43,7 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 **EFFICIENCY**: Don't re-analyze unchanged files
 
 1. **Look for previous cohesion review**:
-   - Check `Workspaces/Documentation/` for most recent `cohesion-review-*.md`
+   - Check `.github/reports/` for most recent `cohesion-review-*.md`
    - If found, read metadata section to get file hashes
 
 2. **Calculate current file hashes**:
@@ -60,6 +60,52 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
    - **If deleted**: Note in report
 
 **Result**: Only analyze changed/new files (saves 70-80% time on repeat runs)
+
+#### 2.1.5: Extract Workspace Patterns (Pattern-Driven Optimization)
+**EFFICIENCY**: Learn from real execution history to improve prompts
+
+**Purpose**: Identify successful and failed patterns from completed work to update prompts and instructions
+
+**Analysis Sources**:
+1. **Completed Keys**: `.github/prompts.keys/*/` folders with status="completed"
+2. **Work Logs**: `work-log.md` files documenting execution history
+3. **Documentation**: `Workspaces/Documentation/*-summary.md`, `*-completion.md` files
+4. **Learning Patterns**: `.github/learning/patterns/*.json` files
+5. **Implementation Docs**: `Workspaces/Documentation/IMPLEMENTATIONS/*` folders
+
+**Fast Pattern Extraction** (3-5 minutes):
+
+1. **Success Patterns** (grep for):
+   - "✅", "success", "completed successfully", "resolved"
+   - Files: `*-completion.md`, `*-summary.md`, `implemented-recommendations.md`
+   - Extract: What worked, time saved, patterns applied
+
+2. **Failure Patterns** (grep for):
+   - "❌", "failed", "error", "issue", "problem"
+   - Files: `*-issues.md`, `prod-issues.md`, work logs with failures
+   - Extract: What failed, root cause, preventive measures
+
+3. **Efficiency Gains** (grep for):
+   - "optimization", "improvement", "faster", "reduced"
+   - Files: `*-optimization-report.md`, learning patterns
+   - Extract: Performance improvements, workflow enhancements
+
+4. **Pattern Integration Points**:
+   - **task.prompt.md**: Add successful execution patterns to Step 5 examples
+   - **refactor.prompt.md**: Add code quality patterns from Roslynator reports
+   - **healthcheck.prompt.md**: Add validation patterns from failure logs
+   - **test-generation.prompt.md**: Add test patterns from Playwright successes
+   - **SelfAwareness.instructions.md**: Add architectural patterns from implementations
+
+**Output**: List of patterns with source files and recommended integration points
+
+**Heuristics**:
+- If pattern appears in 3+ keys → high-confidence pattern
+- If pattern has success_rate > 0.8 → reliable pattern
+- If pattern saved >10 minutes → high-value pattern
+- If pattern prevented errors → critical pattern
+
+**Time Saved**: Prevents rediscovering solutions, compounds learning over time
 
 #### 2.2: Load Changed Files Only
 
@@ -248,7 +294,7 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 
 **EFFICIENCY**: Generate focused report with essential information only
 
-Create report in `Workspaces/Documentation/cohesion-review-YYYY-MM-DD.md`:
+Create report in `.github/reports/cohesion-review-YYYY-MM-DD.md`:
 
 **Report Structure** (streamlined vs. original):
 
@@ -547,7 +593,7 @@ After consolidation:
 Create comprehensive commit with all findings:
 
 ```bash
-git add Workspaces/Documentation/cohesion-review-*.md
+git add .github/reports/cohesion-review-*.md
 git add .github/prompts.keys/cohesion/
 git add .github/instructions/
 git add .github/prompts/
@@ -569,7 +615,7 @@ Consolidation Actions:
 Action items created: G
 Priority breakdown: X high, Y medium, Z low
 
-See Workspaces/Documentation/cohesion-review-[DATE].md for full report"
+See .github/reports/cohesion-review-[DATE].md for full report"
 ```
 
 ---

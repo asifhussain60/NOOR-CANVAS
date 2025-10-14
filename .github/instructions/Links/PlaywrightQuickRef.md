@@ -1,8 +1,34 @@
 # Playwright Testing Quick Reference
 
-**Version**: 1.0.0  
-**Last Updated**: 2025-10-12  
+**Version**: 2.0.0  
+**Last Updated**: 2025-10-14  
 **Purpose**: Authoritative Playwright testing reference - eliminates ambiguity in test creation and execution
+
+---
+
+## 🎯 Testing Strategy Overview
+
+**NOOR CANVAS uses three complementary testing approaches:**
+
+### 1. **Functional E2E Tests** (Playwright - Standard)
+- **Purpose**: Verify user interactions and business logic
+- **When**: User flows, API integration, multi-user scenarios, SignalR broadcasts
+- **Tools**: Playwright `@playwright/test`
+- **Example**: Submit question, vote on question, participant registration
+
+### 2. **Visual Regression Tests** (Percy + Playwright)
+- **Purpose**: Catch visual/CSS rendering issues
+- **When**: CSS changes, layout modifications, responsive design, color scheme updates
+- **Tools**: Percy `@percy/playwright` + Playwright
+- **Example**: Question card styling, vote badge positioning, modal layouts
+
+### 3. **CSS Quality Tests** (Stylelint - Pre-commit)
+- **Purpose**: Prevent CSS conflicts and bad patterns
+- **When**: Before every commit, automated in CI/CD
+- **Tools**: Stylelint `stylelint`
+- **Example**: Duplicate properties, named colors, class naming violations
+
+**See Decision Matrix below for when to use each approach.**
 
 ---
 
@@ -13,8 +39,9 @@
 2. **Configuration**: `config/testing/playwright.config.cjs`
 3. **Test Data**: Session 212 with tokens KJAHA99L (user) / PQ9N5YWW (host)
 4. **Base URL**: `https://localhost:9091`
-5. **Execution Modes**: standalone, temp, CI
+5. **Execution Modes**: standalone, temp, CI, **percy** (visual regression)
 6. **Browser**: Chromium (default), Firefox, WebKit available
+7. **Visual Testing**: Percy integration available for visual regression
 
 ---
 
@@ -49,6 +76,98 @@ test.describe('Feature Name', () => {
 1. **Permanent Tests**: `PlayWright/tests/` or `Tests/UI/`
 2. **Temporary Tests**: `Workspaces/TEMP/` (auto-cleanup after task completion)
 3. **Phase Tests**: `Workspaces/TEMP/` with naming: `{agent}-phase-{n}-{key}-{RUN_ID}.spec.ts`
+
+---
+
+## 🎯 Testing Approach Decision Matrix
+
+**Use this matrix to choose the right testing tool for your change:**
+
+| Change Type | Testing Tool | Why | Example |
+|------------|--------------|-----|---------|
+| **User Workflow/Behavior** | Playwright (Functional E2E) | Tests actual user interactions, API calls, SignalR updates | User joins session, submits question, votes |
+| **Visual/Styling Changes** | Percy (Visual Regression) | Pixel-perfect comparison across viewports, catches unintended CSS changes | Orange card rendering, button styles, layout shifts |
+| **CSS Code Quality** | Stylelint (Pre-commit) | Prevents CSS conflicts before they reach the browser | Class naming conventions, duplicate properties, color formats |
+| **Component Refactor** | Percy + Playwright | Percy validates visual consistency, Playwright validates behavior | Refactoring question card component |
+| **API Change** | Playwright (Functional E2E) | Tests API contract, response format, error handling | New participant endpoint, SignalR hub changes |
+| **Responsive Design** | Percy (Multi-viewport) | Tests layout across 375px/768px/1280px viewports | Mobile-first design, tablet layout, desktop grid |
+| **Theme Changes** | Percy + Stylelint | Percy validates visual output, Stylelint validates CSS quality | Dark mode, color scheme updates, Blazor theme |
+| **Accessibility Fix** | Playwright (Functional E2E) | Tests ARIA attributes, keyboard navigation, screen reader support | ARIA labels, focus management, semantic HTML |
+
+### Decision Flowchart
+
+```
+Did you change...
+│
+├─ User flows/interactions? → Playwright Functional Test
+│  ├─ Examples: Login, navigation, form submission, voting
+│  └─ File: Tests/UI/*-functional.spec.ts
+│
+├─ Visual appearance/CSS? → Percy Visual Test + Stylelint
+│  ├─ Examples: Button colors, card layouts, spacing, themes
+│  ├─ Visual Test: Tests/UI/*-visual.spec.ts (Percy)
+│  └─ CSS Quality: npm run lint:css (Stylelint)
+│
+├─ API/SignalR contract? → Playwright Functional Test
+│  ├─ Examples: New endpoints, hub methods, response format
+│  └─ File: Tests/UI/*-api.spec.ts
+│
+├─ Component internals (no UI change)? → Playwright Functional Test
+│  ├─ Examples: Refactoring, performance optimization
+│  └─ Validate behavior remains unchanged
+│
+└─ Multi-viewport responsive design? → Percy Multi-viewport Test
+   ├─ Examples: Mobile layout, tablet breakpoints, grid systems
+   └─ File: Tests/UI/*-responsive.spec.ts
+```
+
+### Quick Reference Commands
+
+```bash
+# Functional E2E Tests (Playwright)
+npx playwright test Tests/UI/feature-name-functional.spec.ts --headed
+
+# Visual Regression Tests (Percy + Playwright)
+npm run test:percy:visual -- Tests/UI/feature-name-visual.spec.ts
+
+# CSS Quality Check (Stylelint)
+npm run lint:css -- SPA/NoorCanvas/Components/**/*.razor
+
+# Full Test Suite (All 3 Approaches)
+npx playwright test && npm run test:percy && npm run lint:css
+```
+
+### Percy Visual Test Template
+
+```typescript
+import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
+
+test.describe('Visual Regression: Feature Name', () => {
+  test('should render component correctly across viewports', async ({ page }) => {
+    // Navigate to the component
+    await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+    
+    // Wait for component to load
+    await page.waitForSelector('[data-testid="component"]');
+    
+    // Take Percy snapshot (tests 375px, 768px, 1280px viewports)
+    await percySnapshot(page, 'Component Name - Initial State', {
+      widths: [375, 768, 1280],
+      minHeight: 1024
+    });
+    
+    // Interact with component
+    await page.click('[data-testid="toggle-button"]');
+    await page.waitForTimeout(500); // Wait for animation
+    
+    // Take another snapshot showing changed state
+    await percySnapshot(page, 'Component Name - Active State');
+  });
+});
+```
+
+**Percy Configuration**: See `.percy.yml` for viewport settings and ignored elements.
 
 ---
 

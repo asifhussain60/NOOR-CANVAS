@@ -9,12 +9,14 @@
 @using System.Text.Json.Serialization
 @using NoorCanvas.Controllers
 @using NoorCanvas.Services.Development
+@using Microsoft.Extensions.Configuration
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<HostLanding> Logger
 @inject LoadingService LoadingService
 @inject IDevModeService DevModeService
+@inject IConfiguration Configuration
 
 <PageTitle>NOOR Canvas - Host Authentication</PageTitle>
 
@@ -553,10 +555,22 @@
     </div>
 </div>
 
+@* [DEBUG-WORKITEM:debug-panel:devmode:TRACE] Expose DevMode state to browser console ;CLEANUP_OK *@
+<script>
+    window.__DEVMODE_SHOW_PANELS__ = @(DevModeService.ShowDevPanels.ToString().ToLower());
+    window.__DEVMODE_IS_DEVELOPMENT__ = @(DevModeService.IsDevelopmentMode.ToString().ToLower());
+    window.__ASPNETCORE_ENVIRONMENT__ = '@(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "NOT_SET")';
+    console.log('[DEBUG-WORKITEM:debug-panel:devmode:TRACE] DevModeService.ShowDevPanels:', window.__DEVMODE_SHOW_PANELS__, ';CLEANUP_OK');
+    console.log('[DEBUG-WORKITEM:debug-panel:devmode:TRACE] DevModeService.IsDevelopmentMode:', window.__DEVMODE_IS_DEVELOPMENT__, ';CLEANUP_OK');
+    console.log('[DEBUG-WORKITEM:debug-panel:devmode:TRACE] ASPNETCORE_ENVIRONMENT:', window.__ASPNETCORE_ENVIRONMENT__, ';CLEANUP_OK');
+</script>
+
 @* Database Info Panel - Show DevPanel in dev mode, ProductionInfoPanel in production *@
 @if (DevModeService.ShowDevPanels)
 {
-    <NoorCanvas.Components.Development.DebugPanel CurrentViewName="HostLanding" />
+    <NoorCanvas.Components.Development.DebugPanel CurrentViewName="HostLanding" 
+                                                   DebugActions="GetHostLandingDebugActions()" 
+                                                   GenericMessage="Host Landing debug actions" />
 }
 else
 {
@@ -587,6 +601,12 @@ else
         
         Logger.LogInformation("NOOR-HOST: [{RequestId}] HostLanding OnInitialized - FriendlyToken: {FriendlyToken}", 
             requestId, FriendlyToken ?? "null");
+
+        // [DEBUG-WORKITEM:debug-panel:devmode:TRACE] Diagnostic logging for DevModeService configuration ;CLEANUP_OK
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] DevModeService.ShowDevPanels: {ShowDevPanels} ;CLEANUP_OK", DevModeService.ShowDevPanels);
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] DevModeService.IsDevelopmentMode: {IsDevelopmentMode} ;CLEANUP_OK", DevModeService.IsDevelopmentMode);
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] ASPNETCORE_ENVIRONMENT: {Environment} ;CLEANUP_OK", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "NOT_SET");
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:devmode:TRACE] appsettings Development:ShowDevPanels: {ConfigValue} ;CLEANUP_OK", Configuration.GetValue<bool?>("Development:ShowDevPanels")?.ToString() ?? "NOT_SET");
 
         Model ??= new HostLandingViewModel
         {
@@ -937,6 +957,156 @@ else
         public int SessionId { get; set; }
         public bool IsActive { get; set; }
         public DateTime? ExpiresAt { get; set; }
+    }
+    
+    /// <summary>
+    /// [DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] Debug Actions Factory for HostLanding ;CLEANUP_OK
+    /// </summary>
+    private List<NoorCanvas.Models.Debug.IDebugAction> GetHostLandingDebugActions()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Creating debug actions for HostLanding ;CLEANUP_OK", requestId);
+        
+        var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        // Action 1: Auto-fill with test token
+        if (Model != null && string.IsNullOrEmpty(Model.FriendlyToken))
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Adding 'Enter Test Token' action ;CLEANUP_OK", requestId);
+            
+            actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+                "Enter Test Token",
+                "Auto-fill with session 212 host token (TESTHOST)",
+                async () => await HandleEnterTestToken(),
+                "fa-solid fa-key"
+            )
+            {
+                IsEnabled = !isLoading
+            });
+        }
+        
+        // Action 2: Quick authenticate (if token already entered)
+        if (Model != null && !string.IsNullOrEmpty(Model.FriendlyToken))
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Adding 'Quick Authenticate' action ;CLEANUP_OK", requestId);
+            
+            actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+                "Quick Authenticate",
+                "Immediately authenticate with current token",
+                async () => await HandleAuthentication(),
+                "fa-solid fa-bolt"
+            )
+            {
+                IsEnabled = !isLoading && Model.FriendlyToken.Length == 8
+            });
+        }
+        
+        // Action 3: Clean Canvas Database [DIAGNOSTIC:debug-panel:clean-canvas] ;CLEANUP_OK
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Adding 'Clean Canvas DB' action ;CLEANUP_OK", requestId);
+        
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Clean Canvas DB",
+            "Execute canvas.CleanCanvas stored procedure to reset test data",
+            async () => await HandleCleanCanvasDatabase(),
+            "fa-solid fa-broom"
+        )
+        {
+            IsEnabled = !isLoading
+        });
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Created {Count} debug actions ;CLEANUP_OK", requestId, actions.Count);
+        
+        return actions;
+    }
+    
+    /// <summary>
+    /// [DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] Handle Enter Test Token debug action ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleEnterTestToken()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] ════════ ENTER TEST TOKEN DEBUG ACTION START ════════ ;CLEANUP_OK", requestId);
+        
+        if (Model == null)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Model is null, cannot enter test token ;CLEANUP_OK", requestId);
+            return;
+        }
+        
+        // Use Session 212 test token (from PlaywrightQuickRef.md canonical data)
+        const string testToken = "TESTHOST";
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Setting FriendlyToken to: {Token} ;CLEANUP_OK", requestId, testToken);
+        
+        Model.FriendlyToken = testToken;
+        errorMessage = "";
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Updating UI with test token ;CLEANUP_OK", requestId);
+        
+        await InvokeAsync(StateHasChanged);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Waiting 100ms for UI render ;CLEANUP_OK", requestId);
+        await Task.Delay(100);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Test token entered successfully: {Token} ;CLEANUP_OK", requestId, testToken);
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] ════════ ENTER TEST TOKEN DEBUG ACTION END ════════ ;CLEANUP_OK", requestId);
+        
+        // Show success toast
+        await JSRuntime.InvokeVoidAsync("showNoorToast", 
+            $"Test token '{testToken}' entered (Session 212)", 
+            "Debug Action Complete", 
+            "success");
+    }
+    
+    /// <summary>
+    /// [DIAGNOSTIC:debug-panel:clean-canvas] Execute canvas.CleanCanvas stored procedure ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleCleanCanvasDatabase()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] ════════ CLEAN CANVAS DATABASE START ════════ ;CLEANUP_OK", requestId);
+        
+        try
+        {
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Executing canvas.CleanCanvas stored procedure... ;CLEANUP_OK", requestId);
+            
+            // Execute the stored procedure
+            await using var connection = new Microsoft.Data.SqlClient.SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
+            await connection.OpenAsync();
+            
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Database connection opened successfully ;CLEANUP_OK", requestId);
+            
+            await using var command = new Microsoft.Data.SqlClient.SqlCommand("canvas.CleanCanvas", connection)
+            {
+                CommandType = System.Data.CommandType.StoredProcedure,
+                CommandTimeout = 60 // 60 second timeout
+            };
+            
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Executing stored procedure... ;CLEANUP_OK", requestId);
+            
+            var affectedRows = await command.ExecuteNonQueryAsync();
+            
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Stored procedure executed successfully. Affected rows: {AffectedRows} ;CLEANUP_OK", 
+                requestId, affectedRows);
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] ════════ CLEAN CANVAS DATABASE COMPLETE ════════ ;CLEANUP_OK", requestId);
+            
+            // Show success toast
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                "Canvas database cleaned successfully! Participants and session data reset.", 
+                "Clean Canvas DB", 
+                "success");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Error executing canvas.CleanCanvas: {Message} ;CLEANUP_OK", 
+                requestId, ex.Message);
+            
+            // Show error toast
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                $"Failed to clean canvas database: {ex.Message}", 
+                "Clean Canvas DB Error", 
+                "error");
+        }
     }
 }
 

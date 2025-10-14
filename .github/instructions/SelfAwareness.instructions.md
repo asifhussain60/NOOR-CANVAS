@@ -3,6 +3,47 @@
 > Canonical operating rules for all agents. Keep **.github/prompts/** as the source of truth.  
 > Everything else lives under **Workspaces/Copilot/**.
 
+## 🔀 Branch Strategy (CRITICAL)
+
+**BRANCH STRUCTURE**:
+- **`master`** - Production branch (PROTECTED)
+  - ALWAYS represents what's currently deployed in production via `ncdeploy.ps1`
+  - NEVER commit directly to master
+  - Only receives merges from `development` after testing
+  - Deployment script: `Scripts/ncdeploy.ps1` deploys from this branch
+  
+- **`development`** - Active development branch (DEFAULT)
+  - ALL development work happens here
+  - ALL feature implementations
+  - ALL bug fixes
+  - ALL testing and experimentation
+  - Agents should ALWAYS work in this branch
+
+**WORKFLOW**:
+1. **Development**: All work done in `development` branch
+2. **Testing**: Validate changes thoroughly in development
+3. **Merge**: When ready for production, merge `development` → `master`
+4. **Deploy**: Run `ncdeploy.ps1` which deploys from `master` branch
+5. **Continue**: Resume development work in `development` branch
+
+**ENFORCEMENT**:
+- ⚠️ **NEVER** modify `master` branch directly
+- ✅ **ALWAYS** create commits in `development` branch
+- ✅ **ALWAYS** verify you're in `development` before starting work:
+  ```powershell
+  git branch --show-current  # Should return: development
+  ```
+- ❌ If on `master`, switch immediately:
+  ```powershell
+  git checkout development
+  ```
+
+**RATIONALE**:
+- Production stability: `master` only contains tested, deployable code
+- Safe experimentation: `development` allows iteration without affecting production
+- Clear deployment path: `ncdeploy.ps1` knows to deploy from `master`
+- Easy rollback: Can revert `master` without losing development work
+
 ## Scope
 Governs `/workitem`, `/continue`, `/pwtest`, `/cleanup`, `/retrosync`, `/imgreq`, `/refactor`, `/migrate`, `/promptsync`.
 

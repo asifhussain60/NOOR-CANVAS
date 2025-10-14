@@ -84,10 +84,15 @@ if ($foundProcesses -or $Force) {
 }
 
 # Step 2: Build the application
-Write-Host "Building NOOR Canvas application..." -ForegroundColor Cyan
+Write-Host "Building NOOR Canvas application (Release mode)..." -ForegroundColor Cyan
 Push-Location $project
 
 try {
+    # Clean previous build to ensure fresh executable
+    Write-Host "  Cleaning previous build..." -ForegroundColor Gray
+    dotnet clean --configuration Release --verbosity quiet
+    
+    # Build fresh executable
     dotnet build --configuration Release --verbosity minimal
     
     if ($LASTEXITCODE -ne 0) {
@@ -95,7 +100,7 @@ try {
         exit 1
     }
     
-    Write-Host "Build completed successfully!" -ForegroundColor Green
+    Write-Host "Build completed successfully! Fresh executable ready." -ForegroundColor Green
 } finally {
     Pop-Location
 }

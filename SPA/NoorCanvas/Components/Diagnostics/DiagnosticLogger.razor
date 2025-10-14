@@ -1,0 +1,369 @@
+@* [DIAGNOSTIC-COMPONENT] Reusable diagnostic logging component for deep debugging *@
+@* Usage: <DiagnosticLogger @ref="diagnosticLogger" /> *@
+@* Then call: await diagnosticLogger.DiagnoseToastSystem() or await diagnosticLogger.DiagnoseLayoutHeights() *@
+
+@inject IJSRuntime JSRuntime
+@inject ILogger<DiagnosticLogger> Logger
+
+@code {
+    // [DIAGNOSTIC-METHOD:toast-system] Deep diagnostics for toast notification system ;CLEANUP_OK
+    public async Task<DiagnosticResult> DiagnoseToastSystem()
+    {
+        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        var result = new DiagnosticResult { RequestId = requestId, DiagnosticType = "ToastSystem" };
+        
+        Logger.LogCritical("[DIAGNOSTIC:toast-system] [{RequestId}] ========== TOAST SYSTEM DIAGNOSTICS ==========", requestId);
+        
+        try
+        {
+            var diagnostics = await JSRuntime.InvokeAsync<string>("eval", @"
+                (function() {
+                    const results = [];
+                    
+                    // === LIBRARY CHECKS ===
+                    results.push('=== LIBRARY STATUS ===');
+                    results.push('toastr loaded: ' + (typeof toastr !== 'undefined'));
+                    results.push('showNoorToast loaded: ' + (typeof window.showNoorToast === 'function'));
+                    
+                    // === CSS FILE CHECKS ===
+                    results.push('');
+                    results.push('=== CSS FILES ===');
+                    const allCssLinks = Array.from(document.querySelectorAll('link[rel=""stylesheet""]'))
+                        .map(link => link.href);
+                    results.push('Total CSS files loaded: ' + allCssLinks.length);
+                    
+                    const noorToastrCss = allCssLinks.filter(href => href.includes('noor-toastr'));
+                    results.push('noor-toastr.css loaded: ' + (noorToastrCss.length > 0));
+                    if (noorToastrCss.length > 0) {
+                        noorToastrCss.forEach(href => results.push('  Path: ' + href));
+                    }
+                    
+                    const toastrCss = allCssLinks.filter(href => href.includes('toastr') && !href.includes('noor'));
+                    results.push('toastr.css loaded: ' + (toastrCss.length > 0));
+                    if (toastrCss.length > 0) {
+                        toastrCss.forEach(href => results.push('  Path: ' + href));
+                    }
+                    
+                    // === DOM CONTAINER CHECKS ===
+                    results.push('');
+                    results.push('=== DOM CONTAINERS ===');
+                    const container = document.querySelector('#toast-container, .toast-container');
+                    results.push('Toast container exists: ' + (container !== null));
+                    if (container) {
+                        const containerStyle = window.getComputedStyle(container);
+                        results.push('  ID: ' + (container.id || 'N/A'));
+                        results.push('  Class: ' + (container.className || 'N/A'));
+                        results.push('  z-index: ' + containerStyle.zIndex);
+                        results.push('  position: ' + containerStyle.position);
+                        results.push('  display: ' + containerStyle.display);
+                        results.push('  visibility: ' + containerStyle.visibility);
+                        results.push('  top: ' + containerStyle.top);
+                        results.push('  right: ' + containerStyle.right);
+                        results.push('  left: ' + containerStyle.left);
+                        results.push('  bottom: ' + containerStyle.bottom);
+                    } else {
+                        results.push('  ⚠️ Toast container NOT found in DOM');
+                    }
+                    
+                    // === Z-INDEX HIERARCHY ===
+                    results.push('');
+                    results.push('=== Z-INDEX HIERARCHY ===');
+                    const elementsWithZIndex = [];
+                    
+                    // Check debug panel
+                    const debugPanel = document.querySelector('.debug-panel');
+                    if (debugPanel) {
+                        const panelStyle = window.getComputedStyle(debugPanel);
+                        elementsWithZIndex.push({
+                            element: 'Debug Panel',
+                            zIndex: panelStyle.zIndex,
+                            position: panelStyle.position
+                        });
+                    }
+                    
+                    // Check canvas containers
+                    const canvasArea = document.querySelector('.canvas-area-container');
+                    if (canvasArea) {
+                        const areaStyle = window.getComputedStyle(canvasArea);
+                        elementsWithZIndex.push({
+                            element: 'Canvas Area Container',
+                            zIndex: areaStyle.zIndex,
+                            position: areaStyle.position
+                        });
+                    }
+                    
+                    const sidebar = document.querySelector('.canvas-sidebar');
+                    if (sidebar) {
+                        const sidebarStyle = window.getComputedStyle(sidebar);
+                        elementsWithZIndex.push({
+                            element: 'Canvas Sidebar',
+                            zIndex: sidebarStyle.zIndex,
+                            position: sidebarStyle.position
+                        });
+                    }
+                    
+                    // Sort by z-index descending
+                    elementsWithZIndex.sort((a, b) => {
+                        const aZ = a.zIndex === 'auto' ? 0 : parseInt(a.zIndex);
+                        const bZ = b.zIndex === 'auto' ? 0 : parseInt(b.zIndex);
+                        return bZ - aZ;
+                    });
+                    
+                    elementsWithZIndex.forEach(item => {
+                        results.push(item.element + ': z-index=' + item.zIndex + ', position=' + item.position);
+                    });
+                    
+                    if (container) {
+                        const containerZ = window.getComputedStyle(container).zIndex;
+                        const containerZInt = containerZ === 'auto' ? 0 : parseInt(containerZ);
+                        const maxOtherZ = elementsWithZIndex.length > 0 
+                            ? Math.max(...elementsWithZIndex.map(e => e.zIndex === 'auto' ? 0 : parseInt(e.zIndex)))
+                            : 0;
+                        
+                        if (containerZInt <= maxOtherZ) {
+                            results.push('⚠️ WARNING: Toast container z-index (' + containerZ + ') <= max other element z-index (' + maxOtherZ + ')');
+                        } else {
+                            results.push('✓ Toast container z-index (' + containerZ + ') > all other elements');
+                        }
+                    }
+                    
+                    // === TOASTR CONFIGURATION ===
+                    if (typeof toastr !== 'undefined') {
+                        results.push('');
+                        results.push('=== TOASTR CONFIGURATION ===');
+                        results.push('positionClass: ' + (toastr.options.positionClass || 'not set'));
+                        results.push('timeOut: ' + (toastr.options.timeOut || 'not set'));
+                        results.push('closeButton: ' + (toastr.options.closeButton || 'not set'));
+                        results.push('progressBar: ' + (toastr.options.progressBar || 'not set'));
+                    }
+                    
+                    return results.join('\n');
+                })()
+            ");
+            
+            Logger.LogCritical("[DIAGNOSTIC:toast-system] [{RequestId}] RESULTS:\n{Diagnostics}", requestId, diagnostics);
+            result.Success = true;
+            result.Details = diagnostics;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("[DIAGNOSTIC:toast-system] [{RequestId}] FAILED: {Error}", requestId, ex.Message);
+            result.Success = false;
+            result.ErrorMessage = ex.Message;
+        }
+        
+        Logger.LogCritical("[DIAGNOSTIC:toast-system] [{RequestId}] ========== DIAGNOSTICS COMPLETE ==========", requestId);
+        return result;
+    }
+    
+    // [DIAGNOSTIC-METHOD:layout-heights] Deep diagnostics for canvas layout height constraints ;CLEANUP_OK
+    public async Task<DiagnosticResult> DiagnoseLayoutHeights()
+    {
+        var requestId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        var result = new DiagnosticResult { RequestId = requestId, DiagnosticType = "LayoutHeights" };
+        
+        Logger.LogCritical("[DIAGNOSTIC:layout-heights] [{RequestId}] ========== LAYOUT HEIGHT DIAGNOSTICS ==========", requestId);
+        
+        try
+        {
+            var diagnostics = await JSRuntime.InvokeAsync<string>("eval", @"
+                (function() {
+                    const results = [];
+                    
+                    // === GRID CONTAINER ===
+                    results.push('=== CANVAS-MAIN-GRID ===');
+                    const grid = document.querySelector('.canvas-main-grid');
+                    if (grid) {
+                        const gridStyle = window.getComputedStyle(grid);
+                        const gridRect = grid.getBoundingClientRect();
+                        results.push('Rendered height: ' + Math.round(gridRect.height) + 'px');
+                        results.push('Scroll height: ' + grid.scrollHeight + 'px');
+                        results.push('Computed height: ' + gridStyle.height);
+                        results.push('Min-height: ' + gridStyle.minHeight);
+                        results.push('Max-height: ' + gridStyle.maxHeight);
+                        results.push('Overflow: ' + gridStyle.overflow);
+                        results.push('Overflow-Y: ' + gridStyle.overflowY);
+                        results.push('Display: ' + gridStyle.display);
+                        results.push('Grid template rows: ' + gridStyle.gridTemplateRows);
+                        
+                        if (grid.scrollHeight > gridRect.height) {
+                            results.push('⚠️ OVERFLOW DETECTED: scrollHeight > rendered height');
+                        }
+                    } else {
+                        results.push('❌ NOT FOUND');
+                    }
+                    
+                    // === CANVAS AREA CONTAINER ===
+                    results.push('');
+                    results.push('=== CANVAS-AREA-CONTAINER ===');
+                    const area = document.querySelector('.canvas-area-container');
+                    if (area) {
+                        const areaStyle = window.getComputedStyle(area);
+                        const areaRect = area.getBoundingClientRect();
+                        results.push('Rendered height: ' + Math.round(areaRect.height) + 'px');
+                        results.push('Scroll height: ' + area.scrollHeight + 'px');
+                        results.push('Computed height: ' + areaStyle.height);
+                        results.push('Min-height: ' + areaStyle.minHeight);
+                        results.push('Max-height: ' + areaStyle.maxHeight);
+                        results.push('Overflow: ' + areaStyle.overflow);
+                        results.push('Overflow-Y: ' + areaStyle.overflowY);
+                        results.push('Display: ' + areaStyle.display);
+                        results.push('Flex-direction: ' + areaStyle.flexDirection);
+                        
+                        if (area.scrollHeight > areaRect.height) {
+                            results.push('⚠️ OVERFLOW DETECTED: scrollHeight (' + area.scrollHeight + 'px) > rendered height (' + Math.round(areaRect.height) + 'px)');
+                            if (areaStyle.overflow === 'visible' || areaStyle.overflowY === 'visible') {
+                                results.push('❌ PROBLEM: overflow is visible - content will expand container!');
+                            } else {
+                                results.push('✓ OK: overflow is ' + areaStyle.overflowY + ' - scrollbar should appear');
+                            }
+                        }
+                        
+                        // Check max-height constraint
+                        const maxHeight = parseInt(areaStyle.maxHeight);
+                        if (maxHeight && areaRect.height > maxHeight) {
+                            results.push('❌ CONSTRAINT VIOLATION: rendered height (' + Math.round(areaRect.height) + 'px) > max-height (' + maxHeight + 'px)');
+                        } else if (maxHeight) {
+                            results.push('✓ Within max-height constraint (' + maxHeight + 'px)');
+                        }
+                    } else {
+                        results.push('❌ NOT FOUND');
+                    }
+                    
+                    // === CANVAS CONTENT AREA ===
+                    results.push('');
+                    results.push('=== CANVAS-CONTENT-AREA ===');
+                    const content = document.querySelector('.canvas-content-area');
+                    if (content) {
+                        const contentStyle = window.getComputedStyle(content);
+                        const contentRect = content.getBoundingClientRect();
+                        results.push('Rendered height: ' + Math.round(contentRect.height) + 'px');
+                        results.push('Scroll height: ' + content.scrollHeight + 'px');
+                        results.push('Computed height: ' + contentStyle.height);
+                        results.push('Min-height: ' + contentStyle.minHeight);
+                        results.push('Max-height: ' + contentStyle.maxHeight);
+                        results.push('Overflow-Y: ' + contentStyle.overflowY);
+                        results.push('Flex: ' + contentStyle.flex);
+                        
+                        if (content.scrollHeight > contentRect.height && contentStyle.overflowY === 'visible') {
+                            results.push('❌ PROBLEM: Content overflowing with overflow-y: visible');
+                        }
+                    } else {
+                        results.push('❌ NOT FOUND');
+                    }
+                    
+                    // === CANVAS SIDEBAR ===
+                    results.push('');
+                    results.push('=== CANVAS-SIDEBAR ===');
+                    const sidebar = document.querySelector('.canvas-sidebar');
+                    if (sidebar) {
+                        const sidebarStyle = window.getComputedStyle(sidebar);
+                        const sidebarRect = sidebar.getBoundingClientRect();
+                        results.push('Rendered height: ' + Math.round(sidebarRect.height) + 'px');
+                        results.push('Scroll height: ' + sidebar.scrollHeight + 'px');
+                        results.push('Computed height: ' + sidebarStyle.height);
+                        results.push('Min-height: ' + sidebarStyle.minHeight);
+                        results.push('Max-height: ' + sidebarStyle.maxHeight);
+                        results.push('Overflow: ' + sidebarStyle.overflow);
+                        results.push('Overflow-Y: ' + sidebarStyle.overflowY);
+                        
+                        if (sidebar.scrollHeight > sidebarRect.height) {
+                            results.push('⚠️ OVERFLOW DETECTED: scrollHeight (' + sidebar.scrollHeight + 'px) > rendered height (' + Math.round(sidebarRect.height) + 'px)');
+                            if (sidebarStyle.overflow === 'visible' || sidebarStyle.overflowY === 'visible') {
+                                results.push('❌ PROBLEM: overflow is visible - content will expand container!');
+                            }
+                        }
+                        
+                        const maxHeight = parseInt(sidebarStyle.maxHeight);
+                        if (maxHeight && sidebarRect.height > maxHeight) {
+                            results.push('❌ CONSTRAINT VIOLATION: rendered height (' + Math.round(sidebarRect.height) + 'px) > max-height (' + maxHeight + 'px)');
+                        } else if (maxHeight) {
+                            results.push('✓ Within max-height constraint (' + maxHeight + 'px)');
+                        }
+                    } else {
+                        results.push('❌ NOT FOUND');
+                    }
+                    
+                    // === QUESTIONS CONTAINER ===
+                    results.push('');
+                    results.push('=== CANVAS-QUESTIONS-CONTAINER ===');
+                    const questions = document.querySelector('.canvas-questions-container');
+                    if (questions) {
+                        const questionsStyle = window.getComputedStyle(questions);
+                        const questionsRect = questions.getBoundingClientRect();
+                        results.push('Rendered height: ' + Math.round(questionsRect.height) + 'px');
+                        results.push('Scroll height: ' + questions.scrollHeight + 'px');
+                        results.push('Overflow-Y: ' + questionsStyle.overflowY);
+                        results.push('Flex: ' + questionsStyle.flex);
+                        results.push('Question cards count: ' + questions.querySelectorAll('.canvas-question-card').length);
+                        
+                        if (questions.scrollHeight > questionsRect.height && questionsStyle.overflowY !== 'auto' && questionsStyle.overflowY !== 'scroll') {
+                            results.push('❌ PROBLEM: Questions overflowing without scroll enabled');
+                        }
+                    } else {
+                        results.push('❌ NOT FOUND');
+                    }
+                    
+                    // === HEIGHT COMPARISON ===
+                    results.push('');
+                    results.push('=== HEIGHT COMPARISON ===');
+                    if (area && sidebar) {
+                        const areaH = area.getBoundingClientRect().height;
+                        const sidebarH = sidebar.getBoundingClientRect().height;
+                        const diff = Math.abs(areaH - sidebarH);
+                        
+                        results.push('Canvas area: ' + Math.round(areaH) + 'px');
+                        results.push('Sidebar: ' + Math.round(sidebarH) + 'px');
+                        results.push('Difference: ' + Math.round(diff) + 'px');
+                        
+                        if (diff > 50) {
+                            results.push('❌ PROBLEM: Significant height difference (> 50px) in grid layout');
+                        } else {
+                            results.push('✓ Heights are aligned (diff <= 50px)');
+                        }
+                    }
+                    
+                    return results.join('\n');
+                })()
+            ");
+            
+            Logger.LogCritical("[DIAGNOSTIC:layout-heights] [{RequestId}] RESULTS:\n{Diagnostics}", requestId, diagnostics);
+            result.Success = true;
+            result.Details = diagnostics;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("[DIAGNOSTIC:layout-heights] [{RequestId}] FAILED: {Error}", requestId, ex.Message);
+            result.Success = false;
+            result.ErrorMessage = ex.Message;
+        }
+        
+        Logger.LogCritical("[DIAGNOSTIC:layout-heights] [{RequestId}] ========== DIAGNOSTICS COMPLETE ==========", requestId);
+        return result;
+    }
+    
+    // [DIAGNOSTIC-METHOD:combined] Run all diagnostics ;CLEANUP_OK
+    public async Task<List<DiagnosticResult>> RunAllDiagnostics()
+    {
+        var results = new List<DiagnosticResult>();
+        
+        Logger.LogCritical("[DIAGNOSTIC:combined] ========== RUNNING ALL DIAGNOSTICS ==========");
+        
+        results.Add(await DiagnoseToastSystem());
+        results.Add(await DiagnoseLayoutHeights());
+        
+        Logger.LogCritical("[DIAGNOSTIC:combined] ========== ALL DIAGNOSTICS COMPLETE ==========");
+        
+        return results;
+    }
+    
+    // Helper class for diagnostic results
+    public class DiagnosticResult
+    {
+        public string RequestId { get; set; } = "";
+        public string DiagnosticType { get; set; } = "";
+        public bool Success { get; set; }
+        public string Details { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
+    }
+}

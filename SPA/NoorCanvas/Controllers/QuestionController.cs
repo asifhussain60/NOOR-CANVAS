@@ -834,11 +834,19 @@ namespace NoorCanvas.Controllers
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Step 6/7: Broadcasting to session participants ;CLEANUP_OK", requestId);
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SignalR Group: {SessionGroup} ;CLEANUP_OK", requestId, sessionGroup);
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Event: QuestionDeleted ;CLEANUP_OK", requestId);
+                _logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - OriginalAskerGuid: {AskerGuid} (for toast targeting) ;CLEANUP_OK", 
+                    requestId, request.UserGuid);
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Payload: {{QuestionId:{QuestionId}, SessionId:{SessionId}}} ;CLEANUP_OK", 
                     requestId, questionId, session.SessionId);
                 
                 await _sessionHub.Clients.Group(sessionGroup)
-                    .SendAsync("QuestionDeleted", new { QuestionId = questionId, SessionId = session.SessionId });
+                    .SendAsync("QuestionDeleted", new 
+                    { 
+                        QuestionId = questionId, 
+                        SessionId = session.SessionId, 
+                        OriginalAskerGuid = request.UserGuid,  // [FIX-ISSUE-3] Include for toast notification targeting
+                        DeletedBy = "host"  // [FIX-ISSUE-3] Indicate deletion was by host (vs self-delete)
+                    });
                 
                 _logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ QuestionDeleted broadcast SENT to {Group} ;CLEANUP_OK", requestId, sessionGroup);
 

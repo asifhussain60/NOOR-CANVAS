@@ -2,7 +2,7 @@
 mode: agent
 purpose: Generate Playwright end-to-end tests for user-facing functionality
 inputs: feature, scenario, endpoints, tokens
-outputs: TypeScript test file in Tests/UI/ or Workspaces/TEMP/
+outputs: TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)
 ---
 
 # Test Generation Agent
@@ -12,29 +12,66 @@ You are the **Test Generation Agent** responsible for creating Playwright end-to
 
 ## Mandatory Prerequisites
 
+⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
+
 ### 1. Server Management Protocol
-**CRITICAL**: Before test execution, verify .NET application state:
 
-```typescript
-// Option A: PW_MODE=standalone (PREFERRED)
-// - Playwright manages .NET app lifecycle automatically
-// - Set via: $env:PW_MODE="standalone" (PowerShell)
-// - webServer config handles startup/shutdown
-// - Use this for CI/CD and automated test runs
+**Before running any Playwright or Percy automated tests, the NoorCanvas application MUST be launched via an orchestration script. Direct execution of `npx playwright test` is PROHIBITED.**
 
-// Option B: Manual Server Check (for development)
-// - Check if server is already running on port 9091
-// - If running: connect to existing instance
-// - If not running: fail fast with clear error message
+**Required Orchestration Script Pattern** (Create in `Scripts/` directory):
+
+```powershell
+# Scripts/run-{feature}-e2e-test.ps1
+
+# Step 1: Kill existing processes
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Step 2: Launch app in SEPARATE elevated PowerShell window
+$startupScript = @"
+cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+`$env:ASPNETCORE_ENVIRONMENT = 'Development'
+dotnet run
+"@
+$startupScript | Out-File "$env:TEMP\noorcanvas-startup.ps1" -Encoding UTF8
+Start-Process powershell -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File","$env:TEMP\noorcanvas-startup.ps1" -Verb RunAs
+
+# Step 3: Health check with retry (10 attempts, 3-second delays)
+$healthCheckRetries = 10
+for ($i = 1; $i -le $healthCheckRetries; $i++) {
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5
+        Write-Host "✓ App Ready" -ForegroundColor Green
+        break
+    }
+    catch {
+        Write-Host "  Waiting for app ($i/$healthCheckRetries)..." -ForegroundColor Gray
+        Start-Sleep -Seconds 3
+    }
+}
+
+# Step 4: Execute Playwright tests
+npx playwright test Tests/UI/{test-file}.spec.ts --reporter=list --headed
+
+# Step 5: Cleanup (terminate app process)
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
 ```
 
-**Test Execution Strategy**:
-1. **Check running processes**: `Get-Process | Where-Object {$_.ProcessName -eq "NoorCanvas"}`
-2. **If server running**: Proceed with tests (faster feedback loop)
-3. **If server NOT running**: 
-   - **CI/CD Mode**: Use `PW_MODE=standalone` to auto-start
-   - **Dev Mode**: Instruct user to start server manually OR use standalone mode
-4. **Never**: Start multiple conflicting server instances
+**Reference Implementation**: `Scripts/run-debug-panel-e2e-visual-test.ps1`
+
+**Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
+
+**WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
+- ✅ Separate PowerShell window ensures environment isolation
+- ✅ `ASPNETCORE_ENVIRONMENT=Development` properly enables DevMode
+- ✅ Health check retry logic prevents race conditions
+- ✅ Automated cleanup prevents port conflicts
+- ❌ Direct `npx playwright test` ALWAYS FAILS (missing environment vars)
+
+**PROHIBITED EXECUTION METHODS**:
+- ❌ `npx playwright test` from VS Code terminal
+- ❌ `Start-Job` for app startup (wrong isolation)
+- ❌ Manual app startup without orchestration
+
 
 ### 2. Canonical References (MANDATORY)
 - **`InfrastructureQuickRef.md`**: Database connections, API endpoints, SignalR hubs, Session 212 tokens
@@ -64,19 +101,49 @@ Receive from task.prompt.md:
    - SignalR: Wait for specific broadcast events or UI state changes
 6. **Artifact capture**: `PW_MODE=standalone` enables auto-screenshots/traces on failure
 
+### Test Type Selection (See PlaywrightQuickRef.md Decision Matrix)
+
+**When to generate Functional E2E Tests (Playwright):**
+- User workflows (login, navigation, form submission)
+- API contract validation (endpoints, response format)
+- SignalR real-time updates (question broadcasts, voting)
+- Multi-user synchronization (host/participant interactions)
+- Accessibility features (ARIA, keyboard navigation)
+- Component behavior (without visual changes)
+
+**When to generate Visual Regression Tests (Percy + Playwright):**
+- CSS/styling changes (colors, layouts, spacing)
+- Component visual consistency (orange cards, buttons)
+- Responsive design (mobile/tablet/desktop viewports)
+- Theme changes (dark mode, Blazor themes)
+- Layout refactoring (grid systems, flexbox)
+- Animation/transition verification
+
+**When to recommend CSS Quality Checks (Stylelint):**
+- New CSS files or Blazor Razor component styles
+- Theme development (color schemes, design tokens)
+- CSS refactoring (consolidating styles, removing duplicates)
+- Component library development
+- Pre-commit validation (class naming, property conflicts)
+
 ### File Naming Convention
 ```
-{feature}-{scenario}.spec.ts
+{feature}-{test-type}.spec.ts
 ```
+Examples:
+- `debug-panel-islamic-questions-functional.spec.ts` (Playwright E2E)
+- `canvas-questions-orange-card-visual.spec.ts` (Percy visual)
+- `question-enter-key-submit-functional.spec.ts` (Playwright E2E)
+- `session-canvas-responsive-visual.spec.ts` (Percy multi-viewport)
 Examples:
 - `debug-panel-islamic-questions-broadcast.spec.ts`
 - `question-enter-key-submit.spec.ts`
 - `question-multi-user-sync.spec.ts`
 
 ### Test Location
-- **Production tests**: `Tests/UI/`
-- **Temporary/experimental tests**: `Workspaces/TEMP/`
-- **Feature-specific tests**: Match location to feature scope
+- **ALL new tests**: `Workspaces/TEMP/` (MANDATORY)
+- **Production promotion**: Tests move to `Tests/UI/` ONLY during task completion workflow
+- **Rationale**: Keeps Tests/UI/ clean, allows experimentation, clear quality gate
 
 ## Template Structure
 
@@ -164,23 +231,21 @@ test.beforeAll(async () => {
 });
 ```
 
+
 ### Example 3: PowerShell Server Check (in test instructions)
 ```markdown
 ## Prerequisites
-Before running tests, ensure server is running:
+Before running tests, you MUST start the server in a separate, elevated (Administrator) PowerShell window:
 
 ```powershell
-# Option 1: Check if running
-Get-Process | Where-Object {$_.ProcessName -eq "NoorCanvas"}
-
-# Option 2: Start server manually
-cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+# Open PowerShell as Administrator (right-click → "Run as administrator")
+cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
 dotnet run
+```
 
-# Option 3: Use standalone mode (auto-start)
+# Optionally, for CI/CD or automation, use standalone mode:
 $env:PW_MODE="standalone"
 npx playwright test
-```
 ```
 
 ## Multi-Browser Test Pattern
@@ -262,6 +327,124 @@ const criticalErrors = consoleErrors.filter(err =>
 expect(criticalErrors).toHaveLength(0);
 ```
 
+---
+
+## Percy Visual Regression Test Template
+
+**Use this template when generating visual regression tests (see Test Type Selection above).**
+
+```typescript
+import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
+
+/**
+ * Visual Regression Test: {Feature Name}
+ * 
+ * Purpose: Verify visual consistency across viewports
+ * Baseline: Percy dashboard stores approved snapshots
+ * 
+ * Prerequisites:
+ * - Percy token configured: PERCY_TOKEN env variable
+ * - Session 212 exists in database
+ * - Run with: npm run test:percy:visual -- path/to/test.spec.ts
+ * 
+ * Configuration:
+ * - Viewports: 375px (mobile), 768px (tablet), 1280px (desktop)
+ * - See .percy.yml for full config
+ * 
+ * References:
+ * - PlaywrightQuickRef.md: Decision matrix for when to use Percy
+ * - VISUAL_REGRESSION_TESTING.md: Percy setup and workflows
+ */
+
+test.describe('Visual Regression: {Feature Name}', () => {
+  test('should render {component} correctly across viewports', async ({ page }) => {
+    // Step 1: Navigate to component
+    await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+    
+    // Step 2: Wait for component to fully load
+    await page.waitForSelector('[data-testid="component-root"]', { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+    
+    // Step 3: Take baseline snapshot (tests all configured viewports)
+    await percySnapshot(page, '{Component Name} - Initial State', {
+      widths: [375, 768, 1280],  // Mobile, tablet, desktop
+      minHeight: 1024,
+      percyCSS: `
+        /* Hide dynamic elements that change between test runs */
+        .timestamp { display: none; }
+        .user-avatar { display: none; }
+      `
+    });
+    
+    // Step 4: Interact with component (if testing state changes)
+    await page.click('[data-testid="toggle-button"]');
+    await page.waitForTimeout(500);  // Wait for CSS transitions
+    
+    // Step 5: Take snapshot of changed state
+    await percySnapshot(page, '{Component Name} - Active State');
+    
+    // Step 6: Test different states/variants (optional)
+    await page.click('[data-testid="secondary-action"]');
+    await percySnapshot(page, '{Component Name} - Secondary State');
+  });
+
+  test('should render {component} in different themes', async ({ page }) => {
+    // Test visual consistency across theme variations
+    await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+    await page.waitForSelector('.canvas-question-card-orange');
+    
+    // Orange theme
+    await percySnapshot(page, '{Component} - Orange Theme');
+    
+    // Green theme (if applicable)
+    await page.click('[data-testid="vote-up"]');
+    await page.waitForSelector('.canvas-question-card-green');
+    await percySnapshot(page, '{Component} - Green Theme');
+  });
+});
+```
+
+### Percy Test Execution Commands
+
+```bash
+# Run single visual test (headed mode)
+npm run test:percy:headed -- Tests/UI/feature-visual.spec.ts
+
+# Run all visual tests (headless)
+npm run test:percy
+
+# Run visual test without Percy (for debugging)
+npx playwright test Tests/UI/feature-visual.spec.ts --headed
+```
+
+### Percy Snapshot Best Practices
+
+1. **Naming Convention**: Use descriptive names that clearly indicate component and state
+   - Good: `"Question Card - Orange Theme - Voted State"`
+   - Bad: `"Test 1"` or `"Snapshot"`
+
+2. **Viewport Strategy**:
+   - Always test mobile (375px), tablet (768px), desktop (1280px)
+   - Use `.percy.yml` defaults unless specific viewport needed
+
+3. **Dynamic Content Handling**:
+   - Use `percyCSS` to hide timestamps, user avatars, random IDs
+   - Wait for animations/transitions with `page.waitForTimeout()`
+   - Ensure data is stable (use Session 212 canonical data)
+
+4. **Test Organization**:
+   - One test file per component or feature
+   - Group related snapshots in same test case
+   - Separate theme/variant tests into distinct test cases
+
+5. **Baseline Management**:
+   - Approve snapshots in Percy dashboard after review
+   - Re-baseline when intentional design changes occur
+   - Investigate ALL visual diffs before approving
+
+---
+
 ## Output Format
 
 Generate complete TypeScript test file with:
@@ -283,7 +466,7 @@ Generate complete TypeScript test file with:
 - ✅ Monitors console for critical errors
 - ✅ Validates API responses against expected data
 - ✅ Includes cleanup in finally blocks
-- ✅ File saved to appropriate location (Tests/UI/ or Workspaces/TEMP/)
+- ✅ File saved to Workspaces/TEMP/ (production promotion happens in task completion)
 
 ## Workflow Integration
 

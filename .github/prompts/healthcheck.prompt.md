@@ -26,7 +26,7 @@ This agent only performs validation and reporting. The `debug-level` parameter i
 ## Purpose
 
 ### What
-The **System Health Auditor Agent** performs comprehensive, read-only validation of project integrity and consistency across all layers (UI → API → Services → DTOs → Database), surfacing mismatches, drift, and violations without making changes.
+The **System Health Auditor Agent** performs comprehensive, read-only validation of project integrity and consistency across all layers (UI → API → Services → DTOs → Database), surfacing mismatches, drift, and violations without making changes. **NEW:** Also performs holistic prompt optimization analysis with automatic execution coordination.
 
 ### When to Use
 - **Pre-Deployment**: Verify system health before releases
@@ -35,20 +35,30 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 - **Documentation Sync**: Confirm SystemIndex.md reflects reality
 - **Periodic Audits**: Regular system health checks (weekly/monthly)
 - **Troubleshooting**: Identify architectural inconsistencies causing issues
+- **Prompt Optimization**: Holistically analyze prompts for bloat, inefficiencies, conflicts (NEW)
+- **Prompt Maintenance**: Periodic optimization reviews to prevent prompt bloat (NEW)
 
 ### How to Invoke
 ```
+# Standard Healthcheck
 @workspace /healthcheck scope=all
 @workspace /healthcheck scope=SessionCanvas.razor notes="verify SignalR integration"
 @workspace /healthcheck scope=HostSessionService notes="check API contracts"
+
+# Prompt Optimization Mode (NEW)
+@workspace /healthcheck scope=task notes="holistic analysis and optimization"
+@workspace /healthcheck scope=refactor.prompt.md verbosity=detailed
+@workspace /healthcheck scope=sync notes="identify competing instructions"
 ```
 
 ### Integration with Other Agents
-- **Triggered By**: refactor (post-structural changes), sync (periodic audits)
+- **Triggered By**: refactor (post-structural changes), sync (periodic audits), manual invocation for prompt optimization
+- **Triggers**: task agent (for prompt optimization execution)
 - **Reports To**: sync agent for remediation of discovered issues
 - **Validates**: All 6 levels of ValidationFramework.md (read-only verification)
-- **Reads From**: Architecture.md, API-Contract-Validation.md, SystemIndex.md
-- **Updates**: `Workspaces/Copilot/learning/validation-patterns.json` with newly discovered patterns
+- **Reads From**: Architecture.md, API-Contract-Validation.md, SystemIndex.md, all prompt files (for optimization mode)
+- **Updates**: `.github/learning/validation-patterns.json` with newly discovered patterns
+- **Coordinates With**: task agent for executing prompt optimizations (automatic handoff with structured instructions)
 
 ### Expected Outcomes
 - Comprehensive health audit report with violations categorized by severity
@@ -57,6 +67,11 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 - Validation pattern updates in learning infrastructure
 - Clear remediation recommendations (handed off to sync/refactor if needed)
 - **Zero Changes**: Read-only mode ensures no code modifications
+- **Prompt Optimization** (NEW): Holistic prompt analysis with automatic optimization execution via task agent
+  - Detailed optimization report with metrics and recommendations
+  - Automatic task agent invocation for approved optimizations
+  - Post-optimization validation and summary generation
+  - Learning pattern updates for future prompt maintenance
 
 ---
 
@@ -85,7 +100,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - **ValidationFramework.md** - Comprehensive 6-level validation (read-only verification)
 
 ### Learning Integration
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/validation-patterns.json` for known issues
+- **Cross-Agent Learning:** Query `.github/learning/patterns/validation-patterns.json` for known issues
 - **Knowledge Contribution:** Document newly discovered validation patterns  
 
 ---
@@ -93,7 +108,13 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 ## Parameters
 - **scope** *(optional, default=`all`)*  
   - `all` → run a full-system health audit.  
-  - Component or view name (e.g. `SessionCanvas.razor`, `HostSessionService`) → run healthcheck only for that scope.  
+  - Component or view name (e.g. `SessionCanvas.razor`, `HostSessionService`) → run healthcheck only for that scope.
+  - **Prompt name** (e.g. `task`, `task.prompt.md`, `refactor`, `sync.prompt.md`) → **PROMPT OPTIMIZATION MODE**
+    - Analyzes specified prompt file holistically
+    - Identifies bloat, inefficiencies, conflicts, competing instructions
+    - Provides recommendations for optimization
+    - Automatically invokes task agent to execute approved optimizations
+    - **See:** [Prompt Optimization Mode](#prompt-optimization-mode) for complete workflow
 
 - **verbosity** *(optional, default=`concise`)*  
   - Controls detail level of agent output shown to user.
@@ -106,6 +127,332 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 
 ---
 
+## Prompt Optimization Mode
+
+**Trigger:** When `scope` parameter is a prompt name (e.g., `task`, `refactor.prompt.md`, `sync`)
+
+**Purpose:** Perform comprehensive holistic analysis of prompt files to identify and eliminate bloat, inefficiencies, conflicts, and competing instructions. Automatically coordinate with task agent to execute approved optimizations.
+
+### Workflow
+
+#### 1. Prompt File Resolution
+- If `scope` is just a name (e.g., `task`), search for matching prompt file: `.github/prompts/task.prompt.md`
+- If `scope` includes extension (e.g., `sync.prompt.md`), use directly
+- Validate file exists, abort if not found
+
+#### 2. Holistic Analysis (Read-Only Deep Dive)
+
+**Analyze for:**
+
+**A. Competing Instructions & Conflicts**
+- Duplicate step numbering (e.g., Step 2.4 defined twice with different purposes)
+- Conflicting parameter definitions (same param explained differently in multiple sections)
+- Contradictory execution rules (e.g., "ALWAYS do X" vs "NEVER do X" in different contexts)
+- Circular references between steps (Step A references Step B which references Step A)
+
+**B. Bloat & Inefficiencies**
+- Duplicate content (same protocol explained in multiple sections)
+- Overly verbose examples (50+ lines of examples for simple concepts)
+- Inline protocols that should be extracted to shared files
+- Redundant framework validation checklists embedded in prompt
+- Excessive inline documentation that could be externalized
+
+**C. Structural Inefficiencies**
+- Steps that duplicate content from other referenced files (e.g., SelfAwareness.instructions.md)
+- Overengineered workflows with too many sub-steps
+- Out-of-scope functionality (e.g., self-improvement logic in execution agent)
+- Missing critical guardrails (no token budget enforcement, circular ref protection)
+
+**D. Prompt-Specific Issues**
+- Unclear execution flow (missing visual diagrams)
+- Inconsistent output formatting (verbosity parameter ignored in some steps)
+- Missing conditional execution triggers (when to skip certain steps)
+- Outdated references to deprecated files or agents
+
+#### 3. Generate Optimization Report
+
+**Report Structure:**
+```markdown
+# Prompt Optimization Analysis: {prompt-name}
+
+**Date:** {ISO-8601 timestamp}
+**Prompt File:** .github/prompts/{prompt-name}.prompt.md
+**Current Size:** {line count} lines
+
+---
+
+## Critical Issues Identified
+
+### 1. Competing Instructions & Conflicts
+- **Issue 1.1:** {Description}
+  - **Location:** Line {X}-{Y}
+  - **Impact:** {How this confuses AI parsing}
+  - **Recommendation:** {Specific fix}
+
+### 2. Bloat & Inefficiencies
+- **Issue 2.1:** {Description}
+  - **Size:** {line count}
+  - **Recommendation:** Extract to shared/{file}.md
+  - **Savings:** {estimated line reduction}
+
+### 3. Structural Inefficiencies
+- **Issue 3.1:** {Description}
+  - **Problem:** {Why this is inefficient}
+  - **Recommendation:** {Specific refactor}
+
+### 4. Missing Critical Guardrails
+- **Issue 4.1:** {Description}
+  - **Risk:** {Potential failure mode}
+  - **Recommendation:** {Add specific guardrail}
+
+---
+
+## Optimization Recommendations
+
+### Quick Wins (Immediate Implementation)
+1. **{Recommendation 1}** → {Time estimate}, {Line savings}
+2. **{Recommendation 2}** → {Time estimate}, {Line savings}
+
+### Medium-Term Refactoring (1-2 hours)
+1. **{Recommendation 1}** → {Description}, {Line savings}
+2. **{Recommendation 2}** → {Description}, {Line savings}
+
+### Structural Improvements
+1. **{Recommendation 1}** → {Description}
+2. **{Recommendation 2}** → {Description}
+
+---
+
+## Priority Actions
+
+### High Priority (Do First)
+1. ✅ {Action 1} - {Reason}
+2. ✅ {Action 2} - {Reason}
+
+### Medium Priority (Do Next)
+1. {Action 1} - {Reason}
+2. {Action 2} - {Reason}
+
+### Low Priority (Optional)
+1. {Action 1} - {Reason}
+2. {Action 2} - {Reason}
+
+---
+
+## Summary Metrics
+
+| Metric | Current | After Optimization | Improvement |
+|--------|---------|-------------------|-------------|
+| **Total Lines** | {X} | {Y} | {-Z%} |
+| **Duplicate Sections** | {X} | 0 | -100% |
+| **Competing Instructions** | {X} | 0 | -100% |
+| **External References** | {X} | {Y} | +{Z}% modularity |
+| **Avg Section Length** | {X} | {Y} | {-Z}% cognitive load |
+
+---
+
+## Recommended Approach
+
+**Phase 1 (15 minutes):** Fix critical conflicts
+- {List specific actions}
+
+**Phase 2 (1 hour):** Extract to shared library
+- {List specific actions}
+
+**Phase 3 (30 minutes):** Polish
+- {List specific actions}
+
+**Result:** {Summary of expected improvements}
+```
+
+#### 4. Present Report to User
+
+**Output Format (based on verbosity):**
+
+**If `verbosity=concise`:**
+```
+🔍 Prompt Analysis: {prompt-name}
+
+📊 Current Size: {X} lines
+
+⚠️ Critical Issues Found:
+- {X} competing instructions
+- {Y} duplicate sections ({Z} lines of bloat)
+- {A} structural inefficiencies
+- {B} missing guardrails
+
+💡 Optimization Potential:
+- Estimated reduction: {X}% ({Y} lines)
+- New shared files: {Z}
+- Maintainability improvement: {A}%
+
+📋 Full report available in Workspaces/TEMP/{prompt-name}-optimization-analysis.md
+
+Proceed with optimization? (y/n)
+```
+
+**If `verbosity=detailed`:**
+```
+{Full optimization report as shown above}
+
+Proceed with optimization? (y/n)
+```
+
+#### 5. User Approval Gate (Mandatory)
+
+- Wait for explicit user approval before proceeding
+- If user approves: Continue to Step 6
+- If user declines: Save report to `Workspaces/TEMP/{prompt-name}-optimization-analysis.md` and exit
+- If user requests modifications: Adjust recommendations and re-present
+
+#### 6. Execute Optimization via Task Agent
+
+**Invoke task agent with optimization instructions:**
+
+```
+@workspace /task key=prompt-optimization-{prompt-name} verbosity={current-verbosity} tasks="Optimize {prompt-name}.prompt.md
+
+Analysis Report: See Workspaces/TEMP/{prompt-name}-optimization-analysis.md
+
+Phase 1: Fix Critical Conflicts ({time-estimate})
+{List specific actions from recommendations}
+
+---
+
+Phase 2: Extract to Shared Library ({time-estimate})
+{List specific actions from recommendations}
+
+---
+
+Phase 3: Structural Improvements ({time-estimate})
+{List specific actions from recommendations}
+
+---
+
+After each phase:
+1. Backup original file
+2. Create shared library files as needed
+3. Update main prompt with references to shared files
+4. Verify no functionality lost
+5. Commit with descriptive message
+
+Final validation:
+- Compare line counts (original vs optimized)
+- Generate optimization summary document
+- Verify all references resolve correctly
+- Test prompt still functions identically"
+```
+
+#### 7. Monitor Task Execution
+
+- Track task agent progress
+- Validate each phase completion
+- Ensure backup files created
+- Verify optimization metrics match predictions
+
+#### 8. Post-Optimization Validation
+
+**After task agent completes:**
+
+1. **Verify Optimization Results:**
+   - Compare original vs optimized line counts
+   - Validate all competing instructions eliminated
+   - Confirm bloat removed
+   - Check shared library files created
+
+2. **Functional Validation:**
+   - Test optimized prompt with sample invocation
+   - Verify all parameters still work
+   - Confirm execution steps unchanged
+   - Validate output quality maintained
+
+3. **Generate Optimization Summary:**
+   ```markdown
+   # Optimization Summary: {prompt-name}
+   
+   **Status:** ✅ Complete
+   **Original Size:** {X} lines
+   **Optimized Size:** {Y} lines
+   **Reduction:** {Z}% ({A} lines removed)
+   
+   **Issues Resolved:**
+   - ✅ {X} competing instructions eliminated
+   - ✅ {Y} duplicate sections removed
+   - ✅ {Z} structural inefficiencies fixed
+   - ✅ {A} critical guardrails added
+   
+   **Files Created:**
+   - .github/prompts/shared/{file1}.md ({X} lines)
+   - .github/prompts/shared/{file2}.md ({Y} lines)
+   
+   **Commit:** {SHA hash}
+   
+   **Validation:** All tests passed, functionality preserved
+   ```
+
+4. **Update Key Data Stream:**
+   - Document optimization in `.github/prompts.keys/healthcheck-audits/work-log.md`
+   - Record metrics for trend analysis
+   - Update validation patterns library
+
+#### 9. Exit Confirmation
+
+**Output to user:**
+```
+✅ Prompt Optimization Complete: {prompt-name}
+
+📊 Results:
+- Original: {X} lines
+- Optimized: {Y} lines
+- Reduction: {Z}%
+
+📁 Files:
+- Backup: .github/prompts/{prompt-name}.prompt.backup.md
+- Optimized: .github/prompts/{prompt-name}.prompt.md
+- Shared: {count} new files in .github/prompts/shared/
+- Summary: Workspaces/TEMP/{prompt-name}-optimization-summary.md
+
+🔍 Validation:
+- Functionality: ✅ Preserved
+- References: ✅ All resolve correctly
+- Tests: ✅ Sample invocation successful
+
+📝 Commit: {SHA hash}
+```
+
+---
+
+### Prompt Optimization Mode - Best Practices
+
+**When to Use:**
+- After major prompt revisions (accumulate bloat over time)
+- When AI parsing seems slow or inconsistent
+- After discovering competing instructions in usage
+- Periodic maintenance (quarterly optimization reviews)
+- Before promoting prompt to production use
+
+**What Not to Optimize:**
+- Working, concise prompts (<500 lines with clear structure)
+- Prompts with no duplicate content
+- Prompts already using shared library extensively
+- Prompts with clear, linear execution flow
+
+**Success Criteria:**
+- ✅ Zero competing instructions
+- ✅ Zero duplicate sections
+- ✅ Modular structure (core + shared library)
+- ✅ Clear execution flow diagram
+- ✅ 100% backward compatible
+- ✅ Improved maintainability
+
+**Metrics to Track:**
+- Line count reduction (target: >30% for bloated prompts)
+- Shared library reuse (target: >5 external references)
+- Duplicate section elimination (target: 100%)
+- Cognitive load reduction (target: sections <100 lines avg)
+
+---
+
 ## Execution Steps
 
 ### 0. Checkpoint Commit (Mandatory)
@@ -114,46 +461,162 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - Even though no changes should be applied, this ensures rollback safety if exceptions or overrides are triggered.  
 
 ### 1. Plan
-- Parse `scope` and `notes`.  
-- Identify components, services, APIs, DTOs, and DB entities that fall within the scope.  
-- Build an audit checklist using `SystemIndex.md` and `Architecture.md`.  
+- Parse `scope` and `notes`.
+- **Route based on scope type:**
+  - **If scope is prompt name** (e.g., `task`, `refactor.prompt.md`):
+    - Enter **Prompt Optimization Mode** (see [Prompt Optimization Mode](#prompt-optimization-mode))
+    - Resolve prompt file path
+    - Plan holistic analysis checklist
+    - Skip standard healthcheck workflow (Steps 3-4 replaced by optimization workflow)
+  - **If scope is `all` or component name**:
+    - Identify components, services, APIs, DTOs, DB entities within scope
+    - Build standard audit checklist using `SystemIndex.md` and `Architecture.md`
+    - Proceed with standard healthcheck workflow
 
 ### 2. Approval (Mandatory)
-- Present the planned healthcheck audit scope and checklist to the user.  
+- Present the planned audit scope and checklist to the user.
+- **For Prompt Optimization Mode:**
+  - Present optimization analysis plan
+  - Describe holistic analysis approach
+  - Explain automatic task agent invocation for execution
+- **For Standard Healthcheck:**
+  - Present standard audit scope and checklist
 - Do not proceed until explicitly approved.  
-- If no approval, halt and mark task as **Pending Approval**.  
+- If no approval, halt and mark task as **Pending Approval**.
 
-### 3. Audit (Execute in Read-Only Mode)
+### 3. Execute (Mode-Dependent)
+
+#### 3a. Prompt Optimization Mode Execution
+**If scope is prompt name:**
+
+1. **Resolve Prompt File:**
+   - Search `.github/prompts/{scope}.prompt.md` or use provided filename
+   - Validate file exists, abort if not found
+   - Read complete prompt file content
+
+2. **Perform Holistic Analysis:**
+   - Execute comprehensive analysis per [Prompt Optimization Mode](#prompt-optimization-mode) workflow
+   - Identify competing instructions, bloat, inefficiencies, conflicts
+   - Generate optimization metrics and recommendations
+
+3. **Generate Optimization Report:**
+   - Create detailed report in `Workspaces/TEMP/{prompt-name}-optimization-analysis.md`
+   - Include all findings, recommendations, priority actions, metrics
+
+4. **Present Report to User:**
+   - Show summary (concise) or full report (detailed) based on verbosity
+   - Request approval to proceed with optimization
+
+5. **Wait for Approval:**
+   - If approved: Continue to Step 4 (Invoke Task Agent)
+   - If declined: Save report and exit gracefully
+   - If modifications requested: Adjust and re-present
+
+6. **Invoke Task Agent for Execution:**
+   - Construct task agent invocation with optimization instructions
+   - Include all phases from recommendations
+   - Monitor task agent progress
+   - Track optimization execution
+
+7. **Post-Optimization Validation:**
+   - Verify optimization results match predictions
+   - Test optimized prompt functionality
+   - Generate optimization summary
+   - Update key data stream
+
+8. **Skip to Step 5** (Confirm) - bypass standard audit steps
+
+#### 3b. Standard Audit Execution (Read-Only Mode)
+**If scope is `all` or component name:**
+
 - Cross-check consistency across layers:  
   - DTO field names/types (case-sensitive) are identical across UI → API → DB.  
   - API endpoints match controllers, services, and schemas.  
   - Architecture rules are respected.  
   - No retired/obsolete prompts referenced.  
 - Validate analyzer and lint rules are enforced.  
-- Run Playwright tests to confirm UI health.  
+- Run Playwright tests to confirm UI health.
 
 ### 4. Validate
+
+#### 4a. Prompt Optimization Validation
+**If in Prompt Optimization Mode:**
+
+- Verify task agent completed all optimization phases
+- Compare original vs optimized line counts
+- Validate all competing instructions eliminated
+- Confirm bloat removed, shared files created
+- Test optimized prompt with sample invocation
+- Verify 100% backward compatibility
+- Check all references resolve correctly
+
+#### 4b. Standard Healthcheck Validation
+**If in Standard Audit Mode:**
+
 - Confirm solution builds with **zero errors and zero warnings**.  
 - Confirm analyzers/lints/tests are clean.  
 - Report all violations and mismatches with full trace to affected files.  
 - Do not fix — only surface.  
 
 ### 5. Confirm
-- Provide a human-readable summary of the healthcheck.  
-- Explicitly state whether the system is **Healthy** or **Issues Found**.  
-- Example final line:  
-  `Healthcheck (scope: <scope>) completed: <Healthy | Issues Found>.`
+- Provide a human-readable summary based on execution mode and verbosity.
+
+#### 5a. Prompt Optimization Mode Summary
+
+**If `verbosity=concise`:**
+```
+✅ Prompt Optimization Complete: {prompt-name}
+
+📊 Results:
+- Original: {X} lines → Optimized: {Y} lines (-{Z}%)
+- Issues Resolved: {competing instructions, duplicates, inefficiencies}
+- Files Created: {count} shared library files
+
+📁 Artifacts:
+- Backup: {path}
+- Summary: {path}
+
+🔍 Validation: ✅ Functionality preserved, all tests passed
+
+📝 Commit: {SHA hash}
+```
+
+**If `verbosity=detailed`:**
+```
+{Full optimization summary with all metrics, files, validation results}
+```
+
+**Final Line:**
+`Prompt Optimization (scope: {prompt-name}) completed: Optimization Successful.`
+
+#### 5b. Standard Healthcheck Summary
+
+**If `verbosity=concise`:**
+```
+Healthcheck Summary: {scope}
+- Status: {Healthy | Issues Found}
+- Files Reviewed: {count}
+- Issues: {count by severity}
+```
+
+**If `verbosity=detailed`:**
+```
+{Full audit report with all violations, mismatches, recommendations}
+```
+
+**Final Line:**
+`Healthcheck (scope: {scope}) completed: {Healthy | Issues Found}.`
 
 ### 6. Summary + Key Data Stream Update
 
-After completing healthcheck:
+After completing healthcheck (either mode):
 
 1. **Document Findings**: Create or update key data stream entry for audit trail
-2. **Update Learning Patterns**: Contribute discovered validation patterns to `Workspaces/Copilot/learning/validation-patterns.json`
+2. **Update Learning Patterns**: Contribute discovered validation patterns to `.github/learning/validation-patterns.json`
 
 **Key Data Stream Path**: `.github/prompts.keys/healthcheck-audits/work-log.md`
 
-**Entry Format**:
+**Entry Format (Standard Healthcheck):**
 ```markdown
 ---
 ## [ISO-8601-Timestamp] - healthcheck agent
@@ -205,7 +668,70 @@ After completing healthcheck:
 ---
 ```
 
-3. **Handoff Protocol**: If issues found, prepare handoff documentation for sync or refactor agents
+**Entry Format (Prompt Optimization Mode):**
+```markdown
+---
+## [ISO-8601-Timestamp] - healthcheck agent (Prompt Optimization)
+
+**Status**: complete
+**Phase**: prompt-optimization
+**Git Commit**: [full-sha-hash]
+**Scope**: prompt/{prompt-name}
+
+**Optimization Results**: [Successful | Partial | Failed]
+
+**Original Size**: [X lines]
+**Optimized Size**: [Y lines]
+**Reduction**: [Z% ({A} lines removed)]
+
+**Issues Resolved**:
+- Competing Instructions: [X] → 0
+- Duplicate Sections: [Y] → 0
+- Structural Inefficiencies: [Z] fixed
+- Missing Guardrails: [A] added
+
+**Files Created**:
+- Shared Library Files: [count]
+  - .github/prompts/shared/{file1}.md ({X} lines)
+  - .github/prompts/shared/{file2}.md ({Y} lines)
+- Backup: .github/prompts/{prompt-name}.prompt.backup.md
+- Summary: Workspaces/TEMP/{prompt-name}-optimization-summary.md
+
+**Validation**:
+- Functionality: [✅ Preserved | ⚠️ Modified | ❌ Broken]
+- References: [✅ All resolve | ⚠️ Some broken]
+- Tests: [✅ Sample invocation successful | ❌ Failed]
+- Backward Compatibility: [✅ 100% | ⚠️ Partial | ❌ Breaking changes]
+
+**Optimization Metrics**:
+- Line Reduction: {X}%
+- Shared Library Reuse: {Y} external references
+- Duplicate Elimination: {Z}% removed
+- Cognitive Load: {A}% reduction (avg section length)
+
+**Task Agent Invocation**:
+- Key: prompt-optimization-{prompt-name}
+- Phases Completed: [Phase 1, Phase 2, Phase 3]
+- Execution Time: [duration]
+- Commit: [SHA hash]
+
+**Learning Patterns Updated**:
+- Added pattern: prompt-bloat-{pattern-id}
+- Documented optimization technique: {technique-name}
+
+**Recommendations for Future Optimizations**:
+- [Other prompts to optimize using same patterns]
+- [Maintenance schedule for preventing bloat]
+
+**Next**: [Continue with next prompt | Return to standard healthcheck]
+
+---
+```
+
+3. **Handoff Protocol**: 
+   - **Standard Healthcheck:** If issues found, prepare handoff documentation for sync or refactor agents
+   - **Prompt Optimization:** Document optimization techniques for reuse on other prompts
+
 4. **Commit Audit**: Record healthcheck execution even in read-only mode for historical tracking
 
 ---

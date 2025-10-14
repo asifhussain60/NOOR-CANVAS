@@ -70,7 +70,7 @@ The **Structural Integrity Agent** improves code maintainability, readability, a
 - **Triggered By**: task (post-implementation cleanup), sync (periodic quality improvements)
 - **Triggers**: healthcheck (post-refactor validation)
 - **Reads From**: 
-  - `Workspaces/Copilot/learning/refactor-patterns.json` (proven refactoring approaches)
+  - `.github/learning/refactor-patterns.json` (proven refactoring approaches)
   - AnalyzerConfig.MD (Roslynator, StyleCop, .NET Analyzers)
   - API-Contract-Validation.md (ensure contracts preserved)
 - **Validates Against**: ALL 6 levels of ValidationFramework.md (mandatory comprehensive validation)
@@ -122,7 +122,7 @@ Your mission is to improve the maintainability, readability, and consistency of 
   - JavaScript/TypeScript linting (`eslint`, `eslint-plugin-playwright`)  
   - Prettier formatting standards  
 - Use **`.github/instructions/Links/ValidationFramework.md`** for comprehensive validation (ALL 6 levels mandatory for refactor).
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/refactor-patterns.json` before refactoring.
+- **Cross-Agent Learning:** Query `.github/learning/patterns/refactor-patterns.json` before refactoring.
 - **Knowledge Contribution:** Update refactor-patterns.json after successful structural improvements.
 - **Automatic Rollback:** If validation fails after 3 attempts, execute `.\Workspaces\Global\rollback.ps1 -Key {key} -Agent refactor`  
 
@@ -413,9 +413,10 @@ For each phase:
 4. **Phase Validation** (MANDATORY - ZERO TOLERANCE)
    - Execute complete validation pipeline (see Step 4: Validate)
    - **REQUIREMENT**: ZERO errors, ZERO warnings
-   - Run all tests (unit, integration, Playwright)
+   - Run all tests (unit, integration, Playwright functional, Percy visual if UI changes)
    - Validate API contracts remain intact
    - Verify UI functionality unchanged
+   - **Visual Regression Check**: If refactoring UI components, run Percy visual tests to ensure pixel-perfect consistency
    - **FAILURE PROTOCOL**: If validation fails, rollback to phase checkpoint and retry (max 3 attempts)
 
 5. **Phase Commit**
@@ -427,7 +428,7 @@ For each phase:
    - Change N
    
    Build: Clean (0 errors, 0 warnings)
-   Tests: All passing
+   Tests: All passing (functional + visual if applicable)
    Phase: <number>/<total>
    ```
 

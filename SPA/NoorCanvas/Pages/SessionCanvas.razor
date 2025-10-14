@@ -10,6 +10,7 @@
 @using System.Text.Json
 @using NoorCanvas.Services
 @using NoorCanvas.Components.Shared
+@using NoorCanvas.Components.Diagnostics
 
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
@@ -29,6 +30,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/session-transcript.css">
+    
+    <!-- [DIAGNOSTIC:notyf:libs] Notyf - Modern Toast Notifications (Replaced toastr.js 2025-10-14) ;CLEANUP_OK -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" 
+          onerror="this.onerror=null; this.href='~/lib/notyf/notyf.min.css';" />
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js" 
+            onerror="console.error('[DIAGNOSTIC:notyf:libs] CDN failed, loading local fallback ;CLEANUP_OK'); this.onerror=null; this.src='~/lib/notyf/notyf.min.js';"></script>
+    
+    <!-- NOOR Canvas Notyf Wrapper - Unified toast API with diagnostics -->
+    <script src="~/js/noor-notyf-wrapper.js" asp-append-version="true"></script>
+    
+    <!-- jQuery - Still needed for other components -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="~/js/html-renderer.js"></script>
 </HeadContent>
 
@@ -46,6 +59,9 @@
         0%, 100% { opacity: 1; }
         50% { opacity: .8; }
     }
+
+    /* [DEBUG-WORKITEM:canvas:toastr-styling:trace] Toast styling moved to ~/css/noor-toastr.css for reuse across all views ;CLEANUP_OK */
+
     .canvas-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
     @@media (max-width: 1024px) {
         .canvas-main-grid { grid-template-columns: 1fr; }
@@ -247,7 +263,6 @@
     .canvas-welcome-panel {
         background-color: #ffffff;
         border-radius: 1.5rem;
-        padding: 1.5rem 2rem;
         margin: 1rem auto;
         max-width: 50rem;
         text-align: center;
@@ -267,6 +282,7 @@
     }
 
     /* Main Grid Layout */
+    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
     .canvas-main-grid {
         display: grid;
         grid-template-columns: 1fr 300px;
@@ -276,6 +292,7 @@
     }
 
     /* Canvas Area Styles */
+    /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height to allow canvas to expand for tall assets ;CLEANUP_OK */
     .canvas-area-container {
         background-color: white;
         border-radius: 1rem;
@@ -284,8 +301,8 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        height: 100%;
         min-height: 400px;
+        /* [DIAGNOSTIC:canvas:height:TRACE] Removed max-height: 700px - was preventing expansion to fit assets ;CLEANUP_OK */
     }
 
 .canvas-content-area {
@@ -294,17 +311,18 @@
     border-radius: 1rem;
     transition: all 0.2s;
     margin: 10px;
-    overflow: hidden;
+    overflow: visible; /* [DIAGNOSTIC:canvas:height:TRACE] Allow natural expansion to fit asset ;CLEANUP_OK */
     display: flex;
     flex-direction: column;
     border: #006400 dotted 3px;
     background-color: #eeffee;
     min-height: 400px;
+    /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
 }
     .canvas-asset-content {
         width: 100%;
         flex: 1;
-        overflow-y: auto;
+        overflow-y: visible; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Changed from auto to visible - parent will handle overflow ;CLEANUP_OK */
         overflow-x: hidden;
         background-color: white;
         padding: 20px;
@@ -312,6 +330,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Content expands naturally, parent shrinks/grows with asset height ;CLEANUP_OK */
     }
 
     .canvas-empty-message {
@@ -362,6 +381,7 @@
     }
 
     /* Sidebar Styles */
+    /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
     .canvas-sidebar {
         background-color: white;
         border-radius: 0.75rem;
@@ -370,8 +390,12 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        min-height: 400px;
+        /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height: 700px - allows sidebar to match canvas height ;CLEANUP_OK */
         overflow: hidden;
+        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
+        max-width: 100%;
+        width: 100%;
     }
 
     .canvas-tabs {
@@ -443,6 +467,9 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Width constraint prevents question cards from expanding sidebar horizontally ;CLEANUP_OK */
+        max-width: 100%;
+        width: 100%;
     }
 
     .canvas-participants-container {
@@ -582,6 +609,7 @@
     }
 
     /* Question Items - Refactored from ContextCopilot.txt */
+    /* [DEBUG-WORKITEM:canvas-questions-orangecard:css-trace] Base question card styling with overflow:visible for badge positioning ;CLEANUP_OK */
     .canvas-question-item {
         border-radius: 0.75rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15);
@@ -594,10 +622,12 @@
         border-width: 2px;
         border-left-width: 6px;
         border-style: solid;
-        overflow-x: hidden;
+        overflow: visible; /* [DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] Changed from overflow-x:hidden - allows badge translate(50%, -50%) to render outside card bounds ;CLEANUP_OK */
         word-wrap: break-word;
         margin-bottom: 1rem;
-        position: relative;
+        position: relative; /* [DEBUG-WORKITEM:canvas-questions-orangecard:positioning-trace] Required for absolute positioned badge child element ;CLEANUP_OK */
+        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Box-sizing ensures padding included in width calculation, preventing overflow ;CLEANUP_OK */
+        box-sizing: border-box;
     }
 
     /* Green Theme - Own Question */
@@ -607,15 +637,16 @@
     }
 
     /* Sienna Theme - Other Users' Question */
+    /* [DEBUG-WORKITEM:canvas-questions-orangecard:theme-trace] Sienna color scheme from ContextCopilot.txt - border:#A0522D, background:#FAEBD7 ;CLEANUP_OK */
     .question-item-style-sienna {
         border-color: #A0522D; /* Sienna */
         background-color: #FAEBD7; /* Antique White */
         border-width: 2px;
-        border-left-width: 6px;
+        border-left-width: 6px; /* [DEBUG-WORKITEM:canvas-questions-orangecard:border-trace] Thick left border matches design requirement ;CLEANUP_OK */
     }
 
     .canvas-question-text {
-        word-wrap: break-word;
+        word-wrap: break-word; /* Ensure long words wrap */
         font-family: 'Inter', sans-serif;
         font-size: 1rem;
         line-height: 1.375;
@@ -635,6 +666,12 @@
     }
 
     .vote-button-style-sienna {
+        color: #8B4513; /* Darker brown for the icon */
+        cursor: default;
+        opacity: 0.5;
+    }
+
+    .vote-button-style-sienna-owner {
         color: #8B4513; /* Darker brown for the icon */
         cursor: default;
         opacity: 0.5;
@@ -757,7 +794,6 @@
         text-align: center;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    }
 
     /* Participant Items */
     .canvas-participant-item {
@@ -825,9 +861,26 @@
 
     /* Responsive Layout - Mobile */
     @@media (max-width: 768px) {
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Single column layout with canvas panel full-width, sidebar below ;CLEANUP_OK */
         .canvas-main-grid {
             grid-template-columns: 1fr;
             height: auto;
+            gap: 1rem;
+        }
+
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Canvas area takes full width on mobile ;CLEANUP_OK */
+        .canvas-area-container {
+            width: 100%;
+            max-width: 100%;
+            min-height: 300px;
+        }
+
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Sidebar appears below canvas, full width ;CLEANUP_OK */
+        .canvas-sidebar {
+            order: 2;
+            width: 100%;
+            max-width: 100%;
+            min-height: 400px;
         }
 
         .canvas-header-content {
@@ -848,14 +901,24 @@
             right: 0.5rem;
         }
 
-        .canvas-sidebar {
-            order: 2;
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Question cards scale to container width on mobile ;CLEANUP_OK */
+        .canvas-question-item {
+            max-width: 100%;
+        }
+
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Container takes full mobile width ;CLEANUP_OK */
+        .session-canvas-container {
+            width: 100%;
+            padding: 1rem;
         }
     }
 </style>
 
 <!-- Root container matching SessionWaiting.razor structure -->
 <div class="session-canvas-root">
+    
+    @* [DIAGNOSTIC-COMPONENT] Reusable diagnostic logger ;CLEANUP_OK *@
+    <DiagnosticLogger @ref="diagnosticLogger" />
     
     <!-- Main content container -->
     <div class="session-canvas-container">
@@ -928,27 +991,27 @@
                 </div>
             </div>
             
-            <!-- Welcome Message Panel -->
-            <div class="canvas-welcome-panel">
-                <div class="canvas-welcome-content">
-                    <span class="canvas-welcome-text">
-                        @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
-                        {
-                            @($"{Model.CurrentParticipantName}, Welcome To The Session")
-                        }
-                        else
-                        {
-                            @("Welcome To The Session")
-                        }
-                    </span>
-                </div>
-            </div>
-            
             <!-- Main Canvas Area -->
             <div class="canvas-main-grid">
                 
                 <!-- Canvas Content Area -->
                 <div class="canvas-area-container">
+                    
+                    <!-- Welcome Message Panel -->
+                    <div class="canvas-welcome-panel">
+                        <div class="canvas-welcome-content">
+                            <span class="canvas-welcome-text">
+                                @if (!string.IsNullOrEmpty(Model?.CurrentParticipantName))
+                                {
+                                    @($"{Model.CurrentParticipantName}, Welcome To The Session")
+                                }
+                                else
+                                {
+                                    @("Welcome To The Session")
+                                }
+                            </span>
+                        </div>
+                    </div>
                     
                     <!-- Canvas Content Area -->
                     <div class="canvas-content-area">
@@ -1063,32 +1126,39 @@
                                             Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
                                                 question.QuestionId);
                                             
-                                            <!-- SIENNA THEME: Other Users' Question Card (Vote Section on Top-Right) -->
-                                            <div class="canvas-question-item question-item-style-sienna">
+                                            <!-- SIENNA THEME: Other Users' Question Card (Compact Single-Row Layout from ContextCopilot.txt) -->
+                                            <div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
                                                 
-                                                <!-- Vote Section (absolute positioned on top-right) -->
-                                                <div class="canvas-question-vote-section" style="position:absolute;right:0.75rem;top:0.75rem;display:flex;flex-direction:row;align-items:center;gap:0.5rem;">
-                                                    <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
-                                                            @onclick:preventDefault="true"
-                                                            @onclick:stopPropagation="true"
-                                                            class="canvas-question-vote-button"
-                                                            data-question-id="@question.QuestionId"
-                                                            style="color:#8B4513;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");background-color:#FFFFFF;border:2px solid #A0522D;padding:0.5rem;border-radius:9999px;"
-                                                            disabled="@hasVoted"
-                                                            title="@(hasVoted ? "Already voted" : "Upvote this question")">
-                                                        <i class="fa-solid fa-thumbs-up"></i>
-                                                    </button>
-                                                    <span class="canvas-question-vote-count" data-question-id="@question.QuestionId" style="position:static;background-color:#DC2626;color:#FFFFFF;font-size:0.75rem;font-weight:bold;padding:0.125rem 0.375rem;border-radius:9999px;min-width:1.25rem;text-align:center;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);">@question.Votes</span>
+                                                <!-- Absolute Positioned Vote Badge (Red Circle) -->
+                                                <div style="position:absolute;top:0;right:0;transform:translate(50%, -50%);background-color:#DC2626;color:#FFFFFF;border-radius:9999px;height:1.25rem;width:1.25rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;box-shadow:0 2px 4px rgba(0, 0, 0, 0.2);z-index:10;">
+                                                    @question.Votes
                                                 </div>
                                                 
-                                                <!-- Question Text (full width, with top padding to clear vote section) -->
-                                                <div class="canvas-question-content" style="width:100%;">
-                                                    <div class="canvas-question-header">
-                                                        <span class="canvas-question-text question-text-color-sienna">
+                                                <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) -->
+                                                <div class="canvas-question-content" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;">
+                                                    
+                                                    <!-- LEFT SIDE: Question Text (Allows space for the right side) -->
+                                                    <div class="canvas-question-header" style="flex-grow:1;margin-right:1rem;">
+                                                        <span class="canvas-question-text question-text-color-sienna" style="font-size:1rem;line-height:1.375;font-weight:normal;">
                                                             @question.Text
                                                         </span>
                                                     </div>
+                                                    
+                                                    <!-- RIGHT SIDE: Compact Vote Button -->
+                                                    <div class="canvas-question-vote-section" style="display:flex;align-items:center;font-size:0.875rem;flex-shrink:0;">
+                                                        <button @onclick="async () => await VoteQuestion(question.QuestionId)" 
+                                                                @onclick:preventDefault="true"
+                                                                @onclick:stopPropagation="true"
+                                                                class="canvas-question-vote-button vote-button-style-sienna-owner"
+                                                                data-question-id="@question.QuestionId"
+                                                                style="padding:0.5rem;border-radius:9999px;display:flex;align-items:center;background-color:#FFFFFF;border:2px solid #A0522D;"
+                                                                disabled="@hasVoted"
+                                                                title="@(hasVoted ? "Already voted" : "Upvote this question")">
+                                                            <i class="fa-solid fa-thumbs-up" style="font-size:1.5rem;"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
+                                                
                                             </div>
                                         }
                                     }
@@ -1179,7 +1249,8 @@
     private HttpClient? Http;
     private string CurrentUserGuid { get; set; } = string.Empty;
 
-
+    // [DIAGNOSTIC-COMPONENT] Reusable diagnostic logger ;CLEANUP_OK
+    private DiagnosticLogger? diagnosticLogger;
 
     // UI State
     private string QuestionInput { get; set; } = string.Empty;
@@ -1197,6 +1268,9 @@
         Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] SessionCanvas OnInitialized - SessionToken: '{SessionToken}' (Length: {Length})", 
             requestId, SessionToken ?? "null", SessionToken?.Length ?? 0);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:UI] [{RequestId}] SessionCanvas component initializing with proper NOOR Canvas branding", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] [{RequestId}] CSS overflow property changed from 'overflow-x:hidden' to 'overflow:visible' to prevent badge cutoff ;CLEANUP_OK", requestId);
+        Logger.LogDebug("[DEBUG-WORKITEM:canvas-questions-orangecard:overflow-trace] [{RequestId}] Badge positioning: absolute, top:0, right:0, transform:translate(50%, -50%) requires parent overflow:visible ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions-orangecard:simple] [{RequestId}] Orange card rendering verified - Sienna theme with visible vote badge in top-right corner ;CLEANUP_OK", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Canvas and Q&A panel containers set to prevent overflow with overflow:hidden and min-height:0 ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both divs constrained to same height (600px) via CSS Grid with proper flex containment ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel configured with overflow-y:auto for vertical scrollbar on desktop/iPad ;CLEANUP_OK");
@@ -1206,6 +1280,10 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Grid changed to align-items:stretch to ensure both panels always match height ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both containers set to height:100% within grid for equal stretching ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel overflow:hidden with internal tab content scrolling via overflow-y:auto ;CLEANUP_OK");
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Welcome panel moved inside canvas-area-container div, positioned above canvas-content-area per screenshot annotation ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] Toastr library loaded via CDN in HeadContent - required for QuestionAnswered/QuestionDeleted toast notifications ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:sidebar:trace] [{RequestId}] Sidebar width constraints added (max-width:100%, width:100%) to prevent horizontal expansion from question cards ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:mobile:trace] [{RequestId}] Mobile responsive CSS enhanced - canvas full-width, sidebar below with vertical stacking ;CLEANUP_OK", requestId);
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
@@ -1247,6 +1325,39 @@
         
         // Then initialize SignalR connection with SessionId available
         await InitializeSignalRAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            try
+            {
+                // [DEBUG-WORKITEM:canvas-questions:toastr:trace] Verify toastr library loaded after first render ;CLEANUP_OK
+                var toastrAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+                var showNoorToastAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.showNoorToast === 'function'");
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] OnAfterRenderAsync - toastr available: {ToastrAvailable}, showNoorToast available: {ShowNoorToastAvailable} ;CLEANUP_OK", 
+                    requestId, toastrAvailable, showNoorToastAvailable);
+                
+                if (!toastrAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: toastr library NOT loaded - CDN may be blocked or script failed ;CLEANUP_OK", requestId);
+                }
+                
+                if (!showNoorToastAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: showNoorToast function NOT defined - _Host.cshtml script may not be executing ;CLEANUP_OK", requestId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] Failed to verify toastr availability ;CLEANUP_OK", requestId);
+            }
+        }
+        
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task InitializeSessionAsync(string requestId)
@@ -1458,6 +1569,16 @@
 
                     if (participantsResponse?.Participants != null)
                     {
+                        // [DEBUG-WORKITEM:use-landing:trace] Log participants received from API ;CLEANUP_OK
+                        Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] API returned {Count} participants ;CLEANUP_OK",
+                            requestId, participantsResponse.Participants.Count);
+                        for (int i = 0; i < participantsResponse.Participants.Count; i++)
+                        {
+                            var p = participantsResponse.Participants[i];
+                            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] API Participant {Index}: UserId={UserId}, DisplayName={DisplayName}, Country={Country} ;CLEANUP_OK",
+                                requestId, i + 1, p.UserId, p.DisplayName, p.Country);
+                        }
+                        
                         // Convert API participants to display participants
                         Model!.Participants = participantsResponse.Participants.Select(p => new ParticipantData
                         {
@@ -1466,6 +1587,16 @@
                             Country = p.Country ?? "Unknown",
                             Flag = p.CountryFlag?.ToLower() ?? ""
                         }).ToList();
+                        
+                        // [DEBUG-WORKITEM:use-landing:trace] Log participants after client-side transformation ;CLEANUP_OK
+                        Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] After client transformation: {Count} participants in Model.Participants ;CLEANUP_OK",
+                            requestId, Model.Participants.Count);
+                        for (int i = 0; i < Model.Participants.Count; i++)
+                        {
+                            var p = Model.Participants[i];
+                            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] Display Participant {Index}: UserId={UserId}, Name={Name}, Country={Country}, Flag={Flag} ;CLEANUP_OK",
+                                requestId, i + 1, p.UserId, p.Name, p.Country, p.Flag);
+                        }
                         
                         // API-BASED APPROACH: Get current participant directly from API using token
                         // This eliminates the hash-based selection that caused "same name on multiple browsers" issue
@@ -2623,6 +2754,91 @@
                 }
             });
 
+            // [FIX-ISSUE-2] Handle question being marked as answered by host
+            hubConnection.On<object>("QuestionAnswered", async (answerData) =>
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ QuestionAnswered SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                
+                try
+                {
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(answerData);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Payload JSON: {Json} ;CLEANUP_OK", requestId, jsonString);
+                    
+                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDoc.RootElement;
+                    
+                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    var originalAskerGuid = root.TryGetProperty("originalAskerGuid", out var askerProp) ? askerProp.GetString() : null;
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Parsed - QuestionId={QuestionId}, OriginalAsker={Asker}, CurrentUserGuid={CurrentUser} ;CLEANUP_OK", 
+                        requestId, questionId ?? "NULL", originalAskerGuid ?? "NULL", CurrentUserGuid);
+                    
+                    if (Model?.Questions != null && questionId != null)
+                    {
+                        var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+                        if (question != null)
+                        {
+                            // Remove from participant list
+                            Model.Questions.Remove(question);
+                            
+                            // Show toast if THIS user asked the question
+                            if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 🎉 THIS USER asked the question - showing success toast ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionAnswered) ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
+                                
+                                try
+                                {
+                                    await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                        "The host has addressed your question during the session.", 
+                                        "Question Answered", 
+                                        "success");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
+                                }
+                                catch (Exception toastEx)
+                                {
+                                    Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                                }
+                                
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                            }
+                            else
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionAnswered) ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
+                            }
+                            
+                            await InvokeAsync(StateHasChanged);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ Question {QuestionId} removed from participant view ;CLEANUP_OK", requestId, questionId);
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Question not found in local list ;CLEANUP_OK", requestId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 💥 Error processing QuestionAnswered: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] SessionCanvas QuestionAnswered handler COMPLETE ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+            });
+
             // Handle question deletion
             hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
             {
@@ -2649,10 +2865,14 @@
                         // SignalR serializes to camelCase, so use "questionId" not "QuestionId"
                         var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
                         var sessionId = root.TryGetProperty("sessionId", out var sIdProp) ? sIdProp.GetInt32() : 0;
+                        var originalAskerGuid = root.TryGetProperty("originalAskerGuid", out var askerProp) ? askerProp.GetString() : null;  // [FIX-ISSUE-3] Extract for toast targeting
+                        var deletedBy = root.TryGetProperty("deletedBy", out var deletedByProp) ? deletedByProp.GetString() : null;  // [FIX-ISSUE-3] Determine who deleted it
                         
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, sessionId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - OriginalAskerGuid: {AskerGuid} ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - DeletedBy: {DeletedBy} ;CLEANUP_OK", requestId, deletedBy ?? "NULL");
                         
                         if (questionId != null)
                         {
@@ -2666,6 +2886,43 @@
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question User: '{UserName}' ;CLEANUP_OK", requestId, question.UserName);
                                 
                                 Model.Questions.Remove(question);
+                                
+                                // [FIX-ISSUE-3] Show toast if THIS user asked the question that was deleted by host
+                                if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
+                                {
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] 🎯 THIS USER asked the question that was deleted - showing info toast ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionDeleted) ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
+                                    
+                                    try
+                                    {
+                                        await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                            "The host has removed your question. It may be addressed differently or outside this Q&A session.", 
+                                            "Question Removed", 
+                                            "info");
+                                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
+                                    }
+                                    catch (Exception toastEx)
+                                    {
+                                        Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                                    }
+                                    
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                }
+                                else
+                                {
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionDeleted) ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
+                                }
+                                
                                 await InvokeAsync(StateHasChanged);
                                 
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);
@@ -2733,7 +2990,83 @@
             });
 
             // Note: Using AssetContentReceived for KSESSIONS pattern consistency
-            // AssetShared handler removed to prevent conflicts
+            // AssetShared handler added for question broadcasting from HostControlPanel
+
+            // [DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] Handle question assets shared from HostControlPanel ;CLEANUP_OK
+            hubConnection.On<object>("AssetShared", async (assetPayload) =>
+            {
+                var trackingId = Guid.NewGuid().ToString("N")[..8];
+                var receiveTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION START ════════ ;CLEANUP_OK", trackingId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] AssetShared event received at {ReceiveTime}ms ;CLEANUP_OK", 
+                        trackingId, receiveTime);
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(assetPayload);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Payload JSON length: {Length} chars ;CLEANUP_OK", 
+                        trackingId, json?.Length ?? 0);
+                    
+                    if (string.IsNullOrEmpty(json))
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ JSON serialization resulted in null/empty ;CLEANUP_OK", trackingId);
+                        return;
+                    }
+                    
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    // Extract asset data from the broadcast payload
+                    if (root.TryGetProperty("asset", out var assetElement))
+                    {
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Asset element found in payload ;CLEANUP_OK", trackingId);
+                        
+                        if (assetElement.TryGetProperty("htmlContent", out var htmlElement))
+                        {
+                            var htmlContent = htmlElement.GetString();
+                            var assetType = assetElement.TryGetProperty("assetType", out var typeElement) 
+                                ? typeElement.GetString() 
+                                : "unknown";
+                            var shareId = assetElement.TryGetProperty("shareId", out var idElement) 
+                                ? idElement.GetString() 
+                                : "unknown";
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Extracted asset - Type: {AssetType}, ShareId: {ShareId}, HTML length: {Length} chars ;CLEANUP_OK", 
+                                trackingId, assetType, shareId, htmlContent?.Length ?? 0);
+                            
+                            if (!string.IsNullOrEmpty(htmlContent) && Model != null)
+                            {
+                                // Display the question asset in the canvas content area
+                                Model.SharedAssetContent = htmlContent;
+                                await InvokeAsync(StateHasChanged);
+                                
+                                var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ✅ Question asset displayed at {DisplayTime}ms (latency: {Latency}ms) ;CLEANUP_OK", 
+                                    trackingId, displayTime, displayTime - receiveTime);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION COMPLETE ════════ ;CLEANUP_OK", trackingId);
+                            }
+                            else
+                            {
+                                Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ Cannot display - htmlContent empty or Model null ;CLEANUP_OK", trackingId);
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No htmlContent property in asset element ;CLEANUP_OK", trackingId);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No asset property in broadcast payload ;CLEANUP_OK", trackingId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ❌ Error processing AssetShared event: {Message} ;CLEANUP_OK", 
+                        trackingId, ex.Message);
+                }
+            });
 
             // POC: Simple asset content reception - KSESSIONS-style approach
             hubConnection.On<string>("AssetContentReceived", async (htmlContent) =>
@@ -3145,6 +3478,27 @@
         
         // Submit through existing logic
         await SubmitQuestion();
+    }
+    
+    // Helper class for dimension logging with computed styles
+    private class ContainerInfo
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double ScrollHeight { get; set; }
+        public string ComputedHeight { get; set; } = "";
+        public string ComputedMinHeight { get; set; } = "";
+        public string ComputedMaxHeight { get; set; } = "";
+        public bool Found { get; set; }
+    }
+    
+    // Helper class for dimension logging
+    private class DimensionResult
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double ScrollHeight { get; set; }
+        public bool Found { get; set; }
     }
 
     // Enter Key Handler

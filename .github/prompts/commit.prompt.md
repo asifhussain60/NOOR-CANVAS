@@ -41,12 +41,15 @@ You are the **Commit Orchestrator Agent**.
 ### What
 The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow that ensures system cohesion, synchronization, learning extraction, and code quality before creating commits and pushing to origin. It orchestrates four critical agents in sequence: cohesion-review → sync → analyze-learning → refactor.
 
+**IMPORTANT**: Validation steps (cohesion review, sync, learning analysis, refactor) execute on **ALL CODE** in the workspace, regardless of whether there are uncommitted changes. Only the git commit/push steps are conditional on having uncommitted changes.
+
 ### When to Use
 - **Before Major Commits**: Validate system state before committing significant changes
 - **End of Work Session**: Ensure all changes are cohesive, documented, and committed
 - **Pre-Deployment**: Final validation before deploying to production
 - **After Feature Completion**: When marking a key as complete (task.prompt.md Step 9)
 - **Scheduled Runs**: Daily/weekly maintenance to keep system clean and optimized
+- **System Validation**: Anytime you want to validate the entire codebase (even with zero uncommitted changes)
 
 ### How to Invoke
 ```
@@ -69,7 +72,7 @@ The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow t
 - **Reads From**: 
   - Git status (uncommitted changes)
   - `Workspaces/Documentation/` (cohesion review reports)
-  - `Workspaces/Copilot/learning/` (learning patterns)
+  - `.github/learning/` (learning patterns)
 - **Writes To**: 
   - Git commits with standardized messages
   - Origin (remote repository)
@@ -107,7 +110,7 @@ Start-Sleep -Seconds 2
 ```powershell
 # DEBUG-WORKITEM:commit:check-skip Check if cohesion review can be skipped ;CLEANUP_OK
 if ($skipCohesion -eq $true) {
-    $lastReview = Get-ChildItem "Workspaces/Documentation/cohesion-review-*.md" | 
+    $lastReview = Get-ChildItem ".github/reports/cohesion-review-*.md" | 
                   Sort-Object LastWriteTime -Descending | 
                   Select-Object -First 1
     
@@ -129,7 +132,7 @@ if ($skipCohesion -eq $true) {
 - Prompts analyzed: X files
 - Instructions analyzed: Y files
 - Issues detected: Z (0 for clean system)
-- Report saved: `Workspaces/Documentation/cohesion-review-{timestamp}.md`
+- Report saved: `.github/reports/cohesion-review-{timestamp}.md`
 
 **Failure Handling**:
 - **If issues detected**: Abort commit workflow and report issues
@@ -144,15 +147,12 @@ if ($skipCohesion -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-sync Check if sync can be skipped ;CLEANUP_OK
 if ($skipSync -eq $true) {
-    $changedFiles = git diff --name-only HEAD
-    $hasDocChanges = $changedFiles -match '\.(md|MD)$|AnalyzerConfig|PlaywrightConfig|ValidationFramework'
-    
-    if (-not $hasDocChanges) {
-        Write-Host "✓ Skipping sync (no documentation/config changes)" -ForegroundColor Green
-        # Skip to Step 3
-    }
+    Write-Host "✓ Skipping sync (skip-sync=true parameter provided)" -ForegroundColor Green
+    # Skip to Step 3
 }
 ```
+
+**Note**: Sync now runs on ALL documentation and configuration files, not just uncommitted changes. Use `skip-sync=true` to explicitly skip this step.
 
 #### 2.2. Execute Sync
 **If skip condition not met:**
@@ -179,23 +179,12 @@ if ($skipSync -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-learning Check if learning analysis can be skipped ;CLEANUP_OK
 if ($skipLearning -eq $true) {
-    $lastAnalysis = Get-Content "Workspaces/Copilot/learning/analysis-history.json" | 
-                    ConvertFrom-Json | 
-                    Select-Object -First 1
-    
-    $completedKeys = Get-ChildItem ".github/prompts.keys/*/prompts.md" | 
-                     Where-Object { (Get-Content $_.FullName) -match 'Status.*complete' }
-    
-    $newCompletions = $completedKeys | Where-Object { 
-        $_.LastWriteTime -gt [DateTime]$lastAnalysis.timestamp 
-    }
-    
-    if ($newCompletions.Count -eq 0) {
-        Write-Host "✓ Skipping learning analysis (no new completions)" -ForegroundColor Green
-        # Skip to Step 4
-    }
+    Write-Host "✓ Skipping learning analysis (skip-learning=true parameter provided)" -ForegroundColor Green
+    # Skip to Step 3.5
 }
 ```
+
+**Note**: Learning analysis now runs on ALL keys in the workspace to extract patterns, regardless of recent completions. Use `skip-learning=true` to explicitly skip this step.
 
 #### 3.2. Execute Learning Analysis
 **If skip condition not met:**
@@ -208,7 +197,7 @@ if ($skipLearning -eq $true) {
 - Keys analyzed: X
 - Success patterns: Y extracted
 - Failure patterns: Z extracted
-- Learning library updated: `Workspaces/Copilot/learning/task-patterns.json`
+- Learning library updated: `.github/learning/task-patterns.json`
 
 **Failure Handling**:
 - **If analysis fails**: Log warning but continue (non-blocking)
@@ -222,24 +211,12 @@ if ($skipLearning -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-refactor Check if refactor can be skipped ;CLEANUP_OK
 if ($skipRefactor -eq $true) {
-    $changedFiles = git diff --name-only HEAD
-    $hasCodeChanges = $changedFiles -match '\.(cs|razor|js|ts|css|scss)$'
-    
-    if (-not $hasCodeChanges) {
-        Write-Host "✓ Skipping refactor (no code changes detected)" -ForegroundColor Green
-        # Skip to Step 4
-    } else {
-        # Check if recent refactor was clean
-        $lastRefactorCommit = git log --grep="refactor:" -1 --format="%H %s"
-        $commitsSinceRefactor = (git log --oneline "$lastRefactorCommit..HEAD").Count
-        
-        if ($commitsSinceRefactor -lt 3) {
-            Write-Host "✓ Skipping refactor (recent refactor within 3 commits)" -ForegroundColor Green
-            # Skip to Step 4
-        }
-    }
+    Write-Host "✓ Skipping refactor (skip-refactor=true parameter provided)" -ForegroundColor Green
+    # Skip to Step 4
 }
 ```
+
+**Note**: Refactor now runs on ALL code in the workspace to ensure quality standards, regardless of uncommitted changes. Use `skip-refactor=true` to explicitly skip this step.
 
 #### 3.5.2. Execute Refactor
 **If skip condition not met:**
@@ -536,10 +513,11 @@ $uncommittedCount = (git status --porcelain).Count
 Write-Host "`n📊 Uncommitted Changes: $uncommittedCount" -ForegroundColor Cyan
 
 if ($uncommittedCount -eq 0) {
-    Write-Host "✓ No uncommitted changes detected" -ForegroundColor Green
-    # Skip to Step 6 (no commit needed)
+    Write-Host "✓ No uncommitted changes detected - Skipping git operations" -ForegroundColor Green
+    # Skip to Step 9 (Summary Report)
+    # Note: Validation steps (1-4) already executed on entire codebase
 } else {
-    # Proceed to Step 5
+    # Proceed to Step 6
     Write-Host "⚠ Proceeding to commit $uncommittedCount changes" -ForegroundColor Yellow
 }
 ```
@@ -549,6 +527,15 @@ if ($uncommittedCount -eq 0) {
 📊 Uncommitted Changes: 12
 ⚠ Proceeding to commit 12 changes
 ```
+
+**OR**:
+
+```
+📊 Uncommitted Changes: 0
+✓ No uncommitted changes detected - Skipping git operations
+```
+
+**Note**: If no uncommitted changes exist, Steps 6-8 are automatically skipped, but validation steps (1-4) have already run on the entire codebase.
 
 ---
 
@@ -666,56 +653,149 @@ Write-Host "`n✅ Verification Complete: Zero uncommitted changes" -ForegroundCo
 
 📋 Execution Summary:
 - **Key**: {key-name or 'none'}
-- **Cohesion Review**: {executed | skipped}
-- **Sync**: {executed | skipped}
-- **Learning Analysis**: {executed | skipped}
-- **Refactor**: {executed | skipped}
+- **Cohesion Review**: {executed on all prompts/instructions | skipped}
+- **Sync**: {executed on all docs/configs | skipped}
+- **Learning Analysis**: {executed on all keys | skipped}
+- **Refactor**: {executed on all code | skipped}
 - **Key Cleanup**: {executed | skipped}
-- **Commit**: {created | skipped (no changes)}
+- **Debug Cleanup**: {executed | skipped}
+- **Commit**: {created | skipped (no uncommitted changes)}
 - **Push**: {successful | skipped | failed}
-- **Final Status**: {X} commits pushed, 0 uncommitted changes
+- **Final Status**: {X} commits pushed OR validation complete with 0 uncommitted changes
 
 🎯 System State:
-- Prompts: cohesive and validated
+- Prompts: {validated on entire system | skipped}
+- Documentation: {synchronized across entire system | skipped}
+- Learning: {patterns extracted from all keys | skipped}
+- Code Quality: {validated across entire codebase | skipped}
+- Keys: {optimized and compacted | skipped}
+- Git Status: {X uncommitted changes} or {clean}
+- Remote: {up to date | local only}
+
+💡 Validation Coverage:
+- Total Files Analyzed: {count}
+- Validation Scope: {Entire Codebase | Partial (some steps skipped)}
+```
+
+**Example Output (No Uncommitted Changes)**:
+```
+✅ Commit Workflow Complete
+
+📋 Execution Summary:
+- Key: none
+- Cohesion Review: executed on all prompts/instructions
+- Sync: executed on all docs/configs
+- Learning Analysis: executed on all keys
+- Refactor: executed on all code
+- Commit: skipped (no uncommitted changes)
+- Push: skipped (no changes to push)
+- Final Status: Validation complete, 0 uncommitted changes
+
+🎯 System State:
+- Prompts: validated and cohesive
 - Documentation: synchronized
 - Learning: patterns extracted
-- Code Quality: refactored and optimized
-- Keys: optimized and compact
+- Code Quality: validated (0 errors, 0 warnings)
+- Git Status: clean
 - Remote: up to date
+
+💡 Result: Full codebase validation completed successfully. No changes to commit.
 ```
 
 ---
 
 ## Guardrails
-- **ALWAYS verify zero uncommitted count** after push (Step 8 is mandatory)
-- **ALWAYS execute cohesion review** unless skip condition met (recent analysis <24h)
-- **ALWAYS commit before pushing** (Step 6 must complete before Step 7)
-- **NEVER skip Step 8** verification - this is the critical success check
+
+### Critical Rules (NEVER SKIP)
+1. **Step 0 (Server Cleanup)**: MANDATORY - Always execute to prevent file locks
+2. **Step 1 (Cohesion Review)**: MANDATORY unless skip-cohesion=true (runs on ALL prompts/instructions)
+3. **Step 2 (Sync)**: MANDATORY unless skip-sync=true (runs on ALL documentation/configs)
+4. **Step 3 (Analyze Learning)**: MANDATORY unless skip-learning=true (runs on ALL keys)
+5. **Step 3.5 (Refactor)**: MANDATORY unless skip-refactor=true (runs on ALL code)
+6. **Step 4.7 (Debug Cleanup)**: MANDATORY - Always remove debug markers before commit
+7. **Step 5-8 (Commit/Push/Verify)**: Execute ONLY if uncommitted changes exist
+
+### Execution Requirements
+- **VALIDATION STEPS ALWAYS RUN ON ALL CODE**: Steps 1-4 analyze the entire workspace, not just uncommitted changes
+- **DO NOT skip validation steps based on git status** - they validate the entire codebase
+- **ONLY skip git operations** (commit/push) if no uncommitted changes exist
+- **ALWAYS log skip reasons** - display "✓ Skipping [step] ([reason])" when skipping
+- **NEVER skip Step 8 verification** if a commit was created
 - **NEVER proceed if cohesion review finds issues** - abort and fix issues first
-- **ALWAYS log skip reasons** when any step is skipped
+- **ALWAYS commit before pushing** - Step 6 must complete before Step 7
 - If push fails, notify user but don't fail entire workflow (commits are local)
+
+### Skip Parameter Interpretation
+- **Default behavior**: ALL validation steps execute on entire codebase (Steps 1-4)
+- **skip-cohesion=true**: Skip cohesion review entirely (not recommended)
+- **skip-sync=true**: Skip sync entirely (not recommended)
+- **skip-learning=true**: Skip learning analysis entirely
+- **skip-refactor=true**: Skip refactor entirely
+- **No parameters provided**: Execute ALL steps on entire codebase, commit only if changes exist
 
 ---
 
 ## Clean Exit Guarantee
 At the end of every commit workflow:
-- Git status must show **zero uncommitted changes**
-- All commits must be pushed to origin (unless push=false)
-- Cohesion review must report zero issues
-- Learning patterns must be extracted and saved
-- Code must meet quality standards (zero errors, zero warnings if refactored)
-- User must receive clear summary of what was committed and pushed
+- **Validation Complete**: All validation steps executed on entire codebase (unless explicitly skipped)
+- **Git Status Clean**: Zero uncommitted changes if any changes were made during validation
+- **Commits Pushed**: All commits pushed to origin (unless push=false or no changes)
+- **Cohesion Verified**: Prompts and instructions validated for consistency (unless skipped)
+- **Code Quality Verified**: Code meets quality standards (unless skipped)
+- **Summary Provided**: Clear report of what was validated and committed
 
-If any of these conditions fail, the workflow must report failure and provide remediation steps.
+**Key Principle**: Validation runs on ALL code. Commit/push only happens if changes exist.
+
+If any validation step finds issues, the workflow must report failure and provide remediation steps.
+
+---
+
+## Workflow Validation Checklist
+
+Before beginning execution, the agent MUST acknowledge:
+
+```
+🔍 COMMIT WORKFLOW EXECUTION PLAN
+================================
+
+Step 0: Server Cleanup - MANDATORY ✓
+Step 1: Cohesion Review - checking skip condition...
+Step 2: Sync - checking skip condition...
+Step 3: Analyze Learning - checking skip condition...
+Step 3.5: Refactor - checking skip condition...
+Step 4: Key Cleanup - checking skip condition...
+Step 4.7: Debug Cleanup - MANDATORY ✓
+Step 5-8: Commit/Push/Verify - MANDATORY ✓
+
+Parameters Received:
+- key: {value or 'none'}
+- skip-cohesion: {value or 'false'}
+- skip-sync: {value or 'false'}
+- skip-learning: {value or 'false'}
+- skip-refactor: {value or 'false'}
+- push: {value or 'true'}
+
+Proceeding with execution...
+```
+
+### During Execution
+For each step, the agent MUST output:
+- **If executing**: `▶️ STEP X: [Step Name] - EXECUTING`
+- **If checking skip**: `🔍 STEP X: [Step Name] - CHECKING SKIP CONDITION`
+- **If skipping**: `⏭️ STEP X: [Step Name] - SKIPPED ([reason])`
+- **If completing**: `✅ STEP X: [Step Name] - COMPLETE`
+
+### After Execution
+The agent MUST provide the summary report (Step 9) showing which steps were executed vs skipped.
 
 ---
 
 ## Efficiency Optimizations
-- **Skip cohesion review** if recent clean analysis exists (<24 hours)
-- **Skip sync** if no documentation/configuration files changed
-- **Skip learning analysis** if no keys completed since last run
-- **Skip refactor** if no code changes or recent refactor within 3 commits
-- **Skip commit** if no uncommitted changes detected
-- **Skip push** if user specifies push=false
+- **Use skip parameters explicitly** to skip validation steps when you're confident they're not needed
+- **skip-cohesion=true** if you recently ran cohesion review manually
+- **skip-sync=true** if you recently ran sync manually
+- **skip-learning=true** if no new learning patterns need extraction
+- **skip-refactor=true** if code quality was recently validated
+- **Automatic git skip**: Commit/push automatically skipped if no uncommitted changes
 
-These optimizations can reduce execution time from ~5 minutes to <30 seconds for no-op scenarios.
+**Important**: By default, all validation steps run on the entire codebase. This ensures comprehensive validation but takes time. Use skip parameters to optimize for speed when appropriate.

@@ -24,6 +24,19 @@
 
 <HeadContent>
     <link href="~/css/host-control-panel.css" rel="stylesheet" />
+    
+    <!-- [DIAGNOSTIC:notyf:libs] Notyf - Modern Toast Notifications (Replaced toastr.js 2025-10-14) ;CLEANUP_OK -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" 
+          onerror="this.onerror=null; this.href='~/lib/notyf/notyf.min.css';" />
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js" 
+            onerror="console.error('[DIAGNOSTIC:notyf:libs] CDN failed, loading local fallback ;CLEANUP_OK'); this.onerror=null; this.src='~/lib/notyf/notyf.min.js';"></script>
+    
+    <!-- NOOR Canvas Notyf Wrapper - Unified toast API with diagnostics -->
+    <script src="~/js/noor-notyf-wrapper.js" asp-append-version="true"></script>
+    
+    <!-- jQuery - Still needed for other components -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
     <style>
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f1f1;
@@ -72,6 +85,7 @@
                                      OnEndSession="@EndSession"
                                      OnMarkQuestionAnswered="@MarkQuestionAnswered"
                                      OnShowDeleteModal="@ShowDeleteModal"
+                                     OnQuestionClick="@ShareQuestionAsset"
                                      OnRenderSafeHtml="@((html) => SafeHtmlRenderer.RenderSafeHtml(html))" />
         }
         else if (Model?.SessionStatus == "Waiting" && !isLoading)
@@ -137,6 +151,8 @@
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization started", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostToken parameter: '{HostToken}'", requestId, HostToken ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] Toastr library will be loaded via CDN in HeadContent for question notifications ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] Toast notifications configured for: QuestionReceived events ;CLEANUP_OK", requestId);
         
         // Initialize model
         Model ??= new HostControlPanelViewModel();
@@ -212,99 +228,11 @@
                 .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
                 .Build();
 
-            // Register event handlers for real-time updates
-            hubConnection.On<object>("HostQuestionAlert", async (questionData) =>
-            {
-                try
-                {
-                    // Validate question data
-                    if (questionData == null)
-                    {
-                        Logger.LogWarning("SignalR HostQuestionAlert: questionData is null");
-                        return;
-                    }
-
-                    // Parse the questionData object from SignalR
-                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                    
-                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
-                    var root = jsonDocument.RootElement;
-                    
-                    // Extract question text with fallback
-                    var questionText = "Question text unavailable";
-                    if (root.TryGetProperty("text", out var textProp) && textProp.ValueKind == JsonValueKind.String)
-                    {
-                        questionText = textProp.GetString() ?? "Question text unavailable";
-                    }
-                    else if (root.TryGetProperty("questionText", out var questionTextProp) && questionTextProp.ValueKind == JsonValueKind.String)
-                    {
-                        questionText = questionTextProp.GetString() ?? "Question text unavailable";
-                    }
-                    
-                    // Extract participant information from SignalR payload
-                    var userName = "Anonymous";
-                    if (root.TryGetProperty("userName", out var userNameProp) && userNameProp.ValueKind == JsonValueKind.String)
-                    {
-                        userName = userNameProp.GetString() ?? "Anonymous";
-                    }
-                    
-                    var userId = "";
-                    if (root.TryGetProperty("userId", out var userIdProp) && userIdProp.ValueKind == JsonValueKind.String)
-                    {
-                        userId = userIdProp.GetString() ?? "";
-                    }
-                    
-                    var submittedAt = DateTime.UtcNow;
-                    if (root.TryGetProperty("submittedAt", out var submittedAtProp) && submittedAtProp.ValueKind == JsonValueKind.String)
-                    {
-                        if (DateTime.TryParse(submittedAtProp.GetString(), out var parsedDate))
-                        {
-                            submittedAt = parsedDate;
-                        }
-                    }
-                    
-                    var newQuestion = new QuestionItem 
-                    { 
-                        Id = Guid.NewGuid(), // Generate new GUID for UI tracking
-                        Text = questionText,
-                        UserName = userName, // ← CRITICAL FIX: Now extracting participant name from SignalR
-                        CreatedBy = userId,  // ← CRITICAL FIX: Now extracting userId from SignalR
-                        CreatedAt = submittedAt,
-                        IsAnswered = false,
-                        VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0
-                    };
-                    
-                    // Ensure Questions list is initialized
-                    if (Model?.Questions == null)
-                    {
-                        if (Model != null)
-                        {
-                            Model.Questions = new List<QuestionItem>();
-                        }
-                    }
-                    
-                    Model?.Questions?.Add(newQuestion);
-                    
-                    // Show toast notification to host about new question
-                    await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
-                    
-                    await InvokeAsync(StateHasChanged);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to process incoming question alert");
-                    // Fallback: add a generic notification
-                    try
-                    {
-                        await JSRuntime.InvokeVoidAsync("showQuestionToast", "New question received (processing error)");
-                    }
-                    catch (Exception jsEx)
-                    {
-                        Logger.LogError(jsEx, "Failed to show fallback toast");
-                    }
-                }
-            });
-
+            // [DEBUG-WORKITEM:hcp-questions:duplication-fix] Register event handlers for real-time updates ;CLEANUP_OK
+            // [FIX-ISSUE-1] Removed HostQuestionAlert handler to prevent duplicate questions
+            // Now using only QuestionReceived event (consistent with SessionCanvas)
+            // Toast notifications moved to QuestionReceived handler below
+            
             // [DEBUG-WORKITEM:canvas:delete:TRACE] Handle QuestionReceived events to keep HostControlPanel synchronized ;CLEANUP_OK
             hubConnection.On<object>("QuestionReceived", async (questionData) =>
             {
@@ -352,11 +280,11 @@
 
                     if (questionId != null && !string.IsNullOrEmpty(questionText))
                     {
-                        // Check if question already exists (prevent duplicates)
+                        // [FIX-ISSUE-1] Check if question already exists (prevent duplicates from HostQuestionAlert+QuestionReceived)
                         var existingQuestion = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
                         if (existingQuestion != null)
                         {
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Question already exists in HostControlPanel, skipping ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] ⚠️ Question already exists in HostControlPanel, skipping duplicate ;CLEANUP_OK", requestId);
                             return;
                         }
 
@@ -372,9 +300,36 @@
                         };
 
                         Model.Questions.Add(newQuestion);
+                        
+                        // [FIX-ISSUE-1] Show toast notification to host about new question (moved from HostQuestionAlert)
+                        // [DEBUG-WORKITEM:hcp-questions:toast:TRACE] Enhanced toast to show which user asked the question ;CLEANUP_OK
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST NOTIFICATION START (New Question for Host) ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - QuestionText: '{Text}' ;CLEANUP_OK", requestId, questionText);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - AskedBy: '{UserName}' ;CLEANUP_OK", requestId, userName);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
+                        
+                        try
+                        {
+                            // Show toast with user name who asked the question
+                            var toastMessage = $"{userName} asked: \"{questionText}\"";
+                            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                toastMessage, 
+                                "New Question Received", 
+                                "info");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ Toast notification shown to host successfully ;CLEANUP_OK", requestId);
+                        }
+                        catch (Exception toastEx)
+                        {
+                            Logger.LogWarning(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ⚠️ Failed to show toast notification: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                        }
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST NOTIFICATION END ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                        
                         await InvokeAsync(StateHasChanged);
 
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ Question added to HostControlPanel.Questions ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] ✅ Question added to HostControlPanel.Questions ;CLEANUP_OK", requestId);
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Total Questions: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
                     }
                     else
@@ -1396,23 +1351,10 @@
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("ShareAsset initiated: {ShareId} {AssetType} #{InstanceNumber}", shareId, assetType, instanceNumber);
         
-        // TOASTR: Show immediate feedback that click was detected and C# method called
-        await JSRuntime.InvokeVoidAsync("showNoorToast", 
-            $"Processing share request for {assetType} #{instanceNumber}...", 
-            "Share Button Clicked", 
-            "info");
-        // Toast notification shown to user
-        
         if (SessionId == null || hubConnection == null)
         {
             var errorMsg = "Cannot share asset: SignalR connection or session not available";
             Logger.LogError("Share asset failed: SessionId={SessionId}, hubConnection available={HubConnectionExists}", SessionId, hubConnection != null);
-            
-            // Show error notification
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                "Share failed: Session or SignalR connection not available. Please refresh the page.", 
-                "Share Error", 
-                "error");
             
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -1422,13 +1364,6 @@
         {
             var errorMsg = $"SignalR connection is in state: {hubConnection.State}. Expected: Connected";
             Logger.LogError("[DEBUG-WORKITEM:assetshare:continue] ❌ SignalR not connected: State={State}", hubConnection.State);
-            
-            // TOASTR: Show SignalR connection error
-            await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                $"Share failed: SignalR is {hubConnection.State}. Please refresh the page to reconnect.", 
-                "Connection Error", 
-                "error");
-            Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: SignalR state error notification shown, State={State}, broadcastId={BroadcastId} ;CLEANUP_OK", hubConnection.State, broadcastId);
             
             await ShowErrorMessageAsync(errorMsg);
             return;
@@ -1443,13 +1378,6 @@
             if (string.IsNullOrEmpty(rawAssetHtml))
             {
                 Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ No HTML content found for shareId: {ShareId}, broadcastId={BroadcastId}", shareId, broadcastId);
-                
-                // TOASTR: Show content not found error
-                await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                    $"Could not find content for {assetType} #{instanceNumber}. The asset may have been removed or modified.", 
-                    "Content Not Found", 
-                    "error");
-                Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Content not found error shown, ShareId={ShareId}, broadcastId={BroadcastId} ;CLEANUP_OK", shareId, broadcastId);
                 
                 await ShowErrorMessageAsync($"Asset content not found for {assetType} #{instanceNumber}");
                 return;
@@ -1469,13 +1397,6 @@
             if (completedTask == timeoutTask)
             {
                 Logger.LogError("[ASSET-SHARE-KSESSIONS] ❌ STEP 3 FAILED: SignalR timeout after 5s, broadcastId={BroadcastId}", broadcastId);
-                
-                // TOASTR: Show timeout error
-                await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                    $"Share request for {assetType} #{instanceNumber} timed out. Please check your connection and try again.", 
-                    "Share Timeout", 
-                    "error");
-                Logger.LogError("[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Timeout error notification shown, broadcastId={BroadcastId} ;CLEANUP_OK", broadcastId);
                 
                 await ShowErrorMessageAsync("Asset sharing timed out after 5 seconds");
                 return;
@@ -1762,22 +1683,149 @@
     private async Task MarkQuestionAnswered(Guid questionId)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] MarkQuestionAnswered called for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════ MARK ANSWERED FLOW START ════════ QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
         
-        var question = Model?.Questions?.FirstOrDefault(q => q.Id == questionId);
-        if (question != null)
+        if (Model?.Questions == null || hubConnection?.State != HubConnectionState.Connected || SessionId == null)
         {
-            question.IsAnswered = true;
-            await InvokeAsync(StateHasChanged);
-            Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question marked as answered locally, UI updated ;CLEANUP_OK", requestId);
-            
-            // TODO: Implement API endpoint for marking questions as answered
-            // For now, only updating local UI - real implementation should call API
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] API endpoint for marking answered not yet implemented ;CLEANUP_OK", requestId);
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ❌ Cannot mark answered - Model.Questions={ModelNull}, HubState={HubState}, SessionId={SessionId} ;CLEANUP_OK", 
+                requestId, Model?.Questions == null, hubConnection?.State.ToString() ?? "NULL", SessionId?.ToString() ?? "NULL");
+            return;
         }
-        else
+        
+        var question = Model.Questions.FirstOrDefault(q => q.Id == questionId);
+        if (question == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question not found: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ❌ Question not found: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+            return;
+        }
+        
+        var questionText = question.Text;
+        var originalAskerGuid = question.CreatedBy; // UserGuid of person who asked
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Question found - Text: '{Text}', Asker: {Asker} ;CLEANUP_OK", 
+            requestId, questionText?.Substring(0, Math.Min(50, questionText.Length)), originalAskerGuid ?? "NULL");
+        
+        // Remove from host UI immediately
+        Model.Questions.Remove(question);
+        await InvokeAsync(StateHasChanged);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Removed from host UI, broadcasting to participants ;CLEANUP_OK", requestId);
+        
+        // Broadcast to all participants via SignalR
+        try
+        {
+            await hubConnection.InvokeAsync("BroadcastQuestionAnswered", SessionId.Value, questionId.ToString(), originalAskerGuid ?? string.Empty);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ Broadcast successful - all participants should receive removal + toast to asker ;CLEANUP_OK", requestId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ❌ Broadcast failed: {Message} ;CLEANUP_OK", requestId, ex.Message);
+        }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════ MARK ANSWERED FLOW COMPLETE ════════ ;CLEANUP_OK", requestId);
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Broadcast clicked question with orange theme from ContextCopilot.txt ;CLEANUP_OK
+    /// Applies orange/sienna styling matching ContextCopilot.txt design with 2px/4px borders
+    /// </summary>
+    private async Task ShareQuestionAsset(NoorCanvas.ViewModels.QuestionItem question)
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        var broadcastId = Guid.NewGuid().ToString("N")[..8];
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW START ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] QuestionId: {QuestionId}, Text: '{Text}', BroadcastId: {BroadcastId} ;CLEANUP_OK", 
+            requestId, question.Id, question.Text?.Substring(0, Math.Min(50, question.Text.Length)) ?? "NULL", broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Applying orange theme: border=#fdba74, bg=#fff7f5, icon=#f97316, title=#c2410c ;CLEANUP_OK", requestId);
+        
+        if (SessionId == null || hubConnection?.State != HubConnectionState.Connected)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ Cannot share - SessionId={SessionId}, HubState={HubState} ;CLEANUP_OK", 
+                requestId, SessionId?.ToString() ?? "NULL", hubConnection?.State.ToString() ?? "NULL");
+            return;
+        }
+        
+        try
+        {
+            // Step 1: Create formatted HTML with orange theme from ContextCopilot.txt
+            var encodedQuestionText = System.Web.HttpUtility.HtmlEncode(question.Text);
+            var encodedUserName = System.Web.HttpUtility.HtmlEncode(question.UserName ?? "Anonymous");
+            
+            // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Vote badge preserved from original implementation ;CLEANUP_OK
+            var voteBadgeHtml = "";
+            if (question.VoteCount > 0)
+            {
+                var voteLabel = question.VoteCount == 1 ? "vote" : "votes";
+                voteBadgeHtml = $@"
+        <div style=""display:flex;align-items:center;gap:0.5rem;background-color:#DC2626;color:white;padding:0.375rem 0.75rem;border-radius:9999px;box-shadow:0 2px 4px rgba(220,38,38,0.3);"">
+            <i class=""fa-solid fa-thumbs-up"" style=""font-size:0.75rem;""></i>
+            <span style=""font-size:0.875rem;font-weight:600;"">{question.VoteCount} {voteLabel}</span>
+        </div>";
+            }
+            
+            // [DEBUG-WORKITEM:canvas-question:css-migration:TRACE] Orange card styling moved to session-transcript.css ;CLEANUP_OK
+            // [DEBUG-WORKITEM:canvas-question:css-classes:TRACE] Refactored from inline styles to CSS classes for maintainability ;CLEANUP_OK
+            // Background: #fff7f5 (orange-50), Border: #fdba74 (orange-300), Icon: #f97316 (orange-500), Title: #c2410c (orange-700)
+            // Subtitle: darkgreen (1rem), Title: #c2410c (1.5rem left-aligned), Footer removed
+            var questionHtml = $@"
+<div class=""shared-question-card"">
+    <div class=""shared-question-header"">
+        <div class=""shared-question-icon-wrapper"">
+            <i class=""fa-solid fa-question-circle shared-question-icon""></i>
+        </div>
+        <div>
+            <h1 class=""shared-question-title"">Participant Question</h1>
+            <p class=""shared-question-subtitle"">Shared by host for discussion</p>
+        </div>
+    </div>
+    <div class=""shared-question-content"">
+        <p class=""shared-question-text"">{encodedQuestionText}</p>
+    </div>
+</div>";
+
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 1: Orange-themed HTML created, length={Length} chars ;CLEANUP_OK", 
+                requestId, questionHtml.Length);
+            
+            // Step 2: Create asset payload
+            var assetData = new
+            {
+                shareId = broadcastId,
+                assetType = "question",
+                htmlContent = questionHtml,
+                metadata = new
+                {
+                    questionId = question.Id.ToString(),
+                    questionText = question.Text,
+                    userName = question.UserName,
+                    voteCount = question.VoteCount,
+                    sharedAt = DateTime.UtcNow,
+                    // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Styling metadata for debugging ;CLEANUP_OK
+                    theme = "orange",
+                    styleSource = "ContextCopilot.txt"
+                }
+            };
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 2: Asset payload created with orange theme metadata ;CLEANUP_OK", requestId);
+            
+            // Step 3: Broadcast via SignalR (using same pattern as TestShareAsset)
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 3: Invoking ShareAsset on hub, target=session_{SessionId} ;CLEANUP_OK", 
+                requestId, SessionId.Value);
+            
+            await hubConnection.InvokeAsync("ShareAsset", SessionId.Value, assetData);
+            
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ✅ Step 4: ShareAsset SignalR call completed successfully ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] 📡 Orange-themed question broadcasted to session_{SessionId}, BroadcastId: {BroadcastId} ;CLEANUP_OK", 
+                requestId, SessionId.Value, broadcastId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW COMPLETE ════════ ;CLEANUP_OK", requestId);
+        }
+        catch (HubException ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ SignalR Hub error: {Message} ;CLEANUP_OK", requestId, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ Unexpected error during question share: {Message} ;CLEANUP_OK", requestId, ex.Message);
         }
     }
 
@@ -1995,6 +2043,34 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // [DEBUG-WORKITEM:hcp:toastr:trace] Verify toastr library loaded on first render ;CLEANUP_OK
+        if (firstRender)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            try
+            {
+                var toastrAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+                var showNoorToastAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.showNoorToast === 'function'");
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] OnAfterRenderAsync - toastr available: {ToastrAvailable}, showNoorToast available: {ShowNoorToastAvailable} ;CLEANUP_OK", 
+                    requestId, toastrAvailable, showNoorToastAvailable);
+                
+                if (!toastrAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] ❌ CRITICAL: toastr library NOT loaded - CDN may be blocked or script failed ;CLEANUP_OK", requestId);
+                }
+                
+                if (!showNoorToastAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] ❌ CRITICAL: showNoorToast function NOT defined - inline script may have failed ;CLEANUP_OK", requestId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] Failed to verify toastr availability ;CLEANUP_OK", requestId);
+            }
+        }
+        
         // [DEBUG-WORKITEM:assetshare:fix] Always try to initialize share handlers when component renders and SessionId is available
         if (SessionId.HasValue)
         {
@@ -3600,15 +3676,7 @@
                 const result = await shareResponse.json();
                 console.log('NOOR-ASSET-SHARE: Asset shared successfully:', result);
                 
-                // TOASTR: Show API success notification
-                if (typeof window.showNoorToast === 'function') {
-                    window.showNoorToast(
-                        `${assetType} successfully shared with all participants!`, 
-                        '✅ Share Complete', 
-                        'success'
-                    );
-                    console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: API success notification shown for:', assetId);
-                }
+                // Toast notification removed - visual feedback via button state is sufficient
                 
                 // Success feedback
                 shareButton.textContent = '✓ SHARED';
@@ -3635,18 +3703,7 @@
                 errorMessage = error;
             }
             
-            // TOASTR: Show asset sharing error  
-            if (typeof window.showNoorToast === 'function') {
-                window.showNoorToast(
-                    `Failed to share ${assetType}: ${errorMessage}`, 
-                    'Share Failed', 
-                    'error'
-                );
-                console.log('[DEBUG-WORKITEM:sharebutton-toastr] 📢 TOASTR: Asset sharing error shown:', errorMessage);
-            } else {
-                // Fallback to existing error toast function
-                showErrorToast(`Failed to share asset: ${errorMessage}`);
-            }
+            // Toast notification removed - visual feedback via button state is sufficient
             
             // Find button and show error feedback
             const shareButton = document.querySelector(`button[data-asset-id="${assetId}"]`);

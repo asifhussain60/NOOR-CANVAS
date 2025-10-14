@@ -969,7 +969,7 @@ background-color: #effff9;
 </div>
 
 @* Debug Panel - Development Only *@
-<DebugPanel CurrentViewName="SessionWaiting" OnEnterTestData="HandleEnterTestData" />
+<DebugPanel CurrentViewName="SessionWaiting" />
 
 @implements IAsyncDisposable
 
@@ -1622,109 +1622,6 @@ background-color: #effff9;
 
     /// <summary>
     /// Handles test data entry for debug panel - Development only
-    /// WORKITEM-WAITINGROOM: Phase 2 - Broadcast test participants via SignalR to all users with same token
-    /// </summary>
-    private async Task HandleEnterTestData()
-    {
-        if (Model == null) return;
-
-        var requestId = Guid.NewGuid().ToString("N")[..8];
-        try
-        {
-            // Broadcasting test data via SignalR
-            
-            // WORKITEM-WAITINGROOM: Instead of local FloodParticipantList, broadcast via SignalR
-            await BroadcastTestParticipants(requestId);
-            
-            // Test participants broadcasted successfully
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to broadcast test data via SignalR");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// WORKITEM-WAITINGROOM: Phase 2 - Broadcast test participants via SignalR to all users sharing the same token
-    /// This replaces the local-only FloodParticipantList approach
-    /// </summary>
-    private async Task BroadcastTestParticipants(string requestId)
-    {
-        if (_hubConnection?.State != HubConnectionState.Connected)
-        {
-            // SignalR not connected, cannot broadcast test participants
-            return;
-        }
-
-        if (string.IsNullOrEmpty(SessionToken) || _sessionId == null)
-        {
-            // SessionToken or SessionId missing, cannot broadcast
-            return;
-        }
-
-        var random = new Random();
-        var firstNames = new[] { "Mohammed", "Ahmed", "Ali", "Omar", "Khalid", "Hassan", "Ibrahim", "Yusuf", "Abdullah", "Ameer", 
-                                "Sarah", "Fatima", "Aisha", "Khadija", "Maryam", "Zeinab", "Layla", "Noor", "Amina", "Yasmin",
-                                "John", "David", "Michael", "James", "Robert", "William", "Richard", "Joseph", "Thomas", "Christopher",
-                                "Maria", "Elizabeth", "Jennifer", "Linda", "Patricia", "Susan", "Jessica", "Ashley", "Emily", "Samantha",
-                                "Chen", "Wang", "Li", "Zhang", "Liu", "Yang", "Huang", "Zhao", "Wu", "Zhou" };
-        
-        var lastNames = new[] { "Al-Rashid", "Al-Mahmoud", "Al-Zahra", "Al-Nouri", "Al-Sabah", "Al-Hashemi", "Al-Farisi", "Al-Tamimi",
-                               "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
-                               "Lee", "Kim", "Kim", "Park", "Choi", "Jung", "Kang", "Cho", "Yoon", "Jang", "Lim",
-                               "Singh", "Kumar", "Sharma", "Gupta", "Verma", "Agarwal", "Mishra", "Tiwari", "Yadav", "Jain" };
-
-        var countries = new[] { "US", "CA", "GB", "DE", "FR", "IT", "ES", "AU", "NZ", "JP", "KR", "CN", "IN", "PK", "BD", 
-                               "EG", "SA", "AE", "TR", "MA", "NG", "ZA", "BR", "MX", "AR", "RU", "SE", "NO", "DK", "NL" };
-
-        var countryFlags = new[] { "us", "ca", "gb", "de", "fr", "it", "es", "au", "nz", "jp", "kr", "cn", "in", "pk", "bd",
-                                  "eg", "sa", "ae", "tr", "ma", "ng", "za", "br", "mx", "ar", "ru", "se", "no", "dk", "nl" };
-
-        // WORKITEM-WAITINGROOM: Broadcast 50 test participants via SignalR ParticipantJoined events
-        var successCount = 0;
-        var errorCount = 0;
-        
-        for (int i = 0; i < 50; i++)
-        {
-            var firstName = firstNames[random.Next(firstNames.Length)];
-            var lastName = lastNames[random.Next(lastNames.Length)];
-            var countryIndex = random.Next(countries.Length);
-            var testParticipantId = $"test-{Guid.NewGuid().ToString("N")[..8]}";
-            
-            // Create participant data matching ParticipantJoined event structure
-            var participantData = new
-            {
-                sessionId = _sessionId,
-                participantId = testParticipantId,
-                displayName = $"{firstName} {lastName}",
-                country = countries[countryIndex],
-                joinedAt = DateTime.UtcNow,
-                timestamp = DateTime.UtcNow,
-                userToken = SessionToken // Include token for validation
-            };
-
-            try
-            {
-                // WORKITEM-WAITINGROOM: Broadcast test participant via new SessionHub method
-                // This sends to all users in the token group (usertoken_{token})
-                await _hubConnection.SendAsync("BroadcastTestParticipant", SessionToken, participantData);
-                successCount++;
-            }
-            catch (Exception)
-            {
-                // Failed to broadcast test participant
-                errorCount++;
-            }
-
-            // Small delay to avoid overwhelming SignalR
-            await Task.Delay(50);
-        }
-        
-        // Broadcast complete - {successCount}/50 participants sent
-    }
-
-    /// <summary>
     /// DEPRECATED: Legacy local-only participant flooding (replaced by SignalR in Phase 2)
     /// WORKITEM-WAITINGROOM: This method is superseded by BroadcastTestParticipants() for proper SignalR propagation
     /// </summary>
