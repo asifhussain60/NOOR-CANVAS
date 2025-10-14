@@ -1,0 +1,26 @@
+{
+  "extends": "stylelint-config-standard",
+  "customSyntax": "postcss-html",
+  "rules": {
+    "selector-class-pattern": "^canvas-[a-z]+(-[a-z]+)*$",
+    "color-hex-length": "long",
+    "declaration-block-no-duplicate-properties": true,
+    "no-duplicate-selectors": true,
+    "color-named": "never",
+    "length-zero-no-unit": true,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global"]
+      }
+    ]
+  },
+  "ignoreFiles": [
+    "wwwroot/lib/**",
+    "bin/**",
+    "obj/**",
+    "node_modules/**",
+    "Workspaces/TEMP/**",
+    "test-results/**"
+  ]
+}

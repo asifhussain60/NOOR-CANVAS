@@ -26,8 +26,13 @@
     "test:trace": "playwright show-trace",
     "test:typescript": "playwright test --config=config/testing/playwright.config.cjs",
     "test:copilot-demo": "playwright codegen --target=typescript https://localhost:9091",
+    "test:percy": "percy exec -- playwright test --config=config/testing/playwright.config.cjs",
+    "test:percy:headed": "percy exec -- playwright test --config=config/testing/playwright.config.cjs --headed",
+    "test:percy:visual": "percy exec -- playwright test Tests/UI/canvas-questions-orange-card-visual.spec.ts --config=config/testing/playwright.config.cjs --headed",
     "build:tests": "node node_modules/typescript/lib/tsc.js --noEmit --project config/testing/tsconfig.json",
     "lint": "eslint \"PlayWright/**/*.{ts,tsx}\" --config=config/testing/eslint.config.js --max-warnings=0",
+    "lint:css": "stylelint \"**/*.{css,razor}\"",
+    "lint:css:fix": "stylelint \"**/*.{css,razor}\" --fix",
     "format": "prettier --write \"PlayWright/**/*.{ts,tsx}\" --config=config/testing/.prettierrc",
     "format:check": "prettier --check \"PlayWright/**/*.{ts,tsx}\" --config=config/testing/.prettierrc"
   },
@@ -44,6 +49,8 @@
   "homepage": "https://github.com/asifhussain60/NOOR-CANVAS#readme",
   "description": "",
   "devDependencies": {
+    "@percy/cli": "^1.31.3",
+    "@percy/playwright": "^1.0.9",
     "@playwright/test": "^1.55.0",
     "@types/mssql": "^9.1.8",
     "@types/node": "^24.5.2",
@@ -54,7 +61,10 @@
     "eslint-plugin-playwright": "^2.2.2",
     "mssql": "^11.0.1",
     "playwright": "^1.55.0",
+    "postcss-html": "^1.8.0",
     "prettier": "^3.6.2",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard": "^39.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

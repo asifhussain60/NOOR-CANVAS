@@ -1,0 +1,15 @@
+version: 2
+snapshot:
+  widths:
+    - 375   # Mobile
+    - 768   # Tablet
+    - 1280  # Desktop
+  min-height: 1024
+  percy-css: |
+    /* Hide dynamic elements that cause false positives */
+    [data-percy-hide] { display: none !important; }
+static:
+  - wwwroot/css
+  - wwwroot/lib
+discovery:
+  network-idle-timeout: 750
