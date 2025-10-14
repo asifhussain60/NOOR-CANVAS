@@ -241,9 +241,11 @@ The `debug-level` parameter controls debug logging code **inserted INTO source f
 
 ## Automated Test Generation Mandate
 
-When implementing changes, evaluate if Playwright end-to-end tests are needed:
+When implementing changes, evaluate which type of test is needed:
 
-### Generate Tests When:
+### Test Type Decision (See PlaywrightQuickRef.md Decision Matrix)
+
+**Generate Functional E2E Tests (Playwright) When:**
 - ✅ New user interaction flow (buttons, forms, navigation, modals)
 - ✅ API endpoint creation/modification affecting UI behavior
 - ✅ SignalR real-time feature changes (broadcasts, synchronization)
@@ -251,25 +253,44 @@ When implementing changes, evaluate if Playwright end-to-end tests are needed:
 - ✅ Multi-user/multi-browser scenarios
 - ✅ Question/voting/session management features
 - ✅ Authentication/authorization flow changes
+- ✅ Accessibility features (ARIA, keyboard navigation)
 
-### Skip Tests For:
-- ❌ CSS/styling tweaks without functional changes
+**Generate Visual Regression Tests (Percy + Playwright) When:**
+- ✅ CSS/styling changes (colors, layouts, spacing, themes)
+- ✅ Component visual consistency (cards, buttons, panels)
+- ✅ Responsive design changes (mobile/tablet/desktop)
+- ✅ Theme changes (dark mode, Blazor themes)
+- ✅ Layout refactoring (grid systems, flexbox)
+- ✅ Animation/transition implementation
+- ✅ Visual bug fixes (alignment, rendering issues)
+
+**Recommend CSS Quality Checks (Stylelint) When:**
+- ✅ New CSS files or Blazor Razor component styles
+- ✅ Theme development (color schemes, design tokens)
+- ✅ CSS refactoring (consolidating styles, removing duplicates)
+- ✅ Component library development
+
+**Skip Tests For:**
 - ❌ Debug logging additions/removals
-- ❌ Documentation updates
-- ❌ Internal code refactoring without behavior change
+- ❌ Documentation-only updates
+- ❌ Internal code refactoring without UI/behavior change
 - ❌ Configuration file modifications
 - ❌ Comment updates
 
 ### Test Generation Requirements:
+
+**For Functional E2E Tests:**
 1. **Invoke test-generation.prompt.md** with parameters:
    - `feature`: Descriptive feature name (e.g., "debug-panel-islamic-questions")
    - `scenario`: Specific test scenario (e.g., "random-question-broadcast")
+   - `testType`: "functional" (Playwright E2E)
    - `endpoints`: API endpoints involved (e.g., "/api/Question/Submit")
    - `multiUser`: true/false for multi-browser testing
    
 2. **Read canonical data** from:
    - `PlaywrightConfig.MD` - Configuration, modes, webServer settings
    - `PlaywrightTestPaths.MD` - Session 212 tokens, proven patterns, expected responses
+   - `PlaywrightQuickRef.md` - Decision matrix, test patterns, examples
 
 3. **Follow proven patterns**:
    - Session ID: `212` (canonical test session)
@@ -277,27 +298,46 @@ When implementing changes, evaluate if Playwright end-to-end tests are needed:
    - User Token: `KJAHA99L` (Peter Parker participant)
    - Base URL: `https://localhost:9091`
 
-4. **Server Management**:
-   - Prefer `PW_MODE=standalone` for automatic .NET app lifecycle
-   - Include server readiness checks in test beforeAll hooks
-   - Document manual server start commands in test file headers
+4. **Naming convention**: `{feature}-functional.spec.ts` in `Tests/UI/` or `Workspaces/TEMP/`
 
-5. **Include in key-data-stream**:
-   - Document test file path in work-log.md
-   - Record test coverage scope
-   - Note test execution results
+**For Visual Regression Tests:**
+1. **Invoke test-generation.prompt.md** with parameters:
+   - `feature`: Component or view name (e.g., "canvas-questions-orange-card")
+   - `scenario`: Visual scenario (e.g., "multi-viewport-rendering")
+   - `testType`: "visual" (Percy + Playwright)
+   - `viewports`: Array of viewport widths [375, 768, 1280]
+   
+2. **Read configuration** from:
+   - `.percy.yml` - Visual snapshot configuration
+   - `VISUAL_REGRESSION_TESTING.md` - Percy setup and workflows
+   - `PlaywrightQuickRef.md` - Percy test template and patterns
 
-6. **Naming convention**: `{feature}-{scenario}.spec.ts` in `Tests/UI/` or `Workspaces/TEMP/`
+3. **Follow Percy patterns**:
+   - Use `percySnapshot()` for multi-viewport testing
+   - Hide dynamic elements with `percyCSS`
+   - Test all visual states (default, hover, active, voted, etc.)
+   - Use descriptive snapshot names
+
+4. **Naming convention**: `{feature}-visual.spec.ts` in `Tests/UI/`
+
+5. **Execution**: `npm run test:percy:visual -- Tests/UI/{file}.spec.ts`
+
+**For CSS Quality Checks:**
+1. **Document in key data stream**: "CSS changes require Stylelint validation"
+2. **Provide command**: `npm run lint:css -- {file-pattern}`
+3. **Reference**: `.stylelintrc.json` for rules (canvas-* naming, no duplicates, etc.)
 
 ### Test Generation Workflow:
 ```
 User Request (via task.prompt.md)
     ↓
-[Evaluate: Does this need tests?]
+[Evaluate: What type of change?]
     ↓
-YES → Invoke test-generation.prompt.md
+    ├─ Functional/Behavior Change → Invoke test-generation.prompt.md (testType: functional)
+    ├─ Visual/CSS Change → Invoke test-generation.prompt.md (testType: visual)
+    └─ CSS Quality → Document Stylelint command
     ↓
-Generate test using PlaywrightTestPaths.MD patterns
+Generate test using appropriate template
     ↓
 Include test path in key-data-stream (Step 8)
     ↓
@@ -306,11 +346,14 @@ Continue with implementation
 
 ### Example Triggers:
 ```
-✅ "Add delete button to Q&A panel" → Generate deletion test with multi-browser sync
-✅ "Fix SignalR broadcast for updates" → Generate broadcast verification test
-✅ "Add debug panel with random questions" → Generate question submission test
-❌ "Change button color to blue" → Skip test generation
+✅ "Add delete button to Q&A panel" → Generate FUNCTIONAL test with multi-browser sync
+✅ "Fix SignalR broadcast for updates" → Generate FUNCTIONAL test for broadcast verification
+✅ "Change orange card background color" → Generate VISUAL test + run Stylelint
+✅ "Fix button alignment on mobile" → Generate VISUAL test (responsive)
+✅ "Refactor question card component (no visual change)" → Generate FUNCTIONAL test only
+✅ "Add dark mode theme" → Generate VISUAL test + run Stylelint
 ❌ "Add debug logging to API" → Skip test generation
+❌ "Update README documentation" → Skip test generation
 ```
 
 ---

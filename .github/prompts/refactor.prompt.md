@@ -413,9 +413,10 @@ For each phase:
 4. **Phase Validation** (MANDATORY - ZERO TOLERANCE)
    - Execute complete validation pipeline (see Step 4: Validate)
    - **REQUIREMENT**: ZERO errors, ZERO warnings
-   - Run all tests (unit, integration, Playwright)
+   - Run all tests (unit, integration, Playwright functional, Percy visual if UI changes)
    - Validate API contracts remain intact
    - Verify UI functionality unchanged
+   - **Visual Regression Check**: If refactoring UI components, run Percy visual tests to ensure pixel-perfect consistency
    - **FAILURE PROTOCOL**: If validation fails, rollback to phase checkpoint and retry (max 3 attempts)
 
 5. **Phase Commit**
@@ -427,7 +428,7 @@ For each phase:
    - Change N
    
    Build: Clean (0 errors, 0 warnings)
-   Tests: All passing
+   Tests: All passing (functional + visual if applicable)
    Phase: <number>/<total>
    ```
 

@@ -64,10 +64,40 @@ Receive from task.prompt.md:
    - SignalR: Wait for specific broadcast events or UI state changes
 6. **Artifact capture**: `PW_MODE=standalone` enables auto-screenshots/traces on failure
 
+### Test Type Selection (See PlaywrightQuickRef.md Decision Matrix)
+
+**When to generate Functional E2E Tests (Playwright):**
+- User workflows (login, navigation, form submission)
+- API contract validation (endpoints, response format)
+- SignalR real-time updates (question broadcasts, voting)
+- Multi-user synchronization (host/participant interactions)
+- Accessibility features (ARIA, keyboard navigation)
+- Component behavior (without visual changes)
+
+**When to generate Visual Regression Tests (Percy + Playwright):**
+- CSS/styling changes (colors, layouts, spacing)
+- Component visual consistency (orange cards, buttons)
+- Responsive design (mobile/tablet/desktop viewports)
+- Theme changes (dark mode, Blazor themes)
+- Layout refactoring (grid systems, flexbox)
+- Animation/transition verification
+
+**When to recommend CSS Quality Checks (Stylelint):**
+- New CSS files or Blazor Razor component styles
+- Theme development (color schemes, design tokens)
+- CSS refactoring (consolidating styles, removing duplicates)
+- Component library development
+- Pre-commit validation (class naming, property conflicts)
+
 ### File Naming Convention
 ```
-{feature}-{scenario}.spec.ts
+{feature}-{test-type}.spec.ts
 ```
+Examples:
+- `debug-panel-islamic-questions-functional.spec.ts` (Playwright E2E)
+- `canvas-questions-orange-card-visual.spec.ts` (Percy visual)
+- `question-enter-key-submit-functional.spec.ts` (Playwright E2E)
+- `session-canvas-responsive-visual.spec.ts` (Percy multi-viewport)
 Examples:
 - `debug-panel-islamic-questions-broadcast.spec.ts`
 - `question-enter-key-submit.spec.ts`
@@ -261,6 +291,124 @@ const criticalErrors = consoleErrors.filter(err =>
 
 expect(criticalErrors).toHaveLength(0);
 ```
+
+---
+
+## Percy Visual Regression Test Template
+
+**Use this template when generating visual regression tests (see Test Type Selection above).**
+
+```typescript
+import { test, expect } from '@playwright/test';
+import percySnapshot from '@percy/playwright';
+
+/**
+ * Visual Regression Test: {Feature Name}
+ * 
+ * Purpose: Verify visual consistency across viewports
+ * Baseline: Percy dashboard stores approved snapshots
+ * 
+ * Prerequisites:
+ * - Percy token configured: PERCY_TOKEN env variable
+ * - Session 212 exists in database
+ * - Run with: npm run test:percy:visual -- path/to/test.spec.ts
+ * 
+ * Configuration:
+ * - Viewports: 375px (mobile), 768px (tablet), 1280px (desktop)
+ * - See .percy.yml for full config
+ * 
+ * References:
+ * - PlaywrightQuickRef.md: Decision matrix for when to use Percy
+ * - VISUAL_REGRESSION_TESTING.md: Percy setup and workflows
+ */
+
+test.describe('Visual Regression: {Feature Name}', () => {
+  test('should render {component} correctly across viewports', async ({ page }) => {
+    // Step 1: Navigate to component
+    await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+    
+    // Step 2: Wait for component to fully load
+    await page.waitForSelector('[data-testid="component-root"]', { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+    
+    // Step 3: Take baseline snapshot (tests all configured viewports)
+    await percySnapshot(page, '{Component Name} - Initial State', {
+      widths: [375, 768, 1280],  // Mobile, tablet, desktop
+      minHeight: 1024,
+      percyCSS: `
+        /* Hide dynamic elements that change between test runs */
+        .timestamp { display: none; }
+        .user-avatar { display: none; }
+      `
+    });
+    
+    // Step 4: Interact with component (if testing state changes)
+    await page.click('[data-testid="toggle-button"]');
+    await page.waitForTimeout(500);  // Wait for CSS transitions
+    
+    // Step 5: Take snapshot of changed state
+    await percySnapshot(page, '{Component Name} - Active State');
+    
+    // Step 6: Test different states/variants (optional)
+    await page.click('[data-testid="secondary-action"]');
+    await percySnapshot(page, '{Component Name} - Secondary State');
+  });
+
+  test('should render {component} in different themes', async ({ page }) => {
+    // Test visual consistency across theme variations
+    await page.goto('https://localhost:9091/session/canvas/KJAHA99L');
+    await page.waitForSelector('.canvas-question-card-orange');
+    
+    // Orange theme
+    await percySnapshot(page, '{Component} - Orange Theme');
+    
+    // Green theme (if applicable)
+    await page.click('[data-testid="vote-up"]');
+    await page.waitForSelector('.canvas-question-card-green');
+    await percySnapshot(page, '{Component} - Green Theme');
+  });
+});
+```
+
+### Percy Test Execution Commands
+
+```bash
+# Run single visual test (headed mode)
+npm run test:percy:headed -- Tests/UI/feature-visual.spec.ts
+
+# Run all visual tests (headless)
+npm run test:percy
+
+# Run visual test without Percy (for debugging)
+npx playwright test Tests/UI/feature-visual.spec.ts --headed
+```
+
+### Percy Snapshot Best Practices
+
+1. **Naming Convention**: Use descriptive names that clearly indicate component and state
+   - Good: `"Question Card - Orange Theme - Voted State"`
+   - Bad: `"Test 1"` or `"Snapshot"`
+
+2. **Viewport Strategy**:
+   - Always test mobile (375px), tablet (768px), desktop (1280px)
+   - Use `.percy.yml` defaults unless specific viewport needed
+
+3. **Dynamic Content Handling**:
+   - Use `percyCSS` to hide timestamps, user avatars, random IDs
+   - Wait for animations/transitions with `page.waitForTimeout()`
+   - Ensure data is stable (use Session 212 canonical data)
+
+4. **Test Organization**:
+   - One test file per component or feature
+   - Group related snapshots in same test case
+   - Separate theme/variant tests into distinct test cases
+
+5. **Baseline Management**:
+   - Approve snapshots in Percy dashboard after review
+   - Re-baseline when intentional design changes occur
+   - Investigate ALL visual diffs before approving
+
+---
 
 ## Output Format
 
