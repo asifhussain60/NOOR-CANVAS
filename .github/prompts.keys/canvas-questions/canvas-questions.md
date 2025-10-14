@@ -157,6 +157,7 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 ## Changes Made
 
 ### Test Created: Orange Card HTML Structure Verification (2025-10-14T00:00:00Z)
+**Commit**: bf849a89
 **File**: `Tests/UI/canvas-questions-orange-card-structure.spec.ts`
 **Purpose**: Verify orange (sienna) question cards render with correct HTML structure matching ContextCopilot.txt reference
 
