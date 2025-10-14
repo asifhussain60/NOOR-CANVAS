@@ -1,5 +1,62 @@
 # Canvas Key - Work Log
 
+## [2025-10-14 09:30] - task
+**Status**: in-progress | **Phase**: toast-test-sidebar-fix | **Commit**: 0f7ce257
+**Tasks**:
+1. Add toast test buttons to SessionCanvas and HostControlPanel debug panels
+2. Fix CRITICAL sidebar height bug (div.canvas-sidebar growing after 4+ questions)
+3. Add dimension logging debug action
+4. Create Playwright validation test
+
+**Problem Analysis**:
+- **Issue 1**: Toastr notifications not showing - needed test button to verify library works
+- **Issue 2**: `.canvas-sidebar` had `height: 100%` causing vertical expansion with question count
+
+**Changes Made**:
+1. **SessionCanvas.razor** - Toast Test Button
+   - Added "Test Toast Notification" debug action
+   - Implements `TestToastNotification()` method
+   - Comprehensive trace logging with requestId
+
+2. **SessionCanvas.razor** - Dimension Logging Button
+   - Added "Log Sidebar Dimensions" debug action
+   - Measures `.canvas-area-container`, `.canvas-sidebar`, `.canvas-questions-container`
+   - Helper class `DimensionResult` for measurements
+
+3. **SessionCanvas.razor** - Sidebar Height CSS Fix ⚠️ CRITICAL
+   - **REMOVED**: `height: 100%;` from `.canvas-sidebar`
+   - **ADDED**: `min-height: 400px;` + `max-height: 100%;`
+   - Preserves vertical scrolling via `.canvas-tab-content { overflow-y: auto; }`
+
+4. **HostControlPanel.razor** - Toast Test Button
+   - Added "Test Toast Notification" debug action
+   - Implements `TestToastNotificationHCP()` method
+
+5. **Playwright Test** - `canvas-sidebar-height-fix.spec.ts`
+   - Test 1: Validates sidebar height with 10 questions (±5px tolerance)
+   - Test 2: Tests scrolling behavior with 15 questions
+   - Helper: `getDimensions()` function
+
+**Testing**:
+```bash
+# Automated test
+npx playwright test Workspaces/TEMP/canvas-sidebar-height-fix.spec.ts --headed
+
+# Manual test
+# - SessionCanvas: Click debug panel > "Test Toast Notification"
+# - HostControlPanel: Click debug panel > "Test Toast Notification"
+# - SessionCanvas: Click debug panel > "Log Sidebar Dimensions" (check console)
+```
+
+**Files**: 3 modified/created
+- SessionCanvas.razor (+110 lines)
+- HostControlPanel.razor (+25 lines)
+- canvas-sidebar-height-fix.spec.ts (NEW, 239 lines)
+
+**Validation**: ✅ Build succeeded (zero errors, zero warnings)
+
+---
+
 ## [2025-10-11 - Latest] - task
 **Status**: in-progress | **Phase**: canvas-styling | **Commit**: 7d8902e
 **Work**:

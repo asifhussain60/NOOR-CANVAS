@@ -3,14 +3,20 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-01-10
-- **Last Updated**: 2025-01-11
+- **Last Updated**: 2025-10-14
 - **Owner**: GitHub Copilot
-- **Description**: SessionCanvas asset centering and question management features
+- **Description**: SessionCanvas asset centering, question management, toast testing, and sidebar height fix
 
 ## Summary
-SessionCanvas UI improvements for content display and Q&A functionality, including asset centering and real-time question management.
+SessionCanvas UI improvements for content display and Q&A functionality, including asset centering, real-time question management, toastr notification testing, and critical sidebar height bug fix.
 
-## Current Work
+## Current Work (2025-10-14)
+- Toast notification test buttons (SessionCanvas + HostControlPanel debug panels)
+- Dimension logging debug action (tracks sidebar height changes)
+- CRITICAL sidebar height fix (removed `height: 100%` from `.canvas-sidebar`)
+- Playwright test validation (10 questions height constraint test)
+
+## Previous Work
 - Asset centering fix (flexbox layout for all Islamic content)
 - Question update functionality (edit mode detection, API endpoint, SignalR broadcast)
 - Question delete functionality (ownership verification, real-time removal from all UIs)
