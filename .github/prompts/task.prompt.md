@@ -152,6 +152,11 @@ This ensures rollback capability if the task introduces instability.
 
 **See:** `.github/prompts/shared/context-gathering-phases.md` for complete decision tree, all 10 sub-phases, skip conditions, and performance optimization strategies.
 
+**CRITICAL GUARDRAILS:**
+1. **Token Budget Protection:** If Step 2 context gathering exceeds 50,000 tokens → HALT and request user approval before proceeding (prevents context overflow)
+2. **Circular Dependency Detection:** If Step 2.8 detects circular dependencies in architecture → HALT and request resolution strategy from user (prevents infinite recursion)
+3. **Phase Timeout Protection:** If Step 2 total execution exceeds 5 minutes → Emit warning, proceed with gathered context (prevents infinite analysis loops)
+
 **Key Sub-Phases Overview:**
 
 **Always Execute:**
@@ -320,6 +325,8 @@ SUMMARY: {key-name}
 ### Step 8: Update Key Data Stream (MANDATORY)
 
 **CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
+
+**GUARDRAIL - Lock Detection:** Before updating any key file, check for `.github/prompts.keys/**/{key}.lock` file. If lock exists → HALT and notify user (prevents concurrent modification conflicts).
 
 #### 8.1. Key Data Stream Bloat Detection (Pre-Update Cleanup)
 1. Read current state: Check file size, entry count
