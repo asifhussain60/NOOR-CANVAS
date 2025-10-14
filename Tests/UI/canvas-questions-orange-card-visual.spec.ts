@@ -1,6 +1,6 @@
+import percySnapshot from '@percy/playwright';
 import type { BrowserContext, Page } from '@playwright/test';
 import { chromium, expect, test } from '@playwright/test';
-import percySnapshot from '@percy/playwright';
 
 /**
  * Test: Canvas Questions Orange Card Visual Regression with Percy
@@ -42,8 +42,8 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
 
     test.beforeAll(async () => {
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Launching browser contexts for Percy ;CLEANUP_OK');
-        
-        browser = await chromium.launch({ 
+
+        browser = await chromium.launch({
             headless: false,
             slowMo: 300 // Slightly faster than structure test
         });
@@ -67,7 +67,7 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
         // Enable console logging
         pageA.on('console', msg => console.log(`[USER A] ${msg.text()}`));
         pageB.on('console', msg => console.log(`[USER B] ${msg.text()}`));
-        
+
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-setup-trace] Browser contexts created ;CLEANUP_OK');
     });
 
@@ -80,7 +80,7 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
 
     test('should match visual baseline for orange question card', async () => {
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-test-start] Beginning visual regression test ;CLEANUP_OK');
-        
+
         // Step 1: User A joins session
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-user-a-join] User A navigating to session ;CLEANUP_OK');
         await pageA.goto(`${BASE_URL}/user/landing/${SESSION_TOKEN}`);
@@ -122,13 +122,13 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
 
         // Step 4: User B verifies orange card is visible
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-verification] User B verifying orange card visibility ;CLEANUP_OK');
-        
+
         const questionCard = pageB.locator('.canvas-question-item.question-item-style-sienna').first();
         await expect(questionCard).toBeVisible({ timeout: 5000 });
-        
+
         // Wait for card to fully render
         await pageB.waitForTimeout(1000);
-        
+
         // Step 5: Capture Percy snapshot - Orange Card (User B's view)
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-snapshot] Capturing Percy snapshot - Orange Card ;CLEANUP_OK');
         await percySnapshot(pageB, 'Orange Question Card - User B View (Other Users Question)', {
@@ -140,9 +140,9 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
                 .canvas-participant-count { visibility: hidden; }
             `
         });
-        
+
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-snapshot] Orange card snapshot captured ;CLEANUP_OK');
-        
+
         // Step 6: Capture Percy snapshot - Green Card (User A's view)
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-snapshot] Capturing Percy snapshot - Green Card ;CLEANUP_OK');
         await percySnapshot(pageA, 'Green Question Card - User A View (Own Question)', {
@@ -153,30 +153,30 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
                 .canvas-participant-count { visibility: hidden; }
             `
         });
-        
+
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-snapshot] Green card snapshot captured ;CLEANUP_OK');
-        
+
         // Step 7: Functional validations (ensure Percy snapshots are of working features)
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-functional] Running functional validations ;CLEANUP_OK');
-        
+
         // User B sees orange card without owner controls
         const voteBadge = questionCard.locator('.canvas-question-vote-count').first();
         await expect(voteBadge).toBeVisible();
         await expect(voteBadge).toHaveText('0');
-        
+
         const ownerLabel = questionCard.locator('.canvas-question-owner-label');
         await expect(ownerLabel).toHaveCount(0);
-        
+
         // User A sees green card with owner controls
         const greenCard = pageA.locator('.canvas-question-item.question-item-style-green').first();
         await expect(greenCard).toBeVisible();
-        
+
         const greenOwnerLabel = greenCard.locator('.canvas-question-owner-label');
         await expect(greenOwnerLabel).toBeVisible();
         await expect(greenOwnerLabel).toHaveText('Your Question');
-        
+
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-test-complete] ✅ Percy visual regression test completed ;CLEANUP_OK');
-        
+
         // Final pause for manual verification
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-manual-verification] Pausing for manual visual verification (5 seconds) ;CLEANUP_OK');
         await pageB.waitForTimeout(5000);
@@ -184,40 +184,40 @@ test.describe('Canvas Questions - Orange Card Visual Regression (Percy)', () => 
 
     test('should capture vote state changes visually', async () => {
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-vote-test] Testing vote visual state changes ;CLEANUP_OK');
-        
+
         // Reuse existing session from previous test
         // User B should see the question from User A
-        
+
         const questionCard = pageB.locator('.canvas-question-item.question-item-style-sienna').first();
         await expect(questionCard).toBeVisible({ timeout: 5000 });
-        
+
         // Capture pre-vote state
         await percySnapshot(pageB, 'Orange Card - Before Vote', {
             widths: [1280],
             scope: '.canvas-question-item.question-item-style-sienna'
         });
-        
+
         // User B votes on question
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-vote-action] User B voting on question ;CLEANUP_OK');
         const voteButton = questionCard.locator('.canvas-question-vote-button').first();
         await voteButton.click();
-        
+
         // Wait for vote to register
         await pageB.waitForTimeout(2000);
-        
+
         // Capture post-vote state
         await percySnapshot(pageB, 'Orange Card - After Vote (Count: 1)', {
             widths: [1280],
             scope: '.canvas-question-item.question-item-style-sienna'
         });
-        
+
         // Verify vote count changed
         const voteBadge = questionCard.locator('.canvas-question-vote-count').first();
         await expect(voteBadge).toHaveText('1');
-        
+
         // Verify button is now disabled
         await expect(voteButton).toBeDisabled();
-        
+
         console.log('[DEBUG-WORKITEM:canvas-questions:percy-vote-test] ✅ Vote state visual regression test completed ;CLEANUP_OK');
     });
 });
