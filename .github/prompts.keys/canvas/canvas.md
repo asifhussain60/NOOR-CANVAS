@@ -41,29 +41,42 @@ SessionCanvas UI improvements focusing on layout stability and notification func
 ## Work Log
 
 ### 2025-10-14 | Canvas Panel Height & Toast Notification Fixes
-**Commit**: `d76901ab72717f72bee2e908e4780963998f3212`  
+**Commit**: `d76901ab` (initial) → `017c570d` (corrected)  
 **Agent**: task  
 **Task**: Fix canvas panel still increasing in height and toast notification not showing
 
 **Issue 1: Canvas Panel Height Expansion**
 - **Root Cause**: `.canvas-area-container` had `height: 100%` causing it to expand with content instead of being constrained by grid
-- **Solution**: Removed `height: 100%`, added `max-height: 100%` constraint
-- **CSS Changes** (SessionCanvas.razor lines 337-350):
+- **Initial Solution** (FLAWED): Removed `height: 100%`, added `max-height: 100%` constraint
+- **Problem Identified by User**: `max-height: 100%` is meaningless when parent grid has `height: auto` - no percentage context!
+- **Corrected Solution**: Set explicit `max-height: 700px` based on screenshot dimensions (697px × 400px visible area)
+- **CSS Changes** (SessionCanvas.razor):
   ```css
-  /* BEFORE */
+  /* BEFORE (BROKEN) */
   .canvas-area-container {
-      height: 100%;  /* REMOVED - was causing expansion */
+      height: 100%;  /* Caused expansion */
       min-height: 400px;
   }
   
-  /* AFTER */
+  /* INITIAL FIX (FLAWED) */
   .canvas-area-container {
-      /* height: 100% REMOVED */
       min-height: 400px;
-      max-height: 100%;  /* ADDED - respects grid constraints */
+      max-height: 100%;  /* Meaningless without parent height! */
+  }
+  
+  /* CORRECTED FIX */
+  .canvas-area-container {
+      min-height: 400px;
+      max-height: 700px;  /* Explicit constraint prevents expansion */
+  }
+  
+  .canvas-sidebar {
+      min-height: 400px;
+      max-height: 700px;  /* Matching constraint for grid alignment */
   }
   ```
-- **Impact**: Canvas area now respects grid layout constraints like sidebar, both maintain equal height
+- **Why 700px**: Screenshot showed 697px × 400px, rounded to 700px for viewport-friendly maximum
+- **Impact**: Both containers now have matching explicit height constraints, grid layout respected
 
 **Issue 2: Toast Notification Not Showing**
 - **Root Cause**: Toastr library not loaded when TestToastNotification() called via JSRuntime
