@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Deploy NoorCanvas application to production from master branch.
 
