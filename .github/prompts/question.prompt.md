@@ -355,7 +355,7 @@ You are the **one-stop solution** for all application-related questions, from fe
 After answering questions:
 
 1. **Document Question Pattern**: If question represents common inquiry, contribute to learning infrastructure
-2. **Update Pattern File**: `Workspaces/Copilot/learning/question-patterns.json`
+2. **Update Pattern File**: `.github/learning/patterns/question-patterns.json`
 
 **Pattern Contribution Format** (follow PATTERN_SCHEMA.md):
 ```json

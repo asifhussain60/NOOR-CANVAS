@@ -69,7 +69,7 @@ The **Commit Orchestrator Agent** executes a comprehensive pre-commit workflow t
 - **Reads From**: 
   - Git status (uncommitted changes)
   - `Workspaces/Documentation/` (cohesion review reports)
-  - `Workspaces/Copilot/learning/` (learning patterns)
+  - `.github/learning/` (learning patterns)
 - **Writes To**: 
   - Git commits with standardized messages
   - Origin (remote repository)
@@ -107,7 +107,7 @@ Start-Sleep -Seconds 2
 ```powershell
 # DEBUG-WORKITEM:commit:check-skip Check if cohesion review can be skipped ;CLEANUP_OK
 if ($skipCohesion -eq $true) {
-    $lastReview = Get-ChildItem "Workspaces/Documentation/cohesion-review-*.md" | 
+    $lastReview = Get-ChildItem ".github/reports/cohesion-review-*.md" | 
                   Sort-Object LastWriteTime -Descending | 
                   Select-Object -First 1
     
@@ -129,7 +129,7 @@ if ($skipCohesion -eq $true) {
 - Prompts analyzed: X files
 - Instructions analyzed: Y files
 - Issues detected: Z (0 for clean system)
-- Report saved: `Workspaces/Documentation/cohesion-review-{timestamp}.md`
+- Report saved: `.github/reports/cohesion-review-{timestamp}.md`
 
 **Failure Handling**:
 - **If issues detected**: Abort commit workflow and report issues
@@ -179,7 +179,7 @@ if ($skipSync -eq $true) {
 ```powershell
 # DEBUG-WORKITEM:commit:check-learning Check if learning analysis can be skipped ;CLEANUP_OK
 if ($skipLearning -eq $true) {
-    $lastAnalysis = Get-Content "Workspaces/Copilot/learning/analysis-history.json" | 
+    $lastAnalysis = Get-Content ".github/learning/analysis-history.json" | 
                     ConvertFrom-Json | 
                     Select-Object -First 1
     
@@ -208,7 +208,7 @@ if ($skipLearning -eq $true) {
 - Keys analyzed: X
 - Success patterns: Y extracted
 - Failure patterns: Z extracted
-- Learning library updated: `Workspaces/Copilot/learning/task-patterns.json`
+- Learning library updated: `.github/learning/task-patterns.json`
 
 **Failure Handling**:
 - **If analysis fails**: Log warning but continue (non-blocking)

@@ -298,7 +298,9 @@ When implementing changes, evaluate which type of test is needed:
    - User Token: `KJAHA99L` (Peter Parker participant)
    - Base URL: `https://localhost:9091`
 
-4. **Naming convention**: `{feature}-functional.spec.ts` in `Tests/UI/` or `Workspaces/TEMP/`
+4. **Naming convention**: `{feature}-{test-type}.spec.ts` in `Workspaces/TEMP/` (MANDATORY)
+   - Functional: `{key}-functional.spec.ts`
+   - Visual: `{key}-visual.spec.ts`
 
 **For Visual Regression Tests:**
 1. **Invoke test-generation.prompt.md** with parameters:
@@ -318,9 +320,9 @@ When implementing changes, evaluate which type of test is needed:
    - Test all visual states (default, hover, active, voted, etc.)
    - Use descriptive snapshot names
 
-4. **Naming convention**: `{feature}-visual.spec.ts` in `Tests/UI/`
+4. **Naming convention**: `{feature}-visual.spec.ts` in `Workspaces/TEMP/` (MANDATORY)
 
-5. **Execution**: `npm run test:percy:visual -- Tests/UI/{file}.spec.ts`
+5. **Execution**: `npm run test:percy:visual -- Workspaces/TEMP/{file}.spec.ts`
 
 **For CSS Quality Checks:**
 1. **Document in key data stream**: "CSS changes require Stylelint validation"
@@ -395,13 +397,13 @@ The **Task Executor Agent** is the canonical execution engine that breaks down r
   - refactor (post-implementation cleanup)
   - healthcheck (validation of architectural changes)
 - **Reads From**: 
-  - `Workspaces/Copilot/learning/task-patterns.json` (proven implementation patterns)
+  - `.github/learning/` (error-patterns.json, task-patterns.json)
   - `.github/prompts.keys/{key}/` (previous work context via Step 2)
   - ValidationFramework.md (Levels 1-5, Level 6 if structural)
 - **Writes To**: 
   - `.github/prompts.keys/{key}/work-log.md` (progressive documentation)
-  - `Workspaces/TEMP/` (Playwright tests for UI changes)
-  - `Workspaces/Copilot/learning/task-patterns.json` (successful patterns)
+  - `Workspaces/TEMP/` (ALL Playwright tests - functional and visual)
+  - `.github/learning/` (error-patterns.json updates, successful patterns)
 
 ### Expected Outcomes
 - **Incremental Documentation**: Key data stream updated after EVERY sub-task
@@ -472,7 +474,7 @@ All actions must respect the global guardrails and architectural mappings.
 - Always begin with a **checkpoint commit** to guarantee rollback safety.
 - **Always verify key data stream BEFORE planning** to gather context and prevent duplicate work.
 - **Always update key data stream AFTER execution** to maintain continuity and audit trail.
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for relevant patterns before execution.
+- **Cross-Agent Learning:** Query `.github/learning/` for relevant patterns before execution.
 - **Knowledge Contribution:** Update pattern library after successful completion.
 - Ensure analyzers, linters, and tests remain clean after every operation.
 - The build must complete with **zero errors and zero warnings**.  
@@ -1055,13 +1057,13 @@ This ensures rollback capability if the task introduces instability.
    - Validate SignalR hub usage patterns
    - Query: "Does this follow infrastructure rules?"
 
-5. **Cross-Agent Pattern Reuse** (consult `Workspaces/Copilot/learning/`):
+5. **Cross-Agent Pattern Reuse** (consult `.github/learning/`):
    ```
    [DEBUG-WORKITEM:prompts:pattern-reuse] Querying learning library ;CLEANUP_OK
    ```
-   - Search `task-patterns.json` for similar tasks
-   - Check `validation-patterns.json` for known issues
-   - Review `integration-patterns.json` for multi-component workflows
+   - Search `.github/learning/patterns/task-patterns.json` for similar tasks
+   - Check `.github/learning/patterns/validation-patterns.json` for known issues
+   - Review `.github/learning/patterns/analyze-learning-patterns.json` for multi-component workflows
    - Query: "Have we solved this before? What worked?"
 
 6. **Spaghetti Code Risk Assessment**:
@@ -1586,6 +1588,42 @@ This ensures rollback capability if the task introduces instability.
 8. **Documentation**: Record test file paths in key data stream
 9. **Artifacts**: Store test results, screenshots, and traces in `Workspaces/TEMP/playwright-artifacts/`
 
+#### 6.1.1. Automatic Test Type Detection & Execution
+**Trigger**: Immediately after test file created in Workspaces/TEMP/
+
+**Detection Logic**:
+1. **Analyze task description** for keyword patterns:
+   - **Visual indicators**: CSS, color, layout, spacing, visual, theme, responsive, style, alignment, rendering, pixel, viewport
+   - **Functional indicators**: click, submit, broadcast, API, interaction, workflow, navigation, form, button, delete, create, update
+
+2. **Determine test type**:
+   ```
+   IF (visual_keywords > functional_keywords) → Visual regression (Percy)
+   ELSE IF (functional_keywords > visual_keywords) → Functional E2E (Playwright)
+   ELSE IF (mixed equally) → Generate BOTH
+   ```
+
+3. **Auto-execute appropriate test**:
+   ```bash
+   # Visual test
+   npm run test:percy:visual -- Workspaces/TEMP/{key}-visual.spec.ts
+   
+   # Functional test  
+   npx playwright test Workspaces/TEMP/{key}-functional.spec.ts --headed
+   ```
+
+4. **Output** (concise):
+   ```
+   🧪 Auto-Test: {VISUAL | FUNCTIONAL | BOTH}
+   - File: Workspaces/TEMP/{test-file}.spec.ts
+   - Result: {PASS ✅ | FAIL ❌ | SKIP ⏭️}
+   ```
+
+5. **Skip auto-execution if**:
+   - User specifies `--no-auto-test` parameter
+   - Test requires manual environment setup
+   - Server not running (fallback to manual execution instructions)
+
 **Consult PlaywrightQuickRef.md for**:
 - Test writing patterns (API-based, multi-browser isolation, waiting strategies)
 - Assertion patterns (visibility, text content, count, URL)
@@ -1638,6 +1676,34 @@ SUMMARY: {key-name}
 
 ### 8. Summary + Key Management (Mandatory Update - Concise Output)
 **CRITICAL: ALL task completions MUST update the key data stream. This is not optional.**
+
+#### 8.0. Key Data Stream Bloat Detection (Pre-Update Cleanup)
+**Purpose**: Prevent information bloat, ensure efficiency before adding new content.
+
+**Execution** (before Step 8.1):
+
+1. **Read Current State**:
+   - Count total lines in `.github/prompts.keys/{key}/{key}.md`
+   - Identify duplicate file references, obsolete experiments
+   
+2. **Deduplication**:
+   - Merge multiple references to same file with consolidated changes
+   - Keep only latest commit per logical grouping
+   - Archive old test results (keep latest 3 only)
+   
+3. **Obsolescence Cleanup**:
+   - Remove failed experiments >30 days old
+   - Remove completed/abandoned TODOs >14 days old
+   - Consolidate duplicate consecutive work log entries
+   
+4. **Size Limits**:
+   - **Warn at 2000 lines**, **Hard stop at 3000 lines**
+   - Archive historical sections to `.github/prompts.keys/{key}/archive/`
+   
+5. **Output** (if cleanup performed):
+   ```
+   🧹 Cleanup: {before}→{after} lines (-{percent}%), {X} duplicates removed
+   ```
 
 #### 8.1. Key Data Stream Update Requirements
 1. **Locate Key File**: `.github/prompts.keys/**/<key>.md`
@@ -1883,8 +1949,8 @@ Internal template includes:
 
 #### 10.1. Pattern Extraction from Current Workspace
 1. **Scan Recent Workspace Documents** (last 30 days):
-   - `Workspaces/Documentation/*-summary.md`
-   - `Workspaces/Copilot/_DOCS/summaries/*`
+   - `Workspaces/Documentation/*-summary.md` (implementation summaries - keep in Workspaces)
+   - `.github/reports/cohesion-review-*.md` (system reports)
    - `.github/prompts.keys/*/work-log.md` (completed keys only)
    - `TEMP/*-summary.md` (successful implementations)
 

@@ -55,7 +55,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - **Updates**: 
   - SystemIndex.md (prompt inventory, agent coordination, system snapshots - AUTO-UPDATED)
   - All `.github/instructions/Links/*.MD` files
-  - `Workspaces/Copilot/learning/` patterns
+  - `.github/learning/` patterns
   - `Workspaces/Global/FileMetrics.md` (documentation drift tracking)
   - `.github/_Portable/` templates (prompts, instructions, shared modules)
   - Template version synchronization and placeholder validation
@@ -73,7 +73,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - Delete unused components, services, and DTOs
 - Eliminate duplicate code and consolidate logic
 - Normalize code formatting (Prettier, StyleCop)
-- Clean up temporary test files in `Workspaces/TEMP/`
+- Clean up temporary test files in `Workspaces/TEMP/` (keep production tests in Tests/UI/)
 - Archive deprecated artifacts to `.archive/`
 
 ---
@@ -113,7 +113,7 @@ When updating SystemIndex.md, ensure database rules remain prominent:
 - See InfrastructureQuickRef.md for complete rules
 
 ### Learning Integration
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/` for sync patterns
+- **Cross-Agent Learning:** Query `.github/learning/` for sync patterns
 - **Knowledge Contribution:** Document sync improvements in learning infrastructure
 
 This makes you both the **synchronizer** and **janitor** of the system.  

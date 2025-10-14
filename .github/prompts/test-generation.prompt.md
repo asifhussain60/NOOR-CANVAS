@@ -2,7 +2,7 @@
 mode: agent
 purpose: Generate Playwright end-to-end tests for user-facing functionality
 inputs: feature, scenario, endpoints, tokens
-outputs: TypeScript test file in Tests/UI/ or Workspaces/TEMP/
+outputs: TypeScript test file in Workspaces/TEMP/ (MANDATORY - all new tests)
 ---
 
 # Test Generation Agent
@@ -104,9 +104,9 @@ Examples:
 - `question-multi-user-sync.spec.ts`
 
 ### Test Location
-- **Production tests**: `Tests/UI/`
-- **Temporary/experimental tests**: `Workspaces/TEMP/`
-- **Feature-specific tests**: Match location to feature scope
+- **ALL new tests**: `Workspaces/TEMP/` (MANDATORY)
+- **Production promotion**: Tests move to `Tests/UI/` ONLY during task completion workflow
+- **Rationale**: Keeps Tests/UI/ clean, allows experimentation, clear quality gate
 
 ## Template Structure
 
@@ -431,7 +431,7 @@ Generate complete TypeScript test file with:
 - ✅ Monitors console for critical errors
 - ✅ Validates API responses against expected data
 - ✅ Includes cleanup in finally blocks
-- ✅ File saved to appropriate location (Tests/UI/ or Workspaces/TEMP/)
+- ✅ File saved to Workspaces/TEMP/ (production promotion happens in task completion)
 
 ## Workflow Integration
 

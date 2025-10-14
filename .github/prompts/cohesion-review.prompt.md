@@ -43,7 +43,7 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 **EFFICIENCY**: Don't re-analyze unchanged files
 
 1. **Look for previous cohesion review**:
-   - Check `Workspaces/Documentation/` for most recent `cohesion-review-*.md`
+   - Check `.github/reports/` for most recent `cohesion-review-*.md`
    - If found, read metadata section to get file hashes
 
 2. **Calculate current file hashes**:
@@ -70,7 +70,7 @@ git commit -m "checkpoint: pre-cohesion-review" --allow-empty
 1. **Completed Keys**: `.github/prompts.keys/*/` folders with status="completed"
 2. **Work Logs**: `work-log.md` files documenting execution history
 3. **Documentation**: `Workspaces/Documentation/*-summary.md`, `*-completion.md` files
-4. **Learning Patterns**: `Workspaces/Copilot/learning/patterns/*.json` files
+4. **Learning Patterns**: `.github/learning/patterns/*.json` files
 5. **Implementation Docs**: `Workspaces/Documentation/IMPLEMENTATIONS/*` folders
 
 **Fast Pattern Extraction** (3-5 minutes):
@@ -294,7 +294,7 @@ Analyze across **7 dimensions**, but use **smart heuristics** to reduce time:
 
 **EFFICIENCY**: Generate focused report with essential information only
 
-Create report in `Workspaces/Documentation/cohesion-review-YYYY-MM-DD.md`:
+Create report in `.github/reports/cohesion-review-YYYY-MM-DD.md`:
 
 **Report Structure** (streamlined vs. original):
 
@@ -593,7 +593,7 @@ After consolidation:
 Create comprehensive commit with all findings:
 
 ```bash
-git add Workspaces/Documentation/cohesion-review-*.md
+git add .github/reports/cohesion-review-*.md
 git add .github/prompts.keys/cohesion/
 git add .github/instructions/
 git add .github/prompts/
@@ -615,7 +615,7 @@ Consolidation Actions:
 Action items created: G
 Priority breakdown: X high, Y medium, Z low
 
-See Workspaces/Documentation/cohesion-review-[DATE].md for full report"
+See .github/reports/cohesion-review-[DATE].md for full report"
 ```
 
 ---

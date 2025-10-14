@@ -48,7 +48,7 @@ The **System Health Auditor Agent** performs comprehensive, read-only validation
 - **Reports To**: sync agent for remediation of discovered issues
 - **Validates**: All 6 levels of ValidationFramework.md (read-only verification)
 - **Reads From**: Architecture.md, API-Contract-Validation.md, SystemIndex.md
-- **Updates**: `Workspaces/Copilot/learning/validation-patterns.json` with newly discovered patterns
+- **Updates**: `.github/learning/validation-patterns.json` with newly discovered patterns
 
 ### Expected Outcomes
 - Comprehensive health audit report with violations categorized by severity
@@ -85,7 +85,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 - **ValidationFramework.md** - Comprehensive 6-level validation (read-only verification)
 
 ### Learning Integration
-- **Cross-Agent Learning:** Query `Workspaces/Copilot/learning/patterns/validation-patterns.json` for known issues
+- **Cross-Agent Learning:** Query `.github/learning/patterns/validation-patterns.json` for known issues
 - **Knowledge Contribution:** Document newly discovered validation patterns  
 
 ---
@@ -149,7 +149,7 @@ You act as a read-only validator, surfacing mismatches, drift, and violations th
 After completing healthcheck:
 
 1. **Document Findings**: Create or update key data stream entry for audit trail
-2. **Update Learning Patterns**: Contribute discovered validation patterns to `Workspaces/Copilot/learning/validation-patterns.json`
+2. **Update Learning Patterns**: Contribute discovered validation patterns to `.github/learning/validation-patterns.json`
 
 **Key Data Stream Path**: `.github/prompts.keys/healthcheck-audits/work-log.md`
 
