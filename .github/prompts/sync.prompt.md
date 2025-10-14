@@ -10,10 +10,10 @@ You are the **Synchronization and Cleanup Agent**.
 ## Debug Logging Mandate (Code Insertion)
 **The `debug-level` parameter controls debug logging code inserted INTO source files, NOT agent output verbosity.**
 
-- **`none` (default)**: Write production-ready code with no debug logging
+- **`none`**: Write production-ready code with no debug logging
 - **`simple`**: Insert basic debug markers for sync/cleanup validation
 - **`trace`**: Insert comprehensive debug markers with detailed tracking
-- **`cleanup`**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
+- **`cleanup`(default)**: Remove all debug markers matching `[DEBUG-WORKITEM:*] ;CLEANUP_OK` pattern
 
 See task.prompt.md Debug Logging Mandate for complete marker patterns and rules.
 
