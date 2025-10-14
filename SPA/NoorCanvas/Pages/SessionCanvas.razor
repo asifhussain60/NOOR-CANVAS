@@ -38,23 +38,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <script src="~/js/html-renderer.js"></script>
     
-    <!-- [DEBUG-WORKITEM:canvas-questions:toastr:trace] showNoorToast function definition (EmptyLayout doesn't inherit _Host.cshtml) ;CLEANUP_OK -->
+    <!-- [DEBUG-WORKITEM:toastr:timeout:trace] showNoorToast function definition (EmptyLayout doesn't inherit _Host.cshtml) ;CLEANUP_OK -->
     <script>
         window.showNoorToast = function(message, title, type) {
-            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 🎯 showNoorToast CALLED ;CLEANUP_OK');
-            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - message:', message, ';CLEANUP_OK');
-            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - title:', title, ';CLEANUP_OK');
-            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - type:', type, ';CLEANUP_OK');
-            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - toastr available:', typeof toastr !== 'undefined', ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:toastr:timeout:trace] 🎯 showNoorToast CALLED ;CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:toastr:timeout:trace]   - message:', message, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:toastr:timeout:trace]   - title:', title, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:toastr:timeout:trace]   - type:', type, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:toastr:timeout:trace]   - toastr available:', typeof toastr !== 'undefined', ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:toastr:timeout:trace]   - timestamp:', new Date().toISOString(), ';CLEANUP_OK');
             
             if (typeof toastr !== 'undefined') {
                 title = title || 'Notification';
                 type = type || 'info';
                 
-                // [DIAGNOSTIC:toast-config] SessionCanvas: 10 second display at top-right for selective actions ;CLEANUP_OK
+                // [DEBUG-WORKITEM:toastr:timeout:trace] SessionCanvas: 3 second auto-close at top-right ;CLEANUP_OK
                 const options = {
-                    timeOut: 10000,
-                    extendedTimeOut: 2000,
+                    timeOut: 3000,
+                    extendedTimeOut: 1000,
                     closeButton: true,
                     progressBar: true,
                     positionClass: 'toast-top-right',
@@ -72,34 +73,60 @@
                 options.titleClass = 'toast-title noor-toast-title';
                 options.messageClass = 'toast-message noor-toast-message';
 
-                console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 📋 Toast options:', JSON.stringify(options), ';CLEANUP_OK');
-                console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ✅ About to display toastr with type:', type.toLowerCase(), ';CLEANUP_OK');
+                console.log('[DEBUG-WORKITEM:toastr:timeout:trace] 📋 Toast options:', JSON.stringify(options), ';CLEANUP_OK');
+                console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ⏱️ Configured timeout: 3000ms (3 seconds) ;CLEANUP_OK');
+                console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ✅ About to display toastr with type:', type.toLowerCase(), ';CLEANUP_OK');
+                
+                const startTime = Date.now();
+                console.log('[DEBUG-WORKITEM:toastr:timeout:trace] 🕐 Toast display start time:', startTime, ';CLEANUP_OK');
                 
                 switch(type.toLowerCase()) {
                     case 'success':
                         toastr.success(message, title, options);
-                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 🎉 SUCCESS toast displayed ;CLEANUP_OK');
+                        console.log('[DEBUG-WORKITEM:toastr:timeout:trace] 🎉 SUCCESS toast displayed at', startTime, ';CLEANUP_OK');
                         break;
                     case 'warning':
                         toastr.warning(message, title, options);
-                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ⚠️ WARNING toast displayed ;CLEANUP_OK');
+                        console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ⚠️ WARNING toast displayed at', startTime, ';CLEANUP_OK');
                         break;
                     case 'error':
-                        toastr.error(message, title, { ...options, timeOut: 10000 });
-                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ❌ ERROR toast displayed ;CLEANUP_OK');
+                        toastr.error(message, title, { ...options, timeOut: 3000 });
+                        console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ❌ ERROR toast displayed at', startTime, '(timeout: 3000ms) ;CLEANUP_OK');
                         break;
                     case 'info':
                     default:
                         toastr.info(message, title, options);
-                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ℹ️ INFO toast displayed ;CLEANUP_OK');
+                        console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ℹ️ INFO toast displayed at', startTime, ';CLEANUP_OK');
                         break;
                 }
+                
+                // [DEBUG-WORKITEM:toastr:timeout:trace] Monitor toast lifecycle events ;CLEANUP_OK
+                setTimeout(() => {
+                    const elapsed = Date.now() - startTime;
+                    console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ⏱️ Toast still visible after', elapsed, 'ms ;CLEANUP_OK');
+                }, 1000);
+                
+                setTimeout(() => {
+                    const elapsed = Date.now() - startTime;
+                    console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ⏱️ Toast still visible after', elapsed, 'ms ;CLEANUP_OK');
+                }, 2000);
+                
+                setTimeout(() => {
+                    const elapsed = Date.now() - startTime;
+                    console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ⏱️ Toast should be closing around', elapsed, 'ms ;CLEANUP_OK');
+                }, 3000);
+                
+                setTimeout(() => {
+                    const elapsed = Date.now() - startTime;
+                    const toastCount = document.querySelectorAll('.toast').length;
+                    console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ⏱️ 4s check - elapsed:', elapsed, 'ms, visible toasts:', toastCount, ';CLEANUP_OK');
+                }, 4000);
             } else {
-                console.error('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 💥 Toastr library NOT loaded - using alert fallback ;CLEANUP_OK');
+                console.error('[DEBUG-WORKITEM:toastr:timeout:trace] 💥 Toastr library NOT loaded - using alert fallback ;CLEANUP_OK');
                 alert(title + ': ' + message);
             }
         };
-        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ✅ showNoorToast function initialized ;CLEANUP_OK');
+        console.log('[DEBUG-WORKITEM:toastr:timeout:trace] ✅ showNoorToast function initialized with 3s timeout ;CLEANUP_OK');
     </script>
 </HeadContent>
 
