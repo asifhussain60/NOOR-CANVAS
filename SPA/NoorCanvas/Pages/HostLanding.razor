@@ -556,7 +556,9 @@
 @* Database Info Panel - Show DevPanel in dev mode, ProductionInfoPanel in production *@
 @if (DevModeService.ShowDevPanels)
 {
-    <NoorCanvas.Components.Development.DebugPanel CurrentViewName="HostLanding" />
+    <NoorCanvas.Components.Development.DebugPanel CurrentViewName="HostLanding" 
+                                                   DebugActions="GetHostLandingDebugActions()" 
+                                                   GenericMessage="Host Landing debug actions" />
 }
 else
 {
@@ -937,6 +939,92 @@ else
         public int SessionId { get; set; }
         public bool IsActive { get; set; }
         public DateTime? ExpiresAt { get; set; }
+    }
+    
+    /// <summary>
+    /// [DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] Debug Actions Factory for HostLanding ;CLEANUP_OK
+    /// </summary>
+    private List<NoorCanvas.Models.Debug.IDebugAction> GetHostLandingDebugActions()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Creating debug actions for HostLanding ;CLEANUP_OK", requestId);
+        
+        var actions = new List<NoorCanvas.Models.Debug.IDebugAction>();
+        
+        // Action 1: Auto-fill with test token
+        if (Model != null && string.IsNullOrEmpty(Model.FriendlyToken))
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Adding 'Enter Test Token' action ;CLEANUP_OK", requestId);
+            
+            actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+                "Enter Test Token",
+                "Auto-fill with session 212 host token (TESTHOST)",
+                async () => await HandleEnterTestToken(),
+                "fa-solid fa-key"
+            )
+            {
+                IsEnabled = !isLoading
+            });
+        }
+        
+        // Action 2: Quick authenticate (if token already entered)
+        if (Model != null && !string.IsNullOrEmpty(Model.FriendlyToken))
+        {
+            Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Adding 'Quick Authenticate' action ;CLEANUP_OK", requestId);
+            
+            actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+                "Quick Authenticate",
+                "Immediately authenticate with current token",
+                async () => await HandleAuthentication(),
+                "fa-solid fa-bolt"
+            )
+            {
+                IsEnabled = !isLoading && Model.FriendlyToken.Length == 8
+            });
+        }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Created {Count} debug actions ;CLEANUP_OK", requestId, actions.Count);
+        
+        return actions;
+    }
+    
+    /// <summary>
+    /// [DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] Handle Enter Test Token debug action ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleEnterTestToken()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] ════════ ENTER TEST TOKEN DEBUG ACTION START ════════ ;CLEANUP_OK", requestId);
+        
+        if (Model == null)
+        {
+            Logger.LogWarning("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Model is null, cannot enter test token ;CLEANUP_OK", requestId);
+            return;
+        }
+        
+        // Use Session 212 test token (from PlaywrightQuickRef.md canonical data)
+        const string testToken = "TESTHOST";
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Setting FriendlyToken to: {Token} ;CLEANUP_OK", requestId, testToken);
+        
+        Model.FriendlyToken = testToken;
+        errorMessage = "";
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Updating UI with test token ;CLEANUP_OK", requestId);
+        
+        await InvokeAsync(StateHasChanged);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Waiting 100ms for UI render ;CLEANUP_OK", requestId);
+        await Task.Delay(100);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Test token entered successfully: {Token} ;CLEANUP_OK", requestId, testToken);
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] ════════ ENTER TEST TOKEN DEBUG ACTION END ════════ ;CLEANUP_OK", requestId);
+        
+        // Show success toast
+        await JSRuntime.InvokeVoidAsync("showNoorToast", 
+            $"Test token '{testToken}' entered (Session 212)", 
+            "Debug Action Complete", 
+            "success");
     }
 }
 
