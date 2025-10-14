@@ -449,6 +449,42 @@ try {
             Copy-Item -Path "$HostProvisionerPublishPath\*" -Destination $HostProvisionerDeployPath -Recurse -Force
             Write-Success "HostProvisioner deployed to $HostProvisionerDeployPath"
             
+            # Transform app.config to Production environment
+            $appConfigPath = Join-Path $HostProvisionerDeployPath "app.config"
+            if (Test-Path $appConfigPath) {
+                Write-Info "Transforming app.config to Production environment..."
+                try {
+                    [xml]$appConfig = Get-Content $appConfigPath
+                    $envSetting = $appConfig.SelectSingleNode("//appSettings/add[@key='ASPNETCORE_ENVIRONMENT']")
+                    if ($envSetting) {
+                        $envSetting.SetAttribute("value", "Production")
+                        $appConfig.Save($appConfigPath)
+                        Write-Success "app.config transformed: ASPNETCORE_ENVIRONMENT = Production"
+                    } else {
+                        Write-Warning "ASPNETCORE_ENVIRONMENT setting not found in app.config"
+                    }
+                } catch {
+                    Write-Warning "Failed to transform app.config: $_"
+                }
+            }
+            
+            # Also transform HostProvisioner.dll.config if it exists
+            $dllConfigPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll.config"
+            if (Test-Path $dllConfigPath) {
+                Write-Info "Transforming HostProvisioner.dll.config to Production environment..."
+                try {
+                    [xml]$dllConfig = Get-Content $dllConfigPath
+                    $envSetting = $dllConfig.SelectSingleNode("//appSettings/add[@key='ASPNETCORE_ENVIRONMENT']")
+                    if ($envSetting) {
+                        $envSetting.SetAttribute("value", "Production")
+                        $dllConfig.Save($dllConfigPath)
+                        Write-Success "HostProvisioner.dll.config transformed: ASPNETCORE_ENVIRONMENT = Production"
+                    }
+                } catch {
+                    Write-Warning "Failed to transform HostProvisioner.dll.config: $_"
+                }
+            }
+            
             # Verify HostProvisioner deployment
             $hpDllPath = Join-Path $HostProvisionerDeployPath "HostProvisioner.dll"
             if (Test-Path $hpDllPath) {
