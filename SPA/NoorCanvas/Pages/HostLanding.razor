@@ -9,12 +9,14 @@
 @using System.Text.Json.Serialization
 @using NoorCanvas.Controllers
 @using NoorCanvas.Services.Development
+@using Microsoft.Extensions.Configuration
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 @inject ILogger<HostLanding> Logger
 @inject LoadingService LoadingService
 @inject IDevModeService DevModeService
+@inject IConfiguration Configuration
 
 <PageTitle>NOOR Canvas - Host Authentication</PageTitle>
 
@@ -983,6 +985,19 @@ else
             });
         }
         
+        // Action 3: Clean Canvas Database [DIAGNOSTIC:debug-panel:clean-canvas] ;CLEANUP_OK
+        Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Adding 'Clean Canvas DB' action ;CLEANUP_OK", requestId);
+        
+        actions.Add(new NoorCanvas.Models.Debug.DebugAction(
+            "Clean Canvas DB",
+            "Execute canvas.CleanCanvas stored procedure to reset test data",
+            async () => await HandleCleanCanvasDatabase(),
+            "fa-solid fa-broom"
+        )
+        {
+            IsEnabled = !isLoading
+        });
+        
         Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Created {Count} debug actions ;CLEANUP_OK", requestId, actions.Count);
         
         return actions;
@@ -1025,6 +1040,57 @@ else
             $"Test token '{testToken}' entered (Session 212)", 
             "Debug Action Complete", 
             "success");
+    }
+    
+    /// <summary>
+    /// [DIAGNOSTIC:debug-panel:clean-canvas] Execute canvas.CleanCanvas stored procedure ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleCleanCanvasDatabase()
+    {
+        var requestId = Guid.NewGuid().ToString("N")[..8];
+        Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] ════════ CLEAN CANVAS DATABASE START ════════ ;CLEANUP_OK", requestId);
+        
+        try
+        {
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Executing canvas.CleanCanvas stored procedure... ;CLEANUP_OK", requestId);
+            
+            // Execute the stored procedure
+            await using var connection = new Microsoft.Data.SqlClient.SqlConnection(Configuration.GetConnectionString("DefaultConnection"));
+            await connection.OpenAsync();
+            
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Database connection opened successfully ;CLEANUP_OK", requestId);
+            
+            await using var command = new Microsoft.Data.SqlClient.SqlCommand("canvas.CleanCanvas", connection)
+            {
+                CommandType = System.Data.CommandType.StoredProcedure,
+                CommandTimeout = 60 // 60 second timeout
+            };
+            
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Executing stored procedure... ;CLEANUP_OK", requestId);
+            
+            var affectedRows = await command.ExecuteNonQueryAsync();
+            
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Stored procedure executed successfully. Affected rows: {AffectedRows} ;CLEANUP_OK", 
+                requestId, affectedRows);
+            Logger.LogCritical("[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] ════════ CLEAN CANVAS DATABASE COMPLETE ════════ ;CLEANUP_OK", requestId);
+            
+            // Show success toast
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                "Canvas database cleaned successfully! Participants and session data reset.", 
+                "Clean Canvas DB", 
+                "success");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DIAGNOSTIC:debug-panel:clean-canvas] [{RequestId}] Error executing canvas.CleanCanvas: {Message} ;CLEANUP_OK", 
+                requestId, ex.Message);
+            
+            // Show error toast
+            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                $"Failed to clean canvas database: {ex.Message}", 
+                "Clean Canvas DB Error", 
+                "error");
+        }
     }
 }
 

@@ -1,13 +1,36 @@
 # Debug Panel - Key Data Stream
 
-**Feature**: Development debug panels across UserLanding, SessionCanvas, and HostControlPanel views
-**Status**: ⚠️ Toast NotificationOptions.closeButton Error Investigation
-**Last Updated**: 2025-10-14
+**Feature**: Development debug panels across UserLanding, SessionCanvas, HostLanding, and HostControlPanel views
+**Status**: ✅ All Debug Panels Configured and Working
+**Last Updated**: 2025-10-14 (Session: HostLanding debug panel added)
 **Debug Level**: trace
 
 ---
 
-## 🔴 CURRENT ISSUE: Toast NotificationOptions Error
+## ✅ RESOLVED: HostLanding Debug Panel Missing (2025-10-14)
+
+**Issue**: Debug panel not visible on HostLanding.razor page
+
+**Root Cause**: 
+- DebugPanel component was present but missing `DebugActions` parameter
+- No `GetHostLandingDebugActions()` factory method existed
+
+**Fix Applied** (Commit: 53467c4b):
+1. Added `GetHostLandingDebugActions()` factory method
+2. Implemented two debug actions:
+   - **Enter Test Token**: Auto-fills "TESTHOST" for Session 212
+   - **Quick Authenticate**: Instant authentication with current token
+3. Updated DebugPanel component call with `DebugActions` parameter
+4. Added trace-level debug logging
+
+**Verification**:
+- ✅ SessionCanvas.razor: Already properly configured (no changes needed)
+- ✅ HostLanding.razor: Now properly configured with debug actions
+- ✅ HostControlPanel.razor: Previously configured and working
+
+---
+
+## 🔴 KNOWN ISSUE: Toast NotificationOptions Error (Lower Priority)
 
 **Error Message**: `Microsoft.JSInterop.JSException: Object of type 'NotificationOptions' does not have a property named 'closeButton'`
 
@@ -30,11 +53,12 @@
 
 ## Overview
 
-Debug panels provide development-time utilities for testing and debugging across three key views:
+Debug panels provide development-time utilities for testing and debugging across four key views:
 
 1. **UserLanding.razor**: Auto-fill registration form with superhero test data
 2. **SessionCanvas.razor**: Simulate random questions for participants
-3. **HostControlPanel.razor**: Test asset sharing and detection
+3. **HostLanding.razor**: Auto-fill test host token (TESTHOST) and quick authenticate
+4. **HostControlPanel.razor**: Test asset sharing and detection
 
 All debug panels follow consistent architectural pattern using `DebugActions` list with `IDebugAction` interface.
 
@@ -175,6 +199,66 @@ Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:test-data:TRACE] [{RequestId}
 ```csharp
 Logger.LogInformation("[DEBUG-WORKITEM:canvas:test-question:TRACE] Random question submitted: {Question} ;CLEANUP_OK", randomQuestion);
 ```
+
+---
+
+## Implementation: HostLanding.razor
+
+**Location**: `SPA/NoorCanvas/Pages/HostLanding.razor`
+**Status**: ✅ Fully Implemented (2025-10-14, Commit: 53467c4b)
+
+### Debug Actions
+
+**Factory Method**: `GetHostLandingDebugActions()` (line 947+)
+
+**Conditional Visibility**:
+- Actions change based on Model state (empty token vs token entered)
+- Prevents duplicate actions in panel
+
+**Actions**:
+
+1. **"Enter Test Token"** (shown when FriendlyToken is empty)
+   - Icon: `fa-solid fa-key`
+   - Description: "Auto-fill with session 212 host token (TESTHOST)"
+   - Enabled When: `!isLoading`
+   - Handler: `HandleEnterTestToken()`
+   - Behavior: 
+     - Sets `Model.FriendlyToken = "TESTHOST"`
+     - Clears error messages
+     - Updates UI
+     - Shows success toast
+
+2. **"Quick Authenticate"** (shown when FriendlyToken is entered)
+   - Icon: `fa-solid fa-bolt`
+   - Description: "Immediately authenticate with current token"
+   - Enabled When: `!isLoading && Model.FriendlyToken.Length == 8`
+   - Handler: `HandleAuthentication()`
+   - Behavior: 
+     - Calls existing authentication flow
+     - Validates token
+     - Redirects to Host Session Opener
+
+### HandleEnterTestToken Method
+
+**Location**: Line 994+
+
+**Functionality**:
+1. Validates Model is not null
+2. Sets FriendlyToken to "TESTHOST" (Session 212 canonical data)
+3. Clears error messages
+4. Updates UI via `StateHasChanged()`
+5. Waits 100ms for UI render
+6. Shows success toast notification
+
+**Logging**:
+```csharp
+Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] ════════ ENTER TEST TOKEN DEBUG ACTION START ════════ ;CLEANUP_OK", requestId);
+Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] Setting FriendlyToken to: {Token} ;CLEANUP_OK", requestId, testToken);
+Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:hostlanding:TRACE] [{RequestId}] ════════ ENTER TEST TOKEN DEBUG ACTION END ════════ ;CLEANUP_OK", requestId);
+```
+
+**Test Data**:
+- Token: "TESTHOST" (Session 212 host token from PlaywrightQuickRef.md)
 
 ---
 

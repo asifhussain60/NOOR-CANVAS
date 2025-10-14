@@ -3,12 +3,111 @@
 **Status**: In Progress  
 **Key Owner**: task  
 **Created**: 2025-10-14  
-**Last Updated**: 2025-10-14
+**Last Updated**: 2025-10-14 22:30
 
 ---
 
 ## Overview
-Remove test toast notification functionality from debug panels across all views and create visual regression tests to verify toast behavior.
+Fix debug panel visibility issue caused by missing ASPNETCORE_ENVIRONMENT variable and add CleanCanvas database action to HostLanding debug panel. Create comprehensive visual regression tests with proper environment isolation.
+
+---
+
+## ⚠️  CRITICAL FIX: Debug Panel Not Visible (2025-10-14 22:30)
+
+### Root Cause Analysis
+**Issue**: Debug panels not showing on any page despite correct implementation
+
+**Diagnosis**:
+1. ✅ DevModeService registered in Program.cs
+2. ✅ appsettings.Development.json configured correctly (`ShowDevPanels: true`)
+3. ✅ launchSettings.json sets ASPNETCORE_ENVIRONMENT = "Development"
+4. ❌ **ASPNETCORE_ENVIRONMENT not set in terminal session**
+
+**The Problem**:
+- Running `dotnet run` directly in terminal does NOT use launchSettings.json
+- Environment variable must be set explicitly in PowerShell session
+- DevModeService.ShowDevPanels checks:
+  ```csharp
+  public bool ShowDevPanels =>
+      IsDevelopmentMode &&
+      _configuration.GetValue<bool>("Development:ShowDevPanels", true);
+      
+  public bool IsDevelopmentMode =>
+      #if DEBUG
+          _environment.IsDevelopment();  // ← Returns FALSE without ASPNETCORE_ENVIRONMENT
+      #else
+          false;
+      #endif
+  ```
+
+### Solution Implemented
+
+**Files Created**:
+
+1. **Scripts/diagnose-debug-panel.ps1**
+   - Diagnostic tool to check environment configuration
+   - Validates all 5 components: Environment var, appsettings, launchSettings, service registration, component implementation
+   - Provides actionable recommendations
+   - Auto-sets ASPNETCORE_ENVIRONMENT when run
+
+2. **Scripts/start-with-debug-panel.ps1**
+   - Launch script that sets environment before running app
+   - Ensures `$env:ASPNETCORE_ENVIRONMENT = "Development"`
+   - Provides proper startup sequence for debug panel support
+   - Usage: `.\Scripts\start-with-debug-panel.ps1`
+
+3. **Scripts/run-debug-panel-visual-tests.ps1**
+   - Master test orchestration script
+   - Launches app in SEPARATE PowerShell window (not terminal)
+   - Waits 15 seconds for app startup
+   - Runs Playwright + Percy visual regression tests
+   - Automated cleanup (kills app process after tests)
+   - Parameters:
+     - `-KeepAppRunning`: Don't kill app after tests
+     - `-HeadlessMode`: Run tests headless (default: headed)
+     - `-NoPercy`: Skip Percy integration (default: enabled)
+
+4. **Tests/UI/debug-panel-visual-regression.spec.ts**
+   - Comprehensive Playwright + Percy test suite
+   - Tests all 4 views: HostLanding, UserLanding, SessionCanvas, HostControlPanel
+   - Visual regression baselines for collapsed/expanded states
+   - CSS verification (z-index, positioning, loading)
+   - JavaScript interaction testing (toggle, animation)
+   - Debug action enumeration and validation
+   
+### New Feature: CleanCanvas Database Action
+
+**Implementation**: HostLanding.razor debug panel
+
+**Action Added**:
+```csharp
+new DebugAction(
+    "Clean Canvas DB",
+    "Execute canvas.CleanCanvas stored procedure to reset test data",
+    async () => await HandleCleanCanvasDatabase(),
+    "fa-solid fa-broom"
+)
+```
+
+**Functionality**: `HandleCleanCanvasDatabase()` method (Lines ~1042-1078)
+- Executes `canvas.CleanCanvas` stored procedure
+- Truncates: SessionData, Participants tables
+- Extends session expiration by 24 hours (all active sessions)
+- Special handling: Session 212 extended to 1 week
+- DIAGNOSTIC-level logging with `[DIAGNOSTIC:debug-panel:clean-canvas]` markers
+- Success/error toast notifications
+- 60-second command timeout
+
+**Files Modified**:
+- `SPA/NoorCanvas/Pages/HostLanding.razor`:
+  - Added `@using Microsoft.Extensions.Configuration`
+  - Added `@inject IConfiguration Configuration`
+  - Updated `GetHostLandingDebugActions()` to include CleanCanvas action
+  - Added `HandleCleanCanvasDatabase()` method
+
+**Database Dependency**:
+- Stored Procedure: `canvas.CleanCanvas` (Scripts/canvas.CleanCanvas.sql)
+- Must be deployed to database before using debug action
 
 ---
 
@@ -258,3 +357,78 @@ Remove test toast notification functionality from debug panels across all views 
 - toastr.js library (CDN)
 - Playwright visual testing framework
 - Session 212 test data (KJAHA99L participant, PQ9N5YWW host)
+
+---
+
+## ?? Complete Implementation Summary
+
+### Debug Panel Actions by View
+
+#### 1. HostLanding (`/host/landing`)
+**Actions Available**:
+1. **Enter Test Token** (conditional: when token field empty)
+   - Auto-fills "TESTHOST" for Session 212
+   - Enables quick testing workflow
+   - Method: `HandleEnterTestToken()`
+
+2. **Quick Authenticate** (conditional: when token entered)
+   - Immediately authenticates with current token
+   - Bypasses manual submission
+   - Method: `HandleAuthentication()`
+
+3. **Clean Canvas DB** (always available) ? NEW
+   - Executes `canvas.CleanCanvas` stored procedure
+   - Resets Participants and SessionData tables
+   - Extends session expiration (+24 hours general, +7 days for Session 212)
+   - Method: `HandleCleanCanvasDatabase()`
+
+#### 2. UserLanding (`/join-session/{token}`)
+**Actions Available**:
+1. **Enter Test Data**
+   - Generates random superhero name and email
+   - Auto-selects random country from dropdown
+   - Auto-submits registration form after 100ms
+   - Method: `HandleEnterTestData()`
+
+#### 3. SessionCanvas (`/session/canvas/{token}`)
+**Actions Available**:
+1. **Simulate Random Question**
+   - Posts random Islamic question from curated list (50+ questions)
+   - Broadcasts via SignalR to all participants
+   - Tests real-time Q&A functionality
+   - Method: `SimulateRandomQuestion()`
+
+#### 4. HostControlPanel (`/host/control-panel/{token}`)
+**Actions Available**:
+1. **Test Share Asset** (enabled when session Active)
+   - Broadcasts test asset via SignalR
+   - Verifies real-time asset sharing
+   - Method: `TestShareAsset()`
+
+2. **Test Asset Detection** (enabled when session Active)
+   - Analyzes uploaded assets
+   - Shows popup with asset type counts
+   - Method: `TestAssetDetectionAsync()`
+
+### Quick Start Guide
+
+**Option 1: Using Launch Script (Recommended)**
+```powershell
+.\Scripts\start-with-debug-panel.ps1
+```
+
+**Option 2: Manual Terminal**
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+dotnet run
+```
+
+**Run Tests**:
+```powershell
+.\Scripts\run-debug-panel-visual-tests.ps1
+```
+
+---
+
+**End of Key Data Stream**
