@@ -28,6 +28,9 @@ class Program
         ConfigureServices(services);
         var serviceProvider = services.BuildServiceProvider();
 
+        // Show environment banner for both interactive and CLI modes
+        ShowEnvironmentBanner();
+
         // If no arguments provided, run interactive mode
         if (args.Length == 0)
         {
@@ -102,6 +105,23 @@ class Program
         {
             Log.CloseAndFlush();
         }
+    }
+
+    private static void ShowEnvironmentBanner()
+    {
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        var connectionString = GetConnectionStringForDisplay();
+        var databaseName = ExtractDatabaseName(connectionString);
+        
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine("*************************************");
+        Console.WriteLine($"Environment: {environment}");
+        Console.WriteLine($"Database: {databaseName}");
+        Console.WriteLine("*************************************");
+        Console.WriteLine();
+        Console.WriteLine();
     }
 
     private static void ConfigureServices(ServiceCollection services)
@@ -269,6 +289,19 @@ class Program
             // Ignore any other console clearing issues
         }
         
+        // Display environment and database information banner
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+        var connectionString = GetConnectionStringForDisplay();
+        var databaseName = ExtractDatabaseName(connectionString);
+        
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine("*************************************");
+        Console.WriteLine($"Environment: {environment}");
+        Console.WriteLine($"Database: {databaseName}");
+        Console.WriteLine("*************************************");
+        Console.WriteLine();
+        Console.WriteLine();
         Console.WriteLine("🔐 NOOR Canvas Host Provisioner - Interactive Mode");
         Console.WriteLine("================================================");
         Console.WriteLine();
@@ -277,6 +310,44 @@ class Program
         Console.WriteLine("   • Type 'help' for more options");
         Console.WriteLine("   • Type 'exit' to quit");
         Console.WriteLine();
+    }
+    
+    private static string GetConnectionStringForDisplay()
+    {
+        try
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
+                .Build();
+            
+            return configuration.GetConnectionString("DefaultConnection") ?? 
+                   "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=***;";
+        }
+        catch
+        {
+            return "Server=AHHOME;Database=KSESSIONS_DEV;User ID=sa;Password=***;";
+        }
+    }
+    
+    private static string ExtractDatabaseName(string connectionString)
+    {
+        try
+        {
+            var parts = connectionString.Split(';');
+            var dbPart = parts.FirstOrDefault(p => p.Trim().StartsWith("Database=", StringComparison.OrdinalIgnoreCase));
+            if (dbPart != null)
+            {
+                return dbPart.Split('=')[1].Trim();
+            }
+        }
+        catch
+        {
+            // Fall through to default
+        }
+        return "KSESSIONS_DEV";
     }
 
     private static void ShowInteractiveHelp()
