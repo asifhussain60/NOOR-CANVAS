@@ -148,12 +148,45 @@ var borderColor = isMyQuestion ? "#006400" : "#CC5500";
 - `SPA/NoorCanvas/Pages/SessionCanvas.razor` - UI ownership rendering logic
 - `SPA/NoorCanvas/Controllers/QuestionController.cs` - API question submission
 - `Tests/UI/canvas-questions-ownership-bug.spec.ts` - Multi-user ownership test
+- `Tests/UI/canvas-questions-orange-card-structure.spec.ts` - Orange card HTML structure verification test
 
 ### Supporting Files
 - `SPA/NoorCanvas/Models/Simplified/SessionData.cs` - Question storage model
 - `Workspaces/Scripts/KSESSIONS_Canvas_Migration_Script.sql` - Database schema
 
 ## Changes Made
+
+### Test Created: Orange Card HTML Structure Verification (2025-10-14T00:00:00Z)
+**File**: `Tests/UI/canvas-questions-orange-card-structure.spec.ts`
+**Purpose**: Verify orange (sienna) question cards render with correct HTML structure matching ContextCopilot.txt reference
+
+**Test Scenario**:
+- User A submits question → User B verifies orange card structure
+- Validates CSS properties (border-color, background, border-left-width)
+- Verifies vote badge styling (red circle #DC2626, white text, absolute positioned)
+- Verifies vote button styling (white background, 2px border #A0522D, rounded-full, icon color #8B4513)
+- Verifies question text color (#A0522D)
+- Verifies NO "Your Question" label or edit/delete buttons on orange cards
+- Control group: User A verifies green card has owner label and action buttons
+
+**Regression Context**:
+User reported orange cards not rendering correctly (visual comparison with ContextCopilot.txt)
+
+**Debug Level**: trace - comprehensive logging at each verification step
+
+**Test Coverage**:
+- ✅ Card container CSS (.question-item-style-sienna)
+- ✅ Vote badge structure and styling
+- ✅ Vote button structure and styling
+- ✅ Question text color (.question-text-color-sienna)
+- ✅ Layout verification (flex row, full-width text)
+- ✅ Ownership verification (no owner label, no edit/delete buttons)
+- ✅ Control group (green card with owner label and buttons)
+
+**Expected Execution**:
+```bash
+$env:PW_MODE='standalone'; npx playwright test Tests/UI/canvas-questions-orange-card-structure.spec.ts --headed
+```
 
 ### Commit: 07c477ab5ef43e132b60162339108856e849c911
 **Date**: 2025-10-13T16:40:00Z
