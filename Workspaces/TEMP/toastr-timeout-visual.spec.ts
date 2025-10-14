@@ -15,17 +15,17 @@
  * Session: 212 (tokens: KJAHA99L user / PQ9N5YWW host)
  */
 
-import { test, expect } from '@playwright/test';
 import percySnapshot from '@percy/playwright';
+import { expect, test } from '@playwright/test';
 
 const BASE_URL = 'https://localhost:9091';
 const HOST_TOKEN = 'PQ9N5YWW';
 const USER_TOKEN = 'KJAHA99L';
 
 test.describe('Toast Timeout - Visual Regression', () => {
-    test.use({ 
+    test.use({
         viewport: { width: 1920, height: 1080 },
-        ignoreHTTPSErrors: true 
+        ignoreHTTPSErrors: true
     });
 
     test('Host view - Toast appears and auto-closes after 3 seconds', async ({ page }) => {
@@ -184,16 +184,16 @@ test.describe('Toast Timeout - Visual Regression', () => {
         // For participant view, we need a different trigger
         // Let's use the question submit action if available
         const questionInput = page.locator('textarea[placeholder*="question" i], textarea[placeholder*="ask" i]').first();
-        
+
         if (await questionInput.isVisible()) {
             console.log('[TEST] Found question input, typing test question...');
-            
+
             await questionInput.fill('Test question to trigger toast notification');
             await page.waitForTimeout(500);
 
             // Find submit button
             const submitButton = page.locator('button:has-text("Submit"), button:has-text("Ask"), button[type="submit"]').first();
-            
+
             if (await submitButton.isVisible()) {
                 console.log('[TEST] Found submit button, clicking...');
 
@@ -280,12 +280,12 @@ test.describe('Toast Timeout - Visual Regression', () => {
         const cleanCanvasButton = page.locator('button:has-text("Clean Canvas")').first();
         const startTime = Date.now();
         await cleanCanvasButton.click();
-        
+
         // Wait 5 seconds to capture all lifecycle logs
         await page.waitForTimeout(5000);
 
         // Filter and analyze toast-related logs
-        const toastLogs = consoleLogs.filter(log => 
+        const toastLogs = consoleLogs.filter(log =>
             log.text.includes('[DEBUG-WORKITEM:toastr:timeout:trace]')
         );
 
@@ -305,7 +305,7 @@ test.describe('Toast Timeout - Visual Regression', () => {
         expect(toastLogs.length).toBeGreaterThan(0); // Should have captured toast logs
         expect(toastLogs.some(log => log.text.includes('showNoorToast CALLED'))).toBeTruthy();
         expect(toastLogs.some(log => log.text.includes('Configured timeout: 3000ms'))).toBeTruthy();
-        
+
         console.log('[TEST] ✅ Console log validation passed');
     });
 });

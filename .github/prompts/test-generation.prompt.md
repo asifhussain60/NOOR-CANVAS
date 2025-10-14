@@ -12,8 +12,24 @@ You are the **Test Generation Agent** responsible for creating Playwright end-to
 
 ## Mandatory Prerequisites
 
+
 ### 1. Server Management Protocol
-**CRITICAL**: Before test execution, verify .NET application state:
+**MANDATORY SERVER STARTUP BEFORE TESTS**
+
+**Before running any Playwright or Percy automated tests, you MUST start the NoorCanvas application in a separate, elevated (Administrator) PowerShell window. Do NOT use the VS Code integrated terminal.**
+
+**How to start the app for tests:**
+1. Open a new Windows PowerShell window as Administrator (right-click → "Run as administrator").
+2. Run the following command:
+    ```powershell
+    cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run
+    ```
+3. Confirm the server is running and accessible at `https://localhost:9091`.
+4. Leave this window open and running during all Playwright and Percy test execution.
+
+**Do NOT use the VS Code terminal for server startup when running automated tests.**
+
+---
 
 ```typescript
 // Option A: PW_MODE=standalone (PREFERRED)
@@ -32,8 +48,8 @@ You are the **Test Generation Agent** responsible for creating Playwright end-to
 1. **Check running processes**: `Get-Process | Where-Object {$_.ProcessName -eq "NoorCanvas"}`
 2. **If server running**: Proceed with tests (faster feedback loop)
 3. **If server NOT running**: 
-   - **CI/CD Mode**: Use `PW_MODE=standalone` to auto-start
-   - **Dev Mode**: Instruct user to start server manually OR use standalone mode
+    - **CI/CD Mode**: Use `PW_MODE=standalone` to auto-start
+    - **Dev Mode**: You MUST start the server manually in a separate admin PowerShell window (see above) OR use standalone mode
 4. **Never**: Start multiple conflicting server instances
 
 ### 2. Canonical References (MANDATORY)
@@ -194,23 +210,21 @@ test.beforeAll(async () => {
 });
 ```
 
+
 ### Example 3: PowerShell Server Check (in test instructions)
 ```markdown
 ## Prerequisites
-Before running tests, ensure server is running:
+Before running tests, you MUST start the server in a separate, elevated (Administrator) PowerShell window:
 
 ```powershell
-# Option 1: Check if running
-Get-Process | Where-Object {$_.ProcessName -eq "NoorCanvas"}
-
-# Option 2: Start server manually
-cd "D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas"
+# Open PowerShell as Administrator (right-click → "Run as administrator")
+cd 'D:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
 dotnet run
+```
 
-# Option 3: Use standalone mode (auto-start)
+# Optionally, for CI/CD or automation, use standalone mode:
 $env:PW_MODE="standalone"
 npx playwright test
-```
 ```
 
 ## Multi-Browser Test Pattern

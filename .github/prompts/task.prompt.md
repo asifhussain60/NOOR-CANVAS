@@ -306,48 +306,66 @@ When implementing changes, evaluate which type of test is needed:
 - ❌ Configuration file modifications
 - ❌ Comment updates
 
+
 ### Test Generation Requirements:
+
+**MANDATORY SERVER STARTUP BEFORE TESTS**
+
+**Before running any Playwright or Percy automated tests, you MUST start the NoorCanvas application in a separate, elevated (Administrator) PowerShell window. Do NOT use the VS Code integrated terminal.**
+
+**How to start the app for tests:**
+1. Open a new Windows PowerShell window as Administrator (right-click → "Run as administrator").
+2. Run the following command:
+  ```powershell
+  cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run
+  ```
+3. Confirm the server is running and accessible at `https://localhost:9091`.
+4. Leave this window open and running during all Playwright and Percy test execution.
+
+**Do NOT use the VS Code terminal for server startup when running automated tests.**
+
+---
 
 **For Functional E2E Tests:**
 1. **Invoke test-generation.prompt.md** with parameters:
-   - `feature`: Descriptive feature name (e.g., "debug-panel-islamic-questions")
-   - `scenario`: Specific test scenario (e.g., "random-question-broadcast")
-   - `testType`: "functional" (Playwright E2E)
-   - `endpoints`: API endpoints involved (e.g., "/api/Question/Submit")
-   - `multiUser`: true/false for multi-browser testing
+  - `feature`: Descriptive feature name (e.g., "debug-panel-islamic-questions")
+  - `scenario`: Specific test scenario (e.g., "random-question-broadcast")
+  - `testType`: "functional" (Playwright E2E)
+  - `endpoints`: API endpoints involved (e.g., "/api/Question/Submit")
+  - `multiUser`: true/false for multi-browser testing
    
 2. **Read canonical data** from:
-   - `PlaywrightConfig.MD` - Configuration, modes, webServer settings
-   - `PlaywrightTestPaths.MD` - Session 212 tokens, proven patterns, expected responses
-   - `PlaywrightQuickRef.md` - Decision matrix, test patterns, examples
+  - `PlaywrightConfig.MD` - Configuration, modes, webServer settings
+  - `PlaywrightTestPaths.MD` - Session 212 tokens, proven patterns, expected responses
+  - `PlaywrightQuickRef.md` - Decision matrix, test patterns, examples
 
 3. **Follow proven patterns**:
-   - Session ID: `212` (canonical test session)
-   - Host Token: `PQ9N5YWW`
-   - User Token: `KJAHA99L` (Peter Parker participant)
-   - Base URL: `https://localhost:9091`
+  - Session ID: `212` (canonical test session)
+  - Host Token: `PQ9N5YWW`
+  - User Token: `KJAHA99L` (Peter Parker participant)
+  - Base URL: `https://localhost:9091`
 
 4. **Naming convention**: `{feature}-{test-type}.spec.ts` in `Workspaces/TEMP/` (MANDATORY)
-   - Functional: `{key}-functional.spec.ts`
-   - Visual: `{key}-visual.spec.ts`
+  - Functional: `{key}-functional.spec.ts`
+  - Visual: `{key}-visual.spec.ts`
 
 **For Visual Regression Tests:**
 1. **Invoke test-generation.prompt.md** with parameters:
-   - `feature`: Component or view name (e.g., "canvas-questions-orange-card")
-   - `scenario`: Visual scenario (e.g., "multi-viewport-rendering")
-   - `testType`: "visual" (Percy + Playwright)
-   - `viewports`: Array of viewport widths [375, 768, 1280]
+  - `feature`: Component or view name (e.g., "canvas-questions-orange-card")
+  - `scenario`: Visual scenario (e.g., "multi-viewport-rendering")
+  - `testType`: "visual" (Percy + Playwright)
+  - `viewports`: Array of viewport widths [375, 768, 1280]
    
 2. **Read configuration** from:
-   - `.percy.yml` - Visual snapshot configuration
-   - `VISUAL_REGRESSION_TESTING.md` - Percy setup and workflows
-   - `PlaywrightQuickRef.md` - Percy test template and patterns
+  - `.percy.yml` - Visual snapshot configuration
+  - `VISUAL_REGRESSION_TESTING.md` - Percy setup and workflows
+  - `PlaywrightQuickRef.md` - Percy test template and patterns
 
 3. **Follow Percy patterns**:
-   - Use `percySnapshot()` for multi-viewport testing
-   - Hide dynamic elements with `percyCSS`
-   - Test all visual states (default, hover, active, voted, etc.)
-   - Use descriptive snapshot names
+  - Use `percySnapshot()` for multi-viewport testing
+  - Hide dynamic elements with `percyCSS`
+  - Test all visual states (default, hover, active, voted, etc.)
+  - Use descriptive snapshot names
 
 4. **Naming convention**: `{feature}-visual.spec.ts` in `Workspaces/TEMP/` (MANDATORY)
 
@@ -361,17 +379,17 @@ When implementing changes, evaluate which type of test is needed:
 ### Test Generation Workflow:
 ```
 User Request (via task.prompt.md)
-    ↓
+   ↓
 [Evaluate: What type of change?]
-    ↓
-    ├─ Functional/Behavior Change → Invoke test-generation.prompt.md (testType: functional)
-    ├─ Visual/CSS Change → Invoke test-generation.prompt.md (testType: visual)
-    └─ CSS Quality → Document Stylelint command
-    ↓
+   ↓
+   ├─ Functional/Behavior Change → Invoke test-generation.prompt.md (testType: functional)
+   ├─ Visual/CSS Change → Invoke test-generation.prompt.md (testType: visual)
+   └─ CSS Quality → Document Stylelint command
+   ↓
 Generate test using appropriate template
-    ↓
+   ↓
 Include test path in key-data-stream (Step 8)
-    ↓
+   ↓
 Continue with implementation
 ```
 

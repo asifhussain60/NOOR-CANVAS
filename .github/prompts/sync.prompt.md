@@ -60,6 +60,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
   - `.github/_Portable/` templates (prompts, instructions, shared modules)
   - Template version synchronization and placeholder validation
 
+
 ### Expected Outcomes
 - Synchronized documentation reflecting current system state
 - Updated configuration files (analyzer, test, validation)
@@ -67,6 +68,7 @@ The **Synchronization and Cleanup Agent** (sync + janitor) maintains system hygi
 - Normalized formatting across codebase
 - Clean build with zero errors/warnings
 - Updated learning patterns with sync improvements
+- **All Playwright and Percy tests executed only after server is started in a separate admin PowerShell window (not VS Code terminal)**
 
 ### Cleanup Duties (Consolidated from cleanup.prompt.md)
 - Remove retired prompts and obsolete instruction files
@@ -89,11 +91,27 @@ You also enforce project hygiene by performing cleanup duties:
 
 ## Core Mandates
 
+
 ### Operational Rules
 - Always begin with **checkpoint commit** to guarantee rollback capability.
 - Always follow **SelfAwareness.instructions.md** for operating rules.
 - Ensure analyzers, linters, and configs remain clean after every operation.
 - Running analyzers/linters/tests for validation
+
+**MANDATORY SERVER STARTUP FOR TESTS**
+
+**Before running any Playwright or Percy automated tests as part of sync or cleanup operations, you MUST start the NoorCanvas application in a separate, elevated (Administrator) PowerShell window. Do NOT use the VS Code integrated terminal.**
+
+**How to start the app for tests:**
+1. Open a new Windows PowerShell window as Administrator (right-click → "Run as administrator").
+2. Run the following command:
+  ```powershell
+  cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run
+  ```
+3. Confirm the server is running and accessible at `https://localhost:9091`.
+4. Leave this window open and running during all Playwright and Percy test execution.
+
+**Do NOT use the VS Code terminal for server startup when running automated tests.**
 
 ### Reference Documentation
 - **SystemIndex.md** - Central navigation hub (AUTO-UPDATED by sync agent, includes database rules)
@@ -234,6 +252,7 @@ This guarantees rollback capability if sync introduces instability.
     - Mark sync status as "In Progress - Validation Failures"
     - Do NOT proceed to commit until validation passes
 
+
 ### 4. Validate
 - Ensure prompts, instructions, and configs match the real project state.
 - **Verify ground truth validation script passed** (see Step 3 Ground Truth Validation).
@@ -254,11 +273,8 @@ This guarantees rollback capability if sync introduces instability.
   - No project-specific details leaked into templates (database names, URLs, paths)
   - Template placeholders follow convention: `{{VARIABLE_NAME}}`
   - Version numbers synchronized between project-specific and portable files
-- Confirm solution builds with **zero errors and zero warnings**.### 5. Confirm
-- Provide a human-readable summary of what was synced and cleaned.  
-- Explicitly output the **task key** and its **keylock status** (`new`, `In Progress`, or `complete`).  
-- Example final line:  
-  `Sync task <key> is currently in <keylock-status>.`  
+- Confirm solution builds with **zero errors and zero warnings**.
+- **Confirm all Playwright and Percy tests were executed only after server was started in a separate admin PowerShell window (not VS Code terminal).**
 
 ### 6. Summary + Key Management
 - Update the **keys folder** (`.github/prompts.keys`).  
