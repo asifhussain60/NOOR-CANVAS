@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-13T11:02:00Z
-- **Last Updated**: 2025-10-14T00:00:00Z
+- **Last Updated**: 2025-10-14T02:30:00Z
 - **Agent**: task
 - **Priority**: high
 - **Category**: bug-fix
@@ -1042,5 +1042,66 @@ else
 **Files**: 1 modified (SessionCanvas.razor) | **Lines**: CSS +3, HTML +1, Logging +3 | **Build**: PASS
 **Debug Markers**: [DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] ;CLEANUP_OK
 **Next**: Visual verification of orange card styling in browser
+
+---
+
+## [2025-10-14T02:30:00Z] - task
+**Status**: in-progress | **Phase**: toastr-sidebar-mobile-fixes | **Commit**: 2571014d
+**Work**: 
+- ✅ **TOASTR LIBRARY INTEGRATION**: Fixed missing toast notifications in SessionCanvas.razor
+  - Root cause: SessionCanvas uses EmptyLayout, doesn't inherit _Host.cshtml scripts
+  - Added toastr CDN links to HeadContent (CSS + JS via cdnjs)
+  - Implemented showNoorToast function inline with comprehensive trace logging
+  - Added OnAfterRenderAsync verification to confirm toastr/showNoorToast availability
+  - Trace markers: `[DEBUG-WORKITEM:canvas-questions:toastr:trace]` ;CLEANUP_OK
+  - **Impact**: QuestionAnswered and QuestionDeleted SignalR events now display toast notifications
+  
+- ✅ **SIDEBAR OVERFLOW FIX**: Prevented horizontal expansion from question cards
+  - Root cause: Question cards (max-width:300px) exceeded parent container width
+  - Added max-width:100%, width:100% to `.canvas-sidebar` CSS
+  - Added width constraints to `.canvas-questions-container`
+  - Added box-sizing:border-box to `.canvas-question-item` (padding included in width)
+  - Trace markers: `[DEBUG-WORKITEM:canvas-questions:sidebar:trace]` ;CLEANUP_OK
+  - **Impact**: Right panel maintains fixed width, vertical scrollbar appears when cards overflow
+  
+- ✅ **MOBILE RESPONSIVE ENHANCEMENT**: Full-width canvas, vertical stacking
+  - Enhanced @media (max-width:768px) rules for proper mobile layout
+  - Canvas area: width:100%, max-width:100% (full mobile width)
+  - Sidebar: order:2, width:100%, min-height:400px (appears below canvas)
+  - Question cards: max-width:100% (scale to container)
+  - Session container: width:100%, padding:1rem (full mobile width)
+  - Trace markers: `[DEBUG-WORKITEM:canvas-questions:mobile:trace]` ;CLEANUP_OK
+  - **Impact**: 
+    - **Mobile**: Canvas panel stretches full-width, Q&A/Participants panels stack below
+    - **Desktop/iPad**: Side-by-side layout preserved (2fr 1fr grid)
+    
+- ✅ **TRACE LOGGING ADDED**:
+  - OnInitializedAsync: Toastr library load confirmation
+  - OnAfterRenderAsync: Verify toastr and showNoorToast function availability after first render
+  - showNoorToast function: Entry point logging with message/title/type parameters
+  - showNoorToast function: Toastr type switch logging (success/warning/error/info)
+  
+- ✅ Build validation: Zero errors, zero warnings
+
+**Files**: 1 modified (SessionCanvas.razor)
+**Changes**: 
+- HeadContent: +4 lines (toastr CDN + showNoorToast function)
+- CSS: +26 lines (sidebar constraints, mobile responsive enhancements)
+- C# code: +30 lines (OnAfterRenderAsync, trace logging)
+
+**Commit**: 2571014d6d65263d9375a5e7e12a5a1a96d7c32d
+**Debug Markers**: 
+- `[DEBUG-WORKITEM:canvas-questions:toastr:trace]` ;CLEANUP_OK
+- `[DEBUG-WORKITEM:canvas-questions:sidebar:trace]` ;CLEANUP_OK
+- `[DEBUG-WORKITEM:canvas-questions:mobile:trace]` ;CLEANUP_OK
+
+**Testing Required**:
+1. **Toast Verification**: Host answers/deletes question → SessionCanvas displays toast
+2. **Sidebar Overflow**: Submit 10+ questions → right panel shows vertical scrollbar (no horizontal expansion)
+3. **Mobile Responsive**:
+   - Phone view: Canvas full-width, Q&A/Participants below
+   - Desktop/iPad: Side-by-side layout preserved
+
+**Next**: Manual testing on localhost to verify all three fixes in browser
 
 ````
