@@ -313,17 +313,18 @@
     border-radius: 1rem;
     transition: all 0.2s;
     margin: 10px;
-    overflow: hidden;
+    overflow: hidden; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Prevent scrollbars on container ;CLEANUP_OK */
     display: flex;
     flex-direction: column;
     border: #006400 dotted 3px;
     background-color: #eeffee;
     min-height: 400px;
+    /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Removed max-height to allow expansion to fit asset ;CLEANUP_OK */
 }
     .canvas-asset-content {
         width: 100%;
         flex: 1;
-        overflow-y: auto;
+        overflow-y: visible; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Changed from auto to visible - parent will handle overflow ;CLEANUP_OK */
         overflow-x: hidden;
         background-color: white;
         padding: 20px;
@@ -331,6 +332,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Content expands naturally, parent shrinks/grows with asset height ;CLEANUP_OK */
     }
 
     .canvas-empty-message {

@@ -241,7 +241,7 @@ window.NoorShareSystem = {
     showToast: function (message, type = 'info') {
         console.log(`[DEBUG-WORKITEM:toastr:share:TRACE] showToast called - message="${message}", type="${type}" ;CLEANUP_OK`);
         console.log(`[DEBUG-WORKITEM:toastr:share:TRACE] Toast display DISABLED (per task: remove toasts from screenshots) ;CLEANUP_OK`);
-        
+
         // DISABLED: Toast notifications removed from UI per user request
         // Original code:
         // if (typeof window.showNoorToast === 'function') {

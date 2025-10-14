@@ -251,21 +251,33 @@
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Entering test data for view: {ViewName}", CurrentViewName);
             
+            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Before OnEnterTestData.InvokeAsync - ViewName: {ViewName} ;CLEANUP_OK", CurrentViewName);
+            
             await OnEnterTestData.InvokeAsync();
             
-            // Show success toast only if debug toasts are enabled
-            if (ShowDebugToasts)
-            {
-                await DialogService.ShowSuccessAsync($"Test data entered successfully for {CurrentViewName}", "Test Data");
-            }
+            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] After OnEnterTestData.InvokeAsync - Success ;CLEANUP_OK");
+            Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] ShowDebugToasts={ShowDebugToasts}, Test data toast display DISABLED (per task: remove toast from Pasted Image 2) ;CLEANUP_OK", ShowDebugToasts);
+            
+            // DISABLED: Test data toast notifications removed from UI per user request
+            // Original code:
+            // if (ShowDebugToasts)
+            // {
+            //     await DialogService.ShowSuccessAsync($"Test data entered successfully for {CurrentViewName}", "Test Data");
+            // }
+            
             _isExpanded = false;
             
             Logger.LogInformation("NOOR-DEBUG-PANEL: Test data entry completed successfully");
         }
         catch (Exception ex)
         {
-            // Always show error toasts regardless of ShowDebugToasts setting (user notifications must always display)
-            await DialogService.ShowAlertAsync($"Error entering test data: {ex.Message}", "Test Data Error", Components.Dialogs.AlertDialog.AlertType.Error);
+            Logger.LogError("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Exception caught in HandleEnterTestData - ViewName: {ViewName}, Error: {ErrorMessage} ;CLEANUP_OK", CurrentViewName, ex.Message);
+            Logger.LogError("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Test data error toast display DISABLED (per task: remove toasts from screenshots) ;CLEANUP_OK");
+            
+            // DISABLED: Test data error toast notifications removed from UI per user request
+            // Original code:
+            // await DialogService.ShowAlertAsync($"Error entering test data: {ex.Message}", "Test Data Error", Components.Dialogs.AlertDialog.AlertType.Error);
+            
             _isExpanded = false;
             
             Logger.LogError(ex, "NOOR-DEBUG-PANEL: Error entering test data for view: {ViewName}", CurrentViewName);
