@@ -286,15 +286,30 @@
                         Model.Questions.Add(newQuestion);
                         
                         // [FIX-ISSUE-1] Show toast notification to host about new question (moved from HostQuestionAlert)
+                        // [DEBUG-WORKITEM:hcp-questions:toast:TRACE] Enhanced toast to show which user asked the question ;CLEANUP_OK
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST NOTIFICATION START (New Question for Host) ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - QuestionText: '{Text}' ;CLEANUP_OK", requestId, questionText);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - AskedBy: '{UserName}' ;CLEANUP_OK", requestId, userName);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
+                        
                         try
                         {
-                            await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
-                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] Toast notification shown to host ;CLEANUP_OK", requestId);
+                            // Show toast with user name who asked the question
+                            var toastMessage = $"{userName} asked: \"{questionText}\"";
+                            await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                toastMessage, 
+                                "New Question Received", 
+                                "info");
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ Toast notification shown to host successfully ;CLEANUP_OK", requestId);
                         }
                         catch (Exception toastEx)
                         {
-                            Logger.LogWarning(toastEx, "[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] Failed to show toast notification ;CLEANUP_OK", requestId);
+                            Logger.LogWarning(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ⚠️ Failed to show toast notification: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
                         }
+                        
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST NOTIFICATION END ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                         
                         await InvokeAsync(StateHasChanged);
 
