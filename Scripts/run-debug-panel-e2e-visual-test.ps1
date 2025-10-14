@@ -166,7 +166,7 @@ Set-Location $testPath
 
 $playwrightArgs = @(
     "test",
-    "debug-panel-simple-visibility.spec.ts",
+    "debug-panel-direct-visibility.spec.ts",
     "--reporter=list"
 )
 
@@ -197,8 +197,8 @@ Write-Host "`n[6/7] Verifying test artifacts..." -ForegroundColor Yellow
 
 $screenshotPath = "$workspaceRoot\Workspaces\TEMP"
 $expectedScreenshots = @(
-    "debug-panel-simple-test-collapsed.png",
-    "debug-panel-simple-test-expanded.png"
+    "debug-panel-direct-test-collapsed.png",
+    "debug-panel-direct-test-expanded.png"
 )
 
 $foundArtifacts = 0

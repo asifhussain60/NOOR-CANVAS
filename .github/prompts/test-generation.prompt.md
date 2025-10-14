@@ -12,45 +12,66 @@ You are the **Test Generation Agent** responsible for creating Playwright end-to
 
 ## Mandatory Prerequisites
 
+⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
 
 ### 1. Server Management Protocol
-**MANDATORY SERVER STARTUP BEFORE TESTS**
 
-**Before running any Playwright or Percy automated tests, you MUST start the NoorCanvas application in a separate, elevated (Administrator) PowerShell window. Do NOT use the VS Code integrated terminal.**
+**Before running any Playwright or Percy automated tests, the NoorCanvas application MUST be launched via an orchestration script. Direct execution of `npx playwright test` is PROHIBITED.**
 
-**How to start the app for tests:**
-1. Open a new Windows PowerShell window as Administrator (right-click → "Run as administrator").
-2. Run the following command:
-    ```powershell
-    cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run
-    ```
-3. Confirm the server is running and accessible at `https://localhost:9091`.
-4. Leave this window open and running during all Playwright and Percy test execution.
+**Required Orchestration Script Pattern** (Create in `Scripts/` directory):
 
-**Do NOT use the VS Code terminal for server startup when running automated tests.**
+```powershell
+# Scripts/run-{feature}-e2e-test.ps1
 
----
+# Step 1: Kill existing processes
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-```typescript
-// Option A: PW_MODE=standalone (PREFERRED)
-// - Playwright manages .NET app lifecycle automatically
-// - Set via: $env:PW_MODE="standalone" (PowerShell)
-// - webServer config handles startup/shutdown
-// - Use this for CI/CD and automated test runs
+# Step 2: Launch app in SEPARATE elevated PowerShell window
+$startupScript = @"
+cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+`$env:ASPNETCORE_ENVIRONMENT = 'Development'
+dotnet run
+"@
+$startupScript | Out-File "$env:TEMP\noorcanvas-startup.ps1" -Encoding UTF8
+Start-Process powershell -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File","$env:TEMP\noorcanvas-startup.ps1" -Verb RunAs
 
-// Option B: Manual Server Check (for development)
-// - Check if server is already running on port 9091
-// - If running: connect to existing instance
-// - If not running: fail fast with clear error message
+# Step 3: Health check with retry (10 attempts, 3-second delays)
+$healthCheckRetries = 10
+for ($i = 1; $i -le $healthCheckRetries; $i++) {
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5
+        Write-Host "✓ App Ready" -ForegroundColor Green
+        break
+    }
+    catch {
+        Write-Host "  Waiting for app ($i/$healthCheckRetries)..." -ForegroundColor Gray
+        Start-Sleep -Seconds 3
+    }
+}
+
+# Step 4: Execute Playwright tests
+npx playwright test Tests/UI/{test-file}.spec.ts --reporter=list --headed
+
+# Step 5: Cleanup (terminate app process)
+Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
 ```
 
-**Test Execution Strategy**:
-1. **Check running processes**: `Get-Process | Where-Object {$_.ProcessName -eq "NoorCanvas"}`
-2. **If server running**: Proceed with tests (faster feedback loop)
-3. **If server NOT running**: 
-    - **CI/CD Mode**: Use `PW_MODE=standalone` to auto-start
-    - **Dev Mode**: You MUST start the server manually in a separate admin PowerShell window (see above) OR use standalone mode
-4. **Never**: Start multiple conflicting server instances
+**Reference Implementation**: `Scripts/run-debug-panel-e2e-visual-test.ps1`
+
+**Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
+
+**WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
+- ✅ Separate PowerShell window ensures environment isolation
+- ✅ `ASPNETCORE_ENVIRONMENT=Development` properly enables DevMode
+- ✅ Health check retry logic prevents race conditions
+- ✅ Automated cleanup prevents port conflicts
+- ❌ Direct `npx playwright test` ALWAYS FAILS (missing environment vars)
+
+**PROHIBITED EXECUTION METHODS**:
+- ❌ `npx playwright test` from VS Code terminal
+- ❌ `Start-Job` for app startup (wrong isolation)
+- ❌ Manual app startup without orchestration
+
 
 ### 2. Canonical References (MANDATORY)
 - **`InfrastructureQuickRef.md`**: Database connections, API endpoints, SignalR hubs, Session 212 tokens

@@ -303,26 +303,68 @@ When implementing changes, evaluate which type of test is needed:
 - ❌ Debug logging additions/removals
 - ❌ Documentation-only updates
 - ❌ Internal code refactoring without UI/behavior change
-- ❌ Configuration file modifications
-- ❌ Comment updates
-
 
 ### Test Generation Requirements:
 
-**MANDATORY SERVER STARTUP BEFORE TESTS**
+⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
 
-**Before running any Playwright or Percy automated tests, you MUST start the NoorCanvas application in a separate, elevated (Administrator) PowerShell window. Do NOT use the VS Code integrated terminal.**
+**MANDATORY SERVER STARTUP PROTOCOL**
 
-**How to start the app for tests:**
-1. Open a new Windows PowerShell window as Administrator (right-click → "Run as administrator").
-2. Run the following command:
-  ```powershell
-  cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run
-  ```
-3. Confirm the server is running and accessible at `https://localhost:9091`.
-4. Leave this window open and running during all Playwright and Percy test execution.
+**Before running any Playwright or Percy automated tests, the NoorCanvas application MUST be launched in a separate, elevated PowerShell window using an orchestration script. Direct execution of `npx playwright test` from VS Code terminal is PROHIBITED.**
 
-**Do NOT use the VS Code terminal for server startup when running automated tests.**
+**Required Orchestration Script Pattern:**
+
+1. **Create test orchestration script** in `Scripts/` directory:
+   - **Naming**: `run-{feature}-e2e-test.ps1`
+   - **Reference**: `Scripts/run-debug-panel-e2e-visual-test.ps1` (proven working pattern)
+   
+2. **Script MUST include these components**:
+   ```powershell
+   # Kill existing processes
+   Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+   
+   # Launch app in SEPARATE elevated PowerShell window
+   $startupScript = @"
+   cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+   `$env:ASPNETCORE_ENVIRONMENT = 'Development'
+   dotnet run
+   "@
+   Start-Process powershell -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File","$env:TEMP\noorcanvas-startup.ps1" -Verb RunAs
+   
+   # Health check with retry (10 attempts, 3-second delays)
+   for ($i = 1; $i -le 10; $i++) {
+       try {
+           Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5
+           break
+       } catch { Start-Sleep -Seconds 3 }
+   }
+   
+   # Run Playwright tests
+   npx playwright test Tests/UI/{test-file}.spec.ts --headed
+   
+   # Cleanup
+   Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
+   ```
+
+3. **Execute tests via orchestration script ONLY**:
+   ```powershell
+   .\Scripts\run-{feature}-e2e-test.ps1
+   ```
+
+**WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
+- ✅ Separate PowerShell window ensures proper environment isolation
+- ✅ `ASPNETCORE_ENVIRONMENT=Development` correctly sets DevMode
+- ✅ Health check retry logic prevents race conditions
+- ✅ Automated cleanup prevents port conflicts
+- ❌ Direct `npx playwright test` ALWAYS FAILS (missing environment, wrong isolation)
+
+**PROHIBITED EXECUTION METHODS**:
+- ❌ `npx playwright test` directly from VS Code terminal
+- ❌ `Start-Job` for app startup (wrong isolation model)
+- ❌ Manual app startup without orchestration script
+- ❌ Any execution without separate elevated PowerShell window
+
+**REFERENCE IMPLEMENTATION**: `Scripts/run-debug-panel-e2e-visual-test.ps1`
 
 ---
 
@@ -2119,184 +2161,78 @@ ELSE IF inconclusive from browser logs:
 8. **Documentation**: Record test file paths in key data stream
 9. **Artifacts**: Store test results, screenshots, and traces in `Workspaces/TEMP/playwright-artifacts/`
 
-#### 6.1.0. Playwright Test Execution Protocol (CRITICAL - Prevents Hanging & Failures)
-**Purpose**: Prevent test failures due to server not running, eliminate hanging processes, enable reliable first-time execution.
+#### 6.1.0. Playwright Test Execution Protocol (CRITICAL - Uses Orchestration Scripts ONLY)
 
-**MANDATORY PRE-FLIGHT CHECKS** (Execute before ALL Playwright test runs):
+⚠️ **ABSOLUTE MANDATE: NEVER RUN PLAYWRIGHT TESTS DIRECTLY FROM VS CODE TERMINAL** ⚠️
 
-1. **Server Availability Validation**:
+**Purpose**: Ensure 100% reliable test execution with proper app isolation, environment setup, and cleanup.
+
+**ONLY ALLOWED EXECUTION METHOD**:
+
+1. **Use Orchestration Scripts** (Located in `Scripts/` directory):
+   - **`run-debug-panel-e2e-visual-test.ps1`** - Debug panel E2E tests (proven working pattern)
+   - **`run-debug-panel-visual-tests.ps1`** - Visual regression tests
+   - **Future tests**: Copy this pattern for new test scenarios
+
+2. **Orchestration Script Pattern** (MANDATORY for ALL Playwright tests):
    ```powershell
-   # BEFORE running npx playwright test, validate server is running
-   try {
-       $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5 -ErrorAction Stop
-       Write-Host "✓ Server Running: https://localhost:9091" -ForegroundColor Green
-   }
-   catch {
-       Write-Host "❌ Server NOT Running - Starting automatically..." -ForegroundColor Yellow
-       # Proceed to Step 2
-   }
-   ```
-
-2. **Automatic Server Startup** (if validation fails):
-   ```powershell
-   # USE EXISTING AUTOMATION: nct.ps1 handles process cleanup + server startup
-   # Located: Workspaces/Global/nct.ps1
+   # Scripts/run-{feature}-e2e-test.ps1
    
-   # Automated startup sequence:
-   Write-Host "Starting NOOR Canvas server using nct..." -ForegroundColor Cyan
+   # Step 1: Kill existing NoorCanvas processes
+   Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
    
-   # Start server in background job (non-blocking)
-   $job = Start-Job -ScriptBlock {
-       Set-Location "d:\PROJECTS\NOOR CANVAS\Workspaces\Global"
-       & .\nc.ps1  # Launches Kestrel server with cleanup
-   }
+   # Step 2: Launch app in SEPARATE PowerShell window (elevated, isolated)
+   $startupScript = @"
+   cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'
+   `$env:ASPNETCORE_ENVIRONMENT = 'Development'
+   dotnet run
+   "@
+   $startupScript | Out-File "$env:TEMP\noorcanvas-startup.ps1" -Encoding UTF8
    
-   # Wait for server readiness (up to 30 seconds)
-   $timeout = 30
-   $elapsed = 0
-   $serverReady = $false
+   Start-Process powershell -ArgumentList "-NoProfile","-ExecutionPolicy","Bypass","-File","$env:TEMP\noorcanvas-startup.ps1" -Verb RunAs
    
-   while ($elapsed -lt $timeout -and -not $serverReady) {
-       Start-Sleep -Seconds 2
-       $elapsed += 2
+   # Step 3: Health check with retry (10 attempts, 3-second delays)
+   $healthCheckRetries = 10
+   for ($i = 1; $i -le $healthCheckRetries; $i++) {
        try {
-           $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 3 -ErrorAction Stop
-           $serverReady = $true
-           Write-Host "✓ Server Ready after ${elapsed}s" -ForegroundColor Green
+           $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5
+           Write-Host "✓ App Ready" -ForegroundColor Green
+           break
        }
        catch {
-           Write-Host "  Waiting for server... (${elapsed}s/${timeout}s)" -ForegroundColor Gray
+           Write-Host "  Waiting for app ($i/$healthCheckRetries)..." -ForegroundColor Gray
+           Start-Sleep -Seconds 3
        }
    }
    
-   if (-not $serverReady) {
-       Write-Host "❌ Server failed to start after ${timeout}s - aborting tests" -ForegroundColor Red
-       Stop-Job -Job $job -ErrorAction SilentlyContinue
-       Remove-Job -Job $job -ErrorAction SilentlyContinue
-       exit 1
-   }
+   # Step 4: Execute Playwright tests
+   npx playwright test Tests/UI/{test-file}.spec.ts --reporter=list --headed
+   
+   # Step 5: Cleanup (terminate app process)
+   Get-Process -Name "NoorCanvas" -ErrorAction SilentlyContinue | Stop-Process -Force
    ```
 
-3. **Test Execution with Timeout & Cleanup**:
-   ```powershell
-   # Run tests with automatic timeout and cleanup
-   $testProcess = Start-Process -FilePath "npx" `
-       -ArgumentList "playwright","test","Workspaces/TEMP/toastr-timeout-visual.spec.ts","--headed" `
-       -NoNewWindow -PassThru
-   
-   # Wait for test completion (30-second timeout)
-   $testTimeout = 30000  # milliseconds
-   $completed = $testProcess.WaitForExit($testTimeout)
-   
-   if (-not $completed) {
-       Write-Host "⚠️ Tests exceeded timeout (${testTimeout}ms) - killing process..." -ForegroundColor Yellow
-       Stop-Process -Id $testProcess.Id -Force -ErrorAction SilentlyContinue
-       Write-Host "✓ Test process killed (PID: $($testProcess.Id))" -ForegroundColor Yellow
-   }
-   
-   # Cleanup background server job after tests
-   if ($job) {
-       Write-Host "Cleaning up server background job..." -ForegroundColor Gray
-       Stop-Job -Job $job -ErrorAction SilentlyContinue
-       Remove-Job -Job $job -ErrorAction SilentlyContinue
-   }
-   ```
+3. **Reference Implementation**:
+   - **File**: `Scripts/run-debug-panel-e2e-visual-test.ps1`
+   - **Features**: Separate window launch, environment vars, health checks, cleanup, trace logging
+   - **Usage**: `.\Scripts\run-debug-panel-e2e-visual-test.ps1 -SkipPercy`
 
-4. **Complete Execution Template** (Copy-Paste Ready):
-   ```powershell
-   # Playwright Test Execution with Automatic Server Management
-   # Usage: Run this script from workspace root
-   
-   # Step 1: Validate server availability
-   $serverRunning = $false
-   try {
-       $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 5 -ErrorAction Stop
-       Write-Host "✓ Server Running" -ForegroundColor Green
-       $serverRunning = $true
-   }
-   catch {
-       Write-Host "❌ Server NOT Running - Starting..." -ForegroundColor Yellow
-   }
-   
-   # Step 2: Start server if needed
-   $job = $null
-   if (-not $serverRunning) {
-       $job = Start-Job -ScriptBlock {
-           Set-Location "d:\PROJECTS\NOOR CANVAS\Workspaces\Global"
-           & .\nc.ps1
-       }
-       
-       # Wait for readiness (30s timeout)
-       $timeout = 30
-       $elapsed = 0
-       while ($elapsed -lt $timeout) {
-           Start-Sleep -Seconds 2
-           $elapsed += 2
-           try {
-               $response = Invoke-WebRequest -Uri "https://localhost:9091" -Method HEAD -SkipCertificateCheck -TimeoutSec 3 -ErrorAction Stop
-               Write-Host "✓ Server Ready (${elapsed}s)" -ForegroundColor Green
-               break
-           }
-           catch {
-               Write-Host "  Waiting... (${elapsed}s/${timeout}s)" -ForegroundColor Gray
-           }
-       }
-       
-       if ($elapsed -ge $timeout) {
-           Write-Host "❌ Server failed to start" -ForegroundColor Red
-           Stop-Job -Job $job -ErrorAction SilentlyContinue
-           Remove-Job -Job $job -ErrorAction SilentlyContinue
-           exit 1
-       }
-   }
-   
-   # Step 3: Run tests with timeout
-   Write-Host "Running Playwright tests..." -ForegroundColor Cyan
-   $testProcess = Start-Process -FilePath "npx" `
-       -ArgumentList "playwright","test","Workspaces/TEMP/toastr-timeout-visual.spec.ts","--headed" `
-       -NoNewWindow -PassThru -Wait
-   
-   # Step 4: Cleanup
-   if ($job) {
-       Write-Host "Cleaning up server..." -ForegroundColor Gray
-       Stop-Job -Job $job -ErrorAction SilentlyContinue
-       Remove-Job -Job $job -ErrorAction SilentlyContinue
-   }
-   
-   Write-Host "✓ Test execution complete" -ForegroundColor Green
-   exit $testProcess.ExitCode
-   ```
+**WHY ORCHESTRATION SCRIPTS ARE MANDATORY**:
+- ✅ **App Isolation**: Separate PowerShell window prevents terminal conflicts
+- ✅ **Environment Control**: `ASPNETCORE_ENVIRONMENT = 'Development'` properly set
+- ✅ **Process Cleanup**: Automated termination prevents port conflicts
+- ✅ **Retry Logic**: Health checks with timeouts eliminate race conditions
+- ✅ **Reproducible**: Same execution every time, no human error
+- ❌ **Direct `npx playwright test` ALWAYS FAILS**: Missing environment, wrong isolation, no cleanup
 
-**WHY THIS MATTERS**:
-- **Without this protocol**: Tests fail with ERR_CONNECTION_REFUSED, waste time, hang indefinitely
-- **With this protocol**: Server auto-starts, tests run reliably, processes auto-cleanup, first-time success
-
-**AUTOMATION TOOLS AVAILABLE**:
-- **nct.ps1** (`Workspaces/Global/nct.ps1`): Session token generator + server launcher
-- **nc.ps1** (`Workspaces/Global/nc.ps1`): Kestrel server launcher with port cleanup
-- **ncb.ps1** (`Workspaces/Global/ncb.ps1`): Build + launch wrapper
-- **ncdoc.ps1** (`Workspaces/Global/ncdoc.ps1`): DocFX server (demonstrates background job pattern)
-
-**REFERENCE PATTERN** (from ncdoc.ps1):
-```powershell
-# Background job with PID file tracking (ncdoc.ps1 lines 45-60)
-$job = Start-Job -ScriptBlock { docfx serve }
-$job.Id | Out-File ".docfx.pid"  # Track PID for cleanup
-
-# Cleanup on exit
-if (Test-Path ".docfx.pid") {
-    $pid = Get-Content ".docfx.pid"
-    Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
-    Remove-Item ".docfx.pid"
-}
-```
-
-**AGENT BEHAVIOR**:
-1. **ALWAYS** run server validation before Playwright tests
-2. **ALWAYS** use background jobs (Start-Job) for server startup
-3. **ALWAYS** implement timeout + cleanup for test processes
-4. **NEVER** assume server is running
-5. **NEVER** use hardcoded sleep values without validation loop
+**AGENT BEHAVIOR - ABSOLUTE RULES**:
+1. ❌ **NEVER** run `npx playwright test` directly from terminal
+2. ❌ **NEVER** use `Start-Job` for app startup (wrong isolation model)
+3. ❌ **NEVER** run tests without orchestration script
+4. ✅ **ALWAYS** create/use orchestration script in `Scripts/` directory
+5. ✅ **ALWAYS** launch app in separate elevated PowerShell window
+6. ✅ **ALWAYS** include health check retry logic
+7. ✅ **ALWAYS** terminate app process after tests complete
 
 #### 6.1.1. Automatic Test Type Detection & Execution
 **Trigger**: Immediately after test file created in Workspaces/TEMP/

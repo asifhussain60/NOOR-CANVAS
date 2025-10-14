@@ -98,20 +98,21 @@ You also enforce project hygiene by performing cleanup duties:
 - Ensure analyzers, linters, and configs remain clean after every operation.
 - Running analyzers/linters/tests for validation
 
-**MANDATORY SERVER STARTUP FOR TESTS**
+⚠️ **ABSOLUTE MANDATE: ALL PLAYWRIGHT TESTS REQUIRE ORCHESTRATION SCRIPTS** ⚠️
 
-**Before running any Playwright or Percy automated tests as part of sync or cleanup operations, you MUST start the NoorCanvas application in a separate, elevated (Administrator) PowerShell window. Do NOT use the VS Code integrated terminal.**
+**Before running any Playwright or Percy automated tests as part of sync or cleanup operations, you MUST use orchestration scripts. Direct execution of `npx playwright test` is PROHIBITED.**
 
-**How to start the app for tests:**
-1. Open a new Windows PowerShell window as Administrator (right-click → "Run as administrator").
-2. Run the following command:
-  ```powershell
-  cd 'd:\PROJECTS\NOOR CANVAS\SPA\NoorCanvas'; dotnet run
-  ```
-3. Confirm the server is running and accessible at `https://localhost:9091`.
-4. Leave this window open and running during all Playwright and Percy test execution.
+**Required Orchestration Script Pattern**: See `Scripts/run-debug-panel-e2e-visual-test.ps1` for reference implementation.
 
-**Do NOT use the VS Code terminal for server startup when running automated tests.**
+**Execution**: `.\Scripts\run-{feature}-e2e-test.ps1`
+
+**Key Requirements**:
+- ✅ Launch app in SEPARATE elevated PowerShell window (not VS Code terminal)
+- ✅ Set `$env:ASPNETCORE_ENVIRONMENT = 'Development'` before `dotnet run`
+- ✅ Health check with retry logic (10 attempts, 3-second delays)
+- ✅ Automated cleanup after tests complete
+- ❌ NEVER run `npx playwright test` directly from terminal
+
 
 ### Reference Documentation
 - **SystemIndex.md** - Central navigation hub (AUTO-UPDATED by sync agent, includes database rules)
