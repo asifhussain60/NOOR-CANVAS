@@ -498,7 +498,7 @@
 </div>
 
 @* Debug Panel - Development Only *@
-<DebugPanel CurrentViewName="UserLanding" />
+<DebugPanel CurrentViewName="UserLanding" OnEnterTestData="HandleEnterTestData" />
 
 @code {
     // [DEBUG-WORKITEM:hostcanvas:impl] IMPORTANT: This page has TWO PHASES - Token validation phase shows only token input field, 
@@ -1241,6 +1241,65 @@
             if (Model != null)
             {
                 Model.IsLoadingCountries = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:debug-panel:test-data:TRACE] Handles test data entry for debug panel - Development only ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleEnterTestData()
+    {
+        if (Model == null) return;
+
+        try
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:test-data:TRACE] [{RequestId}] Populating UserLanding with test data ;CLEANUP_OK", requestId);
+
+            // Wait a moment for countries to fully load
+            if (Countries.Any())
+            {
+                // Generate superhero test data (name and email only)
+                var testData = TestDataService.GenerateUserLandingNameAndEmail();
+
+                // Populate the form fields
+                Model.NameInput = testData.name;
+                Model.EmailInput = testData.email;
+
+                // Randomly select a country from available dropdown options using ISO2 codes
+                var random = new Random();
+                var randomCountry = Countries[random.Next(Countries.Count)];
+                Model.CountrySelect = randomCountry.ISO2; // Use ISO2 code for dropdown selection
+
+                // Clear any existing error messages
+                Model.ErrorMessage = string.Empty;
+
+                Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:test-data:TRACE] [{RequestId}] Test data populated - Name: {Name}, Email: {Email}, Country: {CountryName} (ISO2: {ISO2}) ;CLEANUP_OK",
+                    requestId, testData.name, testData.email, randomCountry.CountryName, randomCountry.ISO2);
+
+                StateHasChanged();
+
+                // Auto-submit the form after populating test data
+                Logger.LogInformation("[DEBUG-WORKITEM:debug-panel:test-data:TRACE] [{RequestId}] Auto-submitting registration form ;CLEANUP_OK", requestId);
+                
+                await Task.Delay(100); // Brief delay to ensure UI updates are rendered
+                await HandleUserRegistration();
+            }
+            else
+            {
+                Logger.LogWarning("[DEBUG-WORKITEM:debug-panel:test-data:TRACE] [{RequestId}] No countries loaded yet, cannot populate test data ;CLEANUP_OK", requestId);
+                Model.ErrorMessage = "Please wait for countries to load before entering test data.";
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:debug-panel:test-data:TRACE] Error populating test data ;CLEANUP_OK");
+            if (Model != null)
+            {
+                Model.ErrorMessage = "Failed to populate test data.";
                 StateHasChanged();
             }
         }
