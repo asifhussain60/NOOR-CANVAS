@@ -424,6 +424,106 @@ git add .github/prompts/shared/
 git commit -m "docs: extract common patterns from key data streams"
 ```
 
+#### 4.7. Debug Logging Cleanup
+**Remove all debug logging markers created by task.prompt.md before committing to production.**
+
+**Purpose**: Ensure production code is clean of all debug markers inserted during development.
+
+**Execution Steps**:
+
+1. **Search for Debug Markers**:
+   ```powershell
+   # Search for all files containing DEBUG-WORKITEM markers
+   $debugFiles = Get-ChildItem -Path "SPA/", "Tests/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
+       Where-Object { (Get-Content $_.FullName -Raw) -match '\[DEBUG-WORKITEM:.*\] ;CLEANUP_OK' }
+   
+   Write-Host "`n🔍 Files with Debug Markers: $($debugFiles.Count)" -ForegroundColor Cyan
+   ```
+
+2. **Display Debug Marker Summary**:
+   ```powershell
+   foreach ($file in $debugFiles) {
+       $content = Get-Content $file.FullName -Raw
+       $markers = ([regex]::Matches($content, '\[DEBUG-WORKITEM:([^:]+):[^\]]+\]')).Groups |
+                  Where-Object { $_.Index -gt 0 } | Select-Object -ExpandProperty Value -Unique
+       
+       Write-Host "  📝 $($file.Name): $($markers.Count) unique marker(s)" -ForegroundColor Yellow
+   }
+   ```
+
+3. **Remove Debug Markers**:
+   ```powershell
+   foreach ($file in $debugFiles) {
+       $content = Get-Content $file.FullName -Raw
+       $originalContent = $content
+       
+       # Remove C# Logger statements
+       $content = $content -replace 'Logger\.Log\w+\(\s*\[DEBUG-WORKITEM:[^\]]+\][^\n]*;CLEANUP_OK[^\n]*\);?\s*\n?', ''
+       
+       # Remove JavaScript console statements
+       $content = $content -replace 'console\.\w+\(`?\[DEBUG-WORKITEM:[^\]]+\][^\n]*;CLEANUP_OK[^`\n]*`?\);?\s*\n?', ''
+       
+       # Remove standalone comment lines
+       $content = $content -replace '^\s*//\s*\[?DEBUG-WORKITEM:[^\n]*;CLEANUP_OK[^\n]*\n?', '', 'Multiline'
+       $content = $content -replace '^\s*/\*\s*DEBUG-WORKITEM:[^\*]*;CLEANUP_OK[^\*]*\*/\s*\n?', '', 'Multiline'
+       
+       # Remove DBG log statements
+       $content = $content -replace 'Logger\.LogDebug\(\s*\[DEBUG-WORKITEM:[^\]]+\][^\n]*;CLEANUP_OK[^\n]*\);?\s*\n?', ''
+       
+       if ($content -ne $originalContent) {
+           Set-Content -Path $file.FullName -Value $content -NoNewline
+           Write-Host "  ✅ Cleaned: $($file.Name)" -ForegroundColor Green
+       }
+   }
+   ```
+
+4. **Verify Cleanup**:
+   ```powershell
+   # Re-scan for any remaining markers
+   $remainingMarkers = Get-ChildItem -Path "SPA/", "Tests/", "Scripts/" -Recurse -Include "*.cs", "*.razor", "*.js", "*.ts" |
+       Where-Object { (Get-Content $_.FullName -Raw) -match '\[DEBUG-WORKITEM:.*\] ;CLEANUP_OK' }
+   
+   if ($remainingMarkers.Count -eq 0) {
+       Write-Host "`n✅ Debug Marker Cleanup Complete - Zero markers remaining" -ForegroundColor Green
+   } else {
+       Write-Host "`n⚠️ Warning: $($remainingMarkers.Count) files still contain debug markers" -ForegroundColor Yellow
+       foreach ($file in $remainingMarkers) {
+           Write-Host "  - $($file.FullName)" -ForegroundColor Red
+       }
+   }
+   ```
+
+5. **Stage Cleaned Files**:
+   ```powershell
+   if ($debugFiles.Count -gt 0) {
+       git add $debugFiles
+       Write-Host "`n✅ Staged $($debugFiles.Count) cleaned files" -ForegroundColor Green
+   }
+   ```
+
+**Expected Output**:
+```
+🔍 Files with Debug Markers: 8
+  📝 SessionCanvas.razor: 12 unique marker(s)
+  📝 HostControlPanel.razor: 8 unique marker(s)
+  📝 QuestionController.cs: 6 unique marker(s)
+  ✅ Cleaned: SessionCanvas.razor
+  ✅ Cleaned: HostControlPanel.razor
+  ✅ Cleaned: QuestionController.cs
+  ...
+✅ Debug Marker Cleanup Complete - Zero markers remaining
+✅ Staged 8 cleaned files
+```
+
+**Patterns Removed**:
+- `Logger.LogInformation("[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK", ...)`
+- `Logger.LogDebug("[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK", ...)`
+- `console.log("[DEBUG-WORKITEM:scope:context] message ;CLEANUP_OK")`
+- `// DEBUG-WORKITEM:scope:context message ;CLEANUP_OK`
+- `/* DEBUG-WORKITEM:scope:context message ;CLEANUP_OK */`
+
+**See Also**: [Debug Logging Mandate](shared/debug-logging-mandate.md) for complete marker patterns
+
 ---
 
 ### Step 5: Verify Uncommitted Changes
