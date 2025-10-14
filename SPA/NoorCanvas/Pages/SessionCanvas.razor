@@ -292,7 +292,7 @@
     }
 
     /* Canvas Area Styles */
-    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] CRITICAL FIX 3 - Set explicit max-height to prevent vertical expansion per screenshot (697px × 400px) ;CLEANUP_OK */
+    /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height to allow canvas to expand for tall assets ;CLEANUP_OK */
     .canvas-area-container {
         background-color: white;
         border-radius: 1rem;
@@ -301,10 +301,8 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - was causing expansion ;CLEANUP_OK */
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Set explicit max-height based on screenshot dimensions (697px width × 400px height visible area) ;CLEANUP_OK */
         min-height: 400px;
-        max-height: 700px;
+        /* [DIAGNOSTIC:canvas:height:TRACE] Removed max-height: 700px - was preventing expansion to fit assets ;CLEANUP_OK */
     }
 
 .canvas-content-area {
@@ -313,13 +311,13 @@
     border-radius: 1rem;
     transition: all 0.2s;
     margin: 10px;
-    overflow: hidden; /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Prevent scrollbars on container ;CLEANUP_OK */
+    overflow: visible; /* [DIAGNOSTIC:canvas:height:TRACE] Allow natural expansion to fit asset ;CLEANUP_OK */
     display: flex;
     flex-direction: column;
     border: #006400 dotted 3px;
     background-color: #eeffee;
     min-height: 400px;
-    /* [DEBUG-WORKITEM:canvas:scrollbar:TRACE] Removed max-height to allow expansion to fit asset ;CLEANUP_OK */
+    /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height - allows canvas to grow with asset content ;CLEANUP_OK */
 }
     .canvas-asset-content {
         width: 100%;
@@ -383,7 +381,7 @@
     }
 
     /* Sidebar Styles */
-    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] CRITICAL FIX - Remove height:100% to prevent vertical expansion ;CLEANUP_OK */
+    /* [DIAGNOSTIC:canvas:height:TRACE] Allow sidebar to match canvas height naturally ;CLEANUP_OK */
     .canvas-sidebar {
         background-color: white;
         border-radius: 0.75rem;
@@ -392,11 +390,8 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - this was causing sidebar to grow with question count ;CLEANUP_OK */
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Setting min-height to match canvas area ;CLEANUP_OK */
         min-height: 400px;
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Explicit max-height prevents expansion beyond viewport-friendly size ;CLEANUP_OK */
-        max-height: 700px;
+        /* [DIAGNOSTIC:canvas:height:TRACE] REMOVED max-height: 700px - allows sidebar to match canvas height ;CLEANUP_OK */
         overflow: hidden;
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
         max-width: 100%;

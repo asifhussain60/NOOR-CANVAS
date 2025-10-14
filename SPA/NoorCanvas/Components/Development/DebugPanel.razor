@@ -1,11 +1,13 @@
 @using NoorCanvas.Services.Development
 @using NoorCanvas.Models.Debug
 @using Microsoft.Extensions.Configuration
+@using Microsoft.JSInterop
 @implements IDisposable
 @inject IDevModeService DevModeService
 @inject ILogger<DebugPanel> Logger
 @inject DialogService DialogService
 @inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
 
 @* Only render debug panel in development mode *@
 @if (DevModeService.ShowDevPanels)
@@ -253,7 +255,13 @@
             
             Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] Before OnEnterTestData.InvokeAsync - ViewName: {ViewName} ;CLEANUP_OK", CurrentViewName);
             
+            // [DIAGNOSTIC:notyf:silent] Enable silent mode to suppress test data toasts ;CLEANUP_OK
+            await JSRuntime.InvokeVoidAsync("eval", "if (window.NoorToast) { window.NoorToast.setSilentMode(true); }");
+            
             await OnEnterTestData.InvokeAsync();
+            
+            // [DIAGNOSTIC:notyf:silent] Disable silent mode after test data operation ;CLEANUP_OK
+            await JSRuntime.InvokeVoidAsync("eval", "if (window.NoorToast) { window.NoorToast.setSilentMode(false); }");
             
             Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] After OnEnterTestData.InvokeAsync - Success ;CLEANUP_OK");
             Logger.LogInformation("[DEBUG-WORKITEM:toastr:debugpanel:TRACE] ShowDebugToasts={ShowDebugToasts}, Test data toast display DISABLED (per task: remove toast from Pasted Image 2) ;CLEANUP_OK", ShowDebugToasts);

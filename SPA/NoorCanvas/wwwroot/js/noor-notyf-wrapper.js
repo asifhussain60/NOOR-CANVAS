@@ -23,6 +23,7 @@ window.NoorToast = (function () {
     let notyf = null;
     let initAttempted = false;
     let initSuccess = false;
+    let silentMode = false;  // [DIAGNOSTIC:notyf:silent] Flag to suppress toasts (for test data operations) ;CLEANUP_OK
 
     // [DIAGNOSTIC:notyf:config] Toast configuration constants ;CLEANUP_OK
     const CONFIG = {
@@ -110,6 +111,13 @@ window.NoorToast = (function () {
      */
     function show(message, title, type) {
         const timestamp = new Date().toISOString();
+
+        // [DIAGNOSTIC:notyf:silent] Check if silent mode is enabled ;CLEANUP_OK
+        if (silentMode) {
+            console.log('[DIAGNOSTIC:notyf:show] 🔇 SILENT MODE ACTIVE - Toast suppressed ;CLEANUP_OK');
+            console.log('[DIAGNOSTIC:notyf:show] Would have shown: [' + type + '] ' + title + ': ' + message + ' ;CLEANUP_OK');
+            return;
+        }
 
         // [DIAGNOSTIC:notyf:invoke] Log invocation details ;CLEANUP_OK
         console.log('[DIAGNOSTIC:notyf:show] 🎯 Toast invoked at ' + timestamp + ' ;CLEANUP_OK');
@@ -214,6 +222,16 @@ window.NoorToast = (function () {
         init: init,
         show: show,
 
+        // [DIAGNOSTIC:notyf:silent] Enable/disable silent mode for test operations ;CLEANUP_OK
+        setSilentMode: function (enabled) {
+            silentMode = enabled;
+            console.log('[DIAGNOSTIC:notyf:silent] Silent mode ' + (enabled ? 'ENABLED' : 'DISABLED') + ' ;CLEANUP_OK');
+        },
+
+        getSilentMode: function () {
+            return silentMode;
+        },
+
         // [DIAGNOSTIC:notyf:api] Expose internal state for debugging ;CLEANUP_OK
         getState: function () {
             return {
@@ -221,6 +239,7 @@ window.NoorToast = (function () {
                 initSuccess: initSuccess,
                 notyfInstance: notyf !== null,
                 notyfType: typeof notyf,
+                silentMode: silentMode,
                 config: CONFIG
             };
         }
