@@ -1,65 +1,176 @@
-(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
-(anonymous) @ (index):64
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:266 [DIAGNOSTIC:notyf:autoload] DOM still loading, waiting for DOMContentLoaded event ;CLEANUP_OK
-noor-share-system.js:293 [NOOR-SHARE] 🚀 Definitive share button system loaded and ready
-blazor.server.js:1 [2025-10-14T19:38:53.748Z] Information: Normalizing '_blazor' to 'https://localhost:9091/_blazor'.
-KJAHA99L:97 [DIAGNOSTIC:notyf:signalr] ✅ Q&A toast notification system initialized with Notyf ;CLEANUP_OK
-noor-logging.js:66 [19:38:53.839 INFO] NOOR-INIT: NOOR Canvas application loaded Object
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:268 [DIAGNOSTIC:notyf:autoload] DOMContentLoaded fired, initializing Notyf ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:68 [DIAGNOSTIC:notyf:init] 🚀 Starting Notyf initialization ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:69 [DIAGNOSTIC:notyf:init] Config: duration=3000ms, position=right-bottom ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:80 [DIAGNOSTIC:notyf:init] ✅ Notyf library detected: function ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:86 [DIAGNOSTIC:notyf:init] ✅ Notyf instance created successfully ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:87 [DIAGNOSTIC:notyf:init] Instance type: object ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:88 [DIAGNOSTIC:notyf:init] Has success method: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:89 [DIAGNOSTIC:notyf:init] Has error method: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:90 [DIAGNOSTIC:notyf:init] Has open method: true ;CLEANUP_OK
-noor-logging.js:66 [19:38:53.852 INFO] NOOR-BROWSER: Browser logger initialized Object
-noor-annotations.js:330 NOOR-ANNOTATION: JavaScript module loaded and ready
-noor-share-system.js:273 [NOOR-SHARE] DOM ready, system available for initialization
-KJAHA99L:110 🎨 CSS DEBUG: Starting CSS verification...
-KJAHA99L:115 ✅ CSS DEBUG: noor-canvas.css link found: https://localhost:9091/css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk
-KJAHA99L:139 📋 CSS DEBUG: All loaded CSS files:
-KJAHA99L:141   1. https://localhost:9091/css/bootstrap/bootstrap.min.css
-KJAHA99L:141   2. https://localhost:9091/NoorCanvas.styles.css?v=bAe9wRsTLxsOJwwDWShD_-VHowVpNXGln5MlgF-XUVk
-KJAHA99L:141   3. https://localhost:9091/css/fonts/fonts.css?v=G6Wns9j7CKAGfSZlu1ePXb60LtW9RmcpvH_gOHbZG48
-KJAHA99L:141   4. https://localhost:9091/css/session-transcript.css?v=k2vud4spjoCpdNyvtKdRf1FiPjkilWkiBbnVe1RZghU
-KJAHA99L:141   5. https://localhost:9091/css/noor-canvas.css?v=vqWlgm6mD4arj9w2ET_bAY-K21nPJCPmrAP56FHdjzk
-KJAHA99L:141   6. https://localhost:9091/css/debug-panel.css?v=-clSxQTKYJ_8_FGGWwmh-ofBgXnBJabNqiI7jEGZVD0
-KJAHA99L:141   7. https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css
-KJAHA99L:141   8. https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css
-KJAHA99L:141   9. https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&family=Lato:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@400;600;700&family=Noto+Nastaliq+Urdu&display=swap
-KJAHA99L:141   10. https://fonts.googleapis.com/css2?family=Harmattan:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap
-KJAHA99L:141   11. https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cairo:wght@400;700&display=swap
-blazor.server.js:1 [2025-10-14T19:38:54.158Z] Information: WebSocket connected to wss://localhost:9091/_blazor?id=TE4OGV4ElbM2vpasPaK25w.
-ContentIsolatedWorld.js:1 Initializing CS WAX...
-KJAHA99L:130 ⚠️ CSS DEBUG: No .noor-btn elements found to test
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:282 [DIAGNOSTIC:notyf:debug] === NOTYF STATE AFTER 1 SECOND === ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:283 [DIAGNOSTIC:notyf:debug] Init Attempted: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:284 [DIAGNOSTIC:notyf:debug] Init Success: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:285 [DIAGNOSTIC:notyf:debug] Notyf Instance Exists: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:286 [DIAGNOSTIC:notyf:debug] Notyf Type: object ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:287 [DIAGNOSTIC:notyf:debug] showNoorToast Available: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:288 [DIAGNOSTIC:notyf:debug] NoorToast.show Available: true ;CLEANUP_OK
-noor-notyf-wrapper.js?v=W4QtmgfQFFEdC8iZKV97kY6gq7Nq6-sdMpmD6d51-1g:289 [DIAGNOSTIC:notyf:debug] ================================ ;CLEANUP_OK
-ContentIsolatedWorld.js:1 WAX CS initialized
-blazor.server.js:1 [2025-10-14T19:38:54.490Z] Error: System.InvalidOperationException: Object of type 'NoorCanvas.Components.Development.DebugPanel' does not have a property matching the name 'OnEnterTestData'.
-   at Microsoft.AspNetCore.Components.Reflection.ComponentProperties.ThrowForUnknownIncomingParameterName(Type targetType, String parameterName)
-   at Microsoft.AspNetCore.Components.Reflection.ComponentProperties.SetProperties(ParameterView& parameters, Object target)
-   at Microsoft.AspNetCore.Components.ComponentBase.SetParametersAsync(ParameterView parameters)
-   at Microsoft.AspNetCore.Components.Rendering.ComponentState.SupplyCombinedParameters(ParameterView directAndCascadingParameters)
-log @ blazor.server.js:1
-blazor.server.js:1 [2025-10-14T19:38:54.492Z] Information: Connection disconnected.
-noor-logging.js:66 [19:38:54.494 ERROR] UNHANDLED-PROMISE: Error: Invocation canceled due to the underlying connection being closed. Object
-blazor.server.js:1 Uncaught (in promise) Error: Invocation canceled due to the underlying connection being closed.
-    at Xt._connectionClosed (blazor.server.js:1:62068)
-    at Xt.connection.onclose (blazor.server.js:1:51976)
-    at pn._stopConnection (blazor.server.js:1:91786)
-    at features.reconnect.transport.onclose (blazor.server.js:1:89471)
-    at un._close (blazor.server.js:1:81214)
-    at un.stop (blazor.server.js:1:80834)
-    at pn._stopInternal (blazor.server.js:1:84165)
-    at async pn.stop (blazor.server.js:1:83975)
-    at async Xt.stop (blazor.server.js:1:55012)
-    at async Ir.disconnect (blazor.server.js:1:137836)
-noor-logging.js:73 [19:38:55.419 INFO] BLAZOR-STARTUP: Blazor server connection auto-established
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Question Card</title>
+    <!-- Tailwind CSS is still needed for the utility compilation -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* 1. Base Styles (Kept from previous version) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fff8f5; /* bg-orange-50 equivalent */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        /* 2. Main Wrapper (max-w-[700px] mx-auto) */
+        .card-wrapper {
+            width: 100%; /* w-full */
+            max-width: 700px; 
+            margin-left: auto; /* mx-auto */
+            margin-right: auto; /* mx-auto */
+        }
+
+        /* 3. Question Card Container (w-3/4 p-8 bg-orange-50 border-t-2 border-l-2 border-r-4 border-b-4 border-orange-300 rounded-3xl) */
+        .question-card {
+            width: 75%; /* w-3/4 */
+            margin-left: auto; /* mx-auto */
+            margin-right: auto; /* mx-auto */
+            padding: 2rem; /* p-8 */
+            background-color: #fff7f5; /* bg-orange-50 */
+            border-radius: 1.5rem; /* rounded-3xl */
+            border-style: solid;
+            border-color: #fdba74; /* border-orange-300 */
+            border-top-width: 2px; /* border-t-2 */
+            border-left-width: 2px; /* border-l-2 */
+            border-right-width: 4px; /* border-r-4 */
+            border-bottom-width: 4px; /* border-b-4 */
+        }
+
+        /* Spacing for the first card */
+        .top-card {
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+
+        /* 4. Card Header (flex items-start mb-4) */
+        .card-header {
+            display: flex;
+            align-items: flex-start; 
+            margin-bottom: 1rem; /* mb-4 */
+        }
+
+        /* 5. Icon Circle (w-12 h-12 rounded-full bg-orange-100 border border-orange-300 mr-4 flex-shrink-0) */
+        .icon-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem; /* w-12 */
+            height: 3rem; /* h-12 */
+            border-radius: 9999px; /* rounded-full */
+            background-color: #ffedd5; /* bg-orange-100 */
+            border: 1px solid #fdba74; /* border border-orange-300 */
+            margin-right: 1rem; /* mr-4 */
+            flex-shrink: 0; 
+        }
+
+        /* 6. Icon Styling (text-orange-500 text-3xl) */
+        .icon {
+            color: #f97316; /* text-orange-500 */
+            font-size: 1.875rem; /* text-3xl */
+        }
+        
+        /* 7. Titles */
+        .title {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: #c2410c; /* text-orange-700 */
+        }
+        .subtitle {
+            font-size: 0.875rem; /* text-sm */
+            color: #f97316; /* text-orange-500 */
+        }
+
+        /* 8. Question Display Box (bg-white rounded-xl p-5 mt-4 border border-gray-200 shadow-sm) */
+        .question-box {
+            background-color: white; 
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.25rem; /* p-5 */
+            margin-top: 1rem; /* mt-4 */
+            border: 1px solid #e5e7eb; /* border border-gray-200 */
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+        }
+        
+        /* 9. Question Text (text-base text-orange-900 font-medium) */
+        .question-text {
+            font-size: 1rem; /* text-base */
+            color: #7c2d12; /* text-orange-900 */
+            font-weight: 500; /* font-medium */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- New Wrapper: Max-width 700px, Centered -->
+    <div class="card-wrapper">
+
+        <!-- Card 1: Question 1 (Significance of Friday) -->
+        <div class="question-card top-card">
+            
+            <!-- Header Section (Icon and Titles) -->
+            <div class="card-header">
+                <!-- Icon Circle -->
+                <div class="icon-circle">
+                    <i class="fas fa-question-circle icon"></i>
+                </div>
+                <!-- Titles -->
+                <div>
+                    <h1 class="title">
+                        Participant Question
+                    </h1>
+                    <p class="subtitle">
+                        Shared by host for discussion
+                    </p>
+                </div>
+            </div>
+
+            <!-- Question 1 Display Box -->
+            <div class="question-box">
+                <p class="question-text">
+                    What is the significance of Friday in Islam?
+                </p>
+            </div>
+
+        </div>
+        
+        <!-- Card 2: Question 2 (Long Question) -->
+        <div class="question-card">
+            
+            <!-- Header Section (Icon and Titles) - Duplicate for the new card -->
+            <div class="card-header">
+                <!-- Icon Circle -->
+                <div class="icon-circle">
+                    <i class="fas fa-question-circle icon"></i>
+                </div>
+                <!-- Titles -->
+                <div>
+                    <h1 class="title">
+                        Participant Question
+                    </h1>
+                    <p class="subtitle">
+                        Shared by host for discussion
+                    </p>
+                </div>
+            </div>
+
+            <!-- Question 2 Display Box -->
+            <div class="question-box">
+                <p class="question-text">
+                    Given the increasing complexity of global supply chains and the push for sustainability, what are the primary ethical considerations companies must address when sourcing raw materials from developing nations, and how can blockchain technology be effectively leveraged to provide transparent auditing and ensure fair labor practices across all tiers of the supply chain?
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

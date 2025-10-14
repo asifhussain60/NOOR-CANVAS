@@ -1569,6 +1569,16 @@
 
                     if (participantsResponse?.Participants != null)
                     {
+                        // [DEBUG-WORKITEM:use-landing:trace] Log participants received from API ;CLEANUP_OK
+                        Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] API returned {Count} participants ;CLEANUP_OK",
+                            requestId, participantsResponse.Participants.Count);
+                        for (int i = 0; i < participantsResponse.Participants.Count; i++)
+                        {
+                            var p = participantsResponse.Participants[i];
+                            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] API Participant {Index}: UserId={UserId}, DisplayName={DisplayName}, Country={Country} ;CLEANUP_OK",
+                                requestId, i + 1, p.UserId, p.DisplayName, p.Country);
+                        }
+                        
                         // Convert API participants to display participants
                         Model!.Participants = participantsResponse.Participants.Select(p => new ParticipantData
                         {
@@ -1577,6 +1587,16 @@
                             Country = p.Country ?? "Unknown",
                             Flag = p.CountryFlag?.ToLower() ?? ""
                         }).ToList();
+                        
+                        // [DEBUG-WORKITEM:use-landing:trace] Log participants after client-side transformation ;CLEANUP_OK
+                        Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] After client transformation: {Count} participants in Model.Participants ;CLEANUP_OK",
+                            requestId, Model.Participants.Count);
+                        for (int i = 0; i < Model.Participants.Count; i++)
+                        {
+                            var p = Model.Participants[i];
+                            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] Display Participant {Index}: UserId={UserId}, Name={Name}, Country={Country}, Flag={Flag} ;CLEANUP_OK",
+                                requestId, i + 1, p.UserId, p.Name, p.Country, p.Flag);
+                        }
                         
                         // API-BASED APPROACH: Get current participant directly from API using token
                         // This eliminates the hash-based selection that caused "same name on multiple browsers" issue

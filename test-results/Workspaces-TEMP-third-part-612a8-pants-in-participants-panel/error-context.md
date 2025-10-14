@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - img "NOOR Canvas" [ref=e6]
+    - generic [ref=e7]:
+      - heading "User Authentication" [level=1] [ref=e8]
+      - paragraph [ref=e10]: Need For Messengers
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - heading "REGISTRATION" [level=3] [ref=e14]
+          - paragraph [ref=e15]: Please fill out the form to register for this session.
+        - generic [ref=e16]:
+          - generic [ref=e17]: Name
+          - generic:
+            - generic: 
+          - textbox "Enter your name" [ref=e18]: Alice Johnson
+        - generic [ref=e19]:
+          - generic [ref=e20]: Email Address
+          - generic:
+            - generic: 
+          - textbox "Enter your email" [active] [ref=e21]: alice@test.com
+        - generic [ref=e22]:
+          - generic [ref=e23]: Country
+          - generic:
+            - generic: 
+          - combobox [ref=e24]:
+            - option "Select your country" [selected]
+            - option "Australia"
+            - option "Bahrain"
+            - option "India"
+            - option "Pakistan"
+            - option "United Arab Emirates"
+            - option "United Kingdom"
+            - option "United States"
+      - button " Join Waiting Room" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27] [cursor=pointer]: 
+        - generic [ref=e28] [cursor=pointer]: Join Waiting Room
+  - button "" [ref=e30] [cursor=pointer]:
+    - generic [ref=e31] [cursor=pointer]: 
+```

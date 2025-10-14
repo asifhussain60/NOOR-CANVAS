@@ -1209,21 +1209,36 @@
             Model!.IsLoadingCountries = true;
             StateHasChanged();
             var requestId = Guid.NewGuid().ToString("N")[..8];
+            
+            // [DEBUG-WORKITEM:use-landing:trace] Track country loading for third participant investigation ;CLEANUP_OK
+            Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] COUNTRY LOADING START ;CLEANUP_OK", requestId);
+            
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] Loading countries from API...", requestId);
             using var httpClient = HttpClientFactory.CreateClient("default");
             httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "demo-token-12345");
             var countriesUrl = $"/api/host/countries?guid={Uri.EscapeDataString(Model?.TokenInput ?? "USERREF001")}";
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] GET {Url}", requestId, countriesUrl);
+            
             var response = await httpClient.GetAsync(countriesUrl);
             Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] API response: {StatusCode}", requestId, response.StatusCode);
+            
             if (response.IsSuccessStatusCode)
             {
                 Countries = await response.Content.ReadFromJsonAsync<List<CountryData>>() ?? new List<CountryData>();
                 Logger.LogInformation("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] Loaded {CountryCount} countries successfully", requestId, Countries.Count);
+                
+                // [DEBUG-WORKITEM:use-landing:trace] Country loading completed successfully ;CLEANUP_OK
+                Logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] COUNTRY LOADING SUCCESS - {Count} countries loaded ;CLEANUP_OK", 
+                    requestId, Countries.Count);
             }
             else
             {
                 Logger.LogWarning("COPILOT-DEBUG: [{RequestId}] [COUNTRIES] Failed to load countries - HTTP {StatusCode}", requestId, response.StatusCode);
+                
+                // [DEBUG-WORKITEM:use-landing:trace] Country loading failed ;CLEANUP_OK
+                Logger.LogWarning("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] COUNTRY LOADING FAILED - HTTP {StatusCode} ;CLEANUP_OK", 
+                    requestId, response.StatusCode);
+                
                 if (Model != null)
                 {
                     Model.ErrorMessage = "Failed to load countries from database.";

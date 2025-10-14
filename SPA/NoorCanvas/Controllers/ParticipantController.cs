@@ -488,11 +488,25 @@ namespace NoorCanvas.Controllers
                 }
 
                 // Token filtering analysis complete
+                
+                // [DEBUG-WORKITEM:use-landing:trace] Trace logging for third participant investigation ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] BEFORE database query - UserToken: {UserToken} ;CLEANUP_OK", 
+                    requestId, session.UserToken);
 
                 // DIRECT TOKEN GROUPING: Filter participants directly by UserToken (no complex joins needed)
                 var participantsData = await _context.Participants
                     .Where(p => p.UserToken == session.UserToken)
                     .ToListAsync();
+                
+                // [DEBUG-WORKITEM:use-landing:trace] Log individual participants from database ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] Database returned {Count} participants ;CLEANUP_OK", 
+                    requestId, participantsData.Count);
+                for (int i = 0; i < participantsData.Count; i++)
+                {
+                    var p = participantsData[i];
+                    _logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] Participant {Index}: Id={ParticipantId}, Name={Name}, UserGuid={UserGuid}, Country={Country} ;CLEANUP_OK",
+                        requestId, i + 1, p.ParticipantId, p.Name, p.UserGuid, p.Country);
+                }
 
                 _logger.LogInformation("NOOR-PARTICIPANT-GROUPING: [{RequestId}] Direct UserToken filtering returned {Count} participants for token '{UserToken}'",
                     requestId, participantsData.Count, session.UserToken);
@@ -518,6 +532,16 @@ namespace NoorCanvas.Controllers
                     Country = p.Country,
                     CountryFlag = !string.IsNullOrEmpty(p.Country) ? p.Country.ToLowerInvariant() : "un" // Use country code directly as flag code
                 }).ToList();
+                
+                // [DEBUG-WORKITEM:use-landing:trace] Log participants after transformation ;CLEANUP_OK
+                _logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] After transformation: {Count} participants ready for API response ;CLEANUP_OK",
+                    requestId, participants.Count);
+                for (int i = 0; i < participants.Count; i++)
+                {
+                    var p = participants[i];
+                    _logger.LogInformation("[DEBUG-WORKITEM:use-landing:trace] [{RequestId}] Transformed Participant {Index}: UserId={UserId}, DisplayName={DisplayName}, Country={Country}, Flag={Flag} ;CLEANUP_OK",
+                        requestId, i + 1, p.UserId, p.DisplayName, p.Country, p.CountryFlag);
+                }
 
                 _logger.LogInformation("NOOR-DEBUG-UI: [{RequestId}] Found {Count} participants for session {SessionId}",
                     requestId, participants.Count, session.SessionId);
