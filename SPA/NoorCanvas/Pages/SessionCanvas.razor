@@ -2674,14 +2674,36 @@
                             if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
                             {
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 🎉 THIS USER asked the question - showing success toast ;CLEANUP_OK", requestId);
-                                await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                                    "The host has addressed your question during the session.", 
-                                    "Question Answered", 
-                                    "success");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionAnswered) ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
+                                
+                                try
+                                {
+                                    await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                        "The host has addressed your question during the session.", 
+                                        "Question Answered", 
+                                        "success");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
+                                }
+                                catch (Exception toastEx)
+                                {
+                                    Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                                }
+                                
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                             }
                             else
                             {
                                 Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionAnswered) ;CLEANUP_OK", requestId);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
                             }
                             
                             await InvokeAsync(StateHasChanged);
@@ -2755,14 +2777,36 @@
                                 if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
                                 {
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] 🎯 THIS USER asked the question that was deleted - showing info toast ;CLEANUP_OK", requestId);
-                                    await JSRuntime.InvokeVoidAsync("showNoorToast", 
-                                        "The host has removed your question. It may be addressed differently or outside this Q&A session.", 
-                                        "Question Removed", 
-                                        "info");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION START (QuestionDeleted) ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: TRUE ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - About to call JSRuntime.InvokeVoidAsync('showNoorToast', ...) ;CLEANUP_OK", requestId);
+                                    
+                                    try
+                                    {
+                                        await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                            "The host has removed your question. It may be addressed differently or outside this Q&A session.", 
+                                            "Question Removed", 
+                                            "info");
+                                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ✅ JSRuntime.InvokeVoidAsync completed successfully ;CLEANUP_OK", requestId);
+                                    }
+                                    catch (Exception toastEx)
+                                    {
+                                        Logger.LogError(toastEx, "[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 💥 JSRuntime.InvokeVoidAsync FAILED: {Message} ;CLEANUP_OK", requestId, toastEx.Message);
+                                    }
+                                    
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 📢 TOAST INVOCATION END ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
                                 }
                                 else
                                 {
                                     Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}] 🚫 TOAST NOT SHOWN (QuestionDeleted) ;CLEANUP_OK", requestId);
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - CurrentUserGuid: '{CurrentUser}' ;CLEANUP_OK", requestId, CurrentUserGuid ?? "NULL");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - OriginalAskerGuid: '{AskerGuid}' ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:toast:TRACE] [{RequestId}]   - GUIDs Match: FALSE ;CLEANUP_OK", requestId);
                                 }
                                 
                                 await InvokeAsync(StateHasChanged);
