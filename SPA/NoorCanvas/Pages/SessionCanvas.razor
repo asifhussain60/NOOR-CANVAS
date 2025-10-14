@@ -29,7 +29,67 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/session-transcript.css">
+    <!-- [DEBUG-WORKITEM:canvas-questions:toastr:trace] Toastr library for toast notifications (QuestionAnswered, QuestionDeleted events) ;CLEANUP_OK -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <script src="~/js/html-renderer.js"></script>
+    
+    <!-- [DEBUG-WORKITEM:canvas-questions:toastr:trace] showNoorToast function definition (EmptyLayout doesn't inherit _Host.cshtml) ;CLEANUP_OK -->
+    <script>
+        window.showNoorToast = function(message, title, type) {
+            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 🎯 showNoorToast CALLED ;CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - message:', message, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - title:', title, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - type:', type, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace]   - toastr available:', typeof toastr !== 'undefined', ';CLEANUP_OK');
+            
+            if (typeof toastr !== 'undefined') {
+                title = title || 'Notification';
+                type = type || 'info';
+                
+                const options = {
+                    timeOut: 5000,
+                    extendedTimeOut: 2000,
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: 'toast-bottom-right',
+                    preventDuplicates: false,
+                    newestOnTop: false
+                };
+
+                options.toastClass = 'toast noor-toast';
+                options.titleClass = 'toast-title noor-toast-title';
+                options.messageClass = 'toast-message noor-toast-message';
+
+                console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ✅ About to display toastr with type:', type.toLowerCase(), ';CLEANUP_OK');
+                
+                switch(type.toLowerCase()) {
+                    case 'success':
+                        toastr.success(message, title, options);
+                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 🎉 SUCCESS toast displayed ;CLEANUP_OK');
+                        break;
+                    case 'warning':
+                        toastr.warning(message, title, options);
+                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ⚠️ WARNING toast displayed ;CLEANUP_OK');
+                        break;
+                    case 'error':
+                        toastr.error(message, title, { ...options, timeOut: 7000 });
+                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ❌ ERROR toast displayed ;CLEANUP_OK');
+                        break;
+                    case 'info':
+                    default:
+                        toastr.info(message, title, options);
+                        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ℹ️ INFO toast displayed ;CLEANUP_OK');
+                        break;
+                }
+            } else {
+                console.error('[DEBUG-WORKITEM:canvas-questions:toastr:trace] 💥 Toastr library NOT loaded - using alert fallback ;CLEANUP_OK');
+                alert(title + ': ' + message);
+            }
+        };
+        console.log('[DEBUG-WORKITEM:canvas-questions:toastr:trace] ✅ showNoorToast function initialized ;CLEANUP_OK');
+    </script>
 </HeadContent>
 
 <style>
@@ -371,6 +431,9 @@
         flex-direction: column;
         height: 100%;
         overflow: hidden;
+        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
+        max-width: 100%;
+        width: 100%;
     }
 
     .canvas-tabs {
@@ -442,6 +505,9 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Width constraint prevents question cards from expanding sidebar horizontally ;CLEANUP_OK */
+        max-width: 100%;
+        width: 100%;
     }
 
     .canvas-participants-container {
@@ -598,6 +664,8 @@
         word-wrap: break-word;
         margin-bottom: 1rem;
         position: relative; /* [DEBUG-WORKITEM:canvas-questions-orangecard:positioning-trace] Required for absolute positioned badge child element ;CLEANUP_OK */
+        /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Box-sizing ensures padding included in width calculation, preventing overflow ;CLEANUP_OK */
+        box-sizing: border-box;
     }
 
     /* Green Theme - Own Question */
@@ -831,9 +899,26 @@
 
     /* Responsive Layout - Mobile */
     @@media (max-width: 768px) {
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Single column layout with canvas panel full-width, sidebar below ;CLEANUP_OK */
         .canvas-main-grid {
             grid-template-columns: 1fr;
             height: auto;
+            gap: 1rem;
+        }
+
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Canvas area takes full width on mobile ;CLEANUP_OK */
+        .canvas-area-container {
+            width: 100%;
+            max-width: 100%;
+            min-height: 300px;
+        }
+
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Sidebar appears below canvas, full width ;CLEANUP_OK */
+        .canvas-sidebar {
+            order: 2;
+            width: 100%;
+            max-width: 100%;
+            min-height: 400px;
         }
 
         .canvas-header-content {
@@ -854,8 +939,15 @@
             right: 0.5rem;
         }
 
-        .canvas-sidebar {
-            order: 2;
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Question cards scale to container width on mobile ;CLEANUP_OK */
+        .canvas-question-item {
+            max-width: 100%;
+        }
+
+        /* [DEBUG-WORKITEM:canvas-questions:mobile:trace] Container takes full mobile width ;CLEANUP_OK */
+        .session-canvas-container {
+            width: 100%;
+            padding: 1rem;
         }
     }
 </style>
@@ -1223,6 +1315,9 @@
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Both containers set to height:100% within grid for equal stretching ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Q&A panel overflow:hidden with internal tab content scrolling via overflow-y:auto ;CLEANUP_OK");
         Logger.LogInformation("[DEBUG-WORKITEM:canvas:layout] Welcome panel moved inside canvas-area-container div, positioned above canvas-content-area per screenshot annotation ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] Toastr library loaded via CDN in HeadContent - required for QuestionAnswered/QuestionDeleted toast notifications ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:sidebar:trace] [{RequestId}] Sidebar width constraints added (max-width:100%, width:100%) to prevent horizontal expansion from question cards ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:mobile:trace] [{RequestId}] Mobile responsive CSS enhanced - canvas full-width, sidebar below with vertical stacking ;CLEANUP_OK", requestId);
 
         // Initialize HttpClient with proper base address
         Http = HttpClientFactory.CreateClient("default");
@@ -1264,6 +1359,39 @@
         
         // Then initialize SignalR connection with SessionId available
         await InitializeSignalRAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            try
+            {
+                // [DEBUG-WORKITEM:canvas-questions:toastr:trace] Verify toastr library loaded after first render ;CLEANUP_OK
+                var toastrAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+                var showNoorToastAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.showNoorToast === 'function'");
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] OnAfterRenderAsync - toastr available: {ToastrAvailable}, showNoorToast available: {ShowNoorToastAvailable} ;CLEANUP_OK", 
+                    requestId, toastrAvailable, showNoorToastAvailable);
+                
+                if (!toastrAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: toastr library NOT loaded - CDN may be blocked or script failed ;CLEANUP_OK", requestId);
+                }
+                
+                if (!showNoorToastAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] ❌ CRITICAL: showNoorToast function NOT defined - _Host.cshtml script may not be executing ;CLEANUP_OK", requestId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:canvas-questions:toastr:trace] [{RequestId}] Failed to verify toastr availability ;CLEANUP_OK", requestId);
+            }
+        }
+        
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task InitializeSessionAsync(string requestId)
