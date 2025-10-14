@@ -103,7 +103,7 @@ test.describe('Debug Panel - UserLanding Auto-fill Visual Regression (Percy)', (
 
         // Debug panel should now be visible (development mode only)
         console.log('[DEBUG-WORKITEM:debug-panel:visibility] Waiting for debug panel to appear ;CLEANUP_OK');
-        
+
         // Debug panel appears as a floating button in bottom-right corner
         const debugPanelButton = page.locator('[class*="debug-panel"]').first();
         await expect(debugPanelButton).toBeVisible({ timeout: 5000 });
