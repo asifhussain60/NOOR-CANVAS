@@ -88,7 +88,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 2840,
+                      "duration": 2808,
                       "error": {
                         "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n",
                         "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at https://localhost:9091/user/landing/KJAHA99L\nCall log:\n\u001b[2m  - navigating to \"https://localhost:9091/user/landing/KJAHA99L\", waiting until \"load\"\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:86:21",
@@ -128,7 +128,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-14T10:30:46.192Z",
+                      "startTime": "2025-10-14T11:22:14.910Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -178,7 +178,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 5186,
+                      "duration": 5146,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n",
                         "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  locator('.canvas-question-item.question-item-style-sienna').first()\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.canvas-question-item.question-item-style-sienna').first()\u001b[22m\n\n    at D:\\PROJECTS\\NOOR CANVAS\\Tests\\UI\\canvas-questions-orange-card-visual.spec.ts:192:36",
@@ -215,18 +215,18 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-14T10:30:52.577Z",
+                      "startTime": "2025-10-14T11:22:20.887Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-2.png"
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-1.png"
                         },
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-1.png"
+                          "path": "D:\\PROJECTS\\NOOR CANVAS\\test-results\\Tests-UI-canvas-questions--0b669-vote-state-changes-visually-chromium\\test-failed-2.png"
                         }
                       ],
                       "errorLocation": {
@@ -251,8 +251,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-10-14T10:30:44.322Z",
-    "duration": 14869.447,
+    "startTime": "2025-10-14T11:22:13.196Z",
+    "duration": 14168.42,
     "expected": 0,
     "skipped": 0,
     "unexpected": 2,
