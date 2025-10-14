@@ -28,6 +28,8 @@
     "test:copilot-demo": "playwright codegen --target=typescript https://localhost:9091",
     "test:percy": "percy exec -- playwright test --config=config/testing/playwright.config.cjs",
     "test:percy:headed": "percy exec -- playwright test --config=config/testing/playwright.config.cjs --headed",
+    "test:hcp-question-percy": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./Scripts/run-hcp-question-percy-tests.ps1",
+    "test:hcp-question-percy-keep": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./Scripts/run-hcp-question-percy-tests.ps1 -KeepAppRunning",
     "test:percy:visual": "percy exec -- playwright test Tests/UI/canvas-questions-orange-card-visual.spec.ts --config=config/testing/playwright.config.cjs --headed",
     "build:tests": "node node_modules/typescript/lib/tsc.js --noEmit --project config/testing/tsconfig.json",
     "lint": "eslint \"PlayWright/**/*.{ts,tsx}\" --config=config/testing/eslint.config.js --max-warnings=0",

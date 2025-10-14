@@ -1726,31 +1726,33 @@
     }
 
     /// <summary>
-    /// [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Broadcast clicked question as formatted asset to all participants ;CLEANUP_OK
-    /// Removes action buttons and applies modern styling before broadcasting via SignalR
+    /// [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Broadcast clicked question with orange theme from ContextCopilot.txt ;CLEANUP_OK
+    /// Applies orange/sienna styling matching ContextCopilot.txt design with 2px/4px borders
     /// </summary>
     private async Task ShareQuestionAsset(NoorCanvas.ViewModels.QuestionItem question)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
         var broadcastId = Guid.NewGuid().ToString("N")[..8];
         
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW START ════════ ;CLEANUP_OK", requestId);
-        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] QuestionId: {QuestionId}, Text: '{Text}', BroadcastId: {BroadcastId} ;CLEANUP_OK", 
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW START ════════ ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] QuestionId: {QuestionId}, Text: '{Text}', BroadcastId: {BroadcastId} ;CLEANUP_OK", 
             requestId, question.Id, question.Text?.Substring(0, Math.Min(50, question.Text.Length)) ?? "NULL", broadcastId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Applying orange theme: border=#fdba74, bg=#fff7f5, icon=#f97316, title=#c2410c ;CLEANUP_OK", requestId);
         
         if (SessionId == null || hubConnection?.State != HubConnectionState.Connected)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] ❌ Cannot share - SessionId={SessionId}, HubState={HubState} ;CLEANUP_OK", 
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ Cannot share - SessionId={SessionId}, HubState={HubState} ;CLEANUP_OK", 
                 requestId, SessionId?.ToString() ?? "NULL", hubConnection?.State.ToString() ?? "NULL");
             return;
         }
         
         try
         {
-            // Step 1: Create formatted HTML for the question (WITHOUT action buttons)
+            // Step 1: Create formatted HTML with orange theme from ContextCopilot.txt
             var encodedQuestionText = System.Web.HttpUtility.HtmlEncode(question.Text);
             var encodedUserName = System.Web.HttpUtility.HtmlEncode(question.UserName ?? "Anonymous");
             
+            // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Vote badge preserved from original implementation ;CLEANUP_OK
             var voteBadgeHtml = "";
             if (question.VoteCount > 0)
             {
@@ -1762,26 +1764,28 @@
         </div>";
             }
             
+            // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Orange card styling extracted from ContextCopilot.txt ;CLEANUP_OK
+            // Background: #fff7f5 (orange-50), Border: #fdba74 (orange-300), Icon: #f97316 (orange-500), Title: #c2410c (orange-700)
             var questionHtml = $@"
-<div style=""background-color:#F0FDF4;border-left:6px solid #006400;border-radius:0.75rem;padding:2rem;margin:1.5rem 0;box-shadow:0 10px 20px rgba(0,100,0,0.1);"">
+<div style=""background-color:#fff7f5;border-style:solid;border-color:#fdba74;border-top-width:2px;border-left-width:2px;border-right-width:4px;border-bottom-width:4px;border-radius:1.5rem;padding:2rem;margin:1.5rem 0;box-shadow:0 4px 6px rgba(253,186,116,0.2);"">
     <!-- Header with Icon -->
-    <div style=""display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;"">
-        <div style=""background:linear-gradient(135deg,#006400,#228B22);border-radius:50%;width:3.5rem;height:3.5rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 8px rgba(0,100,0,0.2);"">
-            <i class=""fa-solid fa-clipboard-question"" style=""font-size:1.75rem;color:white;""></i>
+    <div style=""display:flex;align-items:flex-start;margin-bottom:1rem;"">
+        <div style=""width:3rem;height:3rem;border-radius:9999px;background-color:#ffedd5;border:1px solid #fdba74;margin-right:1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;"">
+            <i class=""fa-solid fa-question-circle"" style=""color:#f97316;font-size:1.875rem;""></i>
         </div>
-        <div style=""flex:1;"">
-            <h3 style=""margin:0;color:#006400;font-size:1.5rem;font-weight:700;"">Participant Question</h3>
-            <p style=""margin:0.25rem 0 0 0;color:#6B7280;font-size:0.875rem;"">Shared by host for discussion</p>
+        <div>
+            <h1 style=""font-size:1.25rem;font-weight:600;color:#c2410c;margin:0;"">Participant Question</h1>
+            <p style=""font-size:0.875rem;color:#f97316;margin:0;"">Shared by host for discussion</p>
         </div>
     </div>
     
     <!-- Question Content -->
-    <div style=""background-color:white;border-radius:0.5rem;padding:1.5rem;margin-bottom:1rem;box-shadow:inset 0 2px 4px rgba(0,0,0,0.05);"">
-        <p style=""margin:0;font-size:1.125rem;line-height:1.75;color:#1F2937;font-weight:500;"">{encodedQuestionText}</p>
+    <div style=""background-color:white;border-radius:0.75rem;padding:1.25rem;margin-top:1rem;border:1px solid #e5e7eb;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);"">
+        <p style=""font-size:1rem;color:#7c2d12;font-weight:500;margin:0;"">{encodedQuestionText}</p>
     </div>
     
     <!-- Footer with Metadata -->
-    <div style=""display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:2px solid #D1FAE5;"">
+    <div style=""display:flex;align-items:center;justify-content:space-between;padding-top:1rem;margin-top:1rem;border-top:2px solid #fed7aa;"">
         <div style=""display:flex;align-items:center;gap:0.5rem;"">
             <i class=""fa-solid fa-user"" style=""color:#6B7280;font-size:0.875rem;""></i>
             <span style=""color:#6B7280;font-size:0.875rem;font-weight:500;"">Asked by: {encodedUserName}</span>
@@ -1789,7 +1793,7 @@
     </div>
 </div>";
 
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] Step 1: Formatted HTML created, length={Length} chars ;CLEANUP_OK", 
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 1: Orange-themed HTML created, length={Length} chars ;CLEANUP_OK", 
                 requestId, questionHtml.Length);
             
             // Step 2: Create asset payload
@@ -1804,30 +1808,33 @@
                     questionText = question.Text,
                     userName = question.UserName,
                     voteCount = question.VoteCount,
-                    sharedAt = DateTime.UtcNow
+                    sharedAt = DateTime.UtcNow,
+                    // [DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] Styling metadata for debugging ;CLEANUP_OK
+                    theme = "orange",
+                    styleSource = "ContextCopilot.txt"
                 }
             };
             
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] Step 2: Asset payload created ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 2: Asset payload created with orange theme metadata ;CLEANUP_OK", requestId);
             
             // Step 3: Broadcast via SignalR (using same pattern as TestShareAsset)
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] Step 3: Invoking ShareAsset on hub, target=session_{SessionId} ;CLEANUP_OK", 
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] Step 3: Invoking ShareAsset on hub, target=session_{SessionId} ;CLEANUP_OK", 
                 requestId, SessionId.Value);
             
             await hubConnection.InvokeAsync("ShareAsset", SessionId.Value, assetData);
             
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] ✅ Step 4: ShareAsset SignalR call completed successfully ;CLEANUP_OK", requestId);
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] 📡 Question asset broadcasted to session_{SessionId}, BroadcastId: {BroadcastId} ;CLEANUP_OK", 
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ✅ Step 4: ShareAsset SignalR call completed successfully ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] 📡 Orange-themed question broadcasted to session_{SessionId}, BroadcastId: {BroadcastId} ;CLEANUP_OK", 
                 requestId, SessionId.Value, broadcastId);
-            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW COMPLETE ════════ ;CLEANUP_OK", requestId);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ════════ SHARE QUESTION ASSET FLOW COMPLETE ════════ ;CLEANUP_OK", requestId);
         }
         catch (HubException ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] ❌ SignalR Hub error: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ SignalR Hub error: {Message} ;CLEANUP_OK", requestId, ex.Message);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] [{RequestId}] ❌ Unexpected error during question share: {Message} ;CLEANUP_OK", requestId, ex.Message);
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-question:orange-styling:TRACE] [{RequestId}] ❌ Unexpected error during question share: {Message} ;CLEANUP_OK", requestId, ex.Message);
         }
     }
 
