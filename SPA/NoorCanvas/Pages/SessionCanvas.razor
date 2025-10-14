@@ -2640,6 +2640,69 @@
                 }
             });
 
+            // [FIX-ISSUE-2] Handle question being marked as answered by host
+            hubConnection.On<object>("QuestionAnswered", async (answerData) =>
+            {
+                var requestId = Guid.NewGuid().ToString("N")[..8];
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ QuestionAnswered SIGNALR EVENT RECEIVED (SessionCanvas) ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                
+                try
+                {
+                    var jsonString = System.Text.Json.JsonSerializer.Serialize(answerData);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Payload JSON: {Json} ;CLEANUP_OK", requestId, jsonString);
+                    
+                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                    var root = jsonDoc.RootElement;
+                    
+                    var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
+                    var originalAskerGuid = root.TryGetProperty("originalAskerGuid", out var askerProp) ? askerProp.GetString() : null;
+                    
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Parsed - QuestionId={QuestionId}, OriginalAsker={Asker}, CurrentUserGuid={CurrentUser} ;CLEANUP_OK", 
+                        requestId, questionId ?? "NULL", originalAskerGuid ?? "NULL", CurrentUserGuid);
+                    
+                    if (Model?.Questions != null && questionId != null)
+                    {
+                        var question = Model.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+                        if (question != null)
+                        {
+                            // Remove from participant list
+                            Model.Questions.Remove(question);
+                            
+                            // Show toast if THIS user asked the question
+                            if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 🎉 THIS USER asked the question - showing success toast ;CLEANUP_OK", requestId);
+                                await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                    "The host has addressed your question during the session.", 
+                                    "Question Answered", 
+                                    "success");
+                            }
+                            else
+                            {
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
+                            }
+                            
+                            await InvokeAsync(StateHasChanged);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ Question {QuestionId} removed from participant view ;CLEANUP_OK", requestId, questionId);
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Question not found in local list ;CLEANUP_OK", requestId);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] 💥 Error processing QuestionAnswered: {Message} ;CLEANUP_OK", requestId, ex.Message);
+                }
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] SessionCanvas QuestionAnswered handler COMPLETE ;CLEANUP_OK", requestId);
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════════════════════════════════════════════════════════════ ;CLEANUP_OK", requestId);
+            });
+
             // Handle question deletion
             hubConnection.On<object>("QuestionDeleted", async (deleteData) =>
             {
@@ -2666,10 +2729,14 @@
                         // SignalR serializes to camelCase, so use "questionId" not "QuestionId"
                         var questionId = root.TryGetProperty("questionId", out var qIdProp) ? qIdProp.GetString() : null;
                         var sessionId = root.TryGetProperty("sessionId", out var sIdProp) ? sIdProp.GetInt32() : 0;
+                        var originalAskerGuid = root.TryGetProperty("originalAskerGuid", out var askerProp) ? askerProp.GetString() : null;  // [FIX-ISSUE-3] Extract for toast targeting
+                        var deletedBy = root.TryGetProperty("deletedBy", out var deletedByProp) ? deletedByProp.GetString() : null;  // [FIX-ISSUE-3] Determine who deleted it
                         
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Parsed payload: ;CLEANUP_OK", requestId);
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId ?? "NULL");
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - SessionId: {SessionId} ;CLEANUP_OK", requestId, sessionId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - OriginalAskerGuid: {AskerGuid} ;CLEANUP_OK", requestId, originalAskerGuid ?? "NULL");
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}]   - DeletedBy: {DeletedBy} ;CLEANUP_OK", requestId, deletedBy ?? "NULL");
                         
                         if (questionId != null)
                         {
@@ -2683,6 +2750,21 @@
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Question User: '{UserName}' ;CLEANUP_OK", requestId, question.UserName);
                                 
                                 Model.Questions.Remove(question);
+                                
+                                // [FIX-ISSUE-3] Show toast if THIS user asked the question that was deleted by host
+                                if (!string.IsNullOrEmpty(CurrentUserGuid) && !string.IsNullOrEmpty(originalAskerGuid) && CurrentUserGuid == originalAskerGuid)
+                                {
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] 🎯 THIS USER asked the question that was deleted - showing info toast ;CLEANUP_OK", requestId);
+                                    await JSRuntime.InvokeVoidAsync("showNoorToast", 
+                                        "The host has removed your question. It may be addressed differently or outside this Q&A session.", 
+                                        "Question Removed", 
+                                        "info");
+                                }
+                                else
+                                {
+                                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:delete] [{RequestId}] Different user asked question - no toast shown ;CLEANUP_OK", requestId);
+                                }
+                                
                                 await InvokeAsync(StateHasChanged);
                                 
                                 Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Current State AFTER deletion: ;CLEANUP_OK", requestId);

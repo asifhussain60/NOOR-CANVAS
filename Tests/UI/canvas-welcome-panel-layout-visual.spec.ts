@@ -72,7 +72,7 @@ test.describe('Canvas Welcome Panel - Layout Visual Regression (Percy)', () => {
 
     test('Welcome panel appears inside session container above canvas content area', async () => {
         console.log('[DEBUG-WORKITEM:canvas:layout-visual-test] Step 1: Navigate to canvas with session token ;CLEANUP_OK');
-        
+
         // Navigate to canvas
         await page.goto(`${BASE_URL}/session/canvas/${SESSION_TOKEN}`, {
             waitUntil: 'networkidle',
@@ -80,7 +80,7 @@ test.describe('Canvas Welcome Panel - Layout Visual Regression (Percy)', () => {
         });
 
         console.log('[DEBUG-WORKITEM:canvas:layout-visual-test] Step 2: Wait for enhanced spinner to disappear ;CLEANUP_OK');
-        
+
         // Wait for loading spinner to disappear
         await page.waitForSelector('.enhanced-spinner-overlay', { state: 'hidden', timeout: 15000 });
 
@@ -132,7 +132,7 @@ test.describe('Canvas Welcome Panel - Layout Visual Regression (Percy)', () => {
         // Verify welcome panel appears ABOVE canvas content area (Y coordinate should be less)
         expect(welcomePanelBox).not.toBeNull();
         expect(canvasContentBox).not.toBeNull();
-        
+
         if (welcomePanelBox && canvasContentBox) {
             console.log(`[DEBUG-WORKITEM:canvas:layout-visual-test] Welcome panel Y: ${welcomePanelBox.y}, Canvas content Y: ${canvasContentBox.y} ;CLEANUP_OK`);
             expect(welcomePanelBox.y).toBeLessThan(canvasContentBox.y);
@@ -242,7 +242,7 @@ test.describe('Canvas Welcome Panel - Layout Visual Regression (Percy)', () => {
         // Verify welcome panel still positioned correctly
         const welcomePanel = page.locator('.canvas-welcome-panel');
         const canvasContentArea = page.locator('.canvas-content-area');
-        
+
         const welcomePanelBox = await welcomePanel.boundingBox();
         const canvasContentBox = await canvasContentArea.boundingBox();
 

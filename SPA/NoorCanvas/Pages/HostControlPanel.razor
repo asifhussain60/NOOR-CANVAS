@@ -212,99 +212,11 @@
                 .WithUrl(Navigation.ToAbsoluteUri("/hub/session"))
                 .Build();
 
-            // Register event handlers for real-time updates
-            hubConnection.On<object>("HostQuestionAlert", async (questionData) =>
-            {
-                try
-                {
-                    // Validate question data
-                    if (questionData == null)
-                    {
-                        Logger.LogWarning("SignalR HostQuestionAlert: questionData is null");
-                        return;
-                    }
-
-                    // Parse the questionData object from SignalR
-                    var jsonString = System.Text.Json.JsonSerializer.Serialize(questionData);
-                    
-                    using var jsonDocument = System.Text.Json.JsonDocument.Parse(jsonString);
-                    var root = jsonDocument.RootElement;
-                    
-                    // Extract question text with fallback
-                    var questionText = "Question text unavailable";
-                    if (root.TryGetProperty("text", out var textProp) && textProp.ValueKind == JsonValueKind.String)
-                    {
-                        questionText = textProp.GetString() ?? "Question text unavailable";
-                    }
-                    else if (root.TryGetProperty("questionText", out var questionTextProp) && questionTextProp.ValueKind == JsonValueKind.String)
-                    {
-                        questionText = questionTextProp.GetString() ?? "Question text unavailable";
-                    }
-                    
-                    // Extract participant information from SignalR payload
-                    var userName = "Anonymous";
-                    if (root.TryGetProperty("userName", out var userNameProp) && userNameProp.ValueKind == JsonValueKind.String)
-                    {
-                        userName = userNameProp.GetString() ?? "Anonymous";
-                    }
-                    
-                    var userId = "";
-                    if (root.TryGetProperty("userId", out var userIdProp) && userIdProp.ValueKind == JsonValueKind.String)
-                    {
-                        userId = userIdProp.GetString() ?? "";
-                    }
-                    
-                    var submittedAt = DateTime.UtcNow;
-                    if (root.TryGetProperty("submittedAt", out var submittedAtProp) && submittedAtProp.ValueKind == JsonValueKind.String)
-                    {
-                        if (DateTime.TryParse(submittedAtProp.GetString(), out var parsedDate))
-                        {
-                            submittedAt = parsedDate;
-                        }
-                    }
-                    
-                    var newQuestion = new QuestionItem 
-                    { 
-                        Id = Guid.NewGuid(), // Generate new GUID for UI tracking
-                        Text = questionText,
-                        UserName = userName, // ← CRITICAL FIX: Now extracting participant name from SignalR
-                        CreatedBy = userId,  // ← CRITICAL FIX: Now extracting userId from SignalR
-                        CreatedAt = submittedAt,
-                        IsAnswered = false,
-                        VoteCount = root.TryGetProperty("votes", out var votesProp) ? votesProp.GetInt32() : 0
-                    };
-                    
-                    // Ensure Questions list is initialized
-                    if (Model?.Questions == null)
-                    {
-                        if (Model != null)
-                        {
-                            Model.Questions = new List<QuestionItem>();
-                        }
-                    }
-                    
-                    Model?.Questions?.Add(newQuestion);
-                    
-                    // Show toast notification to host about new question
-                    await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
-                    
-                    await InvokeAsync(StateHasChanged);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to process incoming question alert");
-                    // Fallback: add a generic notification
-                    try
-                    {
-                        await JSRuntime.InvokeVoidAsync("showQuestionToast", "New question received (processing error)");
-                    }
-                    catch (Exception jsEx)
-                    {
-                        Logger.LogError(jsEx, "Failed to show fallback toast");
-                    }
-                }
-            });
-
+            // [DEBUG-WORKITEM:hcp-questions:duplication-fix] Register event handlers for real-time updates ;CLEANUP_OK
+            // [FIX-ISSUE-1] Removed HostQuestionAlert handler to prevent duplicate questions
+            // Now using only QuestionReceived event (consistent with SessionCanvas)
+            // Toast notifications moved to QuestionReceived handler below
+            
             // [DEBUG-WORKITEM:canvas:delete:TRACE] Handle QuestionReceived events to keep HostControlPanel synchronized ;CLEANUP_OK
             hubConnection.On<object>("QuestionReceived", async (questionData) =>
             {
@@ -352,11 +264,11 @@
 
                     if (questionId != null && !string.IsNullOrEmpty(questionText))
                     {
-                        // Check if question already exists (prevent duplicates)
+                        // [FIX-ISSUE-1] Check if question already exists (prevent duplicates from HostQuestionAlert+QuestionReceived)
                         var existingQuestion = Model.Questions.FirstOrDefault(q => q.Id.ToString() == questionId);
                         if (existingQuestion != null)
                         {
-                            Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ⚠️ Question already exists in HostControlPanel, skipping ;CLEANUP_OK", requestId);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] ⚠️ Question already exists in HostControlPanel, skipping duplicate ;CLEANUP_OK", requestId);
                             return;
                         }
 
@@ -372,9 +284,21 @@
                         };
 
                         Model.Questions.Add(newQuestion);
+                        
+                        // [FIX-ISSUE-1] Show toast notification to host about new question (moved from HostQuestionAlert)
+                        try
+                        {
+                            await JSRuntime.InvokeVoidAsync("showQuestionToast", newQuestion.Text);
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] Toast notification shown to host ;CLEANUP_OK", requestId);
+                        }
+                        catch (Exception toastEx)
+                        {
+                            Logger.LogWarning(toastEx, "[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] Failed to show toast notification ;CLEANUP_OK", requestId);
+                        }
+                        
                         await InvokeAsync(StateHasChanged);
 
-                        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] ✅ Question added to HostControlPanel.Questions ;CLEANUP_OK", requestId);
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:duplication-fix] [{RequestId}] ✅ Question added to HostControlPanel.Questions ;CLEANUP_OK", requestId);
                         Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}]   - Total Questions: {Count} ;CLEANUP_OK", requestId, Model.Questions.Count);
                     }
                     else
@@ -1762,23 +1686,46 @@
     private async Task MarkQuestionAnswered(Guid questionId)
     {
         var requestId = Guid.NewGuid().ToString("N")[..8];
-        Logger.LogInformation("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] MarkQuestionAnswered called for QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════ MARK ANSWERED FLOW START ════════ QuestionId: {QuestionId} ;CLEANUP_OK", requestId, questionId);
         
-        var question = Model?.Questions?.FirstOrDefault(q => q.Id == questionId);
-        if (question != null)
+        if (Model?.Questions == null || hubConnection?.State != HubConnectionState.Connected || SessionId == null)
         {
-            question.IsAnswered = true;
-            await InvokeAsync(StateHasChanged);
-            Logger.LogDebug("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question marked as answered locally, UI updated ;CLEANUP_OK", requestId);
-            
-            // TODO: Implement API endpoint for marking questions as answered
-            // For now, only updating local UI - real implementation should call API
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] API endpoint for marking answered not yet implemented ;CLEANUP_OK", requestId);
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ❌ Cannot mark answered - Model.Questions={ModelNull}, HubState={HubState}, SessionId={SessionId} ;CLEANUP_OK", 
+                requestId, Model?.Questions == null, hubConnection?.State.ToString() ?? "NULL", SessionId?.ToString() ?? "NULL");
+            return;
         }
-        else
+        
+        var question = Model.Questions.FirstOrDefault(q => q.Id == questionId);
+        if (question == null)
         {
-            Logger.LogWarning("[DEBUG-WORKITEM:canvas:delete:TRACE] [{RequestId}] Question not found: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ❌ Question not found: {QuestionId} ;CLEANUP_OK", requestId, questionId);
+            return;
         }
+        
+        var questionText = question.Text;
+        var originalAskerGuid = question.CreatedBy; // UserGuid of person who asked
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Question found - Text: '{Text}', Asker: {Asker} ;CLEANUP_OK", 
+            requestId, questionText?.Substring(0, Math.Min(50, questionText.Length)), originalAskerGuid ?? "NULL");
+        
+        // Remove from host UI immediately
+        Model.Questions.Remove(question);
+        await InvokeAsync(StateHasChanged);
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] Removed from host UI, broadcasting to participants ;CLEANUP_OK", requestId);
+        
+        // Broadcast to all participants via SignalR
+        try
+        {
+            await hubConnection.InvokeAsync("BroadcastQuestionAnswered", SessionId.Value, questionId.ToString(), originalAskerGuid ?? string.Empty);
+            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ✅ Broadcast successful - all participants should receive removal + toast to asker ;CLEANUP_OK", requestId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ❌ Broadcast failed: {Message} ;CLEANUP_OK", requestId, ex.Message);
+        }
+        
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] [{RequestId}] ════════ MARK ANSWERED FLOW COMPLETE ════════ ;CLEANUP_OK", requestId);
     }
 
     private async Task ShowDeleteModal(Guid questionId)

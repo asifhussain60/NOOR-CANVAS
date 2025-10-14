@@ -315,7 +315,7 @@ public class SessionHub : Hub
     }
 
     /// <summary>
-    /// Q&A: Mark question as answered (host action).
+    /// Q&A: Mark question as answered (host action) - DEPRECATED, use BroadcastQuestionAnswered instead.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task MarkQuestionAnswered(string sessionId, int questionId)
@@ -328,6 +328,31 @@ public class SessionHub : Hub
         await Clients.Group(sessionGroupName).SendAsync("QuestionAnswered", new { questionId, sessionId });
 
         _logger.LogDebug("NOOR-QA-HUB: Successfully sent question answered notification to group {SessionGroup}", sessionGroupName);
+    }
+
+    /// <summary>
+    /// [FIX-ISSUE-2] Broadcast that host answered a question - removes from all participants and shows toast to asker.
+    /// </summary>
+    /// <param name="sessionId">The session ID where the question was answered.</param>
+    /// <param name="questionId">The GUID of the answered question.</param>
+    /// <param name="originalAskerGuid">The UserGuid of the person who originally asked the question.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    public async Task BroadcastQuestionAnswered(int sessionId, string questionId, string originalAskerGuid)
+    {
+        var sessionGroupName = $"session_{sessionId}";
+        
+        _logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] Broadcasting QuestionAnswered to {Group} - QuestionId={QuestionId}, Asker={Asker} ;CLEANUP_OK", 
+            sessionGroupName, questionId, originalAskerGuid ?? "NULL");
+        
+        await Clients.Group(sessionGroupName).SendAsync("QuestionAnswered", new
+        {
+            questionId = questionId,
+            originalAskerGuid = originalAskerGuid,
+            answeredAt = DateTime.UtcNow,
+            sessionId = sessionId
+        });
+        
+        _logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:answered] ✅ QuestionAnswered broadcast complete to {Group} ;CLEANUP_OK", sessionGroupName);
     }
 
     /// <summary>

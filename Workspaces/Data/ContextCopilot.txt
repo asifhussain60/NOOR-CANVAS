@@ -3,46 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixed Question Card</title>
-    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Modern Green Question List</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* Using Inter font as required */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
             display: flex;
-            flex-direction: column; /* Allow cards to stack vertically */
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Align content to the top */
             min-height: 100vh;
-            gap: 1.5rem; /* Space between cards */
+            padding: 2rem;
         }
-        /* Override specific classes for demonstration while keeping original styling */
-        .canvas-question-text {
-            word-wrap: break-word; /* Ensure long words wrap */
+
+        /* --- Custom Green Theme Colors --- */
+        .theme-green {
+            color: #006400; /* Dark Green */
+        }
+        .theme-green-light-bg {
+            background-color: #ECFDF5; /* Very light green background */
         }
         
-        /* --- New Refactored Inline Styles (Orange/Sienna Card Theme) --- */
-
-        /* Styles for the main card container (background, colors, custom borders) */
-        .question-item-style-sienna {
-            border-color: #A0522D; /* Sienna */
-            background-color: #FAEBD7; /* Antique White */
+        /* Custom border styling for the question cards */
+        .question-card-border {
             border-width: 2px;
-            border-left-width: 6px;
+            border-color: #D1D5DB; /* Gray-300 */
+            border-right-width: 6px;
+            border-right-color: #006400; /* Theme Green */
         }
 
-        /* Color for the question text */
-        .question-text-color-sienna {
-            color: #A0522D; 
+        /* Styles for the Author Badge */
+        .author-badge-style {
+            background-color: #E5E7EB; /* Light Gray Background */
+            color: #4B5563; /* Dark Gray Text */
         }
-        
-        /* Style for the disabled vote button (Sienna and translucent) */
-        .vote-button-style-sienna-owner {
-            color: #8B4513; /* Darker brown for the icon */
-            cursor: default;
-            opacity: 0.5;
+
+        /* Styles for the Action Buttons */
+        .approve-button {
+            background-color: #34D399; /* Emerald Green */
+            color: white;
+            transition: background-color 0.15s;
+        }
+        .approve-button:hover {
+            background-color: #10B981;
+        }
+
+        .delete-button {
+            background-color: #F87171; /* Red */
+            color: white;
+            transition: background-color 0.15s;
+        }
+        .delete-button:hover {
+            background-color: #EF4444;
         }
     </style>
     <script>
@@ -59,32 +75,114 @@
 </head>
 <body>
 
-<!-- Main container for the canvas (to make the card stand out) --><!-- Width is restricted to a maximum of 300px (max-w-[300px]) --><div class="p-6 max-w-[300px] w-full flex flex-col">
+<!-- Main container for the list (max width) -->
+<div class="w-full max-w-lg">
 
-    <!-- QUESTION CARD: SIENNA THEME (Compact Single-Row Layout) --><div class="canvas-question-item rounded-xl shadow-lg question-item-style-sienna relative">
+    <!-- Header -->
+    <h1 class="text-2xl font-bold mb-6 theme-green">
+        <i class="fa-solid fa-clipboard-question mr-3"></i>Questions & Answers
+    </h1>
+
+    <!-- Question List Container (Added class 'question-list-container' for CSS targeting) -->
+    <div class="space-y-4 question-list-container">
         
-        <!-- Absolute Positioned Vote Badge (Red Circle) --><div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-semibold shadow-md z-10">
-            0
+        <!-- Question Item 1: Owner: Pepper Potts (With Badge) -->
+        <div class="bg-white p-4 shadow-md question-card-border relative">
+            
+            <!-- Upvote Badge -->
+            <div class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-semibold shadow-md z-10">
+                8
+            </div>
+
+            <div class="flex flex-col space-y-3">
+                
+                <!-- Question Text Row - Color changed to theme-green -->
+                <div class="flex items-start text-base font-medium theme-green">
+                    What is the importance of gratitude in Islam?
+                </div>
+
+                <!-- Footer: Author & Actions -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                    
+                    <!-- Author Badge -->
+                    <span class="px-4 py-1.5 rounded-full text-xs author-badge-style flex items-center">
+                        <i class="fa-solid fa-user mr-1"></i>Pepper Potts
+                    </span>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-2">
+                        <button class="approve-button p-2 rounded-lg shadow-sm" title="Approve Question">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="delete-button p-2 rounded-lg shadow-sm" title="Delete Question">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Item 2: Owner: Warren Worthington (No Badge) -->
+        <div class="bg-white p-4 shadow-md question-card-border relative">
+            <div class="flex flex-col space-y-3">
+                
+                <!-- Question Text Row - Color changed to theme-green -->
+                <div class="flex items-start text-base font-medium theme-green">
+                    What does 'Bismillah' mean?
+                </div>
+
+                <!-- Footer: Author & Actions -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                    
+                    <!-- Author Badge -->
+                    <span class="px-4 py-1.5 rounded-full text-xs author-badge-style flex items-center">
+                        <i class="fa-solid fa-user mr-1"></i>Warren Worthington
+                    </span>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-2">
+                        <button class="approve-button p-2 rounded-lg shadow-sm" title="Approve Question">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="delete-button p-2 rounded-lg shadow-sm" title="Delete Question">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <!-- MAIN CONTENT ROW: Question Text + Vote Button (Single Flex Row) --><div class="canvas-question-content flex items-center justify-between p-3">
-            
-            <!-- LEFT SIDE: Question Text (Allows space for the right side) --><div class="canvas-question-header flex-grow mr-4">
-                <span class="canvas-question-text text-base leading-snug font-normal question-text-color-sienna">
-                    What is the importance of family in Islam?
-                </span>
-            </div>
-            
-            <!-- RIGHT SIDE: Compact Vote Button --><div class="canvas-question-vote-section flex items-center text-sm flex-shrink-0">
-                <button class="canvas-question-vote-button p-2 rounded-full flex items-center vote-button-style-sienna-owner bg-white border-2 border-[#A0522D]" 
-                        title="Upvote this question">
-                    <i class="fa-solid fa-thumbs-up text-2xl"></i>
-                </button>
+        <!-- Dummy Item 3 for better visualization of alternating colors (No Badge) -->
+        <div class="bg-white p-4 shadow-md question-card-border relative">
+            <div class="flex flex-col space-y-3">
+                
+                <!-- Question Text Row - Color changed to theme-green -->
+                <div class="flex items-start text-base font-medium theme-green">
+                    What are the names of the five daily prayers?
+                </div>
+
+                <!-- Footer: Author & Actions -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                    
+                    <!-- Author Badge -->
+                    <span class="px-4 py-1.5 rounded-full text-xs author-badge-style flex items-center">
+                        <i class="fa-solid fa-user mr-1"></i>John Smith
+                    </span>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-2">
+                        <button class="approve-button p-2 rounded-lg shadow-sm" title="Approve Question">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="delete-button p-2 rounded-lg shadow-sm" title="Delete Question">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-        
+
     </div>
-
 </div>
 
 </body>
