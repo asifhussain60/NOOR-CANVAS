@@ -245,11 +245,11 @@ if ($skipRefactor -eq $true) {
 **If skip condition not met:**
 
 ```
-@workspace /refactor key={key} scope=current notes="pre-commit quality improvements"
+@workspace /refactor key={key} scope=all notes="pre-commit quality improvements"
 ```
 
 **Expected Output**:
-- Files analyzed: X
+- Files analyzed: X (entire codebase)
 - Refactorings applied: Y
 - Build status: Clean (0 errors, 0 warnings)
 - Validation: All 6 levels passed
