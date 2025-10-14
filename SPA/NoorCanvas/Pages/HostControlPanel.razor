@@ -24,6 +24,67 @@
 
 <HeadContent>
     <link href="~/css/host-control-panel.css" rel="stylesheet" />
+    <!-- [DEBUG-WORKITEM:hcp:toastr:trace] Toastr library for toast notifications (question alerts, asset sharing, vote updates) ;CLEANUP_OK -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    
+    <!-- [DEBUG-WORKITEM:hcp:toastr:trace] showNoorToast function definition (EmptyLayout doesn't inherit _Host.cshtml) ;CLEANUP_OK -->
+    <script>
+        window.showNoorToast = function(message, title, type) {
+            console.log('[DEBUG-WORKITEM:hcp:toastr:trace] 🎯 showNoorToast CALLED ;CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:hcp:toastr:trace]   - message:', message, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:hcp:toastr:trace]   - title:', title, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:hcp:toastr:trace]   - type:', type, ';CLEANUP_OK');
+            console.log('[DEBUG-WORKITEM:hcp:toastr:trace]   - toastr available:', typeof toastr !== 'undefined', ';CLEANUP_OK');
+            
+            if (typeof toastr !== 'undefined') {
+                title = title || 'Notification';
+                type = type || 'info';
+                
+                const options = {
+                    timeOut: 5000,
+                    extendedTimeOut: 2000,
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: 'toast-top-right',
+                    preventDuplicates: false,
+                    newestOnTop: true
+                };
+
+                options.toastClass = 'toast noor-toast';
+                options.titleClass = 'toast-title noor-toast-title';
+                options.messageClass = 'toast-message noor-toast-message';
+
+                console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ✅ About to display toastr with type:', type.toLowerCase(), ';CLEANUP_OK');
+                
+                switch(type.toLowerCase()) {
+                    case 'success':
+                        toastr.success(message, title, options);
+                        console.log('[DEBUG-WORKITEM:hcp:toastr:trace] 🎉 SUCCESS toast displayed ;CLEANUP_OK');
+                        break;
+                    case 'warning':
+                        toastr.warning(message, title, options);
+                        console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ⚠️ WARNING toast displayed ;CLEANUP_OK');
+                        break;
+                    case 'error':
+                        toastr.error(message, title, { ...options, timeOut: 7000 });
+                        console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ❌ ERROR toast displayed ;CLEANUP_OK');
+                        break;
+                    case 'info':
+                    default:
+                        toastr.info(message, title, options);
+                        console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ℹ️ INFO toast displayed ;CLEANUP_OK');
+                        break;
+                }
+            } else {
+                console.error('[DEBUG-WORKITEM:hcp:toastr:trace] 💥 Toastr library NOT loaded - using alert fallback ;CLEANUP_OK');
+                alert(title + ': ' + message);
+            }
+        };
+        console.log('[DEBUG-WORKITEM:hcp:toastr:trace] ✅ showNoorToast function initialized ;CLEANUP_OK');
+    </script>
+    
     <style>
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f1f1;
@@ -137,6 +198,8 @@
         var requestId = Guid.NewGuid().ToString("N")[..8];
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostControlPanel initialization started", requestId);
         Logger.LogInformation("[DEBUG-WORKITEM:hostcanvas:SESSION] [{RequestId}] HostToken parameter: '{HostToken}'", requestId, HostToken ?? "NULL");
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] Toastr library will be loaded via CDN in HeadContent for question notifications ;CLEANUP_OK", requestId);
+        Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] Toast notifications configured for: QuestionReceived events ;CLEANUP_OK", requestId);
         
         // Initialize model
         Model ??= new HostControlPanelViewModel();
@@ -1957,6 +2020,34 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // [DEBUG-WORKITEM:hcp:toastr:trace] Verify toastr library loaded on first render ;CLEANUP_OK
+        if (firstRender)
+        {
+            var requestId = Guid.NewGuid().ToString("N")[..8];
+            try
+            {
+                var toastrAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+                var showNoorToastAvailable = await JSRuntime.InvokeAsync<bool>("eval", "typeof window.showNoorToast === 'function'");
+                
+                Logger.LogInformation("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] OnAfterRenderAsync - toastr available: {ToastrAvailable}, showNoorToast available: {ShowNoorToastAvailable} ;CLEANUP_OK", 
+                    requestId, toastrAvailable, showNoorToastAvailable);
+                
+                if (!toastrAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] ❌ CRITICAL: toastr library NOT loaded - CDN may be blocked or script failed ;CLEANUP_OK", requestId);
+                }
+                
+                if (!showNoorToastAvailable)
+                {
+                    Logger.LogError("[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] ❌ CRITICAL: showNoorToast function NOT defined - inline script may have failed ;CLEANUP_OK", requestId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "[DEBUG-WORKITEM:hcp:toastr:trace] [{RequestId}] Failed to verify toastr availability ;CLEANUP_OK", requestId);
+            }
+        }
+        
         // [DEBUG-WORKITEM:assetshare:fix] Always try to initialize share handlers when component renders and SessionId is available
         if (SessionId.HasValue)
         {
