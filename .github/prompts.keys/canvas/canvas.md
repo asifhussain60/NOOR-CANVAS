@@ -79,8 +79,10 @@ SessionCanvas UI improvements focusing on layout stability and notification func
 - **Impact**: Both containers now have matching explicit height constraints, grid layout respected
 
 **Issue 2: Toast Notification Not Showing**
-- **Root Cause**: Toastr library not loaded when TestToastNotification() called via JSRuntime
-- **Solution**: Added library load verification with 500ms retry and alert fallback
+- **Root Cause 1**: Toastr library not loaded when TestToastNotification() called via JSRuntime
+- **Root Cause 2** (CRITICAL): Missing CSS styling - toasts rendering behind other elements, no z-index
+- **Solution 1**: Added library load verification with 500ms retry and alert fallback
+- **Solution 2**: Created shared `noor-toastr.css` stylesheet with modern styling from `session-transcript-styling.html`
 - **Code Changes** (SessionCanvas.razor TestToastNotification method):
   ```csharp
   // Check if toastr library is loaded
@@ -97,6 +99,14 @@ SessionCanvas UI improvements focusing on layout stability and notification func
       await JSRuntime.InvokeVoidAsync("alert", "Toastr library not loaded. Check browser console.");
   }
   ```
+- **CSS Styling Fix** (Commit `49745d95`):
+  - Created `wwwroot/css/noor-toastr.css` (175 lines, reusable across all views)
+  - High z-index (999999) ensures toasts appear above all content (including debug panel at 9999)
+  - Modern card design with shadows and color-coded left borders
+  - Color scheme: Success (green #10b981), Error (red #ef4444), Warning (amber #f59e0b), Info (blue #3b82f6)
+  - Responsive design with mobile breakpoints
+  - Smooth slide-in/out animations
+  - Removed 125 lines of duplicate inline styles from SessionCanvas.razor
 - **Enhanced Logging**: Added stack trace logging for failures
 
 **Enhanced Debug Action: LogSidebarDimensions**
@@ -115,11 +125,18 @@ SessionCanvas UI improvements focusing on layout stability and notification func
   ```
 
 **Files Affected**:
-- `SPA/NoorCanvas/Pages/SessionCanvas.razor` (95 insertions, 14 deletions)
-  - Lines 337-350: `.canvas-area-container` CSS fix
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor` (net: +64 insertions after removing 125 inline styles)
+  - Lines 33-34: Added `<link>` reference to `~/css/noor-toastr.css`
+  - Lines 337-350: `.canvas-area-container` CSS fix (max-height: 700px)
+  - Lines 428-443: `.canvas-sidebar` CSS fix (max-height: 700px)
+  - Lines 110-112: Removed duplicate inline toast styles (125 lines), replaced with comment pointing to shared CSS
   - Lines 3448-3497: `TestToastNotification()` method enhancement
   - Lines 3499-3610: `LogSidebarDimensions()` method enhancement
   - Lines 3612-3621: New `ContainerInfo` helper class
+- `SPA/NoorCanvas/wwwroot/css/noor-toastr.css` (NEW - 175 lines)
+  - Complete toast styling extracted from `session-transcript-styling.html`
+  - Standardized for reuse across all Razor views
+  - Comprehensive documentation and usage instructions in header comments
 
 **Debug Logging**:
 - All changes include trace-level debug markers with `;CLEANUP_OK` suffix
@@ -137,15 +154,27 @@ SessionCanvas UI improvements focusing on layout stability and notification func
 2. Navigate to session canvas page
 3. Open debug panel (bottom-right bug icon)
 4. Test Issue 1: Click "Log Sidebar Dimensions" → Check logs for equal heights
-5. Test Issue 2: Click "Test Toast Notification" → Should see toast notification
+5. Test Issue 2: Click "Test Toast Notification" → Toast should appear top-right corner with modern styling
 6. Verify: Canvas panel no longer expands with content
-7. Verify: Toast appears reliably on first click
+7. Verify: Toast appears reliably on first click with proper z-index (above all elements)
+8. Verify: Toast has white background, color-coded left border, close button, smooth slide-in animation
 
 **Expected Behavior After Fix**:
-- Canvas area and sidebar maintain equal height (both constrained by grid)
+- Canvas area and sidebar maintain equal height (both constrained to max 700px)
 - No vertical expansion when questions added
-- Toast notification appears within 500ms of button click
+- Toast notification appears within 500ms of button click at top-right corner
+- Toast styled as modern card with shadows, color-coded border, and close button
 - Dimension logging shows computed styles and height comparison
+- Toast z-index (999999) ensures visibility above debug panel (9999) and all other content
+
+**Reusing Toast Styling in Other Views**:
+Add to any Razor view's `<HeadContent>` section:
+```html
+<link rel="stylesheet" href="~/css/noor-toastr.css">
+```
+Views to update:
+- HostControlPanel.razor (host admin view) - PENDING
+- Any other views using toastr notifications - PENDING
 
 ---
 
