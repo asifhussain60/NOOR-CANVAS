@@ -9,7 +9,11 @@
 const cfg = {
     timeout: 30 * 1000,
     testDir: '../../',
-    testMatch: ['**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}', '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    testMatch: [
+        '**/PlayWright/tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        '**/Tests/UI/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        '**/Workspaces/TEMP/**/*.{test,spec}.{js,ts,jsx,tsx}'
+    ],
     retries: 0,
     reporter: [
         ['list'],
