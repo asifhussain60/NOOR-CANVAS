@@ -1,0 +1,184 @@
+/* =============================================================================
+   Noor Canvas - Toast Notification Styling
+   =============================================================================
+   
+   Standardized toastr.js styling for consistent notifications across all views.
+   Based on session-transcript-styling.html modern design patterns.
+   
+   Usage:
+   ------
+   Add to any Razor view that uses toastr notifications:
+   <link rel="stylesheet" href="~/css/noor-toastr.css">
+   
+   Views using this styling:
+   - SessionCanvas.razor (participant Q&A view)
+   - HostControlPanel.razor (host admin view)
+   - [Add other views here as they adopt this styling]
+   
+   Key Features:
+   - High z-index (999999) ensures toasts appear above all content
+   - Modern card design with shadows and border accents
+   - Color-coded borders for toast types (success, error, warning, info)
+   - Responsive design (mobile-friendly positioning)
+   - Smooth animations and hover effects
+   - Accessible close buttons
+   
+   Dependencies:
+   - toastr.js library (CDN or local)
+   - Font Awesome icons (for close button)
+   - Inter font family (fallback to system fonts)
+   
+   ============================================================================= */
+
+/* Toast Container - Fixed position at top-right with high z-index */
+#toast-container,
+.toast-container {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 999999 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+/* Toast Base Styles - Modern card design with slide-in animation */
+.toast,
+.noor-toast {
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+    padding: 16px 20px !important;
+    max-width: 400px;
+    min-width: 300px;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.4;
+    color: #374151 !important;
+    pointer-events: auto;
+    opacity: 1 !important;
+    border-left: 4px solid #10b981 !important;
+}
+
+/* Toast Type Colors - Color-coded left border for visual distinction */
+.toast-success,
+.toast.toast-success {
+    border-left-color: #10b981 !important; /* Green */
+}
+
+.toast-error,
+.toast.toast-error {
+    border-left-color: #ef4444 !important; /* Red */
+}
+
+.toast-warning,
+.toast.toast-warning {
+    border-left-color: #f59e0b !important; /* Amber */
+}
+
+.toast-info,
+.toast.toast-info {
+    border-left-color: #3b82f6 !important; /* Blue */
+}
+
+/* Toast Title Styling */
+.toast-title,
+.noor-toast-title {
+    font-weight: 600 !important;
+    margin-bottom: 2px;
+    color: #1f2937 !important;
+    font-size: 14px !important;
+}
+
+/* Toast Message Styling */
+.toast-message,
+.noor-toast-message {
+    color: #6b7280 !important;
+    font-size: 13px !important;
+    line-height: 1.5;
+}
+
+/* Toast Close Button - Accessible and styled */
+.toast-close-button {
+    background: none !important;
+    border: none;
+    color: #9ca3af !important;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    opacity: 0.7 !important;
+}
+
+.toast-close-button:hover {
+    color: #6b7280 !important;
+    background: #f3f4f6 !important;
+    opacity: 1 !important;
+}
+
+/* Toast Progress Bar - Visual feedback for auto-dismiss */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(0, 0, 0, 0.1);
+    opacity: 1 !important;
+}
+
+/* Responsive Design - Mobile-friendly positioning */
+@media (max-width: 768px) {
+    #toast-container,
+    .toast-container {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+    }
+    
+    .toast,
+    .noor-toast {
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+/* Animation Support - Smooth slide-in from right */
+@keyframes toast-slide-in {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toast-slide-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.toast {
+    animation: toast-slide-in 0.3s ease-out;
+}
+
+.toast.toast-hiding {
+    animation: toast-slide-out 0.3s ease-in;
+}

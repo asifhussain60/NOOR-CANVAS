@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="~/css/session-transcript.css">
     <!-- [DEBUG-WORKITEM:canvas-questions:toastr:trace] Toastr library for toast notifications (QuestionAnswered, QuestionDeleted events) ;CLEANUP_OK -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <!-- [DEBUG-WORKITEM:canvas:toastr-styling:trace] Standardized Noor Canvas toast styling - shared across all views ;CLEANUP_OK -->
+    <link rel="stylesheet" href="~/css/noor-toastr.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <script src="~/js/html-renderer.js"></script>
@@ -106,6 +108,9 @@
         0%, 100% { opacity: 1; }
         50% { opacity: .8; }
     }
+
+    /* [DEBUG-WORKITEM:canvas:toastr-styling:trace] Toast styling moved to ~/css/noor-toastr.css for reuse across all views ;CLEANUP_OK */
+
     .canvas-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
     @@media (max-width: 1024px) {
         .canvas-main-grid { grid-template-columns: 1fr; }
