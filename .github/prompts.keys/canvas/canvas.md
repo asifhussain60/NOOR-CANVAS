@@ -5,18 +5,22 @@
 - **Created**: 2025-01-10
 - **Last Updated**: 2025-10-14
 - **Owner**: GitHub Copilot
-- **Description**: SessionCanvas asset centering, question management, toast testing, and sidebar height fix
+- **Description**: SessionCanvas UI fixes - canvas panel height expansion and toast notification loading
 
 ## Summary
-SessionCanvas UI improvements for content display and Q&A functionality, including asset centering, real-time question management, toastr notification testing, and critical sidebar height bug fix.
+SessionCanvas UI improvements focusing on layout stability and notification functionality. Fixed critical height expansion issue in canvas panel and toast notification loading timing problem.
 
 ## Current Work (2025-10-14)
+**Latest Issues Fixed**:
+- Canvas panel height expansion (removed `height: 100%` from `.canvas-area-container`)
+- Toast notification not showing (added toastr library load verification with retry)
+- Enhanced dimension logging with computed styles and height comparison
+
+## Previous Work
 - Toast notification test buttons (SessionCanvas + HostControlPanel debug panels)
 - Dimension logging debug action (tracks sidebar height changes)
 - CRITICAL sidebar height fix (removed `height: 100%` from `.canvas-sidebar`)
 - Playwright test validation (10 questions height constraint test)
-
-## Previous Work
 - Asset centering fix (flexbox layout for all Islamic content)
 - Question update functionality (edit mode detection, API endpoint, SignalR broadcast)
 - Question delete functionality (ownership verification, real-time removal from all UIs)
@@ -28,12 +32,109 @@ SessionCanvas UI improvements for content display and Q&A functionality, includi
 - SessionCanvas.razor (participant view)
 - HostControlPanel.razor (host view)
 - session-transcript.css (Islamic content styling)
+- Toastr.js library for toast notifications
 
 ## Related Keys
 - hostcontrolpanel (host Q&A panel)
 - signalcomm (SignalR communication)
 
 ## Work Log
+
+### 2025-10-14 | Canvas Panel Height & Toast Notification Fixes
+**Commit**: `d76901ab72717f72bee2e908e4780963998f3212`  
+**Agent**: task  
+**Task**: Fix canvas panel still increasing in height and toast notification not showing
+
+**Issue 1: Canvas Panel Height Expansion**
+- **Root Cause**: `.canvas-area-container` had `height: 100%` causing it to expand with content instead of being constrained by grid
+- **Solution**: Removed `height: 100%`, added `max-height: 100%` constraint
+- **CSS Changes** (SessionCanvas.razor lines 337-350):
+  ```css
+  /* BEFORE */
+  .canvas-area-container {
+      height: 100%;  /* REMOVED - was causing expansion */
+      min-height: 400px;
+  }
+  
+  /* AFTER */
+  .canvas-area-container {
+      /* height: 100% REMOVED */
+      min-height: 400px;
+      max-height: 100%;  /* ADDED - respects grid constraints */
+  }
+  ```
+- **Impact**: Canvas area now respects grid layout constraints like sidebar, both maintain equal height
+
+**Issue 2: Toast Notification Not Showing**
+- **Root Cause**: Toastr library not loaded when TestToastNotification() called via JSRuntime
+- **Solution**: Added library load verification with 500ms retry and alert fallback
+- **Code Changes** (SessionCanvas.razor TestToastNotification method):
+  ```csharp
+  // Check if toastr library is loaded
+  var toastrLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+  
+  // Retry once after 500ms if not loaded
+  if (!toastrLoaded) {
+      await Task.Delay(500);
+      toastrLoaded = await JSRuntime.InvokeAsync<bool>("eval", "typeof toastr !== 'undefined'");
+  }
+  
+  // Fallback to alert if still not loaded
+  if (!toastrLoaded) {
+      await JSRuntime.InvokeVoidAsync("alert", "Toastr library not loaded. Check browser console.");
+  }
+  ```
+- **Enhanced Logging**: Added stack trace logging for failures
+
+**Enhanced Debug Action: LogSidebarDimensions**
+- **New Data Points**:
+  - Computed styles (height, min-height, max-height) from window.getComputedStyle()
+  - Canvas-main-grid dimensions (parent container tracking)
+  - Height comparison between canvas area and sidebar
+  - Warning if height difference exceeds 50px threshold
+- **New Helper Class**: `ContainerInfo` with computed style properties
+- **Sample Output**:
+  ```
+  📐 CANVAS-MAIN-GRID - Width: 1200px, Height: 800px, Computed: auto, Min: 0px, Max: none
+  📐 CANVAS-AREA-CONTAINER - Width: 870px, Height: 800px, Computed: 100%, Min: 400px, Max: 100%
+  📐 CANVAS-SIDEBAR - Width: 300px, Height: 800px, Computed: auto, Min: 400px, Max: 100%
+  📊 HEIGHT COMPARISON - Canvas Area vs Sidebar Diff: 0px (Canvas: 800px, Sidebar: 800px)
+  ```
+
+**Files Affected**:
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor` (95 insertions, 14 deletions)
+  - Lines 337-350: `.canvas-area-container` CSS fix
+  - Lines 3448-3497: `TestToastNotification()` method enhancement
+  - Lines 3499-3610: `LogSidebarDimensions()` method enhancement
+  - Lines 3612-3621: New `ContainerInfo` helper class
+
+**Debug Logging**:
+- All changes include trace-level debug markers with `;CLEANUP_OK` suffix
+- Scopes: `canvas:sidebar-height:trace`, `canvas:toastr-test:trace`
+- 24 new debug log statements across both fixes
+
+**Validation**:
+- Build: Clean (zero errors, zero warnings from SessionCanvas.razor)
+- Code: No compilation errors detected
+- Structure: Helper classes properly defined
+- Logging: All debug markers follow WORKITEM pattern
+
+**Testing Instructions**:
+1. Start app: `cd SPA\NoorCanvas; dotnet run`
+2. Navigate to session canvas page
+3. Open debug panel (bottom-right bug icon)
+4. Test Issue 1: Click "Log Sidebar Dimensions" → Check logs for equal heights
+5. Test Issue 2: Click "Test Toast Notification" → Should see toast notification
+6. Verify: Canvas panel no longer expands with content
+7. Verify: Toast appears reliably on first click
+
+**Expected Behavior After Fix**:
+- Canvas area and sidebar maintain equal height (both constrained by grid)
+- No vertical expansion when questions added
+- Toast notification appears within 500ms of button click
+- Dimension logging shows computed styles and height comparison
+
+---
 
 ### 2025-01-11 | Welcome Panel Padding Removal
 **Commit**: `574e8ef1`  
