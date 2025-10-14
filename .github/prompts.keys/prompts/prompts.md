@@ -3,7 +3,7 @@
 ## Metadata
 - **Status**: in-progress
 - **Created**: 2025-10-11
-- **Last Updated**: 2025-01-13T16:45:00Z
+- **Last Updated**: 2025-10-14T00:00:00Z
 - **Owner**: GitHub Copilot
 - **Description**: Comprehensive prompts system refresh - Links folder integration, infrastructure reference creation, cross-reference matrix establishment, _Portable template synchronization, refactor prompt consolidation enhancements, dual-mode annotate parameter
 - **Complexity**: high
@@ -197,19 +197,39 @@ The prompts key encompasses comprehensive refresh and integration of the entire 
 - `865599ea` - checkpoint: pre-task prompts
 - `e47d1285` - feat(prompts): Add server cleanup step + file mapping system
 - `5b0c9a77` - checkpoint: pre-task prompts - auto-load file mappings
+- `fb3c3a46` - feat(prompts): Implement auto-load file mappings in task.prompt.md Step 2
+- `a250157a` - docs(prompts): Update prompts.md with commit SHA and completion status
+- `4c8211f2` - feat(prompts): comprehensive Links folder refresh and cross-reference integration
+- `28e4ca88` - feat(prompts): Enhanced refactor.prompt.md with multi-file consolidation strategy
+- `0bbd932b` - feat(prompts): Add debug-level:doc mode, technical analysis step, and prompt enhancement libraries
+- `c32e047f` - checkpoint: pre-task prompts prompt improvements
+- `47f3996d` - feat(prompts): enhance commit workflow with key data stream cleanup
+- `5aee6553` - feat(prompts): Add debug logging cleanup step to commit workflow
+
 ## Recent Changes
+- ✅ **Debug Cleanup Enhancement (commit.prompt.md)** (2025-10-14T00:00:00Z)
+  - **Added Step 4.7**: Automated Debug Logging Cleanup (pre-commit workflow)
+    - **PowerShell Script Features**:
+      1. Searches for `[DEBUG-WORKITEM:*] ;CLEANUP_OK` markers across all file types
+      2. Displays found markers for manual review
+      3. Removes debug code:
+         - C# Logger.Log* statements with DEBUG-WORKITEM markers
+         - JavaScript console.* statements with DEBUG-WORKITEM markers
+         - Comment-based debug markers (// and /* */ formats)
+      4. Verifies zero markers remain post-cleanup
+      5. Auto-stages cleaned files for commit
+    - **Pattern Support**: Handles C#, JavaScript, single-line/multi-line comments
+    - **Integration**: Executes before final commit in Step 6, after all other cleanups
+    - **Reference**: Uses markers created by task.prompt.md debug-level parameter
+    - **Documentation**: Aligns with shared/debug-logging-mandate.md patterns
+  - **Commit**: `5aee6553` - feat(prompts): Add debug logging cleanup step to commit workflow
+
 - ✅ **Task 1 (task.prompt.md)**: Removed Step 0 (Server Cleanup), updated Step 7 summary header to "SUMMARY: {key}" format
 - ✅ **Task 2 (commit.prompt.md)**: Added Step 4 (Key Data Stream Cleanup) with logic to read prompts.keys, remove redundancies, compact structure, and extract patterns to Links/shared folders
 - Commit: `47f3996d` - feat(prompts): enhance commit workflow with key data stream cleanup
 
-## Execution Tracking
-
-### Commits
-- `c32e047f` - checkpoint: pre-task prompts prompt improvements
-- `47f3996d` - feat(prompts): enhance commit workflow with key data stream cleanup
-- Pending: Update this metadata file
-
 ### Files Modified (Current Session)
+- `.github/prompts/commit.prompt.md` - UPDATED - Added Step 4.7 (Debug Logging Cleanup) with PowerShell script for automatic marker removal (commit: 5aee6553)
 - `.github/prompts/task.prompt.md` - UPDATED - Removed Step 0 (Server Cleanup), changed Step 7 headers to "SUMMARY: {key-name}"
 - `.github/prompts/commit.prompt.md` - UPDATED - Added Step 4 (Key Data Stream Cleanup), renumbered steps 4-8 → 5-9, updated guardrails
 
