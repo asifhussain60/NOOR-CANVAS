@@ -125,8 +125,8 @@ Improve Q&A panel functionality and styling on Host Control Panel:
   - `SPA/NoorCanvas/ViewModels/HostControlPanelViewModel.cs` - Question data models
 
 - **Documentation**:
-  - `.github/keydata/hcp-questions/analysis.md` - Technical analysis
-  - `.github/keydata/hcp-questions/implementation-summary.md` - Complete implementation guide
+  - `.github/prompts.keys/hcp-questions/analysis.md` - Technical analysis
+  - `.github/prompts.keys/hcp-questions/implementation-summary.md` - Complete implementation guide
 
 - **Design Reference**:
   - `Workspaces/Data/ContextCopilot.txt` - Green theme mockup (HTML)

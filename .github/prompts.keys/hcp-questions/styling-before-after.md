@@ -261,8 +261,8 @@ npm run test:percy:visual -- Workspaces/TEMP/hcp-questions-green-theme-visual.sp
 - **Design Mockup**: `Workspaces/Data/ContextCopilot.txt`
 - **Component**: `SPA/NoorCanvas/Components/Host/QuestionCard.razor`
 - **Parent**: `SPA/NoorCanvas/Components/Host/HostControlPanelContent.razor`
-- **Key Data Stream**: `.github/keydata/hcp-questions/key.md`
-- **Implementation Summary**: `.github/keydata/hcp-questions/implementation-summary.md`
+- **Key Data Stream**: `.github/prompts.keys/hcp-questions/key.md`
+- **Implementation Summary**: `.github/prompts.keys/hcp-questions/implementation-summary.md`
 
 ---
 
