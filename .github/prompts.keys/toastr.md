@@ -8,6 +8,28 @@
 
 ---
 
+## Latest Changes (2025-10-14)
+
+### Task: Remove Toasts from Screenshots
+**Commit**: `5d706faa` - "feat(toastr): Disable Share System and Debug Panel toasts with TRACE markers"
+
+**Changes Made**:
+1. **noor-share-system.js**:
+   - Disabled `showNoorToast()` calls in `showToast()` method
+   - Toasts now log to console only (no visual display)
+   - Added TRACE-level debug markers tracking toast invocation
+   - Original code preserved in comments
+
+2. **DebugPanel.razor**:
+   - Disabled success toast: `DialogService.ShowSuccessAsync()`
+   - Disabled error toast: `DialogService.ShowAlertAsync()`
+   - Added TRACE-level debug markers before/after `ExecuteAsync()`
+   - Original code preserved in comments
+
+**Result**: All toasts from user-provided screenshots now removed from UI while maintaining console logging for debugging.
+
+---
+
 ## Overview
 Toast notification system is completely broken despite multiple fix attempts. User reported via `debug-panel.mp4` that toasts are "still not working". Implementing complete replacement with modern Notyf library + comprehensive diagnostics + automated e2e tests.
 
@@ -354,15 +376,15 @@ All markers include `;CLEANUP_OK` suffix for automated removal.
 - ✅ **Tests executed: 9/11 passing (82% pass rate)**
 - ✅ **Backward compatibility verified**
 - ✅ **Visual regression screenshots captured**
+- ✅ **Share System toasts disabled (noor-share-system.js)** - 2025-10-14
+- ✅ **Debug Panel toasts disabled (DebugPanel.razor)** - 2025-10-14
 
 ### In Progress 🔄
-- 🔄 Monitoring production behavior
-- 🔄 Addressing minor test failures (dismissal timing, log capture)
+- ✅ **COMPLETED**: Toast removal from screenshots per user request
 
 ### Pending ⏳
-- ⏳ Git commit and push
 - ⏳ Production deployment testing
-- ⏳ Phase 5: Diagnostic cleanup (optional - can keep diagnostics)
+- ⏳ Phase 5: Diagnostic cleanup (execute `debug-level=cleanup`)
 - ⏳ Update debug-panel.md with resolution
 
 ---
@@ -377,11 +399,11 @@ All markers include `;CLEANUP_OK` suffix for automated removal.
 - `Tests/UI/toastr-notyf-validation.spec.ts`
 
 ### To Modify
-- `SPA/NoorCanvas/Pages/_Host.cshtml`
-- `SPA/NoorCanvas/Pages/HostControlPanel.razor`
-- `SPA/NoorCanvas/Pages/SessionCanvas.razor`
-- `SPA/NoorCanvas/Components/Development/DebugPanel.razor`
-- `SPA/NoorCanvas/wwwroot/js/noor-share-system.js`
+- `SPA/NoorCanvas/Pages/_Host.cshtml` ✅
+- `SPA/NoorCanvas/Pages/HostControlPanel.razor` ✅
+- `SPA/NoorCanvas/Pages/SessionCanvas.razor` ✅
+- `SPA/NoorCanvas/Components/Development/DebugPanel.razor` ✅ (Toast removal - 2025-10-14)
+- `SPA/NoorCanvas/wwwroot/js/noor-share-system.js` ✅ (Toast removal - 2025-10-14)
 
 ### To Delete
 - `SPA/NoorCanvas/wwwroot/css/noor-toastr.css`
