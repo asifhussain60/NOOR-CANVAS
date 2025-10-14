@@ -168,13 +168,27 @@ SessionCanvas UI improvements focusing on layout stability and notification func
 - Toast z-index (999999) ensures visibility above debug panel (9999) and all other content
 
 **Reusing Toast Styling in Other Views**:
-Add to any Razor view's `<HeadContent>` section:
-```html
-<link rel="stylesheet" href="~/css/noor-toastr.css">
-```
-Views to update:
-- HostControlPanel.razor (host admin view) - PENDING
-- Any other views using toastr notifications - PENDING
+~~Add to any Razor view's `<HeadContent>` section:~~
+~~```html~~
+~~<link rel="stylesheet" href="~/css/noor-toastr.css">~~
+~~```~~
+~~Views to update:~~
+~~- HostControlPanel.razor (host admin view) - PENDING~~
+~~- Any other views using toastr notifications - PENDING~~
+
+**✅ COMPLETED (Commit `9dd500f4`)**:
+- ✅ HostControlPanel.razor - Added `~/css/noor-toastr.css` reference
+- ✅ _Host.cshtml - Added `css/noor-toastr.css` globally for all MainLayout views
+- ✅ All DialogService users - Automatically covered via _Host.cshtml
+- ✅ Coverage: 100% of views using toastr notifications
+
+**Views Now Using Shared Toast Styling**:
+- SessionCanvas.razor (EmptyLayout) - Direct reference
+- HostControlPanel.razor (EmptyLayout) - Direct reference
+- HostSessionManager.razor (MainLayout) - Via _Host.cshtml
+- ParticipantRegister.razor (MainLayout) - Via _Host.cshtml
+- Host-SessionOpener.razor (EmptyLayout uses _Host function) - Via _Host.cshtml
+- All other views using DialogService - Via _Host.cshtml
 
 ---
 
