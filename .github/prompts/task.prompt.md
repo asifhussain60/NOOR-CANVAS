@@ -208,155 +208,36 @@ This ensures rollback capability if the task introduces instability.
 
 ### Step 2: Context Gathering (MANDATORY - Multi-Phase)
 
-**Purpose:** Build comprehensive context from key data stream, previous work, and system state before planning.
+**Purpose:** Build comprehensive context before planning through conditional, intelligent sub-phases.
 
-**See:** `shared/execution-flow.md` for decision routing logic
+**See:** `.github/prompts/shared/context-gathering-phases.md` for complete decision tree, all 10 sub-phases, skip conditions, and performance optimization strategies.
 
-#### 2.1. Key Resolution & Continuation Detection
-- If key provided: Use provided key
-- If key NOT provided OR user says "continue previous work":
-  - Check thread history for recent key usage
-  - Infer from terminal commands and workspace state
-  - Query `.github/prompts.keys/` for recent modifications
-  - Log resolution process in key data stream
+**Key Sub-Phases Overview:**
 
-#### 2.2. Key Data Stream Query
-1. Search for key file: `.github/prompts.keys/**/{key}.md`
-2. Read key metadata: status, files-affected, changes-made
-3. Build context: Previous implementations, known issues, dependencies
-4. Validate state: Check for locks, in-progress status, completion
-5. Log verification results
+**Always Execute:**
+- **2.1:** Key Resolution (infer from history or use provided)
+- **2.2:** Key Data Stream Query (read existing work, prevent duplication)
+- **2.3:** Auto-Load File Mappings (load referenced files into context)
 
-#### 2.3. Auto-Load File Mappings
-**Automatically load file context from key metadata to eliminate `#file:` references.**
+**Conditional Execution (based on task type):**
+- **2.4:** Error Triage → Classify error type, route to appropriate investigation
+  - **2.5:** Framework Validation (if framework error detected)
+  - **2.6:** Known Pattern Matching (instant solution from error library)
+  - **2.7:** UI Debugging Protocol (automated evidence gathering for UI bugs)
+- **2.8:** Architecture Analysis (prevent duplication, ensure compliance)
+  - **2.8.7:** Data Lifecycle Validation (CRUD: verify UI → API → DB → Broadcast → UI)
+- **2.9:** QuickRef Localization (cache InfrastructureQuickRef, PlaywrightQuickRef - first use only)
+- **2.10:** View Documentation (AI screenshot analysis if `annotate` parameter provided)
 
-1. Parse File Mappings section from key metadata
-2. Prioritize files for loading (recently modified first)
-3. Load files into context using `read_file`
-4. Use loaded context during execution
-5. Handle missing files gracefully
+**Routing Logic:**
+- Error reported → 2.4 triages → Routes to 2.5, 2.6, 2.7, or 2.8
+- HIGH confidence pattern match (2.6) → Skip 2.8, proceed to planning
+- CRUD operation → 2.8.7 validates complete data lifecycle
+- Incomplete lifecycle → Early warning in Step 4 approval
 
-#### 2.4. Error Triage & Classification *(Conditional: When user reports error)*
-**Trigger:** User request mentions "error", "bug", "not working", "broken", "throws", "fails"
-
-**Purpose:** Classify error type to determine correct investigation path.
-
-1. Parse error description from user request
-2. Request browser console logs (if applicable)
-3. Classify error type:
-   - **Priority 1:** Framework/Platform Error → Step 2.5
-   - **Priority 2:** Known Pattern → Step 2.6
-   - **Priority 3:** UI/Browser Bug → Step 2.7
-   - **Priority 4:** Business Logic Error → Step 2.8
-4. Log triage results with classification
-5. Route to appropriate investigation step
-
-#### 2.5. Framework Configuration Validation *(Conditional: If framework error)*
-**Trigger:** Step 2.4 classified error as Framework/Platform Error (Priority 1)
-
-**Purpose:** Validate framework-specific setup before investigating component code.
-
-**See:** `shared/framework-validation-checklists.md` for complete checklists covering:
-- Blazor Server (render mode, JavaScript interop, SignalR circuits)
-- ASP.NET Core API (controller registration, middleware order)
-- SignalR (hub configuration, client setup)
-- Entity Framework (DbContext registration, migrations)
-
-**Output:**
-- Concise: `⚙️ Framework Validation: {PASS | WARN | FAIL}`
-- Detailed: Complete configuration analysis with recommendations
-
-#### 2.6. Known Error Pattern Matching *(Conditional: If pattern library exists)*
-**Trigger:** ONLY if Step 2.4 classified an error AND pattern library exists
-
-**Purpose:** Match reported error against library of known issues for instant resolution.
-
-1. Extract error signature (message, stack trace, error code)
-2. Query pattern library: `.github/learning/error-patterns.json`
-3. Check legacy patterns (backward compatibility)
-4. If HIGH confidence match:
-   - Apply known solution immediately
-   - Skip architecture analysis (Step 2.8)
-   - Document pattern application
-5. If LOW confidence or no match:
-   - Proceed to Step 2.8 (full architecture analysis)
-
-**Efficiency:** Seconds instead of hours for known issues
-
-#### 2.7. UI Debugging Protocol *(Conditional: If UI/browser bug)*
-**Trigger:** User reports UI not displaying/working (toasts, panels, buttons, modals), CSS layout issues, JavaScript errors
-
-**See:** `shared/ui-debugging-protocol.md` for complete protocol covering:
-- **Phase 1:** Automated Evidence Gathering (Playwright diagnostics)
-- **Phase 2:** User Collaboration Protocol (fallback if automation unavailable)
-- Decision gates for issue categorization
-- Targeted fixes based on evidence
-
-**Efficiency:**
-- Without Evidence: 5+ attempts, 2+ hours
-- With Automated Diagnostics: 1-2 attempts, 1-2 minutes
-
-#### 2.8. Technical Architecture Analysis *(Usually executed, skip if Step 2.6 HIGH confidence)*
-**Purpose:** Prevent code duplication and spaghetti code by analyzing existing infrastructure.
-
-**Execution Trigger:**
-- MANDATORY for all code implementation tasks (when `debug-level != doc`)
-- ENHANCED when `debug-level: doc` (comprehensive documentation)
-- SKIP for documentation-only tasks
-- SKIP if Step 2.6 matched known error pattern with HIGH confidence
-
-**Analysis Steps:**
-1. Architecture layer review (consult `Architecture.md`)
-2. Code duplication detection (search for similar implementations)
-3. Service discovery & dependency check
-4. Infrastructure compliance validation (consult `InfrastructureQuickRef.md`)
-5. Cross-agent pattern reuse (consult `.github/learning/`)
-6. Spaghetti code risk assessment
-
-#### 2.8.7. Data Lifecycle Validation (CRUD Operations)
-**🔍 Complete data flow verification for create/update/delete operations:**
-   - **Component 1:** UI Action (button click, form submit)
-   - **Component 2:** API Call (HTTP POST/PUT/DELETE)
-   - **Component 3:** Database Persistence (EF SaveChanges, SQL execution)
-   - **Component 4:** SignalR Broadcast (notify all clients)
-   - **Component 5:** UI Update (all browsers receive update)
-   - **INCOMPLETE = RED FLAG** → Warn user before proceeding
-
-**Output:**
-- Concise: Layer, reusable code count, duplication risk, data lifecycle status
-- Detailed: Complete analysis with recommendations, similar patterns, compliance results
-
-**Abort Conditions:**
-- HIGH duplication risk detected
-- Infrastructure violations found
-- Circular dependency risk identified
-- INCOMPLETE data lifecycle for CRUD operations
-
-#### 2.9. QuickRef Localization *(Conditional: On first use of key)*
-**Purpose:** Cache frequently-referenced information from QuickRef files into key metadata for efficiency.
-
-**When:** ONLY if `{key}.md` exists and "QuickRef Localization" section is empty.
-
-**Source Files:**
-- `InfrastructureQuickRef.md` - Database rules, API endpoints
-- `PlaywrightQuickRef.md` - Test patterns, Session 212 data
-
-**Efficiency:** First iteration reads QuickRef files (one-time), subsequent iterations use cached data (zero I/O)
-
-#### 2.10. View Documentation *(Conditional: If annotate parameter provided)*
-**Purpose:** Analyze screenshots to document HTML state OR extract requirements.
-
-**Execution:** ONLY when `annotate` parameter is provided with image filename(s).
-
-**Workflow:**
-1. Parse `annotate` parameter (comma-delimited list)
-2. For each image:
-   - Send to GPT-4 Vision API
-   - Detect mode (plain screenshot vs annotated mockup)
-   - Mode 1: Document HTML elements
-   - Mode 2: Extract requirements from annotations
-3. Update key data stream with view documentation
-4. Use documented context in planning phase
+**Output (controlled by verbosity):**
+- **Concise:** Phase names, routing decisions, key findings only
+- **Detailed:** Complete context dump, analysis results, confidence scores
 
 ---
 
