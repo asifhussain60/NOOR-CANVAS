@@ -608,8 +608,10 @@
 
     /* Sienna Theme - Other Users' Question */
     .question-item-style-sienna {
-        border-color: #A0522D;
-        background-color: #FAEBD7;
+        border-color: #A0522D; /* Sienna */
+        background-color: #FAEBD7; /* Antique White */
+        border-width: 2px;
+        border-left-width: 6px;
     }
 
     .canvas-question-text {
@@ -633,7 +635,7 @@
     }
 
     .vote-button-style-sienna {
-        color: #A0522D;
+        color: #8B4513; /* Darker brown for the icon */
         cursor: default;
         opacity: 0.5;
     }
@@ -1058,6 +1060,9 @@
                                         }
                                         else
                                         {
+                                            Logger.LogTrace("[DEBUG-WORKITEM:canvas-questions:sienna-styling-trace] Applying sienna theme - QuestionId={QuestionId}, BorderColor=#A0522D, BackgroundColor=#FAEBD7, BorderLeftWidth=6px, VoteButtonColor=#8B4513 ;CLEANUP_OK",
+                                                question.QuestionId);
+                                            
                                             <!-- SIENNA THEME: Other Users' Question Card (Vote Section on Top-Right) -->
                                             <div class="canvas-question-item question-item-style-sienna">
                                                 
@@ -1068,7 +1073,7 @@
                                                             @onclick:stopPropagation="true"
                                                             class="canvas-question-vote-button"
                                                             data-question-id="@question.QuestionId"
-                                                            style="color:#A0522D;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");"
+                                                            style="color:#8B4513;cursor:@(hasVoted ? "default" : "pointer");opacity:@(hasVoted ? "0.5" : "1");background-color:#FFFFFF;border:2px solid #A0522D;padding:0.5rem;border-radius:9999px;"
                                                             disabled="@hasVoted"
                                                             title="@(hasVoted ? "Already voted" : "Upvote this question")">
                                                         <i class="fa-solid fa-thumbs-up"></i>
