@@ -1,9 +1,30 @@
 # Debug Panel - Key Data Stream
 
 **Feature**: Development debug panels across UserLanding, SessionCanvas, and HostControlPanel views
-**Status**: ✅ Fully Implemented with Visual Regression Testing
+**Status**: ⚠️ Toast NotificationOptions.closeButton Error Investigation
 **Last Updated**: 2025-10-14
 **Debug Level**: trace
+
+---
+
+## 🔴 CURRENT ISSUE: Toast NotificationOptions Error
+
+**Error Message**: `Microsoft.JSInterop.JSException: Object of type 'NotificationOptions' does not have a property named 'closeButton'`
+
+**Root Cause**: Toastr.js was replaced with Notyf library (see `toastr.md` key), but C# code still passing old toastr.js configuration objects with properties like `closeButton`, `progressBar`, `timeOut` that don't exist in Notyf.
+
+**Impact**: Toast notifications fail with JSInterop error when debug panel actions are executed
+
+**Test Created**: 
+- File: `Workspaces/TEMP/debug-panel-toast-error-visual.spec.ts`
+- Purpose: Reproduce error via automated visual regression test
+- Execution Script: `Scripts/run-debug-panel-toast-error-test.ps1`
+
+**Next Steps**:
+1. Run test to capture exact error stack trace
+2. Locate C# code with `NotificationOptions` class
+3. Remove class and update JSInterop calls to simple API: `JSRuntime.InvokeVoidAsync("showNoorToast", message, title, type)`
+4. Re-run test to verify fix
 
 ---
 
