@@ -326,6 +326,7 @@
     }
 
     /* Main Grid Layout */
+    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Grid uses height:auto so children need explicit height constraints ;CLEANUP_OK */
     .canvas-main-grid {
         display: grid;
         grid-template-columns: 1fr 300px;
@@ -335,7 +336,7 @@
     }
 
     /* Canvas Area Styles */
-    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] CRITICAL FIX 2 - Remove height:100% from canvas-area-container to prevent vertical expansion ;CLEANUP_OK */
+    /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] CRITICAL FIX 3 - Set explicit max-height to prevent vertical expansion per screenshot (697px × 400px) ;CLEANUP_OK */
     .canvas-area-container {
         background-color: white;
         border-radius: 1rem;
@@ -344,10 +345,10 @@
         border: 2px solid #D4AF37;
         display: flex;
         flex-direction: column;
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - prevents canvas from growing with content ;CLEANUP_OK */
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - was causing expansion ;CLEANUP_OK */
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Set explicit max-height based on screenshot dimensions (697px width × 400px height visible area) ;CLEANUP_OK */
         min-height: 400px;
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Added max-height constraint to match sidebar ;CLEANUP_OK */
-        max-height: 100%;
+        max-height: 700px;
     }
 
 .canvas-content-area {
@@ -434,10 +435,10 @@
         display: flex;
         flex-direction: column;
         /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] REMOVED height: 100% - this was causing sidebar to grow with question count ;CLEANUP_OK */
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Setting min-height instead to ensure initial sizing ;CLEANUP_OK */
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Setting min-height to match canvas area ;CLEANUP_OK */
         min-height: 400px;
-        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] max-height ensures sidebar doesn't exceed grid container ;CLEANUP_OK */
-        max-height: 100%;
+        /* [DEBUG-WORKITEM:canvas:sidebar-height:trace] Explicit max-height prevents expansion beyond viewport-friendly size ;CLEANUP_OK */
+        max-height: 700px;
         overflow: hidden;
         /* [DEBUG-WORKITEM:canvas-questions:sidebar:trace] Fixed width prevents horizontal expansion from question cards ;CLEANUP_OK */
         max-width: 100%;
