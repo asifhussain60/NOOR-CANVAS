@@ -1,7 +1,13 @@
 @* Question Card Component - Green theme styling from ContextCopilot.txt [DEBUG-WORKITEM:hcp-questions:styling] ;CLEANUP_OK *@
+@* [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Made question card clickable with hover animation for asset broadcasting ;CLEANUP_OK *@
 @using Microsoft.AspNetCore.Components
 
-<div style="background-color:white;padding:1rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;border:2px solid #D1D5DB;border-right:6px solid #006400;">
+<div @onclick="HandleQuestionClick" 
+     @onclick:stopPropagation="false"
+     style="background-color:white;padding:1rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;border:2px solid #D1D5DB;border-right:6px solid #006400;cursor:pointer;transition:all 0.2s ease;"
+     @onmouseover="() => isHovered = true"
+     @onmouseout="() => isHovered = false"
+     class="@(isHovered ? "question-card-hover" : "")">
     
     @* [DEBUG-WORKITEM:hcp-questions:styling] Upvote badge - conditionally shown if VoteCount > 0 ;CLEANUP_OK *@
     @if (Question.VoteCount > 0)
@@ -31,7 +37,8 @@
             @if (!Question.IsAnswered)
             {
                 @* [DEBUG-WORKITEM:hcp-questions:styling] Approve button - emerald green theme ;CLEANUP_OK *@
-                <button @onclick="() => OnMarkAnswered.InvokeAsync(Question.Id)" 
+                <button @onclick="HandleApproveClick" 
+                        @onclick:stopPropagation="true"
                         style="padding:0.5rem;background-color:#34D399;color:white;border:none;border-radius:0.5rem;cursor:pointer;transition:background-color 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.05);"
                         onmouseover="this.style.backgroundColor='#10B981'"
                         onmouseout="this.style.backgroundColor='#34D399'"
@@ -40,7 +47,8 @@
                 </button>
             }
             @* [DEBUG-WORKITEM:hcp-questions:styling] Delete button - red theme ;CLEANUP_OK *@
-            <button @onclick="() => OnDelete.InvokeAsync(Question.Id)" 
+            <button @onclick="HandleDeleteClick" 
+                    @onclick:stopPropagation="true"
                     style="padding:0.5rem;background-color:#F87171;color:white;border:none;border-radius:0.5rem;cursor:pointer;transition:background-color 0.15s;box-shadow:0 1px 2px rgba(0,0,0,0.05);"
                     onmouseover="this.style.backgroundColor='#EF4444'"
                     onmouseout="this.style.backgroundColor='#F87171'"
@@ -56,6 +64,36 @@
     [Parameter] public int Index { get; set; }
     [Parameter] public EventCallback<int> OnMarkAnswered { get; set; }
     [Parameter] public EventCallback<int> OnDelete { get; set; }
+    [Parameter] public EventCallback<QuestionDto> OnQuestionClick { get; set; }
+
+    private bool isHovered = false;
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Handle question card click for asset broadcasting ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleQuestionClick()
+    {
+        if (OnQuestionClick.HasDelegate)
+        {
+            await OnQuestionClick.InvokeAsync(Question);
+        }
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Handle approve button click with event propagation stop ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleApproveClick()
+    {
+        await OnMarkAnswered.InvokeAsync(Question.Id);
+    }
+
+    /// <summary>
+    /// [DEBUG-WORKITEM:hcp-questions:clickable:TRACE] Handle delete button click with event propagation stop ;CLEANUP_OK
+    /// </summary>
+    private async Task HandleDeleteClick()
+    {
+        await OnDelete.InvokeAsync(Question.Id);
+    }
 
     /// <summary>
     /// [DEBUG-WORKITEM:hcp-questions:styling] Question DTO with VoteCount for upvote badge ;CLEANUP_OK

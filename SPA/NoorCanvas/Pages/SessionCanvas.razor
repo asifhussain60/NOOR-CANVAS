@@ -2970,7 +2970,83 @@
             });
 
             // Note: Using AssetContentReceived for KSESSIONS pattern consistency
-            // AssetShared handler removed to prevent conflicts
+            // AssetShared handler added for question broadcasting from HostControlPanel
+
+            // [DEBUG-WORKITEM:hcp-questions:broadcast:TRACE] Handle question assets shared from HostControlPanel ;CLEANUP_OK
+            hubConnection.On<object>("AssetShared", async (assetPayload) =>
+            {
+                var trackingId = Guid.NewGuid().ToString("N")[..8];
+                var receiveTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                
+                try
+                {
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION START ════════ ;CLEANUP_OK", trackingId);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] AssetShared event received at {ReceiveTime}ms ;CLEANUP_OK", 
+                        trackingId, receiveTime);
+                    
+                    var json = System.Text.Json.JsonSerializer.Serialize(assetPayload);
+                    Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Payload JSON length: {Length} chars ;CLEANUP_OK", 
+                        trackingId, json?.Length ?? 0);
+                    
+                    if (string.IsNullOrEmpty(json))
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ JSON serialization resulted in null/empty ;CLEANUP_OK", trackingId);
+                        return;
+                    }
+                    
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    // Extract asset data from the broadcast payload
+                    if (root.TryGetProperty("asset", out var assetElement))
+                    {
+                        Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Asset element found in payload ;CLEANUP_OK", trackingId);
+                        
+                        if (assetElement.TryGetProperty("htmlContent", out var htmlElement))
+                        {
+                            var htmlContent = htmlElement.GetString();
+                            var assetType = assetElement.TryGetProperty("assetType", out var typeElement) 
+                                ? typeElement.GetString() 
+                                : "unknown";
+                            var shareId = assetElement.TryGetProperty("shareId", out var idElement) 
+                                ? idElement.GetString() 
+                                : "unknown";
+                            
+                            Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] Extracted asset - Type: {AssetType}, ShareId: {ShareId}, HTML length: {Length} chars ;CLEANUP_OK", 
+                                trackingId, assetType, shareId, htmlContent?.Length ?? 0);
+                            
+                            if (!string.IsNullOrEmpty(htmlContent) && Model != null)
+                            {
+                                // Display the question asset in the canvas content area
+                                Model.SharedAssetContent = htmlContent;
+                                await InvokeAsync(StateHasChanged);
+                                
+                                var displayTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ✅ Question asset displayed at {DisplayTime}ms (latency: {Latency}ms) ;CLEANUP_OK", 
+                                    trackingId, displayTime, displayTime - receiveTime);
+                                Logger.LogInformation("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ════════ ASSET SHARED RECEPTION COMPLETE ════════ ;CLEANUP_OK", trackingId);
+                            }
+                            else
+                            {
+                                Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ Cannot display - htmlContent empty or Model null ;CLEANUP_OK", trackingId);
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No htmlContent property in asset element ;CLEANUP_OK", trackingId);
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning("[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ⚠️ No asset property in broadcast payload ;CLEANUP_OK", trackingId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "[DEBUG-WORKITEM:hcp-questions:reception:TRACE] [{TrackingId}] ❌ Error processing AssetShared event: {Message} ;CLEANUP_OK", 
+                        trackingId, ex.Message);
+                }
+            });
 
             // POC: Simple asset content reception - KSESSIONS-style approach
             hubConnection.On<string>("AssetContentReceived", async (htmlContent) =>
